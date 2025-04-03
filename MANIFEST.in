@@ -1,0 +1,6 @@
+<![CDATA[
+include LICENSE
+include README.md
+include pyproject.toml
+recursive-include adri/templates *.html
+]]>

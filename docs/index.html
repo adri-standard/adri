@@ -1,25 +1,295 @@
+<![CDATA[
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agent Data Readiness Index - Industry Benchmark</title>
+    <title>Agent Data Readiness Index - Assessments Repository</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="styles.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            padding-top: 20px;
+            padding-bottom: 40px;
+        }
+        .hero {
+            background: linear-gradient(135deg, #3498db, #8e44ad);
+            color: white;
+            padding: 4rem 0;
+            margin-bottom: 3rem;
+            text-align: center;
+        }
+        .assessment-card {
+            transition: transform 0.3s ease;
+            margin-bottom: 1.5rem;
+        }
+        .assessment-card:hover {
+            transform: translateY(-5px);
+        }
+        .score {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        .advanced { color: #28a745; }
+        .proficient { color: #17a2b8; }
+        .basic { color: #ffc107; }
+        .limited { color: #fd7e14; }
+        .inadequate { color: #dc3545; }
+        .footer {
+            background-color: #f8f9fa;
+            padding: 40px 0;
+            margin-top: 60px;
+        }
+    </style>
 </head>
 <body>
-    <!-- Existing HTML structure can go here -->
-    <div class="container">
-        <h1>Industry Benchmark</h1>
-        <p>Last Updated: <span id="last-updated">N/A</span></p>
-        <p>Overall Score: <span id="overall-score">N/A</span></p>
-        <!-- Additional benchmark data can be placed here -->
+    <!-- Hero Section -->
+    <div class="hero">
+        <div class="container">
+            <h1>Agent Data Readiness Assessments</h1>
+            <p class="lead">A collection of real-world data source assessments demonstrating agent readiness</p>
+        </div>
     </div>
-    
-    <!-- Script references -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
-    <script src="benchmark.js"></script>
+
+    <!-- Assessment Repository Section -->
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col-md-8">
+                <h2>Assessment Repository</h2>
+                <p>Browse through real-world assessments of data sources used with agentic AI systems. Each assessment evaluates five critical dimensions of data readiness: validity, completeness, freshness, consistency, and plausibility.</p>
+            </div>
+            <div class="col-md-4 text-end">
+                <a href="https://github.com/verodat/agent-data-readiness-index#running-your-own-assessment" class="btn btn-primary">Run Your Own Assessment</a>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Example Assessment 1 -->
+            <div class="col-md-6">
+                <div class="card assessment-card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h5 class="card-title">Customer Database</h5>
+                            <span class="badge bg-info text-white">Financial Services</span>
+                        </div>
+                        <div class="text-center my-3">
+                            <div class="score proficient">68.5</div>
+                            <div class="text-muted">Proficient</div>
+                        </div>
+                        <div class="dimension-scores">
+                            <div class="row text-center">
+                                <div class="col">
+                                    <strong>Validity</strong>
+                                    <div>14.2/20</div>
+                                </div>
+                                <div class="col">
+                                    <strong>Completeness</strong>
+                                    <div>16.8/20</div>
+                                </div>
+                                <div class="col">
+                                    <strong>Freshness</strong>
+                                    <div>12.5/20</div>
+                                </div>
+                            </div>
+                            <div class="row text-center mt-2">
+                                <div class="col">
+                                    <strong>Consistency</strong>
+                                    <div>13.0/20</div>
+                                </div>
+                                <div class="col">
+                                    <strong>Plausibility</strong>
+                                    <div>12.0/20</div>
+                                </div>
+                            </div>
+                        </div>
+                        <hr>
+                        <p><strong>Key Finding:</strong> Data timestamps are available but freshness SLAs are not explicitly defined or communicated to agents.</p>
+                        <div class="text-end">
+                            <a href="reports/customer_db_report.html" class="btn btn-outline-primary btn-sm">View Full Report</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Example Assessment 2 -->
+            <div class="col-md-6">
+                <div class="card assessment-card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h5 class="card-title">Inventory API</h5>
+                            <span class="badge bg-success text-white">Retail</span>
+                        </div>
+                        <div class="text-center my-3">
+                            <div class="score basic">47.2</div>
+                            <div class="text-muted">Basic</div>
+                        </div>
+                        <div class="dimension-scores">
+                            <div class="row text-center">
+                                <div class="col">
+                                    <strong>Validity</strong>
+                                    <div>10.5/20</div>
+                                </div>
+                                <div class="col">
+                                    <strong>Completeness</strong>
+                                    <div>11.2/20</div>
+                                </div>
+                                <div class="col">
+                                    <strong>Freshness</strong>
+                                    <div>8.8/20</div>
+                                </div>
+                            </div>
+                            <div class="row text-center mt-2">
+                                <div class="col">
+                                    <strong>Consistency</strong>
+                                    <div>9.5/20</div>
+                                </div>
+                                <div class="col">
+                                    <strong>Plausibility</strong>
+                                    <div>7.2/20</div>
+                                </div>
+                            </div>
+                        </div>
+                        <hr>
+                        <p><strong>Key Finding:</strong> No consistency checks are performed between inventory levels and order data, creating risk for agents making purchasing decisions.</p>
+                        <div class="text-end">
+                            <a href="reports/inventory_api_report.html" class="btn btn-outline-primary btn-sm">View Full Report</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Example Assessment 3 -->
+            <div class="col-md-6">
+                <div class="card assessment-card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h5 class="card-title">Patient Records</h5>
+                            <span class="badge bg-info text-white">Healthcare</span>
+                        </div>
+                        <div class="text-center my-3">
+                            <div class="score proficient">62.7</div>
+                            <div class="text-muted">Proficient</div>
+                        </div>
+                        <div class="dimension-scores">
+                            <div class="row text-center">
+                                <div class="col">
+                                    <strong>Validity</strong>
+                                    <div>13.8/20</div>
+                                </div>
+                                <div class="col">
+                                    <strong>Completeness</strong>
+                                    <div>15.2/20</div>
+                                </div>
+                                <div class="col">
+                                    <strong>Freshness</strong>
+                                    <div>12.4/20</div>
+                                </div>
+                            </div>
+                            <div class="row text-center mt-2">
+                                <div class="col">
+                                    <strong>Consistency</strong>
+                                    <div>11.8/20</div>
+                                </div>
+                                <div class="col">
+                                    <strong>Plausibility</strong>
+                                    <div>9.5/20</div>
+                                </div>
+                            </div>
+                        </div>
+                        <hr>
+                        <p><strong>Key Finding:</strong> Strong validation but no outlier detection for lab values, potentially leading agents to act on implausible data.</p>
+                        <div class="text-end">
+                            <a href="reports/patient_records_report.html" class="btn btn-outline-primary btn-sm">View Full Report</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Your Assessment Card -->
+            <div class="col-md-6">
+                <div class="card assessment-card bg-light border-dashed">
+                    <div class="card-body text-center py-5">
+                        <h4 class="mb-3">Add Your Assessment</h4>
+                        <p>Run the ADRI tool on your data sources and contribute to the benchmark.</p>
+                        <a href="https://github.com/verodat/agent-data-readiness-index#contributing-to-the-benchmark" class="btn btn-outline-primary">Contribute</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Story Section -->
+    <div class="container mt-5">
+        <h2 class="mb-4">Success Story</h2>
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-8">
+                        <h4>Manufacturing ERP System</h4>
+                        <p>This manufacturing company's ERP data initially scored 42/100, placing it in the "Basic" readiness level. After implementing the recommended improvements:</p>
+                        <ul>
+                            <li>Added explicit timestamps with freshness SLAs for all tables</li>
+                            <li>Implemented cross-dataset consistency rules with agent-accessible results</li>
+                            <li>Added explicit completeness metadata with section-level tracking</li>
+                        </ul>
+                        <p>Their score improved to 76/100, reaching the "Proficient" level and eliminating the agent failures they were previously experiencing.</p>
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <div class="mt-4">
+                            <div style="font-size: 1.2rem;">Before</div>
+                            <div class="score limited my-1">42.0</div>
+                            <div class="text-muted">Basic</div>
+                        </div>
+                        <div class="mt-3">
+                            <div style="font-size: 1.2rem;">After</div>
+                            <div class="score proficient my-1">76.0</div>
+                            <div class="text-muted">Proficient</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Call to Action Section -->
+    <div class="container text-center py-5 my-5 bg-light rounded">
+        <h2>Assess Your Data Readiness</h2>
+        <p class="lead w-75 mx-auto">
+            Find out if your data sources are ready for agentic AI by running the ADRI tool.
+            It's free, open-source, and takes less than 15 minutes.
+        </p>
+        <div class="mt-4">
+            <a href="https://github.com/verodat/agent-data-readiness-index#getting-started" class="btn btn-primary btn-lg">Get Started</a>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Agent Data Readiness Index</h5>
+                    <p>
+                        An open standard for evaluating how well data sources communicate their quality to AI agents.
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <h5>Links</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="https://github.com/verodat/agent-data-readiness-index">GitHub Repository</a></li>
+                        <li><a href="https://github.com/verodat/agent-data-readiness-index/wiki">Documentation</a></li>
+                        <li><a href="https://verodat.ai">About Verodat</a></li>
+                    </ul>
+                </div>
+            </div>
+            <hr>
+            <div class="text-center">
+                <p>
+                    <small>&copy; 2025 Verodat. The Agent Data Readiness Index is available under the MIT License.</small>
+                </p>
+            </div>
+        </div>
+    </footer>
 </body>
 </html>
+]]>

@@ -1,4 +1,5 @@
 LICENSE
+MANIFEST.in
 README.md
 pyproject.toml
 adri/__init__.py
@@ -15,4 +16,9 @@ adri/connectors/__init__.py
 adri/connectors/base.py
 adri/connectors/file.py
 adri/dimensions/__init__.py
+adri/dimensions/completeness.py
+adri/dimensions/consistency.py
+adri/dimensions/freshness.py
 adri/dimensions/validity.py
+adri/templates/report_template.html
+adri/utils/validators.py
