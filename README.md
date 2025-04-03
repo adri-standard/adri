@@ -1,4 +1,3 @@
-<![CDATA[
 # Agent Data Readiness Index (ADRI)
 
 ADRI is a command line tool and an open standard for evaluating data quality for agentic AI systems. It assesses data sources across five key dimensions: Validity, Completeness, Freshness, Consistency, and Plausibility.
