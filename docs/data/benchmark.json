@@ -1,0 +1,21 @@
+{
+  "updated": "2025-04-03",
+  "overall_average": 52.3,
+  "industries": {
+    "Finance": 68.5,
+    "Healthcare": 62.7,
+    "Manufacturing": 53.8,
+    "Retail": 47.2,
+    "Technology": 58.9,
+    "Energy": 51.2,
+    "Public Sector": 42.8
+  },
+  "dimensions": {
+    "validity": 11.2,
+    "completeness": 9.8,
+    "freshness": 10.5,
+    "consistency": 8.6,
+    "plausibility": 7.9
+  },
+  "submissions": 127
+}

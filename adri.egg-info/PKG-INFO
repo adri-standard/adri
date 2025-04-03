@@ -1,0 +1,42 @@
+Metadata-Version: 2.4
+Name: adri
+Version: 0.1.0
+Summary: Agent Data Readiness Index - A framework for evaluating data quality for agentic AI systems
+Author-email: Verodat <info@verodat.ai>
+License: MIT
+Project-URL: Homepage, https://github.com/verodat/agent-data-readiness-index
+Project-URL: Bug Tracker, https://github.com/verodat/agent-data-readiness-index/issues
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Topic :: Scientific/Engineering :: Artificial Intelligence
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: pandas>=1.0.0
+Requires-Dist: matplotlib>=3.3.0
+Requires-Dist: jinja2>=3.0.0
+Requires-Dist: pyyaml>=6.0
+Provides-Extra: dev
+Requires-Dist: pytest>=7.0.0; extra == "dev"
+Requires-Dist: pytest-cov>=2.12.0; extra == "dev"
+Requires-Dist: black>=22.0.0; extra == "dev"
+Requires-Dist: isort>=5.10.0; extra == "dev"
+Requires-Dist: flake8>=4.0.0; extra == "dev"
+Requires-Dist: mypy>=0.9.0; extra == "dev"
+Provides-Extra: database
+Requires-Dist: sqlalchemy>=1.4.0; extra == "database"
+Requires-Dist: psycopg2-binary>=2.9.0; extra == "database"
+Provides-Extra: api
+Requires-Dist: requests>=2.25.0; extra == "api"
+Provides-Extra: full
+Requires-Dist: adri[api,database,dev]; extra == "full"
+Dynamic: license-file
+
+# agent-data-readiness-index
+The industry's first open standard for evaluating AI agent data quality

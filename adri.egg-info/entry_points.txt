@@ -1,0 +1,2 @@
+[console_scripts]
+adri = adri.cli:main
