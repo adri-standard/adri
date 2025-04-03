@@ -84,7 +84,7 @@ python -m adri.cli report view report.json
 
 ## Example
 
-Assuming you have a sample data file named `sample_data.csv`, you can run:
+Assuming you have a sample data file named [sample_data.csv](https://github.com/ThinkEvolveSolve/agent-data-readiness-index/blob/main/sample_data.csv), you can run:
 
 ```bash
 adri assess --source sample_data.csv --output test_report
