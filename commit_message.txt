@@ -1,1 +1,1 @@
-Updated the benchmarking webpage</content>
+<![CDATA[Python package created on pypi.org and Readme updated]]>
