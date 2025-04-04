@@ -1,4 +1,4 @@
-/* ADRI Benchmark Page Styles - Verodat Brand */
+/* ADRI Benchmark Page Styles - Verodat Brand with Nutrition Label Focus */
 
 /* Base Styles */
 :root {
@@ -9,6 +9,11 @@
   --verodat-medium-grey: #76787D;
   --verodat-shaded-lime: #79C965;
   --verodat-red: #FC5660;
+  
+  /* Nutrition Label Colors */
+  --nutrition-border: #333;
+  --nutrition-header-bg: #f8f8f8;
+  --nutrition-section-border: #ddd;
 }
 
 body {
@@ -413,6 +418,13 @@ table.dataset-table tr:hover {
   margin-bottom: 1rem;
 }
 
+.contribution-buttons {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  margin-top: 1.5rem;
+}
+
 /* Score Coloring */
 .score-high {
   color: var(--verodat-shaded-lime);
@@ -429,7 +441,7 @@ table.dataset-table tr:hover {
   font-weight: bold;
 }
 
-/* Dataset Detail Modal */
+/* Dataset Detail Modal - Nutrition Label Style */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -461,6 +473,7 @@ table.dataset-table tr:hover {
   padding: 2rem;
   position: relative;
   animation: modalSlideIn 0.3s ease;
+  border: 2px solid var(--nutrition-border);
 }
 
 .modal-close {
@@ -474,10 +487,101 @@ table.dataset-table tr:hover {
   color: var(--verodat-medium-grey);
 }
 
-.modal-header {
+/* Nutrition Label Styling */
+.nutrition-label-header {
   margin-bottom: 2rem;
-  border-bottom: 1px solid #e9ecef;
+  border-bottom: 8px solid var(--nutrition-border);
   padding-bottom: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  background-color: var(--nutrition-header-bg);
+  border-radius: 8px 8px 0 0;
+  padding: 1rem;
+}
+
+.nutrition-label-title {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.nutrition-facts {
+  font-size: 1.2rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  background-color: var(--nutrition-border);
+  color: white;
+  padding: 3px 8px;
+  border-radius: 3px;
+  margin-top: 5px;
+}
+
+.nutrition-grade {
+  background-color: var(--nutrition-border);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-weight: bold;
+  display: inline-block;
+  margin-top: 10px;
+}
+
+.nutrition-label-section {
+  border-top: 4px solid var(--nutrition-section-border);
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+}
+
+.nutrition-label-section h3 {
+  font-size: 1.4rem;
+  margin-bottom: 1rem;
+  color: var(--nutrition-border);
+}
+
+.nutrition-label-section ul {
+  list-style-type: square;
+  padding-left: 1.5rem;
+}
+
+.nutrition-label-section ul li {
+  margin-bottom: 0.8rem;
+}
+
+.verodat-availability {
+  margin-top: 2rem;
+  background-color: #f8f9fa;
+  padding: 1rem;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.verodat-availability h4 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.availability-badge {
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
+.availability-badge.available {
+  background-color: var(--verodat-lime);
+  color: var(--verodat-dark-grey);
+}
+
+.availability-badge.unavailable {
+  background-color: #f8f9fa;
+  border: 1px solid var(--verodat-medium-grey);
+  color: var(--verodat-medium-grey);
 }
 
 .modal-body {
@@ -534,7 +638,7 @@ table.dataset-table tr:hover {
 
 .contribution-card {
   flex: 1;
-  min-width: 300px;
+  min-width: 250px;
   background: var(--verodat-white);
   border-radius: 10px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
@@ -550,6 +654,45 @@ table.dataset-table tr:hover {
 .contribution-card p {
   margin-bottom: 1.5rem;
   min-height: 80px;
+}
+
+.level-indicator {
+  font-size: 0.85rem;
+  color: var(--verodat-medium-grey);
+  font-style: italic;
+  margin-bottom: 1rem;
+}
+
+.community-goal {
+  max-width: 800px;
+  margin: 4rem auto 0;
+  padding: 2rem;
+  background-color: var(--verodat-white);
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+.community-goal h3 {
+  margin-bottom: 1.5rem;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 30px;
+  background-color: #f2f2f2;
+  border-radius: 15px;
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+}
+
+.progress {
+  height: 100%;
+  background-color: var(--verodat-lime);
+  text-align: center;
+  line-height: 30px;
+  color: var(--verodat-dark-grey);
+  font-weight: bold;
+  transition: width 1s ease;
 }
 
 /* Assessment Instructions Section */
@@ -1043,6 +1186,16 @@ input:checked + .slider:before {
   background-color: rgba(155, 227, 128, 0.1);
 }
 
+.btn-outline {
+  background-color: transparent;
+  color: var(--verodat-medium-grey);
+  border: 2px solid var(--verodat-medium-grey);
+}
+
+.btn-outline:hover {
+  background-color: rgba(118, 120, 125, 0.1);
+}
+
 .btn-light {
   background-color: var(--verodat-white);
   color: var(--verodat-dark-grey);
@@ -1141,6 +1294,11 @@ input:checked + .slider:before {
   .community-section h2,
   .standard-section h2 {
     font-size: 2rem;
+  }
+  
+  .modal-content {
+    width: 95%;
+    padding: 1rem;
   }
 }
 
@@ -1272,4 +1430,62 @@ input:checked + .slider:before {
 .quality-disabled .path-node.decision {
   background-color: #f8d7da;
   border-color: #f5c6cb;
+}
+
+/* Modern UI elements for scenario selector */
+.form-group select {
+  appearance: none;
+  background: url("data:image/svg+xml;utf8,<svg fill='black' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/><path d='M0 0h24v24H0z' fill='none'/></svg>") no-repeat;
+  background-position: right 10px top 50%;
+  background-color: white;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  padding: 12px 40px 12px 15px;
+  width: 100%;
+  font-size: 1rem;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.form-group select:focus {
+  outline: none;
+  border-color: var(--verodat-lime);
+  box-shadow: 0 0 0 3px rgba(155, 227, 128, 0.25);
+}
+
+/* Scenario cards (alternative to dropdown) */
+.scenario-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin: 20px 0;
+}
+
+.scenario-card {
+  flex: 1;
+  min-width: 200px;
+  padding: 15px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.scenario-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.scenario-card.active {
+  border-color: var(--verodat-lime);
+  background-color: rgba(155, 227, 128, 0.1);
+}
+
+.scenario-card h4 {
+  margin: 0 0 10px 0;
+}
+
+.scenario-card p {
+  font-size: 0.9rem;
+  color: var(--verodat-medium-grey);
+  margin: 0;
 }
