@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>73% of AI Agents Are Flying Blind | Agent Data Readiness Index</title>
+    <title>Public Datasets Score 27/100 on the ADRI | Agent Data Readiness Index</title>
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
@@ -32,8 +32,8 @@
     <section class="hero" id="problem-section">
         <div class="hero-content">
             <div class="verodat-badge">Open Source Community Project</div>
-            <h1>73% of AI Agents Are <span class="underline">Flying Blind</span></h1>
-            <p class="subtitle">When your agent can't tell if data is fresh, valid, or complete, it's not just making mistakes—it's making <em>confident</em> mistakes. We're building an open standard to change that.</p>
+            <h1>Public Datasets Score an Average of <span class="underline">27/100</span> on the Agent Data Readiness Index</h1>
+            <p class="subtitle">When data doesn't tell agents when it was updated or if it's valid, agents make <em>confident</em> mistakes. We're building a community catalog and open standard to change that.</p>
             <div class="cta-buttons">
                 <a href="#simulator-section" class="btn btn-primary">See Agent Blindness in Action</a>
                 <a href="#community-section" class="btn btn-secondary">Join the Movement</a>
@@ -78,7 +78,7 @@
                 </ul>
             </div>
             <div class="comparison-column after">
-                <h3>ADRI-READY AGENTS</h3>
+                <h3>ADRI-READY DATA</h3>
                 <ul class="comparison-list">
                     <li>
                         <svg class="icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -112,23 +112,23 @@
     <!-- Standard for Diagnosis Section -->
     <section class="standard-section" id="standard-section">
         <h2>An <span class="underline">Open Standard</span> for Data Readiness</h2>
-        <p class="lead">The Agent Data Readiness Index (ADRI) is a standardized method to evaluate how prepared your data is for use by AI agents.</p>
+        <p class="lead">ADRI is a scoring system for data sources that measures how well they communicate quality signals to AI agents. Just like nutrition labels tell you what's in your food, ADRI tells you what quality signals exist in your data.</p>
         
         <div class="standard-details">
             <div class="standard-card">
                 <h3>Why We Created ADRI</h3>
                 <p>As AI agents become more prevalent, we noticed a critical gap: no standard way to evaluate whether data sources provide the signals agents need to make reliable decisions.</p>
-                <p>ADRI fills this gap with transparent, consistent metrics that anyone can apply to any dataset.</p>
+                <p>ADRI fills this gap with transparent, consistent metrics that anyone can apply to any dataset, creating a common language for data quality that benefits the entire AI community.</p>
             </div>
             
             <div class="standard-card">
                 <h3>ADRI Dimensions</h3>
                 <ul>
-                    <li><strong>Freshness:</strong> Does the data tell agents when it was created or updated?</li>
-                    <li><strong>Validity:</strong> Does the data include signals about its structural correctness?</li>
-                    <li><strong>Completeness:</strong> Can agents distinguish between "missing" and "not applicable"?</li>
-                    <li><strong>Consistency:</strong> Are related data points compatible with each other?</li>
-                    <li><strong>Plausibility:</strong> Can agents detect outliers or implausible values?</li>
+                    <li><strong>Freshness:</strong> Does the data tell agents when it was created or updated? <em>Without this signal, your agent might recommend a product that's been out of stock for weeks.</em></li>
+                    <li><strong>Validity:</strong> Does the data include signals about its structural correctness? <em>Without this signal, your agent might make calculations with corrupted numbers.</em></li>
+                    <li><strong>Completeness:</strong> Can agents distinguish between "missing" and "not applicable"? <em>Without this signal, your agent can't tell if a blank field means "no data" or "doesn't apply."</em></li>
+                    <li><strong>Consistency:</strong> Are related data points compatible with each other? <em>Without this signal, your agent might use prices from one currency with quantities from another.</em></li>
+                    <li><strong>Plausibility:</strong> Can agents detect outliers or implausible values? <em>Without this signal, your agent can't tell when a number is suspiciously high or low.</em></li>
                 </ul>
             </div>
         </div>
@@ -198,30 +198,30 @@
         <div class="metric-cards">
             <div class="metric-card primary-metric">
                 <h3>Average Data Readiness Score</h3>
-                <div class="metric-value score-medium" id="avg-score">52.3/100</div>
-                <div class="metric-label">Most datasets are failing the blindfold test</div>
+                <div class="metric-value score-medium" id="avg-score">27/100</div>
+                <div class="metric-label">Public datasets are failing the blindfold test</div>
             </div>
             <div class="metric-card">
                 <h3>Most Critical Blindness</h3>
                 <div class="metric-label highlight">Freshness Blindness</div>
-                <p>73% of datasets don't tell agents when data is stale</p>
+                <p>78% of datasets don't tell agents when data is stale</p>
                 <svg class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M12 6V12L16 14M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
             </div>
             <div class="metric-card">
-                <h3>Data Readiness Pioneers</h3>
-                <div class="metric-value" id="pioneers-count">237</div>
-                <div class="metric-label">AI teams have fixed their blindness</div>
-                <small>Join them today</small>
+                <h3>Our Community Goal</h3>
+                <div class="metric-value" id="pioneers-count">100</div>
+                <div class="metric-label">Datasets analyzed by end of 2025</div>
+                <small>We've analyzed 20 so far - help us reach our goal!</small>
             </div>
         </div>
     </section>
 
-    <!-- Dataset Table Section - REFRAMED AS EDUCATIONAL -->
+    <!-- Dataset Table Section - REFRAMED AS COMMUNITY CATALOG -->
     <section class="datasets-section" id="datasets-section">
-        <h2>Public Datasets <span class="underline">ADRI Scores</span></h2>
-        <p class="lead">We've evaluated common public datasets that are frequently used to train and operate AI agents. See how they score on the ADRI dimensions.</p>
+        <h2>The Community <span class="underline">Dataset Catalog</span></h2>
+        <p class="lead">The first community-maintained catalog of data readiness scores for public datasets used by AI agents. Explore what we've analyzed so far, and help us expand it.</p>
         
         <div class="dataset-filters">
             <p>Filter by industry or data type to find datasets relevant to your work.</p>
@@ -247,9 +247,12 @@
         </div>
         
         <div class="dataset-contribution">
-            <h3>Help Expand Our Dataset Evaluations</h3>
-            <p>Are there public datasets you're using with agents that aren't listed here? Run ADRI on them and submit your results to help the community.</p>
-            <a href="https://github.com/verodat/agent-data-readiness-index/issues/new?template=dataset_submission.md" class="btn btn-secondary">Submit Dataset Evaluation</a>
+            <h3>Help Map the AI Data Landscape</h3>
+            <p>We've analyzed the first 20 public datasets commonly used by AI agents. Help us expand this catalog to 100 datasets by the end of 2025 by contributing your analyses.</p>
+            <div class="contribution-buttons">
+                <a href="https://github.com/verodat/agent-data-readiness-index/issues/new?template=dataset_submission.md" class="btn btn-secondary">Submit Dataset Evaluation</a>
+                <a href="https://github.com/verodat/agent-data-readiness-index/issues/new?template=dataset_request.md" class="btn btn-outline">Request Dataset Analysis</a>
+            </div>
         </div>
     </section>
 
@@ -337,31 +340,40 @@
         
         <div class="contribution-cards">
             <div class="contribution-card">
-                <h3>Flag Problematic Datasets</h3>
+                <h3>Flag a Dataset</h3>
                 <p>Found a dataset used by agents that lacks critical quality signals? Flag it in our registry to help others avoid potential issues.</p>
+                <p class="level-indicator">Easiest contribution level</p>
                 <a href="https://github.com/verodat/agent-data-readiness-index/issues/new?template=problematic_dataset.md" class="btn btn-secondary">Flag a Dataset</a>
             </div>
             
             <div class="contribution-card">
-                <h3>Contribute to the Standard</h3>
-                <p>ADRI is evolving. Help us improve the standard by suggesting new dimensions or refinements to existing ones.</p>
-                <a href="https://github.com/verodat/agent-data-readiness-index/discussions" class="btn btn-secondary">Join the Discussion</a>
+                <h3>Run ADRI</h3>
+                <p>Analyze a dataset you're using and share the results. Every analysis adds to our collective understanding of the AI data landscape.</p>
+                <p class="level-indicator">Moderate contribution level</p>
+                <a href="https://github.com/verodat/agent-data-readiness-index/blob/main/docs/how-to-analyze.md" class="btn btn-secondary">Learn How</a>
             </div>
             
             <div class="contribution-card">
-                <h3>Share Your Success Stories</h3>
-                <p>Have you improved an agent's performance by addressing data readiness issues? Share your case study to inspire others.</p>
-                <a href="https://github.com/verodat/agent-data-readiness-index/issues/new?template=case_study.md" class="btn btn-secondary">Submit a Case Study</a>
+                <h3>Improve a Dataset</h3>
+                <p>Create and publish an ADRI-ready version of an existing dataset. Help others build safer, more reliable AI systems.</p>
+                <p class="level-indicator">Advanced contribution level</p>
+                <a href="https://github.com/verodat/agent-data-readiness-index/blob/main/docs/how-to-improve.md" class="btn btn-secondary">View Guidelines</a>
+            </div>
+            
+            <div class="contribution-card">
+                <h3>Extend the Standard</h3>
+                <p>Suggest new dimensions or refinement of existing ones. Help ADRI evolve to meet emerging needs in AI systems.</p>
+                <p class="level-indicator">Expert contribution level</p>
+                <a href="https://github.com/verodat/agent-data-readiness-index/discussions" class="btn btn-secondary">Join the Discussion</a>
             </div>
         </div>
         
-        <div class="social-proof-badges">
-            <div class="badge-container">
-                <div class="pioneer-badge">
-                    <span>Data Readiness Pioneer</span>
-                </div>
-                <p>Join 237 AI engineering teams who've discovered their agents were blind—and fixed it.</p>
+        <div class="community-goal">
+            <h3>Our Community Goal: 100 Datasets Analyzed by 2025</h3>
+            <div class="progress-bar">
+                <div class="progress" style="width: 20%;">20%</div>
             </div>
+            <p>Be among the first pioneers establishing this standard. Together, we can make AI agents safer and more reliable.</p>
         </div>
     </section>
 
