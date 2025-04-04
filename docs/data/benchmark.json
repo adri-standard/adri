@@ -1,14 +1,15 @@
 {
-  "updated": "2025-04-03",
+  "updated": "2025-04-04",
   "overall_average": 52.3,
   "industries": {
     "Finance": 68.5,
     "Healthcare": 62.7,
     "Manufacturing": 53.8,
-    "Retail": 47.2,
+    "Retail": 56.1,
     "Technology": 58.9,
     "Energy": 51.2,
-    "Public Sector": 42.8
+    "Public Sector": 42.8,
+    "Public Health": 63.5
   },
   "dimensions": {
     "validity": 11.2,
@@ -17,5 +18,181 @@
     "consistency": 8.6,
     "plausibility": 7.9
   },
-  "submissions": 127
+  "submissions": 129,
+  "datasets": [
+    {
+      "id": "nyc-taxi",
+      "name": "NYC Taxi Trip Data",
+      "description": "New York City yellow taxi trip records with pick-up and drop-off dates/times, locations, trip distances, fares, and passenger counts",
+      "industry": "Transportation",
+      "format": "CSV",
+      "size": {
+        "rows": 50,
+        "columns": 18
+      },
+      "assessment": {
+        "overall_score": 6.2,
+        "dimension_scores": {
+          "validity": 5.0,
+          "completeness": 7.0,
+          "freshness": 6.0,
+          "consistency": 6.5,
+          "plausibility": 6.5
+        },
+        "connectors": {
+          "standard": {
+            "processing_time_sec": 0.01,
+            "memory_usage_mb": "full dataset"
+          },
+          "large": {
+            "processing_time_sec": 0.02,
+            "memory_usage_mb": "chunked processing"
+          }
+        },
+        "timestamp": "2025-04-04T16:02:30"
+      }
+    },
+    {
+      "id": "ecommerce-transactions",
+      "name": "E-commerce Transaction Dataset",
+      "description": "A dataset containing retail e-commerce transactions with product, customer, and order details",
+      "industry": "Retail",
+      "format": "Excel",
+      "size": {
+        "rows": 50,
+        "columns": 15
+      },
+      "assessment": {
+        "overall_score": 8.0,
+        "dimension_scores": {
+          "validity": 14.0,
+          "completeness": 8.0,
+          "freshness": 8.0,
+          "consistency": 5.0,
+          "plausibility": 5.0
+        },
+        "connectors": {
+          "standard": {
+            "processing_time_sec": 0.06,
+            "memory_usage_mb": "full dataset"
+          },
+          "large": {
+            "processing_time_sec": 0.07,
+            "memory_usage_mb": "chunked processing"
+          }
+        },
+        "timestamp": "2025-04-04T16:34:47"
+      }
+    },
+    {
+      "id": "covid19-data",
+      "name": "COVID-19 Dataset",
+      "description": "Daily COVID-19 statistics for major countries including case counts, deaths, and recoveries",
+      "industry": "Public Health",
+      "format": "CSV",
+      "size": {
+        "rows": 50,
+        "columns": 15
+      },
+      "assessment": {
+        "overall_score": 8.0,
+        "dimension_scores": {
+          "validity": 14.0,
+          "completeness": 8.0,
+          "freshness": 8.0,
+          "consistency": 5.0,
+          "plausibility": 5.0
+        },
+        "connectors": {
+          "standard": {
+            "processing_time_sec": 0.07,
+            "memory_usage_mb": "full dataset"
+          },
+          "large": {
+            "processing_time_sec": 0.03,
+            "memory_usage_mb": "chunked processing"
+          }
+        },
+        "timestamp": "2025-04-04T17:00:02"
+      }
+    },
+    {
+      "id": "financial-market-data",
+      "name": "Financial Market Data API",
+      "description": "Historical stock price and market data for major indices and stocks via API",
+      "industry": "Finance",
+      "format": "API",
+      "size": {
+        "endpoints": 4,
+        "fields": 11
+      },
+      "assessment": {
+        "overall_score": 10.8,
+        "dimension_scores": {
+          "validity": 17.0,
+          "completeness": 5.0,
+          "freshness": 8.0,
+          "consistency": 12.0,
+          "plausibility": 12.0
+        },
+        "connectors": {
+          "api": {
+            "processing_time_sec": 0.0,
+            "response_time_ms": "simulated"
+          }
+        },
+        "timestamp": "2025-04-04T17:37:46"
+      }
+    }
+  ],
+  "large_file_benchmarks": [
+    {
+      "dataset": "NYC Taxi Trip Records",
+      "format": "CSV",
+      "size_gb": 1.2,
+      "records": "8+ million",
+      "standard_connector": {
+        "memory_mb": 3200,
+        "status": "Limited to subset"
+      },
+      "large_connector": {
+        "memory_mb": 180,
+        "memory_overhead_mb": 80,
+        "processing_time_sec": 105.2,
+        "optimal_chunk_size": 50000,
+        "throughput_mb_sec": 11.7,
+        "status": "Success"
+      },
+      "memory_reduction_percent": 94.4,
+      "timestamp": "2025-04-03T14:25:10"
+    }
+  ],
+  "benchmark_datasets": {
+    "updated": "2025-04-04T17:52:23.792394",
+    "count": 2,
+    "datasets": [
+      {
+        "id": "covid19_data",
+        "name": "COVID-19 Dataset",
+        "format": "CSV",
+        "size_mb": 0.01,
+        "records": 50,
+        "description": "Daily COVID-19 statistics for major countries including case counts, deaths, and recoveries",
+        "path": "csv\\covid19_data.csv",
+        "has_metadata": true,
+        "last_updated": "2025-04-04T16:53:00"
+      },
+      {
+        "id": "nyc_taxi_sample",
+        "name": "NYC Taxi Trip Records",
+        "format": "CSV",
+        "size_mb": 0.01,
+        "records": 50,
+        "description": "New York City yellow taxi trip records from January 2018, including pick-up and drop-off dates/times, locations, trip distances, fares, and passenger counts.",
+        "path": "csv\\nyc_taxi_sample.csv",
+        "has_metadata": true,
+        "last_updated": "2025-04-04T15:52:00"
+      }
+    ]
+  }
 }
