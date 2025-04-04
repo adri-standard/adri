@@ -33,7 +33,7 @@
         <div class="hero-content">
             <div class="verodat-badge">Open Source Community Project</div>
             <h1>Data Nutrition Labels for <span class="underline">AI Agents</span></h1>
-            <p class="subtitle">The Agent Data Readiness Index (ADRI) shows what quality signals your datasets are missing. Public datasets score an average of <em>27/100</em> — see what you need to fix to make your agents trustworthy.</p>
+            <p class="subtitle">The Agent Data Readiness Index (ADRI) shows what quality signals your datasets are missing. Public datasets score an average of <em>27/100</em> — see what you need to fix to make your agents' data trustworthy.</p>
             <div class="cta-buttons">
                 <a href="#simulator-section" class="btn btn-primary">See Agent Blindness in Action</a>
                 <a href="#community-section" class="btn btn-secondary">Join the Movement</a>
@@ -45,7 +45,7 @@
     <!-- Before/After Section -->
     <section class="before-after-section">
         <h2>The Data <span class="underline">Blindfold Test</span></h2>
-        <p class="lead">If your agent can't tell when data was last updated, it's wearing a blindfold while making decisions.</p>
+        <p class="lead">If your agent can't tell if data is trustworthy, complete, or up-to-date, it's wearing a blindfold while making decisions.</p>
         
         <div class="comparison-container">
             <div class="comparison-column before">
@@ -112,23 +112,23 @@
     <!-- Standard for Diagnosis Section -->
     <section class="standard-section" id="standard-section">
         <h2>An <span class="underline">Open Standard</span> for Data Readiness</h2>
-        <p class="lead">ADRI is a scoring system for data sources that measures how well they communicate quality signals to AI agents. Just like nutrition labels tell you what's in your food, ADRI tells you what quality signals exist in your data.</p>
+        <p class="lead">ADRI is a scoring system that is being developed for data sources that provides a measure of how well they communicate quality signals to AI agents. Just like nutrition labels tell you what's in your food, ADRI tells you what quality signals exist in your data.</p>
         
         <div class="standard-details">
             <div class="standard-card">
                 <h3>Why We Created ADRI</h3>
-                <p>As AI agents become more prevalent, we noticed a critical gap: no standard way to evaluate whether data sources provide the signals agents need to make reliable decisions.</p>
-                <p>ADRI fills this gap with transparent, consistent metrics that anyone can apply to any dataset, creating a common language for data quality that benefits the entire AI community.</p>
+                <p>While deploying AI agents into production environments, our team repeatedly faced the same challenge: agents making confident but wrong decisions because they couldn't assess the quality of their data.</p>
+                <p>We developed ADRI first as an internal standard, then realized this challenge was universal across the AI community. By open-sourcing this standard, we hope to accelerate solutions to a problem every AI engineer faces.</p>
             </div>
             
             <div class="standard-card">
-                <h3>ADRI Dimensions</h3>
+                <h3>Initial ADRI Dimensions</h3>
                 <ul>
-                    <li><strong>Freshness:</strong> Does the data tell agents when it was created or updated? <em>Without this signal, your agent might recommend a product that's been out of stock for weeks.</em></li>
-                    <li><strong>Validity:</strong> Does the data include signals about its structural correctness? <em>Without this signal, your agent might make calculations with corrupted numbers.</em></li>
-                    <li><strong>Completeness:</strong> Can agents distinguish between "missing" and "not applicable"? <em>Without this signal, your agent can't tell if a blank field means "no data" or "doesn't apply."</em></li>
-                    <li><strong>Consistency:</strong> Are related data points compatible with each other? <em>Without this signal, your agent might use prices from one currency with quantities from another.</em></li>
-                    <li><strong>Plausibility:</strong> Can agents detect outliers or implausible values? <em>Without this signal, your agent can't tell when a number is suspiciously high or low.</em></li>
+                    <li><strong>Freshness:</strong> Does the data tell agents when it was created or updated? <em>Without this signal, your agent might confidently recommend a product that's been sold out for weeks, destroying user trust overnight.</em></li>
+                    <li><strong>Validity:</strong> Does the data include signals about its structural correctness? <em>Without this signal, your agent might silently make calculations with corrupted numbers, with errors compounding until a major decision fails spectacularly.</em></li>
+                    <li><strong>Completeness:</strong> Can agents distinguish between "missing" and "not applicable"? <em>Without this signal, your agent can't tell if missing customer information is "not collected" or "doesn't exist," leading to embarrassing service failures.</em></li>
+                    <li><strong>Consistency:</strong> Are related data points compatible with each other? <em>Without this signal, your agent might use prices from one currency with quantities from another, creating financial disasters that can go undetected for months.</em></li>
+                    <li><strong>Plausibility:</strong> Can agents detect outliers or implausible values? <em>Without this signal, your agent can't distinguish between a legitimate data point and a damaging anomaly, potentially triggering catastrophic automated decisions.</em></li>
                 </ul>
             </div>
         </div>
@@ -188,13 +188,16 @@
         </div>
         
         <div class="social-proof">
-            <p class="testimonial">Without quality signals, agents operate blindfolded. The ADRI Catalog helps you identify missing signals in popular datasets and shows exactly what you need to fix.</p>
-            <p class="attribution">— The ADRI Team</p>
+            <p class="testimonial">Without quality signals, agents operate blindfolded. The ADRI Catalog helps you identify missing ADRI dimensions in popular datasets and shows exactly what you need to fix.</p>
+            <p class="attribution">— The Verodat AI Team, initial founders of ADRI</p>
         </div>
     </section>
 
-    <!-- Key Metrics Section - SIMPLIFIED -->
-    <section class="metrics-section">
+    <!-- Dataset Table Section - REFRAMED AS COMMUNITY CATALOG -->
+    <section class="datasets-section" id="datasets-section">
+        <h2>The Community <span class="underline">Dataset Catalog</span></h2>
+        
+        <!-- Key Metrics Section - Moved under catalog heading -->
         <div class="metric-cards">
             <div class="metric-card primary-metric">
                 <h3>Average Data Readiness Score</h3>
@@ -216,11 +219,6 @@
                 <small>We've analyzed 20 so far - help us reach our goal!</small>
             </div>
         </div>
-    </section>
-
-    <!-- Dataset Table Section - REFRAMED AS COMMUNITY CATALOG -->
-    <section class="datasets-section" id="datasets-section">
-        <h2>The Community <span class="underline">Dataset Catalog</span></h2>
         <p class="lead">The first community-maintained catalog of data readiness scores for public datasets used by AI agents. Explore what we've analyzed so far, and help us expand it.</p>
         
         <div class="dataset-filters">
@@ -236,7 +234,7 @@
                         <th data-sort="industry">Industry</th>
                         <th data-sort="score">Readiness Score</th>
                         <th data-sort="critical">Critical Blindness</th>
-                        <th>If You Use This Data...</th>
+                        <th>If You Use This Data As Is...</th>
                         <th>Action</th>
                     </tr>
                 </thead>
