@@ -140,6 +140,63 @@ body {
   text-underline-offset: 4px;
 }
 
+/* Standard Section */
+.standard-section {
+  padding: 4rem 0;
+  max-width: 1200px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.standard-section h2 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.standard-section .lead {
+  font-size: 1.5rem;
+  margin-bottom: 3rem;
+  color: var(--verodat-medium-grey);
+}
+
+.standard-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 30px;
+  margin-top: 2rem;
+}
+
+.standard-card {
+  flex: 1;
+  min-width: 300px;
+  padding: 2rem;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+  background-color: var(--verodat-white);
+  text-align: left;
+}
+
+.standard-card h3 {
+  color: var(--verodat-dark-grey);
+  margin-bottom: 1rem;
+}
+
+.standard-card ul {
+  padding-left: 1rem;
+}
+
+.standard-card li {
+  margin-bottom: 0.5rem;
+}
+
+.open-source-note {
+  margin-top: 3rem;
+  padding: 1.5rem;
+  background-color: rgba(155, 227, 128, 0.1);
+  border-radius: 10px;
+  border-left: 4px solid var(--verodat-lime);
+}
+
 /* Before/After Section */
 .before-after-section {
   padding: 4rem 0;
@@ -293,6 +350,14 @@ body {
   margin-right: auto;
 }
 
+.dataset-filters {
+  margin-bottom: 2rem;
+  padding: 1rem;
+  background-color: #f8f9fa;
+  border-radius: 10px;
+  text-align: center;
+}
+
 .table-container {
   overflow-x: auto;
 }
@@ -334,6 +399,18 @@ table.dataset-table td {
 
 table.dataset-table tr:hover {
   background-color: #f8f9fa;
+}
+
+.dataset-contribution {
+  background-color: #f8f9fa;
+  padding: 2rem;
+  border-radius: 10px;
+  text-align: center;
+  margin-top: 2rem;
+}
+
+.dataset-contribution h3 {
+  margin-bottom: 1rem;
 }
 
 /* Score Coloring */
@@ -425,9 +502,59 @@ table.dataset-table tr:hover {
   margin-top: 2rem;
 }
 
+/* Community Section */
+.community-section {
+  background-color: #f8f9fa;
+  padding: 4rem 0;
+  text-align: center;
+}
+
+.community-section h2 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.community-section .lead {
+  font-size: 1.3rem;
+  margin-bottom: 3rem;
+  color: var(--verodat-medium-grey);
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.contribution-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 30px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.contribution-card {
+  flex: 1;
+  min-width: 300px;
+  background: var(--verodat-white);
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+  padding: 2rem;
+  text-align: left;
+}
+
+.contribution-card h3 {
+  color: var(--verodat-dark-grey);
+  margin-bottom: 1rem;
+}
+
+.contribution-card p {
+  margin-bottom: 1.5rem;
+  min-height: 80px;
+}
+
 /* Assessment Instructions Section */
 .assessment-section {
-  background-color: #f8f9fa;
+  background-color: var(--verodat-white);
   padding: 4rem 0;
 }
 
@@ -511,6 +638,143 @@ table.dataset-table tr:hover {
   font-size: 1.2rem;
   margin-bottom: 1rem;
   display: inline-block;
+}
+
+/* Solutions Section */
+.solutions-section {
+  padding: 4rem 0;
+  max-width: 1200px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.solutions-section h2 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.solutions-section .lead {
+  font-size: 1.3rem;
+  margin-bottom: 3rem;
+  color: var(--verodat-medium-grey);
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.solution-approaches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 30px;
+  margin-top: 2rem;
+}
+
+.approach-card {
+  flex: 1;
+  min-width: 300px;
+  background: var(--verodat-white);
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+  padding: 2rem;
+  text-align: left;
+}
+
+.approach-card h3 {
+  color: var(--verodat-dark-grey);
+  margin-bottom: 1rem;
+}
+
+.approach-card p {
+  margin-bottom: 1rem;
+}
+
+/* Verodat's Solution Section */
+.verodat-section {
+  background-color: #f8f9fa;
+  padding: 4rem 0;
+  text-align: center;
+}
+
+.verodat-section h2 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.verodat-section .lead {
+  font-size: 1.3rem;
+  margin-bottom: 3rem;
+  color: var(--verodat-medium-grey);
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.verodat-mcp {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 30px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.mcp-info {
+  flex: 2;
+  min-width: 400px;
+  background: var(--verodat-white);
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+  padding: 2rem;
+  text-align: left;
+}
+
+.mcp-info h3 {
+  color: var(--verodat-dark-grey);
+  margin-bottom: 1rem;
+}
+
+.mcp-info ul {
+  padding-left: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.mcp-info li {
+  margin-bottom: 0.5rem;
+}
+
+.mcp-note {
+  font-style: italic;
+  margin-bottom: 1.5rem;
+  color: var(--verodat-medium-grey);
+}
+
+.available-datasets {
+  flex: 1;
+  min-width: 300px;
+  background: var(--verodat-white);
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+  padding: 2rem;
+  text-align: left;
+}
+
+.available-datasets h3 {
+  color: var(--verodat-dark-grey);
+  margin-bottom: 1rem;
+}
+
+.dataset-list {
+  list-style: none;
+  padding: 0;
+}
+
+.dataset-list li {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.dataset-list li:last-child {
+  border-bottom: none;
 }
 
 /* Agent Blindness Simulator */
@@ -661,38 +925,6 @@ input:checked + .slider:before {
 .attribution {
   font-weight: bold;
   text-align: right;
-}
-
-.verodat-powered {
-  margin-top: 1.5rem;
-  padding-top: 1rem;
-  border-top: 1px solid #eee;
-  font-size: 0.9rem;
-  color: var(--verodat-medium-grey);
-}
-
-.verodat-name {
-  color: var(--verodat-dark-grey);
-  font-weight: bold;
-}
-
-/* Call to Action Section */
-.cta-section {
-  background: var(--verodat-dark-grey);
-  color: var(--verodat-white);
-  padding: 4rem 0;
-  text-align: center;
-}
-
-.cta-content {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 0 20px;
-}
-
-.cta-section h2 {
-  font-size: 2.5rem;
-  margin-bottom: 1rem;
 }
 
 /* Idea Virus Section */
@@ -883,7 +1115,12 @@ input:checked + .slider:before {
     gap: 10px;
   }
   
-  .metric-cards, .assessment-steps {
+  .metric-cards, 
+  .assessment-steps, 
+  .standard-details, 
+  .solution-approaches,
+  .contribution-cards,
+  .verodat-mcp {
     flex-direction: column;
   }
   
@@ -899,7 +1136,10 @@ input:checked + .slider:before {
   .simulator-section h2,
   .datasets-section h2,
   .assessment-section h2,
-  .cta-section h2 {
+  .solutions-section h2,
+  .verodat-section h2,
+  .community-section h2,
+  .standard-section h2 {
     font-size: 2rem;
   }
 }
