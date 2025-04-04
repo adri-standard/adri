@@ -1,26 +1,96 @@
-/* ADRI Benchmark Page Styles */
+/* ADRI Benchmark Page Styles - Verodat Brand */
 
 /* Base Styles */
+:root {
+  /* Verodat Brand Colors */
+  --verodat-white: #FFFFFF;
+  --verodat-dark-grey: #131416;
+  --verodat-lime: #9BE380;
+  --verodat-medium-grey: #76787D;
+  --verodat-shaded-lime: #79C965;
+  --verodat-red: #FC5660;
+}
+
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   line-height: 1.6;
-  color: #333;
+  color: var(--verodat-dark-grey);
   margin: 0;
   padding: 0;
 }
 
+/* Header */
+.site-header {
+  background-color: var(--verodat-white);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  padding: 15px 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo-image {
+  height: 30px;
+}
+
+.main-nav ul {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.main-nav li {
+  margin-left: 30px;
+}
+
+.main-nav a {
+  color: var(--verodat-dark-grey);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.main-nav a:hover {
+  color: var(--verodat-shaded-lime);
+}
+
 /* Hero Section */
 .hero {
-  background: linear-gradient(135deg, #3498db, #8e44ad);
-  color: white;
+  background-color: var(--verodat-dark-grey);
+  color: var(--verodat-white);
   padding: 5rem 0;
   text-align: center;
+  position: relative;
+  overflow: hidden;
 }
 
 .hero-content {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 20px;
+  position: relative;
+  z-index: 2;
+}
+
+.verodat-badge {
+  display: inline-block;
+  background-color: var(--verodat-lime);
+  color: var(--verodat-dark-grey);
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-weight: 500;
+  font-size: 0.9rem;
+  margin-bottom: 2rem;
 }
 
 .hero h1 {
@@ -28,7 +98,7 @@ body {
   margin-bottom: 1rem;
   animation: fadeIn 1s ease-in-out;
   line-height: 1.2;
-  font-weight: 800;
+  font-weight: 700;
 }
 
 .hero p {
@@ -50,6 +120,26 @@ body {
   animation: fadeIn 2s ease-in-out;
 }
 
+.dot-pattern {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: radial-gradient(var(--verodat-medium-grey) 1px, transparent 1px);
+  background-size: 20px 20px;
+  opacity: 0.1;
+  z-index: 1;
+}
+
+/* Underline style for Favorit Lining simulation */
+.underline {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-decoration-color: var(--verodat-lime);
+  text-underline-offset: 4px;
+}
+
 /* Before/After Section */
 .before-after-section {
   padding: 4rem 0;
@@ -66,7 +156,7 @@ body {
 .before-after-section .lead {
   font-size: 1.5rem;
   margin-bottom: 3rem;
-  color: #555;
+  color: var(--verodat-medium-grey);
 }
 
 .comparison-container {
@@ -84,12 +174,12 @@ body {
 
 .comparison-column.before {
   background-color: #fff5f5;
-  border-left: 5px solid #e74c3c;
+  border-left: 5px solid var(--verodat-red);
 }
 
 .comparison-column.after {
   background-color: #f0fff4;
-  border-left: 5px solid #2ecc71;
+  border-left: 5px solid var(--verodat-lime);
 }
 
 .comparison-column h3 {
@@ -119,11 +209,11 @@ body {
 }
 
 .before .icon {
-  color: #e74c3c;
+  color: var(--verodat-red);
 }
 
 .after .icon {
-  color: #2ecc71;
+  color: var(--verodat-shaded-lime);
 }
 
 /* Key Metrics Section */
@@ -141,7 +231,7 @@ body {
 }
 
 .metric-card {
-  background: white;
+  background: var(--verodat-white);
   border-radius: 10px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
   padding: 2rem;
@@ -156,13 +246,13 @@ body {
 }
 
 .metric-card.primary-metric {
-  background: linear-gradient(135deg, #3498db, #8e44ad);
-  color: white;
+  background: var(--verodat-dark-grey);
+  color: var(--verodat-white);
 }
 
 .primary-metric .metric-value {
   font-size: 3.5rem;
-  color: white !important;
+  color: var(--verodat-white) !important;
 }
 
 .primary-metric .metric-label {
@@ -177,7 +267,7 @@ body {
 
 .metric-label {
   font-size: 1.2rem;
-  color: #666;
+  color: var(--verodat-medium-grey);
 }
 
 /* Dataset Table Section */
@@ -197,7 +287,7 @@ body {
   font-size: 1.3rem;
   margin-bottom: 2rem;
   text-align: center;
-  color: #555;
+  color: var(--verodat-medium-grey);
   max-width: 800px;
   margin-left: auto;
   margin-right: auto;
@@ -248,7 +338,7 @@ table.dataset-table tr:hover {
 
 /* Score Coloring */
 .score-high {
-  color: #28a745;
+  color: var(--verodat-shaded-lime);
   font-weight: bold;
 }
 
@@ -258,7 +348,7 @@ table.dataset-table tr:hover {
 }
 
 .score-low {
-  color: #dc3545;
+  color: var(--verodat-red);
   font-weight: bold;
 }
 
@@ -285,7 +375,7 @@ table.dataset-table tr:hover {
 }
 
 .modal-content {
-  background: white;
+  background: var(--verodat-white);
   border-radius: 10px;
   max-width: 900px;
   width: 90%;
@@ -304,7 +394,7 @@ table.dataset-table tr:hover {
   background: none;
   border: none;
   cursor: pointer;
-  color: #666;
+  color: var(--verodat-medium-grey);
 }
 
 .modal-header {
@@ -355,7 +445,7 @@ table.dataset-table tr:hover {
 .assessment-section .lead {
   font-size: 1.3rem;
   margin-bottom: 3rem;
-  color: #555;
+  color: var(--verodat-medium-grey);
   max-width: 800px;
   margin-left: auto;
   margin-right: auto;
@@ -371,7 +461,7 @@ table.dataset-table tr:hover {
 .step-card {
   flex: 1;
   min-width: 300px;
-  background: white;
+  background: var(--verodat-white);
   border-radius: 10px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
   padding: 2rem;
@@ -384,8 +474,8 @@ table.dataset-table tr:hover {
   left: 20px;
   width: 40px;
   height: 40px;
-  background: #3498db;
-  color: white;
+  background: var(--verodat-lime);
+  color: var(--verodat-dark-grey);
   border-radius: 50%;
   display: flex;
   justify-content: center;
@@ -413,8 +503,8 @@ table.dataset-table tr:hover {
 }
 
 .pioneer-badge {
-  background: linear-gradient(135deg, #f1c40f, #e67e22);
-  color: white;
+  background: var(--verodat-lime);
+  color: var(--verodat-dark-grey);
   padding: 10px 20px;
   border-radius: 30px;
   font-weight: bold;
@@ -451,7 +541,7 @@ table.dataset-table tr:hover {
 .simulator-section .lead {
   font-size: 1.3rem;
   margin-bottom: 3rem;
-  color: #555;
+  color: var(--verodat-medium-grey);
 }
 
 .simulator-container {
@@ -524,13 +614,13 @@ table.dataset-table tr:hover {
   width: 26px;
   left: 4px;
   bottom: 4px;
-  background-color: white;
+  background-color: var(--verodat-white);
   transition: .4s;
   border-radius: 50%;
 }
 
 input:checked + .slider {
-  background-color: #2196F3;
+  background-color: var(--verodat-lime);
 }
 
 input:checked + .slider:before {
@@ -553,12 +643,13 @@ input:checked + .slider:before {
 .social-proof {
   margin-top: 3rem;
   padding: 2rem;
-  background: white;
+  background: var(--verodat-white);
   border-radius: 10px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
   max-width: 800px;
   margin-left: auto;
   margin-right: auto;
+  position: relative;
 }
 
 .testimonial {
@@ -572,10 +663,23 @@ input:checked + .slider:before {
   text-align: right;
 }
 
+.verodat-powered {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid #eee;
+  font-size: 0.9rem;
+  color: var(--verodat-medium-grey);
+}
+
+.verodat-name {
+  color: var(--verodat-dark-grey);
+  font-weight: bold;
+}
+
 /* Call to Action Section */
 .cta-section {
-  background: linear-gradient(135deg, #3498db, #8e44ad);
-  color: white;
+  background: var(--verodat-dark-grey);
+  color: var(--verodat-white);
   padding: 4rem 0;
   text-align: center;
 }
@@ -608,7 +712,7 @@ input:checked + .slider:before {
 }
 
 .share-card {
-  background: white;
+  background: var(--verodat-white);
   border-radius: 10px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
   padding: 2rem;
@@ -648,6 +752,16 @@ input:checked + .slider:before {
   min-width: 300px;
 }
 
+.footer-logo {
+  margin-bottom: 1rem;
+}
+
+.tagline {
+  font-weight: 500;
+  color: var(--verodat-shaded-lime);
+  margin-bottom: 0.5rem;
+}
+
 .footer ul {
   list-style: none;
   padding: 0;
@@ -658,11 +772,12 @@ input:checked + .slider:before {
 }
 
 .footer a {
-  color: #3498db;
+  color: var(--verodat-medium-grey);
   text-decoration: none;
 }
 
 .footer a:hover {
+  color: var(--verodat-shaded-lime);
   text-decoration: underline;
 }
 
@@ -678,27 +793,27 @@ input:checked + .slider:before {
 }
 
 .btn-primary {
-  background-color: #3498db;
-  color: white;
+  background-color: var(--verodat-lime);
+  color: var(--verodat-dark-grey);
 }
 
 .btn-primary:hover {
-  background-color: #2980b9;
+  background-color: var(--verodat-shaded-lime);
 }
 
 .btn-secondary {
   background-color: transparent;
-  color: #3498db;
-  border: 2px solid #3498db;
+  color: var(--verodat-lime);
+  border: 2px solid var(--verodat-lime);
 }
 
 .btn-secondary:hover {
-  background-color: rgba(52, 152, 219, 0.1);
+  background-color: rgba(155, 227, 128, 0.1);
 }
 
 .btn-light {
-  background-color: white;
-  color: #3498db;
+  background-color: var(--verodat-white);
+  color: var(--verodat-dark-grey);
 }
 
 .btn-light:hover {
@@ -707,8 +822,8 @@ input:checked + .slider:before {
 
 .btn-outline-light {
   background-color: transparent;
-  color: white;
-  border: 2px solid white;
+  color: var(--verodat-white);
+  border: 2px solid var(--verodat-white);
 }
 
 .btn-outline-light:hover {
@@ -722,12 +837,12 @@ input:checked + .slider:before {
 
 .btn-twitter {
   background-color: #1da1f2;
-  color: white;
+  color: var(--verodat-white);
 }
 
 .btn-linkedin {
   background-color: #0077b5;
-  color: white;
+  color: var(--verodat-white);
 }
 
 /* Animations */
@@ -791,7 +906,7 @@ input:checked + .slider:before {
 
 /* Additional utility classes */
 .highlight {
-  color: #007bff;
+  color: var(--verodat-shaded-lime);
   font-weight: bold;
 }
 
@@ -802,14 +917,14 @@ input:checked + .slider:before {
   font-weight: bold;
 }
 
-.badge-finance { background-color: #28a745; color: white; }
-.badge-retail { background-color: #fd7e14; color: white; }
-.badge-healthcare { background-color: #17a2b8; color: white; }
-.badge-transportation { background-color: #6610f2; color: white; }
-.badge-public-health { background-color: #dc3545; color: white; }
-.badge-api { background-color: #20c997; color: white; }
-.badge-csv { background-color: #6c757d; color: white; }
-.badge-excel { background-color: #007bff; color: white; }
+.badge-finance { background-color: var(--verodat-shaded-lime); color: var(--verodat-white); }
+.badge-retail { background-color: #fd7e14; color: var(--verodat-white); }
+.badge-healthcare { background-color: #17a2b8; color: var(--verodat-white); }
+.badge-transportation { background-color: #6610f2; color: var(--verodat-white); }
+.badge-public-health { background-color: var(--verodat-red); color: var(--verodat-white); }
+.badge-api { background-color: #20c997; color: var(--verodat-white); }
+.badge-csv { background-color: var(--verodat-medium-grey); color: var(--verodat-white); }
+.badge-excel { background-color: #007bff; color: var(--verodat-white); }
 
 .hidden {
   display: none;
@@ -848,7 +963,7 @@ input:checked + .slider:before {
 
 .alert-box {
   background-color: #f8f9fa;
-  border-left: 4px solid #3498db;
+  border-left: 4px solid var(--verodat-lime);
   padding: 15px;
   margin: 20px 0;
 }
@@ -893,7 +1008,7 @@ input:checked + .slider:before {
 .path-arrow {
   width: 30px;
   height: 2px;
-  background-color: #6c757d;
+  background-color: var(--verodat-medium-grey);
   position: relative;
 }
 
@@ -904,7 +1019,7 @@ input:checked + .slider:before {
   top: -4px;
   width: 0;
   height: 0;
-  border-left: 8px solid #6c757d;
+  border-left: 8px solid var(--verodat-medium-grey);
   border-top: 5px solid transparent;
   border-bottom: 5px solid transparent;
 }
