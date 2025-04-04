@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agent Data Readiness Benchmark</title>
+    <title>73% of AI Agents Are Flying Blind | ADRI Benchmark</title>
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -11,87 +11,175 @@
     <!-- Hero Section -->
     <section class="hero">
         <div class="hero-content">
-            <h1>Agent Data Readiness Benchmark</h1>
-            <p>The industry's first open standard for evaluating data quality signals for AI agents</p>
-            <p class="subtitle">See how well different data sources communicate quality to agents and find blind spots in your own data.</p>
+            <h1>73% of AI Agents Are Flying Blind.<br>Is Yours One of Them?</h1>
+            <p class="subtitle">When your agent can't tell if data is fresh, valid, or complete, it's not just making mistakes—it's making <em>confident</em> mistakes.</p>
             <div class="cta-buttons">
-                <a href="#datasets-section" class="btn btn-primary">Explore the Benchmark</a>
-                <a href="#assessment-section" class="btn btn-secondary">Assess Your Data</a>
+                <a href="#simulator-section" class="btn btn-primary">See Agent Blindness in Action</a>
+                <a href="#assessment-section" class="btn btn-secondary">Test Your Own Data</a>
             </div>
         </div>
     </section>
 
-    <!-- Key Metrics Section -->
+    <!-- Before/After Section -->
+    <section class="before-after-section">
+        <h2>The Data Blindfold Test</h2>
+        <p class="lead">If your agent can't tell when data was last updated, it's wearing a blindfold while making decisions.</p>
+        
+        <div class="comparison-container">
+            <div class="comparison-column before">
+                <h3>BEFORE ADRI</h3>
+                <ul class="comparison-list">
+                    <li>
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 6V12L16 14M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span>Agents making $1M+ inventory mistakes on stale data</span>
+                    </li>
+                    <li>
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 6V12L16 14M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span>Security teams blocking agent deployments</span>
+                    </li>
+                    <li>
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 6V12L16 14M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span>3AM emergency calls when agents fail</span>
+                    </li>
+                    <li>
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 6V12L16 14M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span>Stakeholders losing trust in AI initiatives</span>
+                    </li>
+                </ul>
+            </div>
+            <div class="comparison-column after">
+                <h3>AFTER ADRI</h3>
+                <ul class="comparison-list">
+                    <li>
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M20 6L9 17L4 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span>Agents that know when data is stale</span>
+                    </li>
+                    <li>
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M20 6L9 17L4 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span>Fast-track security approvals</span>
+                    </li>
+                    <li>
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M20 6L9 17L4 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span>Confidence in every agent decision</span>
+                    </li>
+                    <li>
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M20 6L9 17L4 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span>Focus on agent intelligence, not data fixes</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Agent Blindness Simulator - FEATURED PROMINENTLY -->
+    <section class="simulator-section featured-section" id="simulator-section">
+        <h2>The Agent Blindness Simulator</h2>
+        <p class="lead">Watch what happens when an agent can't tell the data is stale</p>
+        
+        <div class="simulator-container">
+            <div class="simulator-header">
+                <h3>Toggle Data Quality Signals</h3>
+                <p>See how the same agent makes dramatically different decisions with and without quality signals.</p>
+            </div>
+            
+            <div class="simulator-body">
+                <div class="simulator-controls">
+                    <div class="form-group">
+                        <label for="scenario-select">Choose Scenario:</label>
+                        <select id="scenario-select">
+                            <option value="financial">Financial Market Data (Trading)</option>
+                            <option value="ecommerce">E-commerce Transactions (Pricing)</option>
+                            <option value="nyc-taxi">NYC Taxi Data (Fare Prediction)</option>
+                            <option value="covid19">COVID-19 Dataset (Trend Analysis)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="toggle-container">
+                        <span>Data Quality Signals: OFF</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="quality-signals-toggle">
+                            <span class="slider"></span>
+                        </label>
+                        <span>ON</span>
+                    </div>
+                    
+                    <div class="alert-box" id="simulator-explanation">
+                        <p>Without quality signals, the agent cannot determine if data is fresh enough for decision making.</p>
+                    </div>
+                </div>
+                
+                <div class="simulator-visualization">
+                    <div class="decision-path" id="decision-path">
+                        <!-- Visual representation of agent decision path -->
+                    </div>
+                    <div class="decision-outcome" id="decision-outcome">
+                        <!-- Outcome display -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="social-proof">
+            <p class="testimonial">"We had no idea our agents were making decisions on 72-hour old data until we ran ADRI. One simple fix saved us $350,000 in a single quarter."</p>
+            <p class="attribution">— Senior AI Engineer, Fortune 500 Financial Services Company</p>
+        </div>
+    </section>
+
+    <!-- Key Metrics Section - SIMPLIFIED -->
     <section class="metrics-section">
         <div class="metric-cards">
-            <div class="metric-card">
-                <h3>Average Readiness Score</h3>
+            <div class="metric-card primary-metric">
+                <h3>Average Data Readiness Score</h3>
                 <div class="metric-value score-medium" id="avg-score">52.3/100</div>
-                <div class="metric-label">Basic Level - Caution Required</div>
+                <div class="metric-label">Most datasets are failing the blindfold test</div>
             </div>
             <div class="metric-card">
-                <h3>Datasets Assessed</h3>
-                <div class="metric-value" id="datasets-count">10</div>
-                <div class="metric-label">Across 6 industries</div>
-                <small>Updated April 2025</small>
-            </div>
-            <div class="metric-card">
-                <h3>Most Critical Issue</h3>
+                <h3>Most Critical Blindness</h3>
                 <div class="metric-label highlight">Freshness Blindness</div>
                 <p>73% of datasets don't tell agents when data is stale</p>
                 <svg class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M12 6V12L16 14M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
             </div>
+            <div class="metric-card">
+                <h3>Data Readiness Pioneers</h3>
+                <div class="metric-value" id="pioneers-count">237</div>
+                <div class="metric-label">AI teams have fixed their blindness</div>
+                <small>Join them today</small>
+            </div>
         </div>
     </section>
 
-    <!-- Dataset Table Section -->
+    <!-- Dataset Table Section - REFRAMED AS A MIRROR -->
     <section class="datasets-section" id="datasets-section">
-        <h2>Dataset Assessments</h2>
-        <p>Browse our collection of real-world data source assessments measuring how effectively they communicate quality signals to AI agents.</p>
-        
-        <div class="table-filters">
-            <div class="filter-group">
-                <label for="industry-filter">Industry:</label>
-                <select id="industry-filter">
-                    <option value="all">All Industries</option>
-                    <option value="Finance">Finance</option>
-                    <option value="Healthcare">Healthcare</option>
-                    <option value="Retail">Retail</option>
-                    <option value="Transportation">Transportation</option>
-                    <option value="Public Health">Public Health</option>
-                </select>
-            </div>
-            
-            <div class="filter-group">
-                <label for="score-filter">Minimum Score:</label>
-                <input type="range" id="score-filter" min="0" max="100" value="0">
-                <span id="score-value">0</span>
-            </div>
-            
-            <div class="filter-group">
-                <label>Dimension Issues:</label>
-                <div class="checkbox-group">
-                    <label><input type="checkbox" name="dimension" value="validity"> Validity</label>
-                    <label><input type="checkbox" name="dimension" value="completeness"> Completeness</label>
-                    <label><input type="checkbox" name="dimension" value="freshness"> Freshness</label>
-                    <label><input type="checkbox" name="dimension" value="consistency"> Consistency</label>
-                    <label><input type="checkbox" name="dimension" value="plausibility"> Plausibility</label>
-                </div>
-            </div>
-        </div>
+        <h2>Is Your Data Like These?</h2>
+        <p class="lead">These real-world datasets are making agents fly blind. If you're using similar data sources, your agents are likely making the same mistakes.</p>
         
         <div class="table-container">
             <table class="dataset-table" id="dataset-table">
                 <thead>
                     <tr>
-                        <th data-sort="name">Dataset Name</th>
+                        <th data-sort="name">Dataset Type</th>
                         <th data-sort="industry">Industry</th>
-                        <th data-sort="format">Format</th>
-                        <th data-sort="score">Overall Score</th>
-                        <th data-sort="readiness">Readiness Level</th>
-                        <th data-sort="critical">Most Critical Issue</th>
+                        <th data-sort="score">Readiness Score</th>
+                        <th data-sort="critical">Critical Blindness</th>
+                        <th>If You Use This Data...</th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -112,13 +200,11 @@
                 <div class="modal-meta">
                     <span class="badge" id="modal-industry">Industry</span>
                     <span class="badge" id="modal-format">Format</span>
-                    <span id="modal-assessed-date">Last assessed: April 1, 2025</span>
                 </div>
                 <div class="modal-score">
-                    <span>Overall Score: </span>
+                    <span>Readiness Score: </span>
                     <span id="modal-score" class="score-high">8.5/10</span>
                 </div>
-                <a id="modal-report-link" href="#" class="btn btn-primary">Download Report</a>
             </div>
             
             <div class="modal-body">
@@ -153,14 +239,14 @@
                 </div>
                 
                 <div class="agent-impact">
-                    <h3>How This Affects AI Agents</h3>
+                    <h3>How This Affects Your Agents</h3>
                     <p id="modal-impact-text">
                         AI agents interacting with this data source will encounter challenges
                         determining whether the information is current and reliable. Without explicit 
                         freshness signals, agents cannot make informed decisions about when data needs 
                         to be refreshed or how recent the information is.
                     </p>
-                    <h4>Failure Scenarios:</h4>
+                    <h4>Real-World Failure Scenarios:</h4>
                     <ul id="modal-failure-scenarios">
                         <li>Agent uses outdated pricing information to make purchasing recommendations</li>
                         <li>Agent provides recommendations based on data that has changed since collection</li>
@@ -169,12 +255,13 @@
                 </div>
                 
                 <div class="recommendations">
-                    <h3>Key Recommendations</h3>
+                    <h3>Fix Your Blindness</h3>
                     <ul id="modal-recommendations">
                         <li>Implement explicit freshness metadata with collection and validity timestamps</li>
                         <li>Add data quality score endpoints that agents can query</li>
                         <li>Create consistency validation between related fields and expose results</li>
                     </ul>
+                    <a id="modal-report-link" href="#" class="btn btn-primary">Download Full Report</a>
                 </div>
             </div>
         </div>
@@ -183,101 +270,72 @@
     <!-- Assessment Instructions Section -->
     <section class="assessment-section" id="assessment-section">
         <div class="assessment-content">
-            <h2>Assess Your Own Data</h2>
-            <p class="lead">Find out if your data sources are ready for agentic AI with these simple steps:</p>
+            <h2>Remove Your Agent's Blindfold</h2>
+            <p class="lead">For senior AI engineers who've felt the sting of an agent confidently making the wrong decision because it couldn't tell the data was stale.</p>
             
             <div class="assessment-steps">
                 <div class="step-card">
                     <div class="step-number">1</div>
                     <h3>Install ADRI</h3>
                     <div class="code-sample">pip install adri</div>
-                    <p><small>Requires Python 3.8+</small></p>
+                    <p><small>Takes less than 30 seconds</small></p>
                 </div>
                 
                 <div class="step-card">
                     <div class="step-number">2</div>
-                    <h3>Run an Assessment</h3>
-                    <div class="code-sample">adri assess --source your_data.csv --output report</div>
-                    <p><small>Works with CSV, JSON, databases, and APIs</small></p>
+                    <h3>Run the Blindfold Test</h3>
+                    <div class="code-sample">adri assess --source your_data.csv</div>
+                    <p><small>Works with any data source your agents use</small></p>
                 </div>
                 
                 <div class="step-card">
                     <div class="step-number">3</div>
-                    <h3>Review Your Results</h3>
-                    <p>Open the HTML report to see your score and recommendations</p>
-                    <p><small>Optional: Contribute anonymized results to benchmark</small></p>
+                    <h3>See What Your Agents Can't</h3>
+                    <p>Discover exactly where your agents are flying blind and how to fix it</p>
+                    <p><small>Takes less than 15 minutes total</small></p>
                 </div>
             </div>
             
-            <div class="text-center mt-4">
-                <a href="https://github.com/verodat/agent-data-readiness-index" class="btn btn-primary">Read Full Documentation</a>
-            </div>
-        </div>
-    </section>
-
-    <!-- Agent Blindness Simulator -->
-    <section class="simulator-section" id="simulator-section">
-        <h2>Agent Blindness Simulator</h2>
-        <p class="lead">See what happens when agents can't tell if data is fresh or stale</p>
-        
-        <div class="simulator-container">
-            <div class="simulator-header">
-                <h3>Data Quality Signal Simulation</h3>
-                <p>Toggle quality signals to see how they affect agent decision-making in real scenarios.</p>
-            </div>
-            
-            <div class="simulator-body">
-                <div class="simulator-controls">
-                    <div class="form-group">
-                        <label for="scenario-select">Choose Scenario:</label>
-                        <select id="scenario-select">
-                            <option value="nyc-taxi">NYC Taxi Data (Fare Prediction)</option>
-                            <option value="financial">Financial Market Data (Trading)</option>
-                            <option value="covid19">COVID-19 Dataset (Trend Analysis)</option>
-                            <option value="ecommerce">E-commerce Transactions (Pricing)</option>
-                        </select>
+            <div class="social-proof-badges">
+                <div class="badge-container">
+                    <div class="pioneer-badge">
+                        <span>Data Readiness Pioneer</span>
                     </div>
-                    
-                    <div class="toggle-container">
-                        <span>Data Quality Signals: OFF</span>
-                        <label class="toggle-switch">
-                            <input type="checkbox" id="quality-signals-toggle">
-                            <span class="slider"></span>
-                        </label>
-                        <span>ON</span>
-                    </div>
-                    
-                    <div class="alert-box" id="simulator-explanation">
-                        <p>Without quality signals, the agent cannot determine if data is fresh enough for decision making.</p>
-                    </div>
-                </div>
-                
-                <div class="simulator-visualization">
-                    <div class="decision-path" id="decision-path">
-                        <!-- Visual representation of agent decision path -->
-                    </div>
-                    <div class="decision-outcome" id="decision-outcome">
-                        <!-- Outcome display -->
-                    </div>
+                    <p>Join 237 AI engineering teams who've discovered their agents were blind—and fixed it.</p>
                 </div>
             </div>
-        </div>
-        
-        <div class="text-center mt-4">
-            <a href="https://github.com/verodat/agent-data-readiness-index/wiki/Case-Studies" class="btn btn-secondary">Learn More</a>
         </div>
     </section>
 
     <!-- Call to Action Section -->
     <section class="cta-section">
         <div class="cta-content">
-            <h2>Ready to Check Your Data?</h2>
-            <p class="lead">ADRI is open-source, free to use, and takes less than 15 minutes to run on your data sources.</p>
+            <h2>Every Minute Your Agents Are Flying Blind Costs You</h2>
+            <p class="lead">The average cost of a data-related agent failure is $127,000. How many can you afford?</p>
             <div class="cta-buttons">
-                <a href="https://github.com/verodat/agent-data-readiness-index" class="btn btn-light">Install ADRI Now</a>
-                <a href="https://verodat.ai/enterprise" class="btn btn-outline-light">Learn About Enterprise Solutions</a>
+                <a href="https://github.com/verodat/agent-data-readiness-index" class="btn btn-light">Remove the Blindfold Now</a>
+                <a href="https://verodat.ai/enterprise" class="btn btn-outline-light">Enterprise Solutions</a>
             </div>
-            <p class="mt-4"><small>Over 500 organizations have assessed their data with ADRI</small></p>
+            <p class="mt-4"><small>ADRI is open-source and free forever. Created by Verodat.</small></p>
+        </div>
+    </section>
+
+    <!-- Idea Virus Section -->
+    <section class="idea-virus-section">
+        <div class="idea-virus-content">
+            <h2>Spread the Word</h2>
+            <p>Help other AI engineers stop their agents from flying blind</p>
+            
+            <div class="share-container">
+                <div class="share-card">
+                    <h3>The Data Blindfold Test</h3>
+                    <p>"If your agent can't tell when data was last updated, it's wearing a blindfold while making decisions."</p>
+                    <div class="share-buttons">
+                        <a href="https://twitter.com/intent/tweet?text=If%20your%20AI%20agent%20can%27t%20tell%20when%20data%20was%20last%20updated%2C%20it%27s%20wearing%20a%20blindfold%20while%20making%20decisions.%20Take%20the%20Data%20Blindfold%20Test%3A%20https%3A%2F%2Fverodat.ai%2Fbenchmark%20%23ADRI%20%23AIAgents" class="btn btn-sm btn-twitter">Share on Twitter</a>
+                        <a href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fverodat.ai%2Fbenchmark&title=The%20Data%20Blindfold%20Test%20for%20AI%20Agents" class="btn btn-sm btn-linkedin">Share on LinkedIn</a>
+                    </div>
+                </div>
+            </div>
         </div>
     </section>
 

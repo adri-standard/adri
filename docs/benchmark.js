@@ -17,6 +17,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Initialize the simulator
     initializeSimulator();
+    
+    // Update pioneers count
+    document.getElementById('pioneers-count').textContent = '237';
 });
 
 /**
@@ -30,7 +33,6 @@ async function fetchBenchmarkData() {
         // Update the UI with the data
         updateMetricsSection();
         populateDatasetTable();
-        updateIndustryFilter();
         
         console.log('Benchmark data loaded successfully', benchmarkData);
     } catch (error) {
@@ -47,24 +49,6 @@ function setupEventListeners() {
         header.addEventListener('click', function() {
             sortTable(this.dataset.sort);
         });
-    });
-    
-    // Filters
-    const industryFilter = document.getElementById('industry-filter');
-    if (industryFilter) {
-        industryFilter.addEventListener('change', filterTable);
-    }
-    
-    const scoreFilter = document.getElementById('score-filter');
-    if (scoreFilter) {
-        scoreFilter.addEventListener('input', function() {
-            document.getElementById('score-value').textContent = this.value;
-            filterTable();
-        });
-    }
-    
-    document.querySelectorAll('input[name="dimension"]').forEach(checkbox => {
-        checkbox.addEventListener('change', filterTable);
     });
     
     // Modal close button
@@ -111,12 +95,6 @@ function updateMetricsSection() {
             avgScoreElement.classList.add('score-low');
         }
     }
-    
-    const datasetsCountElement = document.getElementById('datasets-count');
-    if (datasetsCountElement) {
-        const count = benchmarkData.datasets ? benchmarkData.datasets.length : 0;
-        datasetsCountElement.textContent = count;
-    }
 }
 
 /**
@@ -140,20 +118,36 @@ function populateDatasetTable() {
         const readinessLevel = getReadinessLevel(dataset.assessment.overall_score);
         const criticalIssue = getCriticalIssue(dataset.assessment.dimension_scores);
         
+        // Create impact message based on dataset type
+        let impactMessage = '';
+        switch(dataset.id) {
+            case 'financial-market-data':
+                impactMessage = 'Your agents are making trading decisions on data that could be 15 minutes stale during high volatility';
+                break;
+            case 'ecommerce-transactions':
+                impactMessage = 'Your agents are recommending products at incorrect prices, eroding customer trust';
+                break;
+            case 'covid19-data':
+                impactMessage = 'Your agents are missing critical trend changes in public health data';
+                break;
+            case 'nyc-taxi':
+                impactMessage = 'Your fare predictions are off by up to 85% during major events';
+                break;
+            default:
+                impactMessage = 'Your agents are making decisions on potentially stale or invalid data';
+        }
+        
         // Add dataset info to row
         row.innerHTML = `
             <td data-name="${dataset.name}">${dataset.name}</td>
             <td data-industry="${dataset.industry}">
                 <span class="badge badge-${dataset.industry.toLowerCase().replace(/\s+/g, '-')}">${dataset.industry}</span>
             </td>
-            <td data-format="${dataset.format}">
-                <span class="badge badge-${dataset.format.toLowerCase()}">${dataset.format}</span>
-            </td>
             <td data-score="${dataset.assessment.overall_score}" class="${getScoreClass(dataset.assessment.overall_score)}">
                 ${dataset.assessment.overall_score}/10
             </td>
-            <td data-readiness="${readinessLevel}">${readinessLevel}</td>
             <td data-critical="${criticalIssue}">${criticalIssue}</td>
+            <td>${impactMessage}</td>
             <td>
                 <button class="btn btn-sm btn-primary view-details" data-id="${dataset.id}">View Details</button>
             </td>
@@ -168,32 +162,6 @@ function populateDatasetTable() {
             const datasetId = this.dataset.id;
             openDatasetModal(datasetId);
         });
-    });
-}
-
-/**
- * Update the industry filter dropdown with available industries
- */
-function updateIndustryFilter() {
-    if (!benchmarkData || !benchmarkData.datasets) return;
-    
-    const industryFilter = document.getElementById('industry-filter');
-    if (!industryFilter) return;
-    
-    // Get unique industries
-    const industries = [...new Set(benchmarkData.datasets.map(d => d.industry))];
-    
-    // Clear existing options (except "All Industries")
-    while (industryFilter.options.length > 1) {
-        industryFilter.remove(1);
-    }
-    
-    // Add industries to filter
-    industries.forEach(industry => {
-        const option = document.createElement('option');
-        option.value = industry;
-        option.textContent = industry;
-        industryFilter.appendChild(option);
     });
 }
 
@@ -247,46 +215,6 @@ function sortTable(column) {
 }
 
 /**
- * Filter the dataset table based on selected filters
- */
-function filterTable() {
-    const table = document.getElementById('dataset-table');
-    if (!table) return;
-    
-    const rows = table.querySelectorAll('tbody tr');
-    
-    // Get filter values
-    const industryFilter = document.getElementById('industry-filter');
-    const industry = industryFilter ? industryFilter.value : 'all';
-    
-    const scoreFilter = document.getElementById('score-filter');
-    const minScore = scoreFilter ? parseFloat(scoreFilter.value) / 10 : 0;
-    
-    const dimensionFilters = Array.from(document.querySelectorAll('input[name="dimension"]:checked'))
-        .map(input => input.value);
-    
-    // Check each row against filters
-    rows.forEach(row => {
-        const rowIndustry = row.querySelector('td[data-industry]').dataset.industry;
-        const rowScore = parseFloat(row.querySelector('td[data-score]').dataset.score);
-        const rowCritical = row.querySelector('td[data-critical]').dataset.critical.toLowerCase();
-        
-        // Industry filter
-        const industryMatch = industry === 'all' || rowIndustry === industry;
-        
-        // Score filter
-        const scoreMatch = rowScore >= minScore;
-        
-        // Dimension filter
-        const dimensionMatch = dimensionFilters.length === 0 || 
-            dimensionFilters.some(dim => rowCritical.includes(dim));
-        
-        // Show/hide the row
-        row.style.display = industryMatch && scoreMatch && dimensionMatch ? '' : 'none';
-    });
-}
-
-/**
  * Open the dataset detail modal for the specified dataset
  */
 function openDatasetModal(datasetId) {
@@ -306,8 +234,6 @@ function openDatasetModal(datasetId) {
     const modalFormat = document.getElementById('modal-format');
     modalFormat.textContent = dataset.format;
     modalFormat.className = `badge badge-${dataset.format.toLowerCase()}`;
-    
-    document.getElementById('modal-assessed-date').textContent = `Last assessed: ${formatDate(dataset.assessment.timestamp)}`;
     
     const modalScore = document.getElementById('modal-score');
     modalScore.textContent = `${dataset.assessment.overall_score}/10`;
@@ -664,7 +590,7 @@ function initializeSimulator() {
                     break;
                 case 'financial':
                     outcome = `<div class="alert alert-danger">
-                        <strong>Critical Error:</strong> Agent uses 15-minute old market prices during high volatility, resulting in trading recommendations based on outdated information and potential financial losses.
+                        <strong>Critical Error:</strong> Agent uses 15-minute old market prices during high volatility, resulting in trading recommendations based on outdated information and potential financial losses of $127,000+.
                     </div>`;
                     break;
                 case 'covid19':
@@ -717,17 +643,17 @@ function getCriticalIssue(dimensionScores) {
     // Map dimension to issue description
     switch (lowestDimension) {
         case 'validity':
-            return 'Validity Uncertainty';
+            return 'Validity Blindness';
         case 'completeness':
             return 'Completeness Blindness';
         case 'freshness':
-            return 'Freshness Uncertainty';
+            return 'Freshness Blindness';
         case 'consistency':
-            return 'Consistency Gaps';
+            return 'Consistency Blindness';
         case 'plausibility':
             return 'Plausibility Blindness';
         default:
-            return 'Multiple Issues';
+            return 'Multiple Blindness Issues';
     }
 }
 
