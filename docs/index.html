@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Public Datasets Score 27/100 on the ADRI | Agent Data Readiness Index</title>
+    <title>Data Nutrition Labels for AI Agents | Agent Data Readiness Index</title>
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
@@ -32,8 +32,8 @@
     <section class="hero" id="problem-section">
         <div class="hero-content">
             <div class="verodat-badge">Open Source Community Project</div>
-            <h1>Public Datasets Score an Average of <span class="underline">27/100</span> on the Agent Data Readiness Index</h1>
-            <p class="subtitle">When data doesn't tell agents when it was updated or if it's valid, agents make <em>confident</em> mistakes. We're building a community catalog and open standard to change that.</p>
+            <h1>Data Nutrition Labels for <span class="underline">AI Agents</span></h1>
+            <p class="subtitle">The Agent Data Readiness Index (ADRI) shows what quality signals your datasets are missing. Public datasets score an average of <em>27/100</em> — see what you need to fix to make your agents trustworthy.</p>
             <div class="cta-buttons">
                 <a href="#simulator-section" class="btn btn-primary">See Agent Blindness in Action</a>
                 <a href="#community-section" class="btn btn-secondary">Join the Movement</a>
@@ -49,13 +49,13 @@
         
         <div class="comparison-container">
             <div class="comparison-column before">
-                <h3>BLINDFOLDED AGENTS</h3>
+                <h3>WITHOUT DATA NUTRITION LABELS</h3>
                 <ul class="comparison-list">
                     <li>
                         <svg class="icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M12 6V12L16 14M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
-                        <span>Agents making $1M+ inventory mistakes on stale data</span>
+                        <span>Agents can't detect when data is stale or outdated</span>
                     </li>
                     <li>
                         <svg class="icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -188,8 +188,8 @@
         </div>
         
         <div class="social-proof">
-            <p class="testimonial">"We had no idea our agents were making decisions on 72-hour old data until we ran ADRI. One simple fix saved us $350,000 in a single quarter."</p>
-            <p class="attribution">— Senior AI Engineer, Fortune 500 Financial Services Company</p>
+            <p class="testimonial">Without quality signals, agents operate blindfolded. The ADRI Catalog helps you identify missing signals in popular datasets and shows exactly what you need to fix.</p>
+            <p class="attribution">— The ADRI Team</p>
         </div>
     </section>
 
@@ -256,20 +256,23 @@
         </div>
     </section>
 
-    <!-- Dataset Detail Modal -->
+    <!-- Dataset Detail Modal - Nutrition Label Style -->
     <div class="modal-overlay" id="dataset-modal">
         <div class="modal-content">
             <button class="modal-close" id="modal-close">&times;</button>
             
-            <div class="modal-header">
-                <h2 id="modal-dataset-name">Dataset Name</h2>
+            <div class="modal-header nutrition-label-header">
+                <div class="nutrition-label-title">
+                    <h2 id="modal-dataset-name">Dataset Name</h2>
+                    <div class="nutrition-facts">DATA NUTRITION FACTS</div>
+                </div>
                 <div class="modal-meta">
                     <span class="badge" id="modal-industry">Industry</span>
                     <span class="badge" id="modal-format">Format</span>
                 </div>
-                <div class="modal-score">
-                    <span>Readiness Score: </span>
-                    <span id="modal-score" class="score-high">8.5/10</span>
+                <div class="modal-score nutrition-grade">
+                    <span>ADRI Grade: </span>
+                    <span id="modal-score" class="score-high">D (27/100)</span>
                 </div>
             </div>
             
@@ -304,15 +307,15 @@
                     </table>
                 </div>
                 
-                <div class="agent-impact">
-                    <h3>How This Affects Your Agents</h3>
+                <div class="agent-impact nutrition-label-section">
+                    <h3>If You Use This Dataset With Agents...</h3>
                     <p id="modal-impact-text">
                         AI agents interacting with this data source will encounter challenges
                         determining whether the information is current and reliable. Without explicit 
                         freshness signals, agents cannot make informed decisions about when data needs 
                         to be refreshed or how recent the information is.
                     </p>
-                    <h4>Real-World Failure Scenarios:</h4>
+                    <h4>Potential Agent Failures:</h4>
                     <ul id="modal-failure-scenarios">
                         <li>Agent uses outdated pricing information to make purchasing recommendations</li>
                         <li>Agent provides recommendations based on data that has changed since collection</li>
@@ -320,13 +323,17 @@
                     </ul>
                 </div>
                 
-                <div class="recommendations">
-                    <h3>Fix Your Blindness</h3>
+                <div class="recommendations nutrition-label-section">
+                    <h3>Required Fixes to Make ADRI-Ready</h3>
                     <ul id="modal-recommendations">
                         <li>Implement explicit freshness metadata with collection and validity timestamps</li>
                         <li>Add data quality score endpoints that agents can query</li>
                         <li>Create consistency validation between related fields and expose results</li>
                     </ul>
+                    <div class="verodat-availability">
+                        <h4>Available in Verodat MCP:</h4>
+                        <span id="modal-verodat-available" class="availability-badge available">Yes - Updated Daily</span>
+                    </div>
                     <a id="modal-report-link" href="#" class="btn btn-primary">Download Full Report</a>
                 </div>
             </div>
