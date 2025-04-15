@@ -9,9 +9,9 @@ import logging
 import os
 from typing import Any, Dict, cast
 
-import inquirer
+import inquirer  # type: ignore
 import pandas as pd
-from inquirer import errors
+from inquirer import errors  # type: ignore
 
 from .assessor import DataSourceAssessor
 from .dimensions import DimensionRegistry
