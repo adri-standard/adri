@@ -2,7 +2,7 @@
 Command-line interface for the Agent Data Readiness Index.
 
 This module provides a command-line interface for running ADRI assessments
-and generating reports.
+and generating reports. It also includes an interactive mode for guided assessments.
 """
 
 import argparse
@@ -13,6 +13,7 @@ from typing import List, Optional
 
 from .assessor import DataSourceAssessor
 from .report import AssessmentReport
+from .interactive import run_interactive_mode
 
 
 def setup_logging(verbose: bool = False):
@@ -33,6 +34,13 @@ def parse_args(args: Optional[List[str]] = None):
     
     subparsers = parser.add_subparsers(dest="command", help="Command to run")
     
+    # interactive command
+    interactive_parser = subparsers.add_parser(
+        "interactive", 
+        help="Start interactive assessment mode with guided prompts",
+        description="Start interactive assessment mode with guided prompts for data source assessment."
+    )
+    
     # assess command
     assess_parser = subparsers.add_parser("assess", help="Assess a data source")
     source_group = assess_parser.add_mutually_exclusive_group(required=True)
@@ -52,6 +60,11 @@ def parse_args(args: Optional[List[str]] = None):
     )
     assess_parser.add_argument("--table", help="Table name for database sources")
     assess_parser.add_argument("--custom-config", help="Path to custom assessment configuration")
+    assess_parser.add_argument(
+        "--dimensions",
+        nargs="+",
+        help="Specific dimensions to assess (default: all available dimensions)"
+    )
     
     # report command
     report_parser = subparsers.add_parser("report", help="Work with assessment reports")
@@ -69,7 +82,9 @@ def parse_args(args: Optional[List[str]] = None):
 
 def run_assessment(args):
     """Run an assessment based on command-line arguments."""
-    assessor = DataSourceAssessor()
+    # Create assessor with specified dimensions if provided
+    dimensions = args.dimensions if hasattr(args, 'dimensions') and args.dimensions else None
+    assessor = DataSourceAssessor(dimensions=dimensions)
     
     if args.config:
         # Assess multiple sources from config file
@@ -157,7 +172,9 @@ def main(args=None):
     setup_logging(parsed_args.verbose)
     
     try:
-        if parsed_args.command == "assess":
+        if parsed_args.command == "interactive":
+            return run_interactive_mode()
+        elif parsed_args.command == "assess":
             run_assessment(parsed_args)
         elif parsed_args.command == "report":
             if parsed_args.report_command == "view":

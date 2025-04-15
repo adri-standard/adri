@@ -43,7 +43,27 @@ For the best experience, it's recommended to run ADRI in a virtual environment. 
 
 ### Running an Assessment
 
-To assess a data source (for example, a CSV file), run:
+#### Interactive Mode
+
+For a guided, step-by-step assessment experience, use the interactive mode:
+
+```bash
+adri interactive
+```
+
+This will start an interactive wizard that guides you through:
+- Selecting the data source type
+- Providing the data source path or connection details
+- Choosing which dimensions to assess
+- Customizing assessment parameters
+- Selecting output formats
+- Exploring the results
+
+Interactive mode is especially helpful for new users or when you want to explore the full capabilities of ADRI.
+
+#### Command-Line Mode
+
+To assess a data source directly from the command line (for example, a CSV file), run:
 
 ```bash
 adri assess --source your_data.csv --output report
@@ -52,6 +72,14 @@ adri assess --source your_data.csv --output report
 This command generates two reports:
 - A JSON report (e.g., `report.json`)
 - An HTML report (e.g., `report.html`)
+
+You can also specify which dimensions to assess:
+
+```bash
+adri assess --source your_data.csv --output report --dimensions validity completeness
+```
+
+This will only assess the specified dimensions (in this case, validity and completeness).
 
 If you encounter permission issues or "Access is denied" errors when running the `adri` command directly (commonly on Windows), try:
 
@@ -103,11 +131,123 @@ python -m adri.cli assess --source sample_data.csv --output test_report
 python -m adri.cli report view test_report.json
 ```
 
+## Extending ADRI
+
+ADRI is designed to be easily extensible with new dimensions and connectors. You can add:
+
+- **New Dimensions**: Create custom assessors for additional data quality aspects
+- **New Connectors**: Add support for different data sources beyond files
+
+For detailed instructions on extending ADRI, see the [EXTENDING.md](EXTENDING.md) guide.
+
+## Integrations with AI Agent Frameworks
+
+ADRI provides integrations with popular AI agent frameworks. For detailed documentation, see the [INTEGRATIONS.md](INTEGRATIONS.md) guide.
+
+### LangChain Integration
+
+```python
+from langchain.agents import initialize_agent, AgentType
+from langchain.llms import OpenAI
+from adri.integrations.langchain import create_adri_tool
+
+# Create LangChain agent with ADRI tool
+llm = OpenAI(temperature=0)
+adri_tool = create_adri_tool(min_score=70)
+agent = initialize_agent(
+    [adri_tool], 
+    llm, 
+    agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION
+)
+
+# Use the agent
+agent.run("Assess the quality of customer_data.csv for use in a recommendation system")
+```
+
+### DSPy Integration
+
+```python
+import dspy
+from adri.integrations.dspy import ADRIModule
+
+# Create a DSPy pipeline with ADRI assessment
+class DataQualityPipeline(dspy.Module):
+    def __init__(self):
+        super().__init__()
+        self.adri = ADRIModule(min_score=70)
+        self.analyzer = dspy.ChainOfThought("data_analysis")
+        
+    def forward(self, data_path):
+        # First assess data quality
+        quality_report = self.adri(data_path)
+        
+        # Only proceed if quality is sufficient
+        if quality_report.score >= 70:
+            analysis = self.analyzer(
+                data=data_path,
+                quality_report=quality_report
+            )
+            return analysis
+        else:
+            return f"Data quality insufficient: {quality_report.readiness_level}"
+```
+
+### CrewAI Integration
+
+```python
+from crewai import Crew, Task
+from adri.integrations.crewai import create_data_quality_agent
+
+# Create a data quality agent
+data_quality_agent = create_data_quality_agent(min_score=70)
+
+# Create a task for the agent
+assess_task = Task(
+    description="Assess the quality of customer_data.csv",
+    expected_output="A detailed assessment of data quality",
+    agent=data_quality_agent
+)
+
+# Create a crew with the agent and task
+crew = Crew(
+    agents=[data_quality_agent],
+    tasks=[assess_task]
+)
+
+# Run the crew
+result = crew.kickoff()
+```
+
+### ADRI Guard Decorator
+
+```python
+from adri.integrations import adri_guarded
+
+@adri_guarded(min_score=70)
+def analyze_customer_data(data_source, analysis_type):
+    """
+    This function will only run if data_source meets
+    the minimum quality score of 70
+    """
+    print(f"Analyzing {data_source} for {analysis_type}")
+    # ... analysis code ...
+    return results
+```
+
+For more detailed examples, see the [examples](examples) directory.
+
+## Architecture
+
+ADRI uses a registry-based architecture that makes extension points explicit:
+
+- **Base Classes**: Define interfaces for dimensions and connectors
+- **Registries**: Manage registered components
+- **Decorators**: Simplify registration of new components
+
+This architecture allows for easy extension without modifying the core codebase.
+
 ## Additional Information
 
 For detailed documentation, configuration details, and contribution guidelines, please refer to our [GitHub Wiki](https://github.com/verodat/agent-data-readiness-index/wiki).
 
 ## License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-]]>
