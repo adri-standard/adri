@@ -9,11 +9,16 @@ import logging
 from typing import Dict, List, Tuple, Any, Optional
 
 from ..connectors import BaseConnector
+from . import BaseDimensionAssessor, register_dimension
 
 logger = logging.getLogger(__name__)
 
 
-class CompletenessAssessor:
+@register_dimension(
+    name="completeness",
+    description="Whether all expected data is present"
+)
+class CompletenessAssessor(BaseDimensionAssessor):
     """
     Assessor for the Completeness dimension.
     
@@ -21,15 +26,6 @@ class CompletenessAssessor:
     this information is explicitly communicated to agents.
     """
     
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
-        """
-        Initialize the completeness assessor.
-        
-        Args:
-            config: Optional configuration for the assessment
-        """
-        self.config = config or {}
-        
     def assess(self, connector: BaseConnector) -> Tuple[float, List[str], List[str]]:
         """
         Assess the completeness dimension for a data source.

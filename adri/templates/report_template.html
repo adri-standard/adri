@@ -3,204 +3,325 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agent Data Readiness Index: {{ report.source_name }}</title>
+    <title>ADRI Report: {{ report.source_name }}</title>
     <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
+        /* ADRI Report Styles - Inspired by docs/styles.css */
+        :root {
+          --adri-primary-accent: #9BE380; /* Lime */
+          --adri-primary-accent-darker: #79C965; /* Shaded Lime */
+          --adri-text-primary: #131416; /* Dark Grey */
+          --adri-text-secondary: #76787D; /* Medium Grey */
+          --adri-background-light: #FFFFFF; /* White */
+          --adri-background-subtle: #f8f9fa;
+          --adri-border-light: #e9ecef;
+          --adri-border-dark: #ddd;
+          --adri-error: #FC5660; /* Red */
+
+          /* Score colors */
+          --score-color-advanced: #28a745;
+          --score-color-proficient: #17a2b8;
+          --score-color-basic: #ffc107;
+          --score-color-limited: #fd7e14;
+          --score-color-inadequate: var(--adri-error);
         }
-        
+        body {
+            font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--adri-text-primary);
+            background-color: var(--adri-background-light);
+            max-width: 1200px;
+            margin: 20px auto; /* Add margin */
+            padding: 20px;
+            border: 1px solid var(--adri-border-light); /* Add subtle border */
+            border-radius: 8px; /* Add radius */
+        }
+        h1, h2, h3, h4 {
+            font-weight: 700;
+            color: var(--adri-text-primary);
+            margin-top: 1.5em;
+            margin-bottom: 0.8em;
+        }
+        a {
+            color: var(--adri-primary-accent-darker);
+            text-decoration: none;
+        }
+        a:hover {
+            color: var(--adri-primary-accent);
+            text-decoration: underline;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1em;
+        }
+        td, th {
+            padding: 8px 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--adri-border-light);
+            vertical-align: top; /* Align content top */
+        }
+        th {
+            font-weight: 700;
+            background-color: var(--adri-background-subtle);
+        }
+        pre {
+            background-color: var(--adri-background-subtle);
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid var(--adri-border-light);
+            font-size: 0.9em;
+            overflow-x: auto;
+            white-space: pre-wrap; /* Allow wrapping */
+            word-wrap: break-word;
+        }
+        ul {
+            padding-left: 20px;
+            margin: 0.5em 0;
+        }
+        li {
+            margin-bottom: 0.5em;
+        }
+
         .header {
             text-align: center;
             margin-bottom: 30px;
             padding-bottom: 20px;
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid var(--adri-border-light);
         }
-        
+        .header h1 { margin-top: 0; font-size: 1.8em; }
+        .header h2 { font-size: 1.4em; color: var(--adri-text-secondary); margin-bottom: 0;}
+
+
         .score-banner {
-            background-color: #f8f9fa;
+            background-color: var(--adri-background-subtle);
             border-radius: 10px;
             padding: 20px;
             margin-bottom: 30px;
             text-align: center;
+            border: 1px solid var(--adri-border-light);
         }
-        
+
         .overall-score {
             font-size: 3em;
             font-weight: bold;
         }
-        
+
         .readiness-level {
             font-size: 1.5em;
             margin-top: 10px;
             font-weight: 500;
         }
-        
+
         .chart-container {
+            flex: 1;
+            min-width: 300px;
+            max-width: 500px; /* Limit chart size */
+            height: auto; /* Adjust height automatically */
             text-align: center;
-            margin: 30px 0;
+            margin: 30px auto; /* Center block */
         }
-        
         .chart-container img {
             max-width: 100%;
             height: auto;
+            border: 1px solid var(--adri-border-light); /* Add border to image */
+            border-radius: 4px;
         }
-        
+
+        .dimension-scores-container {
+             border-top: 1px solid var(--adri-border-light);
+             padding-top: 20px;
+             margin-top: 30px;
+        }
+         .dimension-scores-container h2 { margin-top: 0; text-align: center; }
+
         .dimension-scores {
             display: flex;
             flex-wrap: wrap;
-            justify-content: space-between;
+            gap: 20px; /* Use gap for spacing */
+            justify-content: center; /* Center cards if space allows */
             margin-bottom: 30px;
         }
-        
+
         .dimension-card {
-            flex: 0 0 48%;
-            background-color: #f8f9fa;
+            flex: 1 1 400px; /* Allow cards to grow and shrink */
+            max-width: 550px; /* Max width per card */
+            background-color: var(--adri-background-subtle);
             border-radius: 10px;
             padding: 20px;
-            margin-bottom: 20px;
+            margin-bottom: 0; /* Remove bottom margin as gap handles it */
+            border: 1px solid var(--adri-border-light);
         }
-        
+
         .dimension-title {
             font-size: 1.2em;
             font-weight: bold;
-            margin-bottom: 10px;
+            margin-top: 0;
+            margin-bottom: 15px; /* Increased margin */
             display: flex;
             justify-content: space-between;
+            border-bottom: 1px solid var(--adri-border-dark); /* Add separator */
+            padding-bottom: 10px;
         }
-        
+
         .dimension-score {
             font-weight: bold;
         }
-        
-        .findings-list, .recommendations-list {
-            padding-left: 20px;
+        .dimension-card h4 {
+            margin-top: 1em;
+            margin-bottom: 0.5em;
+            font-size: 1em;
+            color: var(--adri-text-secondary);
         }
-        
+
         .metadata-section {
             margin-top: 30px;
-            background-color: #f8f9fa;
+            background-color: var(--adri-background-subtle);
             border-radius: 10px;
             padding: 20px;
+            border: 1px solid var(--adri-border-light);
         }
-        
+         .metadata-section h2 { margin-top: 0; }
+         .metadata-section table td:first-child { font-weight: 500; width: 150px; } /* Style metadata labels */
+
+
         .footer {
             margin-top: 30px;
+            padding-top: 20px;
             text-align: center;
             font-size: 0.9em;
-            color: #666;
+            color: var(--adri-text-secondary);
+            border-top: 1px solid var(--adri-border-light);
         }
-        
+
         /* Score colors */
-        .score-advanced {
-            color: #28a745;
+        .score-advanced { color: var(--score-color-advanced); }
+        .score-proficient { color: var(--score-color-proficient); }
+        .score-basic { color: var(--score-color-basic); }
+        .score-limited { color: var(--score-color-limited); }
+        .score-inadequate { color: var(--score-color-inadequate); }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            body {
+                margin: 10px;
+                padding: 15px;
+            }
+            .dimension-card {
+                flex-basis: 100%; /* Stack cards on smaller screens */
+                max-width: none;
+            }
+            .overall-score { font-size: 2.5em; }
+            .readiness-level { font-size: 1.2em; }
+            h1 { font-size: 1.5em; }
+            h2 { font-size: 1.2em; }
         }
-        
-        .score-proficient {
-            color: #17a2b8;
-        }
-        
-        .score-basic {
-            color: #ffc107;
-        }
-        
-        .score-limited {
-            color: #fd7e14;
-        }
-        
-        .score-inadequate {
-            color: #dc3545;
-        }
+
     </style>
 </head>
 <body>
     <div class="header">
         <h1>Agent Data Readiness Index</h1>
-        <h2>{{ report.source_name }}</h2>
+        <h2>Report for: {{ report.source_name }}</h2>
     </div>
-    
+
     <div class="score-banner">
-        {% if report.overall_score >= 80 %}
-            <div class="overall-score score-advanced">{{ "%.1f"|format(report.overall_score) }}/100</div>
-        {% elif report.overall_score >= 60 %}
-            <div class="overall-score score-proficient">{{ "%.1f"|format(report.overall_score) }}/100</div>
-        {% elif report.overall_score >= 40 %}
-            <div class="overall-score score-basic">{{ "%.1f"|format(report.overall_score) }}/100</div>
-        {% elif report.overall_score >= 20 %}
-            <div class="overall-score score-limited">{{ "%.1f"|format(report.overall_score) }}/100</div>
-        {% else %}
-            <div class="overall-score score-inadequate">{{ "%.1f"|format(report.overall_score) }}/100</div>
+        {% set score = report.overall_score %}
+        {% if score >= 80 %} {% set score_class = 'score-advanced' %}
+        {% elif score >= 60 %} {% set score_class = 'score-proficient' %}
+        {% elif score >= 40 %} {% set score_class = 'score-basic' %}
+        {% elif score >= 20 %} {% set score_class = 'score-limited' %}
+        {% else %} {% set score_class = 'score-inadequate' %}
         {% endif %}
-        
+        <div class="overall-score {{ score_class }}">{{ "%.1f"|format(score) }}/100</div>
         <div class="readiness-level">{{ report.readiness_level }}</div>
     </div>
-    
+
+    {% if radar_chart_b64 %}
     <div class="chart-container">
+        <h3>Dimension Overview</h3>
         <img src="data:image/png;base64,{{ radar_chart_b64 }}" alt="Dimension Radar Chart">
     </div>
-    
-    <h2>Dimension Analysis</h2>
-    
-    <div class="dimension-scores">
-        {% for dim_name, dim_results in report.dimension_results.items() %}
-            <div class="dimension-card">
-                <div class="dimension-title">
-                    <span>{{ dim_name|title }}</span>
-                    <span class="dimension-score">{{ "%.1f"|format(dim_results.score) }}/20</span>
+    {% endif %}
+
+    <div class="dimension-scores-container">
+        <h2>Dimension Analysis</h2>
+        <div class="dimension-scores">
+            {% for dim_name, dim_results in report.dimension_results.items() %}
+                <div class="dimension-card">
+                    <div class="dimension-title">
+                        <span>{{ dim_name|title }}</span>
+                        <span class="dimension-score">{{ "%.1f"|format(dim_results.score) }}/20</span>
+                    </div>
+
+                    {% if dim_results.findings %}
+                        <h4>Findings:</h4>
+                        <ul class="findings-list">
+                            {% for finding in dim_results.findings %}
+                                {% if not finding.startswith("Score components") %} {# Optionally hide score component details #}
+                                    <li>{{ finding }}</li>
+                                {% endif %}
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+
+                    {% if dim_results.recommendations %}
+                        <h4>Recommendations:</h4>
+                        <ul class="recommendations-list">
+                            {% for recommendation in dim_results.recommendations %}
+                                <li>{{ recommendation }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
                 </div>
-                
-                <h4>Findings:</h4>
-                <ul class="findings-list">
-                    {% for finding in dim_results.findings %}
-                        {% if not finding.startswith("Score components") %}
-                            <li>{{ finding }}</li>
-                        {% endif %}
-                    {% endfor %}
-                </ul>
-                
-                {% if dim_results.recommendations %}
-                    <h4>Recommendations:</h4>
-                    <ul class="recommendations-list">
-                        {% for recommendation in dim_results.recommendations %}
-                            <li>{{ recommendation }}</li>
-                        {% endfor %}
-                    </ul>
-                {% endif %}
-            </div>
-        {% endfor %}
+            {% endfor %}
+        </div>
     </div>
-    
+
     <div class="metadata-section">
-        <h2>Data Source Information</h2>
+        <h2>Assessment Details</h2>
         <table>
             <tr>
-                <td><strong>Source Name:</strong></td>
+                <th>Source Name:</th>
                 <td>{{ report.source_name }}</td>
             </tr>
             <tr>
-                <td><strong>Source Type:</strong></td>
+                <th>Source Type:</th>
                 <td>{{ report.source_type }}</td>
             </tr>
             <tr>
-                <td><strong>Assessment Time:</strong></td>
-                <td>{{ report.assessment_time.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                <th>Assessment Time:</th>
+                <td>{{ report.assessment_time.strftime('%Y-%m-%d %H:%M:%S %Z') }}</td>
             </tr>
+            {% if adri_version %}
+            <tr>
+                <th>ADRI Version:</th>
+                <td>{{ adri_version }}</td>
+            </tr>
+            {% endif %}
             {% for key, value in report.source_metadata.items() %}
                 <tr>
-                    <td><strong>{{ key|replace('_', ' ')|title }}:</strong></td>
+                    <th>{{ key|replace('_', ' ')|title }}:</th>
                     <td>{{ value }}</td>
                 </tr>
             {% endfor %}
+            {% if assessment_config %}
+            <tr>
+                <th>Assessment Config:</th>
+                <td>
+                    <pre>{{ assessment_config | tojson(indent=2) }}</pre>
+                </td>
+            </tr>
+            {% endif %}
         </table>
     </div>
-    
+
     <div class="footer">
         <p>Generated by Agent Data Readiness Index (ADRI) on {{ timestamp }}</p>
-        <p>Learn more at <a href="https://github.com/verodat/agent-data-readiness-index">github.com/verodat/agent-data-readiness-index</a></p>
+        <p>Learn more at <a href="https://github.com/verodat/agent-data-readiness-index" target="_blank">github.com/verodat/agent-data-readiness-index</a></p>
+        <!-- Consider adding ADRI version here too -->
+        {% if adri_version %}
+            <p><small>Using ADRI Version: {{ adri_version }}</small></p>
+        {% endif %}
     </div>
 </body>
 </html>

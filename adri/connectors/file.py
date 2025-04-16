@@ -15,10 +15,15 @@ from typing import Dict, List, Any, Optional, Union
 import pandas as pd
 
 from .base import BaseConnector
+from . import register_connector
 
 logger = logging.getLogger(__name__)
 
 
+@register_connector(
+    name="file",
+    description="Connector for file-based data sources (CSV, JSON, Excel, etc.)"
+)
 class FileConnector(BaseConnector):
     """
     Connector for file-based data sources.

@@ -9,11 +9,16 @@ import logging
 from typing import Dict, List, Tuple, Any, Optional
 
 from ..connectors import BaseConnector
+from . import BaseDimensionAssessor, register_dimension
 
 logger = logging.getLogger(__name__)
 
 
-class ValidityAssessor:
+@register_dimension(
+    name="validity",
+    description="Whether data adheres to required types, formats, and ranges"
+)
+class ValidityAssessor(BaseDimensionAssessor):
     """
     Assessor for the Validity dimension.
     
@@ -21,15 +26,6 @@ class ValidityAssessor:
     and whether this information is explicitly communicated to agents.
     """
     
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
-        """
-        Initialize the validity assessor.
-        
-        Args:
-            config: Optional configuration for the assessment
-        """
-        self.config = config or {}
-        
     def assess(self, connector: BaseConnector) -> Tuple[float, List[str], List[str]]:
         """
         Assess the validity dimension for a data source.

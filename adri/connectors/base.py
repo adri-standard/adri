@@ -17,6 +17,9 @@ class BaseConnector(ABC):
     and providing a consistent API for assessors to evaluate them.
     """
     
+    connector_name: str = "base"  # Override in subclasses
+    connector_description: str = ""  # Override in subclasses
+    
     @abstractmethod
     def get_name(self) -> str:
         """

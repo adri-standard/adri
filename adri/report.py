@@ -27,6 +27,8 @@ class AssessmentReport:
         source_type: str,
         source_metadata: Dict[str, Any],
         assessment_time: Optional[datetime] = None,
+        adri_version: Optional[str] = None,
+        assessment_config: Optional[Dict[str, Any]] = None,
     ):
         """
         Initialize an assessment report.
@@ -36,11 +38,15 @@ class AssessmentReport:
             source_type: Type of data source (file, database, api, etc.)
             source_metadata: Metadata about the data source
             assessment_time: When the assessment was performed
+            adri_version: Version of the ADRI tool used for assessment
+            assessment_config: Configuration used for the assessment
         """
         self.source_name = source_name
         self.source_type = source_type
         self.source_metadata = source_metadata
         self.assessment_time = assessment_time or datetime.now()
+        self.adri_version = adri_version
+        self.assessment_config = assessment_config or {}
         
         # These will be populated by populate_from_dimension_results
         self.overall_score = 0
@@ -108,6 +114,8 @@ class AssessmentReport:
             "source_type": self.source_type,
             "source_metadata": self.source_metadata,
             "assessment_time": self.assessment_time.isoformat(),
+            "adri_version": self.adri_version,
+            "assessment_config": self.assessment_config,
             "overall_score": self.overall_score,
             "readiness_level": self.readiness_level,
             "dimension_results": self.dimension_results,
@@ -131,6 +139,8 @@ class AssessmentReport:
             source_type=data["source_type"],
             source_metadata=data["source_metadata"],
             assessment_time=datetime.fromisoformat(data["assessment_time"]),
+            adri_version=data.get("adri_version"), # Use .get for backward compatibility
+            assessment_config=data.get("assessment_config", {}), # Use .get for backward compatibility
         )
         report.overall_score = data["overall_score"]
         report.readiness_level = data["readiness_level"]
@@ -247,7 +257,9 @@ class AssessmentReport:
         html_content = template.render(
             report=self,
             radar_chart_b64=radar_b64,
-            timestamp=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            timestamp=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            adri_version=self.adri_version,
+            assessment_config=self.assessment_config
         )
         
         # Save the rendered HTML report
@@ -258,8 +270,12 @@ class AssessmentReport:
     def print_summary(self):
         """Print a summary of the report to the console."""
         print(f"\n=== Agent Data Readiness Index: {self.source_name} ===")
+        if self.adri_version:
+            print(f"ADRI Version: {self.adri_version}")
+        print(f"Assessment Time: {self.assessment_time.strftime('%Y-%m-%d %H:%M:%S')}")
         print(f"Overall Score: {self.overall_score:.1f}/100")
         print(f"Readiness Level: {self.readiness_level}")
+        # TODO: Consider printing a summary of assessment_config if needed
         print("\nDimension Scores:")
         for dim, results in self.dimension_results.items():
             print(f"  {dim.title()}: {results['score']:.1f}/20")

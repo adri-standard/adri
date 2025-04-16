@@ -6,22 +6,12 @@ the assessment of data sources across all dimensions.
 """
 
 import logging
+import importlib.metadata
 from pathlib import Path
-from typing import Dict, List, Optional, Union, Any
+from typing import Dict, List, Optional, Union, Any, Type
 
-from .dimensions import (
-    ValidityAssessor,
-    CompletenessAssessor,
-    FreshnessAssessor,
-    ConsistencyAssessor,
-    PlausibilityAssessor,
-)
-from .connectors import (
-    BaseConnector,
-    FileConnector,
-    DatabaseConnector,
-    APIConnector,
-)
+from .dimensions import BaseDimensionAssessor, DimensionRegistry
+from .connectors import BaseConnector, ConnectorRegistry
 from .report import AssessmentReport
 from .utils.validators import validate_config
 
@@ -34,25 +24,43 @@ class DataSourceAssessor:
     Agent Data Readiness Index criteria.
     """
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: Optional[Dict[str, Any]] = None, dimensions: Optional[List[str]] = None):
         """
         Initialize the assessor with optional custom configuration.
 
         Args:
             config: Optional configuration dictionary that can customize
                    dimension weights, thresholds, etc.
+            dimensions: Optional list of dimension names to use (defaults to all registered)
         """
         self.config = config or {}
         validate_config(self.config)
 
         # Initialize dimension assessors
-        self.dimensions = {
-            "validity": ValidityAssessor(self.config.get("validity", {})),
-            "completeness": CompletenessAssessor(self.config.get("completeness", {})),
-            "freshness": FreshnessAssessor(self.config.get("freshness", {})),
-            "consistency": ConsistencyAssessor(self.config.get("consistency", {})),
-            "plausibility": PlausibilityAssessor(self.config.get("plausibility", {})),
-        }
+        self.dimensions = {}
+        dimension_names = dimensions or DimensionRegistry.list_dimensions()
+        
+        for name in dimension_names:
+            try:
+                dimension_class = DimensionRegistry.get_dimension(name)
+                self.dimensions[name] = dimension_class(self.config.get(name, {}))
+            except ValueError as e:
+                logger.warning(f"Dimension '{name}' not found: {e}")
+
+    def assess_with_connector(self, connector_type: str, *args, **kwargs) -> AssessmentReport:
+        """
+        Assess a data source using a specific connector type.
+        
+        Args:
+            connector_type: Name of the registered connector to use
+            *args, **kwargs: Arguments to pass to the connector constructor
+            
+        Returns:
+            AssessmentReport: The assessment results
+        """
+        connector_class = ConnectorRegistry.get_connector(connector_type)
+        connector = connector_class(*args, **kwargs)
+        return self.assess_source(connector)
 
     def assess_file(
         self, file_path: Union[str, Path], file_type: Optional[str] = None
@@ -67,8 +75,7 @@ class DataSourceAssessor:
         Returns:
             AssessmentReport: The assessment results
         """
-        connector = FileConnector(file_path, file_type)
-        return self.assess_source(connector)
+        return self.assess_with_connector("file", file_path, file_type)
 
     def assess_database(
         self, connection_string: str, table_name: str
@@ -83,8 +90,7 @@ class DataSourceAssessor:
         Returns:
             AssessmentReport: The assessment results
         """
-        connector = DatabaseConnector(connection_string, table_name)
-        return self.assess_source(connector)
+        return self.assess_with_connector("database", connection_string, table_name)
 
     def assess_api(self, endpoint: str, auth: Optional[Dict[str, Any]] = None) -> AssessmentReport:
         """
@@ -97,8 +103,7 @@ class DataSourceAssessor:
         Returns:
             AssessmentReport: The assessment results
         """
-        connector = APIConnector(endpoint, auth)
-        return self.assess_source(connector)
+        return self.assess_with_connector("api", endpoint, auth)
 
     def assess_source(self, connector: BaseConnector) -> AssessmentReport:
         """
@@ -112,11 +117,20 @@ class DataSourceAssessor:
         """
         logger.info(f"Starting assessment of {connector}")
         
-        # Initialize report
+        # Get ADRI version
+        try:
+            adri_version = importlib.metadata.version('adri')
+        except importlib.metadata.PackageNotFoundError:
+            adri_version = "unknown"
+            logger.warning("Could not determine ADRI package version.")
+            
+        # Initialize report, passing version and config
         report = AssessmentReport(
             source_name=connector.get_name(),
             source_type=connector.get_type(),
             source_metadata=connector.get_metadata(),
+            adri_version=adri_version,
+            assessment_config=self.config, # Pass the assessor's config
         )
 
         # Assess each dimension
