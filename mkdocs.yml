@@ -10,7 +10,7 @@ edit_uri: "" # Disable direct edit links for now
 
 # Build directories
 docs_dir: docs
-site_dir: site # Output directory for built site (add this to .gitignore)
+site_dir: site/docs # Output directory for built site - Place in docs subdirectory
 
 # Theme Configuration (Material for MkDocs)
 theme:
