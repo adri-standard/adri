@@ -1,0 +1,82 @@
+# MkDocs Configuration for ADRI Project
+
+# Project information
+site_name: Agent Data Readiness Index (ADRI)
+site_url: https://verodat.github.io/agent-data-readiness-index/ # Replace with actual URL if different
+site_description: 'ADRI: The Open Standard for Evaluating AI Agent Data Quality.'
+repo_url: https://github.com/verodat/agent-data-readiness-index
+repo_name: verodat/agent-data-readiness-index
+edit_uri: "" # Disable direct edit links for now
+
+# Build directories
+docs_dir: docs
+site_dir: site # Output directory for built site (add this to .gitignore)
+
+# Theme Configuration (Material for MkDocs)
+theme:
+  name: material
+  logo: # Placeholder - Add path to an ADRI logo if available
+  favicon: # Placeholder - Add path to a favicon if available
+  palette:
+    # Palette toggle for light/dark mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default # Default light mode
+      primary: 'grey' # Match dark grey text
+      accent: 'lime' # Use lime green accent
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate # Default dark mode
+      primary: 'grey'
+      accent: 'lime'
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs # Use tabs for top-level sections
+    - navigation.sections # Expand sections in the sidebar
+    - navigation.top # Back-to-top button
+    - search.suggest # Search autocompletion
+    - search.highlight # Highlight search terms
+    - content.code.annotate # Code annotations
+    - content.code.copy # Copy button for code blocks
+  font:
+    text: DM Sans # Match primary font
+    code: Roboto Mono
+
+# Extensions
+markdown_extensions:
+  - pymdownx.highlight: # Code highlighting
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - admonition # Nice looking note/warning boxes
+  - toc: # Table of contents generation
+      permalink: true
+  - attr_list # Allows adding HTML attributes/CSS classes to Markdown elements
+
+# Navigation Structure (Adjust paths as needed)
+nav:
+  - Home: index.md # Renamed from Home.md
+  - Methodology: Methodology.md
+  - Implementation Guide: Implementation-Guide.md
+  - Integrations: INTEGRATIONS.md
+  - Extending ADRI: EXTENDING.md
+  - Community:
+    - Contributing: CONTRIBUTING.md # Now inside docs/
+    - Catalog Info: datasets.md # Placeholder created
+  - Developer Guide: DEVELOPER.md
+  - FAQ: FAQ.md
+
+# Copyright
+copyright: 'Copyright &copy; 2025 Verodat - ADRI is licensed under MIT'
+
+# Extra CSS (Optional - if needed beyond theme customization)
+# extra_css:
+#   - stylesheets/extra.css
+
+# Plugins (Optional - e.g., for blog, social cards)
+# plugins:
+#   - search

@@ -1,0 +1,54 @@
+{
+  "source_name": "Sample Dataset One (from metadata)",
+  "source_type": "CSV",
+  "source_metadata": {
+    "path": "/path/to/sample_dataset_1.csv"
+  },
+  "assessment_time": "2025-04-16T15:00:00.000Z",
+  "adri_version": "0.1.0",
+  "assessment_config": {
+    "dimensions": [
+      "validity",
+      "completeness",
+      "freshness",
+      "consistency",
+      "plausibility"
+    ]
+  },
+  "overall_score": 65.0,
+  "readiness_level": "Proficient - Suitable for most production agent uses",
+  "dimension_results": {
+    "validity": {
+      "score": 15.0,
+      "findings": ["Finding V1"],
+      "recommendations": ["Rec V1"]
+    },
+    "completeness": {
+      "score": 12.0,
+      "findings": ["Finding C1"],
+      "recommendations": ["Rec C1"]
+    },
+    "freshness": {
+      "score": 18.0,
+      "findings": ["Finding F1"],
+      "recommendations": ["Rec F1"]
+    },
+    "consistency": {
+      "score": 10.0,
+      "findings": ["Finding Co1"],
+      "recommendations": ["Rec Co1"]
+    },
+    "plausibility": {
+      "score": 10.0,
+      "findings": ["Finding P1"],
+      "recommendations": ["Rec P1"]
+    }
+  },
+  "summary_findings": [
+    "[Validity] Finding V1",
+    "[Completeness] Finding C1"
+  ],
+  "summary_recommendations": [
+    "[Validity] Rec V1"
+  ]
+}

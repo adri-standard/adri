@@ -1,32 +1,63 @@
-/* ADRI Benchmark Page Styles - Verodat Brand with Nutrition Label Focus */
+/* ADRI Benchmark Page Styles - Verodat Brand Inspired */
 
 /* Base Styles */
 :root {
-  /* Verodat Brand Colors */
+  /* Verodat Brand Colors (Reference) */
   --verodat-white: #FFFFFF;
   --verodat-dark-grey: #131416;
   --verodat-lime: #9BE380;
   --verodat-medium-grey: #76787D;
-  --verodat-shaded-lime: #79C965;
+  --verodat-shaded-lime: #79C965; /* Slightly darker green */
   --verodat-red: #FC5660;
-  
+
+  /* ADRI Specific - derived */
+  --adri-primary-accent: var(--verodat-lime); /* Use Lime as main accent */
+  --adri-primary-accent-darker: var(--verodat-shaded-lime);
+  --adri-text-primary: var(--verodat-dark-grey);
+  --adri-text-secondary: var(--verodat-medium-grey);
+  --adri-background-light: var(--verodat-white);
+  --adri-background-dark: var(--verodat-dark-grey);
+  --adri-background-subtle: #f8f9fa; /* Existing light grey */
+  --adri-border-light: #e9ecef;
+  --adri-border-dark: #ddd;
+  --adri-error: var(--verodat-red);
+
   /* Nutrition Label Colors */
-  --nutrition-border: #333;
-  --nutrition-header-bg: #f8f8f8;
-  --nutrition-section-border: #ddd;
+  --nutrition-border: var(--adri-text-primary); /* Use dark grey for border */
+  --nutrition-header-bg: var(--adri-background-subtle);
+  --nutrition-section-border: var(--adri-border-dark);
 }
 
 body {
   font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   line-height: 1.6;
-  color: var(--verodat-dark-grey);
+  color: var(--adri-text-primary);
+  background-color: var(--adri-background-light);
   margin: 0;
   padding: 0;
 }
 
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 700; /* Bolder headings */
+    color: var(--adri-text-primary);
+    margin-top: 1.5em;
+    margin-bottom: 0.8em;
+}
+
+a {
+    color: var(--adri-primary-accent-darker); /* Use darker green for links */
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+a:hover {
+    color: var(--adri-primary-accent);
+    text-decoration: underline;
+}
+
 /* Header */
 .site-header {
-  background-color: var(--verodat-white);
+  background-color: var(--adri-background-light);
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
   padding: 15px 0;
   position: sticky;
@@ -56,23 +87,61 @@ body {
 
 .main-nav li {
   margin-left: 30px;
+  position: relative; /* Needed for submenu absolute positioning */
 }
 
 .main-nav a {
-  color: var(--verodat-dark-grey);
+  color: var(--adri-text-primary);
   text-decoration: none;
   font-weight: 500;
   transition: color 0.3s ease;
+  padding: 5px 0; /* Add padding for hover */
+  position: relative; /* For submenu positioning */
 }
 
 .main-nav a:hover {
-  color: var(--verodat-shaded-lime);
+  color: var(--adri-primary-accent-darker);
 }
+
+/* Submenu basic styling */
+.main-nav .submenu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: var(--adri-background-light);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    list-style: none;
+    padding: 10px 0;
+    margin: 5px 0 0 0; /* Add slight top margin */
+    min-width: 200px;
+    border-radius: 4px;
+    border: 1px solid var(--adri-border-light);
+    z-index: 101; /* Ensure it's above other content */
+}
+.main-nav li:hover > .submenu {
+    display: block;
+}
+.main-nav .submenu li {
+    margin: 0;
+}
+.main-nav .submenu a {
+    display: block;
+    padding: 8px 15px;
+    white-space: nowrap;
+    color: var(--adri-text-primary);
+}
+.main-nav .submenu a:hover {
+    background-color: var(--adri-background-subtle);
+    color: var(--adri-primary-accent-darker);
+    text-decoration: none; /* Remove underline on hover for submenu items */
+}
+
 
 /* Hero Section */
 .hero {
-  background-color: var(--verodat-dark-grey);
-  color: var(--verodat-white);
+  background-color: var(--adri-background-dark);
+  color: var(--adri-background-light);
   padding: 5rem 0;
   text-align: center;
   position: relative;
@@ -89,8 +158,8 @@ body {
 
 .verodat-badge {
   display: inline-block;
-  background-color: var(--verodat-lime);
-  color: var(--verodat-dark-grey);
+  background-color: var(--adri-primary-accent);
+  color: var(--adri-text-primary);
   padding: 8px 16px;
   border-radius: 20px;
   font-weight: 500;
@@ -101,16 +170,17 @@ body {
 .hero h1 {
   font-size: 3.5rem;
   margin-bottom: 1rem;
-  animation: fadeIn 1s ease-in-out;
+  /* animation: fadeIn 1s ease-in-out; */
   line-height: 1.2;
   font-weight: 700;
+  color: var(--adri-background-light); /* Ensure heading color contrasts */
 }
 
 .hero p {
   font-size: 1.5rem;
   margin-bottom: 2rem;
   opacity: 0.9;
-  animation: fadeIn 1.5s ease-in-out;
+  /* animation: fadeIn 1.5s ease-in-out; */
 }
 
 .hero .subtitle {
@@ -122,7 +192,7 @@ body {
   display: flex;
   justify-content: center;
   gap: 20px;
-  animation: fadeIn 2s ease-in-out;
+  /* animation: fadeIn 2s ease-in-out; */
 }
 
 .dot-pattern {
@@ -131,23 +201,23 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  background-image: radial-gradient(var(--verodat-medium-grey) 1px, transparent 1px);
+  background-image: radial-gradient(var(--adri-text-secondary) 1px, transparent 1px);
   background-size: 20px 20px;
   opacity: 0.1;
   z-index: 1;
 }
 
-/* Underline style for Favorit Lining simulation */
+/* Underline style for emphasis */
 .underline {
   text-decoration: underline;
   text-decoration-thickness: 2px;
-  text-decoration-color: var(--verodat-lime);
+  text-decoration-color: var(--adri-primary-accent);
   text-underline-offset: 4px;
 }
 
 /* Standard Section */
 .standard-section {
-  padding: 4rem 0;
+  padding: 4rem 20px; /* Add horizontal padding */
   max-width: 1200px;
   margin: 0 auto;
   text-align: center;
@@ -161,7 +231,7 @@ body {
 .standard-section .lead {
   font-size: 1.5rem;
   margin-bottom: 3rem;
-  color: var(--verodat-medium-grey);
+  color: var(--adri-text-secondary);
 }
 
 .standard-details {
@@ -177,17 +247,20 @@ body {
   padding: 2rem;
   border-radius: 10px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-  background-color: var(--verodat-white);
+  background-color: var(--adri-background-light);
   text-align: left;
+  border: 1px solid var(--adri-border-light);
 }
 
 .standard-card h3 {
-  color: var(--verodat-dark-grey);
+  color: var(--adri-text-primary);
+  margin-top: 0; /* Reset margin */
   margin-bottom: 1rem;
 }
 
 .standard-card ul {
   padding-left: 1rem;
+  margin: 0;
 }
 
 .standard-card li {
@@ -197,14 +270,14 @@ body {
 .open-source-note {
   margin-top: 3rem;
   padding: 1.5rem;
-  background-color: rgba(155, 227, 128, 0.1);
+  background-color: rgba(155, 227, 128, 0.1); /* Light lime background */
   border-radius: 10px;
-  border-left: 4px solid var(--verodat-lime);
+  border-left: 4px solid var(--adri-primary-accent);
 }
 
 /* Before/After Section */
 .before-after-section {
-  padding: 4rem 0;
+  padding: 4rem 20px; /* Add horizontal padding */
   max-width: 1200px;
   margin: 0 auto;
   text-align: center;
@@ -218,7 +291,7 @@ body {
 .before-after-section .lead {
   font-size: 1.5rem;
   margin-bottom: 3rem;
-  color: var(--verodat-medium-grey);
+  color: var(--adri-text-secondary);
 }
 
 .comparison-container {
@@ -235,17 +308,18 @@ body {
 }
 
 .comparison-column.before {
-  background-color: #fff5f5;
-  border-left: 5px solid var(--verodat-red);
+  background-color: #fff5f5; /* Light red background */
+  border-left: 5px solid var(--adri-error);
 }
 
 .comparison-column.after {
-  background-color: #f0fff4;
-  border-left: 5px solid var(--verodat-lime);
+  background-color: #f0fff4; /* Light green background */
+  border-left: 5px solid var(--adri-primary-accent);
 }
 
 .comparison-column h3 {
   font-size: 1.8rem;
+  margin-top: 0;
   margin-bottom: 1.5rem;
   text-align: center;
 }
@@ -271,16 +345,16 @@ body {
 }
 
 .before .icon {
-  color: var(--verodat-red);
+  color: var(--adri-error);
 }
 
 .after .icon {
-  color: var(--verodat-shaded-lime);
+  color: var(--adri-primary-accent-darker);
 }
 
 /* Key Metrics Section */
-.metrics-section {
-  padding: 4rem 0;
+.metrics-section { /* This class seems unused in index.html, maybe part of benchmark.js? */
+  padding: 4rem 20px; /* Add horizontal padding */
   max-width: 1200px;
   margin: 0 auto;
 }
@@ -290,10 +364,11 @@ body {
   gap: 30px;
   justify-content: center;
   flex-wrap: wrap;
+  margin-bottom: 2rem; /* Added margin */
 }
 
 .metric-card {
-  background: var(--verodat-white);
+  background: var(--adri-background-light);
   border-radius: 10px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
   padding: 2rem;
@@ -301,6 +376,7 @@ body {
   min-width: 250px;
   text-align: center;
   transition: transform 0.3s ease;
+  border: 1px solid var(--adri-border-light);
 }
 
 .metric-card:hover {
@@ -308,13 +384,14 @@ body {
 }
 
 .metric-card.primary-metric {
-  background: var(--verodat-dark-grey);
-  color: var(--verodat-white);
+  background: var(--adri-background-dark);
+  color: var(--adri-background-light);
+  border: none;
 }
 
 .primary-metric .metric-value {
   font-size: 3.5rem;
-  color: var(--verodat-white) !important;
+  color: var(--adri-background-light) !important;
 }
 
 .primary-metric .metric-label {
@@ -329,14 +406,14 @@ body {
 
 .metric-label {
   font-size: 1.2rem;
-  color: var(--verodat-medium-grey);
+  color: var(--adri-text-secondary);
 }
 
 /* Dataset Table Section */
 .datasets-section {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 3rem 0;
+  padding: 3rem 20px; /* Add horizontal padding */
 }
 
 .datasets-section h2 {
@@ -349,7 +426,7 @@ body {
   font-size: 1.3rem;
   margin-bottom: 2rem;
   text-align: center;
-  color: var(--verodat-medium-grey);
+  color: var(--adri-text-secondary);
   max-width: 800px;
   margin-left: auto;
   margin-right: auto;
@@ -358,7 +435,7 @@ body {
 .dataset-filters {
   margin-bottom: 2rem;
   padding: 1rem;
-  background-color: #f8f9fa;
+  background-color: var(--adri-background-subtle);
   border-radius: 10px;
   text-align: center;
 }
@@ -374,11 +451,12 @@ table.dataset-table {
 }
 
 table.dataset-table th {
-  background-color: #f8f9fa;
+  background-color: var(--adri-background-subtle);
   padding: 1rem;
   text-align: left;
   position: relative;
   cursor: pointer;
+  font-weight: 700; /* Bolder header */
 }
 
 table.dataset-table th:after {
@@ -399,15 +477,15 @@ table.dataset-table th.sort-desc:after {
 
 table.dataset-table td {
   padding: 1rem;
-  border-bottom: 1px solid #e9ecef;
+  border-bottom: 1px solid var(--adri-border-light);
 }
 
 table.dataset-table tr:hover {
-  background-color: #f8f9fa;
+  background-color: var(--adri-background-subtle);
 }
 
 .dataset-contribution {
-  background-color: #f8f9fa;
+  background-color: var(--adri-background-subtle);
   padding: 2rem;
   border-radius: 10px;
   text-align: center;
@@ -415,6 +493,7 @@ table.dataset-table tr:hover {
 }
 
 .dataset-contribution h3 {
+  margin-top: 0;
   margin-bottom: 1rem;
 }
 
@@ -426,20 +505,16 @@ table.dataset-table tr:hover {
 }
 
 /* Score Coloring */
-.score-high {
-  color: var(--verodat-shaded-lime);
-  font-weight: bold;
-}
+.score-advanced { color: #28a745; font-weight: bold; } /* Existing */
+.score-proficient { color: #17a2b8; font-weight: bold; } /* Existing */
+.score-basic { color: #ffc107; font-weight: bold; } /* Existing */
+.score-limited { color: #fd7e14; font-weight: bold; } /* Existing */
+.score-inadequate { color: var(--adri-error); font-weight: bold; } /* Use error color */
+/* Keep .score-high, .score-medium, .score-low if used by benchmark.js */
+.score-high { color: var(--adri-primary-accent-darker); font-weight: bold; }
+.score-medium { color: #ffc107; font-weight: bold; }
+.score-low { color: var(--adri-error); font-weight: bold; }
 
-.score-medium {
-  color: #ffc107;
-  font-weight: bold;
-}
-
-.score-low {
-  color: var(--verodat-red);
-  font-weight: bold;
-}
 
 /* Dataset Detail Modal - Nutrition Label Style */
 .modal-overlay {
@@ -464,7 +539,7 @@ table.dataset-table tr:hover {
 }
 
 .modal-content {
-  background: var(--verodat-white);
+  background: var(--adri-background-light);
   border-radius: 10px;
   max-width: 900px;
   width: 90%;
@@ -484,7 +559,7 @@ table.dataset-table tr:hover {
   background: none;
   border: none;
   cursor: pointer;
-  color: var(--verodat-medium-grey);
+  color: var(--adri-text-secondary);
 }
 
 /* Nutrition Label Styling */
@@ -507,13 +582,17 @@ table.dataset-table tr:hover {
   align-items: flex-start;
 }
 
+.nutrition-label-title h2 {
+    margin: 0; /* Reset heading margin */
+}
+
 .nutrition-facts {
   font-size: 1.2rem;
   font-weight: bold;
   text-transform: uppercase;
   letter-spacing: 1px;
   background-color: var(--nutrition-border);
-  color: white;
+  color: var(--adri-background-light);
   padding: 3px 8px;
   border-radius: 3px;
   margin-top: 5px;
@@ -521,7 +600,7 @@ table.dataset-table tr:hover {
 
 .nutrition-grade {
   background-color: var(--nutrition-border);
-  color: white;
+  color: var(--adri-background-light);
   padding: 8px 16px;
   border-radius: 4px;
   font-weight: bold;
@@ -537,6 +616,7 @@ table.dataset-table tr:hover {
 
 .nutrition-label-section h3 {
   font-size: 1.4rem;
+  margin-top: 0;
   margin-bottom: 1rem;
   color: var(--nutrition-border);
 }
@@ -544,6 +624,7 @@ table.dataset-table tr:hover {
 .nutrition-label-section ul {
   list-style-type: square;
   padding-left: 1.5rem;
+  margin: 0;
 }
 
 .nutrition-label-section ul li {
@@ -552,7 +633,7 @@ table.dataset-table tr:hover {
 
 .verodat-availability {
   margin-top: 2rem;
-  background-color: #f8f9fa;
+  background-color: var(--adri-background-subtle);
   padding: 1rem;
   border-radius: 8px;
   display: flex;
@@ -574,14 +655,14 @@ table.dataset-table tr:hover {
 }
 
 .availability-badge.available {
-  background-color: var(--verodat-lime);
-  color: var(--verodat-dark-grey);
+  background-color: var(--adri-primary-accent);
+  color: var(--adri-text-primary);
 }
 
 .availability-badge.unavailable {
-  background-color: #f8f9fa;
-  border: 1px solid var(--verodat-medium-grey);
-  color: var(--verodat-medium-grey);
+  background-color: var(--adri-background-subtle);
+  border: 1px solid var(--adri-text-secondary);
+  color: var(--adri-text-secondary);
 }
 
 .modal-body {
@@ -590,16 +671,37 @@ table.dataset-table tr:hover {
   gap: 20px;
 }
 
-.chart-container {
+.chart-container { /* Used in modal and main report */
   flex: 1;
   min-width: 300px;
-  height: 300px;
+  height: 300px; /* Fixed height for consistency */
+  text-align: center; /* Center image/canvas */
 }
+.chart-container canvas,
+.chart-container img {
+    max-width: 100%;
+    max-height: 100%;
+    height: auto;
+}
+
 
 .dimension-details {
   flex: 1;
   min-width: 300px;
 }
+.dimension-details h3 {
+    margin-top: 0;
+}
+.dimension-table {
+    width: 100%;
+}
+.dimension-table td {
+    padding: 5px 0;
+}
+.dimension-table td:last-child {
+    text-align: right;
+}
+
 
 .agent-impact, .recommendations {
   width: 100%;
@@ -608,8 +710,8 @@ table.dataset-table tr:hover {
 
 /* Community Section */
 .community-section {
-  background-color: #f8f9fa;
-  padding: 4rem 0;
+  background-color: var(--adri-background-subtle);
+  padding: 4rem 20px; /* Add horizontal padding */
   text-align: center;
 }
 
@@ -621,7 +723,7 @@ table.dataset-table tr:hover {
 .community-section .lead {
   font-size: 1.3rem;
   margin-bottom: 3rem;
-  color: var(--verodat-medium-grey);
+  color: var(--adri-text-secondary);
   max-width: 800px;
   margin-left: auto;
   margin-right: auto;
@@ -639,26 +741,28 @@ table.dataset-table tr:hover {
 .contribution-card {
   flex: 1;
   min-width: 250px;
-  background: var(--verodat-white);
+  background: var(--adri-background-light);
   border-radius: 10px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
   padding: 2rem;
   text-align: left;
+  border: 1px solid var(--adri-border-light);
 }
 
 .contribution-card h3 {
-  color: var(--verodat-dark-grey);
+  color: var(--adri-text-primary);
+  margin-top: 0;
   margin-bottom: 1rem;
 }
 
 .contribution-card p {
   margin-bottom: 1.5rem;
-  min-height: 80px;
+  min-height: 80px; /* Adjust as needed */
 }
 
 .level-indicator {
   font-size: 0.85rem;
-  color: var(--verodat-medium-grey);
+  color: var(--adri-text-secondary);
   font-style: italic;
   margin-bottom: 1rem;
 }
@@ -667,12 +771,14 @@ table.dataset-table tr:hover {
   max-width: 800px;
   margin: 4rem auto 0;
   padding: 2rem;
-  background-color: var(--verodat-white);
+  background-color: var(--adri-background-light);
   border-radius: 10px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--adri-border-light);
 }
 
 .community-goal h3 {
+  margin-top: 0;
   margin-bottom: 1.5rem;
 }
 
@@ -687,18 +793,18 @@ table.dataset-table tr:hover {
 
 .progress {
   height: 100%;
-  background-color: var(--verodat-lime);
+  background-color: var(--adri-primary-accent);
   text-align: center;
   line-height: 30px;
-  color: var(--verodat-dark-grey);
+  color: var(--adri-text-primary);
   font-weight: bold;
   transition: width 1s ease;
 }
 
 /* Assessment Instructions Section */
 .assessment-section {
-  background-color: var(--verodat-white);
-  padding: 4rem 0;
+  background-color: var(--adri-background-light);
+  padding: 4rem 20px; /* Add horizontal padding */
 }
 
 .assessment-content {
@@ -715,7 +821,7 @@ table.dataset-table tr:hover {
 .assessment-section .lead {
   font-size: 1.3rem;
   margin-bottom: 3rem;
-  color: var(--verodat-medium-grey);
+  color: var(--adri-text-secondary);
   max-width: 800px;
   margin-left: auto;
   margin-right: auto;
@@ -731,11 +837,12 @@ table.dataset-table tr:hover {
 .step-card {
   flex: 1;
   min-width: 300px;
-  background: var(--verodat-white);
+  background: var(--adri-background-light);
   border-radius: 10px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
   padding: 2rem;
   position: relative;
+  border: 1px solid var(--adri-border-light);
 }
 
 .step-number {
@@ -744,8 +851,8 @@ table.dataset-table tr:hover {
   left: 20px;
   width: 40px;
   height: 40px;
-  background: var(--verodat-lime);
-  color: var(--verodat-dark-grey);
+  background: var(--adri-primary-accent);
+  color: var(--adri-text-primary);
   border-radius: 50%;
   display: flex;
   justify-content: center;
@@ -754,27 +861,28 @@ table.dataset-table tr:hover {
 }
 
 .code-sample {
-  background: #f8f9fa;
+  background: var(--adri-background-subtle);
   padding: 1rem;
   border-radius: 5px;
   font-family: monospace;
   margin: 1rem 0;
   overflow-x: auto;
+  border: 1px solid var(--adri-border-light);
 }
 
-.social-proof-badges {
+.social-proof-badges { /* Seems unused */
   margin-top: 3rem;
 }
 
-.badge-container {
+.badge-container { /* Seems unused */
   display: inline-block;
   text-align: center;
   margin: 0 auto;
 }
 
-.pioneer-badge {
-  background: var(--verodat-lime);
-  color: var(--verodat-dark-grey);
+.pioneer-badge { /* Seems unused */
+  background: var(--adri-primary-accent);
+  color: var(--adri-text-primary);
   padding: 10px 20px;
   border-radius: 30px;
   font-weight: bold;
@@ -785,7 +893,7 @@ table.dataset-table tr:hover {
 
 /* Solutions Section */
 .solutions-section {
-  padding: 4rem 0;
+  padding: 4rem 20px; /* Add horizontal padding */
   max-width: 1200px;
   margin: 0 auto;
   text-align: center;
@@ -799,7 +907,7 @@ table.dataset-table tr:hover {
 .solutions-section .lead {
   font-size: 1.3rem;
   margin-bottom: 3rem;
-  color: var(--verodat-medium-grey);
+  color: var(--adri-text-secondary);
   max-width: 800px;
   margin-left: auto;
   margin-right: auto;
@@ -815,15 +923,17 @@ table.dataset-table tr:hover {
 .approach-card {
   flex: 1;
   min-width: 300px;
-  background: var(--verodat-white);
+  background: var(--adri-background-light);
   border-radius: 10px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
   padding: 2rem;
   text-align: left;
+  border: 1px solid var(--adri-border-light);
 }
 
 .approach-card h3 {
-  color: var(--verodat-dark-grey);
+  color: var(--adri-text-primary);
+  margin-top: 0;
   margin-bottom: 1rem;
 }
 
@@ -833,8 +943,8 @@ table.dataset-table tr:hover {
 
 /* Verodat's Solution Section */
 .verodat-section {
-  background-color: #f8f9fa;
-  padding: 4rem 0;
+  background-color: var(--adri-background-subtle);
+  padding: 4rem 20px; /* Add horizontal padding */
   text-align: center;
 }
 
@@ -846,7 +956,7 @@ table.dataset-table tr:hover {
 .verodat-section .lead {
   font-size: 1.3rem;
   margin-bottom: 3rem;
-  color: var(--verodat-medium-grey);
+  color: var(--adri-text-secondary);
   max-width: 800px;
   margin-left: auto;
   margin-right: auto;
@@ -864,15 +974,17 @@ table.dataset-table tr:hover {
 .mcp-info {
   flex: 2;
   min-width: 400px;
-  background: var(--verodat-white);
+  background: var(--adri-background-light);
   border-radius: 10px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
   padding: 2rem;
   text-align: left;
+  border: 1px solid var(--adri-border-light);
 }
 
 .mcp-info h3 {
-  color: var(--verodat-dark-grey);
+  color: var(--adri-text-primary);
+  margin-top: 0;
   margin-bottom: 1rem;
 }
 
@@ -888,21 +1000,23 @@ table.dataset-table tr:hover {
 .mcp-note {
   font-style: italic;
   margin-bottom: 1.5rem;
-  color: var(--verodat-medium-grey);
+  color: var(--adri-text-secondary);
 }
 
 .available-datasets {
   flex: 1;
   min-width: 300px;
-  background: var(--verodat-white);
+  background: var(--adri-background-light);
   border-radius: 10px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
   padding: 2rem;
   text-align: left;
+  border: 1px solid var(--adri-border-light);
 }
 
 .available-datasets h3 {
-  color: var(--verodat-dark-grey);
+  color: var(--adri-text-primary);
+  margin-top: 0;
   margin-bottom: 1rem;
 }
 
@@ -929,8 +1043,8 @@ table.dataset-table tr:hover {
 }
 
 .simulator-section.featured-section {
-  background-color: #f0f7ff;
-  padding: 4rem 0;
+  background-color: #f0f7ff; /* Light blue background */
+  padding: 4rem 20px; /* Add horizontal padding */
   margin: 0 auto;
   max-width: none;
 }
@@ -948,21 +1062,23 @@ table.dataset-table tr:hover {
 .simulator-section .lead {
   font-size: 1.3rem;
   margin-bottom: 3rem;
-  color: var(--verodat-medium-grey);
+  color: var(--adri-text-secondary);
 }
 
 .simulator-container {
-  border: 1px solid #e9ecef;
+  border: 1px solid var(--adri-border-light);
   border-radius: 10px;
   overflow: hidden;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  background-color: var(--adri-background-light); /* Ensure background */
 }
 
 .simulator-header {
-  background: #f8f9fa;
+  background: var(--adri-background-subtle);
   padding: 1.5rem;
-  border-bottom: 1px solid #e9ecef;
+  border-bottom: 1px solid var(--adri-border-light);
 }
+.simulator-header h3 { margin-top: 0; }
 
 .simulator-body {
   padding: 2rem;
@@ -1021,13 +1137,13 @@ table.dataset-table tr:hover {
   width: 26px;
   left: 4px;
   bottom: 4px;
-  background-color: var(--verodat-white);
+  background-color: var(--adri-background-light);
   transition: .4s;
   border-radius: 50%;
 }
 
 input:checked + .slider {
-  background-color: var(--verodat-lime);
+  background-color: var(--adri-primary-accent);
 }
 
 input:checked + .slider:before {
@@ -1037,10 +1153,11 @@ input:checked + .slider:before {
 .decision-path {
   width: 100%;
   height: 200px;
-  border: 1px solid #e9ecef;
+  border: 1px solid var(--adri-border-light);
   border-radius: 5px;
   margin-top: 20px;
   position: relative;
+  background-color: var(--adri-background-light); /* Add background */
 }
 
 .decision-outcome {
@@ -1050,13 +1167,14 @@ input:checked + .slider:before {
 .social-proof {
   margin-top: 3rem;
   padding: 2rem;
-  background: var(--verodat-white);
+  background: var(--adri-background-light);
   border-radius: 10px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
   max-width: 800px;
   margin-left: auto;
   margin-right: auto;
   position: relative;
+  border: 1px solid var(--adri-border-light);
 }
 
 .testimonial {
@@ -1072,8 +1190,8 @@ input:checked + .slider:before {
 
 /* Idea Virus Section */
 .idea-virus-section {
-  padding: 4rem 0;
-  background-color: #f8f9fa;
+  padding: 4rem 20px; /* Add horizontal padding */
+  background-color: var(--adri-background-subtle);
   text-align: center;
 }
 
@@ -1081,19 +1199,22 @@ input:checked + .slider:before {
   max-width: 800px;
   margin: 0 auto;
 }
+.idea-virus-content h2 { margin-top: 0; }
 
 .share-container {
   margin-top: 2rem;
 }
 
 .share-card {
-  background: var(--verodat-white);
+  background: var(--adri-background-light);
   border-radius: 10px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
   padding: 2rem;
+  border: 1px solid var(--adri-border-light);
 }
 
 .share-card h3 {
+  margin-top: 0;
   margin-bottom: 1rem;
 }
 
@@ -1106,8 +1227,9 @@ input:checked + .slider:before {
 
 /* Footer */
 .footer {
-  background-color: #f8f9fa;
+  background-color: var(--adri-background-subtle);
   padding: 4rem 0 2rem;
+  border-top: 1px solid var(--adri-border-light);
 }
 
 .footer-content {
@@ -1133,7 +1255,7 @@ input:checked + .slider:before {
 
 .tagline {
   font-weight: 500;
-  color: var(--verodat-shaded-lime);
+  color: var(--adri-primary-accent-darker);
   margin-bottom: 0.5rem;
 }
 
@@ -1147,12 +1269,12 @@ input:checked + .slider:before {
 }
 
 .footer a {
-  color: var(--verodat-medium-grey);
+  color: var(--adri-text-secondary);
   text-decoration: none;
 }
 
 .footer a:hover {
-  color: var(--verodat-shaded-lime);
+  color: var(--adri-primary-accent-darker);
   text-decoration: underline;
 }
 
@@ -1165,54 +1287,66 @@ input:checked + .slider:before {
   font-weight: bold;
   transition: all 0.3s ease;
   cursor: pointer;
+  border: 2px solid transparent; /* Base border */
 }
 
 .btn-primary {
-  background-color: var(--verodat-lime);
-  color: var(--verodat-dark-grey);
+  background-color: var(--adri-primary-accent);
+  color: var(--adri-text-primary);
+  border-color: var(--adri-primary-accent);
 }
 
 .btn-primary:hover {
-  background-color: var(--verodat-shaded-lime);
+  background-color: var(--adri-primary-accent-darker);
+  border-color: var(--adri-primary-accent-darker);
+  color: var(--adri-text-primary);
 }
 
 .btn-secondary {
   background-color: transparent;
-  color: var(--verodat-lime);
-  border: 2px solid var(--verodat-lime);
+  color: var(--adri-primary-accent-darker);
+  border: 2px solid var(--adri-primary-accent);
 }
 
 .btn-secondary:hover {
   background-color: rgba(155, 227, 128, 0.1);
+  border-color: var(--adri-primary-accent-darker);
+  color: var(--adri-primary-accent-darker);
 }
 
 .btn-outline {
   background-color: transparent;
-  color: var(--verodat-medium-grey);
-  border: 2px solid var(--verodat-medium-grey);
+  color: var(--adri-text-secondary);
+  border: 2px solid var(--adri-text-secondary);
 }
 
 .btn-outline:hover {
   background-color: rgba(118, 120, 125, 0.1);
+  color: var(--adri-text-primary);
+  border-color: var(--adri-text-primary);
 }
 
-.btn-light {
-  background-color: var(--verodat-white);
-  color: var(--verodat-dark-grey);
+.btn-light { /* Use for buttons on dark backgrounds */
+  background-color: var(--adri-background-light);
+  color: var(--adri-text-primary);
+  border-color: var(--adri-background-light);
 }
 
 .btn-light:hover {
-  background-color: #f8f9fa;
+  background-color: #f8f9fa; /* Slightly off-white */
+  border-color: #f8f9fa;
 }
 
-.btn-outline-light {
+.btn-outline-light { /* Use for outline buttons on dark backgrounds */
   background-color: transparent;
-  color: var(--verodat-white);
-  border: 2px solid var(--verodat-white);
+  color: var(--adri-background-light);
+  border: 2px solid var(--adri-background-light);
 }
 
 .btn-outline-light:hover {
   background-color: rgba(255, 255, 255, 0.1);
+  color: var(--adri-background-light);
+  border-color: var(--adri-background-light);
 }
 
 .btn-sm {
@@ -1222,12 +1356,22 @@ input:checked + .slider:before {
 
 .btn-twitter {
   background-color: #1da1f2;
-  color: var(--verodat-white);
+  color: var(--adri-background-light);
+  border-color: #1da1f2;
+}
+.btn-twitter:hover {
+    background-color: #0c85d0;
+    border-color: #0c85d0;
 }
 
 .btn-linkedin {
   background-color: #0077b5;
-  color: var(--verodat-white);
+  color: var(--adri-background-light);
+  border-color: #0077b5;
+}
+.btn-linkedin:hover {
+    background-color: #005582;
+    border-color: #005582;
 }
 
 /* Animations */
@@ -1258,33 +1402,33 @@ input:checked + .slider:before {
   .hero h1 {
     font-size: 2.5rem;
   }
-  
+
   .hero p {
     font-size: 1.2rem;
   }
-  
+
   .cta-buttons {
     flex-direction: column;
     gap: 10px;
   }
-  
-  .metric-cards, 
-  .assessment-steps, 
-  .standard-details, 
+
+  .metric-cards,
+  .assessment-steps,
+  .standard-details,
   .solution-approaches,
   .contribution-cards,
   .verodat-mcp {
     flex-direction: column;
   }
-  
+
   .comparison-container {
     flex-direction: column;
   }
-  
+
   .simulator-body {
     flex-direction: column;
   }
-  
+
   .before-after-section h2,
   .simulator-section h2,
   .datasets-section h2,
@@ -1295,16 +1439,37 @@ input:checked + .slider:before {
   .standard-section h2 {
     font-size: 2rem;
   }
-  
+
   .modal-content {
     width: 95%;
     padding: 1rem;
   }
+
+  .main-nav ul {
+      flex-direction: column; /* Stack nav items */
+      align-items: center;
+  }
+  .main-nav li {
+      margin-left: 0;
+      margin-bottom: 10px;
+  }
+  .main-nav .submenu {
+      position: static; /* Remove absolute positioning */
+      display: none; /* Keep hidden initially */
+      box-shadow: none;
+      border: none;
+      padding-left: 20px; /* Indent submenu items */
+  }
+   .main-nav li:hover > .submenu {
+       display: none; /* Prevent hover opening on mobile */
+   }
+   /* Add JS later to handle click-to-open for submenus on mobile */
+
 }
 
 /* Additional utility classes */
 .highlight {
-  color: var(--verodat-shaded-lime);
+  color: var(--adri-primary-accent-darker);
   font-weight: bold;
 }
 
@@ -1313,16 +1478,18 @@ input:checked + .slider:before {
   border-radius: 20px;
   font-size: 0.8rem;
   font-weight: bold;
+  margin: 2px; /* Add margin for wrapping */
+  display: inline-block; /* Ensure wrapping */
 }
 
-.badge-finance { background-color: var(--verodat-shaded-lime); color: var(--verodat-white); }
-.badge-retail { background-color: #fd7e14; color: var(--verodat-white); }
-.badge-healthcare { background-color: #17a2b8; color: var(--verodat-white); }
-.badge-transportation { background-color: #6610f2; color: var(--verodat-white); }
-.badge-public-health { background-color: var(--verodat-red); color: var(--verodat-white); }
-.badge-api { background-color: #20c997; color: var(--verodat-white); }
-.badge-csv { background-color: var(--verodat-medium-grey); color: var(--verodat-white); }
-.badge-excel { background-color: #007bff; color: var(--verodat-white); }
+.badge-finance { background-color: var(--adri-primary-accent-darker); color: var(--adri-background-light); }
+.badge-retail { background-color: #fd7e14; color: var(--adri-background-light); }
+.badge-healthcare { background-color: #17a2b8; color: var(--adri-background-light); }
+.badge-transportation { background-color: #6610f2; color: var(--adri-background-light); }
+.badge-public-health { background-color: var(--adri-error); color: var(--adri-background-light); }
+.badge-api { background-color: #20c997; color: var(--adri-background-light); }
+.badge-csv { background-color: var(--adri-text-secondary); color: var(--adri-background-light); }
+.badge-excel { background-color: #007bff; color: var(--adri-background-light); }
 
 .hidden {
   display: none;
@@ -1360,10 +1527,11 @@ input:checked + .slider:before {
 }
 
 .alert-box {
-  background-color: #f8f9fa;
-  border-left: 4px solid var(--verodat-lime);
+  background-color: var(--adri-background-subtle);
+  border-left: 4px solid var(--adri-primary-accent);
   padding: 15px;
   margin: 20px 0;
+  border-radius: 4px; /* Add radius */
 }
 
 /* Path visualization styles */
@@ -1376,8 +1544,8 @@ input:checked + .slider:before {
 }
 
 .path-node {
-  background-color: #f8f9fa;
-  border: 1px solid #e9ecef;
+  background-color: var(--adri-background-subtle);
+  border: 1px solid var(--adri-border-light);
   border-radius: 5px;
   padding: 10px 15px;
   position: relative;
@@ -1406,7 +1574,7 @@ input:checked + .slider:before {
 .path-arrow {
   width: 30px;
   height: 2px;
-  background-color: var(--verodat-medium-grey);
+  background-color: var(--adri-text-secondary);
   position: relative;
 }
 
@@ -1417,7 +1585,7 @@ input:checked + .slider:before {
   top: -4px;
   width: 0;
   height: 0;
-  border-left: 8px solid var(--verodat-medium-grey);
+  border-left: 8px solid var(--adri-text-secondary);
   border-top: 5px solid transparent;
   border-bottom: 5px solid transparent;
 }
@@ -1433,12 +1601,17 @@ input:checked + .slider:before {
 }
 
 /* Modern UI elements for scenario selector */
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+}
 .form-group select {
   appearance: none;
   background: url("data:image/svg+xml;utf8,<svg fill='black' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/><path d='M0 0h24v24H0z' fill='none'/></svg>") no-repeat;
   background-position: right 10px top 50%;
-  background-color: white;
-  border: 2px solid #ddd;
+  background-color: var(--adri-background-light);
+  border: 2px solid var(--adri-border-dark);
   border-radius: 8px;
   padding: 12px 40px 12px 15px;
   width: 100%;
@@ -1448,7 +1621,7 @@ input:checked + .slider:before {
 
 .form-group select:focus {
   outline: none;
-  border-color: var(--verodat-lime);
+  border-color: var(--adri-primary-accent);
   box-shadow: 0 0 0 3px rgba(155, 227, 128, 0.25);
 }
 
@@ -1464,7 +1637,7 @@ input:checked + .slider:before {
   flex: 1;
   min-width: 200px;
   padding: 15px;
-  border: 2px solid #ddd;
+  border: 2px solid var(--adri-border-dark);
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -1476,7 +1649,7 @@ input:checked + .slider:before {
 }
 
 .scenario-card.active {
-  border-color: var(--verodat-lime);
+  border-color: var(--adri-primary-accent);
   background-color: rgba(155, 227, 128, 0.1);
 }
 
@@ -1486,6 +1659,40 @@ input:checked + .slider:before {
 
 .scenario-card p {
   font-size: 0.9rem;
-  color: var(--verodat-medium-grey);
+  color: var(--adri-text-secondary);
   margin: 0;
 }
+
+</final_file_content>
+
+IMPORTANT: For any future changes to this file, use the final_file_content shown above as your reference. This content reflects the current state of the file, including any auto-formatting (e.g., if you used single quotes but the formatter converted them to double quotes). Always base your SEARCH/REPLACE operations on this final version to ensure accuracy.<environment_details>
+# VSCode Visible Files
+docs/styles.css
+
+# VSCode Open Tabs
+docs/index.html
+adri/templates/report_template.html
+pyproject.toml
+docs/datasets.md
+mkdocs.yml
+docs/FAQ.md
+docs/Implementation-Guide.md
+docs/index.md
+docs/INTEGRATIONS.md
+docs/CONTRIBUTING.md
+.gitignore
+assessed_datasets/sample_dataset_1/metadata.yaml
+assessed_datasets/sample_dataset_1/report.json
+scripts/update_catalog.py
+docs/DEVELOPER.md
+docs/styles.css
+
+# Current Time
+4/16/2025, 3:07:47 PM (Europe/Dublin, UTC+1:00)
+
+# Context Window Usage
+355,024 / 1,000K tokens used (36%)
+
+# Current Mode
+ACT MODE
+</environment_details>

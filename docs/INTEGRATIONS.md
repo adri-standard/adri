@@ -160,10 +160,10 @@ The ADRI Guard decorator doesn't require any additional dependencies.
 
 ## Examples
 
-For complete examples of each integration, see the [examples](examples) directory:
+For complete examples of each integration, see the `examples` directory in the [GitHub repository](https://github.com/verodat/agent-data-readiness-index/tree/main/examples):
 
-- [Guard Decorator Example](examples/guard/decorator_example.py)
-- [LangChain Example](examples/langchain/langchain_example.py)
-- [DSPy Example](examples/dspy/dspy_example.py)
-- [CrewAI Example](examples/crewai/crewai_example.py)
-- [Interactive Mode Example](examples/interactive/interactive_example.py)
+- [Guard Decorator Example](https://github.com/verodat/agent-data-readiness-index/blob/main/examples/guard/decorator_example.py)
+- [LangChain Example](https://github.com/verodat/agent-data-readiness-index/blob/main/examples/langchain/langchain_example.py)
+- [DSPy Example](https://github.com/verodat/agent-data-readiness-index/blob/main/examples/dspy/dspy_example.py)
+- [CrewAI Example](https://github.com/verodat/agent-data-readiness-index/blob/main/examples/crewai/crewai_example.py)
+- [Interactive Mode Example](https://github.com/verodat/agent-data-readiness-index/blob/main/examples/interactive/interactive_example.py)

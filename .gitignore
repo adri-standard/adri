@@ -23,6 +23,9 @@ test_report*.json
 *.swp
 *.swo
 
+# MkDocs build output
+site/
+
 # OS specific files
 .DS_Store
 Thumbs.db
