@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "adri"
 version = "0.1.0"
 authors = [
-    {name = "Verodat", email = "info@verodat.ai"},
+    {name = "Verodat", email = "info@verodat.ai"}
 ]
 description = "Agent Data Readiness Index - A framework for evaluating data quality for agentic AI systems"
 readme = "README.md"
@@ -21,14 +21,14 @@ classifiers = [
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
-    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence"
 ]
 dependencies = [
     "pandas>=1.0.0",
     "matplotlib>=3.3.0",
     "jinja2>=3.0.0",
     "pyyaml>=6.0",
-    "inquirer>=2.10.0",
+    "inquirer>=2.10.0"
 ]
 
 [project.optional-dependencies]
@@ -38,39 +38,38 @@ dev = [
     "black>=22.0.0",
     "isort>=5.10.0",
     "flake8>=4.0.0",
-    "mypy>=0.9.0",
+    "mypy>=0.9.0"
 ]
 database = [
     "sqlalchemy>=1.4.0",
-    "psycopg2-binary>=2.9.0",
+    "psycopg2-binary>=2.9.0"
 ]
 api = [
-    "requests>=2.25.0",
+    "requests>=2.25.0"
 ]
 langchain = [
-    "langchain>=0.1.0",
+    "langchain>=0.1.0"
 ]
 dspy = [
-    "dspy>=0.1.0",
+    "dspy>=0.1.0"
 ]
 crewai = [
-    "crewai>=0.1.0",
+    "crewai>=0.1.0"
 ]
 docs = [
     "sphinx>=4.0.0",
-    "sphinx>=4.0.0", # Keep Sphinx for now if notebooks use it via nbsphinx
     "sphinx-rtd-theme>=1.0.0",
     "sphinx-autodoc-typehints>=1.12.0",
     "nbsphinx>=0.8.0",
     "jupyter>=1.0.0",
-    "mkdocs>=1.5.0", # Add mkdocs
-    "mkdocs-material>=9.0.0", # Add mkdocs-material theme
+    "mkdocs>=1.5.0",
+    "mkdocs-material>=9.0.0"
 ]
 integrations = [
-    "adri[langchain,dspy,crewai]",
+    "adri[langchain,dspy,crewai]"
 ]
 all = [
-    "adri[dev,database,api,integrations,docs]",
+    "adri[dev,database,api,integrations,docs]"
 ]
 
 [project.urls]
