@@ -2,10 +2,10 @@
 
 # Project information
 site_name: Agent Data Readiness Index (ADRI)
-site_url: https://verodat.github.io/agent-data-readiness-index/ # Replace with actual URL if different
+site_url: !ENV [SITE_BASE_URL, 'https://probable-adventure-3jve6ry.pages.github.io/']
 site_description: 'ADRI: The Open Standard for Evaluating AI Agent Data Quality.'
-repo_url: https://github.com/verodat/agent-data-readiness-index
-repo_name: verodat/agent-data-readiness-index
+repo_url: https://github.com/ThinkEvolveSolve/agent-data-readiness-index
+repo_name: ThinkEvolveSolve/agent-data-readiness-index
 edit_uri: "" # Disable direct edit links for now
 
 # Build directories
@@ -71,12 +71,14 @@ nav:
   - FAQ: FAQ.md
 
 # Copyright
-copyright: 'Copyright &copy; 2025 Verodat - ADRI is licensed under MIT'
+copyright: 'Copyright &copy; 2025 - ADRI is licensed under MIT'
 
 # Extra CSS (Optional - if needed beyond theme customization)
 # extra_css:
 #   - stylesheets/extra.css
 
-# Plugins (Optional - e.g., for blog, social cards)
-# plugins:
-#   - search
+# Plugins for functionality
+plugins:
+  - search
+  - macros: # For environment variables
+      module_name: main

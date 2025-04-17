@@ -1,6 +1,5 @@
 """
-Script to update the community dataset catalog data (docs/data/benchmark.json)
-by scanning submitted assessments in the assessed_datasets/ directory.
+Script to update the community dataset catalog data by scanning submitted assessments.
 """
 
 import os
@@ -16,8 +15,8 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 
 # Define paths
 ROOT_DIR = Path(__file__).parent.parent
-ASSESSED_DIR = ROOT_DIR / "assessed_datasets"
-OUTPUT_JSON = ROOT_DIR / "docs" / "data" / "benchmark.json"
+ASSESSED_DIR = ROOT_DIR / "datasets"  # Updated from assessed_datasets
+OUTPUT_JSON = ROOT_DIR / "datasets" / "catalog" / "benchmark.json"  # Updated location
 
 def find_assessments(base_dir: Path) -> list:
     """Finds all metadata.yaml files recursively."""

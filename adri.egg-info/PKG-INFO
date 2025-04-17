@@ -22,6 +22,7 @@ Requires-Dist: pandas>=1.0.0
 Requires-Dist: matplotlib>=3.3.0
 Requires-Dist: jinja2>=3.0.0
 Requires-Dist: pyyaml>=6.0
+Requires-Dist: inquirer>=2.10.0
 Provides-Extra: dev
 Requires-Dist: pytest>=7.0.0; extra == "dev"
 Requires-Dist: pytest-cov>=2.12.0; extra == "dev"
@@ -34,62 +35,69 @@ Requires-Dist: sqlalchemy>=1.4.0; extra == "database"
 Requires-Dist: psycopg2-binary>=2.9.0; extra == "database"
 Provides-Extra: api
 Requires-Dist: requests>=2.25.0; extra == "api"
-Provides-Extra: full
-Requires-Dist: adri[api,database,dev]; extra == "full"
+Provides-Extra: langchain
+Requires-Dist: langchain>=0.1.0; extra == "langchain"
+Provides-Extra: dspy
+Requires-Dist: dspy>=0.1.0; extra == "dspy"
+Provides-Extra: crewai
+Requires-Dist: crewai>=0.1.0; extra == "crewai"
+Provides-Extra: docs
+Requires-Dist: sphinx>=4.0.0; extra == "docs"
+Requires-Dist: sphinx-rtd-theme>=1.0.0; extra == "docs"
+Requires-Dist: sphinx-autodoc-typehints>=1.12.0; extra == "docs"
+Requires-Dist: nbsphinx>=0.8.0; extra == "docs"
+Requires-Dist: jupyter>=1.0.0; extra == "docs"
+Requires-Dist: mkdocs>=1.5.0; extra == "docs"
+Requires-Dist: mkdocs-material>=9.0.0; extra == "docs"
+Provides-Extra: integrations
+Requires-Dist: adri[crewai,dspy,langchain]; extra == "integrations"
+Provides-Extra: all
+Requires-Dist: adri[api,database,dev,docs,integrations]; extra == "all"
 Dynamic: license-file
 
-<![CDATA[
 # Agent Data Readiness Index (ADRI)
 
-ADRI is the industry’s first open standard for evaluating data quality for agentic AI systems. It provides a comprehensive, five-dimensional assessment of data sources by measuring Validity, Completeness, Freshness, Consistency, and Plausibility.
+[![PyPI version](https://badge.fury.io/py/adri.svg)](https://badge.fury.io/py/adri)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![GitHub Pages](https://img.shields.io/badge/Docs-GitHub%20Pages-blue)](https://verodat.github.io/agent-data-readiness-index/)
 
-## Installation
+**Stop Your AI Agents from Flying Blind!**
 
-Install ADRI from PyPI:
+Agentic AI systems often fail because they can't "see" the quality of the data they rely on. They might trust stale, incomplete, or inconsistent information, leading to costly mistakes and unreliable behavior. This is **Agent Data Blindness**.
+
+**ADRI is the solution:** An open standard and toolkit designed to evaluate how well data sources communicate their quality attributes *to AI agents*. Think of it as providing **"Data Nutrition Labels"** for your agent's data sources.
+
+ADRI assesses data across five key dimensions (Validity, Completeness, Freshness, Consistency, Plausibility), focusing specifically on whether quality signals are available and understandable *by the agent*.
+
+## Key Features
+
+*   **Standardized Score (0-100):** Quickly gauge data readiness for agentic use.
+*   **Actionable Insights:** Get specific findings and recommendations to fix data blindness issues.
+*   **Extensible Framework:** Add custom connectors for your data sources and new quality dimensions.
+*   **AI Framework Integrations:** Easily integrate ADRI checks into LangChain, DSPy, CrewAI, and other workflows.
+*   **Community Catalog:** Contribute to and explore a growing catalog of ADRI assessments for common public datasets.
+
+## Quick Install
 
 ```bash
 pip install adri
 ```
 
-> Note: If "adri" is already taken on PyPI, consider using an alternative package name (e.g., `agent-data-readiness-index`).
+## Learn More & Get Involved
 
-## Quick Start
+**Visit our main documentation site for:**
 
-Run an assessment on your data source with:
+*   **Full Installation & Usage Guides**
+*   **Detailed Methodology & Scoring**
+*   **Framework Integration Examples**
+*   **Community Dataset Catalog**
+*   **Contribution Guidelines**
+*   **And much more!**
 
-```bash
-adri assess --source your_data.csv --output report
-```
+➡️ **[https://verodat.github.io/agent-data-readiness-index/](https://verodat.github.io/agent-data-readiness-index/)**
 
-Then, view the generated report with:
-
-```bash
-adri report view report.json
-```
-
-## Features
-
-- **Five-Dimensional Assessment:** Evaluates data sources across Validity, Completeness, Freshness, Consistency, and Plausibility.
-- **Agent-Centric Evaluation:** Clearly communicates data quality attributes to AI agents.
-- **Benchmarking:** Compare your scores against industry assessments.
-- **Rich Reporting:** Generates outputs in both JSON and HTML formats.
-- **Extensibility:** Designed to integrate with multiple data sources and environments.
-
-## Documentation
-
-For detailed information, please refer to our [GitHub Wiki](https://github.com/verodat/agent-data-readiness-index/wiki) and additional documentation in the repository.
-
-## Contributing
-
-We welcome contributions! To contribute:
-1. Fork the repository on GitHub.
-2. Run your assessments using ADRI.
-3. Submit your HTML report to the `docs/reports/` directory.
-4. Update the repository index and create a pull request.
-
-For more details, see the [Contributing Guide](https://github.com/verodat/agent-data-readiness-index#contributing-to-the-benchmark).
+Join the movement to build more reliable and trustworthy AI agents!
 
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-]]>

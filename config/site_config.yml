@@ -1,0 +1,13 @@
+# GitHub Pages Configuration
+# --------------------------
+
+# Current auto-generated GitHub Pages URL (for private repository)
+site_base_url: "https://probable-adventure-3jve6ry.pages.github.io/"
+
+# Future URL (when repository becomes public) - uncomment this when repository is made public
+# site_base_url: "https://thinkevolvesolve.github.io/agent-data-readiness-index/"
+
+# Organization settings
+github_org: "ThinkEvolveSolve"
+github_repo: "agent-data-readiness-index"
+github_repo_url: "https://github.com/ThinkEvolveSolve/agent-data-readiness-index"

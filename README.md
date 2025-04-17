@@ -2,7 +2,7 @@
 
 [![PyPI version](https://badge.fury.io/py/adri.svg)](https://badge.fury.io/py/adri)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![GitHub Pages](https://img.shields.io/badge/Docs-GitHub%20Pages-blue)](https://verodat.github.io/agent-data-readiness-index/)
+[![GitHub Pages](https://img.shields.io/badge/Docs-GitHub%20Pages-blue)](https://probable-adventure-3jve6ry.pages.github.io/)
 
 **Stop Your AI Agents from Flying Blind!**
 
@@ -37,7 +37,7 @@ pip install adri
 *   **Contribution Guidelines**
 *   **And much more!**
 
-➡️ **[https://verodat.github.io/agent-data-readiness-index/](https://verodat.github.io/agent-data-readiness-index/)**
+➡️ **Visit our documentation site: [ADRI Documentation](https://probable-adventure-3jve6ry.pages.github.io/)**
 
 Join the movement to build more reliable and trustworthy AI agents!
 

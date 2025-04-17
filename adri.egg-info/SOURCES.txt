@@ -5,6 +5,7 @@ pyproject.toml
 adri/__init__.py
 adri/assessor.py
 adri/cli.py
+adri/interactive.py
 adri/report.py
 adri.egg-info/PKG-INFO
 adri.egg-info/SOURCES.txt
