@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0b1-1] - 2025-04-18
+### Fixed
+- GitHub Actions workflow for release assets
+- Dependencies installation in CI pipeline
+
 ## [0.2.0b1] - 2025-04-18
 
 ### Added
@@ -39,6 +44,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - CrewAI integration
   - Guard integration
 
-[Unreleased]: https://github.com/verodat/agent-data-readiness-index/compare/v0.2.0b1...HEAD
+[Unreleased]: https://github.com/verodat/agent-data-readiness-index/compare/v0.2.0b1-1...HEAD
+[0.2.0b1-1]: https://github.com/verodat/agent-data-readiness-index/compare/v0.2.0b1...v0.2.0b1-1
 [0.2.0b1]: https://github.com/verodat/agent-data-readiness-index/compare/v0.1.0...v0.2.0b1
 [0.1.0]: https://github.com/verodat/agent-data-readiness-index/releases/tag/v0.1.0
