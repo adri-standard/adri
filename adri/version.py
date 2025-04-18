@@ -11,7 +11,7 @@ For ADRI specifically:
 - PATCH: Bug fixes and documentation improvements
 """
 
-__version__ = "0.2.0b1"  # Current version (beta)
+__version__ = "0.2.0b1-1"  # Current version (beta)
 
 # Minimum version compatible with current version (for report loading)
 __min_compatible_version__ = "0.1.0"
