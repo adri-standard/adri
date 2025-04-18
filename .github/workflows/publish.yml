@@ -66,11 +66,20 @@ jobs:
         python -c "import adri; print(f'ADRI version: {adri.__version__}')"
         python -c "from adri import DataSourceAssessor; print('Successfully imported DataSourceAssessor')"
     
+    - name: Debug Variables (safe)
+      run: |
+        echo "TAG_VERSION=${TAG_VERSION}"
+        echo "FILE_VERSION=${FILE_VERSION}"
+        echo "PACKAGE_VERSION=${PACKAGE_VERSION}"
+        echo "Checking PyPI token: $(if [[ -n "${{ secrets.PYPI_API_TOKEN }}" ]]; then echo "Token exists"; else echo "Token not found"; fi)"
+    
     - name: Publish to PyPI
       if: startsWith(github.ref, 'refs/tags/v')
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
         password: ${{ secrets.PYPI_API_TOKEN }}
+      env:
+        PYTHON_KEYRING_BACKEND: keyring.backends.null.Keyring
     
     - name: Create GitHub Release Assets
       run: |
