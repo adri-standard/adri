@@ -136,11 +136,3 @@ def main():
     
     print("\nTo check a specific version on PyPI:")
     print(f"  https://pypi.org/project/{package_name}/VERSION/")
-    print("\nTo check a specific version on TestPyPI:")
-    print(f"  https://test.pypi.org/project/{package_name}/VERSION/")
-    
-    return 0
-
-
-if __name__ == "__main__":
-    sys.exit(main())
