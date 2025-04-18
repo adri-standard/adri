@@ -1,3 +1,4 @@
+
 # Project Restructuring Tracking Document
 
 This document tracks the progress of the ADRI project restructuring effort, following the plan outlined in `ai_dev_manager/sessions/session_2025-04-17.md`.

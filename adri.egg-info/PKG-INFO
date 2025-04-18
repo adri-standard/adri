@@ -1,7 +1,9 @@
-Metadata-Version: 2.4
+Metadata-Version: 2.1
 Name: adri
-Version: 0.1.0
+Version: 0.1.0.dev20250418110402
 Summary: Agent Data Readiness Index - A framework for evaluating data quality for agentic AI systems
+Home-page: https://github.com/example/adri
+Author: ADRI Team
 Author-email: Verodat <info@verodat.ai>
 License: MIT
 Project-URL: Homepage, https://github.com/verodat/agent-data-readiness-index
@@ -53,13 +55,12 @@ Provides-Extra: integrations
 Requires-Dist: adri[crewai,dspy,langchain]; extra == "integrations"
 Provides-Extra: all
 Requires-Dist: adri[api,database,dev,docs,integrations]; extra == "all"
-Dynamic: license-file
 
 # Agent Data Readiness Index (ADRI)
 
 [![PyPI version](https://badge.fury.io/py/adri.svg)](https://badge.fury.io/py/adri)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![GitHub Pages](https://img.shields.io/badge/Docs-GitHub%20Pages-blue)](https://verodat.github.io/agent-data-readiness-index/)
+[![GitHub Pages](https://img.shields.io/badge/Docs-GitHub%20Pages-blue)](https://probable-adventure-3jve6ry.pages.github.io/)
 
 **Stop Your AI Agents from Flying Blind!**
 
@@ -94,7 +95,7 @@ pip install adri
 *   **Contribution Guidelines**
 *   **And much more!**
 
-➡️ **[https://verodat.github.io/agent-data-readiness-index/](https://verodat.github.io/agent-data-readiness-index/)**
+➡️ **Visit our documentation site: [ADRI Documentation](https://probable-adventure-3jve6ry.pages.github.io/)**
 
 Join the movement to build more reliable and trustworthy AI agents!
 
