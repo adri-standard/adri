@@ -51,6 +51,18 @@ Unit tests focus on testing individual components in isolation:
 - **Coverage**: Run with `pytest --cov=adri tests/unit/`
 - **Mock External Dependencies**: Use pytest's monkeypatch or unittest.mock
 
+#### Version Management Unit Tests
+
+ADRI includes specific unit tests for the version management system:
+
+- **File**: `tests/unit/test_version.py`
+- **Scope**: Verifies version constants, compatibility checking, and version embedding in reports
+- **Coverage**:
+  - Tests version constants and formats
+  - Tests version compatibility logic
+  - Tests that reports properly embed version information
+  - Tests version warning generation when loading reports from incompatible versions
+
 #### Running Unit Tests
 
 ```bash
@@ -72,6 +84,17 @@ Integration tests verify interactions between components:
 - **Structure**: Test files in `tests/integration/` directory
 - **Scope**: Test interactions between multiple components
 - **Environment**: Uses test configuration files in `tests/config/`
+
+#### Version Management Integration Tests
+
+ADRI includes integration tests for the version management system:
+
+- **File**: `tests/integration/test_version_integration.py`
+- **Scope**: Verifies that version information is properly propagated through the CLI and assessment process
+- **Coverage**:
+  - Tests that CLI operations correctly embed version information in reports
+  - Tests that the version consistency script functions correctly
+  - Tests end-to-end version propagation from code to reports
 
 #### Running Integration Tests
 
@@ -123,6 +146,47 @@ ADRI uses several GitHub Actions workflows for testing:
 2. **type-check.yml**: Runs type checking with mypy
 3. **docs.yml**: Builds and deploys documentation
 4. **update-catalog.yml**: Updates community dataset catalog
+5. **test-publishing.yml**: Tests the PyPI publishing process using TestPyPI
+
+#### TestPyPI Publishing Integration Test
+
+We have a dedicated workflow for testing the PyPI publishing process:
+
+- **File**: `.github/workflows/test-publishing.yml`
+- **Purpose**: Verifies that package building and publishing to PyPI works correctly
+- **Scope**: 
+  - Generates a unique development version
+  - Builds the package with this version
+  - Publishes to TestPyPI (not the production PyPI)
+  - Verifies the published package is accessible
+- **Security**: Uses GitHub Secrets for storing the TestPyPI token
+- **When It Runs**: 
+  - On pushes to the develop branch
+  - On pull requests to the develop branch
+  - Manually via workflow_dispatch
+
+We provide a robust standalone script for testing the publishing process:
+
+- **File**: `test_publish_to_testpypi.py`
+- **Features**:
+  - Automatic dependency installation
+  - Detailed progress reporting
+  - Error handling and recovery
+  - Automatic cleanup
+  - Secure token handling
+
+```bash
+# To run the test locally (PowerShell):
+$env:TESTPYPI_API_TOKEN="your-token-here"
+python test_publish_to_testpypi.py
+# Remove token after testing
+Remove-Item Env:TESTPYPI_API_TOKEN
+
+# To run the test locally (Bash/Zsh):
+export TESTPYPI_API_TOKEN="your-token-here"
+python test_publish_to_testpypi.py
+unset TESTPYPI_API_TOKEN  # Important: unset when done
+```
 
 ### Pull Request Checks
 
@@ -149,6 +213,43 @@ You can manually trigger workflows from the GitHub Actions tab:
 - **Process**: Documentation is built and verified during CI/CD
 - **Link Checking**: Verify internal and external links
 - **Rendering**: Check rendering of complex elements like tables and code blocks
+
+### Version Infrastructure Testing
+
+We have implemented infrastructure tests for the version management system:
+
+- **File**: `tests/infrastructure/test_version_infrastructure.py`
+- **Scope**: Verifies infrastructure components of the version management system
+- **Coverage**:
+  - Tests GitHub Actions workflow configuration for version checks
+  - Tests publishing script configuration and function
+  - Tests version consistency across all version-related files
+  - Tests documentation structure and content for version management
+  - Tests presence of required version files
+- **Execution**: Run with `python -m unittest tests/infrastructure/test_version_infrastructure.py`
+
+### Link Validation Testing
+
+We have implemented comprehensive link validation to ensure users don't encounter broken links:
+
+- **Purpose**: Validates that links in user-facing HTML and Markdown files point to existing resources
+- **Script Location**: `tests/infrastructure/test_links.py`
+- **Execution**: Run with `python -m unittest tests/infrastructure/test_links.py`
+- **Coverage**:
+  - Key files: `index.html`, `README.md`
+  - Documentation: All files in `docs/` directory
+  - Benchmark: Public pages in `benchmark/public/`
+- **Validation Features**:
+  - Identifies broken internal links
+  - Detects references to old path structures after project restructuring
+  - Validates both relative and absolute paths
+  - Warns about external links to non-trusted domains
+  - Excludes non-user-facing directories from validation
+
+```bash
+# Run link validation tests
+python -m unittest tests/infrastructure/test_links.py
+```
 
 ### GitHub Pages Configuration Testing
 

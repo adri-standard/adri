@@ -1,0 +1,83 @@
+name: Publish to PyPI
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install build twine
+    
+    - name: Verify version matches tag
+      run: |
+        # Extract version from tag (remove 'v' prefix)
+        TAG_VERSION=${GITHUB_REF#refs/tags/v}
+        
+        # Extract version from pyproject.toml
+        FILE_VERSION=$(grep -m 1 'version = ' pyproject.toml | cut -d '"' -f 2)
+        
+        # Extract version from package
+        PACKAGE_VERSION=$(python -c "from adri.version import __version__; print(__version__)")
+        
+        # Verify they match
+        if [ "$TAG_VERSION" != "$FILE_VERSION" ]; then
+          echo "Version mismatch: Tag is $TAG_VERSION but pyproject.toml has $FILE_VERSION"
+          exit 1
+        fi
+        
+        if [ "$FILE_VERSION" != "$PACKAGE_VERSION" ]; then
+          echo "Version mismatch: pyproject.toml has $FILE_VERSION but package has $PACKAGE_VERSION"
+          exit 1
+        fi
+        
+        echo "Version verified: $TAG_VERSION"
+    
+    - name: Verify CHANGELOG contains version
+      run: |
+        TAG_VERSION=${GITHUB_REF#refs/tags/v}
+        if ! grep -q "\[$TAG_VERSION\]" CHANGELOG.md; then
+          echo "Error: Version $TAG_VERSION not found in CHANGELOG.md"
+          exit 1
+        fi
+        echo "CHANGELOG verified for version $TAG_VERSION"
+    
+    - name: Build package
+      run: python -m build
+    
+    - name: Check package
+      run: twine check dist/*
+    
+    - name: Test package (basic imports)
+      run: |
+        pip install dist/*.whl
+        python -c "import adri; print(f'ADRI version: {adri.__version__}')"
+        python -c "from adri import DataSourceAssessor; print('Successfully imported DataSourceAssessor')"
+    
+    - name: Publish to PyPI
+      if: startsWith(github.ref, 'refs/tags/v')
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        password: ${{ secrets.PYPI_API_TOKEN }}
+    
+    - name: Create GitHub Release Assets
+      run: |
+        mkdir -p release_assets
+        cp dist/* release_assets/
+        cp CHANGELOG.md release_assets/
+        cp VERSIONS.md release_assets/
+    
+    - name: Upload Release Assets
+      uses: softprops/action-gh-release@v1
+      with:
+        files: release_assets/*

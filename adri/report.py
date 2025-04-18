@@ -7,6 +7,7 @@ of an ADRI assessment and provides methods to save, load, and visualize reports.
 
 import json
 import logging
+import warnings
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional, Any, Union
@@ -14,6 +15,12 @@ from typing import Dict, List, Optional, Any, Union
 import matplotlib.pyplot as plt
 import pandas as pd
 from jinja2 import Environment, FileSystemLoader
+
+from .version import (
+    __version__,
+    is_version_compatible,
+    get_score_compatibility_message
+)
 
 logger = logging.getLogger(__name__)
 
@@ -45,7 +52,7 @@ class AssessmentReport:
         self.source_type = source_type
         self.source_metadata = source_metadata
         self.assessment_time = assessment_time or datetime.now()
-        self.adri_version = adri_version
+        self.adri_version = adri_version or __version__
         self.assessment_config = assessment_config or {}
         
         # These will be populated by populate_from_dimension_results
@@ -170,9 +177,30 @@ class AssessmentReport:
 
         Returns:
             AssessmentReport: Loaded report
+
+        Raises:
+            Warning: If the report was generated with an incompatible ADRI version
         """
         with open(path, "r") as f:
             data = json.load(f)
+        
+        # Check version compatibility
+        report_version = data.get("adri_version")
+        if report_version:
+            if not is_version_compatible(report_version):
+                compat_message = get_score_compatibility_message(report_version)
+                warnings.warn(
+                    f"Loading report from potentially incompatible version: {report_version}. "
+                    f"Current version: {__version__}. {compat_message}"
+                )
+        else:
+            # No version information in the report
+            warnings.warn(
+                f"Report does not contain version information. "
+                f"It was likely generated with an older version of ADRI. "
+                f"Score interpretation may be inconsistent with current version ({__version__})."
+            )
+            
         return cls.from_dict(data)
 
     def generate_radar_chart(self, save_path: Optional[Union[str, Path]] = None):

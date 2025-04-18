@@ -15,8 +15,14 @@ from .report import AssessmentReport
 from .dimensions import DimensionRegistry, register_dimension
 from .connectors import ConnectorRegistry, register_connector
 from .integrations import adri_guarded
+from .version import (
+    __version__,
+    __min_compatible_version__,
+    __score_compatible_versions__,
+    is_version_compatible,
+    get_score_compatibility_message,
+)
 
-__version__ = "0.1.0"
 __author__ = "Verodat"
 
 # Set up a null handler to avoid "No handler found" warnings
@@ -30,4 +36,9 @@ __all__ = [
     "register_dimension",
     "register_connector",
     "adri_guarded",
+    "__version__",
+    "__min_compatible_version__",
+    "__score_compatible_versions__",
+    "is_version_compatible",
+    "get_score_compatibility_message",
 ]
