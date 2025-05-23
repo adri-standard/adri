@@ -127,3 +127,5 @@ ADRI evaluates data across five key dimensions:
 ## License
 
 ADRI is available under the [MIT License](../LICENSE).
+
+<!-- Last updated: 2025-05-23 -->
