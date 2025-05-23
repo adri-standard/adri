@@ -1,0 +1,98 @@
+{
+  "has_explicit_consistency_info": true,
+  "valid_overall": true,
+  "communication_format": "json",
+  "rule_results": [
+    {
+      "id": "price_volume_relationship",
+      "type": "relationship",
+      "description": "Price and volume should be inversely related",
+      "valid": true,
+      "details": {
+        "correlation": -0.78,
+        "expected_relationship": "inverse"
+      }
+    },
+    {
+      "id": "inventory_consistency",
+      "type": "cross_dataset",
+      "description": "Inventory totals should match across systems",
+      "valid": true,
+      "details": {
+        "system_a_total": 10452,
+        "system_b_total": 10452,
+        "difference": 0
+      }
+    },
+    {
+      "id": "total_check",
+      "type": "relationship",
+      "description": "Sum of individual products should equal total inventory",
+      "valid": true,
+      "details": {
+        "sum_of_products": 10452,
+        "reported_total": 10452
+      }
+    },
+    {
+      "id": "sell_price_constraint",
+      "type": "constraint",
+      "description": "Sell price must be greater than cost price",
+      "valid": true,
+      "details": {
+        "violations": 0,
+        "total_records": 1245
+      }
+    },
+    {
+      "id": "category_count_matches",
+      "type": "cross_dataset",
+      "description": "Category counts should match between products and categories tables",
+      "valid": false,
+      "details": {
+        "products_table_count": 27,
+        "categories_table_count": 26,
+        "difference": 1,
+        "orphaned_categories": ["Miscellaneous"]
+      }
+    },
+    {
+      "id": "profit_margin_relationship",
+      "type": "relationship",
+      "description": "Profit margin should correlate with product age",
+      "valid": true,
+      "details": {
+        "correlation": 0.65,
+        "expected_correlation": "positive"
+      }
+    }
+  ],
+  "consistency_metrics": {
+    "overall_consistency_score": 0.95,
+    "field_consistency": {
+      "price": 1.0,
+      "inventory": 0.95,
+      "categories": 0.9
+    }
+  },
+  "dataset_relationships": [
+    {
+      "source": "products",
+      "target": "inventory",
+      "relationship_type": "one-to-many",
+      "valid": true
+    },
+    {
+      "source": "products",
+      "target": "categories",
+      "relationship_type": "many-to-one",
+      "valid": true
+    }
+  ],
+  "detected_constraints": [
+    "inventory_quantity >= 0",
+    "sell_price > cost_price",
+    "discount_percent <= 0.75"
+  ],
+  "rule_validation_date": "2025-05-21T12:30:00Z"
+}

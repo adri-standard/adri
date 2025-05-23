@@ -8,6 +8,7 @@ whether this information is explicitly communicated to agents.
 import logging
 from typing import Dict, List, Tuple, Any, Optional
 
+from ..config.config import get_config
 from ..connectors import BaseConnector
 from . import BaseDimensionAssessor, register_dimension
 
@@ -40,6 +41,16 @@ class CompletenessAssessor(BaseDimensionAssessor):
                 - list of recommendations
         """
         logger.info(f"Assessing completeness dimension for {connector.get_name()}")
+        
+        # Get scoring constants from the latest configuration
+        config = get_config()
+        scoring = config.get_completeness_scoring()
+        
+        MAX_OVERALL_COMPLETENESS_SCORE = scoring["MAX_OVERALL_COMPLETENESS_SCORE"]
+        MAX_NULL_DISTINCTION_SCORE = scoring["MAX_NULL_DISTINCTION_SCORE"]
+        MAX_EXPLICIT_METRICS_SCORE = scoring["MAX_EXPLICIT_METRICS_SCORE"]
+        MAX_SECTION_AWARENESS_SCORE = scoring["MAX_SECTION_AWARENESS_SCORE"]
+        REQUIRE_EXPLICIT_METADATA = scoring["REQUIRE_EXPLICIT_METADATA"]
         
         findings = []
         recommendations = []
@@ -83,33 +94,70 @@ class CompletenessAssessor(BaseDimensionAssessor):
             null_distinction = False
             if has_explicit_info and "missing_value_markers" in completeness_info:
                 null_distinction = True
-                score_components["null_distinction"] = 5
+                score_components["null_distinction"] = MAX_NULL_DISTINCTION_SCORE
                 findings.append("Missing values are explicitly distinguished from nulls")
+            elif not REQUIRE_EXPLICIT_METADATA and "special_null_indicators" in completeness_info:
+                # Award partial points for automatic detection of special null indicators
+                special_nulls = completeness_info.get("special_null_indicators", {})
+                if special_nulls and len(special_nulls) > 0:
+                    null_distinction = True
+                    null_score = int(MAX_NULL_DISTINCTION_SCORE * 0.7)  # 70% of max
+                    score_components["null_distinction"] = null_score
+                    findings.append("Special null indicators detected through analysis")
+                    findings.append(f"Detected potential null indicators: {list(special_nulls.keys())}")
+                else:
+                    score_components["null_distinction"] = 0
+                    findings.append("No explicit distinction between missing values and nulls")
+                    recommendations.append("Implement explicit markers for missing vs. null values")
             else:
                 score_components["null_distinction"] = 0
-                findings.append("No explicit distinction between missing values and nulls")
+                if REQUIRE_EXPLICIT_METADATA:
+                    findings.append("No explicit distinction between missing values and nulls (explicit metadata required)")
+                else:
+                    findings.append("No explicit or implicit distinction between missing values and nulls")
                 recommendations.append("Implement explicit markers for missing vs. null values")
             
             # 4. Evaluate whether completeness metrics are explicitly exposed
             explicit_metrics = False
             if has_explicit_info and "completeness_metrics" in completeness_info:
                 explicit_metrics = True
-                score_components["explicit_metrics"] = 5
+                score_components["explicit_metrics"] = MAX_EXPLICIT_METRICS_SCORE
                 findings.append("Explicit completeness metrics are available to agents")
+            elif not REQUIRE_EXPLICIT_METADATA:
+                # Award partial points for automatically calculated completeness metrics
+                metrics_score = int(MAX_EXPLICIT_METRICS_SCORE * 0.6)  # 60% of max
+                score_components["explicit_metrics"] = metrics_score
+                findings.append("Basic completeness metrics calculated through analysis")
             else:
                 score_components["explicit_metrics"] = 0
-                findings.append("No explicit completeness metrics available to agents")
+                findings.append("No explicit completeness metrics available to agents (explicit metadata required)")
                 recommendations.append("Provide explicit completeness metrics accessible to agents")
             
             # 5. Evaluate section-level awareness
             section_awareness = False
             if has_explicit_info and "section_completeness" in completeness_info:
                 section_awareness = True
-                score_components["section_awareness"] = 5
+                score_components["section_awareness"] = MAX_SECTION_AWARENESS_SCORE
                 findings.append("Section-level completeness information is available")
+            elif not REQUIRE_EXPLICIT_METADATA and "inferred_sections" in completeness_info:
+                # Award partial points for automatically inferred sections
+                inferred_sections = completeness_info.get("inferred_sections", {})
+                if inferred_sections and len(inferred_sections) > 0:
+                    section_awareness = True
+                    section_score = int(MAX_SECTION_AWARENESS_SCORE * 0.5)  # 50% of max
+                    score_components["section_awareness"] = section_score
+                    sections_count = len(inferred_sections)
+                    findings.append(f"Detected {sections_count} potential data sections through analysis")
+                else:
+                    score_components["section_awareness"] = 0
+                    findings.append("No section-level completeness information")
+                    recommendations.append("Implement section-level completeness tracking")
             else:
                 score_components["section_awareness"] = 0
-                findings.append("No section-level completeness information")
+                if REQUIRE_EXPLICIT_METADATA:
+                    findings.append("No section-level completeness information (explicit metadata required)")
+                else:
+                    findings.append("No section-level completeness information")
                 recommendations.append("Implement section-level completeness tracking")
         else:
             # No completeness information available

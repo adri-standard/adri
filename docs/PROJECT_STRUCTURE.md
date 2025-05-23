@@ -12,44 +12,75 @@ agent-data-readiness-index/
 │   ├── cli.py                # Command-line interface
 │   ├── interactive.py        # Interactive CLI mode
 │   ├── report.py             # Report generation
+│   ├── version.py            # Version management
+│   ├── config/               # Configuration management
 │   ├── connectors/           # Data source connectors
 │   ├── dimensions/           # Assessment dimensions
 │   ├── integrations/         # Framework integrations
+│   ├── rules/                # Validation rules
 │   ├── templates/            # Report templates
 │   └── utils/                # Utility functions
 ├── config/                   # Configuration files
-│   ├── site_config.yml       # Site configuration
-│   └── mkdocs.yml            # Documentation configuration
-├── datasets/                 # Dataset assessments and catalog
-│   ├── catalog/              # Dataset catalog data
-│   ├── financial/            # Financial datasets
-│   ├── healthcare/           # Healthcare datasets
-│   └── ...                   # Other domain-specific datasets
+│   ├── mkdocs.yml            # Documentation configuration
+│   └── site_config.yml       # Site configuration
 ├── docs/                     # Documentation
-│   ├── assets/               # Documentation assets
-│   ├── datasets/             # Dataset documentation
-│   ├── integrations/         # Framework integration docs
+│   ├── ai_dev_manager/       # AI development management docs
+│   ├── data/                 # Documentation data
+│   ├── internal/             # Internal development docs
+│   ├── test_coverage/        # Test coverage reports
+│   ├── API_REFERENCE.md      # API documentation
+│   ├── DOCUMENTATION_ALIGNMENT.md
+│   ├── GET_STARTED.md        # Getting started guide
+│   ├── IMPLEMENTING_GUARDS.md # Guard implementation guide
 │   ├── PROJECT_STRUCTURE.md  # This file
 │   ├── TESTING.md            # Testing documentation
+│   ├── VISION.md             # Project vision
 │   └── ...                   # Other documentation files
 ├── examples/                 # Example code
-│   ├── quickstart/           # Quick start examples
-│   ├── langchain/            # LangChain integration examples
-│   ├── dspy/                 # DSPy integration examples
+│   ├── basic_assessment.py   # Basic usage example
+│   ├── completeness_files/   # Completeness dimension examples
+│   ├── consistency_files/    # Consistency dimension examples
 │   ├── crewai/               # CrewAI integration examples
-│   └── ...                   # Other examples
-├── tests/                    # Test code
-│   ├── unit/                 # Unit tests
-│   ├── integration/          # Integration tests
+│   ├── dspy/                 # DSPy integration examples
+│   ├── freshness_files/      # Freshness dimension examples
+│   ├── guard/                # Guard implementation examples
+│   ├── interactive/          # Interactive mode examples
+│   ├── langchain/            # LangChain integration examples
+│   ├── plausibility/         # Plausibility dimension examples
+│   └── plausibility_files/   # Plausibility output examples
+├── notebooks/                # Jupyter notebooks
+│   ├── 01_adri_guard_tutorial.ipynb
+│   └── 02_langchain_integration_tutorial.ipynb
+├── scripts/                  # Utility scripts
+│   ├── publish_pypi.sh       # PyPI publishing script
+│   ├── run_financial_market_assessment.py
+│   └── verify_version.py     # Version verification
+├── tests/                    # All test code and resources
+│   ├── conftest.py           # Test configuration
+│   ├── data/                 # Test data
+│   ├── datasets/             # Test datasets (CSV files, etc.)
 │   ├── infrastructure/       # Infrastructure tests
-│   └── data/                 # Test data
+│   ├── integration/          # Integration tests
+│   ├── plans/                # Test planning documents
+│   ├── results/              # Test execution results
+│   └── unit/                 # Unit tests
 ├── web/                      # Web assets
+│   ├── index.html            # Landing page
 │   ├── css/                  # CSS files
 │   └── js/                   # JavaScript files
-├── scripts/                  # Utility scripts
 ├── .github/                  # GitHub-specific files
 │   └── workflows/            # GitHub Actions workflows
-└── [root files]              # README.md, LICENSE, etc.
+├── .gitignore                # Git ignore rules
+├── CHANGELOG.md              # Version changelog
+├── CODE_OF_CONDUCT.md        # Code of conduct
+├── CONTRIBUTING.md           # Contribution guidelines
+├── LICENSE                   # MIT License
+├── MANIFEST.in               # Package manifest
+├── mypy.ini                  # MyPy configuration
+├── pyproject.toml            # Python project configuration
+├── README.md                 # Project readme
+├── RELEASING.md              # Release process documentation
+└── VERSIONS.md               # Version history
 ```
 
 ## Key Components
@@ -58,62 +89,60 @@ agent-data-readiness-index/
 
 The `adri` directory contains the core Python package implementing the Agent Data Readiness Index functionality:
 
-- **Connectors**: Interfaces for different data sources
-- **Dimensions**: Implementations of assessment dimensions
-- **Integrations**: Framework-specific integrations (LangChain, DSPy, CrewAI)
-- **Templates**: HTML and other templates for report generation
-- **Utils**: Shared utility functions
+- **config/**: Configuration management and defaults
+- **connectors/**: Interfaces for different data sources (file, database, API)
+- **dimensions/**: Implementations of the 5 assessment dimensions
+- **integrations/**: Framework-specific integrations (LangChain, DSPy, CrewAI)
+- **rules/**: Validation rules for each dimension
+- **templates/**: HTML and other templates for report generation
+- **utils/**: Shared utility functions
 
 ### Configuration (`config/`)
 
 The `config` directory contains centralized configuration files:
 
-- **site_config.yml**: Configuration for the documentation site, including URL settings
 - **mkdocs.yml**: MkDocs configuration for documentation generation
-
-### Datasets (`datasets/`)
-
-The `datasets` directory contains assessments of public datasets:
-
-- **catalog/**: The central catalog of dataset assessments
-- **[domain]/**: Domain-specific datasets organized by field (financial, healthcare, etc.)
-- Each dataset includes metadata, assessment results, and documentation
+- **site_config.yml**: Configuration for the documentation site
 
 ### Documentation (`docs/`)
 
 The `docs` directory contains all project documentation:
 
-- **datasets/**: Documentation specific to assessed datasets
-- **integrations/**: Documentation for framework integrations
-- **TESTING.md**: Comprehensive testing approach
-- Other methodology and usage documentation
+- **ai_dev_manager/**: AI-assisted development methodology
+- **data/**: Documentation data files
+- **internal/**: Internal development documentation
+- **test_coverage/**: Detailed test coverage reports
+- Methodology and usage documentation
 
 ### Examples (`examples/`)
 
-The `examples` directory contains example code organized by framework:
+The `examples` directory contains example code organized by use case:
 
-- **quickstart/**: Framework-agnostic quick start examples
-- **langchain/**: LangChain-specific examples
-- **dspy/**: DSPy-specific examples
-- **crewai/**: CrewAI-specific examples
-
-This organization makes it easy to find examples for a specific framework.
+- Basic assessment examples
+- Dimension-specific examples with output files
+- Framework integration examples (LangChain, DSPy, CrewAI)
+- Guard implementation examples
+- Interactive mode examples
 
 ### Tests (`tests/`)
 
-The `tests` directory contains all test code:
+The `tests` directory contains all test code and resources:
 
 - **unit/**: Unit tests for individual components
-- **integration/**: Tests for component interactions
+- **integration/**: Tests for component interactions  
 - **infrastructure/**: Tests for build and deployment processes
-- **data/**: Test datasets and fixtures
+- **data/**: Test data and fixtures
+- **datasets/**: Test dataset files (CSVs, etc.)
+- **plans/**: Test planning and strategy documents
+- **results/**: Test execution results and reports
 
 ### Web Assets (`web/`)
 
-The `web` directory contains static web assets:
+The `web` directory contains all static web assets:
 
+- **index.html**: Community landing page
 - **css/**: CSS stylesheets
-- **js/**: JavaScript files
+- **js/**: JavaScript files (including simulator.js)
 
 ## Framework Integration Visibility
 
@@ -121,36 +150,20 @@ ADRI provides first-class support for multiple AI agent frameworks. This is refl
 
 1. **Framework-specific integration code**: `adri/integrations/{framework}/`
 2. **Framework-specific examples**: `examples/{framework}/`
-3. **Framework-specific documentation**: `docs/integrations/{framework}.md`
+3. **Framework-specific documentation**: `docs/INTEGRATIONS.md`
 
 This consistent organization makes it easy to find all resources related to a specific framework.
 
-## Dataset Organization
-
-Public datasets assessed with ADRI are organized by domain in the `datasets/` directory:
-
-1. **Catalog data**: `datasets/catalog/` contains the central registry
-2. **Domain-specific directories**: `datasets/{domain}/` organized by field
-3. **Individual dataset directories**: `datasets/{domain}/{dataset}/` containing:
-   - `metadata.yaml`: Dataset metadata
-   - `report.json`: Assessment results
-   - `README.md`: Dataset-specific documentation
-
-## Configuration Centralization
-
-Configuration files are centralized in the `config/` directory to:
-
-1. Provide a single location for all configuration
-2. Standardize configuration access patterns
-3. Simplify deployment and CI/CD processes
-
 ## Testing Organization
 
-The testing structure follows the Python standard with:
+The testing structure follows Python best practices:
 
-1. **Unit tests**: Following the same structure as the main package
-2. **Integration tests**: Organized by interaction patterns
+1. **Unit tests**: Testing individual components in isolation
+2. **Integration tests**: Testing component interactions
 3. **Infrastructure tests**: Testing deployment and configuration
+4. **Test resources**: Centralized under `tests/` directory
+
+All test-related resources (datasets, plans, results) are now organized under the `tests/` directory for better maintainability.
 
 ## File Naming Conventions
 
@@ -158,6 +171,13 @@ The testing structure follows the Python standard with:
 2. **Documentation files**: Upper case with underscores (`FILE_NAME.md`)
 3. **Configuration files**: Lower case with underscores (`file_name.yml`)
 4. **Test files**: Prefixed with `test_` (`test_module.py`)
+
+## Recent Changes (May 2025)
+
+1. **Removed dataset catalog**: The public dataset catalog and benchmark functionality has been removed to focus on the core assessment framework
+2. **Consolidated test resources**: All test-related directories moved under `tests/`
+3. **Moved web assets**: Landing page moved to `web/` directory
+4. **Cleaned build artifacts**: Removed old `src/` structure and related files
 
 ## Maintenance Guidelines
 
@@ -167,3 +187,4 @@ When adding new files:
 2. Use consistent naming conventions
 3. Update documentation if the structure changes
 4. Add appropriate tests in the `tests/` directory
+5. Keep the root directory clean - use subdirectories appropriately

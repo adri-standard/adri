@@ -1,0 +1,61 @@
+# Example ADRI Configuration File
+# 
+# This file demonstrates how to configure ADRI with custom settings,
+# including dimension scoring weights and rule-specific parameters.
+
+# Assessment configuration
+assessment:
+  sample_size: 2000  # Maximum number of records to analyze (default: 1000)
+  detailed_report: true  # Include detailed information in reports
+  report_format: "html"  # Output format (html, json, markdown)
+  dimension_weights:  # Custom weights for dimensions
+    validity: 1.0
+    completeness: 1.0
+    freshness: 0.8  # Less emphasis on freshness
+    consistency: 1.2  # More emphasis on consistency
+    plausibility: 1.0
+
+# Dimension scoring configuration
+validity_scoring:
+  MAX_TYPES_DEFINED_SCORE: 5
+  MAX_FORMATS_DEFINED_SCORE: 4  # Default is 3
+  REQUIRE_EXPLICIT_METADATA: false
+
+completeness_scoring:
+  MAX_OVERALL_COMPLETENESS_SCORE: 6  # Default is 5
+  REQUIRE_EXPLICIT_METADATA: false
+
+# Rule-specific configuration
+# These override the default settings for specific rules
+rules:
+  # Validity dimension rules
+  validity.type_consistency:
+    enabled: true
+    threshold: 0.95  # Default is 0.9 (more strict)
+    analyze_all_columns: true
+    
+  validity.range_validation:
+    enabled: true
+    detect_outliers: true
+    outlier_threshold: 4.0  # Default is 3.0 (more lenient)
+    
+  validity.format_consistency:
+    date_formats:  # Custom list of date formats to recognize
+      - "YYYY-MM-DD"
+      - "MM/DD/YYYY"
+      - "DD/MM/YYYY"
+      - "DD-MON-YYYY"
+  
+  # Plausibility dimension rules
+  plausibility.outlier_detection:
+    enabled: true
+    method: "iqr"  # Default is "zscore"
+    threshold: 2.5  # Default is 3.0 (more strict)
+    
+  plausibility.pattern_consistency:
+    min_pattern_confidence: 0.7  # Default is 0.8 (more lenient)
+    
+  plausibility.domain_specific:
+    enabled: true
+    domains:
+      - "financial"  # Apply financial domain-specific checks

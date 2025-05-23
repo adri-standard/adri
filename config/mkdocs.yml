@@ -59,16 +59,36 @@ markdown_extensions:
 
 # Navigation Structure (Adjust paths as needed)
 nav:
-  - Home: index.md # Renamed from Home.md
-  - Methodology: Methodology.md
-  - Implementation Guide: Implementation-Guide.md
-  - Integrations: INTEGRATIONS.md
-  - Extending ADRI: EXTENDING.md
-  - Community:
-    - Contributing: CONTRIBUTING.md # Now inside docs/
-    - Catalog Info: datasets.md # Placeholder created
-  - Developer Guide: DEVELOPER.md
-  - FAQ: FAQ.md
+  - Vision & Overview:
+    - Why ADRI Exists: VISION.md
+    - Home: index.md
+    - Roadmap: ROADMAP.md
+  - Getting Started:
+    - Quick Start Guide: GET_STARTED.md
+    - Understanding Dimensions: UNDERSTANDING_DIMENSIONS.md
+    - FAQ: FAQ.md
+  - Core Concepts:
+    - Methodology: Methodology.md
+    - Implementation Guide: Implementation-Guide.md
+    - Dimensions in Detail:
+      - Validity: ValidityDimension.md
+      - Completeness: CompletenessDimension.md
+      - Freshness: FreshnessDimension.md
+      - Consistency: consistency_rules.md
+      - Plausibility: PlausibilityDimension.md
+  - Using ADRI:
+    - Implementing Guards: IMPLEMENTING_GUARDS.md
+    - Enhancing Data Sources: ENHANCING_DATA_SOURCES.md
+    - Integrations: INTEGRATIONS.md
+  - Extending & Contributing:
+    - Extending ADRI: EXTENDING.md
+    - Developer Guide: DEVELOPER.md
+    - Contributing: CONTRIBUTING.md
+  - Reference:
+    - API Reference: API_REFERENCE.md
+    - Catalog Info: datasets.md
+    - Testing Guide: TESTING.md
+    - Security: SECURITY.md
 
 # Copyright
 copyright: 'Copyright &copy; 2025 - ADRI is licensed under MIT'

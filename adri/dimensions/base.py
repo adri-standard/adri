@@ -46,3 +46,23 @@ class BaseDimensionAssessor(ABC):
                 - list of recommendations
         """
         pass
+
+# ----------------------------------------------
+# TEST COVERAGE
+# ----------------------------------------------
+# This component is tested through:
+# 
+# 1. Abstract class implementation in all dimension assessors:
+#    - tests/unit/dimensions/test_validity_detection.py
+#    - tests/unit/dimensions/test_completeness.py
+#    - tests/unit/dimensions/test_freshness_basic.py
+#    - tests/unit/dimensions/test_consistency_basic.py
+#    - tests/unit/dimensions/test_plausibility_basic.py
+# 
+# 2. Integration tests:
+#    - tests/unit/test_assessor.py (dimension registration and assessment)
+#    - tests/integration/test_cli.py (dimension assessment pipeline)
+#
+# Complete test coverage details are documented in:
+# docs/test_coverage/DIMENSIONS_test_coverage.md
+# ----------------------------------------------

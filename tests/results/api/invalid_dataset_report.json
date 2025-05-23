@@ -1,0 +1,123 @@
+{
+  "source_name": "invalid_dataset.csv",
+  "source_type": "file-csv",
+  "source_metadata": {
+    "file_path": "test_datasets/invalid_dataset.csv",
+    "file_type": "csv",
+    "file_size_bytes": 2817,
+    "created_time": "2025-05-22T15:08:22.119052",
+    "modified_time": "2025-05-22T15:08:22.119052",
+    "accessed_time": "2025-05-22T15:08:24.128917",
+    "num_records": 25,
+    "num_columns": 12
+  },
+  "assessment_time": "2025-05-22T15:40:24.758882",
+  "adri_version": "0.2.0b1.post1",
+  "assessment_config": {},
+  "overall_score": 3.0,
+  "readiness_level": "Inadequate - Not recommended for agentic use",
+  "dimension_results": {
+    "validity": {
+      "score": 5,
+      "findings": [
+        "Data types are explicitly defined for all fields",
+        "No explicit format definitions found",
+        "No explicit range definitions found",
+        "No evidence of validation being performed",
+        "Validation results are not explicitly communicated to agents",
+        "Score components: {'types_defined': 5, 'formats_defined': 0, 'ranges_defined': 0, 'validation_performed': 0, 'validation_communicated': 0}"
+      ],
+      "recommendations": [
+        "Define formats (e.g., date patterns, string patterns) for applicable fields",
+        "Define valid ranges (min/max values, allowed values) for applicable fields",
+        "Implement validation rules for this data source",
+        "Ensure validation results are explicitly communicated to agents in a machine-readable format",
+        "Implement a comprehensive validity framework with explicit agent communication"
+      ]
+    },
+    "completeness": {
+      "score": 3,
+      "findings": [
+        "Overall completeness: 83.3%",
+        "Data is moderately complete (>80%)",
+        "No explicit distinction between missing values and nulls",
+        "No explicit completeness metrics available to agents",
+        "No section-level completeness information",
+        "Score components: {'overall_completeness': 3, 'null_distinction': 0, 'explicit_metrics': 0, 'section_awareness': 0}"
+      ],
+      "recommendations": [
+        "Implement explicit markers for missing vs. null values",
+        "Provide explicit completeness metrics accessible to agents",
+        "Implement section-level completeness tracking",
+        "Implement a comprehensive completeness framework with explicit agent communication"
+      ]
+    },
+    "freshness": {
+      "score": 7,
+      "findings": [
+        "Last update timestamp: 2025-05-22T15:08:22.119052",
+        "Data age: 0.5 hours",
+        "Data is very fresh (updated within the last hour)",
+        "No freshness SLA defined",
+        "Freshness information is not explicitly communicated to agents",
+        "Score components: {'has_timestamp': 4, 'data_age': 3, 'has_sla': 0, 'meets_sla': 0, 'explicit_communication': 0}"
+      ],
+      "recommendations": [
+        "Define explicit freshness SLAs for data",
+        "Make freshness information explicitly available to agents",
+        "Implement a comprehensive freshness framework with explicit agent communication"
+      ]
+    },
+    "consistency": {
+      "score": 0,
+      "findings": [
+        "No consistency information is available",
+        "Score components: {'rules_defined': 0, 'rule_types': 0, 'rule_validity': 0, 'cross_dataset': 0, 'explicit_communication': 0}"
+      ],
+      "recommendations": [
+        "Implement basic consistency checking and expose it to agents",
+        "Implement a comprehensive consistency framework with explicit agent communication"
+      ]
+    },
+    "plausibility": {
+      "score": 0,
+      "findings": [
+        "No plausibility information is available",
+        "Score components: {'rules_defined': 0, 'rule_types': 0, 'rule_validity': 0, 'domain_specific': 0, 'explicit_communication': 0}"
+      ],
+      "recommendations": [
+        "Implement basic plausibility checking and expose it to agents",
+        "Implement a comprehensive plausibility framework with explicit agent communication"
+      ],
+      "invalid_dataset.csv": {
+        "overall_score": 3.0,
+        "dimension_scores": {
+          "validity": 5,
+          "completeness": 3,
+          "freshness": 7,
+          "consistency": 0,
+          "plausibility": 0
+        }
+      }
+    }
+  },
+  "summary_findings": [
+    "[Validity] Data types are explicitly defined for all fields",
+    "[Validity] No explicit format definitions found",
+    "[Completeness] Overall completeness: 83.3%",
+    "[Completeness] Data is moderately complete (>80%)",
+    "[Freshness] Last update timestamp: 2025-05-22T15:08:22.119052",
+    "[Freshness] Data age: 0.5 hours",
+    "[Consistency] No consistency information is available",
+    "[Consistency] Score components: {'rules_defined': 0, 'rule_types': 0, 'rule_validity': 0, 'cross_dataset': 0, 'explicit_communication': 0}",
+    "[Plausibility] No plausibility information is available",
+    "[Plausibility] Score components: {'rules_defined': 0, 'rule_types': 0, 'rule_validity': 0, 'domain_specific': 0, 'explicit_communication': 0}"
+  ],
+  "summary_recommendations": [
+    "[Validity] Define formats (e.g., date patterns, string patterns) for applicable fields",
+    "[Completeness] Implement explicit markers for missing vs. null values",
+    "[Freshness] Define explicit freshness SLAs for data",
+    "[Consistency] Implement basic consistency checking and expose it to agents",
+    "[Plausibility] Implement basic plausibility checking and expose it to agents"
+  ]
+}

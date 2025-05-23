@@ -1,7 +1,0 @@
-dataset_name: Sample Dataset One
-dataset_url: https://example.com/sample_dataset_1
-dataset_description: A sample dataset for testing the catalog update script.
-assessed_by: test_user
-assessment_date: 2025-04-16
-industry: Technology
-notes: Initial test submission.

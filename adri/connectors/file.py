@@ -8,6 +8,7 @@ file-based data sources (CSV, JSON, etc.) for assessment.
 import os
 import json
 import logging
+import re
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Any, Optional, Union
@@ -16,6 +17,13 @@ import pandas as pd
 
 from .base import BaseConnector
 from . import register_connector
+from ..utils.inference import (
+    is_numeric, is_integer, is_date_like, is_id_like, 
+    find_inconsistent_values, detect_outliers, 
+    is_mostly_positive, find_invalid_dates,
+    id_pattern_confidence, categorical_confidence,
+    check_id_consistency
+)
 
 logger = logging.getLogger(__name__)
 
@@ -332,7 +340,247 @@ class FileConnector(BaseConnector):
         return plausibility_file.exists()
     
     def get_plausibility_results(self) -> Optional[Dict[str, Any]]:
-        return None
+        """Get results of any plausibility checks on this data source."""
+        plausibility_file = self.file_path.with_suffix('.plausibility.json')
+        
+        if not plausibility_file.exists():
+            # If no explicit plausibility file, generate basic plausibility analysis
+            inferred_types = self.infer_column_types()
+            numeric_columns = [col for col, info in inferred_types.items() 
+                              if info["type"] in ["numeric", "integer"]]
+            
+            # Basic plausibility checks
+            outliers_by_column = {}
+            for col in numeric_columns:
+                try:
+                    numeric_values = pd.to_numeric(self.df[col], errors='coerce')
+                    outlier_info = detect_outliers(numeric_values)
+                    if outlier_info.get("outliers_found", False):
+                        outliers_by_column[col] = outlier_info
+                except Exception as e:
+                    logger.warning(f"Error detecting outliers in {col}: {e}")
+            
+            return {
+                "has_explicit_plausibility_info": False,
+                "rule_results": [
+                    {
+                        "type": "outlier_detection",
+                        "field": col,
+                        "valid": not info.get("outliers_found", False),
+                        "outlier_count": info.get("outlier_count", 0),
+                        "outlier_threshold": info.get("threshold", None),
+                        "outlier_examples": info.get("outlier_examples", [])[:3]
+                    }
+                    for col, info in outliers_by_column.items()
+                ],
+                "valid_overall": not any(info.get("outliers_found", False) for info in outliers_by_column.values()),
+                "explicitly_communicated": False
+            }
+            
+        try:
+            with open(plausibility_file, 'r', encoding=self.encoding) as f:
+                plausibility_info = json.load(f)
+                
+            plausibility_info["has_explicit_plausibility_info"] = True
+            return plausibility_info
+            
+        except Exception as e:
+            logger.warning(f"Error processing plausibility info: {e}")
+            return None
+        
+    def infer_column_types(self):
+        """
+        Automatically infer the implied data type for each column based on data patterns.
+        
+        Returns:
+            Dictionary mapping column names to their inferred types and confidence levels
+        """
+        column_types = {}
+        
+        for column in self.df.columns:
+            # Get non-null values for analysis
+            values = self.df[column].dropna()
+            if len(values) == 0:
+                column_types[column] = {"type": "unknown", "confidence": 0.0}
+                continue
+                
+            # Try different type checks
+            
+            # Check for date patterns
+            date_count = sum(is_date_like(val) for val in values)
+            date_confidence = date_count / len(values) if len(values) > 0 else 0
+            
+            # Check for numeric patterns
+            numeric_count = sum(is_numeric(val) for val in values)
+            numeric_confidence = numeric_count / len(values) if len(values) > 0 else 0
+            
+            # Check for integer patterns
+            integer_count = sum(is_integer(val) for val in values)
+            integer_confidence = integer_count / len(values) if len(values) > 0 else 0
+            
+            # Check for ID patterns (alphanumeric with consistent format)
+            id_conf = id_pattern_confidence(values)
+            
+            # Determine most likely type
+            confidences = {
+                "date": date_confidence,
+                "numeric": numeric_confidence,
+                "integer": integer_confidence,
+                "id": id_conf,
+                "categorical": categorical_confidence(values),
+                "text": 0.5  # Default confidence
+            }
+            
+            most_likely_type = max(confidences, key=confidences.get)
+            confidence = confidences[most_likely_type]
+            
+            # Special case handling: prefer numeric over integer if close
+            if most_likely_type == "integer" and confidences["numeric"] > 0.9:
+                most_likely_type = "numeric"
+                confidence = confidences["numeric"]
+                
+            # Special case: if column name contains 'date' and date confidence is reasonable
+            if "date" in column.lower() and date_confidence > 0.5:
+                most_likely_type = "date"
+                confidence = max(confidence, date_confidence)
+            
+            # Special case: if column name contains 'id' and id confidence is reasonable
+            if "id" in column.lower() and id_conf > 0.5:
+                most_likely_type = "id"
+                confidence = max(confidence, id_conf)
+                
+            column_types[column] = {
+                "type": most_likely_type,
+                "confidence": confidence,
+                "consistent": confidence > 0.9  # 90% consistency threshold
+            }
+            
+        return column_types
+        
+    def analyze_validity(self):
+        """
+        Analyze validity issues in the dataset based on inferred types.
+        
+        Returns:
+            Dictionary containing validity analysis results
+        """
+        inferred_types = self.infer_column_types()
+        validity_issues = {
+            "type_inconsistencies": {},
+            "format_inconsistencies": {},
+            "range_violations": {},
+            "statistical_outliers": {},
+            "valid_overall": True
+        }
+        
+        for column, type_info in inferred_types.items():
+            column_type = type_info["type"]
+            
+            # Skip columns with unknown type
+            if column_type == "unknown":
+                continue
+            
+            # ID columns: special handling using specialized ID consistency checker
+            if column_type == "id":
+                # Check if values follow a consistent pattern
+                consistency_result = check_id_consistency(self.df[column].tolist())
+                
+                if not consistency_result["consistent"] and consistency_result["inconsistent_values"]:
+                    validity_issues["type_inconsistencies"][column] = {
+                        "expected_type": column_type,
+                        "inconsistent_count": len(consistency_result["inconsistent_values"]),
+                        "inconsistent_examples": consistency_result["inconsistent_values"][:5],
+                        "common_pattern": consistency_result.get("common_pattern", "unknown")
+                    }
+                    validity_issues["valid_overall"] = False
+                    
+            # Other column types: general type consistency check
+            elif not type_info["consistent"]:
+                # Find values that don't match the predominant pattern
+                inconsistent_values = find_inconsistent_values(self.df[column], column_type)
+                if inconsistent_values:
+                    validity_issues["type_inconsistencies"][column] = {
+                        "expected_type": column_type,
+                        "inconsistent_count": len(inconsistent_values),
+                        "inconsistent_examples": inconsistent_values[:5]  # Just show a few examples
+                    }
+                    validity_issues["valid_overall"] = False
+            
+            # Column-specific checks based on inferred type
+            if column_type == "numeric" or column_type == "integer":
+                # Check for negative values where most are positive
+                try:
+                    numeric_values = pd.to_numeric(self.df[column], errors='coerce')
+                    if is_mostly_positive(numeric_values):
+                        negative_values = numeric_values[numeric_values < 0]
+                        negative_count = len(negative_values)
+                        if negative_count > 0:
+                            validity_issues["range_violations"][column] = {
+                                "type": "negative_values",
+                                "count": int(negative_count),
+                                "examples": negative_values.head(3).tolist()
+                            }
+                            validity_issues["valid_overall"] = False
+                            
+                    # Check for outliers
+                    outlier_info = detect_outliers(numeric_values)
+                    if outlier_info.get("outliers_found", False):
+                        validity_issues["statistical_outliers"][column] = outlier_info
+                except:
+                    pass
+                    
+            elif column_type == "date":
+                # Check for invalid dates
+                invalid_dates = find_invalid_dates(self.df[column])
+                if invalid_dates:
+                    validity_issues["format_inconsistencies"][column] = {
+                        "type": "invalid_dates",
+                        "count": len(invalid_dates),
+                        "examples": invalid_dates[:3]
+                    }
+                    validity_issues["valid_overall"] = False
+                    
+                # Try to parse dates and check for future dates when unreasonable
+                try:
+                    dates = pd.to_datetime(self.df[column], errors='coerce')
+                    valid_dates = dates.dropna()
+                    
+                    if len(valid_dates) > 0:
+                        # Check for future dates if most are past/present
+                        now = pd.Timestamp.now()
+                        future_dates = valid_dates[valid_dates > now]
+                        
+                        if len(future_dates) > 0 and len(future_dates) < 0.1 * len(valid_dates):
+                            validity_issues["range_violations"][f"{column}_future"] = {
+                                "type": "future_dates",
+                                "count": len(future_dates),
+                                "examples": future_dates.head(3).dt.strftime("%Y-%m-%d").tolist()
+                            }
+                except:
+                    pass
+            
+            # ID columns check for pattern consistency
+            elif column_type == "id":
+                # Check if values follow consistent patterns
+                values = self.df[column].dropna().astype(str)
+                
+                # Check if some values have different length
+                length_counts = values.str.len().value_counts()
+                if len(length_counts) > 1:
+                    # If there's variation in ID length, flag it
+                    main_length = length_counts.idxmax()
+                    inconsistent_length = values[values.str.len() != main_length]
+                    
+                    if len(inconsistent_length) < len(values) * 0.2:  # Less than 20% are irregular
+                        validity_issues["format_inconsistencies"][f"{column}_length"] = {
+                            "type": "inconsistent_length",
+                            "main_length": int(main_length),
+                            "count": len(inconsistent_length),
+                            "examples": inconsistent_length.head(3).tolist()
+                        }
+                        validity_issues["valid_overall"] = False
+        
+        return validity_issues
     
     def get_agent_accessibility(self) -> Dict[str, Any]:
         accessibility = {
@@ -362,3 +610,34 @@ class FileConnector(BaseConnector):
     
     def get_governance_metadata(self) -> Optional[Dict[str, Any]]:
         return None
+
+# ----------------------------------------------
+# TEST COVERAGE
+# ----------------------------------------------
+# This component is tested through:
+# 
+# 1. Unit tests:
+#    - tests/unit/connectors/test_file.py (direct FileConnector tests)
+# 
+# 2. Integration tests:
+#    - tests/integration/test_cli.py (file processing in CLI pipeline)
+#
+# 3. Usage in dimension tests:
+#    - tests/unit/dimensions/test_validity_detection.py
+#    - tests/unit/dimensions/test_completeness.py
+#    - tests/unit/dimensions/test_freshness_basic.py
+#    - tests/unit/dimensions/test_consistency_basic.py
+#    - tests/unit/dimensions/test_plausibility_basic.py
+#
+# 4. Test datasets:
+#    - test_datasets/ideal_dataset.csv
+#    - test_datasets/invalid_dataset.csv
+#    - test_datasets/stale_dataset.csv
+#    - test_datasets/incomplete_dataset.csv
+#    - test_datasets/inconsistent_dataset.csv
+#    - test_datasets/implausible_dataset.csv
+#    - test_datasets/mixed_issues_dataset.csv
+#
+# Complete test coverage details are documented in:
+# docs/test_coverage/CONNECTORS_test_coverage.md
+# ----------------------------------------------

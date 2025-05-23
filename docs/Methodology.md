@@ -15,7 +15,18 @@ The Agent Data Readiness Index (ADRI) evaluates data sources based on five criti
 - Are violations explicitly flagged to agents?
 - Can agents detect when validity checks were not performed?
 
-**Scoring (0-20 points)**:
+**Scoring Components (0-20 points total)**:
+- Types Defined (0-5): Whether data types are explicitly defined for all fields
+- Formats Defined (0-3): Whether format patterns are defined for applicable fields
+- Ranges Defined (0-3): Whether valid value ranges are defined for applicable fields
+- Validation Performed (0-3): Whether validation is performed on the data source
+- Validation Communicated (0-6): Whether validation results are properly communicated to agents
+
+**Explicit vs. Implicit Assessment**:
+- ADRI prioritizes explicit metadata but can also perform automated assessment
+- Full documentation available in [ValidityDimension.md](ValidityDimension.md)
+
+**Scoring Ranges**:
 - 0-5: No explicit format definitions or validation signals
 - 6-10: Basic validation exists but not communicated to agents
 - 11-15: Validation errors explicitly communicated to agents
@@ -30,7 +41,17 @@ The Agent Data Readiness Index (ADRI) evaluates data sources based on five criti
 - Can agents determine if entire expected sections are missing?
 - Is completeness percentage calculated and exposed?
 
-**Scoring (0-20 points)**:
+**Scoring Components (0-20 points total)**:
+- Overall Completeness (0-5): The percentage of non-missing values across the dataset
+- Null Distinction (0-5): Whether missing values are explicitly distinguished from nulls
+- Explicit Metrics (0-5): Whether completeness metrics are explicitly available to agents
+- Section Awareness (0-5): Whether completeness is tracked at the section level
+
+**Explicit vs. Implicit Assessment**:
+- ADRI prioritizes explicit metadata but can also perform automated assessment
+- Full documentation available in [CompletenessDimension.md](CompletenessDimension.md)
+
+**Scoring Ranges**:
 - 0-5: Missing values not distinguished from nulls
 - 6-10: Basic null indicators but no completeness metrics
 - 11-15: Clear null vs. missing distinction with completeness metrics

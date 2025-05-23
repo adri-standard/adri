@@ -200,3 +200,31 @@ class DataSourceAssessor:
                 logger.error(f"Error assessing {source_name}: {e}")
                 
         return reports
+
+# ----------------------------------------------
+# TEST COVERAGE
+# ----------------------------------------------
+# This component is tested through:
+# 
+# 1. Unit tests:
+#    - tests/unit/test_assessor.py (core assessor functionality)
+# 
+# 2. Integration tests:
+#    - tests/integration/test_cli.py (full assessment pipeline)
+#
+# 3. Example usage in:
+#    - examples/basic_assessment.py
+#    - examples/comprehensive_assessment.py
+#    - examples/consistency_assessment.py  
+#    - examples/plausibility_assessment.py
+#    - notebooks/01_adri_guard_tutorial.ipynb
+#
+# 4. Dimension coordination:
+#    - Tested implicitly through all dimension tests
+#    - tests/unit/dimensions/test_validity_detection.py
+#    - tests/unit/dimensions/test_completeness.py
+#    - tests/unit/dimensions/test_freshness_basic.py
+#
+# Complete test coverage details are documented in:
+# docs/test_coverage/CORE_test_coverage.md
+# ----------------------------------------------

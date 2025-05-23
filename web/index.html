@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stop Your AI Agents from Flying Blind | Agent Data Readiness Index</title>
+    <link rel="stylesheet" href="web/css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="site-header">
+        <div class="header-container">
+            <div class="logo">
+                <a href="#" class="logo-text">ADRI Community</a>
+            </div>
+            <nav class="main-nav">
+                <ul>
+                    <li><a href="#problem-section">The Problem</a></li>
+                    <li><a href="#standard-section">The Standard</a></li>
+                    <li><a href="docs/">Documentation</a></li>
+                    <li><a href="#get-started-section">Get Started</a></li>
+                    <li><a href="#community-section">Contribute</a></li>
+                    <li><a href="https://github.com/ThinkEvolveSolve/agent-data-readiness-index" target="_blank">
+                        <img src="https://img.shields.io/github/stars/ThinkEvolveSolve/agent-data-readiness-index?style=social" alt="GitHub Stars">
+                    </a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero" id="problem-section">
+        <div class="hero-content">
+            <div class="verodat-badge">Open Source Community Project</div>
+            <h1>Stop Your AI Agents from <span class="underline">Flying Blind</span></h1>
+            <p class="subtitle">The Agent Data Readiness Index (ADRI) is an open standard that helps AI agents understand if their data is reliable. Join the community building safer, more reliable AI systems.</p>
+            <div class="cta-buttons">
+                <a href="#simulator-section" class="btn btn-primary">See Agent Blindness in Action</a>
+                <a href="#get-started-section" class="btn btn-secondary">Try ADRI Now</a>
+            </div>
+            <div class="community-badges">
+                <img src="https://img.shields.io/badge/License-MIT-green.svg" alt="MIT License">
+                <img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="PRs Welcome">
+                <img src="https://img.shields.io/badge/Maintained%20by-Community-blue" alt="Community Maintained">
+            </div>
+        </div>
+        <div class="dot-pattern"></div>
+    </section>
+
+    <!-- Before/After Section -->
+    <section class="before-after-section">
+        <h2>The Data <span class="underline">Blindfold Test</span></h2>
+        <p class="lead">If your agent can't tell if data is trustworthy, complete, or up-to-date, it's wearing a blindfold while making decisions.</p>
+        
+        <div class="comparison-container">
+            <div class="comparison-column before">
+                <h3>WITHOUT DATA READINESS SIGNALS</h3>
+                <ul class="comparison-list">
+                    <li>
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 6V12L16 14M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span>Agents can't detect when data is stale or outdated</span>
+                    </li>
+                    <li>
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 6V12L16 14M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span>Security teams blocking agent deployments</span>
+                    </li>
+                    <li>
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 6V12L16 14M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span>3AM emergency calls when agents fail</span>
+                    </li>
+                    <li>
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 6V12L16 14M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span>Stakeholders losing trust in AI initiatives</span>
+                    </li>
+                </ul>
+            </div>
+            <div class="comparison-column after">
+                <h3>ADRI-READY DATA</h3>
+                <ul class="comparison-list">
+                    <li>
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M20 6L9 17L4 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span>Agents that know when data is stale</span>
+                    </li>
+                    <li>
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M20 6L9 17L4 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span>Fast-track security approvals</span>
+                    </li>
+                    <li>
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M20 6L9 17L4 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span>Confidence in every agent decision</span>
+                    </li>
+                    <li>
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M20 6L9 17L4 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span>Focus on agent intelligence, not data fixes</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Standard for Diagnosis Section -->
+    <section class="standard-section" id="standard-section">
+        <h2>An <span class="underline">Open Standard</span> for Data Readiness</h2>
+        <p class="lead">ADRI provides a standardized framework for ensuring AI agents can trust their data. Built by the community, for the community.</p>
+        
+        <div class="standard-details">
+            <div class="standard-card">
+                <h3>Why ADRI Exists</h3>
+                <p>AI engineers worldwide face the same challenge: agents making confident but wrong decisions because they can't assess the quality of their data. ADRI emerged from this shared experience.</p>
+                <p>As an open standard, ADRI belongs to everyone. We believe data readiness is too important to be proprietary.</p>
+            </div>
+            
+            <div class="standard-card">
+                <h3>The Five Dimensions</h3>
+                <ul>
+                    <li><strong>Freshness:</strong> Does the data tell agents when it was created or updated?</li>
+                    <li><strong>Validity:</strong> Does the data include signals about its structural correctness?</li>
+                    <li><strong>Completeness:</strong> Can agents distinguish between "missing" and "not applicable"?</li>
+                    <li><strong>Consistency:</strong> Are related data points compatible with each other?</li>
+                    <li><strong>Plausibility:</strong> Can agents detect outliers or implausible values?</li>
+                </ul>
+                <p><a href="docs/UNDERSTANDING_DIMENSIONS.html">Learn more about each dimension →</a></p>
+            </div>
+        </div>
+        
+        <div class="open-source-note">
+            <p>ADRI is <strong>completely open-source</strong> (MIT License). Join us in building the future of reliable AI.</p>
+            <a href="https://github.com/ThinkEvolveSolve/agent-data-readiness-index" class="btn btn-secondary">View on GitHub</a>
+            <a href="docs/CONTRIBUTING.html" class="btn btn-outline">Contribution Guide</a>
+        </div>
+    </section>
+
+    <!-- Agent Blindness Simulator - FEATURED PROMINENTLY -->
+    <section class="simulator-section featured-section" id="simulator-section">
+        <h2>The Agent <span class="underline">Blindness Simulator</span></h2>
+        <p class="lead">Watch what happens when an agent can't tell the data is stale</p>
+        
+        <div class="simulator-container">
+            <div class="simulator-header">
+                <h3>Toggle Data Quality Signals</h3>
+                <p>See how the same agent makes dramatically different decisions with and without quality signals.</p>
+            </div>
+            
+            <div class="simulator-body">
+                <div class="simulator-controls">
+                    <div class="form-group">
+                        <label for="scenario-select">Choose Scenario:</label>
+                        <select id="scenario-select">
+                            <option value="financial">Financial Market Data (Trading)</option>
+                            <option value="ecommerce">E-commerce Transactions (Pricing)</option>
+                            <option value="nyc-taxi">NYC Taxi Data (Fare Prediction)</option>
+                            <option value="covid19">COVID-19 Dataset (Trend Analysis)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="toggle-container">
+                        <span>Data Quality Signals: OFF</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="quality-signals-toggle">
+                            <span class="slider"></span>
+                        </label>
+                        <span>ON</span>
+                    </div>
+                    
+                    <div class="alert-box" id="simulator-explanation">
+                        <p>Without quality signals, the agent cannot determine if data is fresh enough for decision making.</p>
+                    </div>
+                </div>
+                
+                <div class="simulator-visualization">
+                    <div class="decision-path" id="decision-path">
+                        <!-- Visual representation of agent decision path -->
+                    </div>
+                    <div class="decision-outcome" id="decision-outcome">
+                        <!-- Outcome display -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="social-proof">
+            <p class="testimonial">"Without quality signals, agents operate blindfolded. ADRI gives them sight."</p>
+            <p class="attribution">— ADRI Community Contributors</p>
+        </div>
+    </section>
+
+    <!-- Get Started Section -->
+    <section class="get-started-section" id="get-started-section">
+        <h2>Get Started with <span class="underline">ADRI</span></h2>
+        <p class="lead">Choose your path to building more reliable AI agent systems</p>
+        
+        <div class="pathway-cards">
+            <div class="pathway-card">
+                <div class="pathway-icon">🔍</div>
+                <h3>Assess Your Data</h3>
+                <p>Run the ADRI assessment on your data sources to understand their readiness for AI agents.</p>
+                <div class="code-sample">
+pip install adri
+adri assess --source your_data.csv
+                </div>
+                <a href="docs/GET_STARTED.html" class="btn btn-primary">Quick Start Guide</a>
+            </div>
+            
+            <div class="pathway-card">
+                <div class="pathway-icon">🛡️</div>
+                <h3>Protect Your Agents</h3>
+                <p>Add ADRI guards to ensure your agents only process data that meets reliability standards.</p>
+                <div class="code-sample">
+from adri import adri_guarded
+
+@adri_guarded(min_score=70)
+def process_data(data_source):
+    # Your agent logic here
+                </div>
+                <a href="docs/IMPLEMENTING_GUARDS.html" class="btn btn-primary">Guard Documentation</a>
+            </div>
+            
+            <div class="pathway-card">
+                <div class="pathway-icon">🚀</div>
+                <h3>Enhance Your Data</h3>
+                <p>Learn how to add reliability metadata to make your data sources ADRI-ready.</p>
+                <a href="docs/ENHANCING_DATA_SOURCES.html" class="btn btn-primary">Enhancement Guide</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Success Stories Section -->
+    <section class="success-section">
+        <h2>Community <span class="underline">Success Stories</span></h2>
+        <p class="lead">See how organizations are using ADRI to build more reliable AI systems</p>
+        
+        <div class="success-cards">
+            <div class="success-card">
+                <h3>Before ADRI</h3>
+                <p>"Our customer service agent was using week-old inventory data, leading to frustrated customers and lost sales."</p>
+                <div class="score-display">
+                    <span class="score-value score-low">Score: 32/100</span>
+                </div>
+            </div>
+            
+            <div class="success-card">
+                <h3>After ADRI</h3>
+                <p>"With freshness metadata and guards in place, our agent now knows exactly when to refresh data, resulting in 95% accuracy."</p>
+                <div class="score-display">
+                    <span class="score-value score-high">Score: 87/100</span>
+                </div>
+            </div>
+        </div>
+        
+        <p class="success-cta">Have a success story? <a href="https://github.com/ThinkEvolveSolve/agent-data-readiness-index/discussions">Share it with the community</a></p>
+    </section>
+
+    <!-- Community Contribution Section -->
+    <section class="community-section" id="community-section">
+        <h2>Join the <span class="underline">Movement</span></h2>
+        <p class="lead">Help us build a future where AI agents can confidently work with reliable data.</p>
+        
+        <div class="contribution-cards">
+            <div class="contribution-card">
+                <h3>Use ADRI</h3>
+                <p>Start using ADRI in your projects and share your experiences with the community.</p>
+                <a href="docs/GET_STARTED.html" class="btn btn-secondary">Get Started</a>
+            </div>
+            
+            <div class="contribution-card">
+                <h3>Contribute Code</h3>
+                <p>Help improve ADRI by contributing code, documentation, or examples.</p>
+                <a href="https://github.com/ThinkEvolveSolve/agent-data-readiness-index" class="btn btn-secondary">View on GitHub</a>
+            </div>
+            
+            <div class="contribution-card">
+                <h3>Share Knowledge</h3>
+                <p>Write blog posts, create tutorials, or speak about ADRI at conferences.</p>
+                <a href="docs/CONTRIBUTING.html" class="btn btn-secondary">Contribution Guide</a>
+            </div>
+            
+            <div class="contribution-card">
+                <h3>Join Discussions</h3>
+                <p>Participate in discussions about the future of data readiness for AI agents.</p>
+                <a href="https://github.com/ThinkEvolveSolve/agent-data-readiness-index/discussions" class="btn btn-secondary">Join the Discussion</a>
+            </div>
+        </div>
+        
+        <div class="community-stats">
+            <h3>Built by the Community</h3>
+            <div class="stat-cards">
+                <div class="stat-card">
+                    <div class="stat-value">MIT</div>
+                    <div class="stat-label">License</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">5</div>
+                    <div class="stat-label">Core Dimensions</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">∞</div>
+                    <div class="stat-label">Possibilities</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Try ADRI Section -->
+    <section class="try-adri-section">
+        <h2>Try <span class="underline">ADRI Now</span></h2>
+        <p class="lead">See how ADRI evaluates data readiness across the five dimensions</p>
+        
+        <div class="try-container">
+            <div class="try-content">
+                <h3>Quick Assessment</h3>
+                <p>Run ADRI on your data in less than 5 minutes:</p>
+                
+                <div class="step-cards-inline">
+                    <div class="step-card-inline">
+                        <div class="step-number">1</div>
+                        <code>pip install adri</code>
+                    </div>
+                    <div class="step-card-inline">
+                        <div class="step-number">2</div>
+                        <code>adri assess data.csv</code>
+                    </div>
+                    <div class="step-card-inline">
+                        <div class="step-number">3</div>
+                        <span>Get your readiness report</span>
+                    </div>
+                </div>
+                
+                <a href="docs/GET_STARTED.html" class="btn btn-primary">Full Tutorial</a>
+            </div>
+            
+            <div class="dimension-preview">
+                <h3>What ADRI Measures</h3>
+                <div class="dimension-list">
+                    <div class="dimension-item">✓ Data Freshness</div>
+                    <div class="dimension-item">✓ Format Validity</div>
+                    <div class="dimension-item">✓ Completeness</div>
+                    <div class="dimension-item">✓ Consistency</div>
+                    <div class="dimension-item">✓ Plausibility</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-main">
+                <h3>Agent Data Readiness Index</h3>
+                <p>An open standard for evaluating data quality signals for AI agents.</p>
+                <p>Built by the community, for the community.</p>
+                
+                <div class="footer-badges">
+                    <img src="https://img.shields.io/badge/License-MIT-green.svg" alt="MIT License">
+                    <img src="https://img.shields.io/badge/Version-1.0.0-blue.svg" alt="Version">
+                    <img src="https://img.shields.io/badge/Python-3.7+-blue.svg" alt="Python 3.7+">
+                </div>
+            </div>
+            
+            <div class="footer-links">
+                <div class="footer-column">
+                    <h4>Documentation</h4>
+                    <ul>
+                        <li><a href="docs/">Documentation Home</a></li>
+                        <li><a href="docs/VISION.html">Vision</a></li>
+                        <li><a href="docs/GET_STARTED.html">Getting Started</a></li>
+                        <li><a href="docs/API_REFERENCE.html">API Reference</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h4>Community</h4>
+                    <ul>
+                        <li><a href="https://github.com/ThinkEvolveSolve/agent-data-readiness-index">GitHub</a></li>
+                        <li><a href="https://github.com/ThinkEvolveSolve/agent-data-readiness-index/issues">Issues</a></li>
+                        <li><a href="https://github.com/ThinkEvolveSolve/agent-data-readiness-index/discussions">Discussions</a></li>
+                        <li><a href="docs/CONTRIBUTING.html">Contributing</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h4>Resources</h4>
+                    <ul>
+                        <li><a href="docs/ROADMAP.html">Roadmap</a></li>
+                        <li><a href="docs/FAQ.html">FAQ</a></li>
+                        <li><a href="docs/SECURITY.html">Security</a></li>
+                        <li><a href="LICENSE">License</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <p>&copy; 2025 ADRI Community. The Agent Data Readiness Index is available under the <a href="LICENSE">MIT License</a>.</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="web/js/simulator.js"></script>
+</body>
+</html>

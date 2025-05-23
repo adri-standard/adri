@@ -1,0 +1,26 @@
+customer_id,product_id,product_name,category,purchase_date,price,quantity,payment_method,shipping_address,satisfaction_score,return_date,return_reason
+1001,P5001,Wireless Headphones,Electronics,2025-05-10,129.99,1,Credit Card,"123 Main St, Anytown, CA 94088",,,
+1002,P3045,Smart Watch Pro,,2025-05-11,249.99,1,PayPal,"456 Oak Ave, Springfield, IL 62701",4,,
+1003,P2133,Running Shoes,Sportswear,2025-05-11,89.95,,Credit Card,"789 Pine St, Portland, OR 97201",5,,
+1004,P4087,Laptop Stand,Office,2025-05-12,34.99,2,,,"101 College Rd, Boston, MA 02108",4,,
+1005,P1022,Coffee Maker,Kitchen,2025-05-12,79.99,1,Credit Card,,5,,
+1006,P5002,Bluetooth Speaker,Electronics,2025-05-13,,1,PayPal,"303 Lake Dr, Chicago, IL 60601",4,,
+1007,P3011,,Electronics,2025-05-13,59.95,1,Credit Card,"404 Mountain View, Denver, CO 80201",5,,
+1008,P2256,Yoga Mat,Sportswear,,29.99,1,Debit Card,"505 Beach Blvd, Miami, FL 33101",5,,
+1009,P4102,Desk Lamp,Office,2025-05-14,45.99,1,Credit Card,"606 Valley Rd, Seattle, WA 98101",4,,
+1010,,Blender,Kitchen,2025-05-15,119.99,1,PayPal,"707 Sunset Ave, San Diego, CA 92101",5,,
+1011,P5023,Wireless Earbuds,Electronics,2025-05-15,89.99,1,Credit Card,"808 Highland Dr, Nashville, TN 37201",,2025-05-20,Defective
+1012,P3078,Smart Home Hub,,2025-05-16,129.99,1,Debit Card,"909 Forest Path, Atlanta, GA 30301",5,,
+1013,P2189,Running Shorts,Sportswear,2025-05-16,34.95,2,Credit Card,"111 Meadow Ln, Philadelphia, PA 19101",4,,
+1014,P4033,Ergonomic Chair,Office,2025-05-17,,,PayPal,"222 Harbor View, New York, NY 10001",5,,
+1015,P1067,Air Fryer,Kitchen,2025-05-17,99.99,1,Credit Card,"333 Desert Rd, Phoenix, AZ 85001",,2025-05-21,Wrong size
+1016,P5045,Noise-Cancelling Headphones,Electronics,2025-05-18,199.99,1,,,"444 Lakeshore Dr, Detroit, MI 48201",4,,
+1017,P3092,Smartwatch Band,Electronics,2025-05-18,,1,Credit Card,"555 Maple Ave, Minneapolis, MN 55401",5,,
+1018,P2201,Workout Gloves,Sportswear,2025-05-19,19.99,1,PayPal,"666 Pine Ridge, Salt Lake City, UT 84101",,2025-05-23,Changed mind
+1019,P4056,Monitor Stand,,2025-05-19,79.95,1,Credit Card,"777 Oceanfront, San Francisco, CA 94101",5,,
+1020,P1089,Electric Kettle,Kitchen,2025-05-20,39.99,,Debit Card,"888 Mountain Pass, Boulder, CO 80301",5,,
+1021,P5067,Wireless Charger,Electronics,2025-05-20,29.99,2,Credit Card,,,2025-05-24,Did not match description
+1022,P3105,Smart Thermostat,Electronics,,149.99,1,PayPal,"121 Riverside Dr, St. Louis, MO 63101",5,,
+1023,,Compression Socks,Sportswear,2025-05-21,15.95,3,Credit Card,"232 Lakefront, Chicago, IL 60602",4,,
+1024,P4078,Keyboard Wrist Rest,Office,2025-05-22,,1,Debit Card,"343 Downtown Ave, Dallas, TX 75201",5,,
+1025,P1112,Food Processor,Kitchen,2025-05-22,89.99,1,,,5,,

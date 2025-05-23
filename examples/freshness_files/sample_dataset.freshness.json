@@ -1,0 +1,31 @@
+{
+  "has_explicit_freshness_info": true,
+  "file_modified_time": "2025-05-20T14:30:00Z",
+  "file_age_hours": 24.5,
+  "max_age_hours": 48,
+  "is_fresh": true,
+  "update_frequency": "daily",
+  "temporal_coverage": {
+    "start_date": "2024-01-01",
+    "end_date": "2025-04-30"
+  },
+  "version_info": {
+    "version": "2.3.1",
+    "release_date": "2025-05-20"
+  },
+  "freshness_sla": {
+    "critical_data_max_age_hours": 12,
+    "standard_data_max_age_hours": 48,
+    "meets_critical_sla": false,
+    "meets_standard_sla": true
+  },
+  "time_series_info": {
+    "frequency": "daily",
+    "typical_lag_hours": 8
+  },
+  "notes": [
+    "This dataset is updated once daily at approximately 14:00 UTC",
+    "Some metrics may have up to 12 hour reporting lag",
+    "Weekend updates may be delayed by up to 24 hours"
+  ]
+}

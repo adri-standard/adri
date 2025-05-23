@@ -1,0 +1,69 @@
+{
+  "has_explicit_completeness_info": true,
+  "overall_completeness_percent": 96.5,
+  "missing_value_markers": ["N/A", "-999", "NULL", "unknown"],
+  "completeness_metrics": {
+    "by_column": {
+      "customer_id": 100.0,
+      "first_name": 98.7,
+      "last_name": 99.2,
+      "email": 87.4,
+      "phone": 76.2,
+      "address_line1": 92.1,
+      "address_line2": 45.3,
+      "city": 94.8,
+      "state": 96.2,
+      "postal_code": 97.3,
+      "country": 99.1,
+      "date_of_birth": 85.6,
+      "signup_date": 100.0,
+      "last_login": 98.3,
+      "premium_status": 100.0
+    },
+    "required_fields": [
+      "customer_id", 
+      "first_name", 
+      "last_name", 
+      "email", 
+      "signup_date", 
+      "premium_status"
+    ],
+    "optional_fields": [
+      "phone", 
+      "address_line1", 
+      "address_line2", 
+      "city", 
+      "state", 
+      "postal_code", 
+      "country", 
+      "date_of_birth", 
+      "last_login"
+    ]
+  },
+  "section_completeness": {
+    "personal_info": {
+      "fields": ["first_name", "last_name", "date_of_birth"],
+      "completeness_percent": 94.5,
+      "description": "Basic personal information about the customer"
+    },
+    "contact_info": {
+      "fields": ["email", "phone"],
+      "completeness_percent": 81.8,
+      "description": "Primary contact methods for the customer"
+    },
+    "address": {
+      "fields": ["address_line1", "address_line2", "city", "state", "postal_code", "country"],
+      "completeness_percent": 87.5,
+      "description": "Customer's physical address information"
+    },
+    "account_info": {
+      "fields": ["signup_date", "last_login", "premium_status"],
+      "completeness_percent": 99.4,
+      "description": "Account status and usage information"
+    }
+  },
+  "notes": [
+    "Address Line 2 is expected to have low completeness as it's only applicable for certain addresses",
+    "Phone numbers are optional but recommended for account recovery purposes"
+  ]
+}

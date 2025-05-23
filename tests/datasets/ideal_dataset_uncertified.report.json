@@ -1,0 +1,118 @@
+{
+  "source_name": "ideal_dataset_uncertified.csv",
+  "source_type": "file-csv",
+  "source_metadata": {
+    "file_path": "/Users/thomas/github/thinkevolvesolve/agent-data-readiness-index/test_datasets/ideal_dataset_uncertified.csv",
+    "file_type": "csv",
+    "file_size_bytes": 2839,
+    "created_time": "2025-05-23T17:02:51.096387",
+    "modified_time": "2025-05-23T17:02:51.096387",
+    "accessed_time": "2025-05-23T17:02:51.097563",
+    "num_records": 25,
+    "num_columns": 12
+  },
+  "assessment_time": "2025-05-23T17:02:51.097568",
+  "adri_version": "0.2.0b1.post1",
+  "assessment_config": {},
+  "overall_score": 5.2,
+  "readiness_level": "Inadequate - Not recommended for agentic use",
+  "dimension_results": {
+    "validity": {
+      "score": 11,
+      "findings": [
+        "Data types are explicitly defined for all fields",
+        "No explicit format definitions found in schema",
+        "No explicit range definitions found in schema",
+        "Data types are consistent across all columns",
+        "Statistical outliers detected in column 'price': 2 values (8.0%)",
+        "Statistical outliers detected in column 'quantity': 4 values (16.0%)",
+        "Automatic validation performed on data source",
+        "Automatic validation results are available but not explicitly designed for agents",
+        "Score components: {'types_defined': 5, 'formats_defined': 0, 'ranges_defined': 0, 'validation_performed': 2, 'validation_communicated': 4}"
+      ],
+      "recommendations": [
+        "Define formats (e.g., date patterns, string patterns) for applicable fields",
+        "Define valid ranges (min/max values, allowed values) for applicable fields",
+        "Implement validation rules for this data source",
+        "Ensure validation results are explicitly communicated to agents in a machine-readable format"
+      ]
+    },
+    "completeness": {
+      "score": 6,
+      "findings": [
+        "Overall completeness: 83.3%",
+        "Data is moderately complete (>80%)",
+        "No explicit or implicit distinction between missing values and nulls",
+        "Basic completeness metrics calculated through analysis",
+        "No section-level completeness information",
+        "Score components: {'overall_completeness': 3, 'null_distinction': 0, 'explicit_metrics': 3, 'section_awareness': 0}"
+      ],
+      "recommendations": [
+        "Implement explicit markers for missing vs. null values",
+        "Implement section-level completeness tracking",
+        "Implement a comprehensive completeness framework with explicit agent communication"
+      ]
+    },
+    "freshness": {
+      "score": 3,
+      "findings": [
+        "No timestamp information available",
+        "No freshness SLA defined",
+        "Basic freshness information available through analysis (partial credit)",
+        "Score components: {'has_timestamp': 0, 'data_age': 0, 'has_sla': 0, 'meets_sla': 0, 'explicit_communication': 3}"
+      ],
+      "recommendations": [
+        "Add timestamp information to data",
+        "Define explicit freshness SLAs for data",
+        "Implement a comprehensive freshness framework with explicit agent communication"
+      ]
+    },
+    "consistency": {
+      "score": 0,
+      "findings": [
+        "No consistency information is available",
+        "Score components: {'rules_defined': 0, 'rule_types': 0, 'rule_validity': 0, 'cross_dataset': 0, 'explicit_communication': 0}"
+      ],
+      "recommendations": [
+        "Implement basic consistency checking and expose it to agents",
+        "Implement a comprehensive consistency framework with explicit agent communication"
+      ]
+    },
+    "plausibility": {
+      "score": 6,
+      "findings": [
+        "Plausibility rules defined: 2",
+        "Outlier detection rules: 2",
+        "2 of 2 plausibility rules fail",
+        "No domain-specific plausibility rules defined",
+        "Plausibility results are not explicitly communicated to agents",
+        "Score components: {'rules_defined': 2, 'rule_types': 3, 'rule_validity': 1, 'domain_specific': 0, 'explicit_communication': 0}"
+      ],
+      "recommendations": [
+        "Address plausibility rule violations",
+        "Implement domain-specific plausibility checks",
+        "Make plausibility results explicitly available to agents",
+        "Implement a comprehensive plausibility framework with explicit agent communication"
+      ]
+    }
+  },
+  "summary_findings": [
+    "[Validity] Data types are explicitly defined for all fields",
+    "[Validity] No explicit format definitions found in schema",
+    "[Completeness] Overall completeness: 83.3%",
+    "[Completeness] Data is moderately complete (>80%)",
+    "[Freshness] No timestamp information available",
+    "[Freshness] No freshness SLA defined",
+    "[Consistency] No consistency information is available",
+    "[Consistency] Score components: {'rules_defined': 0, 'rule_types': 0, 'rule_validity': 0, 'cross_dataset': 0, 'explicit_communication': 0}",
+    "[Plausibility] Plausibility rules defined: 2",
+    "[Plausibility] Outlier detection rules: 2"
+  ],
+  "summary_recommendations": [
+    "[Validity] Define formats (e.g., date patterns, string patterns) for applicable fields",
+    "[Completeness] Implement explicit markers for missing vs. null values",
+    "[Freshness] Add timestamp information to data",
+    "[Consistency] Implement basic consistency checking and expose it to agents",
+    "[Plausibility] Address plausibility rule violations"
+  ]
+}

@@ -1,46 +1,129 @@
-# Agent Data Readiness Index
+# Agent Data Readiness Index (ADRI)
 
-## The Industry's First Open Standard for Evaluating AI Agent Data Quality
+**Making data reliable for AI agents**
 
-Welcome to the Agent Data Readiness Index (ADRI) project – an open-source initiative to establish a standard framework for evaluating the quality of data used by agentic AI systems.
+## 🎯 First Time Here? Start with Our Vision
 
-## Why This Matters
+Before diving into code, we encourage you to understand **[why ADRI exists](./VISION.md)** and the problem we're solving. ADRI is more than a tool - it's a framework for ensuring AI agents can trust their data.
 
-As AI agents move from experimental environments to making consequential decisions in production, the quality of data they interact with becomes critically important. Unlike traditional ML models, agents actively query and interact with data dynamically, making data reliability an even more crucial concern.
+<div style="text-align: center; margin: 2em 0;">
+  <a href="./VISION.md" style="display: inline-block; padding: 1em 2em; background-color: #8BC34A; color: white; text-decoration: none; border-radius: 4px; font-weight: bold;">
+    📖 Read the Vision →
+  </a>
+</div>
 
-**The Problem**: Agentic systems are particularly vulnerable to "data blindness" – they often cannot tell when they're working with stale, incomplete, or inconsistent information. This leads to costly mistakes, security vulnerabilities, and compliance issues.
+---
 
-**Our Mission**: To create an open standard that helps AI engineers evaluate, communicate, and improve data readiness for agentic systems.
+## 🚀 Your Journey with ADRI
 
-## What Is The Agent Data Readiness Index?
+```mermaid
+graph LR
+    A[Understand<br/>the Vision] -->|Why it matters| B[Learn Core<br/>Concepts]
+    B -->|5 dimensions| C[Quick<br/>Start]
+    C -->|Try it out| D[Implement<br/>Guards]
+    D -->|Protect agents| E[Integrate &<br/>Extend]
+    
+    style A fill:#8BC34A,stroke:#333,stroke-width:2px,color:#fff
+    style B fill:#FFC107,stroke:#333,stroke-width:2px
+    style C fill:#03A9F4,stroke:#333,stroke-width:2px,color:#fff
+    style D fill:#9C27B0,stroke:#333,stroke-width:2px,color:#fff
+    style E fill:#FF5722,stroke:#333,stroke-width:2px,color:#fff
+```
 
-The ADRI is a diagnostic framework that evaluates five critical dimensions of data quality specifically for agentic AI systems:
+---
 
-1. **Validity** - Whether data adheres to required types, formats, and ranges
-2. **Completeness** - Whether all expected data is present
-3. **Freshness** - Whether data is current enough for the decision
-4. **Consistency** - Whether data elements maintain logical relationships
-5. **Plausibility** - Whether data values are reasonable based on context
+## What is ADRI?
 
-Most importantly, the index focuses on whether these quality attributes are **explicitly communicated to agents** – addressing the "data blindness" problem that uniquely affects agentic systems.
+The Agent Data Readiness Index (ADRI) helps AI Engineers ensure their agents have reliable data to work with. It provides a standardized framework for assessing, communicating, and enforcing data reliability standards specifically designed for AI agent workflows.
 
-## Getting Started
+### The Problem We Solve
 
-- **[Methodology](Methodology.md)**: Learn about our assessment approach and scoring system.
-- **[Implementation Guide](Implementation-Guide.md)**: How to use ADRI in your organization.
-- **[Community Catalog](datasets.md)**: Explore assessments of public datasets. <!-- Link to datasets page -->
-- **[Contribute](CONTRIBUTING.md)**: Join our community and help improve the standard. <!-- Link to file within docs/ -->
+AI agents face unique challenges when working with data:
 
-## Project Status
+- **🙈 Agent Blindness**: Unlike humans, agents can't easily detect problems unless explicitly informed
+- **🔄 Propagating Errors**: Bad data leads to cascading errors in automated workflows
+- **❓ Unclear Standards**: There's no common language for "data quality" in agent applications
+- **🗣️ Communication Gaps**: AI Engineers and data providers lack a shared framework
 
-This project is currently in active development. We welcome contributions from AI engineers, data scientists, and organizations working with agentic systems.
+ADRI solves these problems with a standardized approach to data reliability.
 
-## About This Project
+## Quick Start
 
-The Agent Data Readiness Index was initiated by [Verodat](https://verodat.ai) as an open-source community resource. As agentic AI becomes increasingly critical to business operations, we believe an open standard for data quality is essential for the entire ecosystem.
+Once you understand the vision, getting started is easy:
 
-For more information about Verodat's commercial offerings that help solve agent data quality issues, visit [our website](https://verodat.ai).
+```bash
+pip install adri
+```
+
+```python
+from adri import DataSourceAssessor
+
+# Create an assessor
+assessor = DataSourceAssessor()
+
+# Assess your data source
+report = assessor.assess_file("your_data.csv")
+
+# View the results
+print(f"Overall score: {report.overall_score}/100")
+print(f"Readiness level: {report.readiness_level}")
+
+# Save a visual report
+report.save_html("data_readiness_report.html")
+```
+
+📚 **[Full Quick Start Guide →](./GET_STARTED.md)**
+
+## Key Features
+
+- **Multi-dimensional Assessment**: Evaluates five key aspects of data reliability
+- **Quantitative Scoring**: Provides clear metrics for each dimension
+- **Guard Mechanisms**: Protects agent workflows from unreliable data
+- **Framework Integration**: Works with LangChain, CrewAI, DSPy, and more
+- **Enhanced Metadata**: Standardized format for communicating reliability characteristics
+
+## Documentation
+
+### Getting Started
+- [Quick Start Guide](./GET_STARTED.md) - Get up and running in 5 minutes
+- [Understanding ADRI's Vision](./VISION.md) - Learn about our goals and principles
+- [Project Roadmap](./ROADMAP.md) - See our development plan and contribute
+
+### Core Concepts
+- [Understanding Dimensions](./UNDERSTANDING_DIMENSIONS.md) - Deep dive into the five dimensions of reliability
+- [Implementing Guards](./IMPLEMENTING_GUARDS.md) - Protect your agent workflows
+- [Enhancing Data Sources](./ENHANCING_DATA_SOURCES.md) - Improve your data with explicit metadata
+
+### Dimension Details
+- [Validity Dimension](./ValidityDimension.md) - Ensuring data formats and ranges
+- [Completeness Dimension](./CompletenessDimension.md) - Managing missing data
+- [Freshness Dimension](./FreshnessDimension.md) - Handling data recency
+- [Consistency Dimension](./ConsistencyDimension.md) - Maintaining logical coherence
+- [Plausibility Dimension](./PlausibilityDimension.md) - Detecting unreasonable values
+
+### Advanced Topics
+- [Framework Integrations](./INTEGRATIONS.md) - Using ADRI with popular agent frameworks
+- [Extending ADRI](./EXTENDING.md) - Creating custom dimensions and connectors
+- [API Reference](API_REFERENCE.md) - Complete API documentation
+
+## The Five Dimensions of Data Reliability
+
+ADRI evaluates data across five key dimensions:
+
+| Dimension | Key Question | Why It Matters |
+|-----------|-------------|----------------|
+| **Validity** | Is the data correctly formatted? | Prevents parsing errors and misinterpretation |
+| **Completeness** | Is all required data present? | Avoids missing information for decisions |
+| **Freshness** | Is the data sufficiently recent? | Ensures decisions aren't based on outdated information |
+| **Consistency** | Is the data logically coherent? | Prevents confusing contradictions |
+| **Plausibility** | Are values reasonable in context? | Catches technically valid but nonsensical data |
+
+## Getting Help
+
+- [FAQ](./FAQ.md) - Common questions and answers
+- [GitHub Issues](https://github.com/ThinkEvolveSolve/agent-data-readiness-index/issues) - Report bugs or request features
+- [Contributing Guide](./CONTRIBUTING.md) - Join the community and contribute
 
 ## License
 
-This project is available under the [MIT License](https://github.com/verodat/agent-data-readiness-index/blob/main/LICENSE). <!-- Absolute link to GitHub -->
+ADRI is available under the [MIT License](../LICENSE).

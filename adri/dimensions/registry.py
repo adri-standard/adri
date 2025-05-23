@@ -68,3 +68,25 @@ class DimensionRegistry:
             List[str]: List of dimension names
         """
         return list(cls._dimensions.keys())
+
+# ----------------------------------------------
+# TEST COVERAGE
+# ----------------------------------------------
+# This component is tested through:
+# 
+# 1. Unit tests:
+#    - tests/unit/test_assessor.py (dimension registration and retrieval)
+# 
+# 2. Integration tests:
+#    - tests/integration/test_cli.py (dimension discovery and execution)
+#
+# 3. Dimension registration through decorator in:
+#    - adri/dimensions/validity.py
+#    - adri/dimensions/completeness.py
+#    - adri/dimensions/freshness.py
+#    - adri/dimensions/consistency.py
+#    - adri/dimensions/plausibility.py
+#
+# Complete test coverage details are documented in:
+# docs/test_coverage/DIMENSIONS_test_coverage.md
+# ----------------------------------------------

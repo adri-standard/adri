@@ -1,0 +1,67 @@
+{
+  "has_explicit_plausibility_info": true,
+  "communication_format": "json",
+  "explicitly_communicated": true,
+  "rule_results": [
+    {
+      "rule_name": "Price range check for Electronics",
+      "type": "domain_specific",
+      "field": "price",
+      "condition": "category == 'Electronics' AND price > 0.99 AND price < 2000",
+      "valid": false,
+      "message": "Electronics products should have reasonable prices between $0.99 and $2000",
+      "failure_count": 6,
+      "examples": [
+        9999.99,
+        5995.0,
+        14999.99
+      ]
+    },
+    {
+      "rule_name": "Price range check for Kitchen",
+      "type": "domain_specific",
+      "field": "price",
+      "condition": "category == 'Kitchen' AND price > 9.99 AND price < 1000",
+      "valid": false,
+      "message": "Kitchen products should have reasonable prices between $9.99 and $1000",
+      "failure_count": 4,
+      "examples": [
+        7999.0,
+        11999.99,
+        0.09,
+        3999.99
+      ]
+    },
+    {
+      "rule_name": "Quantity outlier detection",
+      "type": "outlier_detection",
+      "field": "quantity",
+      "valid": false,
+      "message": "Purchase quantities should be reasonable for consumer products",
+      "failure_count": 4,
+      "outlier_threshold": 10,
+      "examples": [
+        100,
+        50,
+        200,
+        300
+      ]
+    },
+    {
+      "rule_name": "Price distribution",
+      "type": "outlier_detection",
+      "field": "price",
+      "valid": false,
+      "message": "Product prices should follow a reasonable distribution",
+      "failure_count": 12,
+      "outlier_threshold": "3-sigma",
+      "examples": [
+        9999.99,
+        0.09,
+        24999.99,
+        0.79
+      ]
+    }
+  ],
+  "valid_overall": false
+}

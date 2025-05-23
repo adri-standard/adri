@@ -246,3 +246,24 @@ class BaseConnector(ABC):
     def __str__(self) -> str:
         """String representation of the connector."""
         return f"{self.get_type()} connector for {self.get_name()}"
+
+# ----------------------------------------------
+# TEST COVERAGE
+# ----------------------------------------------
+# This component is tested through:
+# 
+# 1. Abstract class implementation in concrete connectors:
+#    - tests/unit/connectors/test_file.py (FileConnector implementation)
+# 
+# 2. Integration tests:
+#    - tests/unit/test_assessor.py (connector-assessor interaction)
+#    - tests/integration/test_cli.py (connector in CLI pipeline)
+#
+# 3. Connector usage in dimension assessors:
+#    - tests/unit/dimensions/test_validity_detection.py
+#    - tests/unit/dimensions/test_completeness.py
+#    - tests/unit/dimensions/test_freshness_basic.py
+#
+# Complete test coverage details are documented in:
+# docs/test_coverage/CONNECTORS_test_coverage.md
+# ----------------------------------------------

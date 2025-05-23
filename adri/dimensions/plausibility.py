@@ -8,6 +8,7 @@ and most importantly, whether this information is explicitly communicated to age
 import logging
 from typing import Dict, List, Tuple, Any, Optional
 
+from ..config.config import get_config
 from ..connectors import BaseConnector
 from . import BaseDimensionAssessor, register_dimension
 
