@@ -10,7 +10,7 @@ edit_uri: "" # Disable direct edit links for now
 
 # Build directories
 docs_dir: ../docs  # Path relative to config file location
-site_dir: site # Output directory for built site
+site_dir: ../site  # Output directory for built site (relative to config file location)
 
 # Theme Configuration (Material for MkDocs)
 theme:
