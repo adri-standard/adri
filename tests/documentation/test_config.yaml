@@ -1,0 +1,105 @@
+# Documentation Testing Configuration
+
+documentation:
+  paths:
+    - docs/*.md
+    - docs/**/*.md
+  exclude_paths:
+    - docs/test_coverage/**
+    - docs/internal/**
+    - docs/ai_dev_manager/**
+
+code_testing:
+  enabled: true
+  timeout: 30  # seconds per example
+  python_version: "3.8+"
+  required_imports:
+    - "from adri import *"
+  skip_patterns:
+    - "# ... rest of"
+    - "# TODO:"
+    - "# Add your"
+    - "# Your code here"
+    - "..."
+    - "pass  # Implement"
+  fixture_data:
+    sample_csv: "tests/documentation/fixtures/sample_data.csv"
+    test_config: "tests/documentation/fixtures/test_config.yaml"
+
+link_validation:
+  enabled: true
+  check_external: true
+  timeout: 5  # seconds per link
+  max_workers: 10  # for parallel checking
+  ignore_patterns:
+    - "localhost"
+    - "127.0.0.1"
+    - "example.com"
+    - "your-domain.com"
+  allowed_status_codes:
+    - 200
+    - 201
+    - 301
+    - 302
+    - 307
+    - 308
+
+vision_alignment:
+  enabled: true
+  score_threshold: 0.8  # Minimum acceptable score
+  core_terms:
+    "Agent Data Readiness Index": ["ADRI", "agent data readiness"]
+    "data reliability": ["data quality"]
+    "five dimensions": ["5 dimensions", "dimensions"]
+    "validity": ["valid", "validation"]
+    "completeness": ["complete", "missing data"]
+    "freshness": ["fresh", "stale", "timeliness"]
+    "consistency": ["consistent", "inconsistent"]
+    "plausibility": ["plausible", "implausible", "reasonable"]
+    "guard": ["guards", "guardrail"]
+    "assessor": ["assessment", "evaluate"]
+    "data sources": ["datasource", "data source"]
+  
+  deprecated_terms:
+    "data quality": "data reliability"
+    "ML": "machine learning"
+    "AI": "artificial intelligence"
+    "LLM": "large language model"
+    "agent": "AI agent"
+  
+  required_sections:
+    dimension:
+      - "Overview"
+      - "Why It Matters"
+      - "How ADRI Measures"
+    guide:
+      - "Introduction"
+    integration:
+      - "Overview"
+
+content_structure:
+  enabled: true
+  max_header_depth: 4
+  require_language_in_code_blocks: true
+  require_intro_after_title: true
+  orphaned_files_allowed:
+    - "docs/index.md"
+    - "README.md"
+    - "CONTRIBUTING.md"
+    - "CHANGELOG.md"
+    - "LICENSE"
+
+reporting:
+  generate_html: true
+  html_output_path: "tests/documentation/reports/doc_test_results.html"
+  generate_markdown: true
+  markdown_output_path: "tests/documentation/reports/doc_test_summary.md"
+  fail_on_warnings: false
+  console_output: true
+  
+  # GitHub Actions integration
+  github_actions:
+    enabled: true
+    comment_on_pr: true
+    fail_on_errors: true
+    fail_on_warnings: false
