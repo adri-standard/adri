@@ -365,4 +365,4 @@ This will analyze your data and create initial template files that you can custo
 
 Enhancing your data sources with explicit reliability metadata is one of the most powerful ways to improve your Agent Data Readiness Index scores. More importantly, it provides crucial context that enables agents to make better decisions when processing your data.
 
-For specific examples and templates for different data types, see the [Metadata Templates](./METADATA_TEMPLATES.md) documentation.
+For specific examples and templates for different data types, see the examples in the sections below.

@@ -98,7 +98,7 @@ report.save_html("data_readiness_report.html")
 - [Validity Dimension](./ValidityDimension.md) - Ensuring data formats and ranges
 - [Completeness Dimension](./CompletenessDimension.md) - Managing missing data
 - [Freshness Dimension](./FreshnessDimension.md) - Handling data recency
-- [Consistency Dimension](./ConsistencyDimension.md) - Maintaining logical coherence
+- [Consistency Dimension](./consistency_rules.md) - Maintaining logical coherence
 - [Plausibility Dimension](./PlausibilityDimension.md) - Detecting unreasonable values
 
 ### Advanced Topics
