@@ -53,4 +53,6 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./site
           force_orphan: true  # Use clean history
+          keep_files: false  # Delete all existing files
+          exclude_assets: ''  # Don't exclude any assets
           full_commit_message: 'Deploy documentation with URL: ${{ env.SITE_BASE_URL }} [skip ci]'
