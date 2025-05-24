@@ -9,7 +9,7 @@ repo_name: ThinkEvolveSolve/agent-data-readiness-index
 edit_uri: "" # Disable direct edit links for now
 
 # Build directories
-docs_dir: docs
+docs_dir: ../docs  # Path relative to config file location
 site_dir: site # Output directory for built site
 
 # Theme Configuration (Material for MkDocs)
