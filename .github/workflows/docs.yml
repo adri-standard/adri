@@ -27,7 +27,11 @@ jobs:
         id: config
         run: |
           echo "Loading site configuration from config/site_config.yml"
-          SITE_BASE_URL=$(grep site_base_url config/site_config.yml | cut -d':' -f2- | sed 's/^[[:space:]]*//;s/"//g')
+          SITE_BASE_URL=$(grep 'site_base_url' config/site_config.yml | grep -v '^#' | cut -d':' -f2- | sed 's/^[[:space:]]*//;s/[[:space:]]*$//;s/"//g')
+          if [[ ! $SITE_BASE_URL =~ ^https?:// ]]; then
+            echo "Invalid SITE_BASE_URL: $SITE_BASE_URL"
+            exit 1
+          fi
           echo "SITE_BASE_URL=$SITE_BASE_URL" >> $GITHUB_ENV
           echo "Site URL: $SITE_BASE_URL"
           
