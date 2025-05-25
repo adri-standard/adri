@@ -61,3 +61,30 @@ def get_score_compatibility_message(version):
         return f"Version {version} has generally compatible scoring with current version {__version__}, but check VERSIONS.md for details"
     
     return f"Warning: Version {version} has incompatible scoring with current version {__version__}. See VERSIONS.md for details."
+
+# ----------------------------------------------
+# TEST COVERAGE
+# ----------------------------------------------
+# This component is tested through:
+# 
+# 1. Unit tests:
+#    - tests/unit/test_version.py (version constants and compatibility checking)
+# 
+# 2. Integration tests:
+#    - tests/integration/test_version_integration.py (version propagation through CLI and reports)
+#    - tests/integration/test_publishing.py (version handling during publishing)
+#
+# 3. Infrastructure tests:
+#    - tests/infrastructure/test_version_infrastructure.py (version consistency across files)
+#
+# 4. Usage in core components:
+#    - adri/assessor.py (embeds version in reports)
+#    - adri/report.py (version compatibility checking on load)
+#
+# 5. CI/CD validation:
+#    - .github/workflows/publish.yml (version consistency checks)
+#    - .github/workflows/test-publishing.yml (TestPyPI version testing)
+#
+# Complete test coverage details are documented in:
+# docs/test_coverage/VERSION_MANAGEMENT_test_coverage.md
+# ----------------------------------------------

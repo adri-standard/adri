@@ -69,4 +69,4 @@ Based on the identified gaps, the following test development priorities are reco
 
 | Feature | Test Plan Document |
 |---------|-------------------|
-| Certification Guard | [05_certification_guard_test_plan.md](/test_plans/05_certification_guard_test_plan.md) |
+| Certification Guard | Test plan not available |

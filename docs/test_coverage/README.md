@@ -18,7 +18,7 @@ Each test coverage document follows a consistent structure:
 | Guard Implementation Guide | [IMPLEMENTING_GUARDS_test_coverage.md](./IMPLEMENTING_GUARDS_test_coverage.md) | [IMPLEMENTING_GUARDS.md](/docs/IMPLEMENTING_GUARDS.md) |
 | Certification Example | [certification_example_test_coverage.md](./certification_example_test_coverage.md) | [certification_example.py](/examples/guard/certification_example.py) |
 | Guard Implementation | [guard_implementation_test_coverage.md](./guard_implementation_test_coverage.md) | [guard.py](/adri/integrations/guard.py) |
-| Certification Guard Test Plan | [certification_guard_test_plan_coverage.md](./certification_guard_test_plan_coverage.md) | [05_certification_guard_test_plan.md](/test_plans/05_certification_guard_test_plan.md) |
+| Certification Guard Test Plan | [certification_guard_test_plan_coverage.md](./certification_guard_test_plan_coverage.md) | Test plan not available |
 | Plausibility Dimension | [plausibility_dimension_test_coverage.md](./plausibility_dimension_test_coverage.md) | [plausibility.py](/adri/dimensions/plausibility.py) |
 | Error Handling | [error_handling_test_coverage.md](./error_handling_test_coverage.md) | [test_error_handling.py](/tests/unit/test_error_handling.py) |
 

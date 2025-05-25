@@ -48,3 +48,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [0.2.0b1-1]: https://github.com/verodat/agent-data-readiness-index/compare/v0.2.0b1...v0.2.0b1-1
 [0.2.0b1]: https://github.com/verodat/agent-data-readiness-index/compare/v0.1.0...v0.2.0b1
 [0.1.0]: https://github.com/verodat/agent-data-readiness-index/releases/tag/v0.1.0
+
+<!-- ---------------------------------------------
+TEST COVERAGE
+----------------------------------------------
+This document's maintenance and accuracy are tested through:
+
+1. CI/CD validation:
+   - .github/workflows/publish.yml (version presence check)
+   - Ensures version appears in CHANGELOG before release
+
+2. Infrastructure tests:
+   - tests/infrastructure/test_version_infrastructure.py (file existence)
+
+3. Release process:
+   - RELEASING.md documents update procedure
+   - PR review ensures changes documented
+
+4. Format compliance:
+   - Follows Keep a Changelog standard
+   - Semantic versioning adherence
+
+Complete test coverage details are documented in:
+docs/test_coverage/RELEASE_PROCESS_test_coverage.md
+--------------------------------------------- -->

@@ -101,4 +101,4 @@ Based on the identified gaps, the following test development priorities are reco
 
 | Component | Test Plan Document |
 |-----------|-------------------|
-| Guard Implementation | [05_certification_guard_test_plan.md](/test_plans/05_certification_guard_test_plan.md) |
+| Guard Implementation | Test plan not available |

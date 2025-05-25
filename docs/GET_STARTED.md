@@ -122,7 +122,7 @@ result = protected_chain.run(data_source="customer_data.csv")
 ## Next Steps
 
 - Learn about the [five dimensions](./UNDERSTANDING_DIMENSIONS.md) of data reliability
-- Explore [advanced configuration](./ADVANCED_CONFIG.md) options
+- Explore configuration options in the [API reference](./API_REFERENCE.md#configuration)
 - See how to [enhance your data sources](./ENHANCING_DATA_SOURCES.md) with explicit metadata
 - Check out [framework integrations](./INTEGRATIONS.md) for LangChain, CrewAI, and more
 - View the full [API reference](./API_REFERENCE.md) for complete details

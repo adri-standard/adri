@@ -1,0 +1,44 @@
+{
+  "timestamp": "2025-05-25T13:16:01.981505",
+  "phases": {
+    "code": {
+      "name": "Code Examples",
+      "passed": false,
+      "tests_run": 2,
+      "failures": 2,
+      "errors": 0,
+      "skipped": 0
+    },
+    "links": {
+      "name": "Link Validation",
+      "passed": false,
+      "tests_run": 3,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    },
+    "vision": {
+      "name": "Vision Alignment",
+      "passed": false,
+      "tests_run": 3,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    },
+    "structure": {
+      "name": "Content Structure",
+      "passed": true,
+      "tests_run": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "summary": {
+    "total_tests": 12,
+    "passed": 8,
+    "failed": 4,
+    "errors": 0,
+    "pass_rate": 66.66666666666666
+  }
+}

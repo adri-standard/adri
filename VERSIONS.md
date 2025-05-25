@@ -69,3 +69,29 @@ When interpreting ADRI assessment reports, always check which version was used t
 3. The report summary printed to console
 
 Comparing scores between different MAJOR versions without appropriate calibration may lead to incorrect conclusions.
+
+<!-- ---------------------------------------------
+TEST COVERAGE
+----------------------------------------------
+This document's policies and information are tested through:
+
+1. Infrastructure tests:
+   - tests/infrastructure/test_version_infrastructure.py (version file consistency)
+   - tests/infrastructure/test_version_infrastructure.py (current version presence)
+
+2. Integration tests:
+   - tests/integration/test_version_integration.py (version compatibility checking)
+
+3. Unit tests:
+   - tests/unit/test_version.py (compatibility functions)
+   - tests/unit/test_report.py (version embedding in reports)
+
+4. CI/CD validation:
+   - .github/workflows/publish.yml (version consistency validation)
+
+5. Manual verification scripts:
+   - scripts/verify_version.py (cross-file version consistency)
+
+Complete test coverage details are documented in:
+docs/test_coverage/VERSION_POLICY_test_coverage.md
+--------------------------------------------- -->

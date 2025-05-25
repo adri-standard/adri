@@ -8,12 +8,13 @@ the assessment of data sources across all dimensions.
 import logging
 import importlib.metadata
 from pathlib import Path
-from typing import Dict, List, Optional, Union, Any, Type
+from typing import Dict, List, Optional, Union, Any, Type, Tuple
 
 from .dimensions import BaseDimensionAssessor, DimensionRegistry
 from .connectors import BaseConnector, ConnectorRegistry
 from .report import AssessmentReport
 from .utils.validators import validate_config
+from .templates import TemplateLoader, TemplateEvaluation, BaseTemplate
 
 logger = logging.getLogger(__name__)
 
@@ -200,6 +201,121 @@ class DataSourceAssessor:
                 logger.error(f"Error assessing {source_name}: {e}")
                 
         return reports
+
+    def assess_with_template(
+        self, 
+        connector: BaseConnector,
+        template_source: Union[str, BaseTemplate],
+        template_version: Optional[str] = None,
+        loader_config: Optional[Dict[str, Any]] = None
+    ) -> Tuple[AssessmentReport, TemplateEvaluation]:
+        """
+        Assess a data source and evaluate it against a certification template.
+        
+        Args:
+            connector: Data source connector instance
+            template_source: Template ID, file path, URL, or template instance
+            template_version: Optional template version
+            loader_config: Optional configuration for the template loader
+            
+        Returns:
+            Tuple of (AssessmentReport, TemplateEvaluation)
+        """
+        # Run standard assessment
+        report = self.assess_source(connector)
+        
+        # Load template if not already a template instance
+        if isinstance(template_source, BaseTemplate):
+            template = template_source
+        else:
+            loader = TemplateLoader(**loader_config) if loader_config else TemplateLoader()
+            if template_version and '@' not in str(template_source):
+                # Add version to source if provided separately
+                template_source = f"{template_source}@{template_version}"
+            template = loader.load_template(template_source)
+        
+        # Evaluate against template
+        evaluation = template.evaluate(report)
+        
+        # Add evaluation to report
+        if not hasattr(report, 'template_evaluations'):
+            report.template_evaluations = []
+        report.template_evaluations.append(evaluation)
+        
+        logger.info(f"Template evaluation complete: {evaluation.get_summary()}")
+        
+        return report, evaluation
+
+    def assess_file_with_template(
+        self,
+        file_path: Union[str, Path],
+        template_source: Union[str, BaseTemplate],
+        file_type: Optional[str] = None,
+        template_version: Optional[str] = None
+    ) -> Tuple[AssessmentReport, TemplateEvaluation]:
+        """
+        Assess a file and evaluate it against a template.
+        
+        Args:
+            file_path: Path to the file to assess
+            template_source: Template ID, file path, URL, or template instance
+            file_type: Optional file type override
+            template_version: Optional template version
+            
+        Returns:
+            Tuple of (AssessmentReport, TemplateEvaluation)
+        """
+        connector_class = ConnectorRegistry.get_connector("file")
+        connector = connector_class(file_path, file_type)
+        return self.assess_with_template(connector, template_source, template_version)
+
+    def assess_with_templates(
+        self,
+        connector: BaseConnector,
+        template_sources: List[Union[str, BaseTemplate]],
+        loader_config: Optional[Dict[str, Any]] = None
+    ) -> Tuple[AssessmentReport, List[TemplateEvaluation]]:
+        """
+        Assess a data source against multiple templates.
+        
+        Args:
+            connector: Data source connector instance
+            template_sources: List of template sources
+            loader_config: Optional configuration for the template loader
+            
+        Returns:
+            Tuple of (AssessmentReport, List[TemplateEvaluation])
+        """
+        # Run standard assessment once
+        report = self.assess_source(connector)
+        evaluations = []
+        
+        # Evaluate against each template
+        loader = TemplateLoader(**loader_config) if loader_config else TemplateLoader()
+        
+        for template_source in template_sources:
+            try:
+                # Load template
+                if isinstance(template_source, BaseTemplate):
+                    template = template_source
+                else:
+                    template = loader.load_template(template_source)
+                
+                # Evaluate
+                evaluation = template.evaluate(report)
+                evaluations.append(evaluation)
+                
+                logger.info(f"Template {template.template_id}: {evaluation.get_summary()}")
+                
+            except Exception as e:
+                logger.error(f"Error evaluating template {template_source}: {e}")
+        
+        # Add all evaluations to report
+        if not hasattr(report, 'template_evaluations'):
+            report.template_evaluations = []
+        report.template_evaluations.extend(evaluations)
+        
+        return report, evaluations
 
 # ----------------------------------------------
 # TEST COVERAGE

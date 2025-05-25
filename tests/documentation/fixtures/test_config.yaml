@@ -1,0 +1,9 @@
+data_source:
+  path: sample_data.csv
+  type: csv
+  
+rules:
+  completeness:
+    threshold: 0.9
+  validity:
+    date_format: "%Y-%m-%d"

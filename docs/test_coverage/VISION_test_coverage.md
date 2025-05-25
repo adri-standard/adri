@@ -83,6 +83,6 @@ Based on the identified gaps, the following test development priorities are reco
 
 | Vision Component | Test Plan Document |
 |------------------|-------------------|
-| Guard Mechanisms | [05_certification_guard_test_plan.md](/test_plans/05_certification_guard_test_plan.md) |
-| CLI Usage | [03_basic_cli_usage_test_plan.md](/test_plans/03_basic_cli_usage_test_plan.md) |
-| Python API | [04_python_api_usage_test_plan.md](/test_plans/04_python_api_usage_test_plan.md) |
+| Guard Mechanisms | Test plan not available |
+| CLI Usage | Test plan not available |
+| Python API | Test plan not available |

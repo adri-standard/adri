@@ -133,3 +133,27 @@ python -c "from adri.version import __version__; import re; \
 pyproject = re.search(r'version = \"([^\"]+)\"', open('pyproject.toml').read()).group(1); \
 print(f'version.py: {__version__}, pyproject.toml: {pyproject}'); \
 assert __version__ == pyproject, 'Version mismatch!'"
+
+<!-- ---------------------------------------------
+TEST COVERAGE
+----------------------------------------------
+This document's processes are tested through:
+
+1. Infrastructure tests:
+   - tests/infrastructure/test_version_infrastructure.py (release documentation structure)
+   - tests/infrastructure/test_version_infrastructure.py (version file consistency)
+
+2. Integration tests:
+   - tests/integration/test_publishing.py (TestPyPI publishing workflow)
+
+3. CI/CD validation:
+   - .github/workflows/publish.yml (automated release process)
+   - .github/workflows/test-publishing.yml (test publishing process)
+
+4. Scripts tested:
+   - scripts/publish_pypi.sh (manual publishing script)
+   - scripts/verify_version.py (version verification)
+
+Complete test coverage details are documented in:
+docs/test_coverage/RELEASE_PROCESS_test_coverage.md
+--------------------------------------------- -->

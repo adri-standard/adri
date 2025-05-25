@@ -80,7 +80,37 @@ report.save_html("data_readiness_report.html")
 - **Quantitative Scoring**: Provides clear metrics for each dimension
 - **Guard Mechanisms**: Protects agent workflows from unreliable data
 - **Framework Integration**: Works with LangChain, CrewAI, DSPy, and more
-- **Enhanced Metadata**: Standardized format for communicating reliability characteristics
+- **Progressive Complexity**: Start simple, grow as your needs evolve
+
+## Growing with ADRI
+
+ADRI meets you where you are and grows with your needs:
+
+### 🎯 **Start Simple**
+Just assess your data quality - no complex setup required:
+```python
+assessor = DataSourceAssessor()
+report = assessor.assess_file("data.csv")
+```
+
+### 🛡️ **Add Protection** 
+Guard your agents against unreliable data:
+```python
+@adri_guarded(min_score=70)
+def my_agent_function(data):
+    # Your agent is now protected
+```
+
+### 📋 **Standardize** (Teams)
+Use templates for consistent quality across teams:
+```python
+# Coming soon: Pre-built quality standards
+assessor = DataSourceAssessor(template="production-v1.0.0")
+```
+
+### 🔗 **Decouple** (Enterprise)
+Build source-agnostic workflows with ADRI contracts.
+[Learn more →](./VISION.md#the-adri-contract-decoupling-data-sources-from-agent-workflows)
 
 ## Documentation
 
@@ -104,7 +134,7 @@ report.save_html("data_readiness_report.html")
 ### Advanced Topics
 - [Framework Integrations](./INTEGRATIONS.md) - Using ADRI with popular agent frameworks
 - [Extending ADRI](./EXTENDING.md) - Creating custom dimensions and connectors
-- [API Reference](API_REFERENCE.md) - Complete API documentation
+- [API Reference](./API_REFERENCE.md) - Complete API documentation
 
 ## The Five Dimensions of Data Reliability
 
@@ -123,6 +153,7 @@ ADRI evaluates data across five key dimensions:
 - [FAQ](./FAQ.md) - Common questions and answers
 - [GitHub Issues](https://github.com/ThinkEvolveSolve/agent-data-readiness-index/issues) - Report bugs or request features
 - [Contributing Guide](./CONTRIBUTING.md) - Join the community and contribute
+- [Documentation Style Guide](./STYLE_GUIDE.md) - Writing consistent documentation
 
 ## License
 

@@ -14,6 +14,7 @@ from typing import List, Optional
 from .assessor import DataSourceAssessor
 from .report import AssessmentReport
 from .interactive import run_interactive_mode
+from .templates import TemplateLoader
 
 
 def setup_logging(verbose: bool = False):
@@ -65,6 +66,101 @@ def parse_args(args: Optional[List[str]] = None):
         nargs="+",
         help="Specific dimensions to assess (default: all available dimensions)"
     )
+    assess_parser.add_argument(
+        "--template",
+        help="Template to evaluate against (ID, file path, or URL)"
+    )
+    assess_parser.add_argument(
+        "--template-version",
+        help="Template version (if not specified in template ID)"
+    )
+    assess_parser.add_argument(
+        "--trust-all",
+        action="store_true",
+        help="Trust all template sources (use with caution)"
+    )
+    
+    # certify command
+    certify_parser = subparsers.add_parser(
+        "certify",
+        help="Assess a data source against certification templates"
+    )
+    certify_parser.add_argument("--source", required=True, help="Path to data source")
+    certify_parser.add_argument(
+        "--templates",
+        nargs="+",
+        required=True,
+        help="Templates to evaluate against (IDs, file paths, or URLs)"
+    )
+    certify_parser.add_argument("--output", required=True, help="Output path for the report")
+    certify_parser.add_argument(
+        "--format",
+        choices=["json", "html", "both"],
+        default="both",
+        help="Output format(s) for the report"
+    )
+    certify_parser.add_argument(
+        "--source-type",
+        choices=["file", "database", "api"],
+        help="Type of the data source (auto-detected if not specified)"
+    )
+    certify_parser.add_argument(
+        "--trust-all",
+        action="store_true",
+        help="Trust all template sources (use with caution)"
+    )
+    certify_parser.add_argument(
+        "--offline",
+        action="store_true",
+        help="Use only cached templates (offline mode)"
+    )
+    
+    # templates command
+    templates_parser = subparsers.add_parser(
+        "templates",
+        help="Manage certification templates"
+    )
+    templates_subparsers = templates_parser.add_subparsers(
+        dest="templates_command",
+        help="Templates command"
+    )
+    
+    # templates list command
+    list_templates_parser = templates_subparsers.add_parser(
+        "list",
+        help="List available templates"
+    )
+    list_templates_parser.add_argument(
+        "--cached",
+        action="store_true",
+        help="Show only cached templates"
+    )
+    
+    # templates cache command
+    cache_parser = templates_subparsers.add_parser(
+        "cache",
+        help="Manage template cache"
+    )
+    cache_parser.add_argument(
+        "--clear",
+        action="store_true",
+        help="Clear the template cache"
+    )
+    
+    # templates info command
+    info_parser = templates_subparsers.add_parser(
+        "info",
+        help="Show information about a template"
+    )
+    info_parser.add_argument(
+        "template",
+        help="Template ID, file path, or URL"
+    )
+    info_parser.add_argument(
+        "--trust-all",
+        action="store_true",
+        help="Trust all template sources"
+    )
     
     # report command
     report_parser = subparsers.add_parser("report", help="Work with assessment reports")
@@ -109,8 +205,26 @@ def run_assessment(args):
         # Assess a single source
         source = args.source
         
+        # Determine connector based on source type
         if args.source_type == "file" or (not args.source_type and Path(source).is_file()):
-            report = assessor.assess_file(source)
+            if hasattr(args, 'template') and args.template:
+                # Assess with template
+                loader_config = {'trust_all': args.trust_all} if hasattr(args, 'trust_all') else {}
+                report, evaluation = assessor.assess_file_with_template(
+                    source, 
+                    args.template,
+                    template_version=args.template_version if hasattr(args, 'template_version') else None
+                )
+                # Print evaluation summary
+                print(f"\nTemplate Evaluation: {evaluation.get_summary()}")
+                if evaluation.gaps:
+                    print(f"Gaps found: {len(evaluation.gaps)}")
+                    for gap in evaluation.gaps[:3]:  # Show first 3 gaps
+                        print(f"  - {gap.requirement_description}: {gap.actual_value} (expected: {gap.expected_value})")
+                    if len(evaluation.gaps) > 3:
+                        print(f"  ... and {len(evaluation.gaps) - 3} more gaps")
+            else:
+                report = assessor.assess_file(source)
         elif args.source_type == "database" or (not args.source_type and "://" in source):
             if not args.table:
                 raise ValueError("Table name is required for database sources")
@@ -129,6 +243,182 @@ def run_assessment(args):
             
         # Print summary to console
         report.print_summary()
+
+
+def run_certify(args):
+    """Run certification assessment against multiple templates."""
+    assessor = DataSourceAssessor()
+    
+    # Create template loader with options
+    loader_config = {
+        'trust_all': args.trust_all,
+        'offline_mode': args.offline if hasattr(args, 'offline') else False
+    }
+    
+    # Get the connector for the source
+    source = args.source
+    if args.source_type == "file" or (not args.source_type and Path(source).is_file()):
+        from .connectors import ConnectorRegistry
+        connector_class = ConnectorRegistry.get_connector("file")
+        connector = connector_class(source)
+    else:
+        raise ValueError("Only file sources are currently supported for certification")
+    
+    # Assess against all templates
+    report, evaluations = assessor.assess_with_templates(
+        connector,
+        args.templates,
+        loader_config
+    )
+    
+    # Print certification results
+    print(f"\nCertification Assessment Results for: {source}")
+    print("=" * 60)
+    
+    for evaluation in evaluations:
+        print(f"\n{evaluation.template_name} ({evaluation.template_id} v{evaluation.template_version})")
+        print("-" * 40)
+        print(f"Status: {evaluation.get_summary()}")
+        print(f"Compliance Score: {evaluation.compliance_score:.1f}%")
+        
+        if evaluation.certification_eligible:
+            print("✅ Eligible for certification")
+        else:
+            print("❌ Not eligible for certification")
+            if evaluation.certification_blockers:
+                print("Blockers:")
+                for blocker in evaluation.certification_blockers:
+                    print(f"  - {blocker}")
+        
+        if evaluation.recommendations:
+            print("Recommendations:")
+            for rec in evaluation.recommendations[:3]:
+                print(f"  - {rec}")
+    
+    # Save the report
+    output_path = Path(args.output)
+    if args.format in ("json", "both"):
+        json_path = f"{output_path}.json" if not str(output_path).endswith(".json") else output_path
+        report.save_json(json_path)
+        print(f"\nDetailed report saved to: {json_path}")
+    
+    if args.format in ("html", "both"):
+        html_path = f"{output_path}.html" if not str(output_path).endswith(".html") else output_path
+        report.save_html(html_path)
+        print(f"HTML report saved to: {html_path}")
+
+
+def handle_templates_command(args):
+    """Handle templates subcommands."""
+    if args.templates_command == "list":
+        list_templates(args)
+    elif args.templates_command == "cache":
+        manage_cache(args)
+    elif args.templates_command == "info":
+        show_template_info(args)
+    else:
+        print("No templates subcommand specified. Use --help for usage information.")
+
+
+def list_templates(args):
+    """List available templates."""
+    loader = TemplateLoader()
+    
+    if args.cached:
+        # Show cached templates
+        cached = loader.list_cached()
+        if not cached:
+            print("No cached templates found.")
+            return
+            
+        print("Cached Templates:")
+        print("-" * 60)
+        for item in cached:
+            status = "❌ Expired" if item['expired'] else "✅ Valid"
+            print(f"{status} {item['url']} (cached: {item['cached_at'][:10]})")
+    else:
+        # Show available shortcuts
+        print("Available Template Shortcuts:")
+        print("-" * 60)
+        for shortcut, url in TemplateLoader.REGISTRY_SHORTCUTS.items():
+            print(f"{shortcut:15} -> {url}")
+        
+        print("\nYou can also use:")
+        print("- Local file paths (e.g., ./my-template.yaml)")
+        print("- URLs (e.g., https://example.com/template.yaml)")
+        print("- Template IDs from the registry")
+
+
+def manage_cache(args):
+    """Manage template cache."""
+    loader = TemplateLoader()
+    
+    if args.clear:
+        loader.clear_cache()
+        print("Template cache cleared successfully.")
+    else:
+        # Show cache status
+        cached = loader.list_cached()
+        total_size = sum(item['size'] for item in cached)
+        valid_count = sum(1 for item in cached if not item['expired'])
+        
+        print(f"Template Cache Status:")
+        print(f"  Location: {loader.cache_dir}")
+        print(f"  Templates: {len(cached)} ({valid_count} valid)")
+        print(f"  Total size: {total_size:,} bytes")
+
+
+def show_template_info(args):
+    """Show information about a template."""
+    loader_config = {'trust_all': args.trust_all}
+    loader = TemplateLoader(**loader_config)
+    
+    try:
+        template = loader.load_template(args.template)
+        metadata = template.get_metadata()
+        
+        print(f"\nTemplate Information:")
+        print("=" * 60)
+        print(f"ID: {metadata['id']}")
+        print(f"Name: {metadata['name']}")
+        print(f"Version: {metadata['version']}")
+        print(f"Authority: {metadata['authority']}")
+        print(f"Description: {metadata['description']}")
+        
+        if metadata.get('effective_date'):
+            print(f"Effective Date: {metadata['effective_date']}")
+        
+        if metadata.get('jurisdiction'):
+            print(f"Jurisdiction: {', '.join(metadata['jurisdiction'])}")
+        
+        # Show requirements summary
+        req_summary = metadata.get('requirements_summary', {})
+        print(f"\nRequirements Summary:")
+        print(f"  Overall minimum score: {req_summary.get('overall_minimum_score', 'Not specified')}")
+        
+        dims = req_summary.get('dimensions_with_requirements', [])
+        if dims:
+            print(f"  Dimensions with requirements: {', '.join(dims)}")
+        
+        if req_summary.get('has_custom_rules'):
+            print("  ✓ Has custom validation rules")
+        
+        if req_summary.get('has_mandatory_fields'):
+            print("  ✓ Has mandatory field requirements")
+        
+        # Show certification info
+        cert_info = template.get_certification_info()
+        print(f"\nCertification Details:")
+        print(f"  Authority: {cert_info['certifying_authority']}")
+        print(f"  Certification: {cert_info['certification_name']}")
+        print(f"  ID Prefix: {cert_info['certification_id_prefix']}")
+        print(f"  Validity Period: {cert_info['validity_period_days']} days")
+        
+    except Exception as e:
+        print(f"Error loading template: {e}")
+        if args.trust_all:
+            import traceback
+            traceback.print_exc()
 
 
 def view_report(args):
@@ -176,6 +466,10 @@ def main(args=None):
             return run_interactive_mode()
         elif parsed_args.command == "assess":
             run_assessment(parsed_args)
+        elif parsed_args.command == "certify":
+            run_certify(parsed_args)
+        elif parsed_args.command == "templates":
+            handle_templates_command(parsed_args)
         elif parsed_args.command == "report":
             if parsed_args.report_command == "view":
                 view_report(parsed_args)

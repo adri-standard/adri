@@ -5,6 +5,22 @@
 ### What is the Agent Data Readiness Index?
 The Agent Data Readiness Index (ADRI) is an open-source framework for evaluating how well data sources communicate their quality attributes to AI agents. It focuses on addressing the "data blindness" problem that uniquely affects agentic AI systems.
 
+### Why is it called an "Index"?
+The name "Agent Data Readiness Index" was carefully chosen to reflect the framework's core positioning as a **measurement tool** rather than a certification or guard system. Like a thermometer measures temperature, ADRI provides consistent, transparent measurement of data reliability that different agents can interpret based on their specific needs.
+
+The "Index" terminology signals that:
+- It's a standardized measurement scale (0-100)
+- Different agents can set different thresholds based on their requirements (e.g., a financial trading agent might need 95+ while a content recommendation agent might work fine with 70)
+- It provides objective measurement rather than subjective judgment
+- All stakeholders use the same "thermometer" to measure and communicate about data reliability
+
+This positioning enables:
+- **Engineers** to say: "Set ADRI threshold to 85"
+- **Data Suppliers** to say: "Our data has ADRI score of 92"
+- **Organizations** to say: "Require ADRI > 80 for production"
+
+The primary requirement is that the standards are known and consistent, allowing each use case to determine what level of data reliability is appropriate for their specific needs.
+
 ### How is this different from other data quality tools?
 Most data quality tools focus on measuring and improving the intrinsic quality of data. ADRI specifically focuses on whether quality attributes are explicitly communicated to agents in a way they can understand and act upon. This addresses the unique challenge of agentic systems that make dynamic decisions based on data.
 
@@ -72,11 +88,47 @@ The relative importance depends heavily on the agent's task and the potential im
 See our [CONTRIBUTING.md](CONTRIBUTING.md) guide for details. We welcome contributions to the methodology, code (tool, connectors, dimensions, integrations), documentation, examples, and especially assessments for the public dataset catalog.
 
 ### Is ADRI maintained actively?
-Yes, ADRI is actively maintained by Verodat and the open-source community.
+Yes, ADRI is actively maintained by the open-source community.
 
 ### Can I use ADRI commercially?
 Yes, ADRI is available under the permissive MIT License, allowing commercial use.
 
 ### How can we get support for implementing ADRI?
 - **Community Support:** Use the GitHub repository's Issues and Discussions sections.
-- **Commercial Support:** For consulting, training, or enterprise features, contact Verodat.
+- **Documentation:** Comprehensive guides available in our [documentation](https://github.com/ThinkEvolveSolve/agent-data-readiness-index).
+
+## Growing with ADRI
+
+### Do I need to use templates from the start?
+No! ADRI is designed with progressive complexity. Most users start with simple assessments:
+```python
+assessor = DataSourceAssessor()
+report = assessor.assess_file("data.csv")
+```
+
+Templates are an optional feature for teams that need standardized quality requirements across projects.
+
+### What is the ADRI contract layer?
+For advanced users, ADRI can serve as a contract layer between data suppliers and AI engineers. This enables:
+- AI engineers to specify data requirements (e.g., "requires ADRI Production-v1.0.0")
+- Data suppliers to certify their data meets specific ADRI standards
+- Agent workflows that work with any data source meeting the requirements
+
+This is an enterprise feature for organizations building source-agnostic AI solutions. [Learn more in our Vision document](./VISION.md#the-adri-contract-decoupling-data-sources-from-agent-workflows).
+
+### How does ADRI help with team organization?
+ADRI helps clarify responsibilities:
+- **AI Engineers**: Focus on agent logic and specify ADRI requirements
+- **Data Engineers**: Ensure data sources meet ADRI compliance
+- **IT Systems**: Provide infrastructure for ADRI-compliant data
+
+This division of labor becomes more important as organizations scale their AI initiatives.
+
+### Can ADRI help us productize AI solutions faster?
+Yes! By standardizing data quality requirements through ADRI:
+- Prototype-to-production cycles are faster
+- Integration complexity is reduced
+- AI solutions can be deployed across different data sources without modification
+- Business integration becomes more straightforward
+
+This is particularly valuable for AI teams looking to scale their solutions across an enterprise.

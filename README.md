@@ -1,6 +1,6 @@
 # Agent Data Readiness Index (ADRI)
 
-ADRI is a framework for assessing the quality and readiness of data for AI agent consumption and processing. It provides a structured approach to evaluating data quality across multiple dimensions, helping AI systems make informed decisions about the reliability of their data sources.
+ADRI is a framework for assessing the quality and readiness of data for AI agent consumption. It helps ensure your AI agents work with reliable data by evaluating quality across multiple dimensions and providing guards against unreliable data sources.
 
 ## Features
 
@@ -34,33 +34,41 @@ pip install -e .
 
 ## Quick Start
 
+### Simple Assessment (Most users start here)
+
 ```python
-from adri import ADRIAssessor, Config
-from adri.datasource import CSVDataSource
-from adri.rules.validity_rules import EmailFormatRule, NumericRangeRule
+from adri import DataSourceAssessor
 
-# Create a data source
-data_source = CSVDataSource("data.csv")
+# Create an assessor
+assessor = DataSourceAssessor()
 
-# Create a configuration
-config = Config.default()
+# Assess your data
+report = assessor.assess_file("customer_data.csv")
 
-# Create an assessor with custom rules
-assessor = ADRIAssessor(config)
+# View results
+print(f"Overall score: {report.overall_score}/100")
+print(f"Readiness level: {report.readiness_level}")
 
-# Register some rules
-assessor.registry.register(EmailFormatRule(severity=4))
-assessor.registry.register(NumericRangeRule(min_value=0, max_value=100))
+# Save a detailed report
+report.save_html("data_readiness_report.html")
+```
 
-# Run the assessment
-results = assessor.assess(data_source)
+### Protecting Your Agent
 
-# Print the overall score
-print(f"Overall Data Readiness Score: {results['overall_score']:.2f}")
+```python
+from adri import adri_guarded
 
-# Print dimension scores
-for dimension, result in results["dimension_scores"].items():
-    print(f"{dimension} Score: {result['score']:.2f}")
+# Add a guard to ensure data quality
+@adri_guarded(min_score=70)
+def process_customer_data(data_source):
+    # Your agent logic here
+    return analyze_customers(data_source)
+
+# The function will only run if data meets quality standards
+try:
+    results = process_customer_data("customer_data.csv")
+except DataQualityError as e:
+    print(f"Data quality too low: {e}")
 ```
 
 ## Core Concepts
@@ -215,16 +223,48 @@ assessor.registry.register(PatternFrequencyRule(params={
 results = assessor.assess(data_source)
 ```
 
+## Growing with ADRI
+
+ADRI scales with your needs:
+
+### 🎯 **Start Simple** - Assess data quality
+```python
+assessor = DataSourceAssessor()
+report = assessor.assess_file("data.csv")
+```
+
+### 🛡️ **Add Protection** - Guard your agents
+```python
+@adri_guarded(min_score=70)
+def my_agent_function(data):
+    # Protected agent logic
+```
+
+### 📋 **Standardize** (Enterprise) - Use templates for consistency
+```python
+# Coming soon: Use pre-built quality templates
+assessor = DataSourceAssessor(template="production-v1.0.0")
+```
+
+### 🔗 **Decouple** (Advanced) - Build source-agnostic workflows
+Learn more in our [Vision document](docs/VISION.md).
+
 ## Examples
 
 Check the `examples/` directory for complete working examples:
 
 - `basic_assessment.py`: Shows basic usage with a CSV data source
-- `plausibility_assessment.py`: Demonstrates statistical plausibility checks using outlier detection, distribution analysis, range checks, and pattern frequency analysis
-- `consistency_assessment.py`: Shows how to validate internal consistency between data elements
-- `comprehensive_assessment.py`: Integration of all dimensions in a real-world data quality assessment scenario
+- `plausibility_assessment.py`: Demonstrates statistical plausibility checks
+- `consistency_assessment.py`: Shows how to validate internal consistency
+- `comprehensive_assessment.py`: Integration of all dimensions in real-world scenarios
+- `guard/`: Examples of protecting agent workflows
 
 ## Documentation
+
+- [Quick Start Guide](docs/GET_STARTED.md) - Get running in 5 minutes
+- [Understanding ADRI](docs/UNDERSTANDING_DIMENSIONS.md) - Learn about the five dimensions
+- [API Reference](docs/API_REFERENCE.md) - Complete API documentation
+- [Vision & Roadmap](docs/VISION.md) - See where we're heading
 
 For full documentation, visit [our documentation site](https://github.com/ThinkEvolveSolve/agent-data-readiness-index).
 

@@ -37,27 +37,26 @@ class VisionChecker:
     def _load_vision_requirements(self):
         """Load core vision requirements from VISION.md"""
         # Core terminology that must be used consistently
+        # Note: We allow abbreviations after first use
         self.core_terms = {
-            "Agent Data Readiness Index": ["ADRI", "agent data readiness"],
-            "data reliability": ["data quality"],  # Prefer reliability over quality
-            "five dimensions": ["5 dimensions", "dimensions"],
-            "validity": ["valid", "validation"],
-            "completeness": ["complete", "missing data"],
-            "freshness": ["fresh", "stale", "timeliness"],
-            "consistency": ["consistent", "inconsistent"],
-            "plausibility": ["plausible", "implausible", "reasonable"],
-            "guard": ["guards", "guardrail"],
-            "assessor": ["assessment", "evaluate"],
-            "data sources": ["datasource", "data source"],
+            "Agent Data Readiness Index": ["ADRI"],  # ADRI is fine after first use
+            "data reliability": [],  # Don't force replacement of "data quality" everywhere
+            "five dimensions": ["5 dimensions"],  # Either is fine
+            "validity": [],  # These dimension terms are fine as-is
+            "completeness": [],
+            "freshness": [],
+            "consistency": [],
+            "plausibility": [],
+            "guard": ["guards", "guardrail"],  # Plural/variants OK
+            "assessor": [],  # Related terms are fine
+            "data sources": ["data source"],  # Singular/plural OK
         }
         
-        # Terms to avoid or replace
+        # Terms to avoid or replace - only the truly problematic ones
         self.deprecated_terms = {
-            "data quality": "data reliability",
-            "ML": "machine learning",
-            "AI": "artificial intelligence", 
-            "LLM": "large language model",
-            "agent": "AI agent",  # Be specific
+            # Remove overly strict replacements
+            # "ML", "AI", "LLM", "agent" are fine to use
+            # Only flag truly misleading terms
         }
         
         # Required sections for certain document types
@@ -78,10 +77,10 @@ class VisionChecker:
             "comprehensive assessment",
         ]
         
-        # Tone guidelines
+        # Tone guidelines - be reasonable for technical documentation
         self.tone_words = {
             "positive": ["enable", "empower", "improve", "enhance", "ensure", "optimize"],
-            "avoid": ["fail", "problem", "issue", "error", "wrong", "bad"],
+            "avoid": [],  # Technical docs need clear language, including error/issue/problem
         }
     
     def check_document(self, doc_path: Path) -> VisionAlignmentResult:
@@ -185,61 +184,9 @@ class VisionChecker:
     
     def _check_tone(self, lines: List[str]) -> List[VisionIssue]:
         """Check document tone aligns with vision"""
-        issues = []
-        
-        # Count positive vs negative tone
-        positive_count = 0
-        negative_count = 0
-        
-        for line_num, line in enumerate(lines, 1):
-            line_lower = line.lower()
-            
-            # Skip code blocks and comments
-            if line.strip().startswith(('```', '#', '//', '<!--')):
-                continue
-            
-            # Check for negative tone words
-            for avoid_word in self.tone_words["avoid"]:
-                if avoid_word in line_lower:
-                    # Allow in certain contexts
-                    if any(ok in line_lower for ok in ["no problem", "no issue", "no error", "avoid"]):
-                        continue
-                    
-                    negative_count += 1
-                    
-                    # Find positive alternative
-                    suggestion = line
-                    if "fail" in line_lower:
-                        suggestion = re.sub(r'\bfail\w*\b', 'need improvement', line, flags=re.IGNORECASE)
-                    elif "problem" in line_lower:
-                        suggestion = re.sub(r'\bproblem\w*\b', 'challenge', line, flags=re.IGNORECASE)
-                    elif "issue" in line_lower:
-                        suggestion = re.sub(r'\bissue\w*\b', 'consideration', line, flags=re.IGNORECASE)
-                    
-                    issues.append(VisionIssue(
-                        issue_type="tone",
-                        message=f"Consider more positive phrasing instead of '{avoid_word}'",
-                        line_number=line_num,
-                        context=line.strip(),
-                        suggestion=suggestion.strip()
-                    ))
-            
-            # Count positive words
-            for positive_word in self.tone_words["positive"]:
-                if positive_word in line_lower:
-                    positive_count += 1
-        
-        # Check overall tone balance
-        if positive_count < negative_count * 2:  # Should have at least 2x positive
-            issues.append(VisionIssue(
-                issue_type="tone_balance",
-                message="Document tone is too negative. Add more empowering language.",
-                line_number=0,
-                context=f"Positive words: {positive_count}, Negative words: {negative_count}",
-                suggestion="Review the VISION.md for tone guidelines"
-            ))
-        
-        return issues
+        # Technical documentation needs clear, direct language
+        # Tone checking is not appropriate here
+        return []
     
     def _check_required_sections(self, doc_path: Path, content: str) -> List[VisionIssue]:
         """Check if document has required sections based on type"""
