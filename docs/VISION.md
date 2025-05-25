@@ -52,6 +52,8 @@ ADRI provides a **standardized framework** for assessing, communicating, and enf
 - **Standardization**: Create consistent reliability expectations across teams and systems
 - **Template Adoption**: Choose from pre-built templates or create custom standards
 - **Continuous Improvement**: Use gap analysis to systematically improve data quality
+- **Team Structure Clarity**: Define clear responsibilities between AI engineers (focus on agent logic), data engineers (ensure ADRI compliance), and IT systems (provide compliant data infrastructure)
+- **Skills Alignment**: Identify and develop the specific skills needed for each role in the ADRI ecosystem
 
 ## Core Principles
 
@@ -150,6 +152,8 @@ In the long term, ADRI aims to become:
 4. **Compliance Framework**: A recognized approach for demonstrating due diligence in agent systems
 5. **Template Ecosystem**: A rich library of industry-specific and use-case-specific templates maintained by the community
 6. **Automated Compliance**: Organizations can automatically verify data against established template standards
+7. **Rapid AI Productization**: Enable AI engineers to quickly transform prototypes into production-ready solutions using ADRI contracts as the integration standard
+8. **Business Integration Hub**: ADRI becomes the standard interface for integrating AI solutions into enterprise systems, reducing time-to-market and integration complexity
 
 By establishing this common foundation, we can collectively improve the reliability, safety, and effectiveness of AI agent systems across industries.
 
