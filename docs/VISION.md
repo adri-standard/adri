@@ -28,6 +28,7 @@ ADRI provides a **standardized framework** for assessing, communicating, and enf
 - **Quantitative Scores**: Set specific reliability thresholds based on the importance of each dimension
 - **Guard Mechanisms**: Protect agent workflows by ensuring they only process data meeting specified reliability standards
 - **Diagnostic Insights**: Receive structured information about data reliability issues that can be shared with agents
+- **Template Library**: Access pre-built data quality standards for common use cases and industries
 
 ### For Data Providers
 
@@ -35,6 +36,7 @@ ADRI provides a **standardized framework** for assessing, communicating, and enf
 - **Self-Assessment**: Evaluate data against standardized criteria before delivery
 - **Metadata Enhancement**: Document reliability characteristics using a standard format
 - **Reliability Communication**: Clearly communicate the reliability of provided data
+- **Template Compliance**: Demonstrate compliance with industry-standard templates
 
 ### For Organizations
 
@@ -42,6 +44,8 @@ ADRI provides a **standardized framework** for assessing, communicating, and enf
 - **Compliance**: Demonstrate due diligence in ensuring agent systems operate on reliable data
 - **Risk Management**: Identify and mitigate data reliability risks in agent workflows
 - **Standardization**: Create consistent reliability expectations across teams and systems
+- **Template Adoption**: Choose from pre-built templates or create custom standards
+- **Continuous Improvement**: Use gap analysis to systematically improve data quality
 
 ## Core Principles
 
@@ -67,18 +71,39 @@ Data reliability is assessed across five key dimensions:
 - **Common Vocabulary**: Standardized terms and metrics for discussing data reliability
 - **Structured Metadata**: Consistent formats for documenting reliability characteristics
 - **Quantitative Scoring**: Numeric scores that enable clear threshold setting
+- **Template Registry**: Community-maintained repository of reusable data quality standards
+- **Compliance-as-Code**: YAML-based template definitions that can be version controlled and shared
 
 ### 4. Flexible Implementation
 
 - **Framework Agnostic**: Core principles apply regardless of the agent framework used
 - **Configurable Weights**: Dimensions can be weighted based on application-specific needs
 - **Extensible Rules**: The rule catalog can grow to accommodate new reliability concerns
+- **Customizable Templates**: Organizations can adapt templates to their specific requirements
 
 ### 5. Community Governance
 
 - **Open Standards**: Publicly documented reliability standards that evolve through community input
 - **Versioned Releases**: Stable versions that provide reference points for reliability claims
 - **Facilitation, Not Enforcement**: Focus on enabling communication rather than enforcing compliance
+- **Template Contributions**: Community members can contribute and maintain industry-specific templates
+
+## Implementation Through Templates
+
+ADRI templates provide the practical mechanism for implementing our vision:
+
+- **Pre-built Standards**: Ready-to-use templates for common scenarios (production data, regulatory compliance)
+- **Customizable Requirements**: Organizations can adapt templates to their specific needs
+- **Version Control**: Templates evolve with clear versioning and migration paths
+- **Gap Analysis**: Automated identification of where data falls short of template requirements
+- **Remediation Guidance**: Templates include recommendations for improving data quality
+- **Certification Support**: Templates can define certification criteria and badge levels
+
+Templates transform abstract data quality principles into concrete, actionable standards that can be:
+- Shared across teams and organizations
+- Versioned and evolved over time
+- Automatically validated and enforced
+- Used for compliance demonstration
 
 ## Long-term Vision
 
@@ -88,6 +113,8 @@ In the long term, ADRI aims to become:
 2. **Integration Ecosystem**: Seamlessly integrated with major agent frameworks and data platforms
 3. **Reliability Marketplace**: A space where data providers can differentiate based on reliability commitments
 4. **Compliance Framework**: A recognized approach for demonstrating due diligence in agent systems
+5. **Template Ecosystem**: A rich library of industry-specific and use-case-specific templates maintained by the community
+6. **Automated Compliance**: Organizations can automatically verify data against established template standards
 
 By establishing this common foundation, we can collectively improve the reliability, safety, and effectiveness of AI agent systems across industries.
 
