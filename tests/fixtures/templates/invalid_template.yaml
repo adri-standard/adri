@@ -1,0 +1,13 @@
+# This template has several validation errors
+template:
+  # Missing required 'id' field
+  version: not-a-valid-version  # Invalid version format
+  name: Invalid Template
+  # Missing required 'authority' field
+  description: This template has multiple validation errors
+
+requirements:
+  # No actual requirements defined
+  
+# Invalid top-level key
+invalid_key: should_not_be_here

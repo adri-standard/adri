@@ -1,0 +1,112 @@
+# Basel III Data Quality Requirements
+# Regulatory compliance template for financial institutions
+
+template:
+  id: "basel-iii-data-quality"
+  version: "1.0.0"
+  name: "Basel III Data Quality Standards"
+  authority: "Basel Committee on Banking Supervision"
+  description: "Data quality requirements for regulatory reporting under Basel III framework"
+  effective_date: "2024-01-01"
+  jurisdiction:
+    - "EU"
+    - "US"
+    - "UK"
+    - "CH"
+    - "JP"
+
+requirements:
+  # Strict requirements for regulatory compliance
+  overall_minimum: 90
+  
+  # Dimension-specific requirements
+  dimension_requirements:
+    validity:
+      minimum_score: 19
+      description: "Data must meet strict validation requirements"
+      required_rules:
+        - "data_types_defined"
+        - "formats_defined"
+        - "ranges_defined"
+        - "validation_performed"
+        - "validation_communicated"
+      custom_checks:
+        - "basel_counterparty_validation"
+        - "basel_currency_format_check"
+        - "basel_risk_weight_validation"
+    
+    completeness:
+      minimum_score: 20
+      description: "No missing data allowed for regulatory fields"
+      max_missing_percentage: 0
+      mandatory_fields:
+        - "counterparty_id"
+        - "exposure_amount"
+        - "risk_weight"
+        - "maturity_date"
+        - "currency_code"
+        - "reporting_date"
+    
+    freshness:
+      minimum_score: 18
+      description: "Data must meet strict timeliness requirements"
+      max_age_hours: 24
+      reporting_deadlines:
+        daily: "T+1 09:00 CET"
+        monthly: "T+5 business days"
+        quarterly: "T+30 calendar days"
+    
+    consistency:
+      minimum_score: 18
+      description: "Data must be consistent across all systems"
+      required_rules:
+        - "cross_system_consistency"
+        - "temporal_consistency"
+        - "referential_integrity"
+    
+    plausibility:
+      minimum_score: 17
+      description: "Data must pass all plausibility checks"
+      required_rules:
+        - "basel_exposure_limits"
+        - "basel_risk_weight_bounds"
+        - "basel_maturity_plausibility"
+
+  # Basel-specific requirements
+  basel_specific:
+    lei_validation:
+      description: "Legal Entity Identifier validation"
+      required: true
+      source: "GLEIF database"
+    
+    netting_agreements:
+      description: "Netting agreement documentation"
+      required: true
+      validation: "legal_documentation_check"
+    
+    collateral_valuation:
+      description: "Collateral valuation requirements"
+      frequency: "daily"
+      methodology: "mark_to_market"
+
+  # Audit and compliance
+  audit_requirements:
+    internal_audit_frequency: "quarterly"
+    external_audit_frequency: "annual"
+    data_lineage_required: true
+    change_tracking_required: true
+
+# Certification details
+certification:
+  badge: "🟢"
+  level: "ADRI Basel III Compliant"
+  validity_period_days: 90
+  renewal_requirements:
+    - "Maintain all minimum scores"
+    - "Pass quarterly internal audit"
+    - "No regulatory violations"
+  regulatory_reporting:
+    - "COREP"
+    - "FINREP"
+    - "LCR"
+    - "NSFR"

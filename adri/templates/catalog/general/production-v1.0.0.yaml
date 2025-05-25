@@ -1,0 +1,57 @@
+# General Production Data Quality Template
+# This template defines basic requirements for production-ready data
+
+template:
+  id: "general-production"
+  version: "1.0.0"
+  name: "Production Data Quality"
+  authority: "ADRI Community"
+  description: "General requirements for production-ready data in AI/ML applications"
+  effective_date: "2024-01-01"
+  
+requirements:
+  # Minimum overall score for production use
+  overall_minimum: 70
+  
+  # Per-dimension requirements
+  dimension_requirements:
+    validity:
+      minimum_score: 14
+      description: "Data must have proper type definitions and validation"
+      required_rules:
+        - "data_types_defined"
+        - "validation_performed"
+    
+    completeness:
+      minimum_score: 14
+      description: "Data must be sufficiently complete"
+      max_missing_percentage: 20
+    
+    freshness:
+      minimum_score: 12
+      description: "Data must be reasonably current"
+      max_age_days: 30
+    
+    consistency:
+      minimum_score: 12
+      description: "Data must be internally consistent"
+    
+    plausibility:
+      minimum_score: 12
+      description: "Data must be plausible and free from major outliers"
+  
+  # Recommended practices
+  recommended_practices:
+    - "Implement automated validation checks"
+    - "Monitor data quality metrics continuously"
+    - "Document data lineage and transformations"
+    - "Establish data quality SLAs"
+
+# Certification information
+certification:
+  badge: "🟡"
+  level: "ADRI Silver"
+  validity_period_days: 365
+  renewal_requirements:
+    - "Maintain minimum scores"
+    - "Pass annual audit"

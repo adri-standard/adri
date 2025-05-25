@@ -1,0 +1,60 @@
+template:
+  id: test-valid-template
+  version: 1.0.0
+  name: Valid Test Template
+  authority: ADRI Testing
+  description: A valid template for testing purposes
+  effective_date: "2024-01-01"
+  
+certification:
+  validity_period_days: 365
+  id_prefix: TST-
+
+requirements:
+  overall_minimum: 70
+  
+  dimension_requirements:
+    validity:
+      minimum_score: 14
+      required_rules:
+        - data_types_defined
+        - schemas_validated
+    
+    completeness:
+      minimum_score: 14
+      max_missing_percentage: 20
+    
+    freshness:
+      minimum_score: 12
+      max_age_days: 30
+    
+    consistency:
+      minimum_score: 12
+    
+    plausibility:
+      minimum_score: 14
+  
+  mandatory_fields:
+    - record_id
+    - timestamp
+    - data_source
+  
+  custom_rules:
+    - id: balanced_quality
+      description: At least 3 dimensions must score above 15
+      expression: sum([1 for d in ['validity', 'completeness', 'freshness', 'consistency', 'plausibility'] if dimension_scores.get(d, 0) > 15]) >= 3
+
+recommendations:
+  validity:
+    low_score: "Implement comprehensive data validation rules and schema enforcement"
+  completeness:
+    low_score: "Review data collection processes to minimize missing values"
+    high_missing: "Investigate root causes of missing data in critical fields"
+  freshness:
+    low_score: "Establish automated data refresh pipelines"
+  consistency:
+    low_score: "Implement data consistency checks across related fields"
+  plausibility:
+    low_score: "Review business rules and implement plausibility checks"
+  general:
+    overall_low: "Consider implementing a comprehensive data quality management program"
