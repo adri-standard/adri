@@ -29,6 +29,9 @@ ADRI provides a **standardized framework** for assessing, communicating, and enf
 - **Guard Mechanisms**: Protect agent workflows by ensuring they only process data meeting specified reliability standards
 - **Diagnostic Insights**: Receive structured information about data reliability issues that can be shared with agents
 - **Template Library**: Access pre-built data quality standards for common use cases and industries
+- **Source-Agnostic Workflows**: Build agent systems that work with any data source meeting specified ADRI requirements
+- **Data Requirements as Contracts**: Specify data needs using ADRI templates (e.g., "requires ADRI Production-v1.0.0 compliance")
+- **Automated Trust Verification**: Automatically verify incoming data meets required quality levels before processing
 
 ### For Data Providers
 
@@ -37,6 +40,9 @@ ADRI provides a **standardized framework** for assessing, communicating, and enf
 - **Metadata Enhancement**: Document reliability characteristics using a standard format
 - **Reliability Communication**: Clearly communicate the reliability of provided data
 - **Template Compliance**: Demonstrate compliance with industry-standard templates
+- **Certified Data Delivery**: Supply data with ADRI certification metadata that agents can automatically verify
+- **Quality-Based Differentiation**: Compete on certified data quality levels, not just data availability
+- **Agent-Ready Data**: Provide context and clarity that enables agent workflows to operate confidently
 
 ### For Organizations
 
@@ -87,6 +93,35 @@ Data reliability is assessed across five key dimensions:
 - **Versioned Releases**: Stable versions that provide reference points for reliability claims
 - **Facilitation, Not Enforcement**: Focus on enabling communication rather than enforcing compliance
 - **Template Contributions**: Community members can contribute and maintain industry-specific templates
+
+## The ADRI Contract: Decoupling Data Sources from Agent Workflows
+
+ADRI serves as a **standardized contract layer** between data suppliers and AI engineers, enabling:
+
+### Data Supply Independence
+- AI Engineers specify data requirements using ADRI standards (e.g., "ADRI Basel-III-v1.0.0")
+- Any data source that meets these requirements can be used interchangeably
+- Agent workflows remain agnostic to the specific data provider or system
+- No need for custom integration code for each data source
+
+### Trust Through Certification
+- Data suppliers provide ADRI certification metadata with their data
+- Agents can automatically verify data quality levels before processing
+- Clear context about data reliability enables confident decision-making
+- Runtime quality checks ensure ongoing compliance
+
+### Creating a Data Quality Marketplace
+This contract-based approach enables a new ecosystem where:
+- **Data Discovery**: Find data sources based on ADRI compliance levels
+- **Quality Competition**: Data providers compete on certified quality, not just availability
+- **Automated Matching**: Agent systems can automatically select appropriate data sources
+- **Trust Verification**: All parties can verify quality claims through standardized assessments
+
+### Benefits of Decoupling
+1. **For AI Engineers**: Write once, use anywhere - agent code works with any ADRI-compliant data
+2. **For Data Suppliers**: Clear quality targets and competitive differentiation
+3. **For Organizations**: Flexibility to switch data sources without rewriting agent workflows
+4. **For the Ecosystem**: Accelerated innovation through standardized interfaces
 
 ## Implementation Through Templates
 
