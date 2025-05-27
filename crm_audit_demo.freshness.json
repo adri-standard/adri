@@ -1,0 +1,12 @@
+{
+  "description": "Activity recency requirements",
+  "rules": [
+    {
+      "name": "active_deal_staleness",
+      "field": "last_activity_date",
+      "max_age_days": 14,
+      "condition": "stage not in ['closed-won', 'closed-lost']",
+      "business_impact": "Deals likely to go cold"
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "description": "Required fields for different stages",
+  "rules": [
+    {
+      "name": "close_date_required",
+      "condition": "stage in ['negotiation', 'proposal', 'closed-won', 'closed-lost']",
+      "required_fields": [
+        "close_date"
+      ],
+      "business_impact": "Cannot forecast revenue accurately"
+    },
+    {
+      "name": "contact_email_for_active_deals",
+      "condition": "stage not in ['closed-won', 'closed-lost']",
+      "required_fields": [
+        "contact_email"
+      ],
+      "business_impact": "Cannot execute email campaigns"
+    }
+  ]
+}

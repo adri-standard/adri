@@ -15,6 +15,8 @@ from .assessor import DataSourceAssessor
 from .report import AssessmentReport
 from .interactive import run_interactive_mode
 from .templates import TemplateLoader
+from .utils.metadata_generator import MetadataGenerator
+from .connectors import FileConnector
 
 
 def setup_logging(verbose: bool = False):
@@ -160,6 +162,31 @@ def parse_args(args: Optional[List[str]] = None):
         "--trust-all",
         action="store_true",
         help="Trust all template sources"
+    )
+    
+    # init command
+    init_parser = subparsers.add_parser(
+        "init",
+        help="Generate starter metadata files for a data source"
+    )
+    init_parser.add_argument(
+        "source",
+        help="Path to the data source file (CSV, JSON, etc.)"
+    )
+    init_parser.add_argument(
+        "--output-dir",
+        help="Output directory for metadata files (default: same as source file)"
+    )
+    init_parser.add_argument(
+        "--dimensions",
+        nargs="+",
+        choices=["validity", "completeness", "freshness", "consistency", "plausibility"],
+        help="Specific dimensions to generate metadata for (default: all)"
+    )
+    init_parser.add_argument(
+        "--quick",
+        action="store_true",
+        help="Generate minimal metadata with more TODOs (faster)"
     )
     
     # report command
@@ -426,6 +453,69 @@ def view_report(args):
     report = AssessmentReport.load_json(args.report_path)
     report.print_summary()
 
+
+def run_init(args):
+    """Generate starter metadata files for a data source."""
+    source_path = Path(args.source)
+    
+    if not source_path.exists():
+        print(f"Error: Source file not found: {source_path}")
+        return 1
+        
+    print(f"Analyzing data source: {source_path}")
+    print("-" * 60)
+    
+    try:
+        # Create a file connector to load the data
+        connector = FileConnector(source_path)
+        
+        # Create metadata generator
+        generator = MetadataGenerator(connector)
+        
+        # Determine output directory
+        output_dir = Path(args.output_dir) if args.output_dir else source_path.parent
+        output_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Generate metadata files
+        print(f"Generating metadata files in: {output_dir}")
+        
+        if args.dimensions:
+            # Generate only specified dimensions
+            generated_files = {}
+            for dimension in args.dimensions:
+                method_name = f"generate_{dimension}_metadata"
+                if hasattr(generator, method_name):
+                    metadata = getattr(generator, method_name)()
+                    file_path = generator._save_metadata(dimension, metadata)
+                    generated_files[dimension] = file_path
+                    print(f"✓ Generated {dimension} metadata: {file_path.name}")
+        else:
+            # Generate all dimensions
+            generated_files = generator.generate_all_metadata(output_dir)
+            for dimension, file_path in generated_files.items():
+                print(f"✓ Generated {dimension} metadata: {file_path.name}")
+        
+        print("\n" + "=" * 60)
+        print("✅ Metadata files generated successfully!")
+        print("\nNext steps:")
+        print("1. Review the generated files and fill in the TODO sections")
+        print("2. Verify that auto-detected types and patterns are correct")
+        print("3. Add domain-specific rules and business logic")
+        print("4. Run 'adri assess' to see how your data scores with the metadata")
+        
+        if args.quick:
+            print("\nNote: Quick mode was used - files contain minimal analysis.")
+            print("Consider running without --quick for more thorough detection.")
+            
+    except Exception as e:
+        print(f"Error generating metadata: {e}")
+        if args.verbose:
+            import traceback
+            traceback.print_exc()
+        return 1
+        
+    return 0
+
 def submit_benchmark(args):
     """Submit a report to the benchmark."""
     from datetime import datetime
@@ -470,6 +560,8 @@ def main(args=None):
             run_certify(parsed_args)
         elif parsed_args.command == "templates":
             handle_templates_command(parsed_args)
+        elif parsed_args.command == "init":
+            return run_init(parsed_args)
         elif parsed_args.command == "report":
             if parsed_args.report_command == "view":
                 view_report(parsed_args)

@@ -132,7 +132,7 @@ Imagine a world where:
 
 ### 1. Assess Your Data (Start Here)
 ```python
-from adri import DataSourceAssessor
+from adri.assessor import DataSourceAssessor
 
 # Create an assessor
 assessor = DataSourceAssessor()
@@ -150,9 +150,9 @@ report.save_html("data_readiness_report.html")
 
 ### 2. Protect Your Workflows
 ```python
-from adri import adri_guard
+from adri.integrations.guard import adri_guarded
 
-@adri_guard(min_score=70)
+@adri_guarded(min_score=70)
 def process_customer_data(data_source):
     # Your automation logic here
     return analyze_customers(data_source)

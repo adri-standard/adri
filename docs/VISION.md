@@ -1,5 +1,7 @@
 # ADRI: Agent Data Readiness Index
 
+> 📖 **Looking for concrete examples? See [Vision in Action](VISION_IN_ACTION.md)**
+
 ## Vision
 
 The Agent Data Readiness Index (ADRI) exists to **improve the reliability of AI agent workflows** by ensuring the quality and trustworthiness of the data they consume. As AI agents become increasingly autonomous and critical to business operations, the reliability of their data supply becomes paramount to their success.
@@ -21,6 +23,39 @@ AI agents face unique challenges when working with data:
 ## Our Solution
 
 ADRI provides a **standardized framework** for assessing, communicating, and enforcing data reliability standards specifically designed for AI agent workflows:
+
+## What ADRI Is: Protocol + Framework
+
+At its core, ADRI establishes a **standardized communication protocol** between data sources and AI agents, supported by assessment tools to implement and verify this protocol.
+
+### The ADRI Protocol
+
+ADRI defines a metadata standard that enables data sources to explicitly declare their reliability characteristics:
+
+- **Structured Format**: Companion metadata files (e.g., `data.freshness.json`) that sit alongside data sources
+- **Five Dimensions**: Standardized schemas for communicating validity, completeness, freshness, consistency, and plausibility
+- **Common Language**: Precise vocabulary for data providers to express quality attributes and limitations
+- **Machine-Readable**: JSON-based format that agents can automatically parse and understand
+
+### The ADRI Framework
+
+Supporting the protocol, ADRI provides:
+
+- **Assessment Tools**: Evaluate both inherent data quality AND protocol compliance
+- **Scoring System**: Quantify readiness across dimensions (0-100 scale)
+- **Guard Mechanisms**: Prevent agents from processing non-compliant data
+- **Template System**: Pre-built quality standards for common use cases
+
+### Why This Matters
+
+Traditional approaches focus on *measuring* data quality. ADRI focuses on *communicating* data quality in a way agents can understand and act upon. This shift from measurement to communication is what enables:
+
+- **Agent Autonomy**: Agents can make informed decisions about data usage
+- **Source Agnosticism**: Any ADRI-compliant data works with any ADRI-aware agent  
+- **Quality Transparency**: Clear, standardized quality declarations replace guesswork
+- **Ecosystem Growth**: Common protocol enables a marketplace of interoperable solutions
+
+By establishing both the protocol and the tools to implement it, ADRI creates the foundation for reliable, scalable AI agent deployments.
 
 ### For AI Engineers
 

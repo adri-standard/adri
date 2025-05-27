@@ -1,0 +1,11 @@
+customer_id,name,email,age,purchase_amount,last_purchase_date,status,created_at
+CUST001,John Doe,john.doe@email.com,35,150.50,2024-01-15,active,2023-06-10
+CUST002,Jane Smith,jane.smith@email.com,28,275.00,2024-01-20,active,2023-07-22
+CUST003,Bob Johnson,bob.j@email.com,42,89.99,2023-12-05,inactive,2023-05-15
+CUST004,Alice Brown,alice.b@email.com,31,520.00,2024-01-25,active,2023-09-03
+CUST005,Charlie Wilson,charlie.w@email.com,55,75.25,2023-11-30,inactive,2023-04-20
+CUST006,Diana Lee,diana.lee@email.com,39,340.80,2024-01-22,active,2023-08-12
+CUST007,Edward Chen,edward.c@email.com,46,195.00,2024-01-18,active,2023-10-05
+CUST008,Fiona Davis,fiona.d@email.com,33,0.00,2023-10-15,pending,2023-11-28
+CUST009,George Miller,george.m@email.com,29,425.50,2024-01-24,active,2023-12-01
+CUST010,Helen Zhang,helen.z@email.com,37,180.00,2024-01-19,active,2023-06-30

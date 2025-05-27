@@ -2,6 +2,11 @@
 
 **Making data reliable for AI agents**
 
+## 🚀 Quick Start
+- **[Why ADRI?](VISION_IN_ACTION.md)** - See the vision in action (5 min read)
+- **[Get Started](GET_STARTED.md)** - Install and run your first assessment
+- **[Templates](TEMPLATES.md)** - Pre-built quality standards
+
 ## 🎯 First Time Here? Start with Our Vision
 
 Before diving into code, we encourage you to understand **[why ADRI exists](./VISION.md)** and the problem we're solving. ADRI is more than a tool - it's a framework for ensuring AI agents can trust their data.

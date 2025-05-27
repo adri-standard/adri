@@ -61,6 +61,9 @@ class AssessmentReport:
         self.dimension_results = {}
         self.summary_findings = []
         self.summary_recommendations = []
+        
+        # Template evaluation results (if assessed against templates)
+        self.template_evaluations = []
 
     def populate_from_dimension_results(self, dimension_results: Dict[str, Dict[str, Any]]):
         """
@@ -116,7 +119,7 @@ class AssessmentReport:
         Returns:
             Dict: Dictionary representation of the report
         """
-        return {
+        result = {
             "source_name": self.source_name,
             "source_type": self.source_type,
             "source_metadata": self.source_metadata,
@@ -129,6 +132,14 @@ class AssessmentReport:
             "summary_findings": self.summary_findings,
             "summary_recommendations": self.summary_recommendations,
         }
+        
+        # Include template evaluations if present
+        if self.template_evaluations:
+            result["template_evaluations"] = [
+                eval.to_dict() for eval in self.template_evaluations
+            ]
+            
+        return result
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "AssessmentReport":

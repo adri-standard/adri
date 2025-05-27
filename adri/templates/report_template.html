@@ -200,6 +200,140 @@
         .score-limited { color: var(--score-color-limited); }
         .score-inadequate { color: var(--score-color-inadequate); }
 
+        /* Template Compliance Styles */
+        .template-compliance-container {
+            border-top: 1px solid var(--adri-border-light);
+            padding-top: 20px;
+            margin-top: 30px;
+        }
+        .template-compliance-container h2 { 
+            margin-top: 0; 
+            text-align: center; 
+        }
+
+        .template-evaluations {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .template-card {
+            background-color: var(--adri-background-subtle);
+            border-radius: 10px;
+            padding: 20px;
+            border: 1px solid var(--adri-border-light);
+        }
+
+        .template-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--adri-border-dark);
+        }
+
+        .template-header h3 {
+            margin: 0;
+            font-size: 1.3em;
+        }
+
+        .template-status {
+            font-size: 1.1em;
+        }
+
+        .badge {
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-weight: 500;
+        }
+
+        .badge-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .badge-warning {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+
+        .template-metrics {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .metric {
+            flex: 1 1 200px;
+        }
+
+        .metric-label {
+            font-weight: 600;
+            color: var(--adri-text-secondary);
+            margin-right: 5px;
+        }
+
+        .metric-value {
+            font-weight: 500;
+        }
+
+        .template-gaps, .template-recommendations {
+            margin-top: 20px;
+        }
+
+        .template-gaps h4, .template-recommendations h4 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            color: var(--adri-text-secondary);
+        }
+
+        .gaps-list {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        .gap {
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            border-left: 4px solid;
+        }
+
+        .gap-blocking {
+            background-color: #f8d7da;
+            border-left-color: var(--adri-error);
+        }
+
+        .gap-high {
+            background-color: #fff3cd;
+            border-left-color: #ffc107;
+        }
+
+        .gap-medium {
+            background-color: #cce5ff;
+            border-left-color: #004085;
+        }
+
+        .gap-low {
+            background-color: #d1ecf1;
+            border-left-color: #0c5460;
+        }
+
+        .gap-detail {
+            font-size: 0.9em;
+            color: var(--adri-text-secondary);
+        }
+
+        .gap-remediation {
+            font-size: 0.9em;
+            color: var(--adri-primary-accent-darker);
+            font-style: italic;
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             body {
@@ -209,6 +343,14 @@
             .dimension-card {
                 flex-basis: 100%; /* Stack cards on smaller screens */
                 max-width: none;
+            }
+            .template-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            .template-metrics {
+                flex-direction: column;
             }
             .overall-score { font-size: 2.5em; }
             .readiness-level { font-size: 1.2em; }
@@ -277,6 +419,82 @@
         </div>
     </div>
 
+    {% if report.template_evaluations %}
+    <div class="template-compliance-container">
+        <h2>Template Compliance</h2>
+        <div class="template-evaluations">
+            {% for eval in report.template_evaluations %}
+                <div class="template-card">
+                    <div class="template-header">
+                        <h3>{{ eval.template_name }}</h3>
+                        <div class="template-status">
+                            {% if eval.compliant %}
+                                <span class="badge badge-success">✅ Compliant</span>
+                            {% else %}
+                                <span class="badge badge-warning">❌ Not Compliant</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="template-metrics">
+                        <div class="metric">
+                            <span class="metric-label">Compliance Score:</span>
+                            <span class="metric-value">{{ "%.1f"|format(eval.compliance_score) }}%</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Certification:</span>
+                            <span class="metric-value">
+                                {% if eval.certification_eligible %}
+                                    Eligible {{ eval.certification_badge if eval.certification_badge else '' }}
+                                {% else %}
+                                    Not Eligible
+                                {% endif %}
+                            </span>
+                        </div>
+                        {% if eval.estimated_remediation_effort %}
+                        <div class="metric">
+                            <span class="metric-label">Remediation Effort:</span>
+                            <span class="metric-value">{{ eval.estimated_remediation_effort|title }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    {% if eval.gaps %}
+                        <div class="template-gaps">
+                            <h4>Gaps ({{ eval.gaps|length }})</h4>
+                            <ul class="gaps-list">
+                                {% for gap in eval.gaps[:5] %}
+                                    <li class="gap gap-{{ gap.severity }}">
+                                        <strong>{{ gap.requirement_description }}</strong>
+                                        <br><span class="gap-detail">Required: {{ gap.expected_value }}, Actual: {{ gap.actual_value }}</span>
+                                        {% if gap.remediation %}
+                                            <br><span class="gap-remediation">→ {{ gap.remediation }}</span>
+                                        {% endif %}
+                                    </li>
+                                {% endfor %}
+                                {% if eval.gaps|length > 5 %}
+                                    <li><em>... and {{ eval.gaps|length - 5 }} more gaps</em></li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                    {% endif %}
+
+                    {% if eval.recommendations %}
+                        <div class="template-recommendations">
+                            <h4>Recommendations</h4>
+                            <ul>
+                                {% for rec in eval.recommendations[:3] %}
+                                    <li>{{ rec }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
     <div class="metadata-section">
         <h2>Assessment Details</h2>
         <table>
@@ -317,7 +535,7 @@
 
     <div class="footer">
         <p>Generated by Agent Data Readiness Index (ADRI) on {{ timestamp }}</p>
-        <p>Learn more at <a href="https://github.com/verodat/agent-data-readiness-index" target="_blank">github.com/verodat/agent-data-readiness-index</a></p>
+        <p>Learn more at <a href="https://github.com/ThinkEvolveSolve/agent-data-readiness-index" target="_blank">github.com/ThinkEvolveSolve/agent-data-readiness-index</a></p>
         <!-- Consider adding ADRI version here too -->
         {% if adri_version %}
             <p><small>Using ADRI Version: {{ adri_version }}</small></p>

@@ -1,0 +1,28 @@
+{
+  "description": "CRM data format and type validation",
+  "rules": [
+    {
+      "name": "valid_email_format",
+      "field": "contact_email",
+      "type": "email",
+      "required": false
+    },
+    {
+      "name": "valid_stage_values",
+      "field": "stage",
+      "allowed_values": [
+        "prospecting",
+        "qualification",
+        "proposal",
+        "negotiation",
+        "closed-won",
+        "closed-lost"
+      ]
+    },
+    {
+      "name": "positive_deal_amount",
+      "field": "amount",
+      "min_value": 0
+    }
+  ]
+}

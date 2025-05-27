@@ -91,6 +91,40 @@ To run this example:
 python examples/comprehensive_assessment.py
 ```
 
+### AI Status Auditor Demo
+
+The `07_status_auditor_demo.py` script demonstrates how ADRI can be used to create a business-focused audit tool that identifies workflow breakdowns in CRM data. This example showcases:
+
+1. Creating realistic CRM data with common quality issues:
+   - Missing close dates in late-stage deals
+   - Stale opportunities with no recent activity
+   - Missing contact information
+   - Ownership conflicts between deals and accounts
+2. Generating ADRI metadata files for all 5 dimensions with business-specific rules
+3. Running an assessment and translating technical results to business language
+4. Producing an actionable audit report that highlights:
+   - Revenue at risk from data issues
+   - Process breakdowns affecting operations
+   - Immediate actions to improve data quality
+
+To run this example:
+
+```bash
+# Make sure you're in the project root directory
+python examples/07_status_auditor_demo.py
+```
+
+This will:
+- Create `crm_audit_demo.csv` with sample CRM data
+- Generate 5 ADRI metadata files (`crm_audit_demo.*.json`)
+- Run the assessment and create an HTML report
+- Display a business-focused audit report showing:
+  - Revenue at risk (e.g., "$340K in deals missing close dates")
+  - Process breakdowns (e.g., "23 contacts missing email")
+  - Immediate actions (e.g., "Review stale deals with: John S., Mary K.")
+
+This example demonstrates the "AHA moment" for business users: "This would have taken me 4 hours to find manually!"
+
 ## Creating Your Own Examples
 
 To create your own examples:

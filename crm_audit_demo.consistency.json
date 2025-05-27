@@ -1,0 +1,10 @@
+{
+  "description": "Cross-field validation",
+  "rules": [
+    {
+      "name": "owner_consistency",
+      "check": "owner == account_owner",
+      "business_impact": "Confusion in account ownership"
+    }
+  ]
+}
