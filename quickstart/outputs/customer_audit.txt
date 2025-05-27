@@ -1,0 +1,38 @@
+👥 CUSTOMER DATA AUDIT
+========================
+Generated: 2025-05-27 11:00 AM
+
+🔍 DUPLICATE RECORDS FOUND
+--------------------------
+• 47 potential duplicate customers
+  - Same email, different IDs: 23
+  - Same name + address: 18
+  - Same phone number: 6
+
+📧 CONTACT ISSUES
+-----------------
+• 156 customers with invalid emails
+• 89 customers with disconnected phones
+• 234 missing postal codes
+
+🌍 LOCATION DATA PROBLEMS
+-------------------------
+• 45 invalid state/country combinations
+• 78 addresses that don't geocode
+• 12 customers in "Test City, XX"
+
+📊 DATA QUALITY SCORE: 71/100
+-----------------------------
+⚠️  Validity: 65% - Format issues
+✅ Completeness: 78% - Most fields present
+❌ Consistency: 55% - Duplicates present
+✅ Freshness: 82% - Recently updated
+✅ Plausibility: 85% - Values reasonable
+
+💰 BUSINESS IMPACT:
+• Can't reach 20% of customers
+• Duplicate marketing spend: ~$15K/month
+• Shipping errors from bad addresses
+
+========================
+✅ Time to clean up!

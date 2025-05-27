@@ -1,0 +1,36 @@
+📦 INVENTORY AUDIT REPORT
+==========================
+Generated: 2025-05-27 10:45 AM
+
+⚠️  CRITICAL FINDINGS
+--------------------
+• Data is 3 DAYS OLD (last updated: May 24)
+  Risk: Ordering based on stale information
+
+• 5 items show negative reorder thresholds
+  - Widget E: -10 units (INVALID)
+  - Part X23: -5 units (INVALID)
+
+• 12 items below reorder point
+  Total reorder value: $127,000
+
+🚨 IMMEDIATE RISKS
+-----------------
+• About to auto-order 50,000 units
+  Based on 3-day old data!
+  Potential excess: $89,000
+
+📊 DATA QUALITY SCORE: 42/100
+-----------------------------
+❌ Freshness: 15% - Data critically stale
+❌ Validity: 45% - Invalid thresholds
+⚠️  Completeness: 65% - Missing warehouses
+✅ Consistency: 80% - Mostly aligned
+✅ Plausibility: 75% - Reasonable values
+
+💸 COST OF BAD DATA:
+Without ADRI: $127,000 excess inventory
+With ADRI: Problem caught before ordering
+
+==========================
+✅ Crisis averted!

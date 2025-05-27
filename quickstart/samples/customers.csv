@@ -1,0 +1,26 @@
+customer_id,first_name,last_name,email,phone,address,city,state,zip,country,created_date,last_purchase_date
+C001,John,Smith,john.smith@email.com,555-0101,123 Main St,Springfield,IL,62701,USA,2024-01-15,2025-05-10
+C002,Mary,Johnson,mary.j@email.com,555-0102,456 Oak Ave,Chicago,IL,60601,USA,2024-02-20,2025-04-28
+C003,David,Lee,david.lee@email.com,555-0103,789 Pine Rd,Boston,MA,02101,USA,2024-03-10,2025-05-15
+C004,Sarah,Wilson,sarah.wilson@email,555-0104,321 Elm St,New York,NY,10001,USA,2024-04-05,2025-03-22
+C005,Mike,Brown,mike.brown@email.com,555-0105,654 Maple Dr,Los Angeles,CA,90001,USA,2024-05-12,2025-05-20
+C006,John,Smith,j.smith@company.com,555-0106,123 Main St,Springfield,IL,62701,USA,2024-06-18,2025-04-15
+C007,Lisa,Davis,lisa.davis@email.com,555-0107,987 Cedar Ln,Seattle,WA,98101,USA,2024-07-22,2025-05-18
+C008,Robert,Garcia,robert.garcia@email.com,555-0108,246 Beach Blvd,Miami,FL,33101,USA,2024-08-30,2025-05-25
+C009,Jennifer,Martinez,jennifer.m@email.com,555-0109,135 Mountain View,Denver,CO,80201,USA,2024-09-14,2025-04-10
+C010,William,Anderson,william.a@email.com,555-0110,864 River Rd,Portland,OR,97201,USA,2024-10-25,2025-05-05
+C011,Patricia,Taylor,patricia.taylor@email.com,555-0111,579 Lake St,Minneapolis,MN,,USA,2024-11-08,2025-03-28
+C012,Michael,Thomas,michael.thomas@email.com,555-0112,753 Park Ave,Atlanta,GA,30301,USA,2024-12-15,2025-05-12
+C013,Linda,Jackson,linda.jackson@email.com,555-0113,951 Forest Dr,Phoenix,AZ,85001,USA,2025-01-20,2025-05-22
+C014,Barbara,White,barbara.white@email.com,555-0114,357 Valley Rd,Salt Lake City,UT,84101,USA,2025-02-10,2025-04-30
+C015,Richard,Harris,richard.harris@invalid,555-0115,159 Hill Ct,Dallas,TX,75201,USA,2025-03-05,2025-05-08
+C016,Susan,Martin,susan.martin@email.com,555-0116,753 Creek Way,San Francisco,CA,94101,USA,2025-04-12,2025-05-25
+C017,Joseph,Thompson,joseph.t@email.com,555-0117,852 Bridge St,Philadelphia,PA,19101,USA,2025-05-01,2025-05-20
+C018,Mary,Johnson,mary.johnson@email.com,555-0102,456 Oak Ave,Chicago,IL,60601,USA,2025-01-15,2025-05-15
+C019,Charles,Rodriguez,charles.r@email.com,555-0119,963 Sunset Blvd,Las Vegas,NV,89101,USA,2024-06-20,2025-04-25
+C020,Margaret,Lewis,margaret.lewis@email.com,555-0120,741 Spring St,Nashville,TN,37201,USA,2024-07-18,2025-05-10
+C021,Thomas,Walker,thomas.walker@email.com,555-0121,852 Winter Ln,Detroit,MI,48201,USA,2024-08-25,2025-03-15
+C022,Dorothy,Hall,dorothy.hall@email.com,555-0122,963 Summer Dr,Houston,TX,77001,USA,2024-09-30,2025-05-18
+C023,Christopher,Allen,chris.allen@test.com,555-0123,12 Test St,Test City,XX,99999,USA,2024-10-15,2025-04-20
+C024,Lisa,Young,lisa.young@email.com,555-0124,456 Autumn Rd,Cleveland,OH,44101,USA,2024-11-22,2025-05-05
+C025,Daniel,King,daniel.king@email.com,555-9999,789 Royal Ave,London,XX,12345,UK,2024-12-30,2025-05-22

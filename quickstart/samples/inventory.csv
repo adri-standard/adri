@@ -1,0 +1,26 @@
+product_id,product_name,stock_level,reorder_threshold,warehouse,last_updated,unit_cost,supplier
+P001,Widget A,45,50,East,2025-05-24,12.50,SupplierCo
+P002,Widget B,23,50,East,2025-05-24,15.75,SupplierCo
+P003,Widget C,67,50,West,2025-05-24,8.25,TechSupply
+P004,Widget D,12,50,,2025-05-24,22.00,GlobalParts
+P005,Widget E,89,-10,North,2025-05-24,18.50,SupplierCo
+P006,Gadget X,34,40,South,2025-05-24,45.00,TechSupply
+P007,Gadget Y,156,100,East,2025-05-24,32.25,GlobalParts
+P008,Gadget Z,78,75,,2025-05-24,28.75,SupplierCo
+P009,Part A1,234,200,West,2025-05-24,5.50,PartsDirect
+P010,Part B2,45,60,North,2025-05-24,7.25,PartsDirect
+P011,Part C3,0,25,,2025-05-24,9.00,GlobalParts
+P012,Component X,567,500,East,2025-05-24,2.75,TechSupply
+P013,Component Y,89,-5,South,2025-05-24,3.50,SupplierCo
+P014,Component Z,123,150,West,2025-05-24,4.25,PartsDirect
+P015,Assembly K1,12,20,North,2025-05-24,125.00,AssemblyInc
+P016,Assembly K2,8,15,,2025-05-24,145.00,AssemblyInc
+P017,Module M1,34,30,East,2025-05-24,78.50,TechSupply
+P018,Module M2,56,50,South,2025-05-24,82.25,GlobalParts
+P019,Kit Bundle A,23,25,West,2025-05-24,199.99,BundleCo
+P020,Kit Bundle B,67,75,,2025-05-24,249.99,BundleCo
+P021,Spare Part X23,0,-5,North,2025-05-24,35.00,PartsDirect
+P022,Spare Part Y45,456,400,East,2025-05-24,15.50,SupplierCo
+P023,Tool Set Alpha,12,10,,2025-05-24,450.00,ToolMasters
+P024,Tool Set Beta,5,10,South,2025-05-24,525.00,ToolMasters
+P025,Raw Material RM1,1000,1500,West,2025-05-24,0.75,RawSupply

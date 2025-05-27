@@ -1,0 +1,26 @@
+opportunity_id,account_name,deal_name,stage,amount,owner,account_owner,created_date,close_date,last_activity_date,contact_email
+OPP-0001,Acme Corp,Acme Q2 Expansion,negotiation,45230,John Smith,John Smith,2025-03-15,,,john@acme.com
+OPP-0002,TechStart Inc,TechStart Renewal,proposal,38920,Mary Johnson,Mary Johnson,2025-02-01,2025-06-30,2025-05-15,
+OPP-0003,Global Retail,Global Retail Upgrade,qualification,25000,David Lee,Sarah Wilson,2025-04-20,2025-07-15,2025-05-20,sarah@globalretail.com
+OPP-0004,Finance Plus,Finance Plus New Deal,negotiation,32100,David Lee,David Lee,2025-01-10,,,
+OPP-0005,MedTech Solutions,MedTech Implementation,closed-won,67500,Sarah Wilson,Sarah Wilson,2025-01-05,2025-03-31,2025-03-31,contact@medtech.com
+OPP-0006,EduCorp,EduCorp Pilot,prospecting,15000,Mike Brown,Mike Brown,2025-05-01,,2025-05-22,mike@educorp.com
+OPP-0007,Retail Chain,Retail Chain Expansion,proposal,52000,John Smith,Mary Johnson,2025-03-20,,2025-04-01,
+OPP-0008,StartupXYZ,StartupXYZ Contract,negotiation,28500,Mary Johnson,Mary Johnson,2025-02-15,,,info@startupxyz.com
+OPP-0009,BigBank Corp,BigBank Security,closed-lost,0,David Lee,David Lee,2025-01-20,2025-02-28,2025-02-28,security@bigbank.com
+OPP-0010,CloudFirst,CloudFirst Migration,proposal,41000,Sarah Wilson,Sarah Wilson,2025-04-05,,2025-04-30,
+OPP-0011,DataDriven Inc,DataDriven Analytics,negotiation,55000,Mike Brown,John Smith,2025-03-01,,,
+OPP-0012,HealthNet,HealthNet Compliance,qualification,30000,John Smith,John Smith,2025-04-15,2025-08-31,2025-05-10,compliance@healthnet.com
+OPP-0013,AutoParts Co,AutoParts Inventory,proposal,22500,Mary Johnson,Mary Johnson,2025-03-25,,2025-04-15,inventory@autoparts.com
+OPP-0014,Energy Solutions,Energy Dashboard,negotiation,48000,David Lee,Mike Brown,2025-02-20,,,
+OPP-0015,FoodChain Ltd,FoodChain Tracking,prospecting,18000,Sarah Wilson,Sarah Wilson,2025-05-05,,2025-05-20,
+OPP-0016,TravelTech,TravelTech Platform,proposal,35000,Mike Brown,Mike Brown,2025-04-10,,2025-04-25,platform@traveltech.com
+OPP-0017,Insurance Inc,Insurance Claims,closed-won,72000,John Smith,John Smith,2024-12-15,2025-02-28,2025-02-28,claims@insurance.com
+OPP-0018,Logistics Pro,Logistics Optimization,negotiation,61000,Mary Johnson,David Lee,2025-03-10,,,
+OPP-0019,RealEstate Plus,RealEstate CRM,qualification,27000,David Lee,David Lee,2025-04-25,2025-09-30,2025-05-18,crm@realestate.com
+OPP-0020,SportsBrand,SportsBrand Ecommerce,proposal,44000,Sarah Wilson,Sarah Wilson,2025-03-30,,2025-04-20,
+OPP-0021,GreenTech,GreenTech Monitoring,negotiation,-5000,Mike Brown,Mike Brown,2025-02-25,,,monitoring@greentech.com
+OPP-0022,SmartCity,SmartCity Sensors,prospecting,20000,John Smith,John Smith,2025-05-10,,2025-05-22,sensors@smartcity.com
+OPP-0023,FinanceApp,FinanceApp Integration,proposal,39000,Mary Johnson,Sarah Wilson,2025-04-01,,2025-04-10,
+OPP-0024,MediaGroup,MediaGroup Analytics,negotiation,57000,David Lee,David Lee,2025-03-05,,,analytics@mediagroup.com
+OPP-0025,PharmaCorp,PharmaCorp Compliance,closed-won,85000,Sarah Wilson,Sarah Wilson,2025-01-01,2025-03-15,2025-03-15,compliance@pharmacorp.com

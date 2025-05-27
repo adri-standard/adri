@@ -1,0 +1,46 @@
+🔍 CRM AUDIT REPORT - AI STATUS AUDITOR
+==========================================
+Generated: 2025-05-27 10:30 AM
+
+💰 REVENUE AT RISK
+------------------
+• 12 deals worth $340,575 missing close dates
+  - Deal #OPP-0147: $45,230 (John Smith)
+  - Deal #OPP-0089: $38,920 (Mary Johnson)
+  - Deal #OPP-0203: $32,100 (David Lee)
+
+• 8 deals worth $225,430 inactive for 21+ days
+  Average days since activity: 34 days
+
+🚨 PROCESS BREAKDOWNS
+---------------------
+• 23 active deals missing contact email
+  Impact: Cannot execute email campaigns
+
+• 15 opportunities have ownership conflicts
+  - John Smith: 6 conflicts
+  - Mary Johnson: 5 conflicts
+  - David Lee: 4 conflicts
+
+📊 DATA QUALITY SCORE: 68/100
+-----------------------------
+❌ Completeness: 55% - Missing critical fields
+⚠️  Freshness: 60% - Stale activity data
+✅ Validity: 85% - Most formats correct
+✅ Consistency: 75% - Some ownership issues
+✅ Plausibility: 90% - Values make sense
+
+📋 IMMEDIATE ACTIONS REQUIRED
+-----------------------------
+1. Update close dates for negotiation deals
+2. Review stale deals with: John S., Mary J.
+3. Resolve account ownership conflicts
+4. Collect email addresses for active opportunities
+
+💡 THE AHA MOMENT:
+"This would have taken me 4 hours to find manually!"
+"Now I know exactly what to fix before the QBR!"
+
+==========================================
+✅ Full HTML report: crm_audit_report.html
+✅ Detailed findings: crm_audit_business_report.txt
