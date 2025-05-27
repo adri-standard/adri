@@ -1,6 +1,7 @@
 """Unit tests for the base template class."""
 
 import pytest
+from typing import Dict, Any
 from unittest.mock import Mock
 from adri.templates.base import BaseTemplate
 from adri.report import AssessmentReport
@@ -13,8 +14,20 @@ class ConcreteTemplate(BaseTemplate):
     template_id = "test-template"
     template_version = "1.0.0"
     template_name = "Test Template"
-    template_authority = "Test Authority"
-    template_description = "A test template"
+    authority = "Test Authority"
+    description = "A test template"
+    
+    def get_requirements(self) -> Dict[str, Any]:
+        """Get the requirements defined by this template."""
+        return {
+            "overall_minimum": 60,
+            "dimension_requirements": {
+                "validity": {"minimum": 10},
+                "completeness": {"minimum": 10}
+            },
+            "custom_rules": [],
+            "mandatory_fields": []
+        }
     
     def evaluate(self, report: AssessmentReport) -> TemplateEvaluation:
         """Simple evaluation implementation."""
@@ -59,8 +72,8 @@ class TestBaseTemplate:
         cert_info = template.get_certification_info()
         
         assert cert_info["certifying_authority"] == "Test Authority"
-        assert cert_info["certification_name"] == "Test Template Certification"
-        assert cert_info["certification_id_prefix"] == "TEST-"
+        assert cert_info["certification_name"] == "Test Template Compliance"
+        assert cert_info["certification_id_prefix"] == "ADRI-TEST-TEMPLATE"
         assert cert_info["validity_period_days"] == 365
     
     def test_custom_certification_info(self):
@@ -78,41 +91,45 @@ class TestBaseTemplate:
     def test_is_applicable_default(self):
         """Test default applicability check."""
         template = ConcreteTemplate()
-        report = Mock(spec=AssessmentReport)
+        context = {"location": "US", "industry": "finance"}
         
-        # Default implementation always returns True
-        assert template.is_applicable(report) is True
+        # Default implementation returns True when no jurisdiction is set
+        assert template.is_applicable(context) is True
     
     def test_custom_is_applicable(self):
         """Test custom applicability check."""
         class SelectiveTemplate(ConcreteTemplate):
-            def is_applicable(self, report: AssessmentReport) -> bool:
-                return report.source_type == "database"
-        
+            jurisdiction = ["US", "EU"]
+            
         template = SelectiveTemplate()
         
-        # Test with matching source
-        report1 = Mock(spec=AssessmentReport)
-        report1.source_type = "database"
-        assert template.is_applicable(report1) is True
+        # Test with matching location
+        context1 = {"location": "US"}
+        assert template.is_applicable(context1) is True
         
-        # Test with non-matching source
-        report2 = Mock(spec=AssessmentReport)
-        report2.source_type = "file"
-        assert template.is_applicable(report2) is False
+        # Test with non-matching location
+        context2 = {"location": "JP"}
+        assert template.is_applicable(context2) is False
+        
+        # Test without location
+        context3 = {"industry": "finance"}
+        assert template.is_applicable(context3) is True
     
     def test_missing_required_attributes(self):
         """Test that missing required attributes raise errors."""
         class IncompleteTemplate(BaseTemplate):
             # Missing required class attributes
+            def get_requirements(self) -> Dict[str, Any]:
+                return {}
+                
             def evaluate(self, report: AssessmentReport) -> TemplateEvaluation:
                 pass
         
-        template = IncompleteTemplate()
+        # Should raise ValueError during initialization due to missing metadata
+        with pytest.raises(ValueError) as exc_info:
+            IncompleteTemplate()
         
-        # Should raise AttributeError when accessing required attributes
-        with pytest.raises(AttributeError):
-            _ = template.template_id
+        assert "Template must define" in str(exc_info.value)
     
     def test_config_override(self):
         """Test configuration override mechanism."""

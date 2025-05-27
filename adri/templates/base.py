@@ -134,8 +134,8 @@ class BaseTemplate(ABC):
         return {
             'certifying_authority': self.authority,
             'certification_name': f"{self.template_name} Compliance",
-            'certification_id_prefix': f"ADRI-{self.template_id.upper()}",
-            'validity_period_days': 365,  # Default, can be overridden
+            'certification_id_prefix': getattr(self, 'certification_id_prefix', f"ADRI-{self.template_id.upper()}"),
+            'validity_period_days': getattr(self, 'validity_period_days', 365),  # Default, can be overridden
         }
 
 # ----------------------------------------------
