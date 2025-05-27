@@ -13,7 +13,8 @@ import pandas as pd
 from datetime import datetime, timedelta
 import json
 import os
-from adri import adri_guard, DataSourceAssessor
+from adri.integrations.guard import adri_guarded
+from adri.assessor import DataSourceAssessor
 from adri.config import Config
 
 # Simulate audit log
@@ -71,12 +72,8 @@ def demonstrate_guarded_agent():
     healthcare_config.set("audit.enabled", True)
     healthcare_config.set("audit.detail_level", "full")
     
-    @adri_guard(
-        config=healthcare_config,
-        template="healthcare-hipaa-v1",
-        min_score=95,
-        explain_on_fail=True,
-        audit=True
+    @adri_guarded(
+        min_score=95
     )
     def diagnose_patient(patient_file):
         """Protected healthcare agent function."""
@@ -214,7 +211,7 @@ def demonstrate_template_benefits():
     
     print("\n💡 Using Templates:")
     print("```python")
-    print("@adri_guard(template='financial-basel-iii-v1')")
+    print("@adri_guarded(template='financial-basel-iii-v1')")
     print("def process_transaction(data):")
     print("    # Automatically enforces Basel III data standards")
     print("    return execute_trade(data)")
@@ -229,35 +226,33 @@ def show_production_patterns():
     
     print("\n1️⃣ **Graceful Degradation:**")
     print("```python")
-    print("@adri_guard(min_score=90, fallback_score=70)")
+    print("@adri_guarded(min_score=90)")
     print("def smart_agent(data):")
-    print("    if data.adri_score >= 90:")
-    print("        return full_analysis(data)")
-    print("    else:  # 70-89")
-    print("        return limited_analysis(data)")
-    print("    # Below 70: Automatically blocked")
+    print("    # Guard ensures minimum score of 90")
+    print("    return full_analysis(data)")
     print("```")
     
     print("\n2️⃣ **Multi-Level Guards:**")
     print("```python")
-    print("@adri_guard(min_score=95)  # Strict for critical path")
+    print("@adri_guarded(min_score=95)  # Strict for critical path")
     print("def critical_decision(data):")
     print("    return high_stakes_analysis(data)")
     print("")
-    print("@adri_guard(min_score=80)  # Relaxed for analytics")
+    print("@adri_guarded(min_score=80)  # Relaxed for analytics")
     print("def analytical_insight(data):")
     print("    return trend_analysis(data)")
     print("```")
     
-    print("\n3️⃣ **Custom Notifications:**")
+    print("\n3️⃣ **Custom Error Handling:**")
     print("```python")
-    print("@adri_guard(")
-    print("    min_score=85,")
-    print("    on_fail=lambda x: alert_data_team(x),")
-    print("    on_pass=lambda x: log_success(x)")
-    print(")")
-    print("def production_agent(data):")
-    print("    return process(data)")
+    print("try:")
+    print("    @adri_guarded(min_score=85)")
+    print("    def production_agent(data):")
+    print("        return process(data)")
+    print("    ")
+    print("    result = production_agent('data.csv')")
+    print("except Exception as e:")
+    print("    alert_data_team(str(e))")
     print("```")
 
 if __name__ == "__main__":
@@ -274,9 +269,9 @@ if __name__ == "__main__":
     
     print("\n🚀 Your Next Step:")
     print("```python")
-    print("from adri import adri_guard")
+    print("from adri.integrations.guard import adri_guarded")
     print("")
-    print("@adri_guard(min_score=80)  # Just add this line")
+    print("@adri_guarded(min_score=80)  # Just add this line")
     print("def your_agent_function(data):")
     print("    # Your existing code - now protected!")
     print("    return agent.process(data)")

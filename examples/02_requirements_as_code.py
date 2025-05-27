@@ -11,7 +11,7 @@ the data team for a customer churn prediction agent.
 
 import pandas as pd
 from datetime import datetime, timedelta
-from adri import DataSourceAssessor
+from adri.assessor import DataSourceAssessor
 from adri.config import Config
 
 def show_the_old_way():

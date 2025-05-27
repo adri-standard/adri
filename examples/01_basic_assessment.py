@@ -10,7 +10,7 @@ Real scenario: An AI agent processing customer orders with stale inventory data.
 
 import pandas as pd
 from datetime import datetime, timedelta
-from adri import DataSourceAssessor
+from adri.assessor import DataSourceAssessor
 
 # Simulate a real-world scenario
 def simulate_agent_without_adri(data):
@@ -90,9 +90,9 @@ def demonstrate_agent_blindness():
     print("-" * 40)
     
     # Demonstrate the guard in action
-    from adri import adri_guard
+    from adri.integrations.guard import adri_guarded
     
-    @adri_guard(min_score=80, explain_on_fail=True)
+    @adri_guarded(min_score=80)
     def safe_inventory_agent(data_file):
         # This would be your actual agent logic
         return "Processing inventory..."

@@ -11,7 +11,7 @@ multiple sources (CRM, billing, support) and can switch providers seamlessly.
 
 import pandas as pd
 from datetime import datetime, timedelta
-from adri import DataSourceAssessor
+from adri.assessor import DataSourceAssessor
 from adri.config import Config
 
 # Define the ADRI standard for customer 360 data

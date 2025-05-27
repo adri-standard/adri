@@ -12,7 +12,7 @@ internal systems, and both teams need to track quality improvements.
 import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
-from adri import DataSourceAssessor
+from adri.assessor import DataSourceAssessor
 from adri.config import Config
 
 def simulate_data_team_journey():
