@@ -56,15 +56,35 @@ class YAMLTemplate(BaseTemplate):
     def _load_template(self, source: Union[str, Path]) -> Dict[str, Any]:
         """Load template from file or string."""
         try:
-            if Path(source).exists():
-                # Load from file
-                with open(source, 'r') as f:
-                    return yaml.safe_load(f)
+            # Check if it's a Path object or a file path string
+            if isinstance(source, Path):
+                # It's a Path object
+                if source.exists():
+                    with open(source, 'r') as f:
+                        return yaml.safe_load(f)
+                else:
+                    raise TemplateValidationError(f"File not found: {source}")
+            elif isinstance(source, str):
+                # Try to determine if it's a file path or YAML content
+                # If it starts with typical YAML content or contains newlines, treat as YAML
+                if '\n' in source or source.strip().startswith(('template:', 'requirements:', '{', '-')):
+                    # It's likely YAML content
+                    return yaml.safe_load(source)
+                else:
+                    # It might be a file path
+                    path = Path(source)
+                    if path.exists():
+                        with open(path, 'r') as f:
+                            return yaml.safe_load(f)
+                    else:
+                        # Last resort: try to parse as YAML anyway
+                        return yaml.safe_load(source)
             else:
-                # Assume it's a YAML string
-                return yaml.safe_load(source)
+                raise TemplateValidationError(f"Invalid source type: {type(source)}")
         except yaml.YAMLError as e:
             raise TemplateValidationError(f"Invalid YAML: {e}")
+        except TemplateValidationError:
+            raise
         except Exception as e:
             raise TemplateValidationError(f"Could not load template: {e}")
     

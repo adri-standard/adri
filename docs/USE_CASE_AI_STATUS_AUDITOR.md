@@ -71,21 +71,24 @@ Audit Reports            →    ADRI Assessment Results
 ```python
 # Backend: FastAPI + ADRI
 from fastapi import FastAPI, UploadFile
-from adri import Assessor
-from adri.templates import load_template
+from adri import DataSourceAssessor
+from adri.templates import TemplateLoader
 
 app = FastAPI()
+
+# Initialize template loader
+template_loader = TemplateLoader()
 
 @app.post("/audit/{domain}")
 async def audit_data(domain: str, file: UploadFile):
     """Run domain-specific audit on uploaded data"""
     
     # Load appropriate ADRI template
-    template = load_template(f"status-audit-{domain}-v1")
+    template = template_loader.load_template(f"status-audit-{domain}-v1")
     
     # Run ADRI assessment
-    assessor = Assessor()
-    results = assessor.assess(file, template=template)
+    assessor = DataSourceAssessor(template=template)
+    results = assessor.assess_file(file)
     
     # Convert to business language
     audit_report = BusinessTranslator.convert(results)
@@ -555,12 +558,25 @@ def process_sales_leads(data_source):
 ## Resources
 
 - [ADRI Documentation](https://github.com/adri/docs)
-- [Template Development Guide](./template-guide.md)
-- [Verodat Integration API](https://verodat.com/api)
-- [Status Auditor Mockups](./design/mockups)
+- [Template Development Guide](./EXTENDING.md#creating-custom-templates)
+- Verodat Integration API (Coming Soon)
+- Status Auditor Mockups (Coming Soon)
 
 ## Contact
 
 For questions about this implementation:
 - Email: auditor@adri.dev
 - Slack: #status-auditor channel
+
+## Purpose & Test Coverage
+
+**Why this file exists**: Demonstrates a concrete, high-value application of ADRI that transforms the framework into a business-focused audit tool for identifying workflow breakdowns, compliance gaps, and automation readiness issues.
+
+**Key responsibilities**:
+- Show how ADRI dimensions map to business problems
+- Provide implementation blueprint with code examples
+- Define domain-specific templates for common use cases
+- Illustrate the business value proposition
+- Guide go-to-market strategy for commercialization
+
+**Test coverage**: This document's examples, claims, and features should be verified by tests documented in [status_auditor_test_coverage.md](./test_coverage/status_auditor_test_coverage.md)

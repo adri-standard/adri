@@ -245,3 +245,16 @@ report = assessor.assess_file("customer_data.csv")
 ```
 
 By understanding and optimizing across all five dimensions, you can significantly improve the reliability of data for your agent workflows.
+
+## Purpose & Test Coverage
+
+**Why this file exists**: Provides a comprehensive guide to understanding ADRI's five data quality dimensions and how they impact agent reliability and performance.
+
+**Key responsibilities**:
+- Define each dimension and what it measures
+- Provide real-world examples of each dimension's impact
+- Show good vs. problematic data patterns
+- Explain how agents benefit from high scores
+- Guide users on enhancing dimension scores
+
+**Test coverage**: This document's examples, claims, and features should be verified by tests documented in [UNDERSTANDING_DIMENSIONS_test_coverage.md](./test_coverage/UNDERSTANDING_DIMENSIONS_test_coverage.md)

@@ -126,35 +126,43 @@ QUALITY_REQUIREMENTS = {
 
 ```python
 # invoice_payment_agent.py
-from adri.integrations.guard import ADRIGuard
+from adri import DataSourceAssessor, adri_guarded
 from quality_requirements import QUALITY_REQUIREMENTS
 import logging
+from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
 class InvoicePaymentAgent:
     def __init__(self):
-        self.guard = ADRIGuard(QUALITY_REQUIREMENTS)
+        self.assessor = DataSourceAssessor()
+        self.quality_requirements = QUALITY_REQUIREMENTS
         
-    def process_invoice(self, invoice_id):
+    @adri_guarded(min_score=95)
+    def process_invoice(self, invoice_id, data_source="vendors.csv"):
         """Process invoice with ADRI quality checks"""
         
-        # Step 1: Check data quality before processing
-        quality_check = self.guard.check_sources({
+        # The @adri_guarded decorator ensures data quality before this function runs
+        
+        # Assess all data sources
+        quality_reports = {}
+        for source_name, path in {
             'vendors': 'vendors.csv',
             'purchase_orders': 'purchase_orders.csv',
             'contracts': 'contracts.csv'
-        })
-        
-        if not quality_check.passed:
-            logger.warning(f"Data quality check failed for invoice {invoice_id}")
-            return {
-                'invoice_id': invoice_id,
-                'status': 'blocked',
-                'reason': 'Data quality below threshold',
-                'quality_issues': quality_check.failures,
-                'action_required': 'human_review'
-            }
+        }.items():
+            report = self.assessor.assess_file(path)
+            quality_reports[source_name] = report
+            
+            if report.overall_score < self.quality_requirements[source_name]['min_score']:
+                logger.warning(f"Data quality check failed for {source_name}")
+                return {
+                    'invoice_id': invoice_id,
+                    'status': 'blocked',
+                    'reason': f'{source_name} data quality below threshold',
+                    'quality_score': report.overall_score,
+                    'action_required': 'human_review'
+                }
         
         # Step 2: Load invoice data (quality assured)
         invoice = self._load_invoice(invoice_id)
@@ -171,10 +179,10 @@ class InvoicePaymentAgent:
             'status': decision['status'],
             'amount': invoice['amount'],
             'vendor': vendor['name'],
-            'quality_scores': quality_check.scores,
+            'quality_scores': {k: v.overall_score for k, v in quality_reports.items()},
             'decision_timestamp': datetime.now().isoformat(),
             'audit_trail': {
-                'data_quality': quality_check.to_dict(),
+                'data_quality': {k: v.to_dict() for k, v in quality_reports.items()},
                 'business_logic': decision['reasoning']
             }
         }
@@ -363,32 +371,24 @@ class VerodatInvoiceAgent:
 
 ```python
 # langchain_integration.py
-from langchain.agents import Tool, initialize_agent
+from langchain.agents import Tool, initialize_agent, AgentType
 from langchain.llms import OpenAI
-from adri.integrations.langchain import ADRITool
+from adri.integrations.langchain import create_adri_tool
 
 # Create ADRI tool for LangChain
-adri_tool = ADRITool(
-    name="check_data_quality",
-    description="Check if data sources meet quality requirements for payment decisions",
-    quality_thresholds={
-        'vendors': 95,
-        'purchase_orders': 90,
-        'contracts': 95
-    }
-)
+adri_tool = create_adri_tool(min_score=90)
 
 # Create payment approval agent
 payment_agent = initialize_agent(
     tools=[adri_tool],
     llm=OpenAI(temperature=0),
-    agent="zero-shot-react-description",
+    agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
     verbose=True
 )
 
 # Agent automatically checks data quality before decisions
 result = payment_agent.run(
-    "Should I approve payment for invoice INV-2024-0521 for $50,000?"
+    "Check if vendors.csv meets quality requirements for payment processing"
 )
 ```
 
@@ -472,11 +472,24 @@ Payback period: 3 days
 
 - [ADRI Documentation](https://github.com/adri/docs)
 - [Verodat Platform](https://verodat.com)
-- [Example Code Repository](https://github.com/adri/examples)
-- [Community Forum](https://forum.adri.dev)
+- Example Code Repository (Coming Soon)
+- Community Forum (Coming Soon)
 
 ## Contact
 
 For questions about this use case or to discuss implementation:
 - Email: use-cases@adri.dev
 - Slack: #invoice-automation channel
+
+## Purpose & Test Coverage
+
+**Why this file exists**: Demonstrates a high-stakes enterprise use case where ADRI enables automated invoice payment agents by ensuring data quality before processing financial transactions.
+
+**Key responsibilities**:
+- Illustrate the business problem of unreliable payment automation
+- Show implementation with ADRI quality guards
+- Provide concrete code examples and integration patterns
+- Demonstrate ROI calculations and metrics
+- Guide organizations through adoption steps
+
+**Test coverage**: This document's examples, claims, and features should be verified by tests documented in [invoice_payment_agent_test_coverage.md](./test_coverage/invoice_payment_agent_test_coverage.md)

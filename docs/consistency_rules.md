@@ -167,3 +167,16 @@ See `examples/consistency_assessment.py` for a complete example that demonstrate
 3. **Consider performance**: For large datasets, complex expressions might be computationally expensive. Consider sampling for initial assessments.
 
 4. **Handle nulls appropriately**: Ensure your expressions and rules handle null values correctly to avoid false positives.
+
+## Purpose & Test Coverage
+
+**Why this file exists**: Provides detailed documentation on consistency rules that examine data for internal coherence and alignment, helping identify contradictions and violations of relationships between data elements.
+
+**Key responsibilities**:
+- Document consistency rule implementations
+- Provide usage examples for each rule type
+- Show common consistency checks patterns
+- Guide best practices for consistency validation
+- Demonstrate integration with ADRI assessor
+
+**Test coverage**: This document's examples, claims, and features should be verified by tests documented in [consistency_rules_test_coverage.md](./test_coverage/consistency_rules_test_coverage.md)

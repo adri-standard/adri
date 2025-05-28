@@ -106,17 +106,23 @@ ADRI provides integrations for popular agent frameworks:
 #### LangChain Example
 
 ```python
-from adri.integrations.langchain import ADRILangChainGuard
-from langchain.chains import LLMChain
+from adri.integrations.langchain import create_adri_tool
+from langchain.agents import initialize_agent, AgentType
+from langchain.llms import OpenAI
 
-# Create a guard with reliability requirements
-guard = ADRILangChainGuard(min_score=70)
+# Create ADRI tool with reliability requirements
+adri_tool = create_adri_tool(min_score=70)
 
-# Apply the guard to your chain
-protected_chain = guard.wrap(my_chain)
+# Create an agent with the ADRI tool
+llm = OpenAI(temperature=0)
+agent = initialize_agent(
+    [adri_tool], 
+    llm, 
+    agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION
+)
 
-# Use the protected chain (will only process reliable data)
-result = protected_chain.run(data_source="customer_data.csv")
+# Use the agent to assess data quality
+result = agent.run("Assess the quality of customer_data.csv")
 ```
 
 ## Next Steps
@@ -126,3 +132,15 @@ result = protected_chain.run(data_source="customer_data.csv")
 - See how to [enhance your data sources](./ENHANCING_DATA_SOURCES.md) with explicit metadata
 - Check out [framework integrations](./INTEGRATIONS.md) for LangChain, CrewAI, and more
 - View the full [API reference](./API_REFERENCE.md) for complete details
+
+## Purpose & Test Coverage
+
+**Why this file exists**: Provides a quick, practical introduction to ADRI, enabling new users to install the tool and run their first data quality assessment within minutes.
+
+**Key responsibilities**:
+- Guide users through installation process
+- Demonstrate basic usage with simple examples
+- Show how to interpret assessment results
+- Provide clear next steps for deeper exploration
+
+**Test coverage**: Verified by tests documented in [GET_STARTED_test_coverage.md](./test_coverage/GET_STARTED_test_coverage.md)

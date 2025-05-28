@@ -18,7 +18,7 @@ The `adri_guarded` decorator allows you to enforce data quality standards in any
 ### Usage
 
 ```python
-from adri.integrations import adri_guarded
+from adri import adri_guarded
 
 @adri_guarded(min_score=70)
 def analyze_customer_data(data_source, analysis_type):
@@ -160,10 +160,22 @@ The ADRI Guard decorator doesn't require any additional dependencies.
 
 ## Examples
 
-For complete examples of each integration, see the `examples` directory in the [GitHub repository](https://github.com/verodat/agent-data-readiness-index/tree/main/examples):
+For complete examples of each integration, see the `examples` directory:
 
-- [Guard Decorator Example](https://github.com/verodat/agent-data-readiness-index/blob/main/examples/guard/decorator_example.py)
-- [LangChain Example](https://github.com/verodat/agent-data-readiness-index/blob/main/examples/langchain/langchain_example.py)
-- [DSPy Example](https://github.com/verodat/agent-data-readiness-index/blob/main/examples/dspy/dspy_example.py)
-- [CrewAI Example](https://github.com/verodat/agent-data-readiness-index/blob/main/examples/crewai/crewai_example.py)
-- [Interactive Mode Example](https://github.com/verodat/agent-data-readiness-index/blob/main/examples/interactive/interactive_example.py)
+- Guard Decorator Example: `examples/05_production_guard.py`
+- LangChain Example: `examples/integrations/langchain/01_data_quality_tool.py`
+- DSPy Example: `examples/integrations/dspy/01_dspy_module.py`
+- CrewAI Example: `examples/integrations/crewai/01_data_validator_agent.py`
+- Interactive Mode Example: `examples/integrations/interactive/01_interactive_assessment.py`
+
+## Purpose & Test Coverage
+
+**Why this file exists**: Provides integration guides for using ADRI with popular AI agent frameworks, enabling developers to add data quality checks to their existing workflows.
+
+**Key responsibilities**:
+- Document the ADRI guard decorator for any Python function
+- Explain LangChain tool integration for agent-based assessments
+- Guide DSPy module usage for pipeline-based workflows
+- Show CrewAI agent integration for multi-agent systems
+
+**Test coverage**: This document's examples, claims, and features should be verified by tests documented in [INTEGRATIONS_test_coverage.md](./test_coverage/INTEGRATIONS_test_coverage.md)

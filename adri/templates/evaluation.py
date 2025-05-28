@@ -38,6 +38,9 @@ class TemplateGap:
     @property
     def gap_size(self) -> float:
         """Calculate the size of the gap if numeric."""
+        # Handle boolean values specially
+        if isinstance(self.expected_value, bool) or isinstance(self.actual_value, bool):
+            return 0.0
         try:
             return float(self.expected_value) - float(self.actual_value)
         except (TypeError, ValueError):
@@ -103,9 +106,10 @@ class TemplateEvaluation:
         self.failed_requirements.append(gap.requirement_id)
         
         # Update certification eligibility
-        if gap.gap_severity == 'blocking':
+        if gap.gap_severity in ['blocking', 'high']:
             self.certification_eligible = False
-            self.certification_blockers.append(gap.requirement_description)
+            if gap.gap_severity == 'blocking':
+                self.certification_blockers.append(gap.requirement_description)
     
     def add_passed_requirement(self, requirement_id: str):
         """Record a passed requirement."""
@@ -124,9 +128,10 @@ class TemplateEvaluation:
         # Check if compliant (all requirements passed)
         self.compliant = len(self.failed_requirements) == 0
         
-        # Certification eligible if no blockers
-        if not self.certification_blockers:
-            self.certification_eligible = self.compliant
+        # Certification eligible if no blockers and no high severity gaps
+        has_high_severity = any(gap.gap_severity == 'high' for gap in self.gaps)
+        if not self.certification_blockers and not has_high_severity:
+            self.certification_eligible = True
         
         # Estimate remediation effort
         self._estimate_remediation_effort()
@@ -138,7 +143,7 @@ class TemplateEvaluation:
         
         if blocking_count > 2 or high_count > 5:
             self.estimated_remediation_effort = 'high'
-        elif blocking_count > 0 or high_count > 2:
+        elif blocking_count > 0 or high_count > 0:
             self.estimated_remediation_effort = 'medium'
         elif len(self.gaps) > 0:
             self.estimated_remediation_effort = 'low'

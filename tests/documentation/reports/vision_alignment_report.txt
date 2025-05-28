@@ -3,18 +3,18 @@ Vision Alignment Report
 ======================
 
 Overall Statistics:
-- Documents analyzed: 38
+- Documents analyzed: 34
 - Fully aligned: 0 (0.0%)
-- Average alignment score: 0.24
+- Average alignment score: 0.22
 
 Issues by Type:
-- terminology: 168
-- missing_principles: 30
-- missing_section: 26
+- terminology: 218
+- missing_principles: 26
+- missing_section: 20
 
 Documents needing attention:
-- PlausibilityDimension.md: 0.00 (3 issues)
 - consistency_rules.md: 0.00 (9 issues)
-- ValidityDimension.md: 0.00 (5 issues)
+- VISION_IN_ACTION.md: 0.00 (29 issues)
 - DOCUMENTATION_ALIGNMENT.md: 0.00 (10 issues)
-- architecture.md: 0.00 (5 issues)
+- architecture.md: 0.00 (14 issues)
+- IMPLEMENTING_GUARDS.md: 0.00 (38 issues)

@@ -74,9 +74,9 @@ class AssessmentReport:
         """
         self.dimension_results = dimension_results
         
-        # Calculate overall score (simple average for now)
+        # Calculate overall score (sum of all dimension scores, max 100)
         dimension_scores = [d["score"] for d in dimension_results.values()]
-        self.overall_score = sum(dimension_scores) / len(dimension_scores)
+        self.overall_score = sum(dimension_scores)  # Sum of all dimensions (5 * 20 = 100 max)
         
         # Determine readiness level
         self.readiness_level = self._calculate_readiness_level(self.overall_score)
@@ -138,6 +138,21 @@ class AssessmentReport:
             result["template_evaluations"] = [
                 eval.to_dict() for eval in self.template_evaluations
             ]
+        
+        # Include assessment mode if present
+        if hasattr(self, 'assessment_mode'):
+            result["assessment_mode"] = self.assessment_mode
+        
+        # Include mode config if present  
+        if hasattr(self, 'mode_config'):
+            result["mode_config"] = self.mode_config
+            
+        # Include generated metadata if present
+        if hasattr(self, 'generated_metadata'):
+            result["generated_metadata"] = {
+                dim: str(path) for dim, path in self.generated_metadata.items()
+            }
+            result["metadata_generation_success"] = getattr(self, 'metadata_generation_success', False)
             
         return result
 
@@ -326,3 +341,13 @@ class AssessmentReport:
         print("\nTop Recommendations:")
         for rec in self.summary_recommendations:
             print(f"  - {rec}")
+        
+        # Print assessment mode info if available
+        if hasattr(self, 'assessment_mode'):
+            print(f"\nAssessment Mode: {self.assessment_mode}")
+            
+        # Print generated metadata info if available
+        if hasattr(self, 'generated_metadata'):
+            print(f"\n✅ Generated Metadata Files:")
+            for dimension, filepath in self.generated_metadata.items():
+                print(f"  - {filepath}")

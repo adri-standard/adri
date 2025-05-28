@@ -107,7 +107,20 @@ To contribute to the ADRI project:
 
 1. Review the [Vision Document](./VISION.md) to understand our goals
 2. Explore the [Contribution Guidelines](./CONTRIBUTING.md)
-3. Check the [GitHub Issues](https://github.com/ThinkEvolveSolve/agent-data-readiness-index/issues) for current needs
-4. Join the [Discussion Forum](https://github.com/ThinkEvolveSolve/agent-data-readiness-index/discussions) to connect with the community
+3. Check the GitHub Issues for current needs
+4. Join the Discussion Forum to connect with the community
 
 Together, we can establish a robust standard for agent data reliability that benefits the entire AI ecosystem.
+
+## Purpose & Test Coverage
+
+**Why this file exists**: Provides a clear development roadmap for ADRI, outlining current state, planned enhancements, contribution opportunities, and governance approach to guide community efforts.
+
+**Key responsibilities**:
+- Communicate current project status and capabilities
+- Define development phases with clear milestones
+- Identify contribution opportunities for the community
+- Establish governance and versioning principles
+- Guide community involvement and participation
+
+**Test coverage**: This document's roadmap milestones and planned features should be verified by tests documented in [ROADMAP_test_coverage.md](./test_coverage/ROADMAP_test_coverage.md)

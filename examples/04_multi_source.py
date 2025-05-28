@@ -154,11 +154,15 @@ def demonstrate_adri_approach():
         if not meets_standard:
             print(f"  Issues: ", end="")
             issues = []
-            if report.freshness_score < 18:
+            freshness_score = report.dimension_results.get('freshness', {}).get('score', 0)
+            completeness_score = report.dimension_results.get('completeness', {}).get('score', 0)
+            validity_score = report.dimension_results.get('validity', {}).get('score', 0)
+            
+            if freshness_score < 18:
                 issues.append("stale data")
-            if report.completeness_score < 18:
+            if completeness_score < 18:
                 issues.append("missing fields")
-            if report.validity_score < 18:
+            if validity_score < 18:
                 issues.append("invalid values")
             print(", ".join(issues))
         

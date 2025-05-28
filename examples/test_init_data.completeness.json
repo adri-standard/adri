@@ -1,0 +1,43 @@
+{
+  "_comment": "Auto-generated completeness metadata. Please review and adjust required fields.",
+  "has_explicit_completeness_info": true,
+  "overall_completeness": 0.94,
+  "fields": {
+    "date": {
+      "completeness": 1.0,
+      "required": true,
+      "missing_count": 0,
+      "missing_percent": 0.0
+    },
+    "product": {
+      "completeness": 1.0,
+      "required": true,
+      "missing_count": 0,
+      "missing_percent": 0.0
+    },
+    "quantity": {
+      "completeness": 0.9,
+      "required": false,
+      "missing_count": 1,
+      "missing_percent": 10.0,
+      "missing_reason": "TODO: Explain why this field might be missing"
+    },
+    "price": {
+      "completeness": 0.9,
+      "required": false,
+      "missing_count": 1,
+      "missing_percent": 10.0,
+      "missing_reason": "TODO: Explain why this field might be missing"
+    },
+    "category": {
+      "completeness": 0.9,
+      "required": false,
+      "missing_count": 1,
+      "missing_percent": 10.0,
+      "missing_reason": "TODO: Explain why this field might be missing"
+    }
+  },
+  "sections": {
+    "_comment": "TODO: Define logical sections grouping related fields"
+  }
+}

@@ -17,11 +17,36 @@ build/
 test_report*.html
 test_report*.json
 
-# IDE files
+# Generated reports and outputs
+*.report.json
+*.report.html
+report.json
+report.html
+*_report.html
+*_report.txt
+crm_audit_*
+test_data_readiness_report.html
+
+# Test coverage
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+*.cover
+
+# Test outputs
+test_readme_*.py
+
+# IDE and temp files
 .vscode/
 .idea/
 *.swp
 *.swo
+*~
+
+# Generated directories
+tests/results/
+tests/documentation/reports/
 
 # MkDocs build output
 site/

@@ -1,6 +1,33 @@
 <![CDATA[
+# Core files
 include LICENSE
 include README.md
+include CHANGELOG.md
+include SECURITY.md
 include pyproject.toml
+include requirements-dev.txt
+
+# Package data
 recursive-include adri/templates *.html
+recursive-include adri/templates/catalog *.yaml
+recursive-include adri/config *.yaml
+
+# Exclude unnecessary files
+global-exclude *.pyc
+global-exclude *.pyo
+global-exclude __pycache__
+global-exclude .DS_Store
+global-exclude .coverage
+global-exclude *.swp
+global-exclude *.swo
+
+# Exclude directories
+prune .github
+prune .internal
+prune docs
+prune tests
+prune examples
+prune notebooks
+prune scripts
+prune quickstart
 ]]>

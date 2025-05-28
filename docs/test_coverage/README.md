@@ -21,6 +21,10 @@ Each test coverage document follows a consistent structure:
 | Certification Guard Test Plan | [certification_guard_test_plan_coverage.md](./certification_guard_test_plan_coverage.md) | Test plan not available |
 | Plausibility Dimension | [plausibility_dimension_test_coverage.md](./plausibility_dimension_test_coverage.md) | [plausibility.py](/adri/dimensions/plausibility.py) |
 | Error Handling | [error_handling_test_coverage.md](./error_handling_test_coverage.md) | [test_error_handling.py](/tests/unit/test_error_handling.py) |
+| FAQ | [FAQ_test_coverage.md](./FAQ_test_coverage.md) | [FAQ.md](/docs/FAQ.md) |
+| Architecture Decisions | [ARCHITECTURE_DECISIONS_test_coverage.md](./ARCHITECTURE_DECISIONS_test_coverage.md) | [ARCHITECTURE_DECISIONS.md](/docs/ARCHITECTURE_DECISIONS.md) |
+| Getting Started | [GET_STARTED_test_coverage.md](./GET_STARTED_test_coverage.md) | [GET_STARTED.md](/docs/GET_STARTED.md) |
+| Understanding Dimensions | [UNDERSTANDING_DIMENSIONS_test_coverage.md](./UNDERSTANDING_DIMENSIONS_test_coverage.md) | [UNDERSTANDING_DIMENSIONS.md](/docs/UNDERSTANDING_DIMENSIONS.md) |
 
 ## Coverage Summary
 

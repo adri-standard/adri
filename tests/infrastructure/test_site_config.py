@@ -2,7 +2,13 @@ import os
 import yaml
 
 # Read site_config.yml
-with open('site_config.yml', 'r') as file:
+import os
+
+# Get the path relative to the project root
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+config_path = os.path.join(project_root, 'config', 'site_config.yml')
+
+with open(config_path, 'r') as file:
     config = yaml.safe_load(file)
 
 # Extract site_base_url

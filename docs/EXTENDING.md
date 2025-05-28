@@ -174,6 +174,91 @@ report = assessor.assess_with_connector("my_connector", "connection-string", opt
 4. **Handle Errors Gracefully**: Catch and handle exceptions appropriately
 5. **Test Your Components**: Write unit tests for your custom components
 
+## Creating Custom Templates
+
+Templates define quality standards and requirements that data sources should meet. They are particularly useful for industry-specific compliance or organizational standards.
+
+### Template Structure
+
+Templates are written in YAML and define:
+- Overall score requirements
+- Per-dimension score requirements  
+- Required rules that must pass
+- Metadata about the template
+
+### Example Template
+
+```yaml
+# templates/my-standard-v1.0.0.yaml
+name: "My Organization Standard"
+version: "1.0.0"
+description: "Quality requirements for production data sources"
+author: "Data Team"
+created: "2024-01-01"
+
+requirements:
+  overall_score: 70  # Minimum overall score required
+  
+  dimensions:
+    validity:
+      min_score: 14  # Minimum score for validity dimension
+      required_rules:
+        - "no_invalid_types"
+        - "format_consistency"
+    
+    completeness:
+      min_score: 14
+      required_rules:
+        - "no_missing_required_fields"
+    
+    freshness:
+      min_score: 12
+    
+    consistency:
+      min_score: 12
+    
+    plausibility:
+      min_score: 12
+
+metadata:
+  industry: "general"
+  compliance_frameworks: ["ISO-27001"]
+  certification_eligible: true
+```
+
+### Using Templates
+
+```python
+from adri import DataSourceAssessor
+from adri.templates import load_template
+
+# Load template from file
+template = load_template("templates/my-standard-v1.0.0.yaml")
+
+# Or from the built-in catalog
+template = load_template("general/production-v1.0.0")
+
+# Assess against template
+assessor = DataSourceAssessor()
+report = assessor.assess_with_template("data.csv", template)
+
+# Check compliance
+if report.template_evaluations[0].is_compliant:
+    print("Data source meets all requirements!")
+else:
+    print("Gaps found:")
+    for gap in report.template_evaluations[0].gaps:
+        print(f"- {gap.message} (Severity: {gap.severity})")
+```
+
+### Built-in Template Catalog
+
+ADRI includes pre-built templates for common use cases:
+
+- `general/production-v1.0.0` - General production data requirements
+- `financial/basel-iii-v1.0.0` - Basel III compliance requirements
+- More templates coming soon for healthcare, retail, and AI/ML use cases
+
 ## Advanced: Entry Points
 
 For third-party packages that want to extend ADRI, you can use setuptools entry points:
@@ -191,3 +276,16 @@ entry_points={
 ```
 
 This allows your components to be discovered and registered automatically when your package is installed.
+
+## Purpose & Test Coverage
+
+**Why this file exists**: Provides comprehensive guidance for developers who want to extend ADRI with custom dimensions, connectors, or templates to meet specific organizational or industry needs.
+
+**Key responsibilities**:
+- Explain ADRI's extensible architecture and registry pattern
+- Guide creation of custom dimension assessors
+- Document how to add new data source connectors
+- Show template creation for custom quality standards
+- Demonstrate integration via setuptools entry points
+
+**Test coverage**: This document's examples, claims, and features should be verified by tests documented in [EXTENDING_test_coverage.md](./test_coverage/EXTENDING_test_coverage.md)

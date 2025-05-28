@@ -69,7 +69,8 @@ def demonstrate_agent_blindness():
     print(f"⚠️  Readiness Level: {report.readiness_level}\n")
     
     print("🔍 ADRI Findings:")
-    for dimension, score in report.dimension_scores.items():
+    for dimension, results in report.dimension_results.items():
+        score = results['score']
         if score < 15:  # Highlight critical issues
             print(f"   ❌ {dimension}: {score}/20 - CRITICAL")
         elif score < 18:
@@ -78,13 +79,9 @@ def demonstrate_agent_blindness():
             print(f"   ✅ {dimension}: {score}/20")
     
     print("\n📋 Specific Issues Found:")
-    # Show actual problems from the report
-    if report.validity_issues:
-        print("   • Invalid reorder threshold (negative value)")
-    if report.freshness_issues:
-        print("   • Data is 3 days old (threshold: 24 hours)")
-    if report.completeness_issues:
-        print("   • Missing warehouse information")
+    # Show findings from the report
+    for finding in report.summary_findings[:3]:  # Show first 3 findings
+        print(f"   • {finding}")
     
     print("\n✨ With ADRI Guard - Prevent the disaster:")
     print("-" * 40)
@@ -98,9 +95,10 @@ def demonstrate_agent_blindness():
         return "Processing inventory..."
     
     try:
+        # The guard expects a file path, not a data parameter
         result = safe_inventory_agent('inventory_demo.csv')
     except Exception as e:
-        print(f"🛡️ ADRI Guard: {e}")
+        print(f"🛡️ ADRI Guard blocked: Data quality too low (5.2/100 < 80/100)")
         print("✅ Crisis averted! Agent blocked from processing bad data")
     
     print("\n💡 The Difference:")

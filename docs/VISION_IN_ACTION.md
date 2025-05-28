@@ -261,3 +261,16 @@ python -c "from adri import assess; print(assess('your_data.csv').summary())"
 ---
 
 *ADRI: Because AI agents deserve reliable data.*
+
+## Purpose & Test Coverage
+
+**Why this file exists**: Provides a compelling, practical demonstration of ADRI's vision through real-world scenarios, showing how the framework solves concrete problems faced by AI engineers.
+
+**Key responsibilities**:
+- Illustrate the "agent blindness" problem with concrete examples
+- Show before/after scenarios with actual code
+- Demonstrate business impact with metrics
+- Provide testimonials and real-world results
+- Make the value proposition immediately clear
+
+**Test coverage**: This document's examples, claims, and features should be verified by tests documented in [VISION_IN_ACTION_test_coverage.md](./test_coverage/VISION_IN_ACTION_test_coverage.md)

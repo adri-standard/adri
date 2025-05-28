@@ -12,6 +12,7 @@ from typing import Dict, List, Tuple, Any, Optional
 from ..config.config import get_config
 from ..connectors import BaseConnector
 from . import BaseDimensionAssessor, register_dimension
+from .business_freshness import calculate_business_freshness_score
 
 logger = logging.getLogger(__name__)
 
@@ -52,11 +53,27 @@ class FreshnessAssessor(BaseDimensionAssessor):
         MAX_HAS_SLA_SCORE = scoring["MAX_HAS_SLA_SCORE"]
         MAX_MEETS_SLA_SCORE = scoring["MAX_MEETS_SLA_SCORE"]
         MAX_EXPLICIT_COMMUNICATION_SCORE = scoring["MAX_EXPLICIT_COMMUNICATION_SCORE"]
-        REQUIRE_EXPLICIT_METADATA = scoring["REQUIRE_EXPLICIT_METADATA"]
+        REQUIRE_EXPLICIT_METADATA = self.config.get("REQUIRE_EXPLICIT_METADATA", scoring["REQUIRE_EXPLICIT_METADATA"])
         
         findings = []
         recommendations = []
         score_components = {}
+        
+        # Check if we're in discovery mode and have business logic enabled
+        business_logic_enabled = self.config.get("business_logic_enabled", False)
+        if not REQUIRE_EXPLICIT_METADATA and business_logic_enabled and hasattr(connector, 'df'):
+            # Use business-focused freshness scoring
+            business_score, business_findings, business_recommendations = calculate_business_freshness_score(
+                connector.df, 
+                data_type=None  # Auto-detect
+            )
+            
+            # In discovery mode, business freshness takes precedence
+            findings.extend(business_findings)
+            recommendations.extend(business_recommendations)
+            
+            # Start with business score as the base
+            return business_score, findings, recommendations
         
         # Get freshness information
         freshness_info = connector.get_freshness_results()

@@ -59,7 +59,7 @@ class TemplateLoader:
     
     def __init__(
         self, 
-        cache_dir: Optional[Path] = None,
+        cache_dir: Optional[Union[str, Path]] = None,
         cache_ttl: int = 86400,  # 24 hours
         trust_all: bool = False,
         offline_mode: bool = False
@@ -68,12 +68,16 @@ class TemplateLoader:
         Initialize template loader.
         
         Args:
-            cache_dir: Directory for caching templates
+            cache_dir: Directory for caching templates (string or Path)
             cache_ttl: Cache time-to-live in seconds
             trust_all: Trust all sources (use with caution)
             offline_mode: Only use cached templates
         """
-        self.cache_dir = cache_dir or Path.home() / '.adri' / 'template_cache'
+        # Handle string or Path input for cache_dir
+        if cache_dir is not None:
+            self.cache_dir = Path(cache_dir) if isinstance(cache_dir, str) else cache_dir
+        else:
+            self.cache_dir = Path.home() / '.adri' / 'template_cache'
         self.cache_ttl = cache_ttl
         self.trust_all = trust_all
         self.offline_mode = offline_mode

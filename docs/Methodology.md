@@ -24,7 +24,7 @@ The Agent Data Readiness Index (ADRI) evaluates data sources based on five criti
 
 **Explicit vs. Implicit Assessment**:
 - ADRI prioritizes explicit metadata but can also perform automated assessment
-- Full documentation available in [ValidityDimension.md](ValidityDimension.md)
+- Full documentation available in [validity_dimension.md](validity_dimension.md)
 
 **Scoring Ranges**:
 - 0-5: No explicit format definitions or validation signals
@@ -49,7 +49,7 @@ The Agent Data Readiness Index (ADRI) evaluates data sources based on five criti
 
 **Explicit vs. Implicit Assessment**:
 - ADRI prioritizes explicit metadata but can also perform automated assessment
-- Full documentation available in [CompletenessDimension.md](CompletenessDimension.md)
+- Full documentation available in [completeness_dimension.md](completeness_dimension.md)
 
 **Scoring Ranges**:
 - 0-5: Missing values not distinguished from nulls
@@ -135,3 +135,16 @@ Teams should conduct an ADRI assessment:
 ## Methodology Evolution
 
 This methodology is designed to evolve through community input. We welcome contributions to refine the dimensions, scoring system, and assessment approach.
+
+## Purpose & Test Coverage
+
+**Why this file exists**: Defines the core assessment methodology and scoring framework for ADRI, establishing how data quality is measured across five dimensions specifically for AI agent use cases.
+
+**Key responsibilities**:
+- Define the five assessment dimensions and their scoring
+- Establish scoring criteria and interpretation guidelines
+- Explain explicit vs implicit assessment approaches
+- Provide the overall index calculation methodology
+- Guide practical use and evolution of the framework
+
+**Test coverage**: This document's methodology, scoring systems, and assessment approaches should be verified by tests documented in [Methodology_test_coverage.md](./test_coverage/Methodology_test_coverage.md)

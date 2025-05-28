@@ -1,137 +1,114 @@
 # ADRI Examples
 
-This directory contains examples demonstrating how to use the Agent Data Readiness Index (ADRI) framework.
+This directory contains examples demonstrating various features and use cases of the Agent Data Readiness Index (ADRI).
 
-## Examples
+## Core Examples (Numbered Sequence)
 
-### Basic Assessment
+These examples are designed to be followed in order, building from basic to advanced usage:
 
-The `basic_assessment.py` script demonstrates how to:
-1. Create a simple CSV data source with sample data
-2. Configure an assessment with custom rules
-3. Run the assessment
-4. Display and save the results
+1. **[01_basic_assessment.py](01_basic_assessment.py)** - Your first ADRI assessment
+   - Load a CSV file
+   - Run basic assessment
+   - View overall score and findings
 
-To run this example:
+2. **[02_requirements_as_code.py](02_requirements_as_code.py)** - Define data quality requirements
+   - Set custom thresholds
+   - Create reusable requirements
+   - Check if data meets requirements
 
-```bash
-# Make sure you're in the project root directory
-python examples/basic_assessment.py
-```
+3. **[03_data_team_contract.py](03_data_team_contract.py)** - Establish data contracts
+   - Define team agreements
+   - Set SLAs for data quality
+   - Monitor compliance
 
-This will:
-- Create a sample CSV file in `examples/data/`
-- Run a data quality assessment on it
-- Display the results in the console
-- Save detailed results to `examples/data/assessment_results.json`
+4. **[04_multi_source.py](04_multi_source.py)** - Assess multiple data sources
+   - Compare quality across sources
+   - Identify best data source
+   - Aggregate findings
 
-### Sample Output
+5. **[05_production_guard.py](05_production_guard.py)** - Protect production workflows
+   - Use ADRI Guard decorator
+   - Prevent bad data from entering pipelines
+   - Set up quality gates
 
-The assessment results include:
-- Overall data quality score
-- Scores for each dimension (e.g., Validity)
-- Detailed rule execution results with specific data issues
-- Sample of problematic data points
+6. **[06_metadata_generation.py](06_metadata_generation.py)** - Generate ADRI metadata
+   - Create companion metadata files
+   - Document data characteristics
+   - Enable enhanced assessments
 
-### Plausibility Assessment
+7. **[07_status_auditor_demo.py](07_status_auditor_demo.py)** - AI agent use case
+   - Demonstrate agent-ready data
+   - Show business impact analysis
+   - Generate actionable insights
 
-The `plausibility_assessment.py` script demonstrates how to use the plausibility dimension rules to evaluate if data appears reasonable and likely to be correct. It shows:
+8. **[08_template_compliance.py](08_template_compliance.py)** - Check template compliance
+   - Use pre-built templates
+   - Verify compliance status
+   - Get remediation guidance
 
-1. Creating synthetic data with intentional statistical anomalies
-2. Configuring different types of plausibility rules:
-   - Outlier detection using statistical methods (Z-score, IQR, Modified Z-score)
-   - Distribution analysis to check if data follows expected patterns
-   - Range checking for values within expected boundaries
-   - Pattern frequency analysis for categorical data
-3. Running the assessment and interpreting plausibility results
+9. **[09_agent_view_pattern.py](09_agent_view_pattern.py)** - Create agent-optimized views
+   - Design denormalized datasets
+   - Optimize for agent consumption
+   - Apply custom validation
 
-To run this example:
+## Integration Examples
 
-```bash
-# Make sure you're in the project root directory
-python examples/plausibility_assessment.py
-```
+Examples showing how to integrate ADRI with popular AI/ML frameworks:
 
-### Consistency Assessment
+- **[integrations/langchain/](integrations/langchain/)** - LangChain integration
+- **[integrations/crewai/](integrations/crewai/)** - CrewAI integration
+- **[integrations/dspy/](integrations/dspy/)** - DSPy integration
+- **[integrations/guard/](integrations/guard/)** - Guard pattern examples
+- **[integrations/interactive/](integrations/interactive/)** - Interactive CLI examples
 
-The `consistency_assessment.py` script demonstrates how to validate internal consistency between data elements. It shows:
+## Example Data
 
-1. Creating data with inconsistency issues between related fields
-2. Setting up consistency rules:
-   - Cross-field validation to check logical relationships
-   - Uniform representation validation
-   - Calculation consistency checks
-3. Analyzing the results to identify inconsistent data
+Sample datasets and metadata files used by the examples:
 
-To run this example:
+- **[data/](data/)** - Sample CSV files
+- **[data/metadata/](data/metadata/)** - Example metadata files organized by dimension
+  - `completeness/` - Completeness metadata examples
+  - `consistency/` - Consistency metadata examples
+  - `freshness/` - Freshness metadata examples
+  - `plausibility/` - Plausibility metadata examples
 
-```bash
-# Make sure you're in the project root directory
-python examples/consistency_assessment.py
-```
+## Legacy Examples
 
-### Comprehensive Assessment
+Older examples maintained for backward compatibility:
 
-The `comprehensive_assessment.py` script demonstrates how to use all dimensions of the ADRI framework together for a complete data quality assessment. It shows:
+- **[legacy/](legacy/)** - Previous example implementations
 
-1. Creating a complex dataset with various quality issues
-2. Configuring rules for all dimensions:
-   - Validity: Type and format validation
-   - Completeness: Required field checks
-   - Plausibility: Statistical checks and range validation
-   - Freshness: Timestamp age verification
-   - Consistency: Cross-field and calculation checks
-3. Running a full assessment and analyzing results across dimensions
-4. Generating a comprehensive HTML report
+## Running the Examples
 
-To run this example:
+1. **Install ADRI**:
+   ```bash
+   pip install adri
+   ```
 
-```bash
-# Make sure you're in the project root directory
-python examples/comprehensive_assessment.py
-```
+2. **Run any example**:
+   ```bash
+   python examples/01_basic_assessment.py
+   ```
 
-### AI Status Auditor Demo
+3. **Explore the output** to understand how ADRI evaluates data quality
 
-The `07_status_auditor_demo.py` script demonstrates how ADRI can be used to create a business-focused audit tool that identifies workflow breakdowns in CRM data. This example showcases:
+## Learning Path
 
-1. Creating realistic CRM data with common quality issues:
-   - Missing close dates in late-stage deals
-   - Stale opportunities with no recent activity
-   - Missing contact information
-   - Ownership conflicts between deals and accounts
-2. Generating ADRI metadata files for all 5 dimensions with business-specific rules
-3. Running an assessment and translating technical results to business language
-4. Producing an actionable audit report that highlights:
-   - Revenue at risk from data issues
-   - Process breakdowns affecting operations
-   - Immediate actions to improve data quality
+### Beginner
+Start with examples 01-03 to understand basic assessment and requirements.
 
-To run this example:
+### Intermediate
+Work through examples 04-06 to learn about multi-source assessment and metadata.
 
-```bash
-# Make sure you're in the project root directory
-python examples/07_status_auditor_demo.py
-```
+### Advanced
+Explore examples 07-09 and integration examples to see real-world applications.
 
-This will:
-- Create `crm_audit_demo.csv` with sample CRM data
-- Generate 5 ADRI metadata files (`crm_audit_demo.*.json`)
-- Run the assessment and create an HTML report
-- Display a business-focused audit report showing:
-  - Revenue at risk (e.g., "$340K in deals missing close dates")
-  - Process breakdowns (e.g., "23 contacts missing email")
-  - Immediate actions (e.g., "Review stale deals with: John S., Mary K.")
+## Contributing
 
-This example demonstrates the "AHA moment" for business users: "This would have taken me 4 hours to find manually!"
+If you have a useful example to share:
+1. Follow the numbered naming convention for core examples
+2. Place integration examples in the appropriate subdirectory
+3. Include clear documentation in your code
+4. Submit a pull request
 
-## Creating Your Own Examples
-
-To create your own examples:
-1. Create a new Python file in this directory
-2. Import the necessary components from the ADRI framework
-3. Create a data source
-4. Configure the assessment with appropriate rules
-5. Run the assessment and process the results
-
-See the examples above for different templates depending on your use case.
+For more information, see the [main documentation](../docs/).

@@ -5,8 +5,9 @@ Example 06: Automatic Metadata Generation with `adri init`
 This example demonstrates how to use the new `adri init` command to automatically
 generate starter metadata files, solving the "metadata overhead" problem.
 
-The `adri init` command analyzes your data and creates pre-filled metadata files
-for all five ADRI dimensions, reducing setup time from hours to minutes.
+The `adri init` command uses the internal MetadataGenerator to analyze your data 
+and creates pre-filled metadata files for all five ADRI dimensions, reducing 
+setup time from hours to minutes.
 """
 
 import os
@@ -46,6 +47,11 @@ def main():
     # Show what was generated
     print("\n4. Generated metadata files:")
     print("-" * 60)
+    print("   - test_init_data.validity.json")
+    print("   - test_init_data.completeness.json")
+    print("   - test_init_data.freshness.json") 
+    print("   - test_init_data.consistency.json")
+    print("   - test_init_data.plausibility.json")
     
     for dimension in ["validity", "completeness", "freshness", "consistency", "plausibility"]:
         metadata_file = output_dir / f"test_init_data.{dimension}.json"

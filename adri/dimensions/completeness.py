@@ -11,6 +11,7 @@ from typing import Dict, List, Tuple, Any, Optional
 from ..config.config import get_config
 from ..connectors import BaseConnector
 from . import BaseDimensionAssessor, register_dimension
+from .business_completeness import calculate_business_completeness_score
 
 logger = logging.getLogger(__name__)
 
@@ -50,11 +51,27 @@ class CompletenessAssessor(BaseDimensionAssessor):
         MAX_NULL_DISTINCTION_SCORE = scoring["MAX_NULL_DISTINCTION_SCORE"]
         MAX_EXPLICIT_METRICS_SCORE = scoring["MAX_EXPLICIT_METRICS_SCORE"]
         MAX_SECTION_AWARENESS_SCORE = scoring["MAX_SECTION_AWARENESS_SCORE"]
-        REQUIRE_EXPLICIT_METADATA = scoring["REQUIRE_EXPLICIT_METADATA"]
+        REQUIRE_EXPLICIT_METADATA = self.config.get("REQUIRE_EXPLICIT_METADATA", scoring["REQUIRE_EXPLICIT_METADATA"])
         
         findings = []
         recommendations = []
         score_components = {}
+        
+        # Check if we're in discovery mode and have business logic enabled
+        business_logic_enabled = self.config.get("business_logic_enabled", False)
+        if not REQUIRE_EXPLICIT_METADATA and business_logic_enabled and hasattr(connector, 'df'):
+            # Use business-focused completeness scoring
+            business_score, business_findings, business_recommendations = calculate_business_completeness_score(
+                connector.df, 
+                data_type=None  # Auto-detect
+            )
+            
+            # In discovery mode, business completeness takes precedence
+            findings.extend(business_findings)
+            recommendations.extend(business_recommendations)
+            
+            # Start with business score as the base
+            return business_score, findings, recommendations
         
         # Get completeness information
         completeness_info = connector.get_completeness_results()

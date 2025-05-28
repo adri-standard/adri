@@ -5,8 +5,8 @@ from pathlib import Path
 from typing import List, Dict
 import unittest
 
-from base_doc_test import BaseDocumentationTest, TestResult
-from utils.vision_checker import VisionChecker, VisionIssue, VisionAlignmentResult
+from .base_doc_test import BaseDocumentationTest, TestResult
+from .utils.vision_checker import VisionChecker, VisionIssue, VisionAlignmentResult
 
 
 class TestVisionAlignment(BaseDocumentationTest):

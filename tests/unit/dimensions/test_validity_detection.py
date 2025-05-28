@@ -20,7 +20,7 @@ class TestValidityDetection(unittest.TestCase):
     def test_infer_column_types(self):
         """Test automatic column type inference."""
         # Arrange
-        connector = FileConnector("test_datasets/ideal_dataset.csv")
+        connector = FileConnector("tests/datasets/ideal_dataset.csv")
         
         # Act
         column_types = connector.infer_column_types()
@@ -41,7 +41,7 @@ class TestValidityDetection(unittest.TestCase):
     def test_analyze_validity_on_ideal_dataset(self):
         """Test validity analysis on an ideal dataset."""
         # Arrange
-        connector = FileConnector("test_datasets/ideal_dataset.csv")
+        connector = FileConnector("tests/datasets/ideal_dataset.csv")
         
         # Act
         validity_issues = connector.analyze_validity()
@@ -55,7 +55,7 @@ class TestValidityDetection(unittest.TestCase):
     def test_analyze_validity_on_invalid_dataset(self):
         """Test validity analysis on a dataset with known validity issues."""
         # Arrange
-        connector = FileConnector("test_datasets/invalid_dataset.csv")
+        connector = FileConnector("tests/datasets/invalid_dataset.csv")
         
         # Act
         validity_issues = connector.analyze_validity()
@@ -83,8 +83,8 @@ class TestValidityDetection(unittest.TestCase):
         """Test that the assessor gives better scores to valid datasets than invalid ones."""
         # Arrange
         assessor = ValidityAssessor()
-        valid_connector = FileConnector("test_datasets/ideal_dataset.csv")
-        invalid_connector = FileConnector("test_datasets/invalid_dataset.csv")
+        valid_connector = FileConnector("tests/datasets/ideal_dataset.csv")
+        invalid_connector = FileConnector("tests/datasets/invalid_dataset.csv")
         
         # Act
         valid_score, valid_findings, _ = assessor.assess(valid_connector)
@@ -118,7 +118,7 @@ class TestValidityDetection(unittest.TestCase):
     def test_specific_validity_issues_detection(self):
         """Test detection of specific validity issues in the invalid dataset."""
         # Arrange
-        connector = FileConnector("test_datasets/invalid_dataset.csv")
+        connector = FileConnector("tests/datasets/invalid_dataset.csv")
         
         # Act
         validity_issues = connector.analyze_validity()

@@ -151,3 +151,16 @@ import stuff
 ---
 
 Remember: Documentation is for users, not computers. Make it helpful, clear, and practical.
+
+## Purpose & Test Coverage
+
+**Why this file exists**: Establishes consistent documentation standards across the ADRI project, ensuring clarity, readability, and professional presentation while maintaining focus on practical user needs.
+
+**Key responsibilities**:
+- Define terminology and writing conventions
+- Establish document structure requirements by type
+- Standardize code example formatting
+- Guide tone and technical writing style
+- Ensure alignment with ADRI vision and principles
+
+**Test coverage**: This document's guidelines and standards should be verified through documentation review processes documented in [STYLE_GUIDE_test_coverage.md](./test_coverage/STYLE_GUIDE_test_coverage.md)

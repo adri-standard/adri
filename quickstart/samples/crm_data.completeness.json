@@ -1,0 +1,79 @@
+{
+  "_comment": "Auto-generated completeness metadata. Please review and adjust required fields.",
+  "has_explicit_completeness_info": true,
+  "overall_completeness": 0.873,
+  "fields": {
+    "opportunity_id": {
+      "completeness": 1.0,
+      "required": true,
+      "missing_count": 0,
+      "missing_percent": 0.0
+    },
+    "account_name": {
+      "completeness": 1.0,
+      "required": true,
+      "missing_count": 0,
+      "missing_percent": 0.0
+    },
+    "deal_name": {
+      "completeness": 1.0,
+      "required": true,
+      "missing_count": 0,
+      "missing_percent": 0.0
+    },
+    "stage": {
+      "completeness": 1.0,
+      "required": true,
+      "missing_count": 0,
+      "missing_percent": 0.0
+    },
+    "amount": {
+      "completeness": 1.0,
+      "required": true,
+      "missing_count": 0,
+      "missing_percent": 0.0
+    },
+    "owner": {
+      "completeness": 1.0,
+      "required": true,
+      "missing_count": 0,
+      "missing_percent": 0.0
+    },
+    "account_owner": {
+      "completeness": 1.0,
+      "required": true,
+      "missing_count": 0,
+      "missing_percent": 0.0
+    },
+    "created_date": {
+      "completeness": 1.0,
+      "required": true,
+      "missing_count": 0,
+      "missing_percent": 0.0
+    },
+    "close_date": {
+      "completeness": 0.32,
+      "required": false,
+      "missing_count": 17,
+      "missing_percent": 68.0,
+      "missing_reason": "TODO: Explain why this field might be missing"
+    },
+    "last_activity_date": {
+      "completeness": 0.68,
+      "required": false,
+      "missing_count": 8,
+      "missing_percent": 32.0,
+      "missing_reason": "TODO: Explain why this field might be missing"
+    },
+    "contact_email": {
+      "completeness": 0.6,
+      "required": false,
+      "missing_count": 10,
+      "missing_percent": 40.0,
+      "missing_reason": "TODO: Explain why this field might be missing"
+    }
+  },
+  "sections": {
+    "_comment": "TODO: Define logical sections grouping related fields"
+  }
+}

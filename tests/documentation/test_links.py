@@ -7,8 +7,8 @@ from typing import List, Dict
 import unittest
 from collections import defaultdict
 
-from base_doc_test import BaseDocumentationTest, TestResult
-from utils.link_validator import LinkValidator, Link, LinkType, LinkCheckResult
+from .base_doc_test import BaseDocumentationTest, TestResult
+from .utils.link_validator import LinkValidator, Link, LinkType, LinkCheckResult
 
 
 class TestLinks(BaseDocumentationTest):

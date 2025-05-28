@@ -1,0 +1,150 @@
+{
+  "_comment": "Auto-generated validity metadata. Please review and adjust.",
+  "has_explicit_validity_info": true,
+  "type_definitions": {
+    "opportunity_id": {
+      "type": "string",
+      "description": "TODO: Add description for opportunity_id",
+      "_detected_type": "text",
+      "_confidence": 0.5
+    },
+    "account_name": {
+      "type": "string",
+      "description": "TODO: Add description for account_name",
+      "_detected_type": "text",
+      "_confidence": 0.5
+    },
+    "deal_name": {
+      "type": "string",
+      "description": "TODO: Add description for deal_name",
+      "_detected_type": "text",
+      "_confidence": 0.5
+    },
+    "stage": {
+      "type": "string",
+      "description": "TODO: Add description for stage",
+      "_detected_type": "text",
+      "_confidence": 0.5
+    },
+    "amount": {
+      "type": "number",
+      "description": "TODO: Add description for amount",
+      "_detected_type": "numeric",
+      "_confidence": 1.0,
+      "range": [
+        -5000.0,
+        85000.0
+      ],
+      "_comment": "TODO: Verify if this range is correct"
+    },
+    "owner": {
+      "type": "string",
+      "description": "TODO: Add description for owner",
+      "_detected_type": "text",
+      "_confidence": 0.5
+    },
+    "account_owner": {
+      "type": "string",
+      "description": "TODO: Add description for account_owner",
+      "_detected_type": "text",
+      "_confidence": 0.5
+    },
+    "created_date": {
+      "type": "string",
+      "description": "TODO: Add description for created_date",
+      "_detected_type": "date",
+      "_confidence": 1.0,
+      "format": "TODO: Specify date format (e.g., YYYY-MM-DD)",
+      "_samples": [
+        "2025-03-15",
+        "2025-02-01",
+        "2025-04-20",
+        "2025-01-10",
+        "2025-01-05"
+      ]
+    },
+    "close_date": {
+      "type": "string",
+      "description": "TODO: Add description for close_date",
+      "_detected_type": "date",
+      "_confidence": 1.0,
+      "format": "TODO: Specify date format (e.g., YYYY-MM-DD)",
+      "_samples": [
+        "2025-06-30",
+        "2025-07-15",
+        "2025-03-31",
+        "2025-02-28",
+        "2025-08-31"
+      ]
+    },
+    "last_activity_date": {
+      "type": "string",
+      "description": "TODO: Add description for last_activity_date",
+      "_detected_type": "date",
+      "_confidence": 1.0,
+      "format": "TODO: Specify date format (e.g., YYYY-MM-DD)",
+      "_samples": [
+        "2025-05-15",
+        "2025-05-20",
+        "2025-03-31",
+        "2025-05-22",
+        "2025-04-01"
+      ]
+    },
+    "contact_email": {
+      "type": "string",
+      "description": "TODO: Add description for contact_email",
+      "_detected_type": "text",
+      "_confidence": 0.5
+    }
+  },
+  "validation_results": {
+    "overall_valid": true,
+    "fields": {
+      "opportunity_id": {
+        "valid": true,
+        "invalid_count": 0
+      },
+      "account_name": {
+        "valid": true,
+        "invalid_count": 0
+      },
+      "deal_name": {
+        "valid": true,
+        "invalid_count": 0
+      },
+      "stage": {
+        "valid": true,
+        "invalid_count": 0
+      },
+      "amount": {
+        "valid": true,
+        "invalid_count": 0
+      },
+      "owner": {
+        "valid": true,
+        "invalid_count": 0
+      },
+      "account_owner": {
+        "valid": true,
+        "invalid_count": 0
+      },
+      "created_date": {
+        "valid": true,
+        "invalid_count": 0
+      },
+      "close_date": {
+        "valid": true,
+        "invalid_count": 0
+      },
+      "last_activity_date": {
+        "valid": true,
+        "invalid_count": 0
+      },
+      "contact_email": {
+        "valid": true,
+        "invalid_count": 0
+      }
+    }
+  }
+}

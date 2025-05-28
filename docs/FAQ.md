@@ -200,6 +200,74 @@ Yes, ADRI is designed to be customizable. You can:
 
 *(Note: For contributing results to the public Community Catalog, adherence to the standard methodology and scoring is expected.)*
 
+## Multi-Dataset Questions
+
+### Can ADRI assess relationships between multiple datasets?
+**A**: No, ADRI focuses exclusively on individual dataset quality. This is by design - it allows us to create universal standards that work across industries. For multi-dataset validation, use ADRI to ensure each dataset meets quality standards, then use your data platform to validate relationships.
+
+### Why doesn't ADRI support data model assessment?
+**A**: Data models are highly specific to each organization's business logic. While a "customer" dataset looks similar everywhere, how customers relate to orders, products, and support tickets varies greatly. ADRI standardizes what's universal (dataset quality) while leaving what's unique (business relationships) to your data platform.
+
+### How do I ensure quality across related datasets?
+**A**: Use ADRI to certify each dataset independently:
+1. Assess `customers.csv` → Must meet `customer-master-v2.0`
+2. Assess `orders.csv` → Must meet `transaction-v1.0`
+3. Use your data platform to validate that all `orders.customer_id` exist in `customers.id`
+
+### What if my use case requires multi-table validation?
+**A**: Consider these approaches:
+1. **Denormalization**: Create a joined view and assess the combined dataset
+2. **Sequential Assessment**: Assess each table and implement relationship checks separately
+3. **Platform Integration**: Use enterprise platforms that support ADRI standards for individual datasets while adding relationship validation
+
+### How can I assess quality for agent workflows that need data from multiple tables?
+**A**: Use the "Agent View" pattern - create a denormalized view combining the data your agent needs, then assess that view with a custom template:
+
+**Example: Customer 360 Agent View**
+```sql
+-- Create a denormalized view for your agent
+CREATE VIEW customer_360_agent_view AS
+SELECT 
+    c.customer_id,
+    c.name,
+    c.email,
+    c.lifetime_value,
+    COUNT(o.order_id) as total_orders,
+    MAX(o.order_date) as last_order_date,
+    AVG(o.order_total) as avg_order_value,
+    COUNT(t.ticket_id) as support_tickets,
+    AVG(t.satisfaction_score) as avg_satisfaction
+FROM customers c
+LEFT JOIN orders o ON c.customer_id = o.customer_id
+LEFT JOIN tickets t ON c.customer_id = t.customer_id
+GROUP BY c.customer_id;
+```
+
+Then create a custom template for this specific view:
+```yaml
+# customer-360-agent-view-v1.0.yaml
+template:
+  id: "customer-360-agent-view"
+  name: "Customer 360 Agent View"
+  description: "Quality standards for denormalized customer agent view"
+  
+requirements:
+  dimension_requirements:
+    completeness:
+      minimum_score: 18
+      critical_fields:
+        - customer_id
+        - email
+        - lifetime_value
+        - last_order_date
+```
+
+This approach provides:
+- ✅ Full control over what data the agent sees
+- ✅ Single dataset for ADRI to assess
+- ✅ Custom quality rules for your specific use case
+- ✅ Performance optimization (pre-joined data)
+
 ### How does ADRI integrate with existing agent frameworks?
 ADRI provides integration adapters for popular agent frameworks like LangChain, DSPy, and CrewAI. These allow agents to invoke ADRI assessments or use ADRI scores to make decisions (e.g., refusing to act on low-quality data). See the Integrations documentation for details.
 
@@ -240,7 +308,50 @@ Yes, ADRI is available under the permissive MIT License, allowing commercial use
 
 ### How can we get support for implementing ADRI?
 - **Community Support:** Use the GitHub repository's Issues and Discussions sections.
-- **Documentation:** Comprehensive guides available in our [documentation](https://github.com/ThinkEvolveSolve/agent-data-readiness-index).
+- **Documentation:** Comprehensive guides available in the documentation within this repository.
+
+## Assessment Modes and Metadata
+
+### What happens if I don't have metadata files?
+
+**Great news!** ADRI follows a "facilitation, not enforcement" philosophy. When you assess data without metadata:
+
+1. **Discovery Mode activates automatically** - Analyzes your actual data quality
+2. **Metadata is generated for you** - Creates all five dimension metadata files
+3. **Scoring is fair** - Based on intrinsic data quality, NOT metadata presence
+4. **No penalties** - You get a quality score of (e.g.) 74/100, not 8/100
+
+**Example:**
+```bash
+$ adri assess --source customer_data.csv
+
+Overall Score: 74/100 (based on actual quality)
+✅ Generated 5 metadata files to help agents understand your data:
+  - customer_data.validity.json
+  - customer_data.completeness.json
+  - customer_data.freshness.json
+  - customer_data.consistency.json
+  - customer_data.plausibility.json
+```
+
+### Why does ADRI generate metadata instead of penalizing its absence?
+
+This aligns with ADRI's vision as a communication protocol between data and agents:
+- **Traditional approach**: "Your data fails because it lacks documentation"
+- **ADRI approach**: "Here's your quality score AND the documentation agents need"
+
+The generated metadata provides the ADRI protocol layer that enables agent communication, turning a potential failure into a helpful starting point.
+
+### What's the difference between Discovery and Validation modes?
+
+| Mode | Purpose | When Used | Scoring Basis |
+|------|---------|-----------|---------------|
+| **Discovery** | Analyze & help | No metadata exists | Intrinsic data quality |
+| **Validation** | Verify claims | ADRI metadata exists | Compliance with declarations |
+
+Both modes serve different purposes in the data quality journey:
+- Start with Discovery to understand and document
+- Use Validation to ensure ongoing compliance
 
 ## Growing with ADRI
 
@@ -277,3 +388,16 @@ Yes! By standardizing data quality requirements through ADRI:
 - Business integration becomes more straightforward
 
 This is particularly valuable for AI teams looking to scale their solutions across an enterprise.
+
+## Purpose & Test Coverage
+
+**Why this file exists**: Provides answers to common questions about ADRI, addressing conceptual understanding, technical implementation, and practical usage concerns from various stakeholders.
+
+**Key responsibilities**:
+- Clarify ADRI's unique value proposition vs other tools
+- Explain technical and architectural decisions
+- Address common implementation questions
+- Guide progressive adoption and scaling
+- Answer multi-dataset and integration queries
+
+**Test coverage**: This document's claims and features are verified by tests documented in [FAQ_test_coverage.md](./test_coverage/FAQ_test_coverage.md)

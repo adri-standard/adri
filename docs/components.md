@@ -82,3 +82,16 @@ The output component that presents assessment results:
 - Visualizes scores and metrics with charts
 - Provides detailed issue listings with recommendations
 - Supports tracking progress over time
+
+## Purpose & Test Coverage
+
+**Why this file exists**: Provides detailed documentation of ADRI's core components, their responsibilities, and how they interact within the system architecture.
+
+**Key responsibilities**:
+- Document core system components and their functions
+- Explain the five assessment dimensions in detail
+- Describe assessment orchestration and reporting
+- Map components to their specific roles
+- Guide understanding of the component architecture
+
+**Test coverage**: This document's descriptions and component behaviors should be verified by tests documented in [components_test_coverage.md](./test_coverage/components_test_coverage.md)

@@ -5,7 +5,7 @@
 ## 🚀 Quick Start
 - **[Why ADRI?](VISION_IN_ACTION.md)** - See the vision in action (5 min read)
 - **[Get Started](GET_STARTED.md)** - Install and run your first assessment
-- **[Templates](TEMPLATES.md)** - Pre-built quality standards
+- **[Templates](USE_CASE_AI_STATUS_AUDITOR.md#adri-template-library)** - Pre-built quality standards
 
 ## 🎯 First Time Here? Start with Our Vision
 
@@ -126,15 +126,16 @@ Build source-agnostic workflows with ADRI contracts.
 
 ### Core Concepts
 - [Understanding Dimensions](./UNDERSTANDING_DIMENSIONS.md) - Deep dive into the five dimensions of reliability
+- [Assessment Modes](./ASSESSMENT_MODES.md) - Discovery vs. Validation modes explained
 - [Implementing Guards](./IMPLEMENTING_GUARDS.md) - Protect your agent workflows
 - [Enhancing Data Sources](./ENHANCING_DATA_SOURCES.md) - Improve your data with explicit metadata
 
 ### Dimension Details
-- [Validity Dimension](./ValidityDimension.md) - Ensuring data formats and ranges
-- [Completeness Dimension](./CompletenessDimension.md) - Managing missing data
-- [Freshness Dimension](./FreshnessDimension.md) - Handling data recency
+- [Validity Dimension](./validity_dimension.md) - Ensuring data formats and ranges
+- [Completeness Dimension](./completeness_dimension.md) - Managing missing data
+- [Freshness Dimension](./freshness_dimension.md) - Handling data recency
 - [Consistency Dimension](./consistency_rules.md) - Maintaining logical coherence
-- [Plausibility Dimension](./PlausibilityDimension.md) - Detecting unreasonable values
+- [Plausibility Dimension](./plausibility_dimension.md) - Detecting unreasonable values
 
 ### Advanced Topics
 - [Framework Integrations](./INTEGRATIONS.md) - Using ADRI with popular agent frameworks
@@ -156,7 +157,7 @@ ADRI evaluates data across five key dimensions:
 ## Getting Help
 
 - [FAQ](./FAQ.md) - Common questions and answers
-- [GitHub Issues](https://github.com/ThinkEvolveSolve/agent-data-readiness-index/issues) - Report bugs or request features
+- GitHub Issues - Report bugs or request features in the repository
 - [Contributing Guide](./CONTRIBUTING.md) - Join the community and contribute
 - [Documentation Style Guide](./STYLE_GUIDE.md) - Writing consistent documentation
 

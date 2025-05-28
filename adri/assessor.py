@@ -15,6 +15,8 @@ from .connectors import BaseConnector, ConnectorRegistry
 from .report import AssessmentReport
 from .utils.validators import validate_config
 from .templates import TemplateLoader, TemplateEvaluation, BaseTemplate
+from .assessment_modes import AssessmentMode, ModeConfig
+from .utils.metadata_generator import MetadataGenerator
 
 logger = logging.getLogger(__name__)
 
@@ -25,7 +27,8 @@ class DataSourceAssessor:
     Agent Data Readiness Index criteria.
     """
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None, dimensions: Optional[List[str]] = None):
+    def __init__(self, config: Optional[Dict[str, Any]] = None, dimensions: Optional[List[str]] = None, 
+                 mode: Union[AssessmentMode, str] = AssessmentMode.AUTO):
         """
         Initialize the assessor with optional custom configuration.
 
@@ -33,9 +36,21 @@ class DataSourceAssessor:
             config: Optional configuration dictionary that can customize
                    dimension weights, thresholds, etc.
             dimensions: Optional list of dimension names to use (defaults to all registered)
+            mode: Assessment mode (discovery, validation, or auto)
         """
         self.config = config or {}
         validate_config(self.config)
+        
+        # Set assessment mode
+        if isinstance(mode, str):
+            mode = AssessmentMode(mode.lower())
+        self.mode = mode
+        
+        # Get mode-specific configuration
+        self.mode_config = ModeConfig.get_mode_config(self.mode)
+        
+        # Merge mode config with user config (user config takes precedence)
+        self.effective_config = {**self.mode_config, **self.config}
 
         # Initialize dimension assessors
         self.dimensions = {}
@@ -44,7 +59,12 @@ class DataSourceAssessor:
         for name in dimension_names:
             try:
                 dimension_class = DimensionRegistry.get_dimension(name)
-                self.dimensions[name] = dimension_class(self.config.get(name, {}))
+                # Pass mode-aware config to dimensions
+                dim_config = self.effective_config.get(name, {})
+                # Ensure dimensions know about the metadata requirement and business logic setting
+                dim_config['REQUIRE_EXPLICIT_METADATA'] = self.mode_config['require_explicit_metadata']
+                dim_config['business_logic_enabled'] = self.mode_config.get('business_logic_enabled', False)
+                self.dimensions[name] = dimension_class(dim_config)
             except ValueError as e:
                 logger.warning(f"Dimension '{name}' not found: {e}")
 
@@ -116,7 +136,28 @@ class DataSourceAssessor:
         Returns:
             AssessmentReport: The assessment results
         """
-        logger.info(f"Starting assessment of {connector}")
+        # If mode is AUTO, detect the appropriate mode
+        actual_mode = self.mode
+        if self.mode == AssessmentMode.AUTO:
+            # Check for metadata files
+            metadata = connector.get_metadata()
+            has_metadata = bool(metadata and "fields" in metadata.get("schema", {}))
+            
+            # Detect mode based on available information
+            actual_mode = ModeConfig.detect_mode(connector, has_metadata=has_metadata)
+            logger.info(f"Auto-detected assessment mode: {actual_mode.value}")
+            
+            # Update configuration if mode changed
+            if actual_mode != AssessmentMode.AUTO:
+                self.mode_config = ModeConfig.get_mode_config(actual_mode)
+                # Re-initialize dimensions with new mode config
+                for name, assessor in self.dimensions.items():
+                    dim_config = self.effective_config.get(name, {})
+                    dim_config['REQUIRE_EXPLICIT_METADATA'] = self.mode_config['require_explicit_metadata']
+                    dim_config['business_logic_enabled'] = self.mode_config.get('business_logic_enabled', False)
+                    self.dimensions[name] = type(assessor)(dim_config)
+        
+        logger.info(f"Starting assessment of {connector} in {actual_mode.value} mode")
         
         # Get ADRI version
         try:
@@ -133,6 +174,10 @@ class DataSourceAssessor:
             adri_version=adri_version,
             assessment_config=self.config, # Pass the assessor's config
         )
+        
+        # Add mode information to report
+        report.assessment_mode = actual_mode.value
+        report.mode_config = self.mode_config
 
         # Assess each dimension
         dimension_results = {}
@@ -148,6 +193,36 @@ class DataSourceAssessor:
 
         # Calculate overall score and populate report
         report.populate_from_dimension_results(dimension_results)
+        
+        # In discovery mode, generate metadata if enabled
+        if actual_mode == AssessmentMode.DISCOVERY and self.mode_config.get('auto_generate_metadata', False):
+            # Only generate metadata for file connectors (for now)
+            if hasattr(connector, 'file_path') and hasattr(connector, 'df'):
+                try:
+                    logger.info("Generating ADRI metadata files...")
+                    metadata_generator = MetadataGenerator(connector)
+                    generated_files = metadata_generator.generate_all_metadata()
+                    
+                    # Add generated metadata info to report
+                    report.generated_metadata = generated_files
+                    report.metadata_generation_success = True
+                    
+                    # Add to summary findings
+                    if not hasattr(report, 'summary_findings'):
+                        report.summary_findings = []
+                    report.summary_findings.append(
+                        f"✅ Generated {len(generated_files)} metadata files to help improve data quality"
+                    )
+                    
+                    logger.info(f"Successfully generated {len(generated_files)} metadata files")
+                except Exception as e:
+                    logger.warning(f"Could not generate metadata: {e}")
+                    report.metadata_generation_success = False
+        
+        # In discovery mode, suggest templates if enabled
+        if self.mode_config.get('suggest_templates', False):
+            # This will be implemented in the template matcher
+            report.suggested_templates = []  # Placeholder for now
         
         logger.info(f"Assessment complete. Overall score: {report.overall_score}")
         return report

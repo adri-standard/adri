@@ -1,0 +1,75 @@
+# Git
+.git
+.github
+.gitignore
+
+# Python
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+eggs/
+.eggs/
+*.egg
+
+# Testing
+.pytest_cache
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.mypy_cache/
+*.cover
+test*.py
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Documentation
+docs/
+*.md
+!README.md
+
+# Notebooks
+notebooks/
+*.ipynb
+
+# Tests
+tests/
+
+# Build artifacts
+*.report.json
+*.report.html
+*_report.html
+*_report.txt
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Internal directories
+.internal/
+
+# Examples (optional - include if you want examples in container)
+# examples/
+
+# Scripts
+scripts/
+
+# Development files
+Makefile
+requirements-dev.txt
+mypy.ini

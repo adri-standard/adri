@@ -11,6 +11,7 @@ from typing import Dict, List, Tuple, Any, Optional
 from ..config.config import get_config
 from ..connectors import BaseConnector
 from . import BaseDimensionAssessor, register_dimension
+from .business_consistency import calculate_business_consistency_score
 
 logger = logging.getLogger(__name__)
 
@@ -51,11 +52,27 @@ class ConsistencyAssessor(BaseDimensionAssessor):
         MAX_RULE_VALIDITY_SCORE = scoring["MAX_RULE_VALIDITY_SCORE"]
         MAX_CROSS_DATASET_SCORE = scoring["MAX_CROSS_DATASET_SCORE"]
         MAX_EXPLICIT_COMMUNICATION_SCORE = scoring["MAX_EXPLICIT_COMMUNICATION_SCORE"]
-        REQUIRE_EXPLICIT_METADATA = scoring["REQUIRE_EXPLICIT_METADATA"]
+        REQUIRE_EXPLICIT_METADATA = self.config.get("REQUIRE_EXPLICIT_METADATA", scoring["REQUIRE_EXPLICIT_METADATA"])
         
         findings = []
         recommendations = []
         score_components = {}
+        
+        # Check if we're in discovery mode and have business logic enabled
+        business_logic_enabled = self.config.get("business_logic_enabled", False)
+        if not REQUIRE_EXPLICIT_METADATA and business_logic_enabled and hasattr(connector, 'df'):
+            # Use business-focused consistency scoring
+            business_score, business_findings, business_recommendations = calculate_business_consistency_score(
+                connector.df, 
+                data_type=None  # Auto-detect
+            )
+            
+            # In discovery mode, business consistency takes precedence
+            findings.extend(business_findings)
+            recommendations.extend(business_recommendations)
+            
+            # Start with business score as the base
+            return business_score, findings, recommendations
         
         # Get consistency information
         consistency_info = connector.get_consistency_results()

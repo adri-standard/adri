@@ -196,3 +196,16 @@ See `examples/plausibility_assessment.py` for a complete example that demonstrat
 4. **Contextual analysis**: Consider the relationship between fields when determining plausibility (e.g., salary might be implausibly high for entry-level positions but not executives).
 
 5. **Statistical significance**: Remember that statistical tests like those used in ValueDistributionRule should be interpreted with caution, especially for smaller datasets.
+
+## Purpose & Test Coverage
+
+**Why this file exists**: Provides detailed documentation on plausibility rules that verify data appears reasonable and likely to be correct through statistical analysis and domain-specific checks.
+
+**Key responsibilities**:
+- Document plausibility rule implementations
+- Explain statistical methods for outlier detection
+- Provide usage examples for distribution validation
+- Show range and pattern frequency checking
+- Guide best practices for domain-specific plausibility
+
+**Test coverage**: This document's examples, claims, and features should be verified by tests documented in [plausibility_rules_test_coverage.md](./test_coverage/plausibility_rules_test_coverage.md)

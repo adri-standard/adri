@@ -123,7 +123,8 @@ def demonstrate_requirements_as_code():
     print(f"   Meets Requirements: {'❌ NO' if report.overall_score < 85 else '✅ YES'}")
     
     print(f"\n📈 Dimension Breakdown:")
-    for dimension, score in report.dimension_scores.items():
+    for dimension, results in report.dimension_results.items():
+        score = results['score']
         status = "✅" if score >= 17 else "❌"
         print(f"   {status} {dimension}: {score}/20")
     

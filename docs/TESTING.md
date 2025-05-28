@@ -7,7 +7,7 @@ This document outlines the comprehensive testing approach for the Agent Data Rea
 - [Functional Testing](#functional-testing)
 - [Non-Functional Testing](#non-functional-testing)
 - [CI/CD Pipeline Testing](#cicd-pipeline-testing)
-- [Content & Documentation Testing](#content--documentation-testing)
+- [Content & Documentation Testing](#content-documentation-testing)
 - [Test Data Management](#test-data-management)
 - [Regression Testing Process](#regression-testing-process)
 - [Test Reporting](#test-reporting)
@@ -386,3 +386,16 @@ pytest --junitxml=results.xml
 2. Import the module to test
 3. Write test functions using pytest fixtures
 4. Run the tests to verify they pass
+
+## Purpose & Test Coverage
+
+**Why this file exists**: Provides comprehensive documentation of ADRI's testing philosophy, strategies, and practices to ensure high-quality, reliable software delivery.
+
+**Key responsibilities**:
+- Define testing principles and objectives
+- Document testing procedures for all test types (unit, integration, E2E)
+- Guide CI/CD pipeline testing configuration
+- Explain test data management strategies
+- Provide testing commands and examples
+
+**Test coverage**: This document's examples, claims, and features should be verified by tests documented in [TESTING_test_coverage.md](./test_coverage/TESTING_test_coverage.md)

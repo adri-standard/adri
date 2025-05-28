@@ -15,8 +15,6 @@ import json
 import os
 from adri.integrations.guard import adri_guarded
 from adri.assessor import DataSourceAssessor
-from adri.config import Config
-
 # Simulate audit log
 audit_log = []
 
@@ -66,11 +64,16 @@ def demonstrate_guarded_agent():
     print("-" * 40)
     
     # Define healthcare compliance requirements
-    healthcare_config = Config()
-    healthcare_config.set("template", "healthcare-hipaa-v1")
-    healthcare_config.set("minimum_score", 95)  # Very strict
-    healthcare_config.set("audit.enabled", True)
-    healthcare_config.set("audit.detail_level", "full")
+    # Note: In a real implementation, you would configure these through
+    # a YAML config file or pass them to the Configuration constructor
+    healthcare_config = {
+        "template": "healthcare-hipaa-v1",
+        "minimum_score": 95,  # Very strict
+        "audit": {
+            "enabled": True,
+            "detail_level": "full"
+        }
+    }
     
     @adri_guarded(
         min_score=95
@@ -221,12 +224,17 @@ def show_production_patterns():
     """Demonstrates common production patterns with guards."""
     
     print("\n\n" + "=" * 60)
-    print("PRODUCTION PATTERNS: Real-World Usage")
+    print("PRODUCTION PATTERNS")
     print("=" * 60)
     
-    print("\n1️⃣ **Graceful Degradation:**")
+    print("\n1️⃣ **Graceful Degradation with Fallback:**")
     print("```python")
-    print("@adri_guarded(min_score=90)")
+    print("def fallback_handler(data, score, report):")
+    print("    # Fallback to cached or degraded service")
+    print("    log_degraded_service(score)")
+    print("    return use_cached_results(data)")
+    print("")
+    print("@adri_guarded(min_score=90, fallback=fallback_handler)")
     print("def smart_agent(data):")
     print("    # Guard ensures minimum score of 90")
     print("    return full_analysis(data)")
@@ -243,16 +251,22 @@ def show_production_patterns():
     print("    return trend_analysis(data)")
     print("```")
     
-    print("\n3️⃣ **Custom Error Handling:**")
+    print("\n3️⃣ **Custom Notifications:**")
     print("```python")
-    print("try:")
-    print("    @adri_guarded(min_score=85)")
-    print("    def production_agent(data):")
-    print("        return process(data)")
-    print("    ")
-    print("    result = production_agent('data.csv')")
-    print("except Exception as e:")
-    print("    alert_data_team(str(e))")
+    print("def on_fail(score, report):")
+    print("    send_alert(f'Data quality failed: {score}/100')")
+    print("    log_to_monitoring(report)")
+    print("")
+    print("def on_pass(score, report):")
+    print("    log_success(f'Data quality passed: {score}/100')")
+    print("")    
+    print("@adri_guarded(")
+    print("    min_score=85,")
+    print("    on_fail=on_fail,")
+    print("    on_pass=on_pass")
+    print(")")
+    print("def production_agent(data):")
+    print("    return process(data)")
     print("```")
 
 if __name__ == "__main__":

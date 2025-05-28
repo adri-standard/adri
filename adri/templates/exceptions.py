@@ -13,6 +13,11 @@ class TemplateNotFoundError(TemplateError):
     pass
 
 
+class TemplateLoadError(TemplateError):
+    """Raised when a template cannot be loaded."""
+    pass
+
+
 class TemplateValidationError(TemplateError):
     """Raised when a template fails validation."""
     pass

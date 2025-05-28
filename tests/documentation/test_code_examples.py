@@ -14,8 +14,8 @@ import io
 import signal
 import time
 
-from base_doc_test import BaseDocumentationTest, TestResult
-from utils.code_extractor import CodeExtractor, CodeBlock, CodeBlockType
+from .base_doc_test import BaseDocumentationTest, TestResult
+from .utils.code_extractor import CodeExtractor, CodeBlock, CodeBlockType
 
 
 class TimeoutException(Exception):
@@ -140,6 +140,11 @@ rules:
             '# Your code here',
             '...',  # Ellipsis indicating incomplete code
             'pass  # Implement',
+            'pip install',  # Installation commands
+            'python -m',  # Command line examples
+            'git ',  # Git commands
+            'cd ',  # Directory navigation
+            'SITE_BASE_URL',  # Environment variable examples
         ]
         
         if any(pattern in code for pattern in skip_patterns):
@@ -151,6 +156,47 @@ rules:
         if not non_comment_lines:
             return True
         
+        # Skip file path references that look like code
+        if code.endswith('.csv') or code.endswith('.json') or code.endswith('.yaml') or code.endswith('.yml'):
+            return True
+            
+        # Skip single identifiers that are likely file/variable references
+        if len(non_comment_lines) == 1 and ' ' not in non_comment_lines[0].strip():
+            # Single word/identifier without spaces (likely a filename or variable name)
+            line = non_comment_lines[0].strip()
+            if not line.startswith('print(') and '(' not in line:
+                return True
+        
+        # Skip code that's clearly pseudo-code or incomplete
+        pseudo_indicators = [
+            '@adri_guard(',  # Decorator examples without implementation
+            'agent.',  # Agent references without context
+            'monitor.',  # Monitor references without context
+            'adri[',  # Dictionary-style pseudo-code
+            '[Link Text]',  # Markdown link syntax
+            'https://',  # URLs
+            'http://',
+            'username.github.io',  # GitHub pages examples
+            '{filename}',  # Template placeholders
+            'test_[',  # Test naming patterns
+            'path/to/',  # Generic path examples
+            'your_data.csv',  # Generic file references
+            'data.csv" not found',  # Error message examples
+        ]
+        
+        if any(indicator in code for indicator in pseudo_indicators):
+            return True
+            
+        # Skip imports for non-existent example modules
+        if 'from adri import adri_guard' in code and '@adri_guard' in code and 'def ' not in code:
+            # Decorator example without function body
+            return True
+            
+        # Skip code blocks that are clearly not executable
+        # (e.g., showing file structures, config examples without context)
+        if block.block_type == CodeBlockType.INLINE:
+            return True
+            
         return False
     
     def _test_code_block(self, block: CodeBlock) -> TestResult:

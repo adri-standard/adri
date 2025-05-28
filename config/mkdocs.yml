@@ -61,6 +61,7 @@ markdown_extensions:
 nav:
   - Vision & Overview:
     - Why ADRI Exists: VISION.md
+    - Vision in Action: VISION_IN_ACTION.md
     - Home: index.md
     - Roadmap: ROADMAP.md
   - Getting Started:
@@ -69,13 +70,17 @@ nav:
     - FAQ: FAQ.md
   - Core Concepts:
     - Methodology: Methodology.md
-    - Implementation Guide: Implementation-Guide.md
+    - Implementation Guide: implementation_guide.md
     - Dimensions in Detail:
-      - Validity: ValidityDimension.md
-      - Completeness: CompletenessDimension.md
-      - Freshness: FreshnessDimension.md
+      - Validity: validity_dimension.md
+      - Completeness: completeness_dimension.md
+      - Freshness: freshness_dimension.md
       - Consistency: consistency_rules.md
-      - Plausibility: PlausibilityDimension.md
+      - Plausibility: plausibility_dimension.md
+      - Plausibility Rules: plausibility_rules.md
+  - Use Cases:
+    - AI Status Auditor: USE_CASE_AI_STATUS_AUDITOR.md
+    - Invoice Payment Agent: USE_CASE_INVOICE_PAYMENT_AGENT.md
   - Using ADRI:
     - Implementing Guards: IMPLEMENTING_GUARDS.md
     - Enhancing Data Sources: ENHANCING_DATA_SOURCES.md

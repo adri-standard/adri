@@ -61,3 +61,16 @@ Contributing assessments of public datasets is crucial for building the Communit
 If you have questions about contributing, please open an issue or reach out to the maintainers.
 
 Thank you for contributing!
+
+## Purpose & Test Coverage
+
+**Why this file exists**: Provides clear guidelines for community contributions to ADRI, fostering an open and collaborative development environment.
+
+**Key responsibilities**:
+- Outline contribution types and processes
+- Guide code contribution workflow
+- Explain public dataset assessment submission
+- Define community guidelines and standards
+- Encourage diverse forms of participation
+
+**Test coverage**: This document's processes and guidelines should be verified by tests documented in [CONTRIBUTING_test_coverage.md](./test_coverage/CONTRIBUTING_test_coverage.md)

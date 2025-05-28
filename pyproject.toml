@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "adri"
-version = "0.2.0b1-1"
+version = "0.2.0b1.post1"
 authors = [
     {name = "Verodat", email = "info@verodat.ai"}
 ]
@@ -28,7 +28,8 @@ dependencies = [
     "matplotlib>=3.3.0",
     "jinja2>=3.0.0",
     "pyyaml>=6.0",
-    "inquirer>=2.10.0"
+    "inquirer>=2.10.0",
+    "openpyxl>=3.0.0"
 ]
 
 [project.optional-dependencies]

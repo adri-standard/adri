@@ -316,6 +316,14 @@ ADRI guards provide an essential layer of protection for agent workflows. By imp
 
 For more advanced scenarios, explore the [API Reference](./API_REFERENCE.md) for complete details on guard implementation options.
 
-## Test Coverage
+## Purpose & Test Coverage
 
-This document's claims and features are verified by tests documented in [IMPLEMENTING_GUARDS_test_coverage.md](./test_coverage/IMPLEMENTING_GUARDS_test_coverage.md).
+**Why this file exists**: Provides comprehensive guidance on implementing data quality guards to protect AI agent workflows from unreliable data inputs.
+
+**Key responsibilities**:
+- Explain the concept and importance of data quality guards
+- Demonstrate basic and advanced guard implementation patterns
+- Show framework-specific integrations (LangChain, CrewAI, DSPy)
+- Guide best practices for error handling and fallback strategies
+
+**Test coverage**: Verified by tests documented in [IMPLEMENTING_GUARDS_test_coverage.md](./test_coverage/IMPLEMENTING_GUARDS_test_coverage.md)

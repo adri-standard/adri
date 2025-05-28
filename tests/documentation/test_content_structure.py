@@ -7,7 +7,7 @@ from typing import List, Dict, Set
 import unittest
 from collections import defaultdict
 
-from base_doc_test import BaseDocumentationTest, TestResult
+from .base_doc_test import BaseDocumentationTest, TestResult
 
 
 class TestContentStructure(BaseDocumentationTest):

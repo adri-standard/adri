@@ -1,0 +1,83 @@
+{
+  "_comment": "Auto-generated freshness metadata. Please review and set appropriate values.",
+  "has_explicit_freshness_info": true,
+  "dataset_timestamp": "TODO: When was this dataset last updated?",
+  "update_frequency": "TODO: daily|weekly|monthly|quarterly|yearly|real-time",
+  "generation_process": "TODO: How is this data generated/updated?",
+  "freshness_sla": {
+    "max_age_hours": 24,
+    "meets_sla": true,
+    "_comment": "TODO: Adjust max_age_hours based on your requirements"
+  },
+  "fields": {
+    "opportunity_id": {
+      "timestamp_field": false
+    },
+    "account_name": {
+      "timestamp_field": false
+    },
+    "deal_name": {
+      "timestamp_field": false
+    },
+    "stage": {
+      "timestamp_field": false
+    },
+    "amount": {
+      "timestamp_field": false
+    },
+    "owner": {
+      "timestamp_field": false
+    },
+    "account_owner": {
+      "timestamp_field": false
+    },
+    "created_date": {
+      "timestamp_field": true,
+      "timestamp_format": "TODO: Specify format (e.g., YYYY-MM-DD HH:MM:SS)",
+      "timestamp_timezone": "TODO: Specify timezone (e.g., UTC)",
+      "_detected_automatically": true,
+      "_samples": [
+        "2025-03-15",
+        "2025-02-01",
+        "2025-04-20"
+      ]
+    },
+    "close_date": {
+      "timestamp_field": true,
+      "timestamp_format": "TODO: Specify format (e.g., YYYY-MM-DD HH:MM:SS)",
+      "timestamp_timezone": "TODO: Specify timezone (e.g., UTC)",
+      "_detected_automatically": true,
+      "_samples": [
+        "2025-06-30",
+        "2025-07-15",
+        "2025-03-31"
+      ]
+    },
+    "last_activity_date": {
+      "timestamp_field": true,
+      "timestamp_format": "TODO: Specify format (e.g., YYYY-MM-DD HH:MM:SS)",
+      "timestamp_timezone": "TODO: Specify timezone (e.g., UTC)",
+      "_detected_automatically": true,
+      "_samples": [
+        "2025-05-15",
+        "2025-05-20",
+        "2025-03-31"
+      ]
+    },
+    "contact_email": {
+      "timestamp_field": false
+    }
+  },
+  "historical_updates": [
+    {
+      "timestamp": "TODO: Add historical update timestamps",
+      "description": "Example update"
+    }
+  ],
+  "_detected_timestamp_columns": [
+    "created_date",
+    "close_date",
+    "last_activity_date"
+  ],
+  "_suggestion": "Consider using created_date as the primary freshness indicator"
+}

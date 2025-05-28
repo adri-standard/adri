@@ -11,19 +11,20 @@ from typing import Dict, List, Tuple, Any, Optional
 from ..config.config import get_config
 from ..connectors import BaseConnector
 from . import BaseDimensionAssessor, register_dimension
+from .business_validity import calculate_business_validity_score
 
 logger = logging.getLogger(__name__)
 
-# Get scoring constants from configuration
-config = get_config()
-scoring = config.get_validity_scoring()
+# Get default scoring constants from configuration
+default_config = get_config()
+default_scoring = default_config.get_validity_scoring()
 
-MAX_TYPES_DEFINED_SCORE = scoring["MAX_TYPES_DEFINED_SCORE"]
-MAX_FORMATS_DEFINED_SCORE = scoring["MAX_FORMATS_DEFINED_SCORE"]
-MAX_RANGES_DEFINED_SCORE = scoring["MAX_RANGES_DEFINED_SCORE"]
-MAX_VALIDATION_PERFORMED_SCORE = scoring["MAX_VALIDATION_PERFORMED_SCORE"]
-MAX_VALIDATION_COMMUNICATED_SCORE = scoring["MAX_VALIDATION_COMMUNICATED_SCORE"]
-REQUIRE_EXPLICIT_METADATA = scoring["REQUIRE_EXPLICIT_METADATA"]
+DEFAULT_MAX_TYPES_DEFINED_SCORE = default_scoring["MAX_TYPES_DEFINED_SCORE"]
+DEFAULT_MAX_FORMATS_DEFINED_SCORE = default_scoring["MAX_FORMATS_DEFINED_SCORE"]
+DEFAULT_MAX_RANGES_DEFINED_SCORE = default_scoring["MAX_RANGES_DEFINED_SCORE"]
+DEFAULT_MAX_VALIDATION_PERFORMED_SCORE = default_scoring["MAX_VALIDATION_PERFORMED_SCORE"]
+DEFAULT_MAX_VALIDATION_COMMUNICATED_SCORE = default_scoring["MAX_VALIDATION_COMMUNICATED_SCORE"]
+DEFAULT_REQUIRE_EXPLICIT_METADATA = default_scoring["REQUIRE_EXPLICIT_METADATA"]
 
 
 @register_dimension(
@@ -37,6 +38,23 @@ class ValidityAssessor(BaseDimensionAssessor):
     Evaluates whether data adheres to required types, formats, and ranges,
     and whether this information is explicitly communicated to agents.
     """
+    
+    def __init__(self, config: Optional[Dict[str, Any]] = None):
+        """
+        Initialize the validity assessor with configuration.
+        
+        Args:
+            config: Optional configuration dictionary
+        """
+        super().__init__(config)
+        
+        # Get scoring constants from instance config or use defaults
+        self.MAX_TYPES_DEFINED_SCORE = self.config.get("MAX_TYPES_DEFINED_SCORE", DEFAULT_MAX_TYPES_DEFINED_SCORE)
+        self.MAX_FORMATS_DEFINED_SCORE = self.config.get("MAX_FORMATS_DEFINED_SCORE", DEFAULT_MAX_FORMATS_DEFINED_SCORE)
+        self.MAX_RANGES_DEFINED_SCORE = self.config.get("MAX_RANGES_DEFINED_SCORE", DEFAULT_MAX_RANGES_DEFINED_SCORE)
+        self.MAX_VALIDATION_PERFORMED_SCORE = self.config.get("MAX_VALIDATION_PERFORMED_SCORE", DEFAULT_MAX_VALIDATION_PERFORMED_SCORE)
+        self.MAX_VALIDATION_COMMUNICATED_SCORE = self.config.get("MAX_VALIDATION_COMMUNICATED_SCORE", DEFAULT_MAX_VALIDATION_COMMUNICATED_SCORE)
+        self.REQUIRE_EXPLICIT_METADATA = self.config.get("REQUIRE_EXPLICIT_METADATA", DEFAULT_REQUIRE_EXPLICIT_METADATA)
     
     def assess(self, connector: BaseConnector) -> Tuple[float, List[str], List[str]]:
         """
@@ -57,12 +75,28 @@ class ValidityAssessor(BaseDimensionAssessor):
         recommendations = []
         score_components = {}
         
+        # Check if we're in discovery mode and have business logic enabled
+        business_logic_enabled = self.config.get("business_logic_enabled", False)
+        if not self.REQUIRE_EXPLICIT_METADATA and business_logic_enabled and hasattr(connector, 'df'):
+            # Use business-focused validity scoring
+            business_score, business_findings, business_recommendations = calculate_business_validity_score(
+                connector.df, 
+                data_type=None  # Auto-detect
+            )
+            
+            # In discovery mode, business validity takes precedence
+            findings.extend(business_findings)
+            recommendations.extend(business_recommendations)
+            
+            # Start with business score as the base
+            return business_score, findings, recommendations
+        
         # Get schema information
         schema = connector.get_schema()
         
         # 1. Evaluate whether data types are explicitly defined (from schema)
         field_types_defined = "fields" in schema and all("type" in f for f in schema.get("fields", []))
-        types_defined_score = MAX_TYPES_DEFINED_SCORE if field_types_defined else 0
+        types_defined_score = self.MAX_TYPES_DEFINED_SCORE if field_types_defined else 0
         score_components["types_defined"] = types_defined_score
         
         if field_types_defined:
@@ -79,7 +113,7 @@ class ValidityAssessor(BaseDimensionAssessor):
                 format_fields.append(field["name"])
                 
         formats_defined = len(format_fields) > 0
-        formats_score = MAX_FORMATS_DEFINED_SCORE if formats_defined else 0
+        formats_score = self.MAX_FORMATS_DEFINED_SCORE if formats_defined else 0
         score_components["formats_defined"] = formats_score
         
         if formats_defined:
@@ -96,7 +130,7 @@ class ValidityAssessor(BaseDimensionAssessor):
                 range_fields.append(field["name"])
                 
         ranges_defined = len(range_fields) > 0
-        ranges_score = MAX_RANGES_DEFINED_SCORE if ranges_defined else 0
+        ranges_score = self.MAX_RANGES_DEFINED_SCORE if ranges_defined else 0
         score_components["ranges_defined"] = ranges_score
         
         if ranges_defined:
@@ -126,7 +160,7 @@ class ValidityAssessor(BaseDimensionAssessor):
                 
                 # Only improve the types_defined score if it wasn't already set from schema
                 # and if we don't require explicit metadata
-                if types_defined_score == 0 and not REQUIRE_EXPLICIT_METADATA:
+                if types_defined_score == 0 and not self.REQUIRE_EXPLICIT_METADATA:
                     # Calculate an automatic type consistency score based on issues found
                     total_columns = len(connector.df.columns)
                     inconsistent_columns = len(type_inconsistencies)
@@ -137,14 +171,14 @@ class ValidityAssessor(BaseDimensionAssessor):
                         # The maximum score for inconsistent datasets should be lower
                         if inconsistent_columns > 0:
                             # Apply a penalty for inconsistent datasets
-                            auto_types_score = int(MAX_TYPES_DEFINED_SCORE * consistency_ratio * 0.7)
+                            auto_types_score = int(self.MAX_TYPES_DEFINED_SCORE * consistency_ratio * 0.7)
                             findings.append(f"Data types are inconsistent in {inconsistent_columns} of {total_columns} columns")
                         else:
                             # Fully consistent datasets get a better score
-                            auto_types_score = int(MAX_TYPES_DEFINED_SCORE * 0.9)  # 90% of max
+                            auto_types_score = int(self.MAX_TYPES_DEFINED_SCORE * 0.9)  # 90% of max
                             
                         score_components["types_defined"] = auto_types_score
-                elif types_defined_score == 0 and REQUIRE_EXPLICIT_METADATA:
+                elif types_defined_score == 0 and self.REQUIRE_EXPLICIT_METADATA:
                     # When explicit metadata is required, give minimal points for inferred types
                     findings.append("No explicit data type definitions found, explicit metadata required")
                     score_components["types_defined"] = 0
@@ -166,7 +200,7 @@ class ValidityAssessor(BaseDimensionAssessor):
                         
                 # Only improve the formats_defined score if it wasn't already set from schema
                 # and if we don't require explicit metadata
-                if formats_score == 0 and not REQUIRE_EXPLICIT_METADATA:
+                if formats_score == 0 and not self.REQUIRE_EXPLICIT_METADATA:
                         # Calculate an automatic format consistency score based on issues found
                         date_columns = [c for c, info in connector.infer_column_types().items() 
                                        if info.get("type") == "date"]
@@ -180,12 +214,12 @@ class ValidityAssessor(BaseDimensionAssessor):
                             format_consistency_ratio = 1 - (inconsistent_format_columns / format_columns)
                             # Apply similar penalty for inconsistent formats
                             if inconsistent_format_columns > 0:
-                                auto_formats_score = int(MAX_FORMATS_DEFINED_SCORE * format_consistency_ratio * 0.7)
+                                auto_formats_score = int(self.MAX_FORMATS_DEFINED_SCORE * format_consistency_ratio * 0.7)
                             else:
-                                auto_formats_score = int(MAX_FORMATS_DEFINED_SCORE * 0.9)  # 90% of max
+                                auto_formats_score = int(self.MAX_FORMATS_DEFINED_SCORE * 0.9)  # 90% of max
                                 
                             score_components["formats_defined"] = auto_formats_score
-                elif formats_score == 0 and REQUIRE_EXPLICIT_METADATA:
+                elif formats_score == 0 and self.REQUIRE_EXPLICIT_METADATA:
                     # When explicit metadata is required, give minimal points for inferred formats
                     findings.append("No explicit format definitions found, explicit metadata required")
                     score_components["formats_defined"] = 0
@@ -207,7 +241,7 @@ class ValidityAssessor(BaseDimensionAssessor):
                 
                 # Only improve the ranges_defined score if it wasn't already set from schema
                 # and if we don't require explicit metadata
-                if ranges_score == 0 and not REQUIRE_EXPLICIT_METADATA:
+                if ranges_score == 0 and not self.REQUIRE_EXPLICIT_METADATA:
                     # Calculate an automatic range validation score based on issues found
                     numeric_columns = [c for c, info in connector.infer_column_types().items() 
                                       if info.get("type") in ("numeric", "integer")]
@@ -216,12 +250,12 @@ class ValidityAssessor(BaseDimensionAssessor):
                         range_violation_ratio = len(range_violations) / len(numeric_columns)
                         # Lower score with more violations
                         if len(range_violations) > 0:
-                            auto_ranges_score = int(MAX_RANGES_DEFINED_SCORE * (1 - min(1.0, range_violation_ratio)) * 0.7)
+                            auto_ranges_score = int(self.MAX_RANGES_DEFINED_SCORE * (1 - min(1.0, range_violation_ratio)) * 0.7)
                         else:
-                            auto_ranges_score = int(MAX_RANGES_DEFINED_SCORE * 0.9)  # 90% of max
+                            auto_ranges_score = int(self.MAX_RANGES_DEFINED_SCORE * 0.9)  # 90% of max
                             
                         score_components["ranges_defined"] = auto_ranges_score
-                elif ranges_score == 0 and REQUIRE_EXPLICIT_METADATA:
+                elif ranges_score == 0 and self.REQUIRE_EXPLICIT_METADATA:
                     # When explicit metadata is required, give minimal points for inferred ranges
                     findings.append("No explicit range definitions found, explicit metadata required")
                     score_components["ranges_defined"] = 0
@@ -247,20 +281,20 @@ class ValidityAssessor(BaseDimensionAssessor):
         # If we have automatic validity analysis, that also counts as validation
         # if we don't require explicit metadata
         if not validation_performed and auto_validity_performed:
-            if not REQUIRE_EXPLICIT_METADATA:
+            if not self.REQUIRE_EXPLICIT_METADATA:
                 validation_performed = True
                 # For automatic validation, the score depends on whether the dataset is valid
                 if validity_analysis and validity_analysis.get("valid_overall", True):
-                    validation_score = int(MAX_VALIDATION_PERFORMED_SCORE * 0.8)  # Higher score for valid datasets
+                    validation_score = int(self.MAX_VALIDATION_PERFORMED_SCORE * 0.8)  # Higher score for valid datasets
                 else:
-                    validation_score = MAX_VALIDATION_PERFORMED_SCORE // 2  # Lower score for invalid datasets
+                    validation_score = self.MAX_VALIDATION_PERFORMED_SCORE // 2  # Lower score for invalid datasets
             else:
                 # When explicit metadata is required, give minimal points for automatic validation
                 findings.append("No explicit validation results found, explicit metadata required")
                 validation_score = 0
                 validation_performed = False
         else:
-            validation_score = MAX_VALIDATION_PERFORMED_SCORE if validation_performed else 0
+            validation_score = self.MAX_VALIDATION_PERFORMED_SCORE if validation_performed else 0
             
         score_components["validation_performed"] = validation_score
         
@@ -303,17 +337,17 @@ class ValidityAssessor(BaseDimensionAssessor):
         
         # Automatic validation gets a lower score than explicit communication
         if validation_communicated and validation_results:
-            comm_score = MAX_VALIDATION_COMMUNICATED_SCORE
-        elif validation_communicated and auto_validity_performed and not REQUIRE_EXPLICIT_METADATA:
+            comm_score = self.MAX_VALIDATION_COMMUNICATED_SCORE
+        elif validation_communicated and auto_validity_performed and not self.REQUIRE_EXPLICIT_METADATA:
             # For automatic validation, the score depends on whether the dataset is valid
             if validity_analysis and validity_analysis.get("valid_overall", True):
-                comm_score = int(MAX_VALIDATION_COMMUNICATED_SCORE * 0.7)  # Higher score for valid datasets
+                comm_score = int(self.MAX_VALIDATION_COMMUNICATED_SCORE * 0.7)  # Higher score for valid datasets
             else:
-                comm_score = MAX_VALIDATION_COMMUNICATED_SCORE // 3  # Lower score for invalid datasets
+                comm_score = self.MAX_VALIDATION_COMMUNICATED_SCORE // 3  # Lower score for invalid datasets
         else:
             # No validation communication or explicit metadata required but not provided
             comm_score = 0
-            if REQUIRE_EXPLICIT_METADATA and auto_validity_performed:
+            if self.REQUIRE_EXPLICIT_METADATA and auto_validity_performed:
                 findings.append("Automatic validation available but explicit validation metadata required")
             
         score_components["validation_communicated"] = comm_score
@@ -333,7 +367,7 @@ class ValidityAssessor(BaseDimensionAssessor):
         score = min(score, 20)
         
         # Generate recommendations based on findings
-        if score_components.get("types_defined", 0) < MAX_TYPES_DEFINED_SCORE:
+        if score_components.get("types_defined", 0) < self.MAX_TYPES_DEFINED_SCORE:
             if field_types_defined:
                 # Schema exists but may not be complete
                 recommendations.append("Ensure all fields have explicit data type definitions")
@@ -349,7 +383,7 @@ class ValidityAssessor(BaseDimensionAssessor):
                             f"Fix inconsistent values in column '{column}' to match {expected_type} type"
                         )
         
-        if score_components.get("formats_defined", 0) < MAX_FORMATS_DEFINED_SCORE:
+        if score_components.get("formats_defined", 0) < self.MAX_FORMATS_DEFINED_SCORE:
             recommendations.append("Define formats (e.g., date patterns, string patterns) for applicable fields")
             
             # Add specific recommendations based on auto analysis
@@ -358,7 +392,7 @@ class ValidityAssessor(BaseDimensionAssessor):
                     if details.get("type") == "invalid_dates":
                         recommendations.append(f"Fix invalid date formats in column '{column}'")
         
-        if score_components.get("ranges_defined", 0) < MAX_RANGES_DEFINED_SCORE:
+        if score_components.get("ranges_defined", 0) < self.MAX_RANGES_DEFINED_SCORE:
             recommendations.append("Define valid ranges (min/max values, allowed values) for applicable fields")
             
             # Add specific recommendations based on auto analysis
@@ -367,10 +401,10 @@ class ValidityAssessor(BaseDimensionAssessor):
                     if details.get("type") == "negative_values":
                         recommendations.append(f"Address negative values in '{column}' column")
         
-        if score_components.get("validation_performed", 0) < MAX_VALIDATION_PERFORMED_SCORE:
+        if score_components.get("validation_performed", 0) < self.MAX_VALIDATION_PERFORMED_SCORE:
             recommendations.append("Implement validation rules for this data source")
             
-        if score_components.get("validation_communicated", 0) < MAX_VALIDATION_COMMUNICATED_SCORE:
+        if score_components.get("validation_communicated", 0) < self.MAX_VALIDATION_COMMUNICATED_SCORE:
             recommendations.append(
                 "Ensure validation results are explicitly communicated to agents in a machine-readable format"
             )

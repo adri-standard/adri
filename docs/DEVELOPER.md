@@ -398,3 +398,16 @@ The project utilizes GitHub Actions for automating several key processes:
    - Trigger: Push to `main` branch or pull requests
 
 **Manual Trigger:** Any of these workflows can be manually triggered from the "Actions" tab in the GitHub repository if needed.
+
+## Purpose & Test Coverage
+
+**Why this file exists**: Provides comprehensive technical documentation for developers contributing to ADRI, including setup instructions, architecture details, and development workflows.
+
+**Key responsibilities**:
+- Guide development environment setup
+- Document project architecture and extension points
+- Explain development workflows for new features
+- Define testing and documentation standards
+- Detail maintainer workflows and automation
+
+**Test coverage**: This document's examples, workflows, and technical specifications should be verified by tests documented in [DEVELOPER_test_coverage.md](./test_coverage/DEVELOPER_test_coverage.md)

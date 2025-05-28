@@ -10,13 +10,22 @@ The main class for assessing data sources.
 
 ```python
 from adri import DataSourceAssessor
+from adri.assessment_modes import AssessmentMode
 
-assessor = DataSourceAssessor(config=None, dimensions=None)
+# Default (Auto mode)
+assessor = DataSourceAssessor(config=None, dimensions=None, mode=AssessmentMode.AUTO)
+
+# Explicit Discovery mode
+assessor = DataSourceAssessor(mode=AssessmentMode.DISCOVERY)
+
+# Explicit Validation mode  
+assessor = DataSourceAssessor(mode=AssessmentMode.VALIDATION)
 ```
 
 #### Parameters:
 - `config` (dict, optional): Configuration dictionary for customizing assessment behavior
 - `dimensions` (list, optional): List of dimension names to use (defaults to all registered dimensions)
+- `mode` (AssessmentMode or str, optional): Assessment mode - 'auto', 'discovery', or 'validation' (defaults to 'auto')
 
 #### Methods:
 
@@ -58,6 +67,8 @@ Contains the results of a data source assessment.
 - `source_name` (str): Name of the assessed data source
 - `source_type` (str): Type of the data source
 - `adri_version` (str): Version of ADRI used for assessment
+- `assessment_mode` (str): Mode used for assessment ('discovery' or 'validation')
+- `mode_config` (dict): Configuration settings used for the assessment mode
 
 #### Methods:
 
@@ -225,25 +236,39 @@ connector = APIConnector(
 
 ## Configuration
 
-### Default Configuration
+### Configuration Management
 
 ```python
-from adri.config import Config
+from adri.config import Configuration, get_config, set_config
 
-# Get default configuration
-config = Config.default()
+# Create a custom configuration
+config = Configuration({
+    "validity": {"weight": 0.25},
+    "completeness": {"threshold": 0.95}
+})
 
-# Customize configuration
-config.set("validity.weight", 0.25)
-config.set("completeness.threshold", 0.95)
+# Get current global configuration
+current_config = get_config()
+
+# Set global configuration
+set_config(config)
+
+# Pass configuration to assessor
+assessor = DataSourceAssessor(config={
+    "validity": {"weight": 0.3},
+    "completeness": {"min_score": 80}
+})
 ```
 
 ### Configuration Options
 
 - `dimension.weight`: Weight for dimension in overall score (0.0-1.0)
 - `dimension.threshold`: Minimum acceptable score for dimension
+- `dimension.min_score`: Minimum required score for dimension
 - `assessment.parallel`: Enable parallel rule execution
 - `assessment.workers`: Number of parallel workers
+- `business_logic_enabled`: Enable business-specific rules (Discovery mode)
+- `require_explicit_metadata`: Require metadata files (Validation mode)
 
 ## Utility Functions
 
@@ -301,6 +326,18 @@ constraint = ADRIQualityConstraint(
 ---
 
 For more detailed examples and use cases, see:
-- [Implementation Guide](./Implementation-Guide.md)
+- [Implementation Guide](./implementation_guide.md)
 - [Framework Integrations](./INTEGRATIONS.md)
 - [Extending ADRI](./EXTENDING.md)
+
+## Purpose & Test Coverage
+
+**Why this file exists**: Provides comprehensive technical reference documentation for all public APIs, classes, methods, and configuration options in the ADRI framework.
+
+**Key responsibilities**:
+- Document all public APIs with clear parameter descriptions and return types
+- Provide code examples for each major component
+- Serve as the authoritative reference for developers
+- Maintain consistency with actual implementation
+
+**Test coverage**: This document's examples, claims, and features should be verified by tests documented in [API_REFERENCE_test_coverage.md](./test_coverage/API_REFERENCE_test_coverage.md)
