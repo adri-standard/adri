@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "adri"
-version = "0.3.0"
+version = "0.3.1"
 authors = [
     {name = "Verodat", email = "info@verodat.ai"}
 ]
@@ -81,7 +81,7 @@ Homepage = "https://github.com/verodat/agent-data-readiness-index"
 adri = "adri.cli:main"
 
 [tool.setuptools]
-packages = ["adri"]
+packages = ["adri", "adri.config", "adri.connectors", "adri.dimensions", "adri.integrations", "adri.rules", "adri.templates", "adri.utils"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
