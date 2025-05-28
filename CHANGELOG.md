@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2025-05-28
+
+### Added
+- **"Facilitation, not enforcement" philosophy** - Major paradigm shift in how ADRI approaches data quality
+- Assessment modes system with Discovery, Validation, and Auto modes
+- Automatic metadata generation for all five dimensions in Discovery mode
+- Business-specific dimension rules for domain-aware quality assessment
+- Comprehensive assessment mode documentation
+- Unit tests for assessment modes functionality
+
+### Changed
+- **Discovery mode now scores based on intrinsic data quality (100% weight)** - No penalties for missing metadata
+- Data that previously scored 8/100 for lacking metadata now scores fairly (e.g., 72/100) based on actual quality
+- Assessment reports now include generated metadata file paths
+- Mode selection logic intelligently chooses between Discovery and Validation
+- Report format includes assessment mode information
+
+### Improved
+- User experience transformed from penalizing to helpful
+- Clear separation between quality analysis (Discovery) and compliance checking (Validation)
+- Better alignment with ADRI's vision of enabling AI agent workflows
+- More intuitive scoring that reflects actual data quality
+
 ## [0.2.0b1-1] - 2025-04-18
 ### Fixed
 - GitHub Actions workflow for release assets
