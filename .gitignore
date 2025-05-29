@@ -54,3 +54,11 @@ site/
 # OS specific files
 .DS_Store
 Thumbs.db
+
+# Business strategy documents (should not be in open source)
+*-GTM-strategy.md
+*-business-strategy.md
+*-business-strategy/
+/private/
+/business/
+/strategy/
