@@ -13,6 +13,33 @@ Consistency rules examine data for internal coherence and alignment, focusing on
 
 These rules help identify contradictions, inconsistencies, and violations of relationships between data elements.
 
+### Template Mode Scoring
+
+When using templates, the Consistency dimension scoring works differently:
+
+1. **Rule Weights**: Each rule has a weight parameter that determines its contribution to the dimension score
+2. **20-Point Total**: All rule weights within the consistency dimension must sum to 20 points
+3. **Flexible Distribution**: You can allocate more weight to critical consistency checks
+
+Example template configuration:
+```yaml
+dimensions:
+  consistency:
+    rules:
+      - type: cross_field
+        params:
+          weight: 12  # 12 out of 20 points - critical validation
+          validation_type: "expression"
+          fields: ["start_date", "end_date"]
+          expression: "pd.to_datetime(subset_df['start_date']) <= pd.to_datetime(subset_df['end_date'])"
+      - type: uniform_representation
+        params:
+          weight: 8   # 8 out of 20 points
+          column: "status"
+          format_type: "categorical"
+          allowed_values: ["active", "inactive", "pending"]
+```
+
 ## Implemented Rules
 
 ### CrossFieldConsistencyRule
@@ -29,11 +56,12 @@ These rules help identify contradictions, inconsistencies, and violations of rel
 **Example**:
 
 ```python
-CrossFieldConsistencyRule(params={
+# Example configuration for CrossFieldConsistencyRule
+cross_field_params = {
     "validation_type": "expression",
     "fields": ["age", "birth_date"],
     "expression": "(pd.to_datetime('today') - pd.to_datetime(subset_df['birth_date'])).dt.days / 365 - subset_df['age'] < 1.0"
-})
+}
 ```
 
 ### UniformRepresentationRule
@@ -51,11 +79,12 @@ CrossFieldConsistencyRule(params={
 **Example**:
 
 ```python
-UniformRepresentationRule(params={
+# Example configuration for UniformRepresentationRule
+uniform_params = {
     "column": "birth_date",
     "format_type": "pattern",
     "pattern": r"^\d{4}-\d{2}-\d{2}$"
-})
+}
 ```
 
 ### CalculationConsistencyRule
@@ -73,13 +102,14 @@ UniformRepresentationRule(params={
 **Example**:
 
 ```python
-CalculationConsistencyRule(params={
+# Example configuration for CalculationConsistencyRule
+calc_rule_params = {
     "result_column": "total_price",
     "calculation_type": "expression",
     "expression": "subset_df['quantity'] * subset_df['unit_price']",
     "input_columns": ["quantity", "unit_price"],
     "tolerance": 0.01
-})
+}
 ```
 
 ## Usage Examples
@@ -87,13 +117,13 @@ CalculationConsistencyRule(params={
 ### Basic Usage
 
 ```python
-from adri import ADRIAssessor
-from adri.datasource import CSVDataSource
+from adri import DataSourceAssessor
+from adri.connectors.file import CSVConnector
 from adri.rules.consistency import CrossFieldConsistencyRule, UniformRepresentationRule, CalculationConsistencyRule
 from adri.rules.registry import RuleRegistry
 
 # Create data source
-data_source = CSVDataSource("data.csv")
+data_source = CSVConnector(filepath="data.csv")
 
 # Create and register rules
 registry = RuleRegistry()
@@ -104,7 +134,7 @@ registry.register(CrossFieldConsistencyRule(params={
 }))
 
 # Create assessor and run assessment
-assessor = ADRIAssessor(registry=registry)
+assessor = DataSourceAssessor()
 report = assessor.assess(data_source)
 ```
 
@@ -112,41 +142,45 @@ report = assessor.assess(data_source)
 
 1. **Date Range Validation**:
    ```python
-   CrossFieldConsistencyRule(params={
-       "validation_type": "expression", 
-       "fields": ["start_date", "end_date"],
-       "expression": "pd.to_datetime(subset_df['start_date']) <= pd.to_datetime(subset_df['end_date'])"
-   })
+# Parameters for CrossFieldConsistencyRule
+date_range_params = {
+    "validation_type": "expression", 
+    "fields": ["start_date", "end_date"],
+    "expression": "pd.to_datetime(subset_df['start_date']) <= pd.to_datetime(subset_df['end_date'])"
+}
    ```
 
 2. **Consistent Date Formats**:
    ```python
-   UniformRepresentationRule(params={
-       "column": "transaction_date",
-       "format_type": "pattern",
-       "pattern": r"^\d{4}-\d{2}-\d{2}$"
-   })
+# Parameters for UniformRepresentationRule
+date_format_params = {
+    "column": "transaction_date",
+    "format_type": "pattern",
+    "pattern": r"^\d{4}-\d{2}-\d{2}$"
+}
    ```
 
 3. **Calculated Field Validation**:
    ```python
-   CalculationConsistencyRule(params={
-       "result_column": "total",
-       "calculation_type": "expression",
-       "expression": "subset_df['price'] * subset_df['quantity']",
-       "input_columns": ["price", "quantity"],
-       "tolerance": 0.01
-   })
+# Parameters for CalculationConsistencyRule
+calculation_params = {
+    "result_column": "total",
+    "calculation_type": "expression",
+    "expression": "subset_df['price'] * subset_df['quantity']",
+    "input_columns": ["price", "quantity"],
+    "tolerance": 0.01
+}
    ```
 
 4. **Categorical Value Consistency**:
    ```python
-   UniformRepresentationRule(params={
-       "column": "status",
-       "format_type": "categorical",
-       "allowed_values": ["active", "inactive", "pending"],
-       "case_sensitive": False
-   })
+# Parameters for UniformRepresentationRule
+categorical_params = {
+    "column": "status",
+    "format_type": "categorical",
+    "allowed_values": ["active", "inactive", "pending"],
+    "case_sensitive": False
+}
    ```
 
 ## Full Example

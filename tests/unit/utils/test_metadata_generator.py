@@ -242,24 +242,31 @@ class TestMetadataGenerator(unittest.TestCase):
         self.assertTrue(domain_rule_found, "Should include domain-specific rule placeholder")
         
     def test_generate_all_metadata(self):
-        """Test generating all metadata files at once."""
-        generated_files = self.generator.generate_all_metadata()
+        """Test generating all metadata in a single file."""
+        generated_file = self.generator.generate_all_metadata()
         
-        # Check all dimensions were generated
-        expected_dimensions = {'validity', 'completeness', 'freshness', 'consistency', 'plausibility'}
-        self.assertEqual(set(generated_files.keys()), expected_dimensions)
+        # Check file was created
+        self.assertTrue(generated_file.exists(), "Metadata file should exist")
+        self.assertEqual(generated_file.suffix, '.json')
+        self.assertEqual(generated_file.name, 'test_data.adri_metadata.json')
         
-        # Check files were created
-        for dimension, file_path in generated_files.items():
-            self.assertTrue(file_path.exists(), f"{dimension} file should exist")
-            self.assertEqual(file_path.suffix, '.json')
-            self.assertEqual(file_path.stem, f'test_data.{dimension}')
+        # Check file content is valid JSON
+        with open(generated_file, 'r') as f:
+            data = json.load(f)
             
-            # Check file content is valid JSON
-            with open(file_path, 'r') as f:
-                data = json.load(f)
-                self.assertIsInstance(data, dict)
-                self.assertIn('has_explicit_' + dimension + '_info', data)
+        # Check structure
+        self.assertIsInstance(data, dict)
+        self.assertIn('_generated_by', data)
+        self.assertIn('_generated_at', data)
+        self.assertIn('_adri_version', data)
+        self.assertIn('_data_source', data)
+        
+        # Check all dimensions are present
+        expected_dimensions = {'validity', 'completeness', 'freshness', 'consistency', 'plausibility'}
+        for dimension in expected_dimensions:
+            self.assertIn(dimension, data, f"{dimension} should be in metadata")
+            # Each dimension should have its has_explicit_info flag
+            self.assertIn('has_explicit_' + dimension + '_info', data[dimension])
                 
     def test_edge_case_empty_dataframe(self):
         """Test handling of empty DataFrame."""
@@ -313,25 +320,34 @@ class TestMetadataGenerator(unittest.TestCase):
             result = self.generator._map_to_json_type(inferred)
             self.assertEqual(result, expected)
             
-    def test_save_metadata(self):
-        """Test metadata file saving."""
+    def test_save_combined_metadata(self):
+        """Test combined metadata file saving."""
         test_metadata = {
-            'test': True,
-            'data': [1, 2, 3],
-            'nested': {'key': 'value'}
+            '_generated_by': 'test',
+            '_generated_at': datetime.now().isoformat(),
+            'validity': {
+                'has_explicit_validity_info': True,
+                'type_definitions': {}
+            },
+            'completeness': {
+                'has_explicit_completeness_info': True,
+                'overall_completeness': 0.95
+            }
         }
         
-        file_path = self.generator._save_metadata('test', test_metadata)
+        file_path = self.generator._save_combined_metadata(test_metadata)
         
         # Check file was created
         self.assertTrue(file_path.exists())
-        self.assertEqual(file_path.name, 'test_data.test.json')
+        self.assertEqual(file_path.name, 'test_data.adri_metadata.json')
         
         # Check content
         with open(file_path, 'r') as f:
             saved_data = json.load(f)
         
-        self.assertEqual(saved_data, test_metadata)
+        self.assertEqual(saved_data['_generated_by'], 'test')
+        self.assertIn('validity', saved_data)
+        self.assertIn('completeness', saved_data)
         
         # Check formatting (should be pretty-printed)
         with open(file_path, 'r') as f:

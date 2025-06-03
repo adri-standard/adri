@@ -34,22 +34,29 @@ class MetadataGenerator:
         self.base_name = file_connector.file_path.stem
         self.output_dir = file_connector.file_path.parent
         
-    def generate_all_metadata(self, output_dir: Optional[Path] = None) -> Dict[str, Path]:
+    def generate_all_metadata(self, output_dir: Optional[Path] = None) -> Path:
         """
-        Generate all five metadata files.
+        Generate a single metadata file containing all five dimensions.
         
         Args:
-            output_dir: Optional output directory for metadata files
+            output_dir: Optional output directory for metadata file
             
         Returns:
-            Dictionary mapping dimension names to generated file paths
+            Path to the generated metadata file
         """
         if output_dir:
             self.output_dir = Path(output_dir)
             
-        generated_files = {}
+        # Generate metadata for all dimensions
+        combined_metadata = {
+            "_generated_by": "adri init",
+            "_generated_at": datetime.now().isoformat(),
+            "_adri_version": "0.3.1",
+            "_data_source": self.base_name,
+            "_comment": "Auto-generated ADRI metadata. Please review and adjust all TODO sections."
+        }
         
-        # Generate each metadata file
+        # Generate each dimension's metadata
         metadata_generators = {
             'validity': self.generate_validity_metadata,
             'completeness': self.generate_completeness_metadata,
@@ -61,13 +68,21 @@ class MetadataGenerator:
         for dimension, generator_func in metadata_generators.items():
             try:
                 metadata = generator_func()
-                file_path = self._save_metadata(dimension, metadata)
-                generated_files[dimension] = file_path
-                logger.info(f"Generated {dimension} metadata: {file_path}")
+                combined_metadata[dimension] = metadata
+                logger.info(f"Generated {dimension} metadata")
             except Exception as e:
                 logger.error(f"Error generating {dimension} metadata: {e}")
+                # Include empty section with error note
+                combined_metadata[dimension] = {
+                    "_error": f"Failed to generate: {str(e)}",
+                    "_comment": f"TODO: Manually create {dimension} metadata"
+                }
                 
-        return generated_files
+        # Save combined metadata
+        file_path = self._save_combined_metadata(combined_metadata)
+        logger.info(f"Generated combined metadata file: {file_path}")
+        
+        return file_path
     
     def generate_validity_metadata(self) -> Dict[str, Any]:
         """Generate validity metadata based on inferred column types."""
@@ -429,15 +444,15 @@ class MetadataGenerator:
         }
         return type_mapping.get(inferred_type, "string")
     
-    def _save_metadata(self, dimension: str, metadata: Dict[str, Any]) -> Path:
-        """Save metadata to a JSON file with pretty formatting."""
-        filename = f"{self.base_name}.{dimension}.json"
+    def _save_combined_metadata(self, metadata: Dict[str, Any]) -> Path:
+        """Save combined metadata to a single JSON file with pretty formatting."""
+        filename = f"{self.base_name}.adri_metadata.json"
         file_path = self.output_dir / filename
         
         with open(file_path, 'w', encoding='utf-8') as f:
             json.dump(metadata, f, indent=2, ensure_ascii=False)
             
-            return file_path
+        return file_path
 
 # ----------------------------------------------
 # TEST COVERAGE

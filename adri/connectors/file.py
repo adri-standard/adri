@@ -178,6 +178,15 @@ class FileConnector(BaseConnector):
         """Get any explicit quality metadata provided by the data source."""
         quality_metadata = {}
         
+        # Check for ADRI metadata file first
+        adri_metadata_file = self.file_path.parent / f"{self.file_path.stem}.adri_metadata.json"
+        if adri_metadata_file.exists():
+            try:
+                with open(adri_metadata_file, 'r', encoding=self.encoding) as f:
+                    quality_metadata["adri_metadata"] = json.load(f)
+            except Exception as e:
+                logger.warning(f"Could not load ADRI metadata file: {e}")
+        
         # Check for companion metadata files
         metadata_file = self.file_path.with_suffix('.meta.json')
         if metadata_file.exists():
@@ -212,13 +221,35 @@ class FileConnector(BaseConnector):
     
     def supports_validation(self) -> bool:
         """Check if this data source supports validation."""
+        # Check for ADRI metadata file with validity section
+        adri_metadata_file = self.file_path.parent / f"{self.file_path.stem}.adri_metadata.json"
+        if adri_metadata_file.exists():
+            try:
+                with open(adri_metadata_file, 'r', encoding=self.encoding) as f:
+                    metadata = json.load(f)
+                    return 'validity' in metadata
+            except:
+                pass
+        
+        # Legacy check
         validation_file = self.file_path.with_suffix('.validation.json')
         return validation_file.exists()
     
     def get_validation_results(self) -> Optional[Dict[str, Any]]:
         """Get results of any validation performed on this data source."""
-        validation_file = self.file_path.with_suffix('.validation.json')
+        # Check for ADRI metadata file first
+        adri_metadata_file = self.file_path.parent / f"{self.file_path.stem}.adri_metadata.json"
+        if adri_metadata_file.exists():
+            try:
+                with open(adri_metadata_file, 'r', encoding=self.encoding) as f:
+                    metadata = json.load(f)
+                    if 'validity' in metadata:
+                        return metadata['validity'].get('validation_results')
+            except Exception as e:
+                logger.warning(f"Error reading ADRI metadata: {e}")
         
+        # Legacy validation file
+        validation_file = self.file_path.with_suffix('.validation.json')
         if not validation_file.exists():
             return None
             
@@ -272,13 +303,47 @@ class FileConnector(BaseConnector):
     
     def supports_completeness_check(self) -> bool:
         """Check if this data source supports completeness checking."""
+        # Check for ADRI metadata file with completeness section
+        adri_metadata_file = self.file_path.parent / f"{self.file_path.stem}.adri_metadata.json"
+        if adri_metadata_file.exists():
+            try:
+                with open(adri_metadata_file, 'r', encoding=self.encoding) as f:
+                    metadata = json.load(f)
+                    return 'completeness' in metadata
+            except:
+                pass
+                
+        # Legacy check
         completeness_file = self.file_path.with_suffix('.completeness.json')
         return completeness_file.exists()
     
     def get_completeness_results(self) -> Optional[Dict[str, Any]]:
         """Get results of any completeness checks on this data source."""
-        completeness_file = self.file_path.with_suffix('.completeness.json')
+        # Check for ADRI metadata file first
+        adri_metadata_file = self.file_path.parent / f"{self.file_path.stem}.adri_metadata.json"
+        if adri_metadata_file.exists():
+            try:
+                with open(adri_metadata_file, 'r', encoding=self.encoding) as f:
+                    metadata = json.load(f)
+                    if 'completeness' in metadata:
+                        completeness_info = metadata['completeness'].copy()
+                        completeness_info["has_explicit_completeness_info"] = True
+                        
+                        # Add actual values
+                        completeness_info["actual_missing_values_by_column"] = {
+                            col: int(self.df[col].isna().sum())
+                            for col in self.df.columns
+                        }
+                        completeness_info["actual_overall_completeness_percent"] = float(
+                            (1 - self.df.isna().mean().mean()) * 100
+                        )
+                        
+                        return completeness_info
+            except Exception as e:
+                logger.warning(f"Error reading ADRI metadata: {e}")
         
+        # Legacy completeness file
+        completeness_file = self.file_path.with_suffix('.completeness.json')
         if not completeness_file.exists():
             return {
                 "has_explicit_completeness_info": False,
@@ -314,19 +379,99 @@ class FileConnector(BaseConnector):
     
     def supports_consistency_check(self) -> bool:
         """Check if this data source supports consistency checking."""
+        # Check for ADRI metadata file with consistency section
+        adri_metadata_file = self.file_path.parent / f"{self.file_path.stem}.adri_metadata.json"
+        if adri_metadata_file.exists():
+            try:
+                with open(adri_metadata_file, 'r', encoding=self.encoding) as f:
+                    metadata = json.load(f)
+                    return 'consistency' in metadata
+            except:
+                pass
+                
+        # Legacy check
         consistency_file = self.file_path.with_suffix('.consistency.json')
         return consistency_file.exists()
     
     def get_consistency_results(self) -> Optional[Dict[str, Any]]:
         """Get results of any consistency checks on this data source."""
+        # Check for ADRI metadata file first
+        adri_metadata_file = self.file_path.parent / f"{self.file_path.stem}.adri_metadata.json"
+        if adri_metadata_file.exists():
+            try:
+                with open(adri_metadata_file, 'r', encoding=self.encoding) as f:
+                    metadata = json.load(f)
+                    if 'consistency' in metadata:
+                        return metadata['consistency']
+            except Exception as e:
+                logger.warning(f"Error reading ADRI metadata: {e}")
+                
+        # Legacy consistency file
+        consistency_file = self.file_path.with_suffix('.consistency.json')
+        if consistency_file.exists():
+            try:
+                with open(consistency_file, 'r', encoding=self.encoding) as f:
+                    return json.load(f)
+            except Exception as e:
+                logger.warning(f"Error reading consistency file: {e}")
+                
         return None
     
     def supports_freshness_check(self) -> bool:
         """Check if this data source supports freshness checking."""
+        # Check for ADRI metadata file with freshness section
+        adri_metadata_file = self.file_path.parent / f"{self.file_path.stem}.adri_metadata.json"
+        if adri_metadata_file.exists():
+            try:
+                with open(adri_metadata_file, 'r', encoding=self.encoding) as f:
+                    metadata = json.load(f)
+                    return 'freshness' in metadata
+            except:
+                pass
+                
+        # Legacy check
         freshness_file = self.file_path.with_suffix('.freshness.json')
         return freshness_file.exists()
     
     def get_freshness_results(self) -> Optional[Dict[str, Any]]:
+        """Get results of any freshness checks on this data source."""
+        # Check for ADRI metadata file first
+        adri_metadata_file = self.file_path.parent / f"{self.file_path.stem}.adri_metadata.json"
+        if adri_metadata_file.exists():
+            try:
+                with open(adri_metadata_file, 'r', encoding=self.encoding) as f:
+                    metadata = json.load(f)
+                    if 'freshness' in metadata:
+                        freshness_info = metadata['freshness'].copy()
+                        freshness_info["has_explicit_freshness_info"] = True
+                        
+                        # Add file stats
+                        stat = self.file_path.stat()
+                        freshness_info["file_modified_time"] = datetime.fromtimestamp(stat.st_mtime).isoformat()
+                        freshness_info["file_age_hours"] = (datetime.now() - datetime.fromtimestamp(stat.st_mtime)).total_seconds() / 3600
+                        
+                        return freshness_info
+            except Exception as e:
+                logger.warning(f"Error reading ADRI metadata: {e}")
+                
+        # Legacy freshness file
+        freshness_file = self.file_path.with_suffix('.freshness.json')
+        if freshness_file.exists():
+            try:
+                with open(freshness_file, 'r', encoding=self.encoding) as f:
+                    freshness_info = json.load(f)
+                    freshness_info["has_explicit_freshness_info"] = True
+                    
+                    # Add file stats
+                    stat = self.file_path.stat()
+                    freshness_info["file_modified_time"] = datetime.fromtimestamp(stat.st_mtime).isoformat()
+                    freshness_info["file_age_hours"] = (datetime.now() - datetime.fromtimestamp(stat.st_mtime)).total_seconds() / 3600
+                    
+                    return freshness_info
+            except Exception as e:
+                logger.warning(f"Error reading freshness file: {e}")
+        
+        # Default response
         stat = self.file_path.stat()
         return {
             "has_explicit_freshness_info": False,
@@ -336,13 +481,37 @@ class FileConnector(BaseConnector):
     
     def supports_plausibility_check(self) -> bool:
         """Check if this data source supports plausibility checking."""
+        # Check for ADRI metadata file with plausibility section
+        adri_metadata_file = self.file_path.parent / f"{self.file_path.stem}.adri_metadata.json"
+        if adri_metadata_file.exists():
+            try:
+                with open(adri_metadata_file, 'r', encoding=self.encoding) as f:
+                    metadata = json.load(f)
+                    return 'plausibility' in metadata
+            except:
+                pass
+                
+        # Legacy check
         plausibility_file = self.file_path.with_suffix('.plausibility.json')
         return plausibility_file.exists()
     
     def get_plausibility_results(self) -> Optional[Dict[str, Any]]:
         """Get results of any plausibility checks on this data source."""
-        plausibility_file = self.file_path.with_suffix('.plausibility.json')
+        # Check for ADRI metadata file first
+        adri_metadata_file = self.file_path.parent / f"{self.file_path.stem}.adri_metadata.json"
+        if adri_metadata_file.exists():
+            try:
+                with open(adri_metadata_file, 'r', encoding=self.encoding) as f:
+                    metadata = json.load(f)
+                    if 'plausibility' in metadata:
+                        plausibility_info = metadata['plausibility'].copy()
+                        plausibility_info["has_explicit_plausibility_info"] = True
+                        return plausibility_info
+            except Exception as e:
+                logger.warning(f"Error reading ADRI metadata: {e}")
         
+        # Legacy plausibility file
+        plausibility_file = self.file_path.with_suffix('.plausibility.json')
         if not plausibility_file.exists():
             # If no explicit plausibility file, generate basic plausibility analysis
             inferred_types = self.infer_column_types()

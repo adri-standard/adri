@@ -7,6 +7,47 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Template-based weighted scoring system** - Major enhancement to template evaluation
+- `set_template_rules()` method for all dimension classes (Validity, Completeness, Consistency, Freshness, Plausibility)
+- Rule weight support in template definitions - each dimension's rules sum to 20 points
+- Normalized scoring (0-100) for template-based assessments
+- Comprehensive template scoring documentation
+- Template catalog structure with examples and development templates
+- Template Guard for safe template loading
+- Custom rules guide and template TDD documentation
+- Provenance specification for data lineage tracking
+- Test coverage reports for all major components
+
+### Changed
+- **Breaking change**: Metadata file consolidation - Now generates single `adri_metadata.json` instead of 5 separate files
+- **Breaking change**: Template rule parameters renamed for consistency:
+  - Freshness rules: `columns` → `timestamp_column`
+  - Plausibility rules: `min`/`max` → `min_value`/`max_value`
+- Template compliance now based on weighted scoring system
+- Dimension scores in template mode calculated as `(earned_points / 20) * 100`
+- Overall score normalized to 0-100 scale for consistency
+- Enhanced report structure with cleaner organization
+- Improved assessment modes with better mode detection
+- Updated all examples to use new metadata format
+
+### Fixed
+- Template scoring calculation issues where rules weren't properly weighted
+- Consistency rule parameter handling for cross-field and uniform representation
+- Freshness rule parameter validation for timestamp columns
+- Plausibility rule parameter names for range validation
+- Documentation inconsistencies across multiple files
+- Code examples in consistency and plausibility rule documentation
+
+### Documentation
+- Updated CODE_OF_CONDUCT.md with contact email
+- Fixed code examples in consistency_rules.md and plausibility_rules.md
+- Updated implementation_guide.md to current API
+- Rewritten components.md for current architecture
+- Created community catalog content in datasets.md
+- Archived ROADMAP_V1.1.md with redirect
+- Converted Methodology.md to redirect
+
 ## [0.3.1] - 2025-05-28
 
 ### Fixed

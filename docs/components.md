@@ -2,35 +2,35 @@
 
 ## Core Components
 
-### Data Source
-The entry point for data that will be assessed by the ADRI system. Data sources can include:
-- CSV/Excel files
-- Database connections
-- API endpoints
-- Streaming data
+### Data Source Connectors
+The entry points for data that will be assessed by the ADRI system. Connectors provide a uniform interface for different data sources:
+- **FileConnector**: CSV, Excel, JSON, and other file formats
+- **DatabaseConnector**: SQL databases (PostgreSQL, MySQL, SQLite)
+- **APIConnector**: RESTful API endpoints
+- **Custom Connectors**: Extensible for proprietary formats
 
 ### Configuration System
 Manages application settings and customization options for the ADRI assessment process:
-- Configures threshold values for different rules
-- Sets up environment-specific settings
-- Manages user preferences and defaults
-- Provides configuration for connectors to various data sources
+- Configures dimension weights and scoring thresholds
+- Sets assessment modes (Discovery, Validation, Auto)
+- Manages template selection and compliance
+- Provides environment-specific settings
 
-### Rule Registry
-Central registry that manages the collection of diagnostic rules:
-- Maintains a catalog of all available rules
-- Handles rule registration and discovery
-- Maps rules to appropriate dimensions
-- Enables dynamic rule loading and application
+### Template System
+Defines quality requirements for specific use cases:
+- YAML-based template definitions
+- Industry-specific quality standards
+- Compliance thresholds per dimension
+- Business logic rules and validations
 
-### DiagnosticRule Base Class
-The foundation class for all rules in the system:
-- Defines the interface for rule implementation
-- Provides common functionality for all rules
-- Handles rule execution and result processing
-- Implements baseline validation functionality
+### Dimension Registry
+Central registry that manages the assessment dimensions:
+- Dynamically loads dimension assessors
+- Maps dimensions to their implementations
+- Enables custom dimension registration
+- Manages dimension configurations
 
-## Dimensions
+## Assessment Dimensions
 
 ### Validity
 Assesses whether data adheres to defined syntax and format rules:
@@ -38,20 +38,15 @@ Assesses whether data adheres to defined syntax and format rules:
 - Checks format patterns (email, phone, postal codes)
 - Verifies value ranges and boundaries
 - Enforces required fields and constraints
-
-### Plausibility
-Evaluates whether data appears reasonable and likely to be correct:
-- Analyzes statistical distributions for outlier detection
-- Checks for logical consistency between related fields
-- Validates against domain-specific knowledge
-- Identifies improbable or suspicious data patterns
+- Template-specific validation rules
 
 ### Completeness
 Measures the extent to which expected data is present:
 - Checks for null or missing values
-- Verifies complete records across related tables
-- Assesses population of optional fields
-- Evaluates dataset coverage against expectations
+- Evaluates required field population
+- Assesses optional field coverage
+- Calculates completeness percentages
+- Template-defined completeness requirements
 
 ### Freshness
 Determines whether data is sufficiently recent for its intended use:
@@ -59,39 +54,107 @@ Determines whether data is sufficiently recent for its intended use:
 - Evaluates update frequency against requirements
 - Identifies stale or outdated records
 - Assesses temporal validity of time-sensitive data
+- Template-based freshness thresholds
 
 ### Consistency
 Examines data for internal coherence and alignment:
-- Checks for contradictions within and across records
-- Verifies referential integrity and relationships
-- Ensures uniform representation of similar values
-- Validates aggregation and calculation consistency
+- Checks for contradictions within records
+- Verifies calculated field accuracy
+- Ensures uniform representation of values
+- Validates business logic consistency
+- Template-specific consistency rules
+
+### Plausibility
+Evaluates whether data appears reasonable and likely to be correct:
+- Analyzes statistical distributions for outliers
+- Checks for logical relationships between fields
+- Validates against domain knowledge
+- Identifies improbable data patterns
+- Template-defined plausibility checks
 
 ## Assessment Components
 
-### ADRI Assessor
+### DataSourceAssessor
 The central orchestration component that coordinates the assessment process:
-- Applies appropriate rules to data sources
-- Aggregates results across dimensions
-- Calculates data readiness scores
-- Prioritizes issues by severity and impact
+- Manages assessment modes (Discovery/Validation/Auto)
+- Coordinates dimension assessments
+- Applies template requirements
+- Aggregates scores across dimensions
+- Generates metadata in Discovery mode
 
-### Assessment Report
-The output component that presents assessment results:
-- Generates formatted reports (HTML, JSON, PDF)
-- Visualizes scores and metrics with charts
-- Provides detailed issue listings with recommendations
-- Supports tracking progress over time
+### ADRIScoreReport
+The comprehensive assessment output:
+- Overall readiness score (0-100)
+- Individual dimension scores (0-20)
+- Detailed findings and recommendations
+- Template compliance evaluation
+- Multiple output formats (JSON, HTML, text)
+
+### Template Evaluation
+Evaluates data against template requirements:
+- Checks compliance with thresholds
+- Identifies quality gaps
+- Provides actionable recommendations
+- Tracks template version compatibility
+
+### Metadata Generator
+Creates companion metadata files in Discovery mode:
+- Infers data types and constraints
+- Generates validity rules
+- Creates freshness requirements
+- Produces completeness expectations
+- Builds consistency validations
+
+## Integration Components
+
+### ADRI Guard
+Protects agent functions from poor quality data:
+- Decorator-based implementation
+- Configurable quality thresholds
+- Dimension-specific requirements
+- Automatic data validation
+- Error handling and logging
+
+### Framework Integrations
+Native support for AI agent frameworks:
+- **LangChain**: Tool and chain integration
+- **CrewAI**: Task and tool support
+- **DSPy**: Module integration
+- **Custom**: Extensible integration patterns
+
+## Architecture Flow
+
+```
+Data Source → Connector → DataSourceAssessor → Dimensions → Report
+                              ↓                    ↑
+                          Templates ———————————————→
+```
+
+The assessment flow:
+1. Data source is accessed via appropriate connector
+2. DataSourceAssessor orchestrates the assessment
+3. Each dimension evaluates the data independently
+4. Template requirements are applied to dimension results
+5. ADRIScoreReport aggregates all findings
+6. Report is generated in requested format(s)
+
+## Extension Points
+
+ADRI is designed for extensibility:
+- **Custom Connectors**: Add support for new data sources
+- **Custom Dimensions**: Implement domain-specific quality checks
+- **Custom Templates**: Define industry-specific requirements
+- **Custom Integrations**: Add support for new frameworks
 
 ## Purpose & Test Coverage
 
-**Why this file exists**: Provides detailed documentation of ADRI's core components, their responsibilities, and how they interact within the system architecture.
+**Why this file exists**: Provides detailed documentation of ADRI's core components, their responsibilities, and how they interact within the current system architecture.
 
 **Key responsibilities**:
-- Document core system components and their functions
+- Document current system components and their functions
 - Explain the five assessment dimensions in detail
 - Describe assessment orchestration and reporting
-- Map components to their specific roles
-- Guide understanding of the component architecture
+- Show data flow through the system
+- Guide understanding of extension points
 
-**Test coverage**: This document's descriptions and component behaviors should be verified by tests documented in [components_test_coverage.md](./test_coverage/components_test_coverage.md)
+**Test coverage**: This document's descriptions and component behaviors are verified by tests documented in [components_test_coverage.md](./test_coverage/components_test_coverage.md)

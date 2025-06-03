@@ -7,293 +7,391 @@ This guide provides practical instructions for implementing and extending the Ag
 ### Installation
 
 ```bash
-# Clone the repository
-git clone https://github.com/ThinkEvolveSolve/agent-data-readiness-index.git
-cd agent-data-readiness-index
+# Install from PyPI
+pip install adri
 
-# Install dependencies
+# Or install from source
+git clone https://github.com/verodat/agent-data-readiness-index.git
+cd agent-data-readiness-index
 pip install -e .
 ```
 
 ### Basic Usage
 
 ```python
-from adri import ADRIAssessor
-from adri.datasource import CSVDataSource
-
-# Create a data source
-data_source = CSVDataSource("path/to/your/data.csv")
+from adri import DataSourceAssessor
 
 # Initialize the assessor
-assessor = ADRIAssessor()
+assessor = DataSourceAssessor()
 
-# Run the assessment
-report = assessor.assess(data_source)
+# Assess a CSV file
+report = assessor.assess_file("path/to/your/data.csv")
 
 # Output the report
-print(report.summary())
+report.print_summary()
+
+# Save detailed report
+report.save_json("assessment_report.json")
 report.save_html("assessment_report.html")
 ```
 
-## Creating Custom Rules
+## Assessment Modes
 
-### Basic Rule Structure
-
-Create a new rule by extending the `DiagnosticRule` base class:
+ADRI supports different assessment modes:
 
 ```python
-from adri.rules import DiagnosticRule
-from adri.dimensions import Validity
+from adri import DataSourceAssessor
+from adri.assessment_modes import AssessmentMode
 
-class EmailFormatRule(DiagnosticRule):
-    """Rule to check if email addresses follow correct format."""
-    
-    def __init__(self):
-        super().__init__(
-            name="email_format",
-            dimension=Validity,
-            description="Validates email format",
-            severity=2  # 1-5 scale, 5 being most severe
-        )
-    
-    def validate(self, data, column_name="email"):
-        """Apply validation rule to the specified column."""
-        import re
-        email_pattern = r'^[\w\.-]+@[\w\.-]+\.\w+$'
-        
-        # Check each value in the column
-        results = []
-        for idx, value in enumerate(data[column_name]):
-            if not isinstance(value, str) or not re.match(email_pattern, value):
-                results.append({
-                    "row": idx,
-                    "value": value,
-                    "message": f"Invalid email format: {value}"
-                })
-        
-        return results
+# Discovery mode - for new data without metadata
+assessor = DataSourceAssessor(mode=AssessmentMode.DISCOVERY)
+report = assessor.assess_file("new_data.csv")
+
+# Validation mode - for data with existing metadata
+assessor = DataSourceAssessor(mode=AssessmentMode.VALIDATION)
+report = assessor.assess_file("data_with_metadata.csv")
+
+# Auto mode (default) - automatically detects the appropriate mode
+assessor = DataSourceAssessor()  # or mode=AssessmentMode.AUTO
+report = assessor.assess_file("any_data.csv")
 ```
 
-### Registering Custom Rules
+## Using Templates
 
-Register your custom rules with the rule registry:
-
-```python
-from adri.registry import RuleRegistry
-from custom_rules import EmailFormatRule
-
-# Get the registry
-registry = RuleRegistry()
-
-# Register your custom rule
-registry.register(EmailFormatRule())
-
-# Use the registry with the assessor
-assessor = ADRIAssessor(registry=registry)
-```
-
-## Working with Dimensions
-
-Each dimension has specific characteristics:
-
-### Validity Rules
-
-Validity rules check whether data conforms to specific formats or constraints.
+Templates define quality requirements for specific use cases:
 
 ```python
-from adri.rules import DiagnosticRule
-from adri.dimensions import Validity
+from adri import DataSourceAssessor
 
-class NumericRangeRule(DiagnosticRule):
-    """Ensures numeric values are within specified range."""
-    
-    def __init__(self, min_value, max_value):
-        super().__init__(
-            name="numeric_range",
-            dimension=Validity,
-            description=f"Validates values between {min_value} and {max_value}"
-        )
-        self.min_value = min_value
-        self.max_value = max_value
-    
-    def validate(self, data, column_name):
-        results = []
-        for idx, value in enumerate(data[column_name]):
-            try:
-                num_value = float(value)
-                if num_value < self.min_value or num_value > self.max_value:
-                    results.append({
-                        "row": idx,
-                        "value": value,
-                        "message": f"Value {value} outside range [{self.min_value}, {self.max_value}]"
-                    })
-            except (ValueError, TypeError):
-                results.append({
-                    "row": idx,
-                    "value": value,
-                    "message": f"Value {value} is not numeric"
-                })
-        
-        return results
-```
+# Use default template
+assessor = DataSourceAssessor()
+report = assessor.assess_file("data.csv")  # Uses general/default-v1.0.0
 
-### Plausibility Rules
+# Use specific template
+report, evaluation = assessor.assess_file_with_template(
+    "invoice_data.csv",
+    "financial/invoice-processing-v1.0.0"
+)
 
-Plausibility rules identify statistically unlikely or logically improbable values.
-
-### Completeness Rules
-
-Completeness rules check for missing values or insufficient data coverage.
-
-### Freshness Rules
-
-Freshness rules evaluate the timeliness of data.
-
-### Consistency Rules
-
-Consistency rules validate relationships between data points.
-
-## Customizing the Configuration
-
-The configuration system allows for flexible adjustments:
-
-```python
-from adri import Config
-
-# Load existing configuration
-config = Config.load("config.yaml")
-
-# Modify configuration
-config.set("threshold.validity", 0.95)
-config.set("rules.email_format.severity", 3)
-
-# Save modified configuration
-config.save("custom_config.yaml")
-
-# Use custom configuration
-assessor = ADRIAssessor(config=config)
+# Check template compliance
+if evaluation.is_compliant:
+    print("✅ Data meets template requirements")
+else:
+    print("❌ Data quality issues found:")
+    for gap in evaluation.gaps:
+        print(f"  - {gap.dimension}: {gap.message}")
 ```
 
 ## Working with Different Data Sources
 
-ADRI supports various data sources:
-
 ### CSV Files
 
 ```python
-from adri.datasource import CSVDataSource
+from adri import DataSourceAssessor
 
-data_source = CSVDataSource("data.csv", delimiter=",", encoding="utf-8")
+assessor = DataSourceAssessor()
+
+# Basic CSV assessment
+report = assessor.assess_file("data.csv")
+
+# With specific file type
+report = assessor.assess_file("data.tsv", file_type="tsv")
 ```
 
-### Database Connections
+### Database Tables
 
 ```python
-from adri.datasource import SQLDataSource
+# Requires: pip install adri[database]
+from adri import DataSourceAssessor
 
-connection_string = "postgresql://username:password@localhost:5432/mydatabase"
-data_source = SQLDataSource(connection_string, query="SELECT * FROM users")
+assessor = DataSourceAssessor()
+
+# PostgreSQL example
+connection_string = "postgresql://user:password@localhost:5432/mydb"
+report = assessor.assess_database(connection_string, "users_table")
+
+# MySQL example
+connection_string = "mysql://user:password@localhost:3306/mydb"
+report = assessor.assess_database(connection_string, "orders_table")
 ```
 
 ### API Endpoints
 
 ```python
-from adri.datasource import APIDataSource
+# Requires: pip install adri[api]
+from adri import DataSourceAssessor
 
-data_source = APIDataSource(
-    url="https://api.example.com/data",
-    headers={"Authorization": "Bearer token"},
-    method="GET"
+assessor = DataSourceAssessor()
+
+# Basic API assessment
+report = assessor.assess_api("https://api.example.com/data")
+
+# With authentication
+auth = {"headers": {"Authorization": "Bearer token123"}}
+report = assessor.assess_api("https://api.example.com/data", auth=auth)
+```
+
+## Using the ADRI Guard
+
+Protect your agents from bad data:
+
+```python
+from adri.integrations.guard import adri_guarded
+
+@adri_guarded(min_score=80)
+def process_customer_data(data_file):
+    """This function only runs if data quality >= 80"""
+    # Your agent logic here
+    return process_data(data_file)
+
+# Advanced guard with specific requirements
+@adri_guarded(
+    min_score=85,
+    required_dimensions={
+        'validity': 18,
+        'completeness': 17,
+        'freshness': 16
+    }
+)
+def process_financial_data(data_file):
+    """Stricter requirements for financial data"""
+    return process_sensitive_data(data_file)
+```
+
+## Framework Integrations
+
+### LangChain Integration
+
+```python
+# Requires: pip install adri[langchain]
+from adri.integrations.langchain import create_adri_tool
+
+# Create ADRI tool for LangChain
+adri_tool = create_adri_tool(min_score=80)
+
+# Add to your agent's tools
+tools = [adri_tool, other_tools...]
+agent = initialize_agent(tools, llm, agent=AgentType.ZERO_SHOT)
+
+# Agent will check data quality before processing
+result = agent.run("Process the customer data file")
+```
+
+### CrewAI Integration
+
+```python
+# Requires: pip install adri[crewai]
+from adri.integrations.crewai import ADRICrewAITool
+
+# Create tool with quality requirements
+adri_tool = ADRICrewAITool(
+    min_overall_score=85,
+    min_dimension_scores={
+        'validity': 18,
+        'completeness': 17
+    }
+)
+
+# Add to your crew
+crew = Crew(
+    agents=[data_analyst],
+    tasks=[analysis_task],
+    tools=[adri_tool]
 )
 ```
 
-## Extending Assessment Reports
+## Customizing Assessment
 
-Customize report generation:
+### Custom Configuration
 
 ```python
-from adri.report import ReportGenerator
+from adri import DataSourceAssessor
 
-class CustomReportGenerator(ReportGenerator):
-    """Custom report generator with additional visualizations."""
-    
-    def generate_html(self, results):
-        """Generate HTML report with custom visualizations."""
-        # Custom report generation logic
-        html = super().generate_html(results)
-        
-        # Add custom visualizations
-        import matplotlib.pyplot as plt
-        import io
-        import base64
-        
-        # Create visualization
-        plt.figure(figsize=(10, 6))
-        # ... plotting code ...
-        
-        # Convert plot to base64
-        buf = io.BytesIO()
-        plt.savefig(buf, format='png')
-        buf.seek(0)
-        img_str = base64.b64encode(buf.read()).decode('utf-8')
-        
-        # Insert into HTML
-        custom_visual = f'<img src="data:image/png;base64,{img_str}" />'
-        html = html.replace('</body>', f'{custom_visual}</body>')
-        
-        return html
+# Custom dimension weights
+config = {
+    'validity': {'weight': 1.5},      # More important
+    'completeness': {'weight': 1.0},
+    'freshness': {'weight': 0.8},     # Less important
+    'consistency': {'weight': 1.0},
+    'plausibility': {'weight': 1.2}
+}
+
+assessor = DataSourceAssessor(config=config)
+report = assessor.assess_file("data.csv")
 ```
 
-## Advanced Configuration
+### Specific Dimensions Only
 
-### Rule Weights and Thresholds
+```python
+# Assess only specific dimensions
+assessor = DataSourceAssessor(
+    dimensions=['validity', 'completeness', 'freshness']
+)
+report = assessor.assess_file("data.csv")
+```
 
-Configure how different rules contribute to dimension scores:
+## Working with Metadata
+
+ADRI uses companion metadata files to communicate quality information:
+
+```python
+from adri.utils.metadata_generator import MetadataGenerator
+from adri.connectors import FileConnector
+
+# Generate metadata for your data
+connector = FileConnector("data.csv")
+generator = MetadataGenerator(connector)
+
+# Generate all metadata files
+metadata_files = generator.generate_all_metadata()
+# Creates: data.validity.json, data.completeness.json, etc.
+
+# Generate specific metadata
+validity_metadata = generator.generate_validity_metadata()
+freshness_metadata = generator.generate_freshness_metadata()
+```
+
+## Batch Assessment
+
+Assess multiple data sources from configuration:
 
 ```yaml
-# config.yaml
-dimensions:
-  validity:
-    threshold: 0.9
-    rules:
-      email_format:
-        weight: 2.0
-      numeric_range:
-        weight: 1.0
-        
-  completeness:
-    threshold: 0.95
+# assessment_config.yaml
+sources:
+  - name: "Customer Data"
+    type: "file"
+    path: "customers.csv"
+    
+  - name: "Orders Database"
+    type: "database"
+    connection: "postgresql://localhost/orders"
+    table: "orders_2024"
+    
+  - name: "Product API"
+    type: "api"
+    endpoint: "https://api.example.com/products"
 ```
 
-### Environment-Specific Settings
-
-Configure different settings for development, testing, and production:
-
 ```python
-from adri import Config
+from adri import DataSourceAssessor
 
-# Load environment-specific configuration
-env = os.getenv("ENVIRONMENT", "development")
-config = Config.load(f"config.{env}.yaml")
+assessor = DataSourceAssessor()
+reports = assessor.assess_from_config("assessment_config.yaml")
 
-# Initialize with environment-specific configuration
-assessor = ADRIAssessor(config=config)
+for source_name, report in reports.items():
+    print(f"{source_name}: {report.overall_score}/100")
 ```
 
 ## Performance Optimization
 
-For large datasets, optimize performance:
+For large datasets:
 
 ```python
-# Enable parallel processing
-assessor = ADRIAssessor(parallel=True, workers=4)
+from adri import DataSourceAssessor
 
-# Use sampling for initial assessment
-report = assessor.assess(data_source, sample_size=1000)
+# Use sampling for large files
+assessor = DataSourceAssessor(
+    config={
+        'sampling': {
+            'enabled': True,
+            'sample_size': 10000,
+            'random_state': 42
+        }
+    }
+)
 
-# Get problematic areas and focus detailed assessment
-problem_columns = report.get_problematic_columns()
-detailed_report = assessor.assess(data_source, columns=problem_columns)
+report = assessor.assess_file("large_dataset.csv")
+```
+
+## Extending ADRI
+
+### Custom Connectors
+
+```python
+from adri.connectors import BaseConnector, register_connector
+
+@register_connector("custom_source")
+class CustomConnector(BaseConnector):
+    """Connector for custom data source"""
+    
+    def __init__(self, source_path):
+        self.source_path = source_path
+        
+    def get_name(self):
+        return f"custom:{self.source_path}"
+        
+    def get_type(self):
+        return "custom"
+        
+    def get_data(self):
+        # Return pandas DataFrame
+        return load_custom_format(self.source_path)
+        
+    def get_metadata(self):
+        # Return metadata dict
+        return {"format": "custom", "version": "1.0"}
+
+# Use the custom connector
+assessor = DataSourceAssessor()
+report = assessor.assess_with_connector("custom_source", "my_data.custom")
+```
+
+### Custom Dimensions
+
+```python
+from adri.dimensions import BaseDimensionAssessor, register_dimension
+
+@register_dimension("custom_quality")
+class CustomQualityAssessor(BaseDimensionAssessor):
+    """Custom quality dimension"""
+    
+    def assess(self, connector):
+        score = 0
+        findings = []
+        recommendations = []
+        
+        # Custom assessment logic
+        data = connector.get_data()
+        
+        # Calculate score (0-20)
+        if check_custom_quality(data):
+            score = 18
+        else:
+            score = 10
+            findings.append("Custom quality check failed")
+            recommendations.append("Improve custom quality")
+            
+        return score, findings, recommendations
+
+# Use with custom dimension
+assessor = DataSourceAssessor(
+    dimensions=['validity', 'completeness', 'custom_quality']
+)
+```
+
+## Error Handling
+
+```python
+from adri import DataSourceAssessor
+from adri.exceptions import AssessmentError
+
+try:
+    assessor = DataSourceAssessor()
+    report = assessor.assess_file("data.csv")
+except FileNotFoundError:
+    print("Data file not found")
+except AssessmentError as e:
+    print(f"Assessment failed: {e}")
+except Exception as e:
+    print(f"Unexpected error: {e}")
+```
+
+## Next Steps
+
+- Explore [example scripts](https://github.com/verodat/agent-data-readiness-index/tree/main/examples)
+- Read about [creating templates](./CONTRIBUTING_TEMPLATES.md)
+- Learn about [assessment modes](./ASSESSMENT_MODES.md)
+- See [API Reference](./API_REFERENCE.md) for detailed documentation
 
 ## Purpose & Test Coverage
 
@@ -301,9 +399,9 @@ detailed_report = assessor.assess(data_source, columns=problem_columns)
 
 **Key responsibilities**:
 - Guide installation and basic usage
-- Show how to create custom rules for each dimension
-- Demonstrate configuration customization
-- Explain integration with different data sources
-- Provide performance optimization strategies
+- Show assessment modes and template usage
+- Demonstrate framework integrations
+- Explain data source connections
+- Provide extension patterns
 
 **Test coverage**: This document's code examples, implementation patterns, and features should be verified by tests documented in [implementation_guide_test_coverage.md](./test_coverage/implementation_guide_test_coverage.md)

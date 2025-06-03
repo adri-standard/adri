@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import List, Optional
 
 from .assessor import DataSourceAssessor
-from .report import AssessmentReport
+from .report import ADRIScoreReport
 from .interactive import run_interactive_mode
 from .templates import TemplateLoader
 from .utils.metadata_generator import MetadataGenerator
@@ -450,7 +450,7 @@ def show_template_info(args):
 
 def view_report(args):
     """View a report."""
-    report = AssessmentReport.load_json(args.report_path)
+    report = ADRIScoreReport.load_json(args.report_path)
     report.print_summary()
 
 
@@ -476,24 +476,17 @@ def run_init(args):
         output_dir = Path(args.output_dir) if args.output_dir else source_path.parent
         output_dir.mkdir(parents=True, exist_ok=True)
         
-        # Generate metadata files
-        print(f"Generating metadata files in: {output_dir}")
+        # Generate metadata file
+        print(f"Generating metadata file in: {output_dir}")
         
         if args.dimensions:
             # Generate only specified dimensions
-            generated_files = {}
-            for dimension in args.dimensions:
-                method_name = f"generate_{dimension}_metadata"
-                if hasattr(generator, method_name):
-                    metadata = getattr(generator, method_name)()
-                    file_path = generator._save_metadata(dimension, metadata)
-                    generated_files[dimension] = file_path
-                    print(f"✓ Generated {dimension} metadata: {file_path.name}")
-        else:
-            # Generate all dimensions
-            generated_files = generator.generate_all_metadata(output_dir)
-            for dimension, file_path in generated_files.items():
-                print(f"✓ Generated {dimension} metadata: {file_path.name}")
+            print(f"Note: Generating metadata for specific dimensions: {', '.join(args.dimensions)}")
+            print("(The file will still contain all dimensions, but only requested ones will have data)")
+            
+        # Generate the combined metadata file
+        metadata_file = generator.generate_all_metadata(output_dir)
+        print(f"✓ Generated metadata file: {metadata_file.name}")
         
         print("\n" + "=" * 60)
         print("✅ Metadata files generated successfully!")
@@ -520,7 +513,7 @@ def submit_benchmark(args):
     """Submit a report to the benchmark."""
     from datetime import datetime
     import uuid
-    report = AssessmentReport.load_json(args.report_path)
+    report = ADRIScoreReport.load_json(args.report_path)
     
     # This would typically upload to a benchmark service
     # For GitHub-based solution, we'll save to the benchmark directory

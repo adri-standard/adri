@@ -45,22 +45,30 @@ def main():
         print("Errors:", result.stderr)
     
     # Show what was generated
-    print("\n4. Generated metadata files:")
+    print("\n4. Generated metadata file:")
     print("-" * 60)
-    print("   - test_init_data.validity.json")
-    print("   - test_init_data.completeness.json")
-    print("   - test_init_data.freshness.json") 
-    print("   - test_init_data.consistency.json")
-    print("   - test_init_data.plausibility.json")
     
-    for dimension in ["validity", "completeness", "freshness", "consistency", "plausibility"]:
-        metadata_file = output_dir / f"test_init_data.{dimension}.json"
-        if metadata_file.exists():
-            print(f"\n✓ {metadata_file.name}:")
+    metadata_file = output_dir / "test_init_data.adri_metadata.json"
+    if metadata_file.exists():
+        print(f"✓ {metadata_file.name}")
+        
+        # Load the combined metadata
+        with open(metadata_file, 'r') as f:
+            combined_metadata = json.load(f)
             
-            # Load and show a snippet of the metadata
-            with open(metadata_file, 'r') as f:
-                metadata = json.load(f)
+        # Show metadata info
+        print(f"\nMetadata contains all 5 dimensions:")
+        for dimension in ["validity", "completeness", "freshness", "consistency", "plausibility"]:
+            if dimension in combined_metadata:
+                print(f"  ✓ {dimension}")
+                
+        # Show details for each dimension
+        for dimension in ["validity", "completeness", "freshness", "consistency", "plausibility"]:
+            if dimension not in combined_metadata:
+                continue
+                
+            print(f"\n{dimension.capitalize()} metadata:")
+            metadata = combined_metadata[dimension]
                 
             # Show key insights based on dimension
             if dimension == "validity":
@@ -106,6 +114,7 @@ def main():
     
     print("\n5. Key Benefits:")
     print("-" * 60)
+    print("✅ Single metadata file for all dimensions")
     print("✅ Auto-detected data types with confidence scores")
     print("✅ Identified timestamp columns for freshness tracking")
     print("✅ Statistical analysis for plausibility thresholds")
@@ -120,12 +129,10 @@ def main():
     print("4. Run 'adri assess' to see improved scores with metadata")
     
     # Show a specific TODO example
-    validity_file = output_dir / "test_init_data.validity.json"
-    if validity_file.exists():
-        with open(validity_file, 'r') as f:
-            validity_data = json.load(f)
-            
-        print("\n7. Example TODO from validity.json:")
+    if metadata_file.exists() and 'validity' in combined_metadata:
+        validity_data = combined_metadata['validity']
+        
+        print("\n7. Example TODO from validity section:")
         print("-" * 60)
         email_def = validity_data.get("type_definitions", {}).get("email", {})
         if email_def:

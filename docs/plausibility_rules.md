@@ -29,12 +29,13 @@ These rules help identify values that, while potentially valid according to basi
 **Example**:
 
 ```python
-OutlierDetectionRule(params={
+# Example configuration for OutlierDetectionRule
+outlier_params = {
     "column": "temperature",
     "method": "zscore",
     "threshold": 3.0,
     "exclude_outliers": True
-})
+}
 ```
 
 ### ValueDistributionRule
@@ -51,13 +52,14 @@ OutlierDetectionRule(params={
 **Example**:
 
 ```python
-ValueDistributionRule(params={
+# Example configuration for ValueDistributionRule
+distribution_params = {
     "column": "response_time",
     "distribution_type": "exponential",
     "test_method": "ks",
     "p_threshold": 0.05,
     "distribution_params": {"scale": 30}
-})
+}
 ```
 
 ### RangeCheckRule
@@ -74,12 +76,13 @@ ValueDistributionRule(params={
 **Example**:
 
 ```python
-RangeCheckRule(params={
+# Example configuration for RangeCheckRule
+range_params = {
     "column": "age",
     "min_value": 0,
     "max_value": 120,
     "quantile_based": False
-})
+}
 ```
 
 ### PatternFrequencyRule
@@ -97,7 +100,8 @@ RangeCheckRule(params={
 **Example**:
 
 ```python
-PatternFrequencyRule(params={
+# Example configuration for PatternFrequencyRule
+pattern_params = {
     "column": "country",
     "max_categories": 200,
     "min_frequency": 0.001,
@@ -108,7 +112,7 @@ PatternFrequencyRule(params={
         "UK": 0.12
     },
     "tolerance": 0.05
-})
+}
 ```
 
 ## Usage Examples
@@ -116,24 +120,33 @@ PatternFrequencyRule(params={
 ### Basic Usage
 
 ```python
-from adri import ADRIAssessor
-from adri.datasource import CSVDataSource
-from adri.rules.plausibility import OutlierDetectionRule, ValueDistributionRule
-from adri.rules.registry import RuleRegistry
+from adri import DataSourceAssessor
+from adri.connectors import FileConnector
 
 # Create data source
-data_source = CSVDataSource("data.csv")
+data_source = FileConnector(filepath="data.csv")
 
-# Create and register rules
-registry = RuleRegistry()
-registry.register(OutlierDetectionRule(params={
-    "column": "temperature",
-    "method": "zscore",
-    "threshold": 3.0
-}))
+# Create assessor with plausibility rule configuration
+assessor = DataSourceAssessor(
+    template_mode=True,
+    template={
+        "dimensions": {
+            "plausibility": {
+                "rules": [{
+                    "type": "outlier_detection",
+                    "params": {
+                        "column": "temperature",
+                        "method": "zscore",
+                        "threshold": 3.0,
+                        "weight": 20
+                    }
+                }]
+            }
+        }
+    }
+)
 
-# Create assessor and run assessment
-assessor = ADRIAssessor(registry=registry)
+# Run assessment
 report = assessor.assess(data_source)
 ```
 
@@ -141,39 +154,43 @@ report = assessor.assess(data_source)
 
 1. **Detecting Extreme Values**:
    ```python
-   OutlierDetectionRule(params={
-       "column": "transaction_amount", 
-       "method": "iqr",
-       "multiplier": 1.5
-   })
+# Parameters for OutlierDetectionRule
+extreme_value_params = {
+    "column": "transaction_amount", 
+    "method": "iqr",
+    "multiplier": 1.5
+}
    ```
 
 2. **Validating Age Ranges**:
    ```python
-   RangeCheckRule(params={
-       "column": "age",
-       "min_value": 0,
-       "max_value": 120
-   })
+# Parameters for RangeCheckRule
+age_range_params = {
+    "column": "age",
+    "min_value": 0,
+    "max_value": 120
+}
    ```
 
 3. **Verifying Expected Distributions**:
    ```python
-   ValueDistributionRule(params={
-       "column": "wait_time",
-       "distribution_type": "exponential",
-       "test_method": "chi2"
-   })
+# Parameters for ValueDistributionRule
+wait_time_params = {
+    "column": "wait_time",
+    "distribution_type": "exponential",
+    "test_method": "chi2"
+}
    ```
 
 4. **Analyzing Category Frequencies**:
    ```python
-   PatternFrequencyRule(params={
-       "column": "status_code",
-       "max_categories": 10,
-       "min_frequency": 0.01,
-       "max_frequency": 0.5
-   })
+# Parameters for PatternFrequencyRule
+status_frequency_params = {
+    "column": "status_code",
+    "max_categories": 10,
+    "min_frequency": 0.01,
+    "max_frequency": 0.5
+}
    ```
 
 ## Full Example
