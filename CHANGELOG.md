@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2025-06-04
+
 ### Added
 - **Template-based weighted scoring system** - Major enhancement to template evaluation
 - `set_template_rules()` method for all dimension classes (Validity, Completeness, Consistency, Freshness, Plausibility)
@@ -114,7 +116,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - CrewAI integration
   - Guard integration
 
-[Unreleased]: https://github.com/verodat/agent-data-readiness-index/compare/v0.2.0b1-1...HEAD
+[Unreleased]: https://github.com/verodat/agent-data-readiness-index/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/verodat/agent-data-readiness-index/compare/v0.3.1...v0.4.0
+[0.3.1]: https://github.com/verodat/agent-data-readiness-index/compare/v0.3.0...v0.3.1
+[0.3.0]: https://github.com/verodat/agent-data-readiness-index/compare/v0.2.0b1-1...v0.3.0
 [0.2.0b1-1]: https://github.com/verodat/agent-data-readiness-index/compare/v0.2.0b1...v0.2.0b1-1
 [0.2.0b1]: https://github.com/verodat/agent-data-readiness-index/compare/v0.1.0...v0.2.0b1
 [0.1.0]: https://github.com/verodat/agent-data-readiness-index/releases/tag/v0.1.0
