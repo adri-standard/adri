@@ -4,7 +4,7 @@ This document explains how the GitHub Pages setup works in this repository and h
 
 ## Current Setup
 
-The site is currently configured to use an auto-generated GitHub Pages URL because the repository is private. GitHub only allows organization-pattern URLs (`username.github.io/repository-name`) for public repositories.
+The site is currently configured to use an auto-generated GitHub Pages URL. For public repositories, GitHub supports organization-pattern URLs (`username.github.io/repository-name`).
 
 ## Configuration Files
 
@@ -25,7 +25,7 @@ When the repository is made public, follow these steps to update the URL:
    # site_base_url: "https://probable-adventure-3jve6ry.pages.github.io/"
    
    # Uncomment the organization URL
-   site_base_url: "https://thinkevolvesolve.github.io/agent-data-readiness-index/"
+   site_base_url: "https://adri-standard.github.io/agent-data-readiness-index/"
    ```
 
 2. Commit and push these changes to the main branch
@@ -35,7 +35,7 @@ When the repository is made public, follow these steps to update the URL:
 4. Manually trigger the "Deploy ADRI Documentation" workflow by clicking the workflow and selecting "Run workflow"
 
 5. After the workflow completes, the site will be available at the organization URL pattern:
-   `https://thinkevolvesolve.github.io/agent-data-readiness-index/`
+   `https://adri-standard.github.io/agent-data-readiness-index/`
 
 ## GitHub Pages Settings
 

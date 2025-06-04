@@ -28,7 +28,7 @@ Show immediate business value without ANY installation or setup.
 ### User Experience
 ```bash
 # User types one command:
-curl https://raw.githubusercontent.com/ThinkEvolveSolve/adri-quickstart/main/outputs/crm_audit.txt
+curl https://raw.githubusercontent.com/adri-standard/adri-quickstart/main/outputs/crm_audit.txt
 
 # Sees immediate value:
 🔍 CRM AUDIT REPORT
@@ -134,7 +134,7 @@ User thinks: "This found issues I didn't know existed!"
 ## Implementation Roadmap
 
 ### Phase 1: Quickstart Repository (Week 1)
-- [ ] Create GitHub repo: `ThinkEvolveSolve/adri-quickstart`
+- [ ] Create GitHub repo: `adri-standard/adri-quickstart`
 - [ ] Implement `see_it.py` with pre-generated outputs
 - [ ] Build `try_it.py` with minimal dependencies
 - [ ] Create sample data for 3 industries

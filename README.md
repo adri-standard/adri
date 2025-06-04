@@ -2,9 +2,9 @@
 
 **Most AI agents fail due to bad data. ADRI prevents this.**
 
-[![GitHub stars](https://img.shields.io/github/stars/verodat/agent-data-readiness-index?style=social)](https://github.com/verodat/agent-data-readiness-index)
+[![GitHub stars](https://img.shields.io/github/stars/adri-standard/adri?style=social)](https://github.com/adri-standard/adri)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![ADRI Version](https://img.shields.io/badge/ADRI-v0.3.1-blue.svg)](https://github.com/verodat/agent-data-readiness-index/releases)
+[![ADRI Version](https://img.shields.io/badge/ADRI-v0.4.2-blue.svg)](https://github.com/adri-standard/adri/releases)
 [![PyPI](https://img.shields.io/pypi/v/adri)](https://pypi.org/project/adri/)
 
 ## 🚨 The Hidden Cost of Bad Data
@@ -212,8 +212,8 @@ compliant_data = load_invoice_data()
 ### For Developers
 - ⭐ Star this repo to show support
 - 📝 [Contribute templates](CONTRIBUTING.md) for your industry
-- 🐛 [Report issues](https://github.com/adri-standard/agent-data-readiness-index/issues)
-- 💬 [Join discussions](https://github.com/adri-standard/agent-data-readiness-index/discussions)
+- 🐛 [Report issues](https://github.com/adri-standard/adri/issues)
+- 💬 [Join discussions](https://github.com/adri-standard/adri/discussions)
 
 ### For Organizations
 - 🏢 Implement ADRI internally (immediate ROI)
