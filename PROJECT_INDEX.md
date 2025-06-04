@@ -17,6 +17,7 @@ This document provides a comprehensive overview of all files and directories in 
 | **.gitignore** | Git ignore patterns |
 | **.dockerignore** | Docker ignore patterns |
 | **mypy.ini** | MyPy type checking configuration |
+| **mkdocs.yml** | MkDocs site configuration |
 | **.coverage** | Test coverage data file |
 
 ### 📋 Process & Guidelines
@@ -45,6 +46,7 @@ This document provides a comprehensive overview of all files and directories in 
 | **.github/PULL_REQUEST_TEMPLATE.md** | Pull request template |
 | **.github/workflows/release-drafter.yml** | Automated release notes workflow |
 | **.github/release-drafter.yml** | Release drafter configuration |
+| **.github/site_config.yml** | GitHub Pages site configuration |
 
 ## 📁 adri/ - Core Package
 
@@ -150,20 +152,20 @@ This document provides a comprehensive overview of all files and directories in 
 
 ## 📁 docs/ - Documentation
 
-### 🎯 Core Documentation
+| File | Purpose |
+|------|---------|
+| **index.md** | Documentation home page with navigation |
+
+### 📁 docs/getting-started/
 
 | File | Purpose |
 |------|---------|
-| **index.md** | Documentation home page |
-| **vision.md** | Core vision and strategic direction (hybrid approach) |
-| **vision_in_action.md** | Concrete examples of the vision |
-| **get_started.md** | Quick start guide |
-| **roadmap.md** | Future development plans |
-| **roadmap_v1.1.md** | Detailed v1.1 roadmap with priority rules |
-| **faq.md** | Frequently asked questions |
+| **index.md** | Getting started overview |
 | **quickstart.md** | 5-minute quickstart tutorial |
+| **get_started.md** | Comprehensive getting started guide |
+| **faq.md** | Frequently asked questions |
 
-### 📚 Concept Documentation
+### 📁 docs/concepts/
 
 | File | Purpose |
 |------|---------|
@@ -171,62 +173,84 @@ This document provides a comprehensive overview of all files and directories in 
 | **validity_dimension.md** | Detailed validity dimension documentation |
 | **completeness_dimension.md** | Detailed completeness dimension documentation |
 | **freshness_dimension.md** | Detailed freshness dimension documentation |
-| **consistency_rules.md** | Consistency rules documentation |
 | **plausibility_dimension.md** | Detailed plausibility dimension documentation |
+| **consistency_rules.md** | Consistency rules documentation |
 | **plausibility_rules.md** | Plausibility rules documentation |
 | **methodology.md** | ADRI methodology explanation |
-| **implementation_guide.md** | Step-by-step implementation guide |
-| **understanding_templates.md** | Guide to template system and authoring |
-| **template_tdd_guide.md** | Test-driven development guide for templates |
-| **contributing_templates.md** | Template contribution guidelines |
 
-### 🔧 Technical Documentation
+### 📁 docs/guides/
+
+| File | Purpose |
+|------|---------|
+| **implementation_guide.md** | Step-by-step implementation guide |
+| **custom_rules_guide.md** | Comprehensive guide for creating custom rules |
+| **implementing_guards.md** | Guide to implementing data quality guards |
+| **template_guard.md** | Template guard documentation |
+| **template_tdd_guide.md** | Test-driven development guide for templates |
+| **enhancing_data_sources.md** | Adding metadata to data sources |
+| **integrations.md** | Framework integration guides |
+| **understanding_templates.md** | Guide to template system and authoring |
+
+### 📁 docs/api/
 
 | File | Purpose |
 |------|---------|
 | **api_reference.md** | Complete API documentation |
-| **implementing_guards.md** | Guide to implementing data quality guards |
-| **integrations.md** | Framework integration guides |
-| **extending.md** | How to extend ADRI |
-| **custom_rules_guide.md** | Comprehensive guide for creating custom rules |
-| **enhancing_data_sources.md** | Adding metadata to data sources |
-| **testing.md** | Testing guide and strategy |
 | **assessment_modes.md** | Assessment modes documentation |
-| **rule_testing_architecture.md** | Rule testing architecture guide |
-| **template_guard.md** | Template guard documentation |
 
-### 💼 Use Cases
+### 📁 docs/development/
+
+| File | Purpose |
+|------|---------|
+| **developer.md** | Developer setup guide |
+| **architecture.md** | System architecture documentation |
+| **components.md** | Component descriptions |
+| **extending.md** | How to extend ADRI |
+| **testing.md** | Testing guide and strategy |
+| **contributing.md** | Contribution guidelines |
+| **contributing_templates.md** | Template contribution guidelines |
+| **rule_testing_architecture.md** | Rule testing architecture guide |
+| **project_structure.md** | Repository structure guide |
+| **datasets.md** | Example datasets catalog |
+
+### 📁 docs/governance/
+
+| File | Purpose |
+|------|---------|
+| **vision.md** | Core vision and strategic direction |
+| **vision_in_action.md** | Concrete examples of the vision |
+| **roadmap.md** | Future development plans |
+| **roadmap_v1.1.md** | Detailed v1.1 roadmap with priority rules |
+| **governance_setup_checklist.md** | Governance setup checklist |
+
+### 📁 docs/internal/
+
+| File | Purpose |
+|------|---------|
+| **documentation_alignment.md** | Documentation standards |
+| **style_guide.md** | Documentation style guide |
+| **progressive_engagement_strategy.md** | User engagement strategy |
+| **document_purpose_analysis.md** | Analysis of documentation purposes |
+| **claims_tracker.md** | Tracker for claims made across documentation |
+| **discovery_and_validation.md** | Discovery and validation process documentation |
+| **provenance_specification.md** | Data provenance specification |
+| **github_pages.md** | GitHub Pages deployment guide |
+| **test-deployment.md** | Test deployment instructions |
+
+### 📁 docs/use-cases/
 
 | File | Purpose |
 |------|---------|
 | **use_case_ai_status_auditor.md** | AI status auditor implementation |
 | **use_case_invoice_payment_agent.md** | Invoice payment agent example |
 
-### 🛠️ Development Documentation
+### 📁 docs/assets/
 
 | File | Purpose |
 |------|---------|
-| **developer.md** | Developer setup guide |
-| **architecture.md** | System architecture documentation |
 | **architecture.mmd** | Architecture Mermaid diagram source |
 | **architecture.png** | Architecture diagram image |
-| **components.md** | Component descriptions |
-| **datasets.md** | Example datasets catalog |
-| **project_structure.md** | Repository structure guide |
-
-### 📝 Internal Documentation
-
-| File | Purpose |
-|------|---------|
-| **documentation_alignment.md** | Documentation standards |
-| **progressive_engagement_strategy.md** | User engagement strategy |
-| **style_guide.md** | Documentation style guide |
-| **github_pages.md** | GitHub Pages deployment guide |
-| **test-deployment.md** | Test deployment instructions |
-| **document_purpose_analysis.md** | Analysis of documentation purposes |
-| **claims_tracker.md** | Tracker for claims made across documentation |
-| **discovery_and_validation.md** | Discovery and validation process documentation |
-| **provenance_specification.md** | Data provenance specification |
+| **styles.css** | Documentation styles |
 
 ### 📁 docs/test_coverage/
 
@@ -250,36 +274,37 @@ Contains Mermaid diagram source files and generated images for documentation.
 
 Contains evidence files supporting claims and documentation.
 
-## 📁 config/
-
-| File | Purpose |
-|------|---------|
-| **mkdocs.yml** | MkDocs site configuration |
-| **site_config.yml** | Additional site configuration |
-
 ## 📁 examples/
 
 | File | Purpose |
 |------|---------|
 | **README.md** | Examples overview and index |
+| **template_guard_demo.py** | Template guard demonstration |
+
+### 📁 examples/basic/
+
+| File | Purpose |
+|------|---------|
 | **01_basic_assessment.py** | Basic data assessment example |
 | **02_requirements_as_code.py** | Data requirements as code |
 | **03_data_team_contract.py** | Team data quality contracts |
+
+### 📁 examples/advanced/
+
+| File | Purpose |
+|------|---------|
 | **04_multi_source.py** | Multi-source assessment |
 | **05_production_guard.py** | Production guard implementation |
 | **06_metadata_generation.py** | Automatic metadata generation |
+
+### 📁 examples/templates/
+
+| File | Purpose |
+|------|---------|
 | **07_status_auditor_demo.py** | Status auditor demonstration |
 | **08_template_compliance.py** | Template compliance checking |
 | **09_agent_view_pattern.py** | Agent view pattern example |
 | **10_template_discovery_demo.py** | Template discovery demonstration |
-| **template_guard_demo.py** | Template guard demonstration |
-| **data/** | Example data files |
-| **custom_rules/** | Custom rule examples and test data |
-| **integrations/** | Framework-specific examples |
-| **interactive/** | Interactive mode examples |
-| **legacy/** | Legacy examples (deprecated) |
-| **plausibility/** | Plausibility checking examples |
-| **web_demo/** | Web demonstration |
 
 ### 📁 examples/custom_rules/
 
@@ -290,6 +315,42 @@ Contains evidence files supporting claims and documentation.
 | **duplicate_detection_rule.py** | Example rule detecting duplicate records |
 | **revenue_logic_rule.py** | Example rule validating revenue calculations |
 | **test_data/** | Sample CSV files for testing custom rules |
+
+### 📁 examples/data/
+
+| File | Purpose |
+|------|---------|
+| Various sample data files | Example data for demonstrations |
+
+### 📁 examples/integrations/
+
+| File | Purpose |
+|------|---------|
+| Framework integration examples | Examples for LangChain, CrewAI, DSPy integrations |
+
+### 📁 examples/interactive/
+
+| File | Purpose |
+|------|---------|
+| Interactive mode examples | Examples demonstrating interactive assessment mode |
+
+### 📁 examples/plausibility/
+
+| File | Purpose |
+|------|---------|
+| Plausibility checking examples | Detailed plausibility rule demonstrations |
+
+### 📁 examples/web_demo/
+
+| File | Purpose |
+|------|---------|
+| Web demonstration files | Web-based ADRI demonstration |
+
+### 📁 examples/legacy/
+
+| File | Purpose |
+|------|---------|
+| Deprecated examples | Old examples kept for reference (deprecated) |
 
 ## 📁 tests/
 
@@ -337,9 +398,9 @@ Contains evidence files supporting claims and documentation.
 
 ## 🎯 Key Entry Points
 
-1. **For Users**: Start with `README.md` → `docs/get_started.md`
-2. **For Developers**: `docs/developer.md` → `docs/architecture.md`
-3. **For Contributors**: `CONTRIBUTING.md` → `docs/extending.md`
+1. **For Users**: Start with `README.md` → `docs/getting-started/get_started.md`
+2. **For Developers**: `docs/development/developer.md` → `docs/development/architecture.md`
+3. **For Contributors**: `CONTRIBUTING.md` → `docs/development/extending.md`
 4. **For Examples**: `examples/README.md` → specific example files
 
 ## 📊 File Categories

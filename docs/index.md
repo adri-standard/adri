@@ -1,170 +1,60 @@
-# Agent Data Readiness Index (ADRI)
+# ADRI Documentation
 
-**Making data reliable for AI agents**
+Welcome to the Agent Data Readiness Index (ADRI) documentation. ADRI is an open standard for assessing and ensuring data quality for AI agent systems.
 
-## 🚀 Quick Start
-- **[Why ADRI?](VISION_IN_ACTION.md)** - See the vision in action (5 min read)
-- **[Get Started](GET_STARTED.md)** - Install and run your first assessment
-- **[Templates](USE_CASE_AI_STATUS_AUDITOR.md#adri-template-library)** - Pre-built quality standards
-- **[Contributing Templates](CONTRIBUTING_TEMPLATES.md)** - Help build industry standards
+## 📚 Documentation Sections
 
-## 🎯 First Time Here? Start with Our Vision
+### [Getting Started](getting-started/index.md)
+New to ADRI? Start here with our quickstart guides and FAQs.
+- [Quickstart Guide](getting-started/quickstart.md)
+- [Get Started](getting-started/get_started.md)
+- [FAQ](getting-started/faq.md)
 
-Before diving into code, we encourage you to understand **[why ADRI exists](./VISION.md)** and the problem we're solving. ADRI is more than a tool - it's a framework for ensuring AI agents can trust their data.
+### [Core Concepts](concepts/understanding_dimensions.md)
+Understand the five dimensions of data quality and the ADRI methodology.
+- [Data Quality Dimensions](concepts/understanding_dimensions.md)
+- [ADRI Methodology](concepts/methodology.md)
 
-<div style="text-align: center; margin: 2em 0;">
-  <a href="./VISION.md" style="display: inline-block; padding: 1em 2em; background-color: #8BC34A; color: white; text-decoration: none; border-radius: 4px; font-weight: bold;">
-    📖 Read the Vision →
-  </a>
-</div>
+### [Guides](guides/implementation_guide.md)
+Step-by-step guides for implementing ADRI in your projects.
+- [Implementation Guide](guides/implementation_guide.md)
+- [Custom Rules](guides/custom_rules_guide.md)
+- [Templates](guides/understanding_templates.md)
 
----
+### [API Reference](api/api_reference.md)
+Complete API documentation for ADRI components.
+- [API Reference](api/api_reference.md)
+- [Assessment Modes](api/assessment_modes.md)
 
-## 🚀 Your Journey with ADRI
+### [Development](development/developer.md)
+For contributors and developers extending ADRI.
+- [Developer Guide](development/developer.md)
+- [Architecture](development/architecture.md)
+- [Contributing](development/contributing.md)
 
-```mermaid
-graph LR
-    A[Understand<br/>the Vision] -->|Why it matters| B[Learn Core<br/>Concepts]
-    B -->|5 dimensions| C[Quick<br/>Start]
-    C -->|Try it out| D[Implement<br/>Guards]
-    D -->|Protect agents| E[Integrate &<br/>Extend]
-    
-    style A fill:#8BC34A,stroke:#333,stroke-width:2px,color:#fff
-    style B fill:#FFC107,stroke:#333,stroke-width:2px
-    style C fill:#03A9F4,stroke:#333,stroke-width:2px,color:#fff
-    style D fill:#9C27B0,stroke:#333,stroke-width:2px,color:#fff
-    style E fill:#FF5722,stroke:#333,stroke-width:2px,color:#fff
-```
+### [Governance](governance/vision.md)
+Learn about ADRI's vision, roadmap, and governance model.
+- [Vision](governance/vision.md)
+- [Roadmap](governance/roadmap.md)
 
----
+### [Use Cases](use-cases/use_case_ai_status_auditor.md)
+Real-world examples and implementations.
+- [AI Status Auditor](use-cases/use_case_ai_status_auditor.md)
+- [Invoice Payment Agent](use-cases/use_case_invoice_payment_agent.md)
 
-## What is ADRI?
+## 🚀 Quick Links
 
-The Agent Data Readiness Index (ADRI) helps AI Engineers ensure their agents have reliable data to work with. It provides a standardized framework for assessing, communicating, and enforcing data reliability standards specifically designed for AI agent workflows.
+- **Install**: `pip install adri`
+- **Source Code**: [GitHub Repository](https://github.com/adri-project/adri)
+- **Issues**: [Report a Bug](https://github.com/adri-project/adri/issues)
+- **Discussions**: [Community Forum](https://github.com/adri-project/adri/discussions)
 
-### The Problem We Solve
+## 🎯 Key Features
 
-AI agents face unique challenges when working with data:
+- **Five Dimensions**: Validity, Completeness, Freshness, Consistency, and Plausibility
+- **Templates**: Industry-specific data quality standards
+- **Integrations**: Works with LangChain, CrewAI, DSPy, and more
+- **Guards**: Real-time data quality enforcement
+- **Extensible**: Custom rules and dimensions
 
-- **🙈 Agent Blindness**: Unlike humans, agents can't easily detect problems unless explicitly informed
-- **🔄 Propagating Errors**: Bad data leads to cascading errors in automated workflows
-- **❓ Unclear Standards**: There's no common language for "data quality" in agent applications
-- **🗣️ Communication Gaps**: AI Engineers and data providers lack a shared framework
-
-ADRI solves these problems with a standardized approach to data reliability.
-
-## Quick Start
-
-Once you understand the vision, getting started is easy:
-
-```bash
-pip install adri
-```
-
-```python
-from adri import DataSourceAssessor
-
-# Create an assessor
-assessor = DataSourceAssessor()
-
-# Assess your data source
-report = assessor.assess_file("your_data.csv")
-
-# View the results
-print(f"Overall score: {report.overall_score}/100")
-print(f"Readiness level: {report.readiness_level}")
-
-# Save a visual report
-report.save_html("data_readiness_report.html")
-```
-
-📚 **[Full Quick Start Guide →](./GET_STARTED.md)**
-
-## Key Features
-
-- **Multi-dimensional Assessment**: Evaluates five key aspects of data reliability
-- **Quantitative Scoring**: Provides clear metrics for each dimension
-- **Guard Mechanisms**: Protects agent workflows from unreliable data
-- **Framework Integration**: Works with LangChain, CrewAI, DSPy, and more
-- **Progressive Complexity**: Start simple, grow as your needs evolve
-
-## Growing with ADRI
-
-ADRI meets you where you are and grows with your needs:
-
-### 🎯 **Start Simple**
-Just assess your data quality - no complex setup required:
-```python
-assessor = DataSourceAssessor()
-report = assessor.assess_file("data.csv")
-```
-
-### 🛡️ **Add Protection** 
-Guard your agents against unreliable data:
-```python
-@adri_guarded(min_score=70)
-def my_agent_function(data):
-    # Your agent is now protected
-```
-
-### 📋 **Standardize** (Teams)
-Use templates for consistent quality across teams:
-```python
-# Coming soon: Pre-built quality standards
-assessor = DataSourceAssessor(template="production-v1.0.0")
-```
-
-### 🔗 **Decouple** (Enterprise)
-Build source-agnostic workflows with ADRI contracts.
-[Learn more →](./VISION.md#the-adri-contract-decoupling-data-sources-from-agent-workflows)
-
-## Documentation
-
-### Getting Started
-- [Quick Start Guide](./GET_STARTED.md) - Get up and running in 5 minutes
-- [Understanding ADRI's Vision](./VISION.md) - Learn about our goals and principles
-- [Project Roadmap](./ROADMAP.md) - See our development plan and contribute
-
-### Core Concepts
-- [Understanding Dimensions](./UNDERSTANDING_DIMENSIONS.md) - Deep dive into the five dimensions of reliability
-- [Assessment Modes](./ASSESSMENT_MODES.md) - Discovery vs. Validation modes explained
-- [Discovery and Validation](./DISCOVERY_AND_VALIDATION.md) - Template matching and compliance workflows
-- [Implementing Guards](./IMPLEMENTING_GUARDS.md) - Protect your agent workflows
-- [Enhancing Data Sources](./ENHANCING_DATA_SOURCES.md) - Improve your data with explicit metadata
-
-### Dimension Details
-- [Validity Dimension](./validity_dimension.md) - Ensuring data formats and ranges
-- [Completeness Dimension](./completeness_dimension.md) - Managing missing data
-- [Freshness Dimension](./freshness_dimension.md) - Handling data recency
-- [Consistency Dimension](./consistency_rules.md) - Maintaining logical coherence
-- [Plausibility Dimension](./plausibility_dimension.md) - Detecting unreasonable values
-
-### Advanced Topics
-- [Framework Integrations](./INTEGRATIONS.md) - Using ADRI with popular agent frameworks
-- [Extending ADRI](./EXTENDING.md) - Creating custom dimensions and connectors
-- [API Reference](./API_REFERENCE.md) - Complete API documentation
-
-## The Five Dimensions of Data Reliability
-
-ADRI evaluates data across five key dimensions:
-
-| Dimension | Key Question | Why It Matters |
-|-----------|-------------|----------------|
-| **Validity** | Is the data correctly formatted? | Prevents parsing errors and misinterpretation |
-| **Completeness** | Is all required data present? | Avoids missing information for decisions |
-| **Freshness** | Is the data sufficiently recent? | Ensures decisions aren't based on outdated information |
-| **Consistency** | Is the data logically coherent? | Prevents confusing contradictions |
-| **Plausibility** | Are values reasonable in context? | Catches technically valid but nonsensical data |
-
-## Getting Help
-
-- [FAQ](./FAQ.md) - Common questions and answers
-- GitHub Issues - Report bugs or request features in the repository
-- [Contributing Guide](./CONTRIBUTING.md) - Join the community and contribute
-- [Documentation Style Guide](./STYLE_GUIDE.md) - Writing consistent documentation
-
-## License
-
-ADRI is available under the [MIT License](../LICENSE).
-
-<!-- Last updated: 2025-05-23 -->
+Start with our [Quickstart Guide](getting-started/quickstart.md) to begin using ADRI in your projects!
