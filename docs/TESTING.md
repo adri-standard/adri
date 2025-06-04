@@ -24,6 +24,41 @@ ADRI follows these key testing principles:
 4. **Comprehensive Coverage**: We aim to test all aspects of the system, including functionality, performance, and usability.
 5. **Real-World Testing**: Tests should simulate real-world usage patterns and edge cases.
 
+### Testing Pyramid
+
+```mermaid
+graph TB
+    subgraph pyramid [" "]
+        E2E[End-to-End Tests<br/>Complete Workflows<br/>Real User Scenarios]
+        INT[Integration Tests<br/>Component Interactions<br/>API Contracts]
+        UNIT[Unit Tests<br/>Individual Functions<br/>Isolated Logic]
+        
+        UNIT --> INT
+        INT --> E2E
+        
+        U_COUNT[Many Tests<br/>Fast Execution<br/>100% Required]
+        I_COUNT[Moderate Tests<br/>Medium Speed<br/>100% Required]
+        E_COUNT[Few Tests<br/>Slower Execution<br/>Critical Paths]
+    end
+    
+    UNIT -.-> U_COUNT
+    INT -.-> I_COUNT
+    E2E -.-> E_COUNT
+    
+    Base[Foundation: 80% Code Coverage Minimum]
+    
+    style UNIT fill:#10b981,stroke:#059669,stroke-width:3px,color:#fff
+    style INT fill:#3b82f6,stroke:#2563eb,stroke-width:3px,color:#fff
+    style E2E fill:#8b5cf6,stroke:#7c3aed,stroke-width:3px,color:#fff
+    style U_COUNT fill:#d1fae5,stroke:#10b981,stroke-width:2px
+    style I_COUNT fill:#dbeafe,stroke:#3b82f6,stroke-width:2px
+    style E_COUNT fill:#ede9fe,stroke:#8b5cf6,stroke-width:2px
+    style Base fill:#1e293b,stroke:#0f172a,stroke-width:3px,color:#fff,font-weight:bold
+    
+    classDef pyramidStyle fill:none,stroke:none
+    class pyramid pyramidStyle
+```
+
 ### Testing Environments
 
 - **Local Development**: Developers run tests locally during development
@@ -147,6 +182,70 @@ ADRI uses several GitHub Actions workflows for testing:
 3. **docs.yml**: Builds and deploys documentation
 4. **update-catalog.yml**: Updates community dataset catalog
 5. **test-publishing.yml**: Tests the PyPI publishing process using TestPyPI
+
+### CI/CD Pipeline Flow
+
+```mermaid
+flowchart LR
+    subgraph "Developer"
+        DEV[Local Development<br/>Write Code & Tests]
+        COMMIT[Git Commit<br/>Push to Branch]
+    end
+    
+    subgraph "GitHub Actions"
+        subgraph "PR Checks"
+            LINT[Code Style<br/>Black, isort, flake8]
+            TYPE[Type Checking<br/>mypy]
+            UNIT_PR[Unit Tests<br/>pytest unit/]
+            INT_PR[Integration Tests<br/>pytest integration/]
+            COV[Coverage Check<br/>≥80% required]
+            DOC_BUILD[Docs Build<br/>mkdocs build]
+        end
+        
+        subgraph "Main Branch"
+            UNIT_MAIN[Full Test Suite]
+            PUBLISH[TestPyPI<br/>Publishing Test]
+            DEPLOY_DOCS[Deploy Docs<br/>GitHub Pages]
+        end
+        
+        subgraph "Release"
+            TAG[Version Tag]
+            PYPI[PyPI Release]
+            ANNOUNCE[Release Notes]
+        end
+    end
+    
+    DEV --> COMMIT
+    COMMIT --> LINT
+    LINT -->|Pass| TYPE
+    TYPE -->|Pass| UNIT_PR
+    UNIT_PR -->|Pass| INT_PR
+    INT_PR -->|Pass| COV
+    COV -->|Pass| DOC_BUILD
+    
+    DOC_BUILD -->|Merge| UNIT_MAIN
+    UNIT_MAIN --> PUBLISH
+    PUBLISH --> DEPLOY_DOCS
+    
+    DEPLOY_DOCS -->|Tag| TAG
+    TAG --> PYPI
+    PYPI --> ANNOUNCE
+    
+    style DEV fill:#fbbf24,stroke:#f59e0b
+    style COMMIT fill:#fbbf24,stroke:#f59e0b
+    style LINT fill:#60a5fa,stroke:#3b82f6
+    style TYPE fill:#60a5fa,stroke:#3b82f6
+    style UNIT_PR fill:#10b981,stroke:#059669
+    style INT_PR fill:#10b981,stroke:#059669
+    style COV fill:#10b981,stroke:#059669
+    style DOC_BUILD fill:#60a5fa,stroke:#3b82f6
+    style UNIT_MAIN fill:#10b981,stroke:#059669
+    style PUBLISH fill:#a78bfa,stroke:#7c3aed
+    style DEPLOY_DOCS fill:#a78bfa,stroke:#7c3aed
+    style TAG fill:#f472b6,stroke:#ec4899
+    style PYPI fill:#f472b6,stroke:#ec4899
+    style ANNOUNCE fill:#f472b6,stroke:#ec4899
+```
 
 #### TestPyPI Publishing Integration Test
 

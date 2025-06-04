@@ -50,6 +50,11 @@ class ModeConfig:
                 "business_logic_enabled": True,   # Enable business-specific checks
                 "auto_generate_metadata": True,   # New: automatically create metadata
                 "metadata_penalty": False,        # New: don't penalize missing metadata
+                # Template discovery configuration
+                "template_discovery_enabled": True,
+                "template_confidence_threshold": 0.7,
+                "suggest_top_templates": 3,
+                "auto_apply_template": False,  # Require user confirmation
             },
             AssessmentMode.VALIDATION: {
                 # Validation mode: verify data meets declared standards

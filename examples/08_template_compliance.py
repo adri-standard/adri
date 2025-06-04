@@ -9,7 +9,8 @@ This example demonstrates how to:
 - Get actionable remediation guidance
 """
 
-from adri import AssessmentReport, FileConnector
+from adri import DataSourceAssessor
+from adri.connectors import FileConnector
 from adri.templates import TemplateRegistry
 
 def main():
@@ -17,8 +18,8 @@ def main():
     
     # Step 1: Load and assess the data
     print("1. Loading and assessing data...")
-    connector = FileConnector("quickstart/samples/crm_data.csv")
-    report = AssessmentReport(connector)
+    assessor = DataSourceAssessor()
+    report = assessor.assess_file("quickstart/samples/crm_data.csv")
     print(f"✓ Overall ADRI Score: {report.overall_score:.1f}/100\n")
     
     # Step 2: Load a template

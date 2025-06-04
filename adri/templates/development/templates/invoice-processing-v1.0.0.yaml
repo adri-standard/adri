@@ -1,0 +1,291 @@
+template:
+  id: financial/invoice-processing-v1.0.0
+  name: Invoice Processing
+  version: 1.0.0
+  authority: ADRI Community
+  description: |
+    Production-ready template for invoice processing automation.
+    Designed to prevent common financial errors and enable automated workflows.
+
+  use_cases:
+    - Automated invoice approval
+    - Payment scheduling
+    - Vendor reconciliation
+    - Duplicate detection
+    - Currency validation
+
+  failure_modes_prevented:
+    - Payment to wrong currency account
+    - Duplicate invoice processing
+    - Payment after terms expired
+    - Invalid vendor payments
+    - Negative amount invoices
+
+pattern_matching:
+  required_columns:
+    - invoice_number
+    - vendor_id
+    - amount
+    - currency
+    - due_date
+  
+  optional_columns:
+    - invoice_date
+    - payment_terms
+    - status
+    - description
+    - tax_amount
+    - discount_amount
+  
+  column_patterns:
+    invoice_number:
+      patterns:
+        - "invoice.*num"
+        - "inv.*no"
+        - "^inv_"
+      case_sensitive: false
+    
+    vendor_id:
+      patterns:
+        - "vendor.*id"
+        - "supplier.*id"
+        - "vendor_code"
+      case_sensitive: false
+    
+    amount:
+      patterns:
+        - "amount"
+        - "total.*amount"
+        - "invoice.*total"
+        - "grand.*total"
+      case_sensitive: false
+    
+    currency:
+      patterns:
+        - "currency"
+        - "curr"
+        - "ccy"
+      case_sensitive: false
+    
+    due_date:
+      patterns:
+        - "due.*date"
+        - "payment.*date"
+        - "maturity.*date"
+      case_sensitive: false
+
+requirements:
+  overall_minimum: 85  # High threshold for financial automation
+  dimension_minimums:
+    validity: 17
+    completeness: 17
+    consistency: 17
+    freshness: 15
+    plausibility: 17
+
+dimensions:
+  validity:
+    weight: 1.5
+    overall_minimum: 85
+    findings_threshold: 3
+    rules:
+      - type: format_consistency
+        params:
+          enabled: true
+          weight: 2.0
+          column_formats:
+            currency: "^[A-Z]{3}$"  # ISO 4217 currency codes
+          check_columns: ["currency"]
+          auto_detect_formats: false
+          
+      - type: range_validation  
+        params:
+          enabled: true
+          weight: 1.5
+          min_value: 0
+          max_value: 1000000
+          inclusive: true
+          columns: ["amount"]
+          
+      - type: type_consistency
+        params:
+          enabled: true
+          weight: 1.0
+          threshold: 0.95
+          analyze_all_columns: true
+
+  completeness:
+    weight: 1.0
+    rules:
+      - name: required_fields_present
+        description: All critical invoice fields must be present
+        validation:
+          type: required_columns
+          columns:
+            - invoice_number
+            - vendor_id
+            - amount
+            - currency
+            - due_date
+        severity: critical
+        
+      - name: invoice_number_not_empty
+        description: Invoice number cannot be empty
+        column: invoice_number
+        validation:
+          type: not_empty
+        severity: critical
+        
+      - name: vendor_id_not_empty
+        description: Vendor ID cannot be empty
+        column: vendor_id
+        validation:
+          type: not_empty
+        severity: critical
+        
+      - name: amount_not_null
+        description: Amount cannot be null
+        column: amount
+        validation:
+          type: not_null
+        severity: critical
+
+  consistency:
+    weight: 1.0
+    rules:
+      - name: no_duplicate_invoices
+        description: Invoice numbers must be unique
+        column: invoice_number
+        validation:
+          type: unique
+        severity: critical
+        
+      - name: vendor_currency_consistency
+        description: Same vendor should use consistent currency
+        validation:
+          type: group_consistency
+          group_by: vendor_id
+          check_column: currency
+          threshold: 0.95
+        severity: high
+        
+      - name: invoice_date_before_due_date
+        description: Invoice date must be before or equal to due date
+        validation:
+          type: date_comparison
+          date1_column: invoice_date
+          date2_column: due_date
+          comparison: "less_than_or_equal"
+        severity: high
+        when_present:
+          - invoice_date
+
+  freshness:
+    weight: 1.0
+    rules:
+      - name: recent_invoices
+        description: Invoices should be recent (within 90 days)
+        column: invoice_date
+        validation:
+          type: date_recency
+          max_age_days: 90
+        severity: medium
+        when_present:
+          - invoice_date
+        
+      - name: future_due_dates
+        description: Due dates should typically be in the future
+        column: due_date
+        validation:
+          type: date_range
+          min_offset_days: -30  # Allow up to 30 days past due
+          max_offset_days: 365  # Up to 1 year in future
+        severity: high
+        
+      - name: reasonable_payment_terms
+        description: Payment terms should be reasonable (0-90 days)
+        validation:
+          type: date_difference
+          date1_column: invoice_date
+          date2_column: due_date
+          min_days: 0
+          max_days: 90
+        severity: medium
+        when_present:
+          - invoice_date
+
+  plausibility:
+    weight: 1.0
+    rules:
+      - name: positive_amounts
+        description: Invoice amounts must be positive
+        column: amount
+        validation:
+          type: range
+          min: 0.01
+          max: 999999999.99
+        severity: critical
+        
+      - name: reasonable_amounts
+        description: Invoice amounts should be within reasonable range
+        column: amount
+        validation:
+          type: statistical
+          method: iqr_outlier
+          threshold: 3.0
+        severity: medium
+        
+      - name: payment_terms_logic
+        description: Payment terms should match date difference
+        validation:
+          type: custom
+          check: payment_terms_consistency
+        severity: medium
+        when_present:
+          - payment_terms
+          - invoice_date
+          - due_date
+        
+      - name: status_progression
+        description: Invoice status should follow logical progression
+        column: status
+        validation:
+          type: enum
+          values:
+            - draft
+            - pending
+            - approved
+            - paid
+            - cancelled
+            - disputed
+        severity: medium
+        when_present:
+          - status
+
+custom_rules:
+  - name: high_value_invoice_check
+    description: Flag high-value invoices for additional review
+    type: threshold_alert
+    column: amount
+    threshold: 50000
+    severity: info
+    
+  - name: cross_border_payment_check
+    description: Flag invoices with different currency than vendor's primary
+    type: vendor_currency_mismatch
+    severity: info
+
+metadata:
+  industry: financial
+  compliance:
+    - SOX
+    - GDPR
+  automation_ready: true
+  risk_level: high
+  typical_volume: "1000-100000 records/month"
+  last_updated: "2025-01-06"
+  tested_with:
+    - "SAP invoice exports"
+    - "Oracle financials"
+    - "QuickBooks data"
+    - "Custom ERP systems"

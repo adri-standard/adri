@@ -1,0 +1,17 @@
+{
+  "_comment": "Auto-generated plausibility metadata. Please review thresholds.",
+  "has_explicit_plausibility_info": true,
+  "rule_results": [
+    {
+      "id": "P.1.0",
+      "rule_name": "TODO: Add domain-specific rule",
+      "type": "domain_specific",
+      "field": "TODO: Specify field",
+      "condition": "TODO: Define what makes values plausible in your domain",
+      "valid": true,
+      "message": "TODO: Describe the plausibility check"
+    }
+  ],
+  "valid_overall": true,
+  "communication_format": "json"
+}

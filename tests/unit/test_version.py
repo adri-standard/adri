@@ -17,7 +17,7 @@ from adri.version import (
     is_version_compatible,
     get_score_compatibility_message
 )
-from adri.report import AssessmentReport
+from adri.report import ADRIScoreReport
 
 
 class TestVersionManagement(unittest.TestCase):
@@ -94,7 +94,7 @@ class TestVersionManagement(unittest.TestCase):
     def test_report_version_embedding(self):
         """Test that reports embed version information correctly."""
         # Create a report with default version (current version)
-        report = AssessmentReport(
+        report = ADRIScoreReport(
             source_name="Test Source",
             source_type="test",
             source_metadata={}
@@ -106,23 +106,47 @@ class TestVersionManagement(unittest.TestCase):
         
         # Check that version appears in dictionary representation
         report_dict = report.to_dict()
-        self.assertEqual(report_dict["adri_version"], __version__,
+        self.assertEqual(report_dict["adri_score_report"]["adri_version"], __version__,
                          "Version should be included in report dictionary")
 
     def test_report_version_loading(self):
         """Test report loading with version compatibility checks."""
-        # Create a test report with incompatible version
+        # Create a test report with incompatible version (new format)
         report_data = {
-            "source_name": "Test Source",
-            "source_type": "test",
-            "source_metadata": {},
-            "assessment_time": datetime.now().isoformat(),
-            "adri_version": "99.0.0",  # Incompatible version
-            "overall_score": 75,
-            "readiness_level": "Proficient",
-            "dimension_results": {},
-            "summary_findings": [],
-            "summary_recommendations": []
+            "adri_score_report": {
+                "report_version": "1.0.0",
+                "adri_version": "99.0.0",  # Incompatible version
+                "generated_at": datetime.now().isoformat(),
+                "summary": {
+                    "overall_score": 75,
+                    "grade": "C",
+                    "status": "Needs Attention",
+                    "data_source": "Test Source"
+                },
+                "dimensions": {
+                    "validity": 15,
+                    "completeness": 15,
+                    "freshness": 15,
+                    "consistency": 15,
+                    "plausibility": 15
+                },
+                "key_findings": {
+                    "issues": [],
+                    "recommendations": []
+                },
+                "metadata": {
+                    "assessed_at": datetime.now().isoformat(),
+                    "adri_version": "99.0.0",
+                    "assessment_mode": "discovery",
+                    "template": {
+                        "id": None,
+                        "version": None,
+                        "match_confidence": None,
+                        "match_type": None
+                    }
+                },
+                "provenance": None
+            }
         }
         
         # Check that loading with incompatible version raises warning
@@ -132,7 +156,7 @@ class TestVersionManagement(unittest.TestCase):
             
             # Patch open and json.load to return our test data
             with patch("builtins.open"), patch("json.load", return_value=report_data):
-                report = AssessmentReport.load_json("fake_path.json")
+                report = ADRIScoreReport.load_json("fake_path.adri_score_report.json")
                 
                 # Check that a warning was raised
                 self.assertTrue(len(recorded_warnings) > 0, 

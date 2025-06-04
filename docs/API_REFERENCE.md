@@ -29,30 +29,48 @@ assessor = DataSourceAssessor(mode=AssessmentMode.VALIDATION)
 
 #### Methods:
 
-##### assess_file(file_path, file_type=None)
-Assess a file-based data source.
+##### assess_file(file_path, file_type=None, template=None)
+Assess a file-based data source using template-based scoring.
 
 **Parameters:**
 - `file_path` (str or Path): Path to the file to assess
 - `file_type` (str, optional): File type override (csv, json, etc.)
+- `template` (str or BaseTemplate, optional): Template to use for assessment (defaults to general/default-v1.0.0)
 
 **Returns:** AssessmentReport
 
-##### assess_database(connection_string, table_name)
-Assess a database table.
+**Note:** All assessments now use templates internally. The default template provides balanced scoring with each dimension's rules weighted to sum to 20 points, normalized to 0-100.
+
+##### assess_with_template(file_path, template_path)
+Assess a file-based data source against a specific template.
+
+**Parameters:**
+- `file_path` (str or Path): Path to the file to assess
+- `template_path` (str or Path): Path to the template YAML file
+
+**Returns:** Tuple[AssessmentReport, TemplateEvaluation]
+- AssessmentReport: Standard assessment results with weighted scoring
+- TemplateEvaluation: Template compliance status and gaps
+
+**Note**: When using templates, each dimension's rules are weighted and sum to 20 points. The overall score is normalized to 0-100.
+
+##### assess_database(connection_string, table_name, template=None)
+Assess a database table using template-based scoring.
 
 **Parameters:**
 - `connection_string` (str): Database connection string
 - `table_name` (str): Name of the table to assess
+- `template` (str or BaseTemplate, optional): Template to use for assessment (defaults to general/default-v1.0.0)
 
 **Returns:** AssessmentReport
 
-##### assess_api(endpoint, auth=None)
-Assess an API endpoint.
+##### assess_api(endpoint, auth=None, template=None)
+Assess an API endpoint using template-based scoring.
 
 **Parameters:**
 - `endpoint` (str): API endpoint URL
 - `auth` (dict, optional): Authentication details
+- `template` (str or BaseTemplate, optional): Template to use for assessment (defaults to general/default-v1.0.0)
 
 **Returns:** AssessmentReport
 
@@ -83,12 +101,26 @@ Convert the report to a dictionary format.
 
 ## Dimensions
 
+All dimension classes support template-based rule configuration through the `set_template_rules()` method.
+
 ### Validity
 
 ```python
 from adri.dimensions import ValidityAssessor
 
 validity = ValidityAssessor(config={})
+
+# Set template rules with weights
+validity.set_template_rules([
+    {
+        'type': 'type_consistency',
+        'params': {'weight': 10, 'threshold': 0.95}
+    },
+    {
+        'type': 'range_validation',
+        'params': {'weight': 10, 'min_value': 0, 'max_value': 1000}
+    }
+])
 ```
 
 ### Completeness
@@ -97,6 +129,18 @@ validity = ValidityAssessor(config={})
 from adri.dimensions import CompletenessAssessor
 
 completeness = CompletenessAssessor(config={})
+
+# Set template rules with weights
+completeness.set_template_rules([
+    {
+        'type': 'required_fields',
+        'params': {'weight': 15, 'required_columns': ['id', 'name']}
+    },
+    {
+        'type': 'population_density',
+        'params': {'weight': 5, 'threshold': 0.9}
+    }
+])
 ```
 
 ### Freshness
@@ -105,6 +149,18 @@ completeness = CompletenessAssessor(config={})
 from adri.dimensions import FreshnessAssessor
 
 freshness = FreshnessAssessor(config={})
+
+# Set template rules with weights
+freshness.set_template_rules([
+    {
+        'type': 'timestamp_recency',
+        'params': {'weight': 10, 'timestamp_column': 'date', 'max_age_days': 30}
+    },
+    {
+        'type': 'update_frequency',
+        'params': {'weight': 10, 'timestamp_column': 'modified', 'expected_frequency_days': 1}
+    }
+])
 ```
 
 ### Consistency
@@ -113,6 +169,18 @@ freshness = FreshnessAssessor(config={})
 from adri.dimensions import ConsistencyAssessor
 
 consistency = ConsistencyAssessor(config={})
+
+# Set template rules with weights
+consistency.set_template_rules([
+    {
+        'type': 'cross_field',
+        'params': {'weight': 12, 'validation_type': 'comparison', 'fields': ['start', 'end']}
+    },
+    {
+        'type': 'uniform_representation',
+        'params': {'weight': 8, 'column': 'currency', 'pattern': '^[A-Z]{3}$'}
+    }
+])
 ```
 
 ### Plausibility
@@ -121,7 +189,27 @@ consistency = ConsistencyAssessor(config={})
 from adri.dimensions import PlausibilityAssessor
 
 plausibility = PlausibilityAssessor(config={})
+
+# Set template rules with weights
+plausibility.set_template_rules([
+    {
+        'type': 'range',
+        'params': {'weight': 15, 'column': 'amount', 'min_value': 0.01, 'max_value': 10000}
+    },
+    {
+        'type': 'outlier',
+        'params': {'weight': 5, 'column': 'amount', 'method': 'iqr', 'threshold': 3.0}
+    }
+])
 ```
+
+### Template Rule Weights
+
+When using templates:
+- Each dimension's rules must have weights that sum to 20 points
+- Weights represent the importance of each rule within the dimension
+- The overall score is normalized to 0-100 for consistency
+- Dimension scores are calculated as: `(earned_points / 20) * 100`
 
 ## Rules
 

@@ -5,7 +5,7 @@ from unittest.mock import Mock, patch
 from adri.templates.registry import TemplateRegistry
 from adri.templates.base import BaseTemplate
 from adri.templates.exceptions import TemplateNotFoundError, TemplateValidationError
-from adri.report import AssessmentReport
+from adri.report import ADRIScoreReport
 from adri.templates.evaluation import TemplateEvaluation
 
 
@@ -18,7 +18,7 @@ class TestTemplate(BaseTemplate):
     template_authority = "Test Authority"
     template_description = "A test template"
     
-    def evaluate(self, report: AssessmentReport) -> TemplateEvaluation:
+    def evaluate(self, report: ADRIScoreReport) -> TemplateEvaluation:
         evaluation = TemplateEvaluation(
             template_id=self.template_id,
             template_version=self.template_version,

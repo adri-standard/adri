@@ -127,9 +127,11 @@ class TestMetadataGenerationExample(unittest.TestCase):
         
         # Verify it's a valid CSV
         content = test_data_path.read_text()
-        self.assertIn("customer_id", content)
-        self.assertIn("purchase_amount", content)
-        self.assertIn("last_purchase_date", content)
+        self.assertIn("date", content)
+        self.assertIn("product", content)
+        self.assertIn("quantity", content)
+        self.assertIn("price", content)
+        self.assertIn("category", content)
         
     def test_example_executable_structure(self):
         """Test that the example has proper executable structure."""

@@ -1,0 +1,56 @@
+graph TB
+    subgraph "Data Source"
+        DATA[customer_data.csv<br/>Original Data File]
+    end
+    
+    subgraph "ADRI Metadata Files"
+        META_V[customer_data.validity.json<br/>Format & Type Info]
+        META_C[customer_data.completeness.json<br/>Required Fields Info]
+        META_F[customer_data.freshness.json<br/>Timeliness Info]
+        META_CO[customer_data.consistency.json<br/>Logic Rules Info]
+        META_P[customer_data.plausibility.json<br/>Domain Rules Info]
+    end
+    
+    subgraph "Metadata Content Example"
+        CONTENT["{<br/>  'dimension': 'validity',<br/>  'score': 85,<br/>  'findings': [<br/>    'email format: 98%',<br/>    'date format: 75%'<br/>  ],<br/>  'schema': {<br/>    'email': 'email',<br/>    'date': 'ISO8601'<br/>  }<br/>}"]
+    end
+    
+    subgraph "Usage Pattern"
+        AGENT[AI Agent]
+        CHECK[Check Metadata<br/>Before Processing]
+        DECIDE{Quality<br/>Sufficient?}
+        PROCESS[Process Data]
+        REJECT[Reject/Request<br/>Better Data]
+    end
+    
+    DATA -.->|Companion Files| META_V
+    DATA -.->|Companion Files| META_C
+    DATA -.->|Companion Files| META_F
+    DATA -.->|Companion Files| META_CO
+    DATA -.->|Companion Files| META_P
+    
+    META_V -.->|Example| CONTENT
+    
+    AGENT --> CHECK
+    CHECK --> META_V
+    CHECK --> META_C
+    CHECK --> META_F
+    CHECK --> META_CO
+    CHECK --> META_P
+    
+    CHECK --> DECIDE
+    DECIDE -->|Yes| PROCESS
+    DECIDE -->|No| REJECT
+    
+    PROCESS --> DATA
+    
+    style DATA fill:#fbbf24,stroke:#f59e0b,stroke-width:3px
+    style META_V fill:#ff6b6b,stroke:#c92a2a,stroke-width:2px,color:#fff
+    style META_C fill:#4ecdc4,stroke:#0ca678,stroke-width:2px,color:#fff
+    style META_F fill:#a78bfa,stroke:#7c3aed,stroke-width:2px,color:#fff
+    style META_CO fill:#fbbf24,stroke:#f59e0b,stroke-width:2px
+    style META_P fill:#60a5fa,stroke:#3b82f6,stroke-width:2px,color:#fff
+    style AGENT fill:#1e293b,stroke:#0f172a,stroke-width:3px,color:#fff
+    style PROCESS fill:#10b981,stroke:#059669,stroke-width:2px,color:#fff
+    style REJECT fill:#ef4444,stroke:#dc2626,stroke-width:2px,color:#fff
+    style CONTENT fill:#f3f4f6,stroke:#9ca3af,font-family:monospace

@@ -62,3 +62,24 @@ Thumbs.db
 /private/
 /business/
 /strategy/
+
+# Local development archive
+Local_Archive/
+
+# Development test scripts in root
+test_*.py
+debug_*.py
+fix_*.py
+
+# Development documentation
+*_SUMMARY.md
+*_STATUS.md
+*_REVIEW.md
+
+# Demo outputs
+*_demo.*
+inventory_demo.*
+test_perfect_invoices.*
+
+# Internal development notes
+.internal/

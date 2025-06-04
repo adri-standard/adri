@@ -1,0 +1,16 @@
+customer_id,name,email,phone,last_purchase_date,total_spent,currency,status,age,country
+1001,John Smith,john.smith@email.com,+1-555-0123,2025-01-15,1250.50,USD,active,35,USA
+1002,Sarah Johnson,invalid-email,555-0124,2025-01-20,2500.00,USD,active,28,USA
+1003,Mike Chen,mike@chen.com,,2024-12-01,750.25,,active,42,Canada
+1004,Emma Wilson,emma.wilson@gmail,+44-20-1234-5678,2025-01-18,3200.00,GBP,active,-5,UK
+1005,Carlos Rodriguez,,+52-55-1234-5678,2024-11-15,,,inactive,31,Mexico
+1006,Lisa Anderson,lisa@company.com,5550126,01/22/2025,1800.50,USD,ACTIVE,29,USA
+1007,David Kim,david.kim@email.com,+82-2-123-4567,2025-13-01,999999999.99,KRW,active,150,South Korea
+1008,Anna Müller,anna.mueller@,+49-30-12345,2025-01-10,2100.00,EUR,pending,33,Germany
+1009,James Taylor,james.taylor@hotmail.com,(555) 012-7890,2024/10/20,1500.75,USD,active,27,usa
+1010,Maria Garcia,maria@garcia.es,+34 91 123 45 67,22-01-2025,1950.00,eur,Active,38,Spain
+1011,Robert Brown,bob.brown@email.com,+1-555-0128,2025-01-25,500.00,USD,active,45,USA
+1012,Sophie Martin,sophie@martin.fr,invalid_phone,2025-01-19,-100.00,EUR,active,26,France
+1013,William Davis,will.davis@,5550129,2025-01-21,2750.00,CAD,suspended,40,Canada
+1014,Isabella Rossi,isabella@rossi.it,+39-06-1234567,25/01/2025,1650.00,EUR,active,32,Italy
+1015,Thomas Mueller,thomas@mueller.de,+49-89-123456,2025-01-17,NaN,EUR,active,36,Germany

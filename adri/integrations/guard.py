@@ -15,7 +15,7 @@ from pathlib import Path
 from datetime import datetime, timedelta
 
 from ..assessor import DataSourceAssessor
-from ..report import AssessmentReport
+from ..report import ADRIScoreReport
 
 
 def adri_guarded(
@@ -83,13 +83,13 @@ def adri_guarded(
             
             # Initialize report to None
             report = None
-            report_path = Path(data_source).with_suffix('.report.json')
+            report_path = Path(data_source).with_suffix('').with_suffix('.adri_score_report.json')
             
             # Check for existing report if caching is enabled
             if use_cached_reports and report_path.exists():
                 try:
                     # Load the existing report
-                    report = AssessmentReport.load_json(report_path)
+                    report = ADRIScoreReport.load_json(report_path)
                     
                     # Verify report is not too old if max_age specified
                     if max_report_age_hours is not None:
@@ -139,7 +139,6 @@ def adri_guarded(
                     f"Data quality insufficient for agent use. "
                     f"ADRI Score: {report.overall_score}/100 "
                     f"(Required: {min_score}/100)\n"
-                    f"Readiness Level: {report.readiness_level}\n"
                     f"Top Issues: {report.summary_findings[:3]}"
                 )
             

@@ -5,7 +5,8 @@ import tempfile
 import shutil
 from pathlib import Path
 from unittest.mock import Mock, patch
-from adri.assessor import AssessmentReport
+from adri.assessor import DataSourceAssessor
+from adri.report import ADRIScoreReport
 from adri.templates.loader import TemplateLoader
 from adri.templates.registry import TemplateRegistry
 from adri.templates.yaml_template import YAMLTemplate
@@ -23,7 +24,7 @@ class ProductionTemplate(BaseTemplate):
     template_authority = "ADRI Standards Board"
     template_description = "Standard template for production data quality"
     
-    def evaluate(self, report: AssessmentReport) -> TemplateEvaluation:
+    def evaluate(self, report: ADRIScoreReport) -> TemplateEvaluation:
         evaluation = TemplateEvaluation(
             template_id=self.template_id,
             template_version=self.template_version,
@@ -92,7 +93,7 @@ class TestTemplateIntegration:
         assert template.template_id == "production"
         
         # Create a mock report
-        report = Mock(spec=AssessmentReport)
+        report = Mock(spec=ADRIScoreReport)
         report.overall_score = 85
         report.dimension_scores = {
             "validity": 17,
@@ -138,7 +139,7 @@ class TestTemplateIntegration:
         assert template.template_id == "file-test"
         
         # Create report that fails requirements
-        report = Mock(spec=AssessmentReport)
+        report = Mock(spec=ADRIScoreReport)
         report.overall_score = 70  # Below minimum
         report.dimension_scores = {"validity": 14, "completeness": 18}
         
@@ -175,7 +176,7 @@ class TestTemplateIntegration:
         assert cert_info["certifying_authority"] == "Certification Authority"
         
         # Create compliant report
-        report = Mock(spec=AssessmentReport)
+        report = Mock(spec=ADRIScoreReport)
         report.overall_score = 85
         report.dimension_scores = {"validity": 17, "completeness": 17}
         
@@ -188,7 +189,7 @@ class TestTemplateIntegration:
         class ProductionTemplateV2(ProductionTemplate):
             template_version = "2.0.0"
             
-            def evaluate(self, report: AssessmentReport) -> TemplateEvaluation:
+            def evaluate(self, report: ADRIScoreReport) -> TemplateEvaluation:
                 # More stringent requirements
                 evaluation = TemplateEvaluation(
                     template_id=self.template_id,
@@ -228,7 +229,7 @@ class TestTemplateIntegration:
         assert latest.template_version == "2.0.0"
         
         # Test different requirements
-        report = Mock(spec=AssessmentReport)
+        report = Mock(spec=ADRIScoreReport)
         report.overall_score = 82
         report.dimension_scores = {"validity": 16, "completeness": 16}
         
@@ -278,7 +279,7 @@ class TestTemplateIntegration:
         template = YAMLTemplate.from_string(yaml_content)
         
         # Create report with mixed compliance
-        report = Mock(spec=AssessmentReport)
+        report = Mock(spec=ADRIScoreReport)
         report.overall_score = 75
         report.dimension_scores = {"validity": 15, "completeness": 15}
         report.dimension_findings = {
@@ -338,7 +339,7 @@ class TestTemplateIntegration:
         template = YAMLTemplate.from_string(yaml_content)
         
         # Create report with failures
-        report = Mock(spec=AssessmentReport)
+        report = Mock(spec=ADRIScoreReport)
         report.overall_score = 65
         report.dimension_scores = {
             "validity": 10,  # Major gap

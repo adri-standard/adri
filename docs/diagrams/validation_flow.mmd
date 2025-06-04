@@ -1,0 +1,42 @@
+flowchart TD
+    subgraph "Validation Phase"
+        REPORT[Assessment Report<br/>Quality Scores]
+        TEMPLATE[Template Requirements<br/>Min Scores & Rules]
+        EVALUATE[Evaluate Compliance<br/>Check Requirements]
+        GAPS[Gap Analysis<br/>Identify Issues]
+        CERT[Certification Decision<br/>Pass/Fail]
+    end
+    
+    subgraph "Gap Severity Levels"
+        BLOCKING[Blocking<br/>Must fix]
+        HIGH[High<br/>Should fix]
+        MEDIUM[Medium<br/>Consider fixing]
+        LOW[Low<br/>Nice to have]
+    end
+    
+    subgraph "Outcomes"
+        CERTIFIED[✅ Certified<br/>Ready for agents]
+        REMEDIATE[⚠️ Remediation Needed<br/>Fix gaps first]
+    end
+    
+    REPORT --> EVALUATE
+    TEMPLATE --> EVALUATE
+    EVALUATE --> GAPS
+    GAPS --> CERT
+    
+    GAPS -.-> BLOCKING
+    GAPS -.-> HIGH
+    GAPS -.-> MEDIUM
+    GAPS -.-> LOW
+    
+    CERT -->|Pass| CERTIFIED
+    CERT -->|Fail| REMEDIATE
+    
+    style REPORT fill:#3b82f6,stroke:#2563eb,stroke-width:2px,color:#fff
+    style TEMPLATE fill:#a78bfa,stroke:#7c3aed,stroke-width:2px,color:#fff
+    style CERTIFIED fill:#10b981,stroke:#059669,stroke-width:2px,color:#fff
+    style REMEDIATE fill:#f59e0b,stroke:#d97706,stroke-width:2px,color:#fff
+    style BLOCKING fill:#ef4444,stroke:#dc2626,color:#fff
+    style HIGH fill:#f59e0b,stroke:#d97706
+    style MEDIUM fill:#fbbf24,stroke:#f59e0b
+    style LOW fill:#10b981,stroke:#059669

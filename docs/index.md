@@ -6,6 +6,7 @@
 - **[Why ADRI?](VISION_IN_ACTION.md)** - See the vision in action (5 min read)
 - **[Get Started](GET_STARTED.md)** - Install and run your first assessment
 - **[Templates](USE_CASE_AI_STATUS_AUDITOR.md#adri-template-library)** - Pre-built quality standards
+- **[Contributing Templates](CONTRIBUTING_TEMPLATES.md)** - Help build industry standards
 
 ## 🎯 First Time Here? Start with Our Vision
 
@@ -127,6 +128,7 @@ Build source-agnostic workflows with ADRI contracts.
 ### Core Concepts
 - [Understanding Dimensions](./UNDERSTANDING_DIMENSIONS.md) - Deep dive into the five dimensions of reliability
 - [Assessment Modes](./ASSESSMENT_MODES.md) - Discovery vs. Validation modes explained
+- [Discovery and Validation](./DISCOVERY_AND_VALIDATION.md) - Template matching and compliance workflows
 - [Implementing Guards](./IMPLEMENTING_GUARDS.md) - Protect your agent workflows
 - [Enhancing Data Sources](./ENHANCING_DATA_SOURCES.md) - Improve your data with explicit metadata
 

@@ -1,0 +1,121 @@
+# Simple Template Example
+# This is a minimal but complete template
+
+template:
+  id: "examples/customer-basic"
+  name: "Basic Customer Data"
+  version: "1.0.0"
+  description: |
+    A simple template for basic customer information.
+    Suitable for CRM systems and customer databases.
+    
+    Use cases:
+    - Customer contact management
+    - Email marketing lists
+    - Basic customer analytics
+    
+  category: "examples"
+  tags: ["customer", "crm", "basic", "example"]
+  authority: "ADRI Examples"
+
+requirements:
+  overall_minimum: 70
+  dimension_minimums:
+    validity: 14      # 70% of 20
+    completeness: 14  # 70% of 20
+    consistency: 14   # 70% of 20
+    freshness: 14     # 70% of 20
+    plausibility: 14  # 70% of 20
+
+dimensions:
+  validity:
+    weight: 1.0
+    rules:
+      - type: format_validation
+        params:
+          enabled: true
+          weight: 10
+          check_emails: true
+          check_dates: true
+          
+      - type: type_consistency
+        params:
+          enabled: true
+          weight: 10
+          threshold: 0.95
+          
+  completeness:
+    weight: 1.0
+    rules:
+      - type: required_fields
+        params:
+          enabled: true
+          weight: 15
+          required_columns: ["customer_id", "email", "name"]
+          threshold: 0.95
+          
+      - type: population_density
+        params:
+          enabled: true
+          weight: 5
+          threshold: 0.80
+          
+  freshness:
+    weight: 1.0
+    rules:
+      - type: timestamp_recency
+        params:
+          enabled: true
+          weight: 12
+          max_age_days: 365
+          timestamp_column: "last_contact"
+          
+      - type: update_frequency
+        params:
+          enabled: true
+          weight: 8
+          expected_frequency_days: 90
+          
+  consistency:
+    weight: 1.0
+    rules:
+      - type: cross_field
+        params:
+          enabled: true
+          weight: 10
+          validation_type: "auto_detect"
+          
+      - type: uniform_representation
+        params:
+          enabled: true
+          weight: 10
+          check_all_columns: true
+          
+  plausibility:
+    weight: 1.0
+    rules:
+      - type: range
+        params:
+          enabled: true
+          weight: 12
+          auto_detect_ranges: true
+          
+      - type: outlier
+        params:
+          enabled: true
+          weight: 8
+          method: "iqr"
+          threshold: 3.0
+
+# Pattern matching for column discovery
+pattern_matching:
+  required_columns:
+    - "customer_id"
+    - "email"
+    - "name"
+    
+  column_synonyms:
+    customer_id: ["id", "client_id", "user_id", "cust_id"]
+    email: ["email_address", "contact_email", "e_mail"]
+    name: ["customer_name", "full_name", "client_name"]
+    last_contact: ["last_contacted", "last_activity", "last_updated"]

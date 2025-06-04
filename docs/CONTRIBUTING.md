@@ -73,4 +73,4 @@ Thank you for contributing!
 - Define community guidelines and standards
 - Encourage diverse forms of participation
 
-**Test coverage**: This document's processes and guidelines should be verified by tests documented in [CONTRIBUTING_test_coverage.md](./test_coverage/CONTRIBUTING_test_coverage.md)
+**Test coverage**: This document's processes and guidelines should be verified by tests for contribution workflows and validation processes.

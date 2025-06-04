@@ -2,9 +2,36 @@
 
 > 📖 **Looking for concrete examples? See [Vision in Action](VISION_IN_ACTION.md)**
 
-## Vision
+## The 99% Problem
 
-The Agent Data Readiness Index (ADRI) exists to **improve the reliability of AI agent workflows** by ensuring the quality and trustworthiness of the data they consume. As AI agents become increasingly autonomous and critical to business operations, the reliability of their data supply becomes paramount to their success.
+**AI agents need 99% reliability to unlock their true value.** Today, they're stuck at 50%.
+
+Why? The data.
+
+```mermaid
+graph TB
+    subgraph "Current State"
+        A1[50% Reliability] --> B1[10% Use Cases Enabled]
+        style A1 fill:#ff6b6b,stroke:#c92a2a,stroke-width:2px,color:#fff
+        style B1 fill:#ffe066,stroke:#fab005,stroke-width:2px
+    end
+    
+    subgraph "Target State"
+        A2[99% Reliability] --> B2[95% Use Cases Enabled]
+        style A2 fill:#51cf66,stroke:#2f9e44,stroke-width:2px,color:#fff
+        style B2 fill:#4ecdc4,stroke:#0ca678,stroke-width:2px,color:#fff
+    end
+    
+    C["+49% Reliability"] --> D["+85% Use Cases!"]
+    style C fill:#fff,stroke:#495057,stroke-width:2px,stroke-dasharray: 5 5
+    style D fill:#fff,stroke:#495057,stroke-width:3px,font-weight:bold
+    
+    %% Title
+    T["The 99% Problem: Exponential Value Unlock"]
+    style T fill:#1c7ed6,stroke:#1864ab,stroke-width:2px,color:#fff,font-size:18px
+```
+
+This isn't a linear improvement - it's exponential. And the bottleneck isn't the AI models or the frameworks. It's the lack of standards for what constitutes "agent-ready data."
 
 ## The Current Reality
 
@@ -12,23 +39,31 @@ Before diving into systematic solutions, let's acknowledge today's pain:
 
 ### A Day in the Life
 
-**9:00 AM - RevOps Manager**
-- Receives CRM export for quarterly review
-- Manually checks 500+ records
-- Finds issues 4 hours later
-- Meeting already started
-
-**10:30 AM - AI Engineer**  
-- Agent crashes on "bad data"
-- No clear error message
-- Traces back through logs
-- Problem: Missing required field
-
-**2:00 PM - Data Engineer**
-- Asked to "make the data AI-ready"
-- No clear definition of "ready"
-- Writes custom validation rules
-- Different standards for each project
+```mermaid
+gantt
+    title A Day in the Life: Data Quality Pain Points
+    dateFormat HH:mm
+    axisFormat %H:%M
+    
+    section RevOps Manager
+    Receives CRM export          :done, r1, 09:00, 30m
+    Manual data checks           :active, r2, 09:30, 240m
+    Finds critical issues        :crit, r3, 13:30, 30m
+    Meeting already started      :milestone, 14:00, 0m
+    
+    section AI Engineer
+    Agent processing data        :done, a1, 10:30, 30m
+    Agent crashes - bad data     :crit, a2, 11:00, 30m
+    Debug error messages         :active, a3, 11:30, 60m
+    Trace through logs           :active, a4, 12:30, 90m
+    Find missing field           :milestone, 14:00, 0m
+    
+    section Data Engineer
+    Request: make data AI-ready  :done, d1, 14:00, 30m
+    No clear definition          :crit, d2, 14:30, 30m
+    Write custom validation      :active, d3, 15:00, 120m
+    Different standards per project :active, d4, 17:00, 60m
+```
 
 These aren't edge cases - they're daily occurrences across every organization trying to leverage AI.
 
@@ -38,23 +73,121 @@ These aren't edge cases - they're daily occurrences across every organization tr
 - **Across Partnerships**: Months spent on custom integrations
 - **Industry-Wide**: Massive duplication of effort solving the same problems
 
-## The Problem
+## The Interoperability Crisis
 
-AI agents face unique challenges when working with data:
+AI agents are transforming every industry, but there's a critical problem:
 
-1. **Agent Blindness**: Unlike humans, agents cannot easily recognize when data is implausible, incomplete, or inconsistent unless explicitly informed.
+**Every agent needs different data. Every data source provides it differently. Nothing works together.**
 
-2. **Propagating Errors**: Bad data leads to bad decisions, which can cascade through automated workflows with minimal human oversight.
+The result?
+- 🔄 Endless custom integrations
+- 💸 Massive implementation costs
+- ⚠️ 50% agent reliability (when 99% is needed)
+- 🚫 No ecosystem innovation
 
-3. **Unclear Standards**: There's no common language for specifying or measuring "data quality" specifically for agent applications.
+Without standards, we're building on quicksand.
 
-4. **Communication Gaps**: AI Engineers and data providers lack a shared framework to discuss data reliability requirements.
+## The Solution: A Universal Standard
 
-5. **Trust Verification**: Organizations need ways to verify that agent workflows are operating on reliable data, especially in regulated industries.
+ADRI (Agent Data Readiness Index) is an open standard that creates a common language between data suppliers and AI agents. 
 
-## Our Solution
+```mermaid
+graph TB
+    subgraph "Before USB"
+        PC1[Computer]
+        D1[Printer<br/>Parallel Port]
+        D2[Mouse<br/>PS/2 Port]
+        D3[Keyboard<br/>DIN Port]
+        D4[Scanner<br/>SCSI Port]
+        
+        PC1 -.->|Custom<br/>Connector| D1
+        PC1 -.->|Custom<br/>Connector| D2
+        PC1 -.->|Custom<br/>Connector| D3
+        PC1 -.->|Custom<br/>Connector| D4
+        
+        style PC1 fill:#ffd43b,stroke:#fab005
+        style D1 fill:#ff8787,stroke:#f03e3e
+        style D2 fill:#ff8787,stroke:#f03e3e
+        style D3 fill:#ff8787,stroke:#f03e3e
+        style D4 fill:#ff8787,stroke:#f03e3e
+    end
+    
+    subgraph "After USB"
+        PC2[Computer<br/>USB Ports]
+        U1[Printer]
+        U2[Mouse]
+        U3[Keyboard]
+        U4[Scanner]
+        
+        PC2 -->|USB| U1
+        PC2 -->|USB| U2
+        PC2 -->|USB| U3
+        PC2 -->|USB| U4
+        
+        style PC2 fill:#51cf66,stroke:#2f9e44
+        style U1 fill:#8ce99a,stroke:#51cf66
+        style U2 fill:#8ce99a,stroke:#51cf66
+        style U3 fill:#8ce99a,stroke:#51cf66
+        style U4 fill:#8ce99a,stroke:#51cf66
+    end
+    
+    subgraph "Before ADRI"
+        A1[AI Agent 1]
+        A2[AI Agent 2]
+        A3[AI Agent 3]
+        
+        DS1[Data Source A]
+        DS2[Data Source B]
+        DS3[Data Source C]
+        
+        A1 -.->|Custom<br/>Integration| DS1
+        A1 -.->|Custom<br/>Integration| DS2
+        A2 -.->|Custom<br/>Integration| DS2
+        A2 -.->|Custom<br/>Integration| DS3
+        A3 -.->|Custom<br/>Integration| DS1
+        A3 -.->|Custom<br/>Integration| DS3
+        
+        style A1 fill:#ffd43b,stroke:#fab005
+        style A2 fill:#ffd43b,stroke:#fab005
+        style A3 fill:#ffd43b,stroke:#fab005
+        style DS1 fill:#ff8787,stroke:#f03e3e
+        style DS2 fill:#ff8787,stroke:#f03e3e
+        style DS3 fill:#ff8787,stroke:#f03e3e
+    end
+    
+    subgraph "After ADRI"
+        AA1[AI Agent 1]
+        AA2[AI Agent 2]
+        AA3[AI Agent 3]
+        
+        ADS1[ADRI-Compliant<br/>Data Source A]
+        ADS2[ADRI-Compliant<br/>Data Source B]
+        ADS3[ADRI-Compliant<br/>Data Source C]
+        
+        AA1 -->|ADRI| ADS1
+        AA1 -->|ADRI| ADS2
+        AA1 -->|ADRI| ADS3
+        AA2 -->|ADRI| ADS1
+        AA2 -->|ADRI| ADS2
+        AA2 -->|ADRI| ADS3
+        AA3 -->|ADRI| ADS1
+        AA3 -->|ADRI| ADS2
+        AA3 -->|ADRI| ADS3
+        
+        style AA1 fill:#51cf66,stroke:#2f9e44
+        style AA2 fill:#51cf66,stroke:#2f9e44
+        style AA3 fill:#51cf66,stroke:#2f9e44
+        style ADS1 fill:#8ce99a,stroke:#51cf66
+        style ADS2 fill:#8ce99a,stroke:#51cf66
+        style ADS3 fill:#8ce99a,stroke:#51cf66
+    end
+```
 
-ADRI provides a **standardized framework** for assessing, communicating, and enforcing data reliability standards specifically designed for AI agent workflows:
+Think of it like USB for data:
+- **Before USB**: Every device needed custom connectors
+- **After USB**: Any device works with any computer
+- **Before ADRI**: Every agent needs custom data pipelines
+- **After ADRI**: Any agent works with any ADRI-compliant data
 
 ## From Battle-Testing to Standard
 
@@ -75,6 +208,71 @@ ADRI wasn't born in a standards committee - it emerged from the trenches:
 ## What ADRI Is: Protocol + Framework
 
 At its core, ADRI establishes a **standardized communication protocol** between data sources and AI agents, supported by assessment tools to implement and verify this protocol.
+
+```mermaid
+graph TB
+    subgraph "ADRI Protocol"
+        P1[Standardized Metadata Format]
+        P2[Five Quality Dimensions]
+        P3[Machine-Readable JSON]
+        P4[Common Vocabulary]
+        
+        P1 --> P2
+        P2 --> P3
+        P3 --> P4
+    end
+    
+    subgraph "ADRI Framework"
+        F1[Assessment Tools]
+        F2[Scoring System<br/>0-100 Scale]
+        F3[Guard Mechanisms]
+        F4[Template Library]
+        
+        F1 --> F2
+        F2 --> F3
+        F3 --> F4
+    end
+    
+    subgraph "Data Sources"
+        DS1[CSV Files]
+        DS2[Databases]
+        DS3[APIs]
+        DS4[Any Data Source]
+    end
+    
+    subgraph "AI Agents"
+        AG1[Invoice Processor]
+        AG2[Customer Service Bot]
+        AG3[Analytics Agent]
+        AG4[Any AI Agent]
+    end
+    
+    %% Connections
+    DS1 --> P1
+    DS2 --> P1
+    DS3 --> P1
+    DS4 --> P1
+    
+    P4 --> F1
+    
+    F4 --> AG1
+    F4 --> AG2
+    F4 --> AG3
+    F4 --> AG4
+    
+    %% Central Message
+    C["ADRI: Universal Standard for<br/>Agent-Ready Data"]
+    
+    style C fill:#1c7ed6,stroke:#1864ab,stroke-width:3px,color:#fff,font-weight:bold
+    style P1 fill:#74c0fc,stroke:#339af0
+    style P2 fill:#74c0fc,stroke:#339af0
+    style P3 fill:#74c0fc,stroke:#339af0
+    style P4 fill:#74c0fc,stroke:#339af0
+    style F1 fill:#8ce99a,stroke:#51cf66
+    style F2 fill:#8ce99a,stroke:#51cf66
+    style F3 fill:#8ce99a,stroke:#51cf66
+    style F4 fill:#8ce99a,stroke:#51cf66
+```
 
 ### The ADRI Protocol
 
@@ -103,40 +301,120 @@ Traditional approaches focus on *measuring* data quality. ADRI focuses on *commu
 - **Quality Transparency**: Clear, standardized quality declarations replace guesswork
 - **Ecosystem Growth**: Common protocol enables a marketplace of interoperable solutions
 
-By establishing both the protocol and the tools to implement it, ADRI creates the foundation for reliable, scalable AI agent deployments.
+## How ADRI Unlocks the Ecosystem
+
+### 1. Define Requirements First
+```yaml
+# invoice-processor.adri.yaml
+name: Invoice Processing Agent
+requires:
+  completeness:
+    critical_fields: [invoice_number, amount, currency, date]
+    min_score: 95
+  validity:
+    formats:
+      date: ISO8601
+      amount: decimal(10,2)
+    min_score: 98
+```
+
+### 2. Data Suppliers Know What to Build
+```python
+# Any data source can target the standard
+from adri import validate
+
+result = validate(my_data, "invoice-processor.adri.yaml")
+print(f"Ready for invoice agent: {result.compliant}")
+```
+
+### 3. Agents Trust Their Inputs
+```python
+# Agents can require compliant data
+@requires_adri("invoice-processor.adri.yaml")
+def process_invoices(data_source):
+    # Agent knows data meets requirements
+    return execute_with_confidence(data_source)
+```
+
+### 4. True Marketplace Emerges
+- **Data providers** compete on quality scores
+- **Agent builders** can target any ADRI data
+- **Enterprises** mix and match components
+- **Innovation** happens at every layer
+
+## Core Technical Architecture
+
+### Multi-dimensional Assessment
+
+Data reliability is assessed across five key dimensions:
+
+```mermaid
+graph TB
+    subgraph wheel [" "]
+        V[Validity<br/>✓ Correct formats<br/>✓ Proper types<br/>✓ Valid ranges]
+        C[Completeness<br/>✓ Required fields<br/>✓ No missing data<br/>✓ Adequate coverage]
+        F[Freshness<br/>✓ Recent data<br/>✓ Timely updates<br/>✓ Not stale]
+        CO[Consistency<br/>✓ Logical coherence<br/>✓ No contradictions<br/>✓ Referential integrity]
+        P[Plausibility<br/>✓ Makes sense<br/>✓ Domain appropriate<br/>✓ Realistic values]
+        
+        CENTER[ADRI<br/>Data Quality<br/>Dimensions]
+        
+        CENTER -.->|Score 0-100| V
+        CENTER -.->|Score 0-100| C
+        CENTER -.->|Score 0-100| F
+        CENTER -.->|Score 0-100| CO
+        CENTER -.->|Score 0-100| P
+        
+        V -.-> C
+        C -.-> F
+        F -.-> CO
+        CO -.-> P
+        P -.-> V
+    end
+    
+    style V fill:#ff6b6b,stroke:#c92a2a,stroke-width:3px,color:#fff
+    style C fill:#4ecdc4,stroke:#0ca678,stroke-width:3px,color:#fff
+    style F fill:#a78bfa,stroke:#7c3aed,stroke-width:3px,color:#fff
+    style CO fill:#fbbf24,stroke:#f59e0b,stroke-width:3px
+    style P fill:#60a5fa,stroke:#3b82f6,stroke-width:3px,color:#fff
+    style CENTER fill:#1e293b,stroke:#0f172a,stroke-width:4px,color:#fff,font-weight:bold
+    
+    classDef wheelStyle fill:none,stroke:none
+    class wheel wheelStyle
+```
+
+- **Validity**: Data conforms to expected formats, types, and ranges
+- **Completeness**: Required data is present and adequately populated
+- **Freshness**: Data is sufficiently recent for its intended use
+- **Consistency**: Data maintains logical coherence within and across datasets
+- **Plausibility**: Data values make sense in their domain context
 
 ### For AI Engineers
 
-- **Diagnostic Tools**: Analyze data sources to understand their reliability across five key dimensions
-- **Quantitative Scores**: Set specific reliability thresholds based on the importance of each dimension
-- **Guard Mechanisms**: Protect agent workflows by ensuring they only process data meeting specified reliability standards
-- **Diagnostic Insights**: Receive structured information about data reliability issues that can be shared with agents
-- **Template Library**: Access pre-built data quality standards for common use cases and industries
-- **Source-Agnostic Workflows**: Build agent systems that work with any data source meeting specified ADRI requirements
-- **Data Requirements as Contracts**: Specify data needs using ADRI templates (e.g., "requires ADRI Production-v1.0.0 compliance")
-- **Automated Trust Verification**: Automatically verify incoming data meets required quality levels before processing
+- **Diagnostic Tools**: Analyze data sources to understand their reliability
+- **Quantitative Scores**: Set specific reliability thresholds
+- **Guard Mechanisms**: Protect agent workflows with quality gates
+- **Template Library**: Access pre-built standards for common use cases
+- **Source-Agnostic Workflows**: Build once, use with any compliant data
+- **Automated Trust Verification**: Runtime quality checks
 
 ### For Data Providers
 
-- **Clear Standards**: Understand what constitutes "reliable data" for agent applications
-- **Self-Assessment**: Evaluate data against standardized criteria before delivery
-- **Metadata Enhancement**: Document reliability characteristics using a standard format
-- **Reliability Communication**: Clearly communicate the reliability of provided data
-- **Template Compliance**: Demonstrate compliance with industry-standard templates
-- **Certified Data Delivery**: Supply data with ADRI certification metadata that agents can automatically verify
-- **Quality-Based Differentiation**: Compete on certified data quality levels, not just data availability
-- **Agent-Ready Data**: Provide context and clarity that enables agent workflows to operate confidently
+- **Clear Standards**: Know exactly what "agent-ready" means
+- **Self-Assessment**: Evaluate data before delivery
+- **Metadata Enhancement**: Document reliability characteristics
+- **Template Compliance**: Meet industry-standard requirements
+- **Certified Data Delivery**: Provide verifiable quality guarantees
+- **Quality-Based Differentiation**: Compete on certified quality levels
 
 ### For Organizations
 
-- **Governance**: Establish clear standards for agent data reliability
-- **Compliance**: Demonstrate due diligence in ensuring agent systems operate on reliable data
-- **Risk Management**: Identify and mitigate data reliability risks in agent workflows
-- **Standardization**: Create consistent reliability expectations across teams and systems
-- **Template Adoption**: Choose from pre-built templates or create custom standards
-- **Continuous Improvement**: Use gap analysis to systematically improve data quality
-- **Team Structure Clarity**: Define clear responsibilities between AI engineers (focus on agent logic), data engineers (ensure ADRI compliance), and IT systems (provide compliant data infrastructure)
-- **Skills Alignment**: Identify and develop the specific skills needed for each role in the ADRI ecosystem
+- **Governance**: Establish clear data reliability standards
+- **Compliance**: Demonstrate due diligence in agent operations
+- **Risk Management**: Identify and mitigate data quality risks
+- **Standardization**: Consistent expectations across teams
+- **Continuous Improvement**: Systematic quality enhancement
+- **Team Structure Clarity**: Define roles in the ADRI ecosystem
 
 ## Scope and Boundaries
 
@@ -190,23 +468,56 @@ This pattern allows organizations to maintain complex data models while providin
 
 ADRI provides value at every level of adoption:
 
+```mermaid
+graph TB
+    subgraph pyramid [" "]
+        L1[Single Organization<br/>Internal Standardization]
+        L2[Extended Enterprise<br/>Partner Integration]
+        L3[Industry Ecosystem<br/>Market Standards]
+        
+        V1[Significant debugging reduction<br/>Dramatically faster deployment<br/>Immediate ROI]
+        V2[Substantial integration savings<br/>Quality-based SLAs<br/>Multiplied ROI]
+        V3[Shared templates<br/>Talent portability<br/>Exponential ROI]
+    end
+    
+    L1 --> L2
+    L2 --> L3
+    
+    L1 -.-> V1
+    L2 -.-> V2
+    L3 -.-> V3
+    
+    Base[Start Here → Grow Value]
+    
+    style L1 fill:#10b981,stroke:#059669,stroke-width:3px,color:#fff
+    style L2 fill:#3b82f6,stroke:#2563eb,stroke-width:3px,color:#fff
+    style L3 fill:#8b5cf6,stroke:#7c3aed,stroke-width:3px,color:#fff
+    style V1 fill:#d1fae5,stroke:#10b981,stroke-width:2px
+    style V2 fill:#dbeafe,stroke:#3b82f6,stroke-width:2px
+    style V3 fill:#ede9fe,stroke:#8b5cf6,stroke-width:2px
+    style Base fill:#1e293b,stroke:#0f172a,stroke-width:3px,color:#fff,font-weight:bold
+    
+    classDef pyramidStyle fill:none,stroke:none
+    class pyramid pyramidStyle
+```
+
 ### Single Organization (Immediate ROI)
 **Internal standardization alone delivers:**
-- 70% reduction in data quality debugging
-- 5x faster AI agent deployment  
+- Significant reduction in data quality debugging
+- Dramatically faster AI agent deployment  
 - Clear inter-departmental contracts
 - Reusable validation logic
 
-**Example**: A financial services firm standardized 50+ internal data sources on ADRI, reducing agent development time from weeks to days.
+**Example**: Organizations can standardize dozens of internal data sources on ADRI, potentially reducing agent development time from weeks to days.
 
 ### Extended Enterprise (Multiplied ROI)
 **Adding suppliers and partners:**
 - Automated partner data validation
 - Quality-based SLAs
-- 80% faster integrations
+- Substantial integration time savings
 - Supply chain transparency
 
-**Example**: A retailer requires ADRI-80+ scores from all suppliers, automating what was 200 manual validation processes.
+**Example**: Enterprises can require ADRI-80+ scores from all suppliers, potentially automating hundreds of manual validation processes.
 
 ### Industry Ecosystem (Exponential ROI)
 **When multiple organizations adopt:**
@@ -217,92 +528,34 @@ ADRI provides value at every level of adoption:
 
 **Key Insight**: Unlike many standards, ADRI delivers value from day one at the single-company level. Broader adoption multiplies benefits but isn't required for positive ROI.
 
-## Core Principles
-
-The ADRI framework is built on several key principles:
-
-### 1. Multi-dimensional Assessment
-
-Data reliability is assessed across five key dimensions:
-
-- **Validity**: Data conforms to expected formats, types, and ranges
-- **Completeness**: Required data is present and adequately populated
-- **Freshness**: Data is sufficiently recent for its intended use
-- **Consistency**: Data maintains logical coherence within and across datasets
-- **Plausibility**: Data values make sense in their domain context
-
-### 2. Default and Enhanced Assessment
-
-- **Default Assessment**: Basic analysis that can be performed on any data source without additional metadata
-- **Enhanced Assessment**: More comprehensive analysis enabled by explicit reliability metadata
-
-### 3. Standardized Communication
-
-- **Common Vocabulary**: Standardized terms and metrics for discussing data reliability
-- **Structured Metadata**: Consistent formats for documenting reliability characteristics
-- **Quantitative Scoring**: Numeric scores that enable clear threshold setting
-- **Template Registry**: Community-maintained repository of reusable data quality standards
-- **Compliance-as-Code**: YAML-based template definitions that can be version controlled and shared
-
-### 4. Flexible Implementation
-
-- **Framework Agnostic**: Core principles apply regardless of the agent framework used
-- **Configurable Weights**: Dimensions can be weighted based on application-specific needs
-- **Extensible Rules**: The rule catalog can grow to accommodate new reliability concerns
-- **Customizable Templates**: Organizations can adapt templates to their specific requirements
-
-### 5. Community Governance
-
-- **Open Standards**: Publicly documented reliability standards that evolve through community input
-- **Versioned Releases**: Stable versions that provide reference points for reliability claims
-- **Facilitation, Not Enforcement**: Focus on enabling communication rather than enforcing compliance
-- **Template Contributions**: Community members can contribute and maintain industry-specific templates
-
-## The ADRI Contract: Decoupling Data Sources from Agent Workflows
+## The ADRI Contract: Enabling True Interoperability
 
 ADRI serves as a **standardized contract layer** between data suppliers and AI engineers, enabling:
 
 ### Data Supply Independence
-- AI Engineers specify data requirements using ADRI standards (e.g., "ADRI Basel-III-v1.0.0")
-- Any data source that meets these requirements can be used interchangeably
-- Agent workflows remain agnostic to the specific data provider or system
-- No need for custom integration code for each data source
+- AI Engineers specify data requirements using ADRI standards
+- Any data source meeting these requirements works interchangeably
+- Agent workflows remain agnostic to specific providers
+- No custom integration code needed
 
 ### Trust Through Certification
-- Data suppliers provide ADRI certification metadata with their data
-- Agents can automatically verify data quality levels before processing
-- Clear context about data reliability enables confident decision-making
+- Data suppliers provide ADRI certification metadata
+- Agents automatically verify quality levels before processing
+- Clear context enables confident decision-making
 - Runtime quality checks ensure ongoing compliance
 
 ### Creating a Data Quality Marketplace
-This contract-based approach enables a new ecosystem where:
-- **Data Discovery**: Find data sources based on ADRI compliance levels
-- **Quality Competition**: Data providers compete on certified quality, not just availability
-- **Automated Matching**: Agent systems can automatically select appropriate data sources
-- **Trust Verification**: All parties can verify quality claims through standardized assessments
+This contract-based approach enables:
+- **Data Discovery**: Find sources based on ADRI compliance
+- **Quality Competition**: Providers compete on certified quality
+- **Automated Matching**: Systems select appropriate data sources
+- **Trust Verification**: All parties verify quality claims
 
 ### Benefits of Decoupling
 1. **For AI Engineers**: Write once, use anywhere - agent code works with any ADRI-compliant data
 2. **For Data Suppliers**: Clear quality targets and competitive differentiation
 3. **For Organizations**: Flexibility to switch data sources without rewriting agent workflows
 4. **For the Ecosystem**: Accelerated innovation through standardized interfaces
-
-## Implementation Through Templates
-
-ADRI templates provide the practical mechanism for implementing our vision:
-
-- **Pre-built Standards**: Ready-to-use templates for common scenarios (production data, regulatory compliance)
-- **Customizable Requirements**: Organizations can adapt templates to their specific needs
-- **Version Control**: Templates evolve with clear versioning and migration paths
-- **Gap Analysis**: Automated identification of where data falls short of template requirements
-- **Remediation Guidance**: Templates include recommendations for improving data quality
-- **Certification Support**: Templates can define certification criteria and badge levels
-
-Templates transform abstract data quality principles into concrete, actionable standards that can be:
-- Shared across teams and organizations
-- Versioned and evolved over time
-- Automatically validated and enforced
-- Used for compliance demonstration
 
 ## Open Development Model
 
@@ -353,31 +606,55 @@ ADRI's vision unfolds in practical stages:
 ### The Path is Practical
 Each stage builds on real value delivery, not speculative adoption. Organizations can stop at any level and still achieve positive ROI.
 
-## Start Your Journey
+## Join the Movement
 
-Ready to transform your data operations?
+The future of AI interoperability is being built now. Whether you're:
+- Building AI agents
+- Managing data pipelines
+- Researching AI systems
+- Leading digital transformation
 
-### For Immediate Impact
+You have a role in shaping this standard.
+
+### Start Your Journey
+
+#### For Immediate Impact
 1. **Assess**: Run ADRI on your most critical dataset
 2. **Standardize**: Implement within one team
 3. **Expand**: Roll out to other departments
 4. **Share**: Contribute learnings back
 
-### Resources
+#### Resources
 - **Quick Start**: [Get running in 5 minutes](GET_STARTED.md)
 - **Examples**: [See ADRI in action](../examples/README.md)
-- **Community**: Join the discussion in the repository's discussion forum
+- **Community**: [Join the discussion](https://github.com/adri-standard/agent-data-readiness-index/discussions)
 
-Remember: Every organization that achieves internal standardization makes the entire ecosystem stronger - whether or not you ever connect with other ADRI users.
+### Get Involved
+
+- **Website**: [adri.dev](https://adri.dev)
+- **GitHub**: [github.com/adri-standard](https://github.com/adri-standard)
+- **Discord**: [discord.gg/adri](https://discord.gg/adri)
+- **Twitter**: [@adri_standard](https://twitter.com/adri_standard)
+
+---
+
+<p align="center">
+  <strong>ADRI: Making AI agents work everywhere, with any data.</strong>
+</p>
+
+<p align="center">
+  <i>An open standard by the community, for the community.</i>
+</p>
 
 ## Purpose & Test Coverage
 
 **Why this file exists**: Defines the core vision and strategic direction for ADRI, establishing why the project exists and what problems it solves for AI agent workflows.
 
 **Key responsibilities**:
-- Articulate the problem of unreliable data in AI agent workflows
+- Articulate the 99% reliability problem and its exponential impact
+- Position ADRI as the universal standard enabling AI agent interoperability
 - Define ADRI's solution as both a protocol and framework
-- Establish the value proposition for different stakeholders
-- Set the long-term vision for industry-wide adoption
+- Establish the value proposition at different implementation levels
+- Set the vision for creating a true data quality marketplace
 
 **Test coverage**: Verified by tests documented in [VISION_test_coverage.md](./test_coverage/VISION_test_coverage.md)

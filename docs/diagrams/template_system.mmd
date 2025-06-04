@@ -1,0 +1,45 @@
+graph TB
+    subgraph "Template Hierarchy"
+        BASE[Base Template<br/>Common Requirements]
+        INDUSTRY[Industry Templates<br/>e.g., financial, healthcare]
+        USECASE[Use Case Templates<br/>e.g., invoice-processor, customer-360]
+        CUSTOM[Custom Templates<br/>Organization-specific]
+        
+        BASE --> INDUSTRY
+        INDUSTRY --> USECASE
+        BASE --> CUSTOM
+        INDUSTRY --> CUSTOM
+    end
+    
+    subgraph "Template Components"
+        T1[name: Template identifier]
+        T2[description: Purpose]
+        T3[dimensions: Quality requirements]
+        T4[critical_fields: Must-have fields]
+        T5[min_scores: Threshold values]
+        T6[extends: Parent template]
+    end
+    
+    subgraph "Template Usage"
+        YAML[template.yaml<br/>Definition]
+        ASSESS[Assessment<br/>Process]
+        VALID[Validation<br/>Against Template]
+        REPORT[Compliance<br/>Report]
+        
+        YAML --> ASSESS
+        ASSESS --> VALID
+        VALID --> REPORT
+    end
+    
+    USECASE -.-> YAML
+    
+    style BASE fill:#1e293b,stroke:#0f172a,stroke-width:3px,color:#fff
+    style INDUSTRY fill:#3b82f6,stroke:#2563eb,stroke-width:2px,color:#fff
+    style USECASE fill:#10b981,stroke:#059669,stroke-width:2px,color:#fff
+    style CUSTOM fill:#f59e0b,stroke:#d97706,stroke-width:2px,color:#fff
+    style T1 fill:#e0e7ff,stroke:#6366f1
+    style T2 fill:#e0e7ff,stroke:#6366f1
+    style T3 fill:#e0e7ff,stroke:#6366f1
+    style T4 fill:#e0e7ff,stroke:#6366f1
+    style T5 fill:#e0e7ff,stroke:#6366f1
+    style T6 fill:#e0e7ff,stroke:#6366f1

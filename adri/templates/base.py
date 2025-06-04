@@ -9,7 +9,7 @@ from abc import ABC, abstractmethod
 from typing import Dict, List, Optional, Any
 from datetime import datetime
 
-from ..report import AssessmentReport
+from ..report import ADRIScoreReport
 from .evaluation import TemplateEvaluation
 
 
@@ -64,7 +64,7 @@ class BaseTemplate(ABC):
         pass
     
     @abstractmethod
-    def evaluate(self, report: AssessmentReport) -> TemplateEvaluation:
+    def evaluate(self, report: ADRIScoreReport) -> TemplateEvaluation:
         """
         Evaluate an assessment report against this template.
         

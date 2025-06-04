@@ -1,0 +1,49 @@
+flowchart TD
+    Start([Want to use ADRI?])
+    
+    Q1{Are you<br/>building an<br/>AI agent?}
+    Q2{Do you have<br/>existing data?}
+    Q3{Need to assess<br/>data quality?}
+    
+    A1[Install ADRI<br/>pip install adri]
+    A2[Define Requirements<br/>Create template.yaml]
+    A3[Run Assessment<br/>adri assess data.csv]
+    A4[Add Guards<br/>@adri_guarded decorator]
+    
+    B1[Generate Metadata<br/>adri generate data.csv]
+    B2[Review Scores<br/>Check reports]
+    B3[Improve Data<br/>Fix issues]
+    
+    C1[Explore Examples<br/>examples/]
+    C2[Read Docs<br/>docs/GET_STARTED.md]
+    
+    Start --> Q1
+    Q1 -->|Yes| A1
+    Q1 -->|No| Q2
+    
+    A1 --> A2
+    A2 --> A3
+    A3 --> A4
+    
+    Q2 -->|Yes| Q3
+    Q2 -->|No| C1
+    
+    Q3 -->|Yes| B1
+    Q3 -->|No| C2
+    
+    B1 --> B2
+    B2 --> B3
+    
+    C1 --> A1
+    C2 --> A1
+    
+    style Start fill:#1e293b,stroke:#0f172a,stroke-width:3px,color:#fff
+    style A1 fill:#10b981,stroke:#059669,stroke-width:2px,color:#fff
+    style A2 fill:#10b981,stroke:#059669,stroke-width:2px,color:#fff
+    style A3 fill:#10b981,stroke:#059669,stroke-width:2px,color:#fff
+    style A4 fill:#10b981,stroke:#059669,stroke-width:2px,color:#fff
+    style B1 fill:#3b82f6,stroke:#2563eb,stroke-width:2px,color:#fff
+    style B2 fill:#3b82f6,stroke:#2563eb,stroke-width:2px,color:#fff
+    style B3 fill:#3b82f6,stroke:#2563eb,stroke-width:2px,color:#fff
+    style C1 fill:#f59e0b,stroke:#d97706,stroke-width:2px,color:#fff
+    style C2 fill:#f59e0b,stroke:#d97706,stroke-width:2px,color:#fff

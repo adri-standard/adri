@@ -10,7 +10,9 @@ The plausibility dimension is particularly important for autonomous agents becau
 
 ## Scoring Components
 
-The plausibility dimension (maximum score: 20 points) evaluates the following aspects:
+The plausibility dimension is scored on a scale from 0 to 20 points. In default mode, scores are based on the five components below. In template mode, the 20 points are distributed among weighted rules defined in the template.
+
+### Default Mode Components
 
 1. **Rules Defined (4 points)**: The quantity and quality of plausibility rules defined for the data.
    - 4 points: 10+ well-defined plausibility rules
@@ -37,6 +39,33 @@ The plausibility dimension (maximum score: 20 points) evaluates the following as
 5. **Explicit Communication (6 points)**: Whether plausibility information is explicitly communicated to agents.
    - 6 points: Plausibility results explicitly communicated to agents
    - 0 points: No explicit communication of plausibility information
+
+### Template Mode Scoring
+
+When using templates, the Plausibility dimension scoring works differently:
+
+1. **Rule Weights**: Each rule has a weight parameter that determines its contribution to the dimension score
+2. **20-Point Total**: All rule weights within the plausibility dimension must sum to 20 points
+3. **Flexible Distribution**: You can allocate more weight to critical business logic rules
+
+Example template configuration:
+```yaml
+dimensions:
+  plausibility:
+    rules:
+      - type: range
+        params:
+          weight: 15  # 15 out of 20 points - critical ranges
+          column: "price"
+          min_value: 0.01
+          max_value: 10000.00
+      - type: outlier
+        params:
+          weight: 5   # 5 out of 20 points
+          column: "quantity"
+          method: "zscore"
+          threshold: 3.0
+```
 
 ## Implementation
 

@@ -1,0 +1,37 @@
+{
+  "adri_score_report": {
+    "report_version": "1.0.0",
+    "adri_version": "0.3.1",
+    "generated_at": "2025-06-03T22:37:03.574496",
+    "summary": {
+      "overall_score": 27,
+      "grade": "F",
+      "status": "Not AI Ready",
+      "data_source": "tmpxh1ehfue.csv"
+    },
+    "dimensions": {
+      "validity": 12,
+      "completeness": 15
+    },
+    "key_findings": {
+      "issues": [
+        "No business-specific validity issues detected",
+        "General completeness appears acceptable",
+        "\u2705 Generated 5 metadata files to help improve data quality"
+      ],
+      "recommendations": []
+    },
+    "metadata": {
+      "assessed_at": "2025-06-03T22:37:03.574496",
+      "adri_version": "0.3.1",
+      "assessment_mode": "discovery",
+      "template": {
+        "id": null,
+        "version": null,
+        "match_confidence": null,
+        "match_type": null
+      }
+    },
+    "provenance": null
+  }
+}

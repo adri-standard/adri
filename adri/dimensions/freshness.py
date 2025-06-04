@@ -13,6 +13,7 @@ from ..config.config import get_config
 from ..connectors import BaseConnector
 from . import BaseDimensionAssessor, register_dimension
 from .business_freshness import calculate_business_freshness_score
+from ..rules.registry import RuleRegistry
 
 logger = logging.getLogger(__name__)
 
@@ -28,6 +29,102 @@ class FreshnessAssessor(BaseDimensionAssessor):
     Evaluates whether data is current enough for the decision and whether
     this information is explicitly communicated to agents.
     """
+    
+    def _process_template_rules(self, connector: BaseConnector) -> Tuple[float, List[str], List[str]]:
+        """
+        Process template-specific rules if they are set.
+        
+        Args:
+            connector: Data source connector
+            
+        Returns:
+            Tuple containing:
+                - score (0-20)
+                - list of findings
+                - list of recommendations
+        """
+        if not self.template_rules:
+            return 0, [], []
+            
+        total_score = 0
+        findings = []
+        recommendations = []
+        
+        # Calculate total weight to validate it sums to 20
+        total_weight = sum(rule.get('params', {}).get('weight', 0) for rule in self.template_rules)
+        
+        # Warn if weights don't sum to 20
+        if abs(total_weight - 20) > 0.01:  # Allow for floating point precision
+            logger.warning(
+                f"Freshness dimension rule weights sum to {total_weight}, not 20. "
+                f"Scores may not be as expected. Consider adjusting weights to sum to 20."
+            )
+            findings.append(
+                f"⚠️ Rule weights sum to {total_weight} instead of 20. "
+                f"Each dimension should have rules totaling 20 points."
+            )
+        
+        # Process each template rule
+        for rule_config in self.template_rules:
+            rule_type = rule_config.get('type')
+            rule_params = rule_config.get('params', {})
+            rule_weight = rule_params.get('weight', 0)
+            
+            # Try to get the rule class from registry
+            rule_class = RuleRegistry.get_rule(f"freshness.{rule_type.lower()}")
+            if not rule_class:
+                # Try without the dimension prefix
+                rule_class = RuleRegistry.get_rule(rule_type.lower())
+                
+            if not rule_class:
+                logger.warning(f"Unknown rule type: {rule_type}")
+                continue
+                
+            # Create rule instance with template parameters
+            rule = rule_class(rule_params)
+            
+            # Execute the rule
+            try:
+                result = rule.evaluate(connector)
+                
+                # Extract score from rule result
+                rule_score = result.get('score', 0)
+                
+                # The rule_score represents how well the rule passed (0 to rule_weight)
+                # Since weights now represent portions of 20, we use the score directly
+                # but cap it at the rule's weight
+                actual_score = min(rule_score, rule_weight)
+                total_score += actual_score
+                
+                # Generate narrative for findings
+                narrative = rule.generate_narrative(result)
+                if narrative:
+                    findings.append(f"[{rule_type}] {narrative}")
+                    
+                # Add score information to findings for transparency
+                if actual_score < rule_weight:
+                    findings.append(
+                        f"[{rule_type}] Scored {actual_score:.1f}/{rule_weight} points"
+                    )
+                    
+                # Add specific findings from rule result
+                if 'column_results' in result:
+                    for col, details in result.get('column_results', {}).items():
+                        if details.get('age_days', 0) > 30:
+                            findings.append(f"Column '{col}' has stale data: {details}")
+                            
+                # Add recommendations based on rule results
+                if not result.get('valid', True):
+                    recommendations.append(f"Address {rule_type} issues to improve data quality")
+                    
+            except Exception as e:
+                logger.error(f"Error executing rule {rule_type}: {e}")
+                findings.append(f"Failed to execute rule {rule_type}: {str(e)}")
+                
+        # Ensure score doesn't exceed 20
+        total_score = min(total_score, 20)
+        
+        return total_score, findings, recommendations
     
     def assess(self, connector: BaseConnector) -> Tuple[float, List[str], List[str]]:
         """
@@ -58,6 +155,11 @@ class FreshnessAssessor(BaseDimensionAssessor):
         findings = []
         recommendations = []
         score_components = {}
+        
+        # If template rules are set, use them instead of standard assessment
+        if self.template_rules:
+            logger.info("Using template-specific freshness rules")
+            return self._process_template_rules(connector)
         
         # Check if we're in discovery mode and have business logic enabled
         business_logic_enabled = self.config.get("business_logic_enabled", False)

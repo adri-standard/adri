@@ -24,11 +24,11 @@ def test_cli_assess_command(sample_data_path):
     assert result.returncode == 0
     
     # Check that the output files were created
-    assert os.path.exists(f"{output_path}.json")
-    assert os.path.exists(f"{output_path}.html")
+    assert os.path.exists(f"{output_path}.adri_score_report.json")
+    assert os.path.exists(f"{output_path}.adri_score_report.html")
     
     # Check the content of the JSON file
-    with open(f"{output_path}.json", "r") as f:
+    with open(f"{output_path}.adri_score_report.json", "r") as f:
         report = json.load(f)
     
     # Verify the report structure
@@ -40,8 +40,8 @@ def test_cli_assess_command(sample_data_path):
     assert "completeness" in report["dimension_results"]
     
     # Clean up
-    os.remove(f"{output_path}.json")
-    os.remove(f"{output_path}.html")
+    os.remove(f"{output_path}.adri_score_report.json")
+    os.remove(f"{output_path}.adri_score_report.html")
 
 
 def test_cli_report_view_command(sample_data_path):
@@ -57,7 +57,7 @@ def test_cli_report_view_command(sample_data_path):
     
     # Run the view command
     result = subprocess.run(
-        [sys.executable, "-m", "adri.cli", "report", "view", f"{output_path}.json"],
+        [sys.executable, "-m", "adri.cli", "report", "view", f"{output_path}.adri_score_report.json"],
         capture_output=True,
         text=True
     )
@@ -71,8 +71,8 @@ def test_cli_report_view_command(sample_data_path):
     assert "Dimension Scores" in result.stdout
     
     # Clean up
-    os.remove(f"{output_path}.json")
-    os.remove(f"{output_path}.html")
+    os.remove(f"{output_path}.adri_score_report.json")
+    os.remove(f"{output_path}.adri_score_report.html")
 
 
 def test_cli_with_invalid_source():
@@ -128,7 +128,7 @@ def test_cli_with_custom_dimensions():
     assert result.returncode == 0
     
     # Check the content of the JSON file
-    with open(f"{output_path}.json", "r") as f:
+    with open(f"{output_path}.adri_score_report.json", "r") as f:
         report = json.load(f)
     
     # Verify that only the specified dimensions are included
@@ -138,8 +138,8 @@ def test_cli_with_custom_dimensions():
     
     # Clean up
     os.remove(temp_path)
-    os.remove(f"{output_path}.json")
-    os.remove(f"{output_path}.html")
+    os.remove(f"{output_path}.adri_score_report.json")
+    os.remove(f"{output_path}.adri_score_report.html")
 
 
 def test_cli_with_config_file():
@@ -193,11 +193,11 @@ def test_cli_with_config_file():
     
     # Check that the output files were created
     expected_prefix = "test_source_"
-    assert os.path.exists(f"{expected_prefix}report.json")
-    assert os.path.exists(f"{expected_prefix}report.html")
+    assert os.path.exists(f"{expected_prefix}report.adri_score_report.json")
+    assert os.path.exists(f"{expected_prefix}report.adri_score_report.html")
     
     # Clean up
     os.remove(csv_path)
     os.remove(config_path)
-    os.remove(f"{expected_prefix}report.json")
-    os.remove(f"{expected_prefix}report.html")
+    os.remove(f"{expected_prefix}report.adri_score_report.json")
+    os.remove(f"{expected_prefix}report.adri_score_report.html")

@@ -15,7 +15,9 @@ Completeness assessment operates on two key principles:
 
 ### Scoring Components
 
-Completeness assessment produces a score from 0-20 points across four components:
+Completeness assessment produces a score from 0-20 points. In default mode, scores are based on the four components below. In template mode, the 20 points are distributed among weighted rules defined in the template.
+
+#### Default Mode Components
 
 | Component | Max Score | Description |
 |-----------|-----------|-------------|
@@ -23,6 +25,31 @@ Completeness assessment produces a score from 0-20 points across four components
 | Null Distinction | 5 | Whether missing values are explicitly distinguished from nulls |
 | Explicit Metrics | 5 | Whether completeness metrics are explicitly available to agents |
 | Section Awareness | 5 | Whether completeness is tracked at the section level |
+
+#### Template Mode Scoring
+
+When using templates, the Completeness dimension scoring works differently:
+
+1. **Rule Weights**: Each rule has a weight parameter that determines its contribution to the dimension score
+2. **20-Point Total**: All rule weights within the completeness dimension must sum to 20 points
+3. **Flexible Distribution**: You can allocate more weight to critical fields
+
+Example template configuration:
+```yaml
+dimensions:
+  completeness:
+    rules:
+      - type: required_fields
+        params:
+          weight: 15  # 15 out of 20 points - critical
+          required_columns: ["id", "name", "email"]
+          threshold: 1.0
+      - type: population_density
+        params:
+          weight: 5   # 5 out of 20 points
+          threshold: 0.90
+          check_columns: ["phone", "address"]
+```
 
 ### Explicit vs. Implicit Assessment
 

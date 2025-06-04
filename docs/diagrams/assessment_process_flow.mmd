@@ -1,0 +1,56 @@
+graph LR
+    subgraph "Input"
+        DS[Data Source<br/>CSV/JSON/DB/API]
+        T[Template<br/>Requirements]
+    end
+    
+    subgraph "ADRI Assessment Process"
+        C[Connector<br/>Loads Data]
+        D1[Validity Check<br/>Format & Types]
+        D2[Completeness Check<br/>Required Fields]
+        D3[Freshness Check<br/>Timeliness]
+        D4[Consistency Check<br/>Logical Coherence]
+        D5[Plausibility Check<br/>Domain Sense]
+        
+        S[Score Calculation<br/>0-100 per dimension]
+        A[Aggregate Results]
+    end
+    
+    subgraph "Output"
+        R[Assessment Report]
+        M[Metadata Files<br/>.validity.json<br/>.completeness.json<br/>etc.]
+        G[Guard Decision<br/>Pass/Fail]
+    end
+    
+    DS --> C
+    T --> C
+    C --> D1
+    C --> D2
+    C --> D3
+    C --> D4
+    C --> D5
+    
+    D1 --> S
+    D2 --> S
+    D3 --> S
+    D4 --> S
+    D5 --> S
+    
+    S --> A
+    A --> R
+    A --> M
+    A --> G
+    
+    style DS fill:#ffd43b,stroke:#fab005
+    style T fill:#74c0fc,stroke:#339af0
+    style C fill:#8ce99a,stroke:#51cf66
+    style D1 fill:#ff8cc3,stroke:#e64980
+    style D2 fill:#ff8cc3,stroke:#e64980
+    style D3 fill:#ff8cc3,stroke:#e64980
+    style D4 fill:#ff8cc3,stroke:#e64980
+    style D5 fill:#ff8cc3,stroke:#e64980
+    style S fill:#a5d8ff,stroke:#74c0fc
+    style A fill:#a5d8ff,stroke:#74c0fc
+    style R fill:#d0ebff,stroke:#a5d8ff
+    style M fill:#d0ebff,stroke:#a5d8ff
+    style G fill:#d0ebff,stroke:#a5d8ff

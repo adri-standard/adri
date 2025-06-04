@@ -51,6 +51,23 @@ These examples are designed to be followed in order, building from basic to adva
    - Optimize for agent consumption
    - Apply custom validation
 
+10. **[10_template_discovery_demo.py](10_template_discovery_demo.py)** - Template discovery
+    - Automatically discover applicable templates
+    - Match data to templates
+    - Get template recommendations
+
+## Custom Rules Examples
+
+Examples demonstrating how to create custom ADRI rules:
+
+- **[custom_rules/](custom_rules/)** - Custom rule implementations
+  - Business email validation rule
+  - Duplicate record detection rule
+  - Revenue calculation logic rule
+  - Sample test data for each rule
+
+See the [Custom Rules Guide](../docs/CUSTOM_RULES_GUIDE.md) for detailed documentation.
+
 ## Integration Examples
 
 Examples showing how to integrate ADRI with popular AI/ML frameworks:

@@ -1,0 +1,20 @@
+graph TB
+    subgraph "Current State"
+        A1[50% Reliability] --> B1[10% Use Cases Enabled]
+        style A1 fill:#ff6b6b,stroke:#c92a2a,stroke-width:2px,color:#fff
+        style B1 fill:#ffe066,stroke:#fab005,stroke-width:2px
+    end
+    
+    subgraph "Target State"
+        A2[99% Reliability] --> B2[95% Use Cases Enabled]
+        style A2 fill:#51cf66,stroke:#2f9e44,stroke-width:2px,color:#fff
+        style B2 fill:#4ecdc4,stroke:#0ca678,stroke-width:2px,color:#fff
+    end
+    
+    C["+49% Reliability"] --> D["+85% Use Cases!"]
+    style C fill:#fff,stroke:#495057,stroke-width:2px,stroke-dasharray: 5 5
+    style D fill:#fff,stroke:#495057,stroke-width:3px,font-weight:bold
+    
+    %% Title
+    T["The 99% Problem: Exponential Value Unlock"]
+    style T fill:#1c7ed6,stroke:#1864ab,stroke-width:2px,color:#fff,font-size:18px

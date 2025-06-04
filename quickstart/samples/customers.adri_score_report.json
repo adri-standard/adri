@@ -1,0 +1,48 @@
+{
+  "adri_score_report": {
+    "report_version": "1.0.0",
+    "adri_version": "0.3.1",
+    "generated_at": "2025-06-03T21:17:15.255946",
+    "summary": {
+      "overall_score": 75.0,
+      "grade": "C",
+      "status": "Needs Attention",
+      "data_source": "customers.csv"
+    },
+    "dimensions": {
+      "validity": 16.0,
+      "completeness": 15,
+      "freshness": 16.0,
+      "consistency": 15,
+      "plausibility": 13.0
+    },
+    "key_findings": {
+      "issues": [
+        "\ud83d\udce7 2 invalid email addresses",
+        "General completeness appears acceptable",
+        "\ud83d\udcc5 Only 8% of customer records updated in last 90 days",
+        "General consistency appears acceptable",
+        "\ud83e\uddea 1 potential test records found",
+        "\ud83d\udce7 84% of emails from single domain: email.com",
+        "\u2705 Generated 5 metadata files to help improve data quality"
+      ],
+      "recommendations": [
+        "Validate and correct email formats",
+        "Implement regular customer data verification process",
+        "Remove test data from production dataset"
+      ]
+    },
+    "metadata": {
+      "assessed_at": "2025-06-03T21:17:15.255946",
+      "adri_version": "0.3.1",
+      "assessment_mode": "discovery",
+      "template": {
+        "id": null,
+        "version": null,
+        "match_confidence": null,
+        "match_type": null
+      }
+    },
+    "provenance": null
+  }
+}

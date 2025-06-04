@@ -6,7 +6,9 @@ The freshness dimension evaluates whether data is current enough for the intende
 
 ## Scoring Components
 
-The freshness dimension is scored on a scale from 0 to 20 points, with the following components:
+The freshness dimension is scored on a scale from 0 to 20 points. In default mode, scores are based on the five components below. In template mode, the 20 points are distributed among weighted rules defined in the template.
+
+### Default Mode Components
 
 1. **Timestamp Information** (0-4 points)
    - Whether the data includes clear timestamp information about when it was last updated
@@ -37,6 +39,31 @@ The freshness dimension is scored on a scale from 0 to 20 points, with the follo
    - Full points for explicit freshness metadata
    - Partial points (50%) for implicit detection when allowed by configuration
    - 0 points when no freshness information is available or when explicit metadata is required but not provided
+
+### Template Mode Scoring
+
+When using templates, the Freshness dimension scoring works differently:
+
+1. **Rule Weights**: Each rule has a weight parameter that determines its contribution to the dimension score
+2. **20-Point Total**: All rule weights within the freshness dimension must sum to 20 points
+3. **Flexible Distribution**: You can allocate more weight to time-critical rules
+
+Example template configuration:
+```yaml
+dimensions:
+  freshness:
+    rules:
+      - type: timestamp_recency
+        params:
+          weight: 10  # 10 out of 20 points
+          timestamp_column: "last_updated"
+          max_age_days: 30
+      - type: update_frequency
+        params:
+          weight: 10  # 10 out of 20 points
+          timestamp_column: "modified_date"
+          expected_frequency_days: 1
+```
 
 ## Explicit vs. Implicit Assessment
 

@@ -30,6 +30,16 @@ class BaseDimensionAssessor(ABC):
             config: Optional configuration for the assessment
         """
         self.config = config or {}
+        self.template_rules = []
+    
+    def set_template_rules(self, rules: List[Dict[str, Any]]):
+        """
+        Set template-specific rules for this dimension.
+        
+        Args:
+            rules: List of rule configurations from the template
+        """
+        self.template_rules = rules
     
     @abstractmethod
     def assess(self, connector: BaseConnector) -> Tuple[float, List[str], List[str]]:

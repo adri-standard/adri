@@ -1,0 +1,47 @@
+{
+  "adri_score_report": {
+    "report_version": "1.0.0",
+    "adri_version": "0.3.1",
+    "generated_at": "2025-06-03T21:26:21.994974",
+    "summary": {
+      "overall_score": 78.0,
+      "grade": "C",
+      "status": "Needs Attention",
+      "data_source": "inventory.csv"
+    },
+    "dimensions": {
+      "validity": 16.0,
+      "completeness": 16.0,
+      "freshness": 16.0,
+      "consistency": 15,
+      "plausibility": 15
+    },
+    "key_findings": {
+      "issues": [
+        "\u274c 3 items have negative reorder thresholds",
+        "\ud83c\udfed 6 items missing warehouse location",
+        "\ud83d\udcc5 Some inventory data is 10 days old",
+        "General consistency appears acceptable",
+        "General plausibility appears acceptable",
+        "\u2705 Generated 5 metadata files to help improve data quality"
+      ],
+      "recommendations": [
+        "Set valid reorder thresholds (must be >= 0)",
+        "Assign warehouse locations to all inventory items",
+        "Ensure real-time inventory updates to prevent stockouts"
+      ]
+    },
+    "metadata": {
+      "assessed_at": "2025-06-03T21:26:21.994974",
+      "adri_version": "0.3.1",
+      "assessment_mode": "discovery",
+      "template": {
+        "id": null,
+        "version": null,
+        "match_confidence": null,
+        "match_type": null
+      }
+    },
+    "provenance": null
+  }
+}

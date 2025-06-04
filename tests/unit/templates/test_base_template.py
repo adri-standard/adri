@@ -4,7 +4,7 @@ import pytest
 from typing import Dict, Any
 from unittest.mock import Mock
 from adri.templates.base import BaseTemplate
-from adri.report import AssessmentReport
+from adri.report import ADRIScoreReport
 from adri.templates.evaluation import TemplateEvaluation
 
 
@@ -29,7 +29,7 @@ class ConcreteTemplate(BaseTemplate):
             "mandatory_fields": []
         }
     
-    def evaluate(self, report: AssessmentReport) -> TemplateEvaluation:
+    def evaluate(self, report: ADRIScoreReport) -> TemplateEvaluation:
         """Simple evaluation implementation."""
         evaluation = TemplateEvaluation(
             template_id=self.template_id,
@@ -122,7 +122,7 @@ class TestBaseTemplate:
             def get_requirements(self) -> Dict[str, Any]:
                 return {}
                 
-            def evaluate(self, report: AssessmentReport) -> TemplateEvaluation:
+            def evaluate(self, report: ADRIScoreReport) -> TemplateEvaluation:
                 pass
         
         # Should raise ValueError during initialization due to missing metadata

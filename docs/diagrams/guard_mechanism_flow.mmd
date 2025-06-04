@@ -1,0 +1,56 @@
+flowchart TD
+    Start([Agent Function Call])
+    
+    subgraph "Guard Decorator"
+        CHECK1{Has min_score<br/>requirement?}
+        CHECK2{Has dimension<br/>requirements?}
+        ASSESS[Run ADRI<br/>Assessment]
+        SCORE[Calculate<br/>Overall Score]
+        DIM_SCORE[Check Dimension<br/>Scores]
+    end
+    
+    subgraph "Decision Logic"
+        EVAL1{Overall Score<br/>≥ min_score?}
+        EVAL2{All Dimensions<br/>Meet Thresholds?}
+        COMBINE{Both Checks<br/>Pass?}
+    end
+    
+    subgraph "Outcomes"
+        PROCEED[Execute Agent<br/>Function]
+        BLOCK[Raise Exception<br/>Block Execution]
+        LOG[Log Assessment<br/>Results]
+        RETURN[Return Function<br/>Result]
+    end
+    
+    Start --> CHECK1
+    CHECK1 -->|Yes| CHECK2
+    CHECK1 -->|No| CHECK2
+    CHECK2 --> ASSESS
+    
+    ASSESS --> SCORE
+    SCORE --> EVAL1
+    
+    ASSESS --> DIM_SCORE
+    DIM_SCORE --> EVAL2
+    
+    EVAL1 --> COMBINE
+    EVAL2 --> COMBINE
+    
+    COMBINE -->|Pass| LOG
+    COMBINE -->|Fail| BLOCK
+    
+    LOG --> PROCEED
+    PROCEED --> RETURN
+    
+    BLOCK -.->|Error Message| Start
+    
+    style Start fill:#1e293b,stroke:#0f172a,stroke-width:3px,color:#fff
+    style ASSESS fill:#3b82f6,stroke:#2563eb,stroke-width:2px,color:#fff
+    style PROCEED fill:#10b981,stroke:#059669,stroke-width:2px,color:#fff
+    style BLOCK fill:#ef4444,stroke:#dc2626,stroke-width:2px,color:#fff
+    style RETURN fill:#10b981,stroke:#059669,stroke-width:2px,color:#fff
+    style CHECK1 fill:#fbbf24,stroke:#f59e0b
+    style CHECK2 fill:#fbbf24,stroke:#f59e0b
+    style EVAL1 fill:#a78bfa,stroke:#7c3aed
+    style EVAL2 fill:#a78bfa,stroke:#7c3aed
+    style COMBINE fill:#a78bfa,stroke:#7c3aed

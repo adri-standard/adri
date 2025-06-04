@@ -109,6 +109,22 @@ Please note that this project is released with a [Contributor Code of Conduct](C
 
 By contributing, you agree that your contributions will be licensed under the project's [MIT License](LICENSE).
 
+## Contributing Templates
+
+Templates are a crucial part of ADRI's value proposition. They define standardized data quality requirements for specific use cases and industries.
+
+For detailed guidance on creating and contributing templates, see our dedicated **[Template Contribution Guide](docs/CONTRIBUTING_TEMPLATES.md)**.
+
+### Quick Template Contribution
+
+1. Browse existing templates in `adri/templates/catalog/`
+2. Copy a similar template as your starting point
+3. Customize for your use case
+4. Test with real data
+5. Submit a PR with your template
+
+Templates help the entire community by establishing industry standards for agent-ready data.
+
 ## Questions?
 
 Feel free to contact the project maintainers if you have any questions or need further clarification.

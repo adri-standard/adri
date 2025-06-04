@@ -6,16 +6,18 @@ This document provides a comprehensive overview of all files and directories in 
 
 | File | Purpose |
 |------|---------|
-| **README.md** | Main project introduction, installation instructions, and quick start guide |
+| **README.md** | Main project introduction with standards-first positioning |
 | **LICENSE** | MIT License file |
+| **GOVERNANCE.md** | Open governance model and community structure |
+| **CHARTER.md** | Mission, vision, and core values of ADRI as a standard |
 | **pyproject.toml** | Python project configuration and package metadata |
 | **requirements-dev.txt** | Development dependencies |
-| **setup.py** | Python package setup configuration |
 | **MANIFEST.in** | Specifies additional files to include in package distribution |
 | **Makefile** | Common development tasks (test, build, clean, etc.) |
 | **.gitignore** | Git ignore patterns |
 | **.dockerignore** | Docker ignore patterns |
 | **mypy.ini** | MyPy type checking configuration |
+| **.coverage** | Test coverage data file |
 
 ### 📋 Process & Guidelines
 
@@ -36,6 +38,18 @@ This document provides a comprehensive overview of all files and directories in 
 | **CLEANUP_SUMMARY.md** | Record of project cleanup activities |
 | **REMOVE_WIKI_INSTRUCTIONS.md** | Instructions for wiki migration |
 | **ADRI_AI_ENGINEER_REVIEW.md** | AI engineering review documentation |
+| **test_template_matcher.py** | Template matcher test script |
+
+### 📁 Generated/Output Files
+
+| File | Purpose |
+|------|---------|
+| **inventory_demo.*.json** | Demo inventory assessment output files |
+| **crm_audit_demo.*.json** | Demo CRM audit assessment output files |
+| **crm_audit_report.html** | Generated CRM audit HTML report |
+| **crm_audit_business_report.txt** | Generated CRM business report |
+| **test_*.html** | Generated test report files |
+| **test_customer_data.report.json** | Test customer data report |
 
 ## 📁 adri/ - Core Package
 
@@ -46,6 +60,7 @@ This document provides a comprehensive overview of all files and directories in 
 | **\_\_init\_\_.py** | Package initialization, exports main APIs |
 | **\_\_main\_\_.py** | CLI entry point when running as module |
 | **assessor.py** | Main DataSourceAssessor class |
+| **assessment_modes.py** | Assessment modes implementation |
 | **cli.py** | Command-line interface implementation |
 | **interactive.py** | Interactive mode functionality |
 | **report.py** | AssessmentReport class and reporting logic |
@@ -80,6 +95,11 @@ This document provides a comprehensive overview of all files and directories in 
 | **freshness.py** | Freshness dimension implementation |
 | **consistency.py** | Consistency dimension implementation |
 | **plausibility.py** | Plausibility dimension implementation |
+| **business_validity.py** | Business-specific validity dimension |
+| **business_completeness.py** | Business-specific completeness dimension |
+| **business_freshness.py** | Business-specific freshness dimension |
+| **business_consistency.py** | Business-specific consistency dimension |
+| **business_plausibility.py** | Business-specific plausibility dimension |
 | **registry.py** | Dimension registry |
 
 ### 📁 adri/rules/
@@ -109,9 +129,12 @@ This document provides a comprehensive overview of all files and directories in 
 | **loader.py** | Template loading and parsing |
 | **registry.py** | Template registry |
 | **yaml_template.py** | YAML template implementation |
+| **matcher.py** | Template matching implementation |
+| **guard.py** | Template validation and fallback mechanisms |
 | **report_template.html** | HTML report template |
 | **TEMPLATE_STATUS.md** | Template system status |
-| **catalog/** | Pre-built template library |
+| **catalog/** | Production-ready template library |
+| **development/** | Test-driven template development workspace |
 
 ### 📁 adri/integrations/
 
@@ -137,11 +160,13 @@ This document provides a comprehensive overview of all files and directories in 
 | File | Purpose |
 |------|---------|
 | **index.md** | Documentation home page |
-| **VISION.md** | Core vision and strategic direction |
+| **VISION.md** | Core vision and strategic direction (hybrid approach) |
 | **VISION_IN_ACTION.md** | Concrete examples of the vision |
 | **GET_STARTED.md** | Quick start guide |
 | **ROADMAP.md** | Future development plans |
+| **ROADMAP_V1.1.md** | Detailed v1.1 roadmap with priority rules |
 | **FAQ.md** | Frequently asked questions |
+| **QUICKSTART.md** | 5-minute quickstart tutorial |
 
 ### 📚 Concept Documentation
 
@@ -156,6 +181,9 @@ This document provides a comprehensive overview of all files and directories in 
 | **plausibility_rules.md** | Plausibility rules documentation |
 | **Methodology.md** | ADRI methodology explanation |
 | **implementation_guide.md** | Step-by-step implementation guide |
+| **UNDERSTANDING_TEMPLATES.md** | Guide to template system and authoring |
+| **TEMPLATE_TDD_GUIDE.md** | Test-driven development guide for templates |
+| **CONTRIBUTING_TEMPLATES.md** | Template contribution guidelines |
 
 ### 🔧 Technical Documentation
 
@@ -165,8 +193,12 @@ This document provides a comprehensive overview of all files and directories in 
 | **IMPLEMENTING_GUARDS.md** | Guide to implementing data quality guards |
 | **INTEGRATIONS.md** | Framework integration guides |
 | **EXTENDING.md** | How to extend ADRI |
+| **CUSTOM_RULES_GUIDE.md** | Comprehensive guide for creating custom rules |
 | **ENHANCING_DATA_SOURCES.md** | Adding metadata to data sources |
 | **TESTING.md** | Testing guide and strategy |
+| **ASSESSMENT_MODES.md** | Assessment modes documentation |
+| **RULE_TESTING_ARCHITECTURE.md** | Rule testing architecture guide |
+| **TEMPLATE_GUARD.md** | Template guard documentation |
 
 ### 💼 Use Cases
 
@@ -197,6 +229,9 @@ This document provides a comprehensive overview of all files and directories in 
 | **GITHUB_PAGES.md** | GitHub Pages deployment guide |
 | **test-deployment.md** | Test deployment instructions |
 | **DOCUMENT_PURPOSE_ANALYSIS.md** | Analysis of documentation purposes |
+| **CLAIMS_TRACKER.md** | Tracker for claims made across documentation |
+| **DISCOVERY_AND_VALIDATION.md** | Discovery and validation process documentation |
+| **PROVENANCE_SPECIFICATION.md** | Data provenance specification |
 
 ### 📁 docs/test_coverage/
 
@@ -211,6 +246,14 @@ This document provides a comprehensive overview of all files and directories in 
 | File | Purpose |
 |------|---------|
 | **benchmark.json** | Performance benchmark data |
+
+### 📁 docs/diagrams/
+
+Contains Mermaid diagram source files and generated images for documentation.
+
+### 📁 docs/evidence/
+
+Contains evidence files supporting claims and documentation.
 
 ## 📁 config/
 
@@ -233,12 +276,25 @@ This document provides a comprehensive overview of all files and directories in 
 | **07_status_auditor_demo.py** | Status auditor demonstration |
 | **08_template_compliance.py** | Template compliance checking |
 | **09_agent_view_pattern.py** | Agent view pattern example |
+| **10_template_discovery_demo.py** | Template discovery demonstration |
+| **template_guard_demo.py** | Template guard demonstration |
 | **data/** | Example data files |
+| **custom_rules/** | Custom rule examples and test data |
 | **integrations/** | Framework-specific examples |
 | **interactive/** | Interactive mode examples |
 | **legacy/** | Legacy examples (deprecated) |
 | **plausibility/** | Plausibility checking examples |
 | **web_demo/** | Web demonstration |
+
+### 📁 examples/custom_rules/
+
+| File | Purpose |
+|------|---------|
+| **README.md** | Quick start guide for custom rules |
+| **business_email_rule.py** | Example rule validating business emails |
+| **duplicate_detection_rule.py** | Example rule detecting duplicate records |
+| **revenue_logic_rule.py** | Example rule validating revenue calculations |
+| **test_data/** | Sample CSV files for testing custom rules |
 
 ## 📁 tests/
 
@@ -254,6 +310,7 @@ This document provides a comprehensive overview of all files and directories in 
 | **datasets/** | Test datasets |
 | **plans/** | Test execution plans |
 | **results/** | Test result storage |
+| **claims/** | Claims verification tests |
 
 ## 📁 scripts/
 
@@ -262,6 +319,7 @@ This document provides a comprehensive overview of all files and directories in 
 | **publish_pypi.sh** | PyPI publishing script |
 | **run_financial_market_assessment.py** | Financial market assessment demo |
 | **verify_version.py** | Version verification utility |
+| **template_tdd_runner.py** | Test-driven template development runner |
 
 ## 📁 notebooks/
 
@@ -275,6 +333,7 @@ This document provides a comprehensive overview of all files and directories in 
 | File | Purpose |
 |------|---------|
 | **README.md** | Quickstart guide |
+| **quickstart.py** | Main quickstart script |
 | **see_it.py** | Visual demonstration |
 | **try_it.py** | Interactive tryout |
 | **minimal_adri/** | Minimal ADRI example |
@@ -299,4 +358,4 @@ This document provides a comprehensive overview of all files and directories in 
 
 ---
 
-*Last Updated: 2025-05-28*
+*Last Updated: 2025-06-03*

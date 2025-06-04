@@ -389,6 +389,191 @@ Yes! By standardizing data quality requirements through ADRI:
 
 This is particularly valuable for AI teams looking to scale their solutions across an enterprise.
 
+## Performance & Implementation
+
+### How much overhead does ADRI add to my pipeline?
+
+ADRI is designed to be lightweight and efficient:
+
+**Typical Performance:**
+- **File assessment (CSV/JSON)**: 50-200ms for files under 10MB
+- **Database assessment**: 100-500ms for metadata + sampling
+- **API assessment**: Network latency + 50-100ms processing
+- **With caching enabled**: <10ms for repeated assessments
+
+**Example Overhead:**
+```python
+# Without ADRI
+start = time.time()
+result = agent.process(data)  # 2.3 seconds
+print(f"Processing time: {time.time() - start}s")
+
+# With ADRI (first run)
+@adri_guard(min_score=80)
+def process_with_guard(data):
+    return agent.process(data)
+
+start = time.time()
+result = process_with_guard(data)  # 2.45 seconds (150ms overhead)
+print(f"Processing time with ADRI: {time.time() - start}s")
+
+# With ADRI (cached)
+result = process_with_guard(data)  # 2.31 seconds (10ms overhead)
+```
+
+### Can I cache assessment results?
+
+Yes! ADRI supports multiple caching strategies:
+
+**1. File-based caching (default):**
+```python
+# Assessments create .adri cache files
+data.csv → data.validity.json (cached until data changes)
+```
+
+**2. In-memory caching:**
+```python
+from adri import DataSourceAssessor
+
+assessor = DataSourceAssessor(cache_enabled=True, cache_ttl=3600)  # 1 hour TTL
+```
+
+**3. Custom caching:**
+```python
+@adri_guard(min_score=80, cache_key=lambda data: f"{data}_v1", cache_ttl=300)
+def process_data(data):
+    return agent.process(data)
+```
+
+### How do I handle assessment failures gracefully?
+
+ADRI provides several patterns for handling failures:
+
+**1. Try-except pattern:**
+```python
+from adri.exceptions import DataQualityError
+
+try:
+    result = process_with_guard(data)
+except DataQualityError as e:
+    print(f"Data quality issue: {e.dimension} score {e.score} < {e.threshold}")
+    # Fallback logic or user notification
+    result = process_with_fallback(data)
+```
+
+**2. Check-first pattern:**
+```python
+from adri import assess
+
+# Check quality before processing
+report = assess(data)
+if report.overall_score >= 80:
+    result = agent.process(data)
+else:
+    print(f"Data quality too low: {report.overall_score}/100")
+    # Handle low quality data differently
+```
+
+**3. Partial processing pattern:**
+```python
+@adri_guard(
+    min_score=80,
+    dimensions=["validity", "completeness"],  # Only check critical dimensions
+    allow_partial=True  # Process even if some dimensions fail
+)
+def process_flexibly(data):
+    return agent.process(data)
+```
+
+### How do I debug why data failed assessment?
+
+ADRI provides detailed diagnostic information:
+
+**1. Detailed error messages:**
+```python
+# When assessment fails, you get:
+DataQualityError: Data quality check failed
+  Overall Score: 67/100 (required: 80)
+  Failed Dimensions:
+    - Plausibility: 45/100
+      ✗ Outlier detection: 15% of values exceed normal range (threshold: 5%)
+      ✗ Business rule violation: negative prices found in 3 rows
+    - Freshness: 60/100  
+      ✗ Data is 72 hours old (max allowed: 24 hours)
+```
+
+**2. Interactive debugging:**
+```python
+# Get detailed report for investigation
+from adri import assess
+
+report = assess(data, verbose=True)
+print(report.summary())  # Human-readable summary
+print(report.to_dict())  # Structured data for logging
+
+# Drill into specific dimensions
+for dimension, result in report.results.items():
+    if result.score < 80:
+        print(f"\n{dimension} issues:")
+        for rule in result.failed_rules:
+            print(f"  - {rule.name}: {rule.message}")
+            print(f"    Details: {rule.details}")
+```
+
+**3. Logging integration:**
+```python
+import logging
+
+# ADRI integrates with Python logging
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger('adri')
+
+# Now assessments will log detailed information
+@adri_guard(min_score=80, logger=logger)
+def process_with_logging(data):
+    return agent.process(data)
+```
+
+### What are common implementation patterns?
+
+**1. Development vs Production modes:**
+```python
+# Development: warn but don't block
+@adri_guard(min_score=80, enforce=not DEBUG_MODE)
+def flexible_process(data):
+    return agent.process(data)
+```
+
+**2. Progressive thresholds:**
+```python
+# Start lenient, increase over time
+thresholds = {
+    "dev": 60,
+    "staging": 75,
+    "production": 85
+}
+
+@adri_guard(min_score=thresholds[ENVIRONMENT])
+def environment_aware_process(data):
+    return agent.process(data)
+```
+
+**3. Dimension-specific requirements:**
+```python
+# Different requirements for different agent types
+@adri_guard(
+    requirements={
+        "validity": 95,      # Critical for financial calculations
+        "completeness": 90,  # Need most fields
+        "freshness": 80,     # Some lag acceptable
+        "consistency": 85,   # Important but not critical
+        "plausibility": 70   # Basic sanity checks
+    }
+)
+def financial_agent_process(data):
+    return agent.process(data)
+```
+
 ## Purpose & Test Coverage
 
 **Why this file exists**: Provides answers to common questions about ADRI, addressing conceptual understanding, technical implementation, and practical usage concerns from various stakeholders.

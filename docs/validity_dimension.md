@@ -15,7 +15,9 @@ The validity assessment operates on two key principles:
 
 ### Scoring Components
 
-Validity assessment produces a score from 0-20 points across five components:
+Validity assessment produces a score from 0-20 points. In default mode, scores are based on the five components below. In template mode, the 20 points are distributed among weighted rules defined in the template.
+
+#### Default Mode Components
 
 | Component | Max Score | Description |
 |-----------|-----------|-------------|
@@ -90,13 +92,37 @@ ADRI looks for specific companion files alongside the main data file to find exp
 }
 ```
 
+## Template Mode Scoring
+
+When using templates, the Validity dimension scoring works differently:
+
+1. **Rule Weights**: Each rule has a weight parameter that determines its contribution to the dimension score
+2. **20-Point Total**: All rule weights within the validity dimension must sum to 20 points
+3. **Flexible Distribution**: You can allocate more weight to critical rules
+
+Example template configuration:
+```yaml
+dimensions:
+  validity:
+    rules:
+      - type: type_consistency
+        params:
+          weight: 12  # 12 out of 20 points
+          threshold: 0.95
+      - type: range_validation  
+        params:
+          weight: 8   # 8 out of 20 points
+          min_value: 0
+          max_value: 1000
+```
+
 ## Configuration Options
 
 ADRI's validity assessment behavior can be configured through several options:
 
 ### Global Scoring Weights
 
-You can adjust the maximum score for each component by modifying `VALIDITY_SCORING` in the configuration:
+In default mode, you can adjust the maximum score for each component by modifying `VALIDITY_SCORING` in the configuration:
 
 ```python
 VALIDITY_SCORING = {

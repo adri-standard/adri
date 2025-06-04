@@ -100,7 +100,6 @@ def test_guard_decorator_with_mocked_assessor():
     # Create a mock report
     mock_report = MagicMock()
     mock_report.overall_score = 90
-    mock_report.readiness_level = "Good"
     mock_report.summary_findings = ["Finding 1", "Finding 2"]
     
     # Create a mock assessor
@@ -127,7 +126,6 @@ def test_guard_decorator_with_mocked_assessor_failing():
     # Create a mock report
     mock_report = MagicMock()
     mock_report.overall_score = 50
-    mock_report.readiness_level = "Poor"
     mock_report.summary_findings = ["Finding 1", "Finding 2"]
     
     # Create a mock assessor

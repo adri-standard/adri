@@ -135,7 +135,7 @@ def diagnose_patient(patient_data):
 
 ---
 
-## The Business Impact
+## Typical Business Impact (Based on User Reports)
 
 | Metric | Without ADRI | With ADRI |
 |--------|--------------|-----------|

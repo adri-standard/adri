@@ -12,9 +12,10 @@ from typing import Dict, List, Optional, Union, Any, Type, Tuple
 
 from .dimensions import BaseDimensionAssessor, DimensionRegistry
 from .connectors import BaseConnector, ConnectorRegistry
-from .report import AssessmentReport
+from .report import ADRIScoreReport
 from .utils.validators import validate_config
 from .templates import TemplateLoader, TemplateEvaluation, BaseTemplate
+from .templates.guard import TemplateGuard
 from .assessment_modes import AssessmentMode, ModeConfig
 from .utils.metadata_generator import MetadataGenerator
 
@@ -67,8 +68,11 @@ class DataSourceAssessor:
                 self.dimensions[name] = dimension_class(dim_config)
             except ValueError as e:
                 logger.warning(f"Dimension '{name}' not found: {e}")
+        
+        # Create safe template loader
+        self._safe_load_template = TemplateGuard.create_safe_template_loader(self)
 
-    def assess_with_connector(self, connector_type: str, *args, **kwargs) -> AssessmentReport:
+    def assess_with_connector(self, connector_type: str, *args, **kwargs) -> ADRIScoreReport:
         """
         Assess a data source using a specific connector type.
         
@@ -84,55 +88,111 @@ class DataSourceAssessor:
         return self.assess_source(connector)
 
     def assess_file(
-        self, file_path: Union[str, Path], file_type: Optional[str] = None
-    ) -> AssessmentReport:
+        self, file_path: Union[str, Path], file_type: Optional[str] = None,
+        template: Optional[Union[str, BaseTemplate]] = None
+    ) -> ADRIScoreReport:
         """
         Assess a file-based data source.
 
         Args:
             file_path: Path to the file to assess
             file_type: Optional file type override (csv, json, etc.)
+            template: Optional template to use (defaults to general/default-v1.0.0)
 
         Returns:
             AssessmentReport: The assessment results
         """
-        return self.assess_with_connector("file", file_path, file_type)
+        if template is None:
+            # Use the default general template
+            template_path = Path(__file__).parent / "templates" / "catalog" / "general" / "default-v1.0.0.yaml"
+            template = str(template_path)
+        
+        # Always use template-based assessment
+        report, _ = self.assess_file_with_template(file_path, template, file_type)
+        return report
 
     def assess_database(
-        self, connection_string: str, table_name: str
-    ) -> AssessmentReport:
+        self, connection_string: str, table_name: str,
+        template: Optional[Union[str, BaseTemplate]] = None
+    ) -> ADRIScoreReport:
         """
         Assess a database table.
 
         Args:
             connection_string: Database connection string
             table_name: Name of the table to assess
+            template: Optional template to use (defaults to general/default-v1.0.0)
 
         Returns:
             AssessmentReport: The assessment results
         """
-        return self.assess_with_connector("database", connection_string, table_name)
+        if template is None:
+            # Use the default general template
+            template_path = Path(__file__).parent / "templates" / "catalog" / "general" / "default-v1.0.0.yaml"
+            template = str(template_path)
+        
+        # Create connector and use template-based assessment
+        connector_class = ConnectorRegistry.get_connector("database")
+        connector = connector_class(connection_string, table_name)
+        report, _ = self.assess_with_template(connector, template)
+        return report
 
-    def assess_api(self, endpoint: str, auth: Optional[Dict[str, Any]] = None) -> AssessmentReport:
+    def assess_api(
+        self, endpoint: str, auth: Optional[Dict[str, Any]] = None,
+        template: Optional[Union[str, BaseTemplate]] = None
+    ) -> ADRIScoreReport:
         """
         Assess an API endpoint.
 
         Args:
             endpoint: API endpoint URL
             auth: Optional authentication details
+            template: Optional template to use (defaults to general/default-v1.0.0)
 
         Returns:
             AssessmentReport: The assessment results
         """
-        return self.assess_with_connector("api", endpoint, auth)
+        if template is None:
+            # Use the default general template
+            template_path = Path(__file__).parent / "templates" / "catalog" / "general" / "default-v1.0.0.yaml"
+            template = str(template_path)
+        
+        # Create connector and use template-based assessment
+        connector_class = ConnectorRegistry.get_connector("api")
+        connector = connector_class(endpoint, auth)
+        report, _ = self.assess_with_template(connector, template)
+        return report
 
-    def assess_source(self, connector: BaseConnector) -> AssessmentReport:
+    def assess_source(
+        self, connector: BaseConnector,
+        template: Optional[Union[str, BaseTemplate]] = None
+    ) -> ADRIScoreReport:
         """
         Assess any data source using a connector.
 
         Args:
             connector: Data source connector instance
+            template: Optional template to use (defaults to general/default-v1.0.0)
 
+        Returns:
+            AssessmentReport: The assessment results
+        """
+        if template is None:
+            # Use the default general template
+            template_path = Path(__file__).parent / "templates" / "catalog" / "general" / "default-v1.0.0.yaml"
+            template = str(template_path)
+        
+        # Always use template-based assessment
+        report, _ = self.assess_with_template(connector, template)
+        return report
+
+    def _assess_source_without_template(self, connector: BaseConnector) -> ADRIScoreReport:
+        """
+        Internal method for assessment without template (used by assess_with_template).
+        
+        Args:
+            connector: Data source connector instance
+            
         Returns:
             AssessmentReport: The assessment results
         """
@@ -167,7 +227,7 @@ class DataSourceAssessor:
             logger.warning("Could not determine ADRI package version.")
             
         # Initialize report, passing version and config
-        report = AssessmentReport(
+        report = ADRIScoreReport(
             source_name=connector.get_name(),
             source_type=connector.get_type(),
             source_metadata=connector.get_metadata(),
@@ -227,7 +287,7 @@ class DataSourceAssessor:
         logger.info(f"Assessment complete. Overall score: {report.overall_score}")
         return report
 
-    def assess_from_config(self, config_path: Union[str, Path]) -> Dict[str, AssessmentReport]:
+    def assess_from_config(self, config_path: Union[str, Path]) -> Dict[str, ADRIScoreReport]:
         """
         Assess multiple data sources specified in a configuration file.
 
@@ -283,9 +343,9 @@ class DataSourceAssessor:
         template_source: Union[str, BaseTemplate],
         template_version: Optional[str] = None,
         loader_config: Optional[Dict[str, Any]] = None
-    ) -> Tuple[AssessmentReport, TemplateEvaluation]:
+    ) -> Tuple[ADRIScoreReport, TemplateEvaluation]:
         """
-        Assess a data source and evaluate it against a certification template.
+        Assess a data source using template rules and evaluate it against template requirements.
         
         Args:
             connector: Data source connector instance
@@ -296,20 +356,30 @@ class DataSourceAssessor:
         Returns:
             Tuple of (AssessmentReport, TemplateEvaluation)
         """
-        # Run standard assessment
-        report = self.assess_source(connector)
-        
-        # Load template if not already a template instance
+        # Load template using safe loader
         if isinstance(template_source, BaseTemplate):
             template = template_source
         else:
-            loader = TemplateLoader(**loader_config) if loader_config else TemplateLoader()
             if template_version and '@' not in str(template_source):
                 # Add version to source if provided separately
                 template_source = f"{template_source}@{template_version}"
-            template = loader.load_template(template_source)
+            # Use the safe template loader
+            template = self._safe_load_template(template_source, loader_config)
         
-        # Evaluate against template
+        # Configure dimensions with template rules
+        template_configs = self._extract_dimension_configs_from_template(template)
+        
+        # Configure each dimension with template rules
+        for dim_name, dim_config in template_configs.items():
+            if dim_name in self.dimensions:
+                self.dimensions[dim_name].set_template_rules(dim_config.get('rules', []))
+                
+        logger.debug(f"Configured dimensions with template '{template.template_id}' rules")
+        
+        # Now run assessment with template rules applied
+        report = self._assess_source_without_template(connector)
+        
+        # Evaluate against template requirements
         evaluation = template.evaluate(report)
         
         # Add evaluation to report
@@ -327,7 +397,7 @@ class DataSourceAssessor:
         template_source: Union[str, BaseTemplate],
         file_type: Optional[str] = None,
         template_version: Optional[str] = None
-    ) -> Tuple[AssessmentReport, TemplateEvaluation]:
+    ) -> Tuple[ADRIScoreReport, TemplateEvaluation]:
         """
         Assess a file and evaluate it against a template.
         
@@ -349,7 +419,7 @@ class DataSourceAssessor:
         connector: BaseConnector,
         template_sources: List[Union[str, BaseTemplate]],
         loader_config: Optional[Dict[str, Any]] = None
-    ) -> Tuple[AssessmentReport, List[TemplateEvaluation]]:
+    ) -> Tuple[ADRIScoreReport, List[TemplateEvaluation]]:
         """
         Assess a data source against multiple templates.
         
@@ -391,6 +461,31 @@ class DataSourceAssessor:
         report.template_evaluations.extend(evaluations)
         
         return report, evaluations
+
+    def _extract_dimension_configs_from_template(self, template: BaseTemplate) -> Dict[str, Dict[str, Any]]:
+        """
+        Extract dimension configurations from a template.
+        
+        Args:
+            template: The template to extract configurations from
+            
+        Returns:
+            Dict mapping dimension names to their configurations
+        """
+        configs = {}
+        
+        # Check if template has raw data (for YAML templates)
+        if hasattr(template, 'template_data'):
+            dimensions = template.template_data.get('dimensions', {})
+            
+            for dim_name, dim_config in dimensions.items():
+                configs[dim_name] = {
+                    'rules': dim_config.get('rules', []),
+                    'weight': dim_config.get('weight', 1.0),
+                    'enabled': dim_config.get('enabled', True)
+                }
+        
+        return configs
 
 # ----------------------------------------------
 # TEST COVERAGE

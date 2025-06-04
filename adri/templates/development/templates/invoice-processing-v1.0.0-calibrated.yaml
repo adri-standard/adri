@@ -1,0 +1,234 @@
+template:
+  id: financial/invoice-processing-v1.0.0
+  name: Invoice Processing
+  version: 1.0.0
+  authority: ADRI Community
+  description: |
+    Production-ready template for invoice processing automation.
+    Designed to prevent common financial errors and enable automated workflows.
+    
+    SCORING NOTE: Each dimension has rules that sum to 20 points.
+    Rule weights represent the points that rule contributes to the dimension's 20-point total.
+
+  use_cases:
+    - Automated invoice approval
+    - Payment scheduling
+    - Vendor reconciliation
+    - Duplicate detection
+    - Currency validation
+
+  failure_modes_prevented:
+    - Payment to wrong currency account
+    - Duplicate invoice processing
+    - Payment after terms expired
+    - Invalid vendor payments
+    - Negative amount invoices
+
+pattern_matching:
+  required_columns:
+    - invoice_number
+    - vendor_id
+    - amount
+    - currency
+    - due_date
+  
+  optional_columns:
+    - invoice_date
+    - payment_terms
+    - status
+    - description
+    - tax_amount
+    - discount_amount
+  
+  column_patterns:
+    invoice_number:
+      patterns:
+        - "invoice.*num"
+        - "inv.*no"
+        - "^inv_"
+      case_sensitive: false
+    
+    vendor_id:
+      patterns:
+        - "vendor.*id"
+        - "supplier.*id"
+        - "vendor_code"
+      case_sensitive: false
+    
+    amount:
+      patterns:
+        - "amount"
+        - "total.*amount"
+        - "invoice.*total"
+        - "grand.*total"
+      case_sensitive: false
+    
+    currency:
+      patterns:
+        - "currency"
+        - "curr"
+        - "ccy"
+      case_sensitive: false
+    
+    due_date:
+      patterns:
+        - "due.*date"
+        - "payment.*date"
+        - "maturity.*date"
+      case_sensitive: false
+
+requirements:
+  overall_minimum: 85  # High threshold for financial automation
+  dimension_minimums:
+    validity: 17      # 85% of 20
+    completeness: 17  # 85% of 20
+    consistency: 17   # 85% of 20
+    freshness: 17     # 85% of 20
+    plausibility: 17  # 85% of 20
+
+dimensions:
+  validity:
+    weight: 1.0  # Dimension importance in overall score
+    overall_minimum: 85
+    findings_threshold: 3
+    rules:
+      # Total: 20 points
+      - type: type_consistency
+        params:
+          enabled: true
+          weight: 10  # 10 out of 20 points for ensuring consistent data types
+          threshold: 0.95  # 95% consistency required for full points
+          analyze_all_columns: true
+          
+      - type: range_validation
+        params:
+          enabled: true
+          weight: 10  # 10 out of 20 points for valid ranges
+          min_value: 0
+          max_value: 10000000  # 10M maximum
+          inclusive: true
+          columns: ["amount"]
+
+  completeness:
+    weight: 1.0
+    rules:
+      # Total: 20 points
+      - type: required_fields
+        params:
+          enabled: true
+          weight: 12  # 12 out of 20 points - critical for automation
+          required_columns:
+            - invoice_number
+            - vendor_id  
+            - amount
+            - currency
+            - due_date
+          threshold: 1.0  # All required fields must be present
+          
+      - type: population_density
+        params:
+          enabled: true
+          weight: 8  # 8 out of 20 points
+          threshold: 0.90  # 90% of required fields should be populated
+          check_columns:
+            - invoice_number
+            - vendor_id
+            - amount
+            - currency
+            - due_date
+
+  consistency:
+    weight: 1.0
+    rules:
+      # Total: 20 points
+      - type: cross_field
+        params:
+          enabled: true
+          weight: 12  # 12 out of 20 points
+          validation_type: "comparison"
+          fields: ["invoice_date", "due_date"]
+          comparisons:
+            - field1: "invoice_date"
+              field2: "due_date"
+              operator: "<"
+              
+      - type: uniform_representation
+        params:
+          enabled: true
+          weight: 8  # 8 out of 20 points
+          column: "currency"
+          format_type: "pattern"
+          pattern: "^[A-Z]{3}$"  # Three uppercase letters for currency codes
+
+  freshness:
+    weight: 1.0
+    rules:
+      # Total: 20 points
+      - type: timestamp_recency
+        params:
+          enabled: true
+          weight: 10  # 10 out of 20 points
+          timestamp_column: "invoice_date"
+          max_age_days: 90  # 90 days old invoices
+          
+      - type: update_frequency
+        params:
+          enabled: true
+          weight: 10  # 10 out of 20 points
+          timestamp_column: "due_date"
+          expected_frequency_days: 1  # Expect updates daily
+
+  plausibility:
+    weight: 1.0
+    rules:
+      # Total: 20 points
+      - type: range
+        params:
+          enabled: true
+          weight: 15  # 15 out of 20 points - critical for financial data
+          column: "amount"
+          min_value: 0.01
+          max_value: 9999999.99
+              
+      - type: outlier
+        params:
+          enabled: true
+          weight: 3  # 3 out of 20 points - outliers might be valid
+          column: "amount"
+          method: "iqr"
+          threshold: 3.0  # 3x IQR
+          
+      - type: distribution
+        params:
+          enabled: true
+          weight: 2  # 2 out of 20 points
+          column: "amount"
+          expected_distribution: "log_normal"  # Common for financial amounts
+
+custom_rules:
+  - name: high_value_invoice_check
+    description: Flag high-value invoices for additional review
+    type: threshold_alert
+    column: amount
+    threshold: 50000
+    severity: info
+    
+  - name: cross_border_payment_check
+    description: Flag invoices with different currency than vendor's primary
+    type: vendor_currency_mismatch
+    severity: info
+
+metadata:
+  industry: financial
+  compliance:
+    - SOX
+    - GDPR
+  automation_ready: true
+  risk_level: high
+  typical_volume: "1000-100000 records/month"
+  last_updated: "2025-06-03"
+  tested_with:
+    - "SAP invoice exports"
+    - "Oracle financials"
+    - "QuickBooks data"
+    - "Custom ERP systems"

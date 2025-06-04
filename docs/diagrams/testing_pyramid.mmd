@@ -1,0 +1,30 @@
+graph TB
+    subgraph pyramid [" "]
+        E2E[End-to-End Tests<br/>Complete Workflows<br/>Real User Scenarios]
+        INT[Integration Tests<br/>Component Interactions<br/>API Contracts]
+        UNIT[Unit Tests<br/>Individual Functions<br/>Isolated Logic]
+        
+        UNIT --> INT
+        INT --> E2E
+        
+        U_COUNT[Many Tests<br/>Fast Execution<br/>100% Required]
+        I_COUNT[Moderate Tests<br/>Medium Speed<br/>100% Required]
+        E_COUNT[Few Tests<br/>Slower Execution<br/>Critical Paths]
+    end
+    
+    UNIT -.-> U_COUNT
+    INT -.-> I_COUNT
+    E2E -.-> E_COUNT
+    
+    Base[Foundation: 80% Code Coverage Minimum]
+    
+    style UNIT fill:#10b981,stroke:#059669,stroke-width:3px,color:#fff
+    style INT fill:#3b82f6,stroke:#2563eb,stroke-width:3px,color:#fff
+    style E2E fill:#8b5cf6,stroke:#7c3aed,stroke-width:3px,color:#fff
+    style U_COUNT fill:#d1fae5,stroke:#10b981,stroke-width:2px
+    style I_COUNT fill:#dbeafe,stroke:#3b82f6,stroke-width:2px
+    style E_COUNT fill:#ede9fe,stroke:#8b5cf6,stroke-width:2px
+    style Base fill:#1e293b,stroke:#0f172a,stroke-width:3px,color:#fff,font-weight:bold
+    
+    classDef pyramidStyle fill:none,stroke:none
+    class pyramid pyramidStyle

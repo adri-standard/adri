@@ -1,0 +1,127 @@
+# ADRI Default Assessment Template
+# This template is used when no specific template is provided
+# It provides balanced scoring across all dimensions
+
+template:
+  id: "general/default"
+  version: "1.0.0"
+  name: "ADRI Default Assessment"
+  description: |
+    Default assessment template that provides balanced evaluation across all 
+    data quality dimensions. This template is automatically applied when no 
+    specific template is specified.
+  category: "general"
+  tags: ["default", "balanced", "general-purpose"]
+  authority: "ADRI Framework"
+  effective_date: "2024-01-01"
+
+# Balanced requirements - not too strict, not too lenient
+requirements:
+  overall_minimum: 60  # Reasonable baseline
+  dimension_minimums:
+    validity: 12      # 60% of 20
+    completeness: 12  # 60% of 20
+    consistency: 12   # 60% of 20
+    freshness: 12     # 60% of 20
+    plausibility: 12  # 60% of 20
+
+# Each dimension has balanced rules totaling 20 points
+dimensions:
+  validity:
+    weight: 1.0
+    rules:
+      - type: type_consistency
+        params:
+          enabled: true
+          weight: 10  # Half the points for type consistency
+          threshold: 0.90
+          analyze_all_columns: true
+          
+      - type: format_validation
+        params:
+          enabled: true
+          weight: 10  # Other half for format validation
+          check_dates: true
+          check_emails: true
+          check_patterns: true
+          
+  completeness:
+    weight: 1.0
+    rules:
+      - type: required_fields
+        params:
+          enabled: true
+          weight: 12  # Most points for field presence
+          # No specific required columns in default
+          threshold: 0.80
+          
+      - type: population_density
+        params:
+          enabled: true
+          weight: 8   # Less weight for density
+          threshold: 0.70
+          
+  consistency:
+    weight: 1.0
+    rules:
+      - type: cross_field
+        params:
+          enabled: true
+          weight: 10  # Half for cross-field checks
+          validation_type: "auto_detect"
+          
+      - type: uniform_representation
+        params:
+          enabled: true
+          weight: 10  # Half for uniform representation
+          check_all_columns: true
+          
+  freshness:
+    weight: 1.0
+    rules:
+      - type: timestamp_recency
+        params:
+          enabled: true
+          weight: 10  # Half for recency
+          max_age_days: 365  # Lenient default
+          auto_detect_timestamp: true
+          
+      - type: update_frequency
+        params:
+          enabled: true
+          weight: 10  # Half for frequency
+          expected_frequency_days: 30  # Monthly updates
+          
+  plausibility:
+    weight: 1.0
+    rules:
+      - type: range
+        params:
+          enabled: true
+          weight: 12  # More weight on reasonable ranges
+          auto_detect_ranges: true
+          
+      - type: outlier
+        params:
+          enabled: true
+          weight: 8   # Less weight on outliers
+          method: "iqr"
+          threshold: 3.0
+          check_numeric_columns: true
+
+# No certification for default assessment
+certification:
+  enabled: false
+  
+# Basic pattern matching - very flexible
+pattern_matching:
+  # No required columns for default template
+  required_columns: []
+  
+  # Common synonyms for better column matching
+  column_synonyms:
+    date: ["datetime", "timestamp", "created_at", "updated_at", "modified_at"]
+    id: ["identifier", "key", "code", "number"]
+    name: ["title", "label", "description"]
+    amount: ["value", "total", "sum", "price", "cost"]
+    status: ["state", "condition", "flag"]

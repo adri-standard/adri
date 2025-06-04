@@ -1,0 +1,21 @@
+id,name,email,department,hire_date
+1,John Doe,john.doe@acmecorp.com,Engineering,2023-01-15
+2,Jane Smith,jane.smith@gmail.com,Marketing,2023-02-20
+3,Bob Wilson,bob.wilson@enterprise.org,Sales,2023-03-10
+4,Alice Johnson,alice@yahoo.com,HR,2023-04-05
+5,Charlie Brown,charlie@customdomain.io,Engineering,2023-05-12
+6,David Lee,david@outlook.com,Finance,2023-06-18
+7,Eve Martinez,eve@companyxyz.net,Operations,2023-07-22
+8,Frank Thomas,frank@hotmail.com,Marketing,2023-08-30
+9,Grace Chen,grace@businessinc.com,Sales,2023-09-14
+10,Henry Williams,henry@icloud.com,Engineering,2023-10-02
+11,Iris Davis,iris.davis@techstartup.ai,Product,2023-11-08
+12,Jack Robinson,jrobinson@live.com,Support,2023-12-15
+13,Karen Miller,kmiller@corporate.edu,Research,2024-01-10
+14,Leo Garcia,leo.g@msn.com,Engineering,2024-02-14
+15,Maria Santos,msantos@bigcompany.com,Legal,2024-03-20
+16,Nathan Brown,nbrown@protonmail.com,Security,2024-04-25
+17,Olivia Taylor,olivia@consultingfirm.biz,Consulting,2024-05-30
+18,Paul Anderson,paul.a@me.com,Design,2024-06-15
+19,Quinn Roberts,qroberts@enterprise.com,Sales,2024-07-20
+20,Rachel Green,rachel@ymail.com,Marketing,2024-08-25

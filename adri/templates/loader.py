@@ -11,7 +11,6 @@ import json
 from typing import Dict, Any, Optional, Union, List
 from pathlib import Path
 from urllib.parse import urlparse
-import requests
 from datetime import datetime, timedelta
 
 from .base import BaseTemplate
@@ -167,11 +166,22 @@ class TemplateLoader:
         
         # Download template
         try:
+            # Import requests only when needed
+            try:
+                import requests
+            except ImportError:
+                raise TemplateError(
+                    "The 'requests' package is required for loading templates from URLs. "
+                    "Install it with: pip install adri[api]"
+                )
+            
             logger.info(f"Downloading template from: {url}")
             response = requests.get(url, timeout=30)
             response.raise_for_status()
             template_content = response.text
-        except requests.RequestException as e:
+        except ImportError:
+            raise  # Re-raise the ImportError with our custom message
+        except Exception as e:
             if self.offline_mode:
                 raise TemplateError(f"Cannot download in offline mode: {e}")
             # Try cache as fallback

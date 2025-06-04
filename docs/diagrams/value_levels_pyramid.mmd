@@ -1,0 +1,30 @@
+graph TB
+    subgraph pyramid [" "]
+        L1[Single Organization<br/>Internal Standardization]
+        L2[Extended Enterprise<br/>Partner Integration]
+        L3[Industry Ecosystem<br/>Market Standards]
+        
+        V1[70% reduction in debugging<br/>5x faster deployment<br/>Immediate ROI]
+        V2[80% faster integrations<br/>Quality-based SLAs<br/>Multiplied ROI]
+        V3[Shared templates<br/>Talent portability<br/>Exponential ROI]
+    end
+    
+    L1 --> L2
+    L2 --> L3
+    
+    L1 -.-> V1
+    L2 -.-> V2
+    L3 -.-> V3
+    
+    Base[Start Here → Grow Value]
+    
+    style L1 fill:#10b981,stroke:#059669,stroke-width:3px,color:#fff
+    style L2 fill:#3b82f6,stroke:#2563eb,stroke-width:3px,color:#fff
+    style L3 fill:#8b5cf6,stroke:#7c3aed,stroke-width:3px,color:#fff
+    style V1 fill:#d1fae5,stroke:#10b981,stroke-width:2px
+    style V2 fill:#dbeafe,stroke:#3b82f6,stroke-width:2px
+    style V3 fill:#ede9fe,stroke:#8b5cf6,stroke-width:2px
+    style Base fill:#1e293b,stroke:#0f172a,stroke-width:3px,color:#fff,font-weight:bold
+    
+    classDef pyramidStyle fill:none,stroke:none
+    class pyramid pyramidStyle

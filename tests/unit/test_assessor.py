@@ -7,7 +7,7 @@ import pytest
 from unittest.mock import patch, MagicMock
 
 from adri.assessor import DataSourceAssessor
-from adri.report import AssessmentReport
+from adri.report import ADRIScoreReport
 from adri.dimensions import DimensionRegistry
 
 
@@ -60,7 +60,7 @@ def test_assess_file(sample_data_path):
     report = assessor.assess_file(sample_data_path)
     
     # Check the report
-    assert isinstance(report, AssessmentReport)
+    assert isinstance(report, ADRIScoreReport)
     assert report.source_name == os.path.basename(sample_data_path)
     assert report.source_type == "file-csv"
     assert report.overall_score >= 0
@@ -92,7 +92,7 @@ def test_assess_with_connector():
         connector_class.assert_called_once_with("arg1", arg2="value")
         
         # Check that assess_source was called
-        assert isinstance(report, AssessmentReport)
+        assert isinstance(report, ADRIScoreReport)
 
 
 def test_assess_source():
@@ -125,7 +125,7 @@ def test_assess_source():
     mock_dim2.assess.assert_called_once_with(mock_connector)
     
     # Check the report
-    assert isinstance(report, AssessmentReport)
+    assert isinstance(report, ADRIScoreReport)
     assert report.source_name == "mock_source"
     assert report.source_type == "mock"
     assert "dim1" in report.dimension_results

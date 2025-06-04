@@ -1,0 +1,32 @@
+graph TB
+    subgraph wheel [" "]
+        V[Validity<br/>✓ Correct formats<br/>✓ Proper types<br/>✓ Valid ranges]
+        C[Completeness<br/>✓ Required fields<br/>✓ No missing data<br/>✓ Adequate coverage]
+        F[Freshness<br/>✓ Recent data<br/>✓ Timely updates<br/>✓ Not stale]
+        CO[Consistency<br/>✓ Logical coherence<br/>✓ No contradictions<br/>✓ Referential integrity]
+        P[Plausibility<br/>✓ Makes sense<br/>✓ Domain appropriate<br/>✓ Realistic values]
+        
+        CENTER[ADRI<br/>Data Quality<br/>Dimensions]
+        
+        CENTER -.->|Score 0-100| V
+        CENTER -.->|Score 0-100| C
+        CENTER -.->|Score 0-100| F
+        CENTER -.->|Score 0-100| CO
+        CENTER -.->|Score 0-100| P
+        
+        V -.-> C
+        C -.-> F
+        F -.-> CO
+        CO -.-> P
+        P -.-> V
+    end
+    
+    style V fill:#ff6b6b,stroke:#c92a2a,stroke-width:3px,color:#fff
+    style C fill:#4ecdc4,stroke:#0ca678,stroke-width:3px,color:#fff
+    style F fill:#a78bfa,stroke:#7c3aed,stroke-width:3px,color:#fff
+    style CO fill:#fbbf24,stroke:#f59e0b,stroke-width:3px
+    style P fill:#60a5fa,stroke:#3b82f6,stroke-width:3px,color:#fff
+    style CENTER fill:#1e293b,stroke:#0f172a,stroke-width:4px,color:#fff,font-weight:bold
+    
+    classDef wheelStyle fill:none,stroke:none
+    class wheel wheelStyle

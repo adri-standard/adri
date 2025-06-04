@@ -60,7 +60,7 @@ class TestVersionIntegration(unittest.TestCase):
             self.assertEqual(exit_code, 0, "CLI should exit with code 0")
             
             # Check that the output file exists
-            output_file = Path(f"{self.output_prefix}.json")
+            output_file = Path(f"{self.output_prefix}.adri_score_report.json")
             self.assertTrue(output_file.exists(), f"Output file {output_file} should exist")
             
             # Read the output file

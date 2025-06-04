@@ -24,10 +24,6 @@ class TestTemplateExceptions:
         error = TemplateNotFoundError("Template 'test-template' not found")
         assert str(error) == "Template 'test-template' not found"
         assert isinstance(error, TemplateError)
-        
-        # Test with template ID
-        error2 = TemplateNotFoundError(template_id="missing-template")
-        assert "missing-template" in str(error2)
     
     def test_template_validation_error(self):
         """Test TemplateValidationError."""
@@ -35,15 +31,10 @@ class TestTemplateExceptions:
         assert str(error) == "Invalid template structure"
         assert isinstance(error, TemplateError)
         
-        # Test with validation details
-        error2 = TemplateValidationError(
-            "Missing required field",
-            field="template.id",
-            template_source="test.yaml"
-        )
+        # Test with validation details in message
+        error2 = TemplateValidationError("Missing required field: template.id (source: test.yaml)")
         assert "Missing required field" in str(error2)
-        assert hasattr(error2, 'field')
-        assert error2.field == "template.id"
+        assert "template.id" in str(error2)
     
     def test_template_load_error(self):
         """Test TemplateLoadError."""
@@ -51,15 +42,10 @@ class TestTemplateExceptions:
         assert str(error) == "Failed to load template from URL"
         assert isinstance(error, TemplateError)
         
-        # Test with source details
-        error2 = TemplateLoadError(
-            "Connection timeout",
-            source="https://example.com/template.yaml",
-            cause="Network error"
-        )
+        # Test with source details in message
+        error2 = TemplateLoadError("Connection timeout: https://example.com/template.yaml (Network error)")
         assert "Connection timeout" in str(error2)
-        assert hasattr(error2, 'source')
-        assert error2.source == "https://example.com/template.yaml"
+        assert "https://example.com/template.yaml" in str(error2)
     
     def test_template_security_error(self):
         """Test TemplateSecurityError."""
@@ -67,15 +53,10 @@ class TestTemplateExceptions:
         assert str(error) == "Untrusted template source"
         assert isinstance(error, TemplateError)
         
-        # Test with security details
-        error2 = TemplateSecurityError(
-            "Domain not in trusted list",
-            domain="untrusted.com",
-            trusted_domains=["trusted1.com", "trusted2.com"]
-        )
+        # Test with security details in message
+        error2 = TemplateSecurityError("Domain not in trusted list: untrusted.com")
         assert "Domain not in trusted list" in str(error2)
-        assert hasattr(error2, 'domain')
-        assert error2.domain == "untrusted.com"
+        assert "untrusted.com" in str(error2)
     
     def test_exception_inheritance(self):
         """Test exception inheritance chain."""

@@ -12,7 +12,7 @@ from pathlib import Path
 import tempfile
 
 from adri import adri_guarded, DataSourceAssessor
-from adri.report import AssessmentReport
+from adri.report import ADRIScoreReport
 
 
 class TestCertificationGuardErrorHandling(unittest.TestCase):
@@ -21,7 +21,7 @@ class TestCertificationGuardErrorHandling(unittest.TestCase):
     def setUp(self):
         """Set up test environment."""
         self.test_file_path = "test_data.csv"
-        self.report_path = Path("test_data.report.json")
+        self.report_path = Path("test_data.report.adri_score_report.json")
         
         # Create a mock report
         self.mock_report = {

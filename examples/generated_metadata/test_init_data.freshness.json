@@ -1,0 +1,47 @@
+{
+  "_comment": "Auto-generated freshness metadata. Please review and set appropriate values.",
+  "has_explicit_freshness_info": true,
+  "dataset_timestamp": "TODO: When was this dataset last updated?",
+  "update_frequency": "TODO: daily|weekly|monthly|quarterly|yearly|real-time",
+  "generation_process": "TODO: How is this data generated/updated?",
+  "freshness_sla": {
+    "max_age_hours": 24,
+    "meets_sla": true,
+    "_comment": "TODO: Adjust max_age_hours based on your requirements"
+  },
+  "fields": {
+    "date": {
+      "timestamp_field": true,
+      "timestamp_format": "TODO: Specify format (e.g., YYYY-MM-DD HH:MM:SS)",
+      "timestamp_timezone": "TODO: Specify timezone (e.g., UTC)",
+      "_detected_automatically": true,
+      "_samples": [
+        "2024-01-01",
+        "2024-01-02",
+        "2024-01-03"
+      ]
+    },
+    "product": {
+      "timestamp_field": false
+    },
+    "quantity": {
+      "timestamp_field": false
+    },
+    "price": {
+      "timestamp_field": false
+    },
+    "category": {
+      "timestamp_field": false
+    }
+  },
+  "historical_updates": [
+    {
+      "timestamp": "TODO: Add historical update timestamps",
+      "description": "Example update"
+    }
+  ],
+  "_detected_timestamp_columns": [
+    "date"
+  ],
+  "_suggestion": "Consider using date as the primary freshness indicator"
+}

@@ -36,10 +36,10 @@ def test_interactive_mode_file_assessment(mock_prompt, sample_data_path):
     assert result == 0
     
     # Check that the output file was created
-    assert os.path.exists("test_interactive.json")
+    assert os.path.exists("test_interactive.adri_score_report.json")
     
     # Clean up
-    os.remove("test_interactive.json")
+    os.remove("test_interactive.adri_score_report.json")
 
 
 @patch("adri.interactive.inquirer.prompt")
@@ -79,10 +79,10 @@ def test_interactive_mode_with_customization(mock_prompt, sample_data_path):
     assert result == 0
     
     # Check that the output file was created
-    assert os.path.exists("test_interactive_custom.json")
+    assert os.path.exists("test_interactive_custom.adri_score_report.json")
     
     # Clean up
-    os.remove("test_interactive_custom.json")
+    os.remove("test_interactive_custom.adri_score_report.json")
 
 
 @patch("adri.interactive.inquirer.prompt")

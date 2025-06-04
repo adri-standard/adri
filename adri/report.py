@@ -1,7 +1,7 @@
 """
-Assessment report generation and handling for the Agent Data Readiness Index.
+ADRI Score Report generation and handling.
 
-This module provides the AssessmentReport class that encapsulates the results
+This module provides the ADRIScoreReport class that encapsulates the results
 of an ADRI assessment and provides methods to save, load, and visualize reports.
 """
 
@@ -25,8 +25,8 @@ from .version import (
 logger = logging.getLogger(__name__)
 
 
-class AssessmentReport:
-    """Encapsulates the results of an ADRI assessment."""
+class ADRIScoreReport:
+    """ADRI Score Report - Data quality assessment results."""
 
     def __init__(
         self,
@@ -36,9 +36,11 @@ class AssessmentReport:
         assessment_time: Optional[datetime] = None,
         adri_version: Optional[str] = None,
         assessment_config: Optional[Dict[str, Any]] = None,
+        template_match: Optional[Dict[str, Any]] = None,
+        assessment_mode: Optional[str] = None,
     ):
         """
-        Initialize an assessment report.
+        Initialize an ADRI Score Report.
 
         Args:
             source_name: Name of the assessed data source
@@ -47,6 +49,8 @@ class AssessmentReport:
             assessment_time: When the assessment was performed
             adri_version: Version of the ADRI tool used for assessment
             assessment_config: Configuration used for the assessment
+            template_match: Information about template matching
+            assessment_mode: Mode of assessment (discovery or validation)
         """
         self.source_name = source_name
         self.source_type = source_type
@@ -57,13 +61,154 @@ class AssessmentReport:
         
         # These will be populated by populate_from_dimension_results
         self.overall_score = 0
-        self.readiness_level = ""
         self.dimension_results = {}
-        self.summary_findings = []
-        self.summary_recommendations = []
         
         # Template evaluation results (if assessed against templates)
         self.template_evaluations = []
+        
+        # Enhanced metadata for future provenance support
+        self.metadata = {
+            "assessed_at": self.assessment_time.isoformat(),
+            "adri_version": self.adri_version,
+            "assessment_mode": assessment_mode or "discovery",
+            "template": template_match or {
+                "id": None,
+                "version": None,
+                "match_confidence": None,
+                "match_type": None
+            }
+        }
+        
+        # Placeholder for future provenance implementation
+        self.provenance = None  # Will hold hashes, signatures, etc.
+    
+    def validate(self) -> Dict[str, Any]:
+        """
+        Validate the report structure and values.
+        
+        Returns:
+            Dict with validation results:
+            - is_valid: bool indicating if report is valid
+            - errors: list of validation errors
+            - warnings: list of validation warnings
+        """
+        errors = []
+        warnings = []
+        
+        # Check overall score range
+        if not 0 <= self.overall_score <= 100:
+            errors.append(f"Overall score {self.overall_score} out of valid range [0-100]")
+        
+        # Check required fields
+        if not self.source_name:
+            errors.append("Missing required field: source_name")
+        if not self.source_type:
+            errors.append("Missing required field: source_type")
+        if not self.assessment_time:
+            errors.append("Missing required field: assessment_time")
+        
+        # Check dimension results
+        expected_dimensions = {"validity", "completeness", "freshness", "consistency", "plausibility"}
+        actual_dimensions = set(self.dimension_results.keys())
+        
+        missing_dimensions = expected_dimensions - actual_dimensions
+        if missing_dimensions:
+            errors.append(f"Missing dimensions: {missing_dimensions}")
+        
+        extra_dimensions = actual_dimensions - expected_dimensions
+        if extra_dimensions:
+            warnings.append(f"Unexpected dimensions: {extra_dimensions}")
+        
+        # Validate each dimension
+        for dim_name, dim_result in self.dimension_results.items():
+            # Check score range
+            if "score" not in dim_result:
+                errors.append(f"Dimension '{dim_name}' missing 'score' field")
+            else:
+                score = dim_result["score"]
+                if not isinstance(score, (int, float)):
+                    errors.append(f"Dimension '{dim_name}' score must be numeric, got {type(score).__name__}")
+                elif not 0 <= score <= 20:
+                    errors.append(f"Dimension '{dim_name}' score {score} out of valid range [0-20]")
+            
+            # Check findings and recommendations structure
+            if "findings" in dim_result and not isinstance(dim_result["findings"], list):
+                errors.append(f"Dimension '{dim_name}' findings must be a list")
+            if "recommendations" in dim_result and not isinstance(dim_result["recommendations"], list):
+                errors.append(f"Dimension '{dim_name}' recommendations must be a list")
+        
+        # Calculate expected total score
+        if not errors and not missing_dimensions:  # Only check if all required dimensions present
+            # For extra dimensions, just check that the overall score is reasonable
+            if extra_dimensions:
+                # With extra dimensions, overall score could be higher than 100
+                min_expected = sum(
+                    self.dimension_results[dim]["score"] 
+                    for dim in expected_dimensions 
+                    if dim in self.dimension_results
+                )
+                if self.overall_score < min_expected:
+                    errors.append(
+                        f"Overall score {self.overall_score} is less than sum of standard dimensions {min_expected}"
+                    )
+            else:
+                # Without extra dimensions, should match exactly
+                expected_total = sum(
+                    self.dimension_results[dim]["score"] 
+                    for dim in expected_dimensions 
+                    if dim in self.dimension_results
+                )
+                if abs(self.overall_score - expected_total) > 0.01:  # Allow small floating point differences
+                    errors.append(
+                        f"Overall score {self.overall_score} doesn't match sum of dimensions {expected_total}"
+                    )
+        
+        return {
+            "is_valid": len(errors) == 0,
+            "errors": errors,
+            "warnings": warnings
+        }
+    
+    @classmethod
+    def validate_json(cls, path: Union[str, Path]) -> Dict[str, Any]:
+        """
+        Validate a report JSON file without fully loading it.
+        
+        Args:
+            path: Path to the report JSON file
+            
+        Returns:
+            Dict with validation results
+        """
+        try:
+            # Load and validate JSON structure
+            with open(path, "r") as f:
+                data = json.load(f)
+            
+            # Check top-level structure
+            if "adri_score_report" not in data:
+                return {
+                    "is_valid": False,
+                    "errors": ["Invalid format: missing 'adri_score_report' root key"],
+                    "warnings": []
+                }
+            
+            # Load as report and validate
+            report = cls.from_dict(data)
+            return report.validate()
+            
+        except json.JSONDecodeError as e:
+            return {
+                "is_valid": False,
+                "errors": [f"Invalid JSON: {str(e)}"],
+                "warnings": []
+            }
+        except Exception as e:
+            return {
+                "is_valid": False,
+                "errors": [f"Failed to load report: {str(e)}"],
+                "warnings": []
+            }
 
     def populate_from_dimension_results(self, dimension_results: Dict[str, Dict[str, Any]]):
         """
@@ -77,87 +222,69 @@ class AssessmentReport:
         # Calculate overall score (sum of all dimension scores, max 100)
         dimension_scores = [d["score"] for d in dimension_results.values()]
         self.overall_score = sum(dimension_scores)  # Sum of all dimensions (5 * 20 = 100 max)
-        
-        # Determine readiness level
-        self.readiness_level = self._calculate_readiness_level(self.overall_score)
-        
-        # Gather key findings and recommendations
-        for dim_name, results in dimension_results.items():
-            # Add most critical findings (for now, just take the first 2)
-            for finding in results["findings"][:2]:
-                self.summary_findings.append(f"[{dim_name.title()}] {finding}")
-            
-            # Add most important recommendations (for now, just take the first)
-            for recommendation in results["recommendations"][:1]:
-                self.summary_recommendations.append(f"[{dim_name.title()}] {recommendation}")
 
-    def _calculate_readiness_level(self, score: float) -> str:
+    def _calculate_grade(self) -> str:
         """
-        Calculate the readiness level based on overall score.
-
-        Args:
-            score: Overall assessment score (0-100)
+        Calculate letter grade based on overall score.
 
         Returns:
-            str: Readiness level description
+            str: Letter grade (A, B, C, D, or F)
         """
-        if score >= 80:
-            return "Advanced - Ready for critical agentic applications"
-        elif score >= 60:
-            return "Proficient - Suitable for most production agent uses"
-        elif score >= 40:
-            return "Basic - Requires caution in agent applications"
-        elif score >= 20:
-            return "Limited - Significant agent blindness risk"
+        if self.overall_score >= 90:
+            return "A"
+        elif self.overall_score >= 80:
+            return "B"
+        elif self.overall_score >= 70:
+            return "C"
+        elif self.overall_score >= 60:
+            return "D"
         else:
-            return "Inadequate - Not recommended for agentic use"
+            return "F"
+
+    def _get_status(self) -> str:
+        """
+        Get simplified status based on overall score.
+
+        Returns:
+            str: Status description
+        """
+        if self.overall_score >= 80:
+            return "AI Ready"
+        elif self.overall_score >= 60:
+            return "Needs Attention"
+        else:
+            return "Not AI Ready"
 
     def to_dict(self) -> Dict[str, Any]:
         """
-        Convert the report to a dictionary.
+        Convert the report to a dictionary structure.
 
         Returns:
             Dict: Dictionary representation of the report
         """
-        result = {
-            "source_name": self.source_name,
-            "source_type": self.source_type,
-            "source_metadata": self.source_metadata,
-            "assessment_time": self.assessment_time.isoformat(),
-            "adri_version": self.adri_version,
-            "assessment_config": self.assessment_config,
-            "overall_score": self.overall_score,
-            "readiness_level": self.readiness_level,
-            "dimension_results": self.dimension_results,
-            "summary_findings": self.summary_findings,
-            "summary_recommendations": self.summary_recommendations,
-        }
-        
-        # Include template evaluations if present
-        if self.template_evaluations:
-            result["template_evaluations"] = [
-                eval.to_dict() for eval in self.template_evaluations
-            ]
-        
-        # Include assessment mode if present
-        if hasattr(self, 'assessment_mode'):
-            result["assessment_mode"] = self.assessment_mode
-        
-        # Include mode config if present  
-        if hasattr(self, 'mode_config'):
-            result["mode_config"] = self.mode_config
-            
-        # Include generated metadata if present
-        if hasattr(self, 'generated_metadata'):
-            result["generated_metadata"] = {
-                dim: str(path) for dim, path in self.generated_metadata.items()
+        return {
+            "adri_score_report": {
+                "report_version": "1.0.0",
+                "adri_version": self.adri_version,
+                "generated_at": self.assessment_time.isoformat(),
+                
+                "summary": {
+                    "overall_score": self.overall_score,
+                    "grade": self._calculate_grade(),
+                    "status": self._get_status(),
+                    "data_source": self.source_name
+                },
+                
+                "dimensions": self.dimension_results,  # Include full details
+                
+                "metadata": self.metadata,
+                
+                "provenance": self.provenance  # None for now, ready for future
             }
-            result["metadata_generation_success"] = getattr(self, 'metadata_generation_success', False)
-            
-        return result
+        }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "AssessmentReport":
+    def from_dict(cls, data: Dict[str, Any]) -> "ADRIScoreReport":
         """
         Create a report from a dictionary.
 
@@ -165,21 +292,31 @@ class AssessmentReport:
             data: Dictionary representation of a report
 
         Returns:
-            AssessmentReport: Reconstructed report object
+            ADRIScoreReport: Reconstructed report object
         """
+        # Only support the new format
+        if "adri_score_report" not in data:
+            raise ValueError("Invalid report format. Expected 'adri_score_report' structure.")
+            
+        report_data = data["adri_score_report"]
+        
+        # Create basic metadata from the new structure
+        source_metadata = report_data.get("metadata", {})
+        
         report = cls(
-            source_name=data["source_name"],
-            source_type=data["source_type"],
-            source_metadata=data["source_metadata"],
-            assessment_time=datetime.fromisoformat(data["assessment_time"]),
-            adri_version=data.get("adri_version"), # Use .get for backward compatibility
-            assessment_config=data.get("assessment_config", {}), # Use .get for backward compatibility
+            source_name=report_data["summary"]["data_source"],
+            source_type="file",  # Default since not stored in new format
+            source_metadata=source_metadata,
+            assessment_time=datetime.fromisoformat(report_data["generated_at"]),
+            adri_version=report_data.get("adri_version"),
         )
-        report.overall_score = data["overall_score"]
-        report.readiness_level = data["readiness_level"]
-        report.dimension_results = data["dimension_results"]
-        report.summary_findings = data["summary_findings"]
-        report.summary_recommendations = data["summary_recommendations"]
+        
+        # Set the scores
+        report.overall_score = report_data["summary"]["overall_score"]
+        
+        # Set dimension results (includes scores, findings, recommendations)
+        report.dimension_results = report_data["dimensions"]
+        
         return report
 
     def save_json(self, path: Union[str, Path]):
@@ -189,12 +326,20 @@ class AssessmentReport:
         Args:
             path: Path to save the report
         """
+        # Ensure proper file extension
+        path = Path(path)
+        if not path.suffix:
+            path = path.with_suffix('.adri_score_report.json')
+        elif path.suffix == '.json':
+            # Replace .json with .adri_score_report.json
+            path = path.with_suffix('').with_suffix('.adri_score_report.json')
+            
         with open(path, "w") as f:
             json.dump(self.to_dict(), f, indent=2)
-        logger.info(f"Report saved to {path}")
+        logger.info(f"ADRI Score Report saved to {path}")
 
     @classmethod
-    def load_json(cls, path: Union[str, Path]) -> "AssessmentReport":
+    def load_json(cls, path: Union[str, Path]) -> "ADRIScoreReport":
         """
         Load a report from a JSON file.
 
@@ -202,30 +347,10 @@ class AssessmentReport:
             path: Path to the report file
 
         Returns:
-            AssessmentReport: Loaded report
-
-        Raises:
-            Warning: If the report was generated with an incompatible ADRI version
+            ADRIScoreReport: Loaded report
         """
         with open(path, "r") as f:
             data = json.load(f)
-        
-        # Check version compatibility
-        report_version = data.get("adri_version")
-        if report_version:
-            if not is_version_compatible(report_version):
-                compat_message = get_score_compatibility_message(report_version)
-                warnings.warn(
-                    f"Loading report from potentially incompatible version: {report_version}. "
-                    f"Current version: {__version__}. {compat_message}"
-                )
-        else:
-            # No version information in the report
-            warnings.warn(
-                f"Report does not contain version information. "
-                f"It was likely generated with an older version of ADRI. "
-                f"Score interpretation may be inconsistent with current version ({__version__})."
-            )
             
         return cls.from_dict(data)
 
@@ -268,8 +393,8 @@ class AssessmentReport:
         
         # Add title
         plt.title(
-            f"Agent Data Readiness Index: {self.source_name}\n"
-            f"Overall Score: {self.overall_score:.1f}/100 ({self.readiness_level.split(' - ')[0]})",
+            f"ADRI Score Report: {self.source_name}\n"
+            f"Overall Score: {self.overall_score:.1f}/100 (Grade: {self._calculate_grade()})",
             size=15,
             y=1.1,
         )
@@ -313,7 +438,9 @@ class AssessmentReport:
             radar_chart_b64=radar_b64,
             timestamp=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             adri_version=self.adri_version,
-            assessment_config=self.assessment_config
+            assessment_config=self.assessment_config,
+            grade=self._calculate_grade(),
+            status=self._get_status()
         )
         
         # Save the rendered HTML report
@@ -323,31 +450,26 @@ class AssessmentReport:
 
     def print_summary(self):
         """Print a summary of the report to the console."""
-        print(f"\n=== Agent Data Readiness Index: {self.source_name} ===")
-        if self.adri_version:
-            print(f"ADRI Version: {self.adri_version}")
-        print(f"Assessment Time: {self.assessment_time.strftime('%Y-%m-%d %H:%M:%S')}")
-        print(f"Overall Score: {self.overall_score:.1f}/100")
-        print(f"Readiness Level: {self.readiness_level}")
-        # TODO: Consider printing a summary of assessment_config if needed
+        print(f"\n✨ ADRI Score Report")
+        print("━" * 40)
+        print(f"Overall Score: {self.overall_score}/100 (Grade: {self._calculate_grade()})")
+        print(f"Status: {self._get_status()} {'✅' if self.overall_score >= 80 else '❌'}")
+        
         print("\nDimension Scores:")
         for dim, results in self.dimension_results.items():
-            print(f"  {dim.title()}: {results['score']:.1f}/20")
+            score = results['score']
+            bar_length = int(score)
+            bar = "█" * bar_length + "░" * (20 - bar_length)
+            print(f"• {dim.title():<14} {score:>2}/20 {bar}")
         
-        print("\nKey Findings:")
-        for finding in self.summary_findings:
-            print(f"  - {finding}")
-            
-        print("\nTop Recommendations:")
-        for rec in self.summary_recommendations:
-            print(f"  - {rec}")
+        # Count total findings across all dimensions
+        total_findings = sum(
+            len(results.get('findings', [])) 
+            for results in self.dimension_results.values()
+        )
+        if total_findings > 0:
+            print(f"\nFound {total_findings} issues that need attention.")
+            print(f"Run 'adri show {self.source_name}' for details.")
         
-        # Print assessment mode info if available
-        if hasattr(self, 'assessment_mode'):
-            print(f"\nAssessment Mode: {self.assessment_mode}")
-            
-        # Print generated metadata info if available
-        if hasattr(self, 'generated_metadata'):
-            print(f"\n✅ Generated Metadata Files:")
-            for dimension, filepath in self.generated_metadata.items():
-                print(f"  - {filepath}")
+        print(f"\nReport saved: {self.source_name}.adri_score_report.json")
+        print(f"ADRI v{self.adri_version} | Generated: {self.assessment_time.strftime('%Y-%m-%d %H:%M:%S')}")

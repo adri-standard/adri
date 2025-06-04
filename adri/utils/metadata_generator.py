@@ -15,6 +15,8 @@ import pandas as pd
 from collections import Counter
 import re
 
+from adri.version import __version__
+
 logger = logging.getLogger(__name__)
 
 
@@ -51,7 +53,7 @@ class MetadataGenerator:
         combined_metadata = {
             "_generated_by": "adri init",
             "_generated_at": datetime.now().isoformat(),
-            "_adri_version": "0.3.1",
+            "_adri_version": __version__,
             "_data_source": self.base_name,
             "_comment": "Auto-generated ADRI metadata. Please review and adjust all TODO sections."
         }
