@@ -1,0 +1,38 @@
+cff-version: 1.2.0
+title: "ADRI: Agent Data Readiness Index"
+message: "If you use ADRI in your research, please cite it using this metadata."
+type: software
+authors:
+  - name: "ADRI Community"
+    email: "hello@adri.dev"
+    affiliation: "ADRI Standard Organization"
+  - given-names: "Initial Implementation by"
+    family-names: "Verodat"
+    affiliation: "Verodat"
+    website: "https://verodat.io"
+repository-code: "https://github.com/adri-standard/adri"
+url: "https://adri.dev"
+repository: "https://github.com/adri-standard/adri"
+abstract: "ADRI (Agent Data Readiness Index) is an open standard that enables 99% AI agent reliability through universal data quality protocols. It provides a framework for assessing data across five dimensions (validity, completeness, freshness, consistency, plausibility) to ensure AI agents can trust their input data."
+keywords:
+  - data quality
+  - AI agents
+  - data validation
+  - interoperability
+  - open standard
+  - agent reliability
+license: MIT
+version: 0.4.2
+date-released: 2025-01-04
+preferred-citation:
+  type: article
+  title: "ADRI: Enabling Universal AI Agent Data Interoperability"
+  authors:
+    - name: "ADRI Community"
+  journal: "Journal of AI Systems Interoperability"
+  year: 2025
+  volume: 1
+  issue: 1
+  start: 1
+  end: 20
+  doi: "10.xxxxx/adri.2025.001"
