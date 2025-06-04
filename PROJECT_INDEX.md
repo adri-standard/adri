@@ -31,25 +31,20 @@ This document provides a comprehensive overview of all files and directories in 
 | **SECURITY.md** | Security policy and vulnerability reporting |
 | **PROJECT_INDEX.md** | This file - comprehensive project file index |
 
-### 🧹 Project Management
+### 📋 Community & Governance
 
 | File | Purpose |
 |------|---------|
-| **CLEANUP_SUMMARY.md** | Record of project cleanup activities |
-| **REMOVE_WIKI_INSTRUCTIONS.md** | Instructions for wiki migration |
-| **ADRI_AI_ENGINEER_REVIEW.md** | AI engineering review documentation |
-| **test_template_matcher.py** | Template matcher test script |
-
-### 📁 Generated/Output Files
-
-| File | Purpose |
-|------|---------|
-| **inventory_demo.*.json** | Demo inventory assessment output files |
-| **crm_audit_demo.*.json** | Demo CRM audit assessment output files |
-| **crm_audit_report.html** | Generated CRM audit HTML report |
-| **crm_audit_business_report.txt** | Generated CRM business report |
-| **test_*.html** | Generated test report files |
-| **test_customer_data.report.json** | Test customer data report |
+| **CITATION.cff** | Citation information for academic use |
+| **DEVELOPMENT.md** | Development workflow and practices |
+| **DOCUMENT_REVIEW_PROGRESS.md** | Documentation review tracking |
+| **.github/CODEOWNERS** | Code ownership definitions |
+| **.github/ISSUE_TEMPLATE/bug_report.md** | Bug report template |
+| **.github/ISSUE_TEMPLATE/feature_request.md** | Feature request template |
+| **.github/ISSUE_TEMPLATE/general_change.md** | General change template |
+| **.github/PULL_REQUEST_TEMPLATE.md** | Pull request template |
+| **.github/workflows/release-drafter.yml** | Automated release notes workflow |
+| **.github/release-drafter.yml** | Release drafter configuration |
 
 ## 📁 adri/ - Core Package
 
@@ -160,78 +155,78 @@ This document provides a comprehensive overview of all files and directories in 
 | File | Purpose |
 |------|---------|
 | **index.md** | Documentation home page |
-| **VISION.md** | Core vision and strategic direction (hybrid approach) |
-| **VISION_IN_ACTION.md** | Concrete examples of the vision |
-| **GET_STARTED.md** | Quick start guide |
-| **ROADMAP.md** | Future development plans |
-| **ROADMAP_V1.1.md** | Detailed v1.1 roadmap with priority rules |
-| **FAQ.md** | Frequently asked questions |
-| **QUICKSTART.md** | 5-minute quickstart tutorial |
+| **vision.md** | Core vision and strategic direction (hybrid approach) |
+| **vision_in_action.md** | Concrete examples of the vision |
+| **get_started.md** | Quick start guide |
+| **roadmap.md** | Future development plans |
+| **roadmap_v1.1.md** | Detailed v1.1 roadmap with priority rules |
+| **faq.md** | Frequently asked questions |
+| **quickstart.md** | 5-minute quickstart tutorial |
 
 ### 📚 Concept Documentation
 
 | File | Purpose |
 |------|---------|
-| **UNDERSTANDING_DIMENSIONS.md** | Overview of the five data quality dimensions |
+| **understanding_dimensions.md** | Overview of the five data quality dimensions |
 | **validity_dimension.md** | Detailed validity dimension documentation |
 | **completeness_dimension.md** | Detailed completeness dimension documentation |
 | **freshness_dimension.md** | Detailed freshness dimension documentation |
 | **consistency_rules.md** | Consistency rules documentation |
 | **plausibility_dimension.md** | Detailed plausibility dimension documentation |
 | **plausibility_rules.md** | Plausibility rules documentation |
-| **Methodology.md** | ADRI methodology explanation |
+| **methodology.md** | ADRI methodology explanation |
 | **implementation_guide.md** | Step-by-step implementation guide |
-| **UNDERSTANDING_TEMPLATES.md** | Guide to template system and authoring |
-| **TEMPLATE_TDD_GUIDE.md** | Test-driven development guide for templates |
-| **CONTRIBUTING_TEMPLATES.md** | Template contribution guidelines |
+| **understanding_templates.md** | Guide to template system and authoring |
+| **template_tdd_guide.md** | Test-driven development guide for templates |
+| **contributing_templates.md** | Template contribution guidelines |
 
 ### 🔧 Technical Documentation
 
 | File | Purpose |
 |------|---------|
-| **API_REFERENCE.md** | Complete API documentation |
-| **IMPLEMENTING_GUARDS.md** | Guide to implementing data quality guards |
-| **INTEGRATIONS.md** | Framework integration guides |
-| **EXTENDING.md** | How to extend ADRI |
-| **CUSTOM_RULES_GUIDE.md** | Comprehensive guide for creating custom rules |
-| **ENHANCING_DATA_SOURCES.md** | Adding metadata to data sources |
-| **TESTING.md** | Testing guide and strategy |
-| **ASSESSMENT_MODES.md** | Assessment modes documentation |
-| **RULE_TESTING_ARCHITECTURE.md** | Rule testing architecture guide |
-| **TEMPLATE_GUARD.md** | Template guard documentation |
+| **api_reference.md** | Complete API documentation |
+| **implementing_guards.md** | Guide to implementing data quality guards |
+| **integrations.md** | Framework integration guides |
+| **extending.md** | How to extend ADRI |
+| **custom_rules_guide.md** | Comprehensive guide for creating custom rules |
+| **enhancing_data_sources.md** | Adding metadata to data sources |
+| **testing.md** | Testing guide and strategy |
+| **assessment_modes.md** | Assessment modes documentation |
+| **rule_testing_architecture.md** | Rule testing architecture guide |
+| **template_guard.md** | Template guard documentation |
 
 ### 💼 Use Cases
 
 | File | Purpose |
 |------|---------|
-| **USE_CASE_AI_STATUS_AUDITOR.md** | AI status auditor implementation |
-| **USE_CASE_INVOICE_PAYMENT_AGENT.md** | Invoice payment agent example |
+| **use_case_ai_status_auditor.md** | AI status auditor implementation |
+| **use_case_invoice_payment_agent.md** | Invoice payment agent example |
 
 ### 🛠️ Development Documentation
 
 | File | Purpose |
 |------|---------|
-| **DEVELOPER.md** | Developer setup guide |
+| **developer.md** | Developer setup guide |
 | **architecture.md** | System architecture documentation |
 | **architecture.mmd** | Architecture Mermaid diagram source |
 | **architecture.png** | Architecture diagram image |
 | **components.md** | Component descriptions |
 | **datasets.md** | Example datasets catalog |
-| **PROJECT_STRUCTURE.md** | Repository structure guide |
+| **project_structure.md** | Repository structure guide |
 
 ### 📝 Internal Documentation
 
 | File | Purpose |
 |------|---------|
-| **DOCUMENTATION_ALIGNMENT.md** | Documentation standards |
-| **PROGRESSIVE_ENGAGEMENT_STRATEGY.md** | User engagement strategy |
-| **STYLE_GUIDE.md** | Documentation style guide |
-| **GITHUB_PAGES.md** | GitHub Pages deployment guide |
+| **documentation_alignment.md** | Documentation standards |
+| **progressive_engagement_strategy.md** | User engagement strategy |
+| **style_guide.md** | Documentation style guide |
+| **github_pages.md** | GitHub Pages deployment guide |
 | **test-deployment.md** | Test deployment instructions |
-| **DOCUMENT_PURPOSE_ANALYSIS.md** | Analysis of documentation purposes |
-| **CLAIMS_TRACKER.md** | Tracker for claims made across documentation |
-| **DISCOVERY_AND_VALIDATION.md** | Discovery and validation process documentation |
-| **PROVENANCE_SPECIFICATION.md** | Data provenance specification |
+| **document_purpose_analysis.md** | Analysis of documentation purposes |
+| **claims_tracker.md** | Tracker for claims made across documentation |
+| **discovery_and_validation.md** | Discovery and validation process documentation |
+| **provenance_specification.md** | Data provenance specification |
 
 ### 📁 docs/test_coverage/
 
@@ -342,9 +337,9 @@ Contains evidence files supporting claims and documentation.
 
 ## 🎯 Key Entry Points
 
-1. **For Users**: Start with `README.md` → `docs/GET_STARTED.md`
-2. **For Developers**: `docs/DEVELOPER.md` → `docs/architecture.md`
-3. **For Contributors**: `CONTRIBUTING.md` → `docs/EXTENDING.md`
+1. **For Users**: Start with `README.md` → `docs/get_started.md`
+2. **For Developers**: `docs/developer.md` → `docs/architecture.md`
+3. **For Contributors**: `CONTRIBUTING.md` → `docs/extending.md`
 4. **For Examples**: `examples/README.md` → specific example files
 
 ## 📊 File Categories
@@ -358,4 +353,4 @@ Contains evidence files supporting claims and documentation.
 
 ---
 
-*Last Updated: 2025-06-03*
+*Last Updated: 2025-06-04*
