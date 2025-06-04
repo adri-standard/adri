@@ -51,7 +51,7 @@ Internal documentation links have been corrected:
 ### 5. External Links
 
 These links are aspirational and should be noted as future resources:
-- `adri.dev` - Future website
+- `adri-standard.github.io/adri` - Project website (GitHub Pages)
 - `discord.gg/adri` - Future Discord
 - `@adri_standard` - Future Twitter
 - Various GitHub organization links

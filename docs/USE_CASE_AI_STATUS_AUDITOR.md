@@ -565,7 +565,7 @@ def process_sales_leads(data_source):
 ## Contact
 
 For questions about this implementation:
-- Email: auditor@adri.dev
+- Email: Use [GitHub Discussions](https://github.com/adri-standard/adri/discussions) with "use-case" tag
 - Slack: #status-auditor channel
 
 ## Purpose & Test Coverage

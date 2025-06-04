@@ -456,7 +456,7 @@ if __name__ == "__main__":
 
 - **💬 GitHub Discussions**: Ask questions in the [Templates category](https://github.com/adri-standard/agent-data-readiness-index/discussions)
 - **🐛 Issues**: Report problems with the [template label](https://github.com/adri-standard/agent-data-readiness-index/issues)
-- **📧 Email**: templates@adri.dev (coming soon)
+- **📧 Community**: Use [GitHub Discussions](https://github.com/adri-standard/adri/discussions) with "template" tag
 - **📚 Examples**: Study existing templates in `adri/templates/catalog/`
 
 ## 🏆 Recognition

@@ -478,7 +478,7 @@ Payback period: 3 days
 ## Contact
 
 For questions about this use case or to discuss implementation:
-- Email: use-cases@adri.dev
+- Email: Use [GitHub Discussions](https://github.com/adri-standard/adri/discussions) with "use-case" tag
 - Slack: #invoice-automation channel
 
 ## Purpose & Test Coverage
