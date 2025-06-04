@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Fixed ImportError for `requests` module by making it a conditional import - the package is now only imported when loading templates from URLs
+- Fixed ImportError for `scipy` module by making it a conditional import - the package is now only imported when using statistical analysis rules
 - CLI tools now work correctly with base installation (`pip install adri`) without requiring optional dependencies
 
 ## [0.4.0] - 2025-06-04

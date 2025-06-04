@@ -10,7 +10,6 @@ import logging
 import pandas as pd
 import numpy as np
 from typing import Dict, Any, List, Union, Tuple, Optional
-import scipy.stats as stats
 
 from .base import DiagnosticRule
 from .registry import RuleRegistry
@@ -167,6 +166,15 @@ class OutlierDetectionRule(DiagnosticRule):
             # Detect outliers using the specified method
             if method == "zscore":
                 # Z-score method: values beyond +/- threshold standard deviations
+                try:
+                    from scipy import stats
+                except ImportError:
+                    return {
+                        "score": 0,
+                        "valid": False,
+                        "processed": False,
+                        "reason": "The 'scipy' package is required for statistical analysis. Install it with: pip install scipy"
+                    }
                 z_scores = np.abs(stats.zscore(values))
                 outlier_mask = z_scores > threshold
                 outlier_indices = values.index[outlier_mask].tolist()
@@ -484,6 +492,17 @@ class ValueDistributionRule(DiagnosticRule):
         non_null_records = len(values)
         
         try:
+            # Import scipy.stats when needed
+            try:
+                from scipy import stats
+            except ImportError:
+                return {
+                    "score": 0,
+                    "valid": False,
+                    "processed": False,
+                    "reason": "The 'scipy' package is required for statistical distribution analysis. Install it with: pip install scipy"
+                }
+            
             # Analyze data distribution
             sample_data = values.values
             
