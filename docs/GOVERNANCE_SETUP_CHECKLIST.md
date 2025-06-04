@@ -6,7 +6,7 @@ This checklist ensures proper governance configuration for the ADRI open source 
 
 ### General Settings (Settings → General)
 - [ ] **Description**: "ADRI - Agent Data Readiness Index | Open standard enabling 99% AI agent reliability through universal data quality protocols"
-- [ ] **Website**: https://adri.dev
+- [ ] **Website**: https://adri-standard.github.io/adri/
 - [ ] **Topics**: `data-quality`, `ai-agents`, `data-validation`, `python`, `open-standard`, `interoperability`
 - [ ] **Features**:
   - [x] Issues

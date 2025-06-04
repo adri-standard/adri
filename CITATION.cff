@@ -4,14 +4,14 @@ message: "If you use ADRI in your research, please cite it using this metadata."
 type: software
 authors:
   - name: "ADRI Community"
-    email: "hello@adri.dev"
+    email: "hello@adri-standard.github.io"
     affiliation: "ADRI Standard Organization"
   - given-names: "Initial Implementation by"
     family-names: "Verodat"
     affiliation: "Verodat"
     website: "https://verodat.io"
 repository-code: "https://github.com/adri-standard/adri"
-url: "https://adri.dev"
+url: "https://adri-standard.github.io/adri/"
 repository: "https://github.com/adri-standard/adri"
 abstract: "ADRI (Agent Data Readiness Index) is an open standard that enables 99% AI agent reliability through universal data quality protocols. It provides a framework for assessing data across five dimensions (validity, completeness, freshness, consistency, plausibility) to ensure AI agents can trust their input data."
 keywords:

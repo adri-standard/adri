@@ -195,9 +195,9 @@ You have a role in shaping this standard.
 
 ## Contact
 
-- **Website**: [adri.dev](https://adri.dev)
+- **Website**: [adri-standard.github.io/adri](https://adri-standard.github.io/adri/)
 - **GitHub**: [github.com/adri-standard](https://github.com/adri-standard)
-- **Email**: charter@adri.dev
+- **Email**: hello@adri-standard.github.io
 
 ---
 

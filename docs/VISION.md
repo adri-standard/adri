@@ -631,7 +631,7 @@ You have a role in shaping this standard.
 
 ### Get Involved
 
-- **Website**: [adri.dev](https://adri.dev)
+- **Website**: [adri-standard.github.io/adri](https://adri-standard.github.io/adri/)
 - **GitHub**: [github.com/adri-standard](https://github.com/adri-standard)
 - **Discord**: [discord.gg/adri](https://discord.gg/adri)
 - **Twitter**: [@adri_standard](https://twitter.com/adri_standard)

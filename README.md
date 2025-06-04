@@ -143,7 +143,7 @@ for source in available_sources:
 ```
 
 ### For Enterprises: "Show Me the Ecosystem"
-Visit the [ADRI Marketplace](https://adri.dev/marketplace) to find:
+Visit the [ADRI Marketplace](https://adri-standard.github.io/adri/marketplace) to find:
 - 📦 **Certified Data Sources** by industry
 - 🤖 **Compatible Agents** for your data
 - 📋 **Standard Templates** for common use cases
@@ -183,7 +183,7 @@ pip install adri
 ### Try It on Sample Data
 ```bash
 # Download a sample invoice dataset
-curl -O https://adri.dev/samples/invoices.csv
+curl -O https://adri-standard.github.io/adri/samples/invoices.csv
 
 # See what standards it could meet
 adri discover invoices.csv
@@ -225,7 +225,7 @@ compliant_data = load_invoice_data()
 - 🏪 Offer ADRI-certified data products
 - 🤖 Build ADRI-compliant agents
 - 🔧 Provide implementation services
-- 📢 [List in the marketplace](https://adri.dev/marketplace)
+- 📢 [List in the marketplace](https://adri-standard.github.io/adri/marketplace)
 
 ## 📚 Documentation
 
@@ -287,7 +287,7 @@ Imagine a world where:
 
 The future of AI interoperability is being built now. Join us:
 
-- **Website**: [adri.dev](https://adri.dev)
+- **Website**: [adri-standard.github.io/adri](https://adri-standard.github.io/adri/)
 - **GitHub**: [github.com/adri-standard](https://github.com/adri-standard)
 - **Discord**: [discord.gg/adri](https://discord.gg/adri)
 - **Twitter**: [@adri_standard](https://twitter.com/adri_standard)

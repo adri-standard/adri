@@ -129,9 +129,11 @@ This governance document can be amended by:
 
 ## Contact
 
-- **General Inquiries**: governance@adri.dev
-- **Security Issues**: security@adri.dev (see [SECURITY.md](SECURITY.md))
-- **Press**: press@adri.dev
+*Note: Email addresses will be set up once a custom domain is acquired. For now, please use GitHub Issues and Discussions for all communication.*
+
+- **General Inquiries**: Use [GitHub Discussions](https://github.com/adri-standard/adri/discussions)
+- **Security Issues**: See [SECURITY.md](SECURITY.md) for reporting process
+- **Press**: Create an issue with the "press" label
 
 ---
 
