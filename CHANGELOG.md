@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.2] - 2025-06-04
+
+### Fixed
+- Cleaned git repository history by removing accidentally committed virtual environment (venv/) files
+- Reduced repository size for faster cloning and better performance
+
 ## [0.4.1] - 2025-06-04
 
 ### Fixed
@@ -123,7 +129,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - CrewAI integration
   - Guard integration
 
-[Unreleased]: https://github.com/verodat/agent-data-readiness-index/compare/v0.4.1...HEAD
+[Unreleased]: https://github.com/verodat/agent-data-readiness-index/compare/v0.4.2...HEAD
+[0.4.2]: https://github.com/verodat/agent-data-readiness-index/compare/v0.4.1...v0.4.2
 [0.4.1]: https://github.com/verodat/agent-data-readiness-index/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/verodat/agent-data-readiness-index/compare/v0.3.1...v0.4.0
 [0.3.1]: https://github.com/verodat/agent-data-readiness-index/compare/v0.3.0...v0.3.1
