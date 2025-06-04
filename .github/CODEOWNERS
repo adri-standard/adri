@@ -1,0 +1,24 @@
+# ADRI Codeowners
+# This file defines who reviews PRs for different parts of the codebase
+
+# Default owners for everything
+* @adri-standard/maintainers
+
+# Core library
+/adri/ @adri-standard/maintainers
+
+# Documentation
+/docs/ @adri-standard/maintainers @adri-standard/documentation
+
+# Templates require template working group review
+/adri/templates/ @adri-standard/template-working-group
+
+# Governance documents require steering committee
+/GOVERNANCE.md @adri-standard/steering-committee
+/CHARTER.md @adri-standard/steering-committee
+/CODE_OF_CONDUCT.md @adri-standard/steering-committee
+
+# CI/CD and release process
+/.github/ @adri-standard/maintainers
+/RELEASING.md @adri-standard/maintainers
+/scripts/publish_pypi.sh @adri-standard/maintainers
