@@ -1,0 +1,32 @@
+flowchart TD
+    subgraph "Discovery Phase"
+        DATA[Data Source<br/>CSV/JSON/Database]
+        ANALYZE[Analyze Structure<br/>Columns & Types]
+        MATCH[Template Matching<br/>Pattern Recognition]
+        SCORE[Confidence Scoring<br/>Match Quality]
+        SELECT[Template Selection<br/>Best Match]
+    end
+    
+    subgraph "Matching Techniques"
+        EXACT[Exact Match<br/>100% confidence]
+        SYNONYM[Synonym Match<br/>95% confidence]
+        FUZZY[Fuzzy Match<br/>85% confidence]
+        ABBREV[Abbreviation Detection<br/>e.g., 'opp_id' → 'opportunity_id']
+    end
+    
+    DATA --> ANALYZE
+    ANALYZE --> MATCH
+    MATCH --> SCORE
+    SCORE --> SELECT
+    
+    MATCH -.-> EXACT
+    MATCH -.-> SYNONYM  
+    MATCH -.-> FUZZY
+    MATCH -.-> ABBREV
+    
+    style DATA fill:#fbbf24,stroke:#f59e0b,stroke-width:3px
+    style SELECT fill:#10b981,stroke:#059669,stroke-width:2px,color:#fff
+    style EXACT fill:#10b981,stroke:#059669
+    style SYNONYM fill:#3b82f6,stroke:#2563eb
+    style FUZZY fill:#a78bfa,stroke:#7c3aed
+    style ABBREV fill:#f59e0b,stroke:#d97706

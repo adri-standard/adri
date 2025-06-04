@@ -1,0 +1,23 @@
+gantt
+    title A Day in the Life: Data Quality Pain Points
+    dateFormat HH:mm
+    axisFormat %H:%M
+    
+    section RevOps Manager
+    Receives CRM export          :done, r1, 09:00, 30m
+    Manual data checks           :active, r2, 09:30, 240m
+    Finds critical issues        :crit, r3, 13:30, 30m
+    Meeting already started      :milestone, 14:00, 0m
+    
+    section AI Engineer
+    Agent processing data        :done, a1, 10:30, 30m
+    Agent crashes - bad data     :crit, a2, 11:00, 30m
+    Debug error messages         :active, a3, 11:30, 60m
+    Trace through logs           :active, a4, 12:30, 90m
+    Find missing field           :milestone, 14:00, 0m
+    
+    section Data Engineer
+    Request: make data AI-ready  :done, d1, 14:00, 30m
+    No clear definition          :crit, d2, 14:30, 30m
+    Write custom validation      :active, d3, 15:00, 120m
+    Different standards per project :active, d4, 17:00, 60m

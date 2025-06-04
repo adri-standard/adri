@@ -1,0 +1,3341 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="ADRI: The Open Standard for Evaluating AI Agent Data Quality.">
+      
+      
+      
+        <link rel="canonical" href="https://adri-standard.github.io/adri/VISION/">
+      
+      
+      
+        <link rel="next" href="../VISION_IN_ACTION/">
+      
+      
+      <link rel="icon" href="../None">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.14">
+    
+    
+      
+        <title>Why ADRI Exists - Agent Data Readiness Index (ADRI)</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.342714a4.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=DM+Sans:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"DM Sans";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="grey" data-md-color-accent="lime">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#adri-agent-data-readiness-index" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Agent Data Readiness Index (ADRI)" class="md-header__button md-logo" aria-label="Agent Data Readiness Index (ADRI)" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Agent Data Readiness Index (ADRI)
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Why ADRI Exists
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="grey" data-md-color-accent="lime"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="grey" data-md-color-accent="lime"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThinkEvolveSolve/agent-data-readiness-index" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThinkEvolveSolve/agent-data-readiness-index
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="./" class="md-tabs__link">
+          
+  
+  
+  Vision & Overview
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../GET_STARTED/" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../Methodology/" class="md-tabs__link">
+          
+  
+  
+  Core Concepts
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../USE_CASE_AI_STATUS_AUDITOR/" class="md-tabs__link">
+          
+  
+  
+  Use Cases
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../IMPLEMENTING_GUARDS/" class="md-tabs__link">
+          
+  
+  
+  Using ADRI
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../EXTENDING/" class="md-tabs__link">
+          
+  
+  
+  Extending & Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../API_REFERENCE/" class="md-tabs__link">
+          
+  
+  
+  Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Agent Data Readiness Index (ADRI)" class="md-nav__button md-logo" aria-label="Agent Data Readiness Index (ADRI)" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Agent Data Readiness Index (ADRI)
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThinkEvolveSolve/agent-data-readiness-index" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThinkEvolveSolve/agent-data-readiness-index
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    Vision & Overview
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            Vision & Overview
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Why ADRI Exists
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Why ADRI Exists
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-99-problem" class="md-nav__link">
+    <span class="md-ellipsis">
+      The 99% Problem
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-current-reality" class="md-nav__link">
+    <span class="md-ellipsis">
+      The Current Reality
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The Current Reality">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-day-in-the-life" class="md-nav__link">
+    <span class="md-ellipsis">
+      A Day in the Life
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-hidden-costs" class="md-nav__link">
+    <span class="md-ellipsis">
+      The Hidden Costs
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-interoperability-crisis" class="md-nav__link">
+    <span class="md-ellipsis">
+      The Interoperability Crisis
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-solution-a-universal-standard" class="md-nav__link">
+    <span class="md-ellipsis">
+      The Solution: A Universal Standard
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#from-battle-testing-to-standard" class="md-nav__link">
+    <span class="md-ellipsis">
+      From Battle-Testing to Standard
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="From Battle-Testing to Standard">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-journey" class="md-nav__link">
+    <span class="md-ellipsis">
+      The Journey
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#why-this-matters" class="md-nav__link">
+    <span class="md-ellipsis">
+      Why This Matters
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-adri-is-protocol-framework" class="md-nav__link">
+    <span class="md-ellipsis">
+      What ADRI Is: Protocol + Framework
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="What ADRI Is: Protocol + Framework">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-adri-protocol" class="md-nav__link">
+    <span class="md-ellipsis">
+      The ADRI Protocol
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-adri-framework" class="md-nav__link">
+    <span class="md-ellipsis">
+      The ADRI Framework
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#why-this-matters_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Why This Matters
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-adri-unlocks-the-ecosystem" class="md-nav__link">
+    <span class="md-ellipsis">
+      How ADRI Unlocks the Ecosystem
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="How ADRI Unlocks the Ecosystem">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-define-requirements-first" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Define Requirements First
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-data-suppliers-know-what-to-build" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Data Suppliers Know What to Build
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-agents-trust-their-inputs" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Agents Trust Their Inputs
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-true-marketplace-emerges" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. True Marketplace Emerges
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#core-technical-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      Core Technical Architecture
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Core Technical Architecture">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#multi-dimensional-assessment" class="md-nav__link">
+    <span class="md-ellipsis">
+      Multi-dimensional Assessment
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#for-ai-engineers" class="md-nav__link">
+    <span class="md-ellipsis">
+      For AI Engineers
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#for-data-providers" class="md-nav__link">
+    <span class="md-ellipsis">
+      For Data Providers
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#for-organizations" class="md-nav__link">
+    <span class="md-ellipsis">
+      For Organizations
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#scope-and-boundaries" class="md-nav__link">
+    <span class="md-ellipsis">
+      Scope and Boundaries
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Scope and Boundaries">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#single-dataset-focus" class="md-nav__link">
+    <span class="md-ellipsis">
+      Single Dataset Focus
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Single Dataset Focus">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-adri-does" class="md-nav__link">
+    <span class="md-ellipsis">
+      What ADRI Does:
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#what-adri-does-not-do" class="md-nav__link">
+    <span class="md-ellipsis">
+      What ADRI Does NOT Do:
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#flexibility-through-agent-views" class="md-nav__link">
+    <span class="md-ellipsis">
+      Flexibility Through Agent Views
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Flexibility Through Agent Views">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-agent-view-pattern" class="md-nav__link">
+    <span class="md-ellipsis">
+      The Agent View Pattern
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#benefits" class="md-nav__link">
+    <span class="md-ellipsis">
+      Benefits:
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-use-cases" class="md-nav__link">
+    <span class="md-ellipsis">
+      Example Use Cases:
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#implementation-value-levels" class="md-nav__link">
+    <span class="md-ellipsis">
+      Implementation Value Levels
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Implementation Value Levels">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#single-organization-immediate-roi" class="md-nav__link">
+    <span class="md-ellipsis">
+      Single Organization (Immediate ROI)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#extended-enterprise-multiplied-roi" class="md-nav__link">
+    <span class="md-ellipsis">
+      Extended Enterprise (Multiplied ROI)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#industry-ecosystem-exponential-roi" class="md-nav__link">
+    <span class="md-ellipsis">
+      Industry Ecosystem (Exponential ROI)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-adri-contract-enabling-true-interoperability" class="md-nav__link">
+    <span class="md-ellipsis">
+      The ADRI Contract: Enabling True Interoperability
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The ADRI Contract: Enabling True Interoperability">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#data-supply-independence" class="md-nav__link">
+    <span class="md-ellipsis">
+      Data Supply Independence
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#trust-through-certification" class="md-nav__link">
+    <span class="md-ellipsis">
+      Trust Through Certification
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#creating-a-data-quality-marketplace" class="md-nav__link">
+    <span class="md-ellipsis">
+      Creating a Data Quality Marketplace
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#benefits-of-decoupling" class="md-nav__link">
+    <span class="md-ellipsis">
+      Benefits of Decoupling
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#open-development-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      Open Development Model
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Open Development Model">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#governance-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      Governance Structure
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#contribution-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      Contribution Model
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#our-promise" class="md-nav__link">
+    <span class="md-ellipsis">
+      Our Promise
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#long-term-vision" class="md-nav__link">
+    <span class="md-ellipsis">
+      Long-term Vision
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Long-term Vision">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#near-term-0-6-months" class="md-nav__link">
+    <span class="md-ellipsis">
+      Near Term (0-6 months)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#medium-term-6-18-months" class="md-nav__link">
+    <span class="md-ellipsis">
+      Medium Term (6-18 months)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#long-term-18-months" class="md-nav__link">
+    <span class="md-ellipsis">
+      Long Term (18+ months)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-path-is-practical" class="md-nav__link">
+    <span class="md-ellipsis">
+      The Path is Practical
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#join-the-movement" class="md-nav__link">
+    <span class="md-ellipsis">
+      Join the Movement
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Join the Movement">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#start-your-journey" class="md-nav__link">
+    <span class="md-ellipsis">
+      Start Your Journey
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Start Your Journey">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#for-immediate-impact" class="md-nav__link">
+    <span class="md-ellipsis">
+      For Immediate Impact
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      Resources
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-involved" class="md-nav__link">
+    <span class="md-ellipsis">
+      Get Involved
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#purpose-test-coverage" class="md-nav__link">
+    <span class="md-ellipsis">
+      Purpose &amp; Test Coverage
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../VISION_IN_ACTION/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Vision in Action
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ROADMAP/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Roadmap
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Getting Started
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Getting Started
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../GET_STARTED/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Quick Start Guide
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../UNDERSTANDING_DIMENSIONS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Understanding Dimensions
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../FAQ/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    FAQ
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Core Concepts
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Core Concepts
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Methodology/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Methodology
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../implementation_guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Implementation Guide
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Dimensions in Detail
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            Dimensions in Detail
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../validity_dimension/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Validity
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../completeness_dimension/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Completeness
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../freshness_dimension/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Freshness
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../consistency_rules/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Consistency
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../plausibility_dimension/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Plausibility
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../plausibility_rules/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Plausibility Rules
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Use Cases
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Use Cases
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../USE_CASE_AI_STATUS_AUDITOR/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    AI Status Auditor
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../USE_CASE_INVOICE_PAYMENT_AGENT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Invoice Payment Agent
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Using ADRI
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            Using ADRI
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../IMPLEMENTING_GUARDS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Implementing Guards
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ENHANCING_DATA_SOURCES/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Enhancing Data Sources
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../INTEGRATIONS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Integrations
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Extending & Contributing
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            Extending & Contributing
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../EXTENDING/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Extending ADRI
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DEVELOPER/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Developer Guide
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CONTRIBUTING/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Contributing
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Reference
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            Reference
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../API_REFERENCE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    API Reference
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../datasets/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Catalog Info
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../TESTING/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Testing Guide
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../SECURITY.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Security
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-99-problem" class="md-nav__link">
+    <span class="md-ellipsis">
+      The 99% Problem
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-current-reality" class="md-nav__link">
+    <span class="md-ellipsis">
+      The Current Reality
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The Current Reality">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-day-in-the-life" class="md-nav__link">
+    <span class="md-ellipsis">
+      A Day in the Life
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-hidden-costs" class="md-nav__link">
+    <span class="md-ellipsis">
+      The Hidden Costs
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-interoperability-crisis" class="md-nav__link">
+    <span class="md-ellipsis">
+      The Interoperability Crisis
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-solution-a-universal-standard" class="md-nav__link">
+    <span class="md-ellipsis">
+      The Solution: A Universal Standard
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#from-battle-testing-to-standard" class="md-nav__link">
+    <span class="md-ellipsis">
+      From Battle-Testing to Standard
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="From Battle-Testing to Standard">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-journey" class="md-nav__link">
+    <span class="md-ellipsis">
+      The Journey
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#why-this-matters" class="md-nav__link">
+    <span class="md-ellipsis">
+      Why This Matters
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-adri-is-protocol-framework" class="md-nav__link">
+    <span class="md-ellipsis">
+      What ADRI Is: Protocol + Framework
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="What ADRI Is: Protocol + Framework">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-adri-protocol" class="md-nav__link">
+    <span class="md-ellipsis">
+      The ADRI Protocol
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-adri-framework" class="md-nav__link">
+    <span class="md-ellipsis">
+      The ADRI Framework
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#why-this-matters_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Why This Matters
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-adri-unlocks-the-ecosystem" class="md-nav__link">
+    <span class="md-ellipsis">
+      How ADRI Unlocks the Ecosystem
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="How ADRI Unlocks the Ecosystem">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-define-requirements-first" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Define Requirements First
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-data-suppliers-know-what-to-build" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Data Suppliers Know What to Build
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-agents-trust-their-inputs" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Agents Trust Their Inputs
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-true-marketplace-emerges" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. True Marketplace Emerges
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#core-technical-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      Core Technical Architecture
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Core Technical Architecture">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#multi-dimensional-assessment" class="md-nav__link">
+    <span class="md-ellipsis">
+      Multi-dimensional Assessment
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#for-ai-engineers" class="md-nav__link">
+    <span class="md-ellipsis">
+      For AI Engineers
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#for-data-providers" class="md-nav__link">
+    <span class="md-ellipsis">
+      For Data Providers
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#for-organizations" class="md-nav__link">
+    <span class="md-ellipsis">
+      For Organizations
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#scope-and-boundaries" class="md-nav__link">
+    <span class="md-ellipsis">
+      Scope and Boundaries
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Scope and Boundaries">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#single-dataset-focus" class="md-nav__link">
+    <span class="md-ellipsis">
+      Single Dataset Focus
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Single Dataset Focus">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-adri-does" class="md-nav__link">
+    <span class="md-ellipsis">
+      What ADRI Does:
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#what-adri-does-not-do" class="md-nav__link">
+    <span class="md-ellipsis">
+      What ADRI Does NOT Do:
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#flexibility-through-agent-views" class="md-nav__link">
+    <span class="md-ellipsis">
+      Flexibility Through Agent Views
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Flexibility Through Agent Views">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-agent-view-pattern" class="md-nav__link">
+    <span class="md-ellipsis">
+      The Agent View Pattern
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#benefits" class="md-nav__link">
+    <span class="md-ellipsis">
+      Benefits:
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-use-cases" class="md-nav__link">
+    <span class="md-ellipsis">
+      Example Use Cases:
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#implementation-value-levels" class="md-nav__link">
+    <span class="md-ellipsis">
+      Implementation Value Levels
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Implementation Value Levels">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#single-organization-immediate-roi" class="md-nav__link">
+    <span class="md-ellipsis">
+      Single Organization (Immediate ROI)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#extended-enterprise-multiplied-roi" class="md-nav__link">
+    <span class="md-ellipsis">
+      Extended Enterprise (Multiplied ROI)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#industry-ecosystem-exponential-roi" class="md-nav__link">
+    <span class="md-ellipsis">
+      Industry Ecosystem (Exponential ROI)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-adri-contract-enabling-true-interoperability" class="md-nav__link">
+    <span class="md-ellipsis">
+      The ADRI Contract: Enabling True Interoperability
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The ADRI Contract: Enabling True Interoperability">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#data-supply-independence" class="md-nav__link">
+    <span class="md-ellipsis">
+      Data Supply Independence
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#trust-through-certification" class="md-nav__link">
+    <span class="md-ellipsis">
+      Trust Through Certification
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#creating-a-data-quality-marketplace" class="md-nav__link">
+    <span class="md-ellipsis">
+      Creating a Data Quality Marketplace
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#benefits-of-decoupling" class="md-nav__link">
+    <span class="md-ellipsis">
+      Benefits of Decoupling
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#open-development-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      Open Development Model
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Open Development Model">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#governance-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      Governance Structure
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#contribution-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      Contribution Model
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#our-promise" class="md-nav__link">
+    <span class="md-ellipsis">
+      Our Promise
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#long-term-vision" class="md-nav__link">
+    <span class="md-ellipsis">
+      Long-term Vision
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Long-term Vision">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#near-term-0-6-months" class="md-nav__link">
+    <span class="md-ellipsis">
+      Near Term (0-6 months)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#medium-term-6-18-months" class="md-nav__link">
+    <span class="md-ellipsis">
+      Medium Term (6-18 months)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#long-term-18-months" class="md-nav__link">
+    <span class="md-ellipsis">
+      Long Term (18+ months)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-path-is-practical" class="md-nav__link">
+    <span class="md-ellipsis">
+      The Path is Practical
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#join-the-movement" class="md-nav__link">
+    <span class="md-ellipsis">
+      Join the Movement
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Join the Movement">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#start-your-journey" class="md-nav__link">
+    <span class="md-ellipsis">
+      Start Your Journey
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Start Your Journey">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#for-immediate-impact" class="md-nav__link">
+    <span class="md-ellipsis">
+      For Immediate Impact
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      Resources
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-involved" class="md-nav__link">
+    <span class="md-ellipsis">
+      Get Involved
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#purpose-test-coverage" class="md-nav__link">
+    <span class="md-ellipsis">
+      Purpose &amp; Test Coverage
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="adri-agent-data-readiness-index">ADRI: Agent Data Readiness Index<a class="headerlink" href="#adri-agent-data-readiness-index" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p>📖 <strong>Looking for concrete examples? See <a href="../VISION_IN_ACTION/">Vision in Action</a></strong></p>
+</blockquote>
+<h2 id="the-99-problem">The 99% Problem<a class="headerlink" href="#the-99-problem" title="Permanent link">&para;</a></h2>
+<p><strong>AI agents need 99% reliability to unlock their true value.</strong> Today, they're stuck at 50%.</p>
+<p>Why? The data.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>graph TB
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    subgraph &quot;Current State&quot;
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>        A1[50% Reliability] --&gt; B1[10% Use Cases Enabled]
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>        style A1 fill:#ff6b6b,stroke:#c92a2a,stroke-width:2px,color:#fff
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>        style B1 fill:#ffe066,stroke:#fab005,stroke-width:2px
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    end
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    subgraph &quot;Target State&quot;
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>        A2[99% Reliability] --&gt; B2[95% Use Cases Enabled]
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>        style A2 fill:#51cf66,stroke:#2f9e44,stroke-width:2px,color:#fff
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>        style B2 fill:#4ecdc4,stroke:#0ca678,stroke-width:2px,color:#fff
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    end
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>    C[&quot;+49% Reliability&quot;] --&gt; D[&quot;+85% Use Cases!&quot;]
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>    style C fill:#fff,stroke:#495057,stroke-width:2px,stroke-dasharray: 5 5
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>    style D fill:#fff,stroke:#495057,stroke-width:3px,font-weight:bold
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>    %% Title
+<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>    T[&quot;The 99% Problem: Exponential Value Unlock&quot;]
+<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>    style T fill:#1c7ed6,stroke:#1864ab,stroke-width:2px,color:#fff,font-size:18px
+</code></pre></div>
+<p>This isn't a linear improvement - it's exponential. And the bottleneck isn't the AI models or the frameworks. It's the lack of standards for what constitutes "agent-ready data."</p>
+<h2 id="the-current-reality">The Current Reality<a class="headerlink" href="#the-current-reality" title="Permanent link">&para;</a></h2>
+<p>Before diving into systematic solutions, let's acknowledge today's pain:</p>
+<h3 id="a-day-in-the-life">A Day in the Life<a class="headerlink" href="#a-day-in-the-life" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>gantt
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    title A Day in the Life: Data Quality Pain Points
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    dateFormat HH:mm
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    axisFormat %H:%M
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    section RevOps Manager
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>    Receives CRM export          :done, r1, 09:00, 30m
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>    Manual data checks           :active, r2, 09:30, 240m
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>    Finds critical issues        :crit, r3, 13:30, 30m
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>    Meeting already started      :milestone, 14:00, 0m
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>    section AI Engineer
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>    Agent processing data        :done, a1, 10:30, 30m
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>    Agent crashes - bad data     :crit, a2, 11:00, 30m
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>    Debug error messages         :active, a3, 11:30, 60m
+<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>    Trace through logs           :active, a4, 12:30, 90m
+<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>    Find missing field           :milestone, 14:00, 0m
+<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>
+<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>    section Data Engineer
+<a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>    Request: make data AI-ready  :done, d1, 14:00, 30m
+<a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a>    No clear definition          :crit, d2, 14:30, 30m
+<a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a>    Write custom validation      :active, d3, 15:00, 120m
+<a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a>    Different standards per project :active, d4, 17:00, 60m
+</code></pre></div>
+<p>These aren't edge cases - they're daily occurrences across every organization trying to leverage AI.</p>
+<h3 id="the-hidden-costs">The Hidden Costs<a class="headerlink" href="#the-hidden-costs" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Within Single Companies</strong>: Different teams can't share data or agents effectively</li>
+<li><strong>Across Partnerships</strong>: Months spent on custom integrations</li>
+<li><strong>Industry-Wide</strong>: Massive duplication of effort solving the same problems</li>
+</ul>
+<h2 id="the-interoperability-crisis">The Interoperability Crisis<a class="headerlink" href="#the-interoperability-crisis" title="Permanent link">&para;</a></h2>
+<p>AI agents are transforming every industry, but there's a critical problem:</p>
+<p><strong>Every agent needs different data. Every data source provides it differently. Nothing works together.</strong></p>
+<p>The result?
+- 🔄 Endless custom integrations
+- 💸 Massive implementation costs
+- ⚠️ 50% agent reliability (when 99% is needed)
+- 🚫 No ecosystem innovation</p>
+<p>Without standards, we're building on quicksand.</p>
+<h2 id="the-solution-a-universal-standard">The Solution: A Universal Standard<a class="headerlink" href="#the-solution-a-universal-standard" title="Permanent link">&para;</a></h2>
+<p>ADRI (Agent Data Readiness Index) is an open standard that creates a common language between data suppliers and AI agents. </p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>graph TB
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    subgraph &quot;Before USB&quot;
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>        PC1[Computer]
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>        D1[Printer&lt;br/&gt;Parallel Port]
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>        D2[Mouse&lt;br/&gt;PS/2 Port]
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>        D3[Keyboard&lt;br/&gt;DIN Port]
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>        D4[Scanner&lt;br/&gt;SCSI Port]
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>        PC1 -.-&gt;|Custom&lt;br/&gt;Connector| D1
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>        PC1 -.-&gt;|Custom&lt;br/&gt;Connector| D2
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>        PC1 -.-&gt;|Custom&lt;br/&gt;Connector| D3
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>        PC1 -.-&gt;|Custom&lt;br/&gt;Connector| D4
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>        style PC1 fill:#ffd43b,stroke:#fab005
+<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>        style D1 fill:#ff8787,stroke:#f03e3e
+<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>        style D2 fill:#ff8787,stroke:#f03e3e
+<a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>        style D3 fill:#ff8787,stroke:#f03e3e
+<a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a>        style D4 fill:#ff8787,stroke:#f03e3e
+<a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a>    end
+<a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a>
+<a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a>    subgraph &quot;After USB&quot;
+<a id="__codelineno-2-22" name="__codelineno-2-22" href="#__codelineno-2-22"></a>        PC2[Computer&lt;br/&gt;USB Ports]
+<a id="__codelineno-2-23" name="__codelineno-2-23" href="#__codelineno-2-23"></a>        U1[Printer]
+<a id="__codelineno-2-24" name="__codelineno-2-24" href="#__codelineno-2-24"></a>        U2[Mouse]
+<a id="__codelineno-2-25" name="__codelineno-2-25" href="#__codelineno-2-25"></a>        U3[Keyboard]
+<a id="__codelineno-2-26" name="__codelineno-2-26" href="#__codelineno-2-26"></a>        U4[Scanner]
+<a id="__codelineno-2-27" name="__codelineno-2-27" href="#__codelineno-2-27"></a>
+<a id="__codelineno-2-28" name="__codelineno-2-28" href="#__codelineno-2-28"></a>        PC2 --&gt;|USB| U1
+<a id="__codelineno-2-29" name="__codelineno-2-29" href="#__codelineno-2-29"></a>        PC2 --&gt;|USB| U2
+<a id="__codelineno-2-30" name="__codelineno-2-30" href="#__codelineno-2-30"></a>        PC2 --&gt;|USB| U3
+<a id="__codelineno-2-31" name="__codelineno-2-31" href="#__codelineno-2-31"></a>        PC2 --&gt;|USB| U4
+<a id="__codelineno-2-32" name="__codelineno-2-32" href="#__codelineno-2-32"></a>
+<a id="__codelineno-2-33" name="__codelineno-2-33" href="#__codelineno-2-33"></a>        style PC2 fill:#51cf66,stroke:#2f9e44
+<a id="__codelineno-2-34" name="__codelineno-2-34" href="#__codelineno-2-34"></a>        style U1 fill:#8ce99a,stroke:#51cf66
+<a id="__codelineno-2-35" name="__codelineno-2-35" href="#__codelineno-2-35"></a>        style U2 fill:#8ce99a,stroke:#51cf66
+<a id="__codelineno-2-36" name="__codelineno-2-36" href="#__codelineno-2-36"></a>        style U3 fill:#8ce99a,stroke:#51cf66
+<a id="__codelineno-2-37" name="__codelineno-2-37" href="#__codelineno-2-37"></a>        style U4 fill:#8ce99a,stroke:#51cf66
+<a id="__codelineno-2-38" name="__codelineno-2-38" href="#__codelineno-2-38"></a>    end
+<a id="__codelineno-2-39" name="__codelineno-2-39" href="#__codelineno-2-39"></a>
+<a id="__codelineno-2-40" name="__codelineno-2-40" href="#__codelineno-2-40"></a>    subgraph &quot;Before ADRI&quot;
+<a id="__codelineno-2-41" name="__codelineno-2-41" href="#__codelineno-2-41"></a>        A1[AI Agent 1]
+<a id="__codelineno-2-42" name="__codelineno-2-42" href="#__codelineno-2-42"></a>        A2[AI Agent 2]
+<a id="__codelineno-2-43" name="__codelineno-2-43" href="#__codelineno-2-43"></a>        A3[AI Agent 3]
+<a id="__codelineno-2-44" name="__codelineno-2-44" href="#__codelineno-2-44"></a>
+<a id="__codelineno-2-45" name="__codelineno-2-45" href="#__codelineno-2-45"></a>        DS1[Data Source A]
+<a id="__codelineno-2-46" name="__codelineno-2-46" href="#__codelineno-2-46"></a>        DS2[Data Source B]
+<a id="__codelineno-2-47" name="__codelineno-2-47" href="#__codelineno-2-47"></a>        DS3[Data Source C]
+<a id="__codelineno-2-48" name="__codelineno-2-48" href="#__codelineno-2-48"></a>
+<a id="__codelineno-2-49" name="__codelineno-2-49" href="#__codelineno-2-49"></a>        A1 -.-&gt;|Custom&lt;br/&gt;Integration| DS1
+<a id="__codelineno-2-50" name="__codelineno-2-50" href="#__codelineno-2-50"></a>        A1 -.-&gt;|Custom&lt;br/&gt;Integration| DS2
+<a id="__codelineno-2-51" name="__codelineno-2-51" href="#__codelineno-2-51"></a>        A2 -.-&gt;|Custom&lt;br/&gt;Integration| DS2
+<a id="__codelineno-2-52" name="__codelineno-2-52" href="#__codelineno-2-52"></a>        A2 -.-&gt;|Custom&lt;br/&gt;Integration| DS3
+<a id="__codelineno-2-53" name="__codelineno-2-53" href="#__codelineno-2-53"></a>        A3 -.-&gt;|Custom&lt;br/&gt;Integration| DS1
+<a id="__codelineno-2-54" name="__codelineno-2-54" href="#__codelineno-2-54"></a>        A3 -.-&gt;|Custom&lt;br/&gt;Integration| DS3
+<a id="__codelineno-2-55" name="__codelineno-2-55" href="#__codelineno-2-55"></a>
+<a id="__codelineno-2-56" name="__codelineno-2-56" href="#__codelineno-2-56"></a>        style A1 fill:#ffd43b,stroke:#fab005
+<a id="__codelineno-2-57" name="__codelineno-2-57" href="#__codelineno-2-57"></a>        style A2 fill:#ffd43b,stroke:#fab005
+<a id="__codelineno-2-58" name="__codelineno-2-58" href="#__codelineno-2-58"></a>        style A3 fill:#ffd43b,stroke:#fab005
+<a id="__codelineno-2-59" name="__codelineno-2-59" href="#__codelineno-2-59"></a>        style DS1 fill:#ff8787,stroke:#f03e3e
+<a id="__codelineno-2-60" name="__codelineno-2-60" href="#__codelineno-2-60"></a>        style DS2 fill:#ff8787,stroke:#f03e3e
+<a id="__codelineno-2-61" name="__codelineno-2-61" href="#__codelineno-2-61"></a>        style DS3 fill:#ff8787,stroke:#f03e3e
+<a id="__codelineno-2-62" name="__codelineno-2-62" href="#__codelineno-2-62"></a>    end
+<a id="__codelineno-2-63" name="__codelineno-2-63" href="#__codelineno-2-63"></a>
+<a id="__codelineno-2-64" name="__codelineno-2-64" href="#__codelineno-2-64"></a>    subgraph &quot;After ADRI&quot;
+<a id="__codelineno-2-65" name="__codelineno-2-65" href="#__codelineno-2-65"></a>        AA1[AI Agent 1]
+<a id="__codelineno-2-66" name="__codelineno-2-66" href="#__codelineno-2-66"></a>        AA2[AI Agent 2]
+<a id="__codelineno-2-67" name="__codelineno-2-67" href="#__codelineno-2-67"></a>        AA3[AI Agent 3]
+<a id="__codelineno-2-68" name="__codelineno-2-68" href="#__codelineno-2-68"></a>
+<a id="__codelineno-2-69" name="__codelineno-2-69" href="#__codelineno-2-69"></a>        ADS1[ADRI-Compliant&lt;br/&gt;Data Source A]
+<a id="__codelineno-2-70" name="__codelineno-2-70" href="#__codelineno-2-70"></a>        ADS2[ADRI-Compliant&lt;br/&gt;Data Source B]
+<a id="__codelineno-2-71" name="__codelineno-2-71" href="#__codelineno-2-71"></a>        ADS3[ADRI-Compliant&lt;br/&gt;Data Source C]
+<a id="__codelineno-2-72" name="__codelineno-2-72" href="#__codelineno-2-72"></a>
+<a id="__codelineno-2-73" name="__codelineno-2-73" href="#__codelineno-2-73"></a>        AA1 --&gt;|ADRI| ADS1
+<a id="__codelineno-2-74" name="__codelineno-2-74" href="#__codelineno-2-74"></a>        AA1 --&gt;|ADRI| ADS2
+<a id="__codelineno-2-75" name="__codelineno-2-75" href="#__codelineno-2-75"></a>        AA1 --&gt;|ADRI| ADS3
+<a id="__codelineno-2-76" name="__codelineno-2-76" href="#__codelineno-2-76"></a>        AA2 --&gt;|ADRI| ADS1
+<a id="__codelineno-2-77" name="__codelineno-2-77" href="#__codelineno-2-77"></a>        AA2 --&gt;|ADRI| ADS2
+<a id="__codelineno-2-78" name="__codelineno-2-78" href="#__codelineno-2-78"></a>        AA2 --&gt;|ADRI| ADS3
+<a id="__codelineno-2-79" name="__codelineno-2-79" href="#__codelineno-2-79"></a>        AA3 --&gt;|ADRI| ADS1
+<a id="__codelineno-2-80" name="__codelineno-2-80" href="#__codelineno-2-80"></a>        AA3 --&gt;|ADRI| ADS2
+<a id="__codelineno-2-81" name="__codelineno-2-81" href="#__codelineno-2-81"></a>        AA3 --&gt;|ADRI| ADS3
+<a id="__codelineno-2-82" name="__codelineno-2-82" href="#__codelineno-2-82"></a>
+<a id="__codelineno-2-83" name="__codelineno-2-83" href="#__codelineno-2-83"></a>        style AA1 fill:#51cf66,stroke:#2f9e44
+<a id="__codelineno-2-84" name="__codelineno-2-84" href="#__codelineno-2-84"></a>        style AA2 fill:#51cf66,stroke:#2f9e44
+<a id="__codelineno-2-85" name="__codelineno-2-85" href="#__codelineno-2-85"></a>        style AA3 fill:#51cf66,stroke:#2f9e44
+<a id="__codelineno-2-86" name="__codelineno-2-86" href="#__codelineno-2-86"></a>        style ADS1 fill:#8ce99a,stroke:#51cf66
+<a id="__codelineno-2-87" name="__codelineno-2-87" href="#__codelineno-2-87"></a>        style ADS2 fill:#8ce99a,stroke:#51cf66
+<a id="__codelineno-2-88" name="__codelineno-2-88" href="#__codelineno-2-88"></a>        style ADS3 fill:#8ce99a,stroke:#51cf66
+<a id="__codelineno-2-89" name="__codelineno-2-89" href="#__codelineno-2-89"></a>    end
+</code></pre></div>
+<p>Think of it like USB for data:
+- <strong>Before USB</strong>: Every device needed custom connectors
+- <strong>After USB</strong>: Any device works with any computer
+- <strong>Before ADRI</strong>: Every agent needs custom data pipelines
+- <strong>After ADRI</strong>: Any agent works with any ADRI-compliant data</p>
+<h2 id="from-battle-testing-to-standard">From Battle-Testing to Standard<a class="headerlink" href="#from-battle-testing-to-standard" title="Permanent link">&para;</a></h2>
+<p>ADRI wasn't born in a standards committee - it emerged from the trenches:</p>
+<h3 id="the-journey">The Journey<a class="headerlink" href="#the-journey" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Real-World Origins</strong>: Developed through hundreds of enterprise implementations at Verodat</li>
+<li><strong>Pattern Recognition</strong>: Common problems required common solutions</li>
+<li><strong>Refinement</strong>: Battle-tested across industries and use cases</li>
+<li><strong>Open Sourcing</strong>: Recognizing the industry-wide need</li>
+</ol>
+<h3 id="why-this-matters">Why This Matters<a class="headerlink" href="#why-this-matters" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Proven Approach</strong>: Not theoretical, but practically validated</li>
+<li><strong>Real ROI</strong>: Demonstrated value in production environments</li>
+<li><strong>Continuous Improvement</strong>: Ongoing refinement from actual use</li>
+<li><strong>Community Evolution</strong>: Now open for collective advancement</li>
+</ul>
+<h2 id="what-adri-is-protocol-framework">What ADRI Is: Protocol + Framework<a class="headerlink" href="#what-adri-is-protocol-framework" title="Permanent link">&para;</a></h2>
+<p>At its core, ADRI establishes a <strong>standardized communication protocol</strong> between data sources and AI agents, supported by assessment tools to implement and verify this protocol.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>graph TB
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    subgraph &quot;ADRI Protocol&quot;
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>        P1[Standardized Metadata Format]
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>        P2[Five Quality Dimensions]
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>        P3[Machine-Readable JSON]
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>        P4[Common Vocabulary]
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>        P1 --&gt; P2
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>        P2 --&gt; P3
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>        P3 --&gt; P4
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>    end
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>
+<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>    subgraph &quot;ADRI Framework&quot;
+<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>        F1[Assessment Tools]
+<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a>        F2[Scoring System&lt;br/&gt;0-100 Scale]
+<a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a>        F3[Guard Mechanisms]
+<a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a>        F4[Template Library]
+<a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a>
+<a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a>        F1 --&gt; F2
+<a id="__codelineno-3-20" name="__codelineno-3-20" href="#__codelineno-3-20"></a>        F2 --&gt; F3
+<a id="__codelineno-3-21" name="__codelineno-3-21" href="#__codelineno-3-21"></a>        F3 --&gt; F4
+<a id="__codelineno-3-22" name="__codelineno-3-22" href="#__codelineno-3-22"></a>    end
+<a id="__codelineno-3-23" name="__codelineno-3-23" href="#__codelineno-3-23"></a>
+<a id="__codelineno-3-24" name="__codelineno-3-24" href="#__codelineno-3-24"></a>    subgraph &quot;Data Sources&quot;
+<a id="__codelineno-3-25" name="__codelineno-3-25" href="#__codelineno-3-25"></a>        DS1[CSV Files]
+<a id="__codelineno-3-26" name="__codelineno-3-26" href="#__codelineno-3-26"></a>        DS2[Databases]
+<a id="__codelineno-3-27" name="__codelineno-3-27" href="#__codelineno-3-27"></a>        DS3[APIs]
+<a id="__codelineno-3-28" name="__codelineno-3-28" href="#__codelineno-3-28"></a>        DS4[Any Data Source]
+<a id="__codelineno-3-29" name="__codelineno-3-29" href="#__codelineno-3-29"></a>    end
+<a id="__codelineno-3-30" name="__codelineno-3-30" href="#__codelineno-3-30"></a>
+<a id="__codelineno-3-31" name="__codelineno-3-31" href="#__codelineno-3-31"></a>    subgraph &quot;AI Agents&quot;
+<a id="__codelineno-3-32" name="__codelineno-3-32" href="#__codelineno-3-32"></a>        AG1[Invoice Processor]
+<a id="__codelineno-3-33" name="__codelineno-3-33" href="#__codelineno-3-33"></a>        AG2[Customer Service Bot]
+<a id="__codelineno-3-34" name="__codelineno-3-34" href="#__codelineno-3-34"></a>        AG3[Analytics Agent]
+<a id="__codelineno-3-35" name="__codelineno-3-35" href="#__codelineno-3-35"></a>        AG4[Any AI Agent]
+<a id="__codelineno-3-36" name="__codelineno-3-36" href="#__codelineno-3-36"></a>    end
+<a id="__codelineno-3-37" name="__codelineno-3-37" href="#__codelineno-3-37"></a>
+<a id="__codelineno-3-38" name="__codelineno-3-38" href="#__codelineno-3-38"></a>    %% Connections
+<a id="__codelineno-3-39" name="__codelineno-3-39" href="#__codelineno-3-39"></a>    DS1 --&gt; P1
+<a id="__codelineno-3-40" name="__codelineno-3-40" href="#__codelineno-3-40"></a>    DS2 --&gt; P1
+<a id="__codelineno-3-41" name="__codelineno-3-41" href="#__codelineno-3-41"></a>    DS3 --&gt; P1
+<a id="__codelineno-3-42" name="__codelineno-3-42" href="#__codelineno-3-42"></a>    DS4 --&gt; P1
+<a id="__codelineno-3-43" name="__codelineno-3-43" href="#__codelineno-3-43"></a>
+<a id="__codelineno-3-44" name="__codelineno-3-44" href="#__codelineno-3-44"></a>    P4 --&gt; F1
+<a id="__codelineno-3-45" name="__codelineno-3-45" href="#__codelineno-3-45"></a>
+<a id="__codelineno-3-46" name="__codelineno-3-46" href="#__codelineno-3-46"></a>    F4 --&gt; AG1
+<a id="__codelineno-3-47" name="__codelineno-3-47" href="#__codelineno-3-47"></a>    F4 --&gt; AG2
+<a id="__codelineno-3-48" name="__codelineno-3-48" href="#__codelineno-3-48"></a>    F4 --&gt; AG3
+<a id="__codelineno-3-49" name="__codelineno-3-49" href="#__codelineno-3-49"></a>    F4 --&gt; AG4
+<a id="__codelineno-3-50" name="__codelineno-3-50" href="#__codelineno-3-50"></a>
+<a id="__codelineno-3-51" name="__codelineno-3-51" href="#__codelineno-3-51"></a>    %% Central Message
+<a id="__codelineno-3-52" name="__codelineno-3-52" href="#__codelineno-3-52"></a>    C[&quot;ADRI: Universal Standard for&lt;br/&gt;Agent-Ready Data&quot;]
+<a id="__codelineno-3-53" name="__codelineno-3-53" href="#__codelineno-3-53"></a>
+<a id="__codelineno-3-54" name="__codelineno-3-54" href="#__codelineno-3-54"></a>    style C fill:#1c7ed6,stroke:#1864ab,stroke-width:3px,color:#fff,font-weight:bold
+<a id="__codelineno-3-55" name="__codelineno-3-55" href="#__codelineno-3-55"></a>    style P1 fill:#74c0fc,stroke:#339af0
+<a id="__codelineno-3-56" name="__codelineno-3-56" href="#__codelineno-3-56"></a>    style P2 fill:#74c0fc,stroke:#339af0
+<a id="__codelineno-3-57" name="__codelineno-3-57" href="#__codelineno-3-57"></a>    style P3 fill:#74c0fc,stroke:#339af0
+<a id="__codelineno-3-58" name="__codelineno-3-58" href="#__codelineno-3-58"></a>    style P4 fill:#74c0fc,stroke:#339af0
+<a id="__codelineno-3-59" name="__codelineno-3-59" href="#__codelineno-3-59"></a>    style F1 fill:#8ce99a,stroke:#51cf66
+<a id="__codelineno-3-60" name="__codelineno-3-60" href="#__codelineno-3-60"></a>    style F2 fill:#8ce99a,stroke:#51cf66
+<a id="__codelineno-3-61" name="__codelineno-3-61" href="#__codelineno-3-61"></a>    style F3 fill:#8ce99a,stroke:#51cf66
+<a id="__codelineno-3-62" name="__codelineno-3-62" href="#__codelineno-3-62"></a>    style F4 fill:#8ce99a,stroke:#51cf66
+</code></pre></div>
+<h3 id="the-adri-protocol">The ADRI Protocol<a class="headerlink" href="#the-adri-protocol" title="Permanent link">&para;</a></h3>
+<p>ADRI defines a metadata standard that enables data sources to explicitly declare their reliability characteristics:</p>
+<ul>
+<li><strong>Structured Format</strong>: Companion metadata files (e.g., <code>data.freshness.json</code>) that sit alongside data sources</li>
+<li><strong>Five Dimensions</strong>: Standardized schemas for communicating validity, completeness, freshness, consistency, and plausibility</li>
+<li><strong>Common Language</strong>: Precise vocabulary for data providers to express quality attributes and limitations</li>
+<li><strong>Machine-Readable</strong>: JSON-based format that agents can automatically parse and understand</li>
+</ul>
+<h3 id="the-adri-framework">The ADRI Framework<a class="headerlink" href="#the-adri-framework" title="Permanent link">&para;</a></h3>
+<p>Supporting the protocol, ADRI provides:</p>
+<ul>
+<li><strong>Assessment Tools</strong>: Evaluate both inherent data quality AND protocol compliance</li>
+<li><strong>Scoring System</strong>: Quantify readiness across dimensions (0-100 scale)</li>
+<li><strong>Guard Mechanisms</strong>: Prevent agents from processing non-compliant data</li>
+<li><strong>Template System</strong>: Pre-built quality standards for common use cases</li>
+</ul>
+<h3 id="why-this-matters_1">Why This Matters<a class="headerlink" href="#why-this-matters_1" title="Permanent link">&para;</a></h3>
+<p>Traditional approaches focus on <em>measuring</em> data quality. ADRI focuses on <em>communicating</em> data quality in a way agents can understand and act upon. This shift from measurement to communication is what enables:</p>
+<ul>
+<li><strong>Agent Autonomy</strong>: Agents can make informed decisions about data usage</li>
+<li><strong>Source Agnosticism</strong>: Any ADRI-compliant data works with any ADRI-aware agent  </li>
+<li><strong>Quality Transparency</strong>: Clear, standardized quality declarations replace guesswork</li>
+<li><strong>Ecosystem Growth</strong>: Common protocol enables a marketplace of interoperable solutions</li>
+</ul>
+<h2 id="how-adri-unlocks-the-ecosystem">How ADRI Unlocks the Ecosystem<a class="headerlink" href="#how-adri-unlocks-the-ecosystem" title="Permanent link">&para;</a></h2>
+<h3 id="1-define-requirements-first">1. Define Requirements First<a class="headerlink" href="#1-define-requirements-first" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1"># invoice-processor.adri.yaml</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Invoice Processing Agent</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="nt">requires</span><span class="p">:</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">  </span><span class="nt">completeness</span><span class="p">:</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">    </span><span class="nt">critical_fields</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">invoice_number</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">amount</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">currency</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">date</span><span class="p p-Indicator">]</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">    </span><span class="nt">min_score</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">95</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">  </span><span class="nt">validity</span><span class="p">:</span>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">    </span><span class="nt">formats</span><span class="p">:</span>
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">      </span><span class="nt">date</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ISO8601</span>
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="w">      </span><span class="nt">amount</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">decimal(10,2)</span>
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="w">    </span><span class="nt">min_score</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">98</span>
+</code></pre></div>
+<h3 id="2-data-suppliers-know-what-to-build">2. Data Suppliers Know What to Build<a class="headerlink" href="#2-data-suppliers-know-what-to-build" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1"># Any data source can target the standard</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">adri</span><span class="w"> </span><span class="kn">import</span> <span class="n">validate</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="n">result</span> <span class="o">=</span> <span class="n">validate</span><span class="p">(</span><span class="n">my_data</span><span class="p">,</span> <span class="s2">&quot;invoice-processor.adri.yaml&quot;</span><span class="p">)</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Ready for invoice agent: </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">compliant</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="3-agents-trust-their-inputs">3. Agents Trust Their Inputs<a class="headerlink" href="#3-agents-trust-their-inputs" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1"># Agents can require compliant data</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="nd">@requires_adri</span><span class="p">(</span><span class="s2">&quot;invoice-processor.adri.yaml&quot;</span><span class="p">)</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="k">def</span><span class="w"> </span><span class="nf">process_invoices</span><span class="p">(</span><span class="n">data_source</span><span class="p">):</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>    <span class="c1"># Agent knows data meets requirements</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>    <span class="k">return</span> <span class="n">execute_with_confidence</span><span class="p">(</span><span class="n">data_source</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="4-true-marketplace-emerges">4. True Marketplace Emerges<a class="headerlink" href="#4-true-marketplace-emerges" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Data providers</strong> compete on quality scores</li>
+<li><strong>Agent builders</strong> can target any ADRI data</li>
+<li><strong>Enterprises</strong> mix and match components</li>
+<li><strong>Innovation</strong> happens at every layer</li>
+</ul>
+<h2 id="core-technical-architecture">Core Technical Architecture<a class="headerlink" href="#core-technical-architecture" title="Permanent link">&para;</a></h2>
+<h3 id="multi-dimensional-assessment">Multi-dimensional Assessment<a class="headerlink" href="#multi-dimensional-assessment" title="Permanent link">&para;</a></h3>
+<p>Data reliability is assessed across five key dimensions:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>graph TB
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>    subgraph wheel [&quot; &quot;]
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>        V[Validity&lt;br/&gt;✓ Correct formats&lt;br/&gt;✓ Proper types&lt;br/&gt;✓ Valid ranges]
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>        C[Completeness&lt;br/&gt;✓ Required fields&lt;br/&gt;✓ No missing data&lt;br/&gt;✓ Adequate coverage]
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>        F[Freshness&lt;br/&gt;✓ Recent data&lt;br/&gt;✓ Timely updates&lt;br/&gt;✓ Not stale]
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>        CO[Consistency&lt;br/&gt;✓ Logical coherence&lt;br/&gt;✓ No contradictions&lt;br/&gt;✓ Referential integrity]
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>        P[Plausibility&lt;br/&gt;✓ Makes sense&lt;br/&gt;✓ Domain appropriate&lt;br/&gt;✓ Realistic values]
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>        CENTER[ADRI&lt;br/&gt;Data Quality&lt;br/&gt;Dimensions]
+<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a>
+<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a>        CENTER -.-&gt;|Score 0-100| V
+<a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a>        CENTER -.-&gt;|Score 0-100| C
+<a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a>        CENTER -.-&gt;|Score 0-100| F
+<a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a>        CENTER -.-&gt;|Score 0-100| CO
+<a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a>        CENTER -.-&gt;|Score 0-100| P
+<a id="__codelineno-7-16" name="__codelineno-7-16" href="#__codelineno-7-16"></a>
+<a id="__codelineno-7-17" name="__codelineno-7-17" href="#__codelineno-7-17"></a>        V -.-&gt; C
+<a id="__codelineno-7-18" name="__codelineno-7-18" href="#__codelineno-7-18"></a>        C -.-&gt; F
+<a id="__codelineno-7-19" name="__codelineno-7-19" href="#__codelineno-7-19"></a>        F -.-&gt; CO
+<a id="__codelineno-7-20" name="__codelineno-7-20" href="#__codelineno-7-20"></a>        CO -.-&gt; P
+<a id="__codelineno-7-21" name="__codelineno-7-21" href="#__codelineno-7-21"></a>        P -.-&gt; V
+<a id="__codelineno-7-22" name="__codelineno-7-22" href="#__codelineno-7-22"></a>    end
+<a id="__codelineno-7-23" name="__codelineno-7-23" href="#__codelineno-7-23"></a>
+<a id="__codelineno-7-24" name="__codelineno-7-24" href="#__codelineno-7-24"></a>    style V fill:#ff6b6b,stroke:#c92a2a,stroke-width:3px,color:#fff
+<a id="__codelineno-7-25" name="__codelineno-7-25" href="#__codelineno-7-25"></a>    style C fill:#4ecdc4,stroke:#0ca678,stroke-width:3px,color:#fff
+<a id="__codelineno-7-26" name="__codelineno-7-26" href="#__codelineno-7-26"></a>    style F fill:#a78bfa,stroke:#7c3aed,stroke-width:3px,color:#fff
+<a id="__codelineno-7-27" name="__codelineno-7-27" href="#__codelineno-7-27"></a>    style CO fill:#fbbf24,stroke:#f59e0b,stroke-width:3px
+<a id="__codelineno-7-28" name="__codelineno-7-28" href="#__codelineno-7-28"></a>    style P fill:#60a5fa,stroke:#3b82f6,stroke-width:3px,color:#fff
+<a id="__codelineno-7-29" name="__codelineno-7-29" href="#__codelineno-7-29"></a>    style CENTER fill:#1e293b,stroke:#0f172a,stroke-width:4px,color:#fff,font-weight:bold
+<a id="__codelineno-7-30" name="__codelineno-7-30" href="#__codelineno-7-30"></a>
+<a id="__codelineno-7-31" name="__codelineno-7-31" href="#__codelineno-7-31"></a>    classDef wheelStyle fill:none,stroke:none
+<a id="__codelineno-7-32" name="__codelineno-7-32" href="#__codelineno-7-32"></a>    class wheel wheelStyle
+</code></pre></div>
+<ul>
+<li><strong>Validity</strong>: Data conforms to expected formats, types, and ranges</li>
+<li><strong>Completeness</strong>: Required data is present and adequately populated</li>
+<li><strong>Freshness</strong>: Data is sufficiently recent for its intended use</li>
+<li><strong>Consistency</strong>: Data maintains logical coherence within and across datasets</li>
+<li><strong>Plausibility</strong>: Data values make sense in their domain context</li>
+</ul>
+<h3 id="for-ai-engineers">For AI Engineers<a class="headerlink" href="#for-ai-engineers" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Diagnostic Tools</strong>: Analyze data sources to understand their reliability</li>
+<li><strong>Quantitative Scores</strong>: Set specific reliability thresholds</li>
+<li><strong>Guard Mechanisms</strong>: Protect agent workflows with quality gates</li>
+<li><strong>Template Library</strong>: Access pre-built standards for common use cases</li>
+<li><strong>Source-Agnostic Workflows</strong>: Build once, use with any compliant data</li>
+<li><strong>Automated Trust Verification</strong>: Runtime quality checks</li>
+</ul>
+<h3 id="for-data-providers">For Data Providers<a class="headerlink" href="#for-data-providers" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Clear Standards</strong>: Know exactly what "agent-ready" means</li>
+<li><strong>Self-Assessment</strong>: Evaluate data before delivery</li>
+<li><strong>Metadata Enhancement</strong>: Document reliability characteristics</li>
+<li><strong>Template Compliance</strong>: Meet industry-standard requirements</li>
+<li><strong>Certified Data Delivery</strong>: Provide verifiable quality guarantees</li>
+<li><strong>Quality-Based Differentiation</strong>: Compete on certified quality levels</li>
+</ul>
+<h3 id="for-organizations">For Organizations<a class="headerlink" href="#for-organizations" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Governance</strong>: Establish clear data reliability standards</li>
+<li><strong>Compliance</strong>: Demonstrate due diligence in agent operations</li>
+<li><strong>Risk Management</strong>: Identify and mitigate data quality risks</li>
+<li><strong>Standardization</strong>: Consistent expectations across teams</li>
+<li><strong>Continuous Improvement</strong>: Systematic quality enhancement</li>
+<li><strong>Team Structure Clarity</strong>: Define roles in the ADRI ecosystem</li>
+</ul>
+<h2 id="scope-and-boundaries">Scope and Boundaries<a class="headerlink" href="#scope-and-boundaries" title="Permanent link">&para;</a></h2>
+<h3 id="single-dataset-focus">Single Dataset Focus<a class="headerlink" href="#single-dataset-focus" title="Permanent link">&para;</a></h3>
+<p>ADRI is intentionally designed to assess <strong>individual datasets</strong>, not complex multi-table data models or relationships between datasets. This design choice enables:</p>
+<ol>
+<li><strong>Universal Standards</strong>: A "customer" dataset has similar fields across industries, making standardization possible</li>
+<li><strong>Simplicity</strong>: Easy to understand, implement, and assess</li>
+<li><strong>Composability</strong>: Assess each dataset individually, then compose them in your data platform</li>
+<li><strong>Portability</strong>: Templates work across different organizations and industries</li>
+</ol>
+<h4 id="what-adri-does">What ADRI Does:<a class="headerlink" href="#what-adri-does" title="Permanent link">&para;</a></h4>
+<ul>
+<li>✅ Assess quality of individual CSV files, database tables, or API responses</li>
+<li>✅ Provide standardized quality scores for single datasets</li>
+<li>✅ Enable dataset-level quality certification</li>
+</ul>
+<h4 id="what-adri-does-not-do">What ADRI Does NOT Do:<a class="headerlink" href="#what-adri-does-not-do" title="Permanent link">&para;</a></h4>
+<ul>
+<li>❌ Validate foreign key relationships between tables</li>
+<li>❌ Check referential integrity across datasets</li>
+<li>❌ Assess complex business rules spanning multiple tables</li>
+<li>❌ Evaluate data model design or architecture</li>
+</ul>
+<p>For multi-dataset orchestration and relationship validation, ADRI-compliant datasets can be composed using enterprise data platforms that understand your specific business model.</p>
+<h2 id="flexibility-through-agent-views">Flexibility Through Agent Views<a class="headerlink" href="#flexibility-through-agent-views" title="Permanent link">&para;</a></h2>
+<p>While ADRI focuses on single datasets, it fully supports creating specialized "agent views" - denormalized datasets tailored for specific agent workflows:</p>
+<h3 id="the-agent-view-pattern">The Agent View Pattern<a class="headerlink" href="#the-agent-view-pattern" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Create the View</strong>: Combine multiple tables into a single denormalized view</li>
+<li><strong>Define Standards</strong>: Create a custom template for your agent's specific needs  </li>
+<li><strong>Assess Quality</strong>: Use ADRI to ensure the view meets quality requirements</li>
+<li><strong>Deploy with Confidence</strong>: Your agent works with pre-validated, optimized data</li>
+</ol>
+<h3 id="benefits">Benefits:<a class="headerlink" href="#benefits" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Performance</strong>: Agents work with pre-joined, optimized data</li>
+<li><strong>Simplicity</strong>: Agents consume a single, flat dataset</li>
+<li><strong>Quality Control</strong>: Custom templates ensure view-specific requirements</li>
+<li><strong>Flexibility</strong>: Each agent can have its own tailored view</li>
+</ul>
+<h3 id="example-use-cases">Example Use Cases:<a class="headerlink" href="#example-use-cases" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Customer Service Agent</strong>: Denormalized view of customer + recent orders + support history</li>
+<li><strong>Sales Forecasting Agent</strong>: Flattened view of opportunities + accounts + historical performance</li>
+<li><strong>Inventory Agent</strong>: Combined view of products + stock levels + supplier data</li>
+</ul>
+<p>This pattern allows organizations to maintain complex data models while providing agents with simple, quality-assured data views.</p>
+<h2 id="implementation-value-levels">Implementation Value Levels<a class="headerlink" href="#implementation-value-levels" title="Permanent link">&para;</a></h2>
+<p>ADRI provides value at every level of adoption:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>graph TB
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>    subgraph pyramid [&quot; &quot;]
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>        L1[Single Organization&lt;br/&gt;Internal Standardization]
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>        L2[Extended Enterprise&lt;br/&gt;Partner Integration]
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>        L3[Industry Ecosystem&lt;br/&gt;Market Standards]
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>        V1[Significant debugging reduction&lt;br/&gt;Dramatically faster deployment&lt;br/&gt;Immediate ROI]
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>        V2[Substantial integration savings&lt;br/&gt;Quality-based SLAs&lt;br/&gt;Multiplied ROI]
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>        V3[Shared templates&lt;br/&gt;Talent portability&lt;br/&gt;Exponential ROI]
+<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>    end
+<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a>
+<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a>    L1 --&gt; L2
+<a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a>    L2 --&gt; L3
+<a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a>
+<a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a>    L1 -.-&gt; V1
+<a id="__codelineno-8-16" name="__codelineno-8-16" href="#__codelineno-8-16"></a>    L2 -.-&gt; V2
+<a id="__codelineno-8-17" name="__codelineno-8-17" href="#__codelineno-8-17"></a>    L3 -.-&gt; V3
+<a id="__codelineno-8-18" name="__codelineno-8-18" href="#__codelineno-8-18"></a>
+<a id="__codelineno-8-19" name="__codelineno-8-19" href="#__codelineno-8-19"></a>    Base[Start Here → Grow Value]
+<a id="__codelineno-8-20" name="__codelineno-8-20" href="#__codelineno-8-20"></a>
+<a id="__codelineno-8-21" name="__codelineno-8-21" href="#__codelineno-8-21"></a>    style L1 fill:#10b981,stroke:#059669,stroke-width:3px,color:#fff
+<a id="__codelineno-8-22" name="__codelineno-8-22" href="#__codelineno-8-22"></a>    style L2 fill:#3b82f6,stroke:#2563eb,stroke-width:3px,color:#fff
+<a id="__codelineno-8-23" name="__codelineno-8-23" href="#__codelineno-8-23"></a>    style L3 fill:#8b5cf6,stroke:#7c3aed,stroke-width:3px,color:#fff
+<a id="__codelineno-8-24" name="__codelineno-8-24" href="#__codelineno-8-24"></a>    style V1 fill:#d1fae5,stroke:#10b981,stroke-width:2px
+<a id="__codelineno-8-25" name="__codelineno-8-25" href="#__codelineno-8-25"></a>    style V2 fill:#dbeafe,stroke:#3b82f6,stroke-width:2px
+<a id="__codelineno-8-26" name="__codelineno-8-26" href="#__codelineno-8-26"></a>    style V3 fill:#ede9fe,stroke:#8b5cf6,stroke-width:2px
+<a id="__codelineno-8-27" name="__codelineno-8-27" href="#__codelineno-8-27"></a>    style Base fill:#1e293b,stroke:#0f172a,stroke-width:3px,color:#fff,font-weight:bold
+<a id="__codelineno-8-28" name="__codelineno-8-28" href="#__codelineno-8-28"></a>
+<a id="__codelineno-8-29" name="__codelineno-8-29" href="#__codelineno-8-29"></a>    classDef pyramidStyle fill:none,stroke:none
+<a id="__codelineno-8-30" name="__codelineno-8-30" href="#__codelineno-8-30"></a>    class pyramid pyramidStyle
+</code></pre></div>
+<h3 id="single-organization-immediate-roi">Single Organization (Immediate ROI)<a class="headerlink" href="#single-organization-immediate-roi" title="Permanent link">&para;</a></h3>
+<p><strong>Internal standardization alone delivers:</strong>
+- Significant reduction in data quality debugging
+- Dramatically faster AI agent deployment<br />
+- Clear inter-departmental contracts
+- Reusable validation logic</p>
+<p><strong>Example</strong>: Organizations can standardize dozens of internal data sources on ADRI, potentially reducing agent development time from weeks to days.</p>
+<h3 id="extended-enterprise-multiplied-roi">Extended Enterprise (Multiplied ROI)<a class="headerlink" href="#extended-enterprise-multiplied-roi" title="Permanent link">&para;</a></h3>
+<p><strong>Adding suppliers and partners:</strong>
+- Automated partner data validation
+- Quality-based SLAs
+- Substantial integration time savings
+- Supply chain transparency</p>
+<p><strong>Example</strong>: Enterprises can require ADRI-80+ scores from all suppliers, potentially automating hundreds of manual validation processes.</p>
+<h3 id="industry-ecosystem-exponential-roi">Industry Ecosystem (Exponential ROI)<a class="headerlink" href="#industry-ecosystem-exponential-roi" title="Permanent link">&para;</a></h3>
+<p><strong>When multiple organizations adopt:</strong>
+- Shared templates and tools
+- Industry benchmarks
+- Talent portability
+- Innovation acceleration</p>
+<p><strong>Key Insight</strong>: Unlike many standards, ADRI delivers value from day one at the single-company level. Broader adoption multiplies benefits but isn't required for positive ROI.</p>
+<h2 id="the-adri-contract-enabling-true-interoperability">The ADRI Contract: Enabling True Interoperability<a class="headerlink" href="#the-adri-contract-enabling-true-interoperability" title="Permanent link">&para;</a></h2>
+<p>ADRI serves as a <strong>standardized contract layer</strong> between data suppliers and AI engineers, enabling:</p>
+<h3 id="data-supply-independence">Data Supply Independence<a class="headerlink" href="#data-supply-independence" title="Permanent link">&para;</a></h3>
+<ul>
+<li>AI Engineers specify data requirements using ADRI standards</li>
+<li>Any data source meeting these requirements works interchangeably</li>
+<li>Agent workflows remain agnostic to specific providers</li>
+<li>No custom integration code needed</li>
+</ul>
+<h3 id="trust-through-certification">Trust Through Certification<a class="headerlink" href="#trust-through-certification" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Data suppliers provide ADRI certification metadata</li>
+<li>Agents automatically verify quality levels before processing</li>
+<li>Clear context enables confident decision-making</li>
+<li>Runtime quality checks ensure ongoing compliance</li>
+</ul>
+<h3 id="creating-a-data-quality-marketplace">Creating a Data Quality Marketplace<a class="headerlink" href="#creating-a-data-quality-marketplace" title="Permanent link">&para;</a></h3>
+<p>This contract-based approach enables:
+- <strong>Data Discovery</strong>: Find sources based on ADRI compliance
+- <strong>Quality Competition</strong>: Providers compete on certified quality
+- <strong>Automated Matching</strong>: Systems select appropriate data sources
+- <strong>Trust Verification</strong>: All parties verify quality claims</p>
+<h3 id="benefits-of-decoupling">Benefits of Decoupling<a class="headerlink" href="#benefits-of-decoupling" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>For AI Engineers</strong>: Write once, use anywhere - agent code works with any ADRI-compliant data</li>
+<li><strong>For Data Suppliers</strong>: Clear quality targets and competitive differentiation</li>
+<li><strong>For Organizations</strong>: Flexibility to switch data sources without rewriting agent workflows</li>
+<li><strong>For the Ecosystem</strong>: Accelerated innovation through standardized interfaces</li>
+</ol>
+<h2 id="open-development-model">Open Development Model<a class="headerlink" href="#open-development-model" title="Permanent link">&para;</a></h2>
+<p>While ADRI originated at Verodat, its future is community-driven:</p>
+<h3 id="governance-structure">Governance Structure<a class="headerlink" href="#governance-structure" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Specification</strong>: Openly documented and versioned</li>
+<li><strong>Reference Implementation</strong>: MIT licensed</li>
+<li><strong>Alternative Implementations</strong>: Encouraged and supported</li>
+<li><strong>Community Contributions</strong>: First-class citizens</li>
+<li><strong>No Vendor Lock-in</strong>: Use any ADRI-compliant tools</li>
+</ul>
+<h3 id="contribution-model">Contribution Model<a class="headerlink" href="#contribution-model" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Templates</strong>: Industry groups maintain sector-specific standards</li>
+<li><strong>Rules</strong>: Community contributes validation logic</li>
+<li><strong>Integrations</strong>: Anyone can build ADRI support</li>
+<li><strong>Documentation</strong>: Collaborative improvement</li>
+</ul>
+<h3 id="our-promise">Our Promise<a class="headerlink" href="#our-promise" title="Permanent link">&para;</a></h3>
+<p>Verodat commits to:
+1. Maintaining ADRI as a true open standard
+2. Supporting community governance evolution
+3. Preventing any vendor lock-in mechanics
+4. Fostering alternative implementations</p>
+<h2 id="long-term-vision">Long-term Vision<a class="headerlink" href="#long-term-vision" title="Permanent link">&para;</a></h2>
+<p>ADRI's vision unfolds in practical stages:</p>
+<h3 id="near-term-0-6-months">Near Term (0-6 months)<a class="headerlink" href="#near-term-0-6-months" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Single companies achieve internal standardization</li>
+<li>First wave of supplier integrations</li>
+<li>Community template library grows</li>
+<li>Integration ecosystem emerges</li>
+</ul>
+<h3 id="medium-term-6-18-months">Medium Term (6-18 months)<a class="headerlink" href="#medium-term-6-18-months" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Industry-specific adoptions</li>
+<li>Multi-company networks form</li>
+<li>Commercial tool ecosystem</li>
+<li>Regulatory recognition begins</li>
+</ul>
+<h3 id="long-term-18-months">Long Term (18+ months)<a class="headerlink" href="#long-term-18-months" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Industry standard status</li>
+<li>AI frameworks require ADRI</li>
+<li>Quality-based data markets</li>
+<li>Global interoperability</li>
+</ul>
+<h3 id="the-path-is-practical">The Path is Practical<a class="headerlink" href="#the-path-is-practical" title="Permanent link">&para;</a></h3>
+<p>Each stage builds on real value delivery, not speculative adoption. Organizations can stop at any level and still achieve positive ROI.</p>
+<h2 id="join-the-movement">Join the Movement<a class="headerlink" href="#join-the-movement" title="Permanent link">&para;</a></h2>
+<p>The future of AI interoperability is being built now. Whether you're:
+- Building AI agents
+- Managing data pipelines
+- Researching AI systems
+- Leading digital transformation</p>
+<p>You have a role in shaping this standard.</p>
+<h3 id="start-your-journey">Start Your Journey<a class="headerlink" href="#start-your-journey" title="Permanent link">&para;</a></h3>
+<h4 id="for-immediate-impact">For Immediate Impact<a class="headerlink" href="#for-immediate-impact" title="Permanent link">&para;</a></h4>
+<ol>
+<li><strong>Assess</strong>: Run ADRI on your most critical dataset</li>
+<li><strong>Standardize</strong>: Implement within one team</li>
+<li><strong>Expand</strong>: Roll out to other departments</li>
+<li><strong>Share</strong>: Contribute learnings back</li>
+</ol>
+<h4 id="resources">Resources<a class="headerlink" href="#resources" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Quick Start</strong>: <a href="../GET_STARTED/">Get running in 5 minutes</a></li>
+<li><strong>Examples</strong>: <a href="../examples/README.md">See ADRI in action</a></li>
+<li><strong>Community</strong>: <a href="https://github.com/adri-standard/agent-data-readiness-index/discussions">Join the discussion</a></li>
+</ul>
+<h3 id="get-involved">Get Involved<a class="headerlink" href="#get-involved" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Website</strong>: <a href="https://adri.dev">adri.dev</a></li>
+<li><strong>GitHub</strong>: <a href="https://github.com/adri-standard">github.com/adri-standard</a></li>
+<li><strong>Discord</strong>: <a href="https://discord.gg/adri">discord.gg/adri</a></li>
+<li><strong>Twitter</strong>: <a href="https://twitter.com/adri_standard">@adri_standard</a></li>
+</ul>
+<hr />
+<p align="center">
+  <strong>ADRI: Making AI agents work everywhere, with any data.</strong>
+</p>
+
+<p align="center">
+  <i>An open standard by the community, for the community.</i>
+</p>
+
+<h2 id="purpose-test-coverage">Purpose &amp; Test Coverage<a class="headerlink" href="#purpose-test-coverage" title="Permanent link">&para;</a></h2>
+<p><strong>Why this file exists</strong>: Defines the core vision and strategic direction for ADRI, establishing why the project exists and what problems it solves for AI agent workflows.</p>
+<p><strong>Key responsibilities</strong>:
+- Articulate the 99% reliability problem and its exponential impact
+- Position ADRI as the universal standard enabling AI agent interoperability
+- Define ADRI's solution as both a protocol and framework
+- Establish the value proposition at different implementation levels
+- Set the vision for creating a true data quality marketplace</p>
+<p><strong>Test coverage</strong>: Verified by tests documented in <a href="../test_coverage/VISION_test_coverage/">VISION_test_coverage.md</a></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2025 - ADRI is licensed under MIT
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "search.suggest", "search.highlight", "content.code.annotate", "content.code.copy"], "search": "../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.13a4f30d.min.js"></script>
+      
+    
+  </body>
+</html>

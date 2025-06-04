@@ -1,0 +1,62 @@
+graph TB
+    subgraph "ADRI Protocol"
+        P1[Standardized Metadata Format]
+        P2[Five Quality Dimensions]
+        P3[Machine-Readable JSON]
+        P4[Common Vocabulary]
+        
+        P1 --> P2
+        P2 --> P3
+        P3 --> P4
+    end
+    
+    subgraph "ADRI Framework"
+        F1[Assessment Tools]
+        F2[Scoring System<br/>0-100 Scale]
+        F3[Guard Mechanisms]
+        F4[Template Library]
+        
+        F1 --> F2
+        F2 --> F3
+        F3 --> F4
+    end
+    
+    subgraph "Data Sources"
+        DS1[CSV Files]
+        DS2[Databases]
+        DS3[APIs]
+        DS4[Any Data Source]
+    end
+    
+    subgraph "AI Agents"
+        AG1[Invoice Processor]
+        AG2[Customer Service Bot]
+        AG3[Analytics Agent]
+        AG4[Any AI Agent]
+    end
+    
+    %% Connections
+    DS1 --> P1
+    DS2 --> P1
+    DS3 --> P1
+    DS4 --> P1
+    
+    P4 --> F1
+    
+    F4 --> AG1
+    F4 --> AG2
+    F4 --> AG3
+    F4 --> AG4
+    
+    %% Central Message
+    C["ADRI: Universal Standard for<br/>Agent-Ready Data"]
+    
+    style C fill:#1c7ed6,stroke:#1864ab,stroke-width:3px,color:#fff,font-weight:bold
+    style P1 fill:#74c0fc,stroke:#339af0
+    style P2 fill:#74c0fc,stroke:#339af0
+    style P3 fill:#74c0fc,stroke:#339af0
+    style P4 fill:#74c0fc,stroke:#339af0
+    style F1 fill:#8ce99a,stroke:#51cf66
+    style F2 fill:#8ce99a,stroke:#51cf66
+    style F3 fill:#8ce99a,stroke:#51cf66
+    style F4 fill:#8ce99a,stroke:#51cf66

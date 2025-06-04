@@ -1,0 +1,80 @@
+{
+  "updated": "2025-04-16",
+  "overall_average": 65.0,
+  "industries": {
+    "Technology": 65.0
+  },
+  "dimensions": {
+    "validity": 15.0,
+    "completeness": 12.0,
+    "freshness": 18.0,
+    "consistency": 10.0,
+    "plausibility": 10.0
+  },
+  "submissions": 1,
+  "datasets": [
+    {
+      "id": "sample_dataset_1",
+      "name": "Sample Dataset One",
+      "description": "A sample dataset for testing the catalog update script.",
+      "industry": "Technology",
+      "format": "CSV",
+      "assessment": {
+        "overall_score": 65.0,
+        "dimension_scores": {
+          "validity": {
+            "score": 15.0,
+            "findings": [
+              "Finding V1"
+            ],
+            "recommendations": [
+              "Rec V1"
+            ]
+          },
+          "completeness": {
+            "score": 12.0,
+            "findings": [
+              "Finding C1"
+            ],
+            "recommendations": [
+              "Rec C1"
+            ]
+          },
+          "freshness": {
+            "score": 18.0,
+            "findings": [
+              "Finding F1"
+            ],
+            "recommendations": [
+              "Rec F1"
+            ]
+          },
+          "consistency": {
+            "score": 10.0,
+            "findings": [
+              "Finding Co1"
+            ],
+            "recommendations": [
+              "Rec Co1"
+            ]
+          },
+          "plausibility": {
+            "score": 10.0,
+            "findings": [
+              "Finding P1"
+            ],
+            "recommendations": [
+              "Rec P1"
+            ]
+          }
+        },
+        "timestamp": "2025-04-16T15:00:00.000Z",
+        "adri_version": "0.1.0",
+        "assessed_by": "test_user",
+        "assessment_date": "2025-04-16"
+      }
+    }
+  ],
+  "large_file_benchmarks": [],
+  "benchmark_datasets": {}
+}

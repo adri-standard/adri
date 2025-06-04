@@ -1,0 +1,89 @@
+graph TB
+    subgraph "Before USB"
+        PC1[Computer]
+        D1[Printer<br/>Parallel Port]
+        D2[Mouse<br/>PS/2 Port]
+        D3[Keyboard<br/>DIN Port]
+        D4[Scanner<br/>SCSI Port]
+        
+        PC1 -.->|Custom<br/>Connector| D1
+        PC1 -.->|Custom<br/>Connector| D2
+        PC1 -.->|Custom<br/>Connector| D3
+        PC1 -.->|Custom<br/>Connector| D4
+        
+        style PC1 fill:#ffd43b,stroke:#fab005
+        style D1 fill:#ff8787,stroke:#f03e3e
+        style D2 fill:#ff8787,stroke:#f03e3e
+        style D3 fill:#ff8787,stroke:#f03e3e
+        style D4 fill:#ff8787,stroke:#f03e3e
+    end
+    
+    subgraph "After USB"
+        PC2[Computer<br/>USB Ports]
+        U1[Printer]
+        U2[Mouse]
+        U3[Keyboard]
+        U4[Scanner]
+        
+        PC2 -->|USB| U1
+        PC2 -->|USB| U2
+        PC2 -->|USB| U3
+        PC2 -->|USB| U4
+        
+        style PC2 fill:#51cf66,stroke:#2f9e44
+        style U1 fill:#8ce99a,stroke:#51cf66
+        style U2 fill:#8ce99a,stroke:#51cf66
+        style U3 fill:#8ce99a,stroke:#51cf66
+        style U4 fill:#8ce99a,stroke:#51cf66
+    end
+    
+    subgraph "Before ADRI"
+        A1[AI Agent 1]
+        A2[AI Agent 2]
+        A3[AI Agent 3]
+        
+        DS1[Data Source A]
+        DS2[Data Source B]
+        DS3[Data Source C]
+        
+        A1 -.->|Custom<br/>Integration| DS1
+        A1 -.->|Custom<br/>Integration| DS2
+        A2 -.->|Custom<br/>Integration| DS2
+        A2 -.->|Custom<br/>Integration| DS3
+        A3 -.->|Custom<br/>Integration| DS1
+        A3 -.->|Custom<br/>Integration| DS3
+        
+        style A1 fill:#ffd43b,stroke:#fab005
+        style A2 fill:#ffd43b,stroke:#fab005
+        style A3 fill:#ffd43b,stroke:#fab005
+        style DS1 fill:#ff8787,stroke:#f03e3e
+        style DS2 fill:#ff8787,stroke:#f03e3e
+        style DS3 fill:#ff8787,stroke:#f03e3e
+    end
+    
+    subgraph "After ADRI"
+        AA1[AI Agent 1]
+        AA2[AI Agent 2]
+        AA3[AI Agent 3]
+        
+        ADS1[ADRI-Compliant<br/>Data Source A]
+        ADS2[ADRI-Compliant<br/>Data Source B]
+        ADS3[ADRI-Compliant<br/>Data Source C]
+        
+        AA1 -->|ADRI| ADS1
+        AA1 -->|ADRI| ADS2
+        AA1 -->|ADRI| ADS3
+        AA2 -->|ADRI| ADS1
+        AA2 -->|ADRI| ADS2
+        AA2 -->|ADRI| ADS3
+        AA3 -->|ADRI| ADS1
+        AA3 -->|ADRI| ADS2
+        AA3 -->|ADRI| ADS3
+        
+        style AA1 fill:#51cf66,stroke:#2f9e44
+        style AA2 fill:#51cf66,stroke:#2f9e44
+        style AA3 fill:#51cf66,stroke:#2f9e44
+        style ADS1 fill:#8ce99a,stroke:#51cf66
+        style ADS2 fill:#8ce99a,stroke:#51cf66
+        style ADS3 fill:#8ce99a,stroke:#51cf66
+    end
