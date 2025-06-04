@@ -65,7 +65,13 @@ class TestVersionIntegration(unittest.TestCase):
             
             # Read the output file
             with open(output_file, "r") as f:
-                report_data = json.load(f)
+                data = json.load(f)
+            
+            # Handle both wrapped and unwrapped report structures
+            if "adri_score_report" in data:
+                report_data = data["adri_score_report"]
+            else:
+                report_data = data
             
             # Check that version was embedded correctly
             self.assertIn("adri_version", report_data, "Report should contain adri_version field")

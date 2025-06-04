@@ -255,6 +255,37 @@ class ADRIScoreReport:
         else:
             return "Not AI Ready"
 
+    @property
+    def grade(self) -> str:
+        """
+        Get letter grade based on overall score.
+        
+        Returns:
+            str: Letter grade (A, B, C, D, or F)
+        """
+        return self._calculate_grade()
+
+    @property
+    def readiness_level(self) -> str:
+        """
+        Get readiness level based on overall score.
+        
+        Returns:
+            str: Readiness level description
+        """
+        if self.overall_score >= 90:
+            return "Advanced AI Ready"
+        elif self.overall_score >= 80:
+            return "Proficient AI Ready"
+        elif self.overall_score >= 70:
+            return "Adequate for Basic AI"
+        elif self.overall_score >= 60:
+            return "Needs Improvement"
+        elif self.overall_score >= 40:
+            return "Inadequate"
+        else:
+            return "Critical Data Quality Issues"
+
     def to_dict(self) -> Dict[str, Any]:
         """
         Convert the report to a dictionary structure.
@@ -351,6 +382,17 @@ class ADRIScoreReport:
         """
         with open(path, "r") as f:
             data = json.load(f)
+            
+        # Check version compatibility
+        if "adri_score_report" in data:
+            report_version = data["adri_score_report"].get("adri_version", "0.0.0")
+            if not is_version_compatible(report_version):
+                compatibility_msg = get_score_compatibility_message(report_version)
+                warnings.warn(
+                    f"Loading report from incompatible version {report_version}. "
+                    f"{compatibility_msg}",
+                    UserWarning
+                )
             
         return cls.from_dict(data)
 

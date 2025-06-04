@@ -185,7 +185,13 @@ def calculate_business_completeness_score(df, data_type: str = None) -> Tuple[fl
     
     # Also check general completeness
     total_cells = len(df) * len(df.columns)
-    empty_cells = df.isna().sum().sum() + (df == '').sum().sum()
+    na_cells = df.isna().sum().sum()
+    # Count empty strings more carefully
+    empty_string_cells = 0
+    for col in df.columns:
+        if df[col].dtype == 'object':  # Only check string columns
+            empty_string_cells += (df[col] == '').sum()
+    empty_cells = na_cells + empty_string_cells
     completeness_pct = ((total_cells - empty_cells) / total_cells) * 100 if total_cells > 0 else 100
     
     if completeness_pct < 80:

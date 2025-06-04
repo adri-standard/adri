@@ -32,7 +32,7 @@ class TestDataTeamContractExample(unittest.TestCase):
     
     def test_example_exists_and_is_valid(self):
         """Test that the example file exists and contains expected content."""
-        example_path = project_root / "examples" / "03_data_team_contract.py"
+        example_path = project_root / "examples" / "basic" / "03_data_team_contract.py"
         
         # Check file exists
         self.assertTrue(example_path.exists(), f"Example file not found: {example_path}")
@@ -52,7 +52,7 @@ class TestDataTeamContractExample(unittest.TestCase):
     
     def test_business_language_translation(self):
         """Test that the example demonstrates business language translation."""
-        example_path = project_root / "examples" / "03_data_team_contract.py"
+        example_path = project_root / "examples" / "basic" / "03_data_team_contract.py"
         content = example_path.read_text()
         
         # Verify business language elements
@@ -64,7 +64,7 @@ class TestDataTeamContractExample(unittest.TestCase):
         
     def test_stakeholder_communication_features(self):
         """Test that the example shows stakeholder communication features."""
-        example_path = project_root / "examples" / "03_data_team_contract.py"
+        example_path = project_root / "examples" / "basic" / "03_data_team_contract.py"
         content = example_path.read_text()
         
         # Verify communication features
@@ -76,7 +76,7 @@ class TestDataTeamContractExample(unittest.TestCase):
         
     def test_automated_reporting_structure(self):
         """Test that the example includes automated reporting."""
-        example_path = project_root / "examples" / "03_data_team_contract.py"
+        example_path = project_root / "examples" / "basic" / "03_data_team_contract.py"
         content = example_path.read_text()
         
         # Verify automated reporting elements
@@ -87,7 +87,7 @@ class TestDataTeamContractExample(unittest.TestCase):
         
     def test_collaboration_patterns(self):
         """Test that the example shows collaboration patterns."""
-        example_path = project_root / "examples" / "03_data_team_contract.py"
+        example_path = project_root / "examples" / "basic" / "03_data_team_contract.py"
         content = example_path.read_text()
         
         # Verify collaboration elements
@@ -97,7 +97,7 @@ class TestDataTeamContractExample(unittest.TestCase):
         
     def test_sla_monitoring(self):
         """Test that the example includes SLA monitoring."""
-        example_path = project_root / "examples" / "03_data_team_contract.py"
+        example_path = project_root / "examples" / "basic" / "03_data_team_contract.py"
         content = example_path.read_text()
         
         # Verify SLA monitoring features
@@ -107,7 +107,7 @@ class TestDataTeamContractExample(unittest.TestCase):
         
     def test_visual_reporting(self):
         """Test that the example demonstrates visual reporting."""
-        example_path = project_root / "examples" / "03_data_team_contract.py"
+        example_path = project_root / "examples" / "basic" / "03_data_team_contract.py"
         content = example_path.read_text()
         
         # Verify visual elements

@@ -176,12 +176,14 @@ class TestQuickstartDataCompatibility:
         with tempfile.TemporaryDirectory() as tmpdir:
             # Test JSON report
             json_path = Path(tmpdir) / "test_report.json"
-            report.save_json(json_path)
-            assert json_path.exists()
+            report.save_json(str(json_path))
+            # The save_json method changes the filename to .adri_score_report.json
+            expected_json_path = Path(tmpdir) / "test_report.adri_score_report.json"
+            assert expected_json_path.exists()
             
             # Test HTML report
             html_path = Path(tmpdir) / "test_report.html"
-            report.save_html(html_path)
+            report.save_html(str(html_path))
             assert html_path.exists()
             
             # Verify HTML contains expected content
@@ -205,7 +207,7 @@ class TestQuickstartExampleAlignment:
         assert "quickstart" in readme_content.lower() or "examples/" in readme_content
         
         # Check that key example files are mentioned or exist
-        assert "07_status_auditor_demo.py" in readme_content or (project_root / "examples" / "07_status_auditor_demo.py").exists()
+        assert "template_guard_demo.py" in readme_content or (project_root / "examples" / "template_guard_demo.py").exists()
     
     def test_quickstart_readme_exists(self):
         """Test that quickstart has its own README."""

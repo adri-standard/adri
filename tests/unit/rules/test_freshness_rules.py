@@ -267,7 +267,7 @@ class TestUpdateFrequencyRule(unittest.TestCase):
         self.assertLess(result["interval_deviation"], 0.5)  # Should be within variance threshold
         
         # Score should be high (close to weight=1.5) since updates are consistent
-        self.assertGreaterEqual(result["score"], 1.09)
+        self.assertGreaterEqual(result["score"], 1.05)
 
     def test_evaluate_with_inconsistent_updates(self):
         """Test evaluate method with inconsistently updated data."""

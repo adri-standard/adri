@@ -32,7 +32,7 @@ class TestProductionGuardExample(unittest.TestCase):
     
     def test_example_exists_and_is_valid(self):
         """Test that the example file exists and contains expected content."""
-        example_path = project_root / "examples" / "05_production_guard.py"
+        example_path = project_root / "examples" / "advanced" / "05_production_guard.py"
         
         # Check file exists
         self.assertTrue(example_path.exists(), f"Example file not found: {example_path}")
@@ -53,7 +53,7 @@ class TestProductionGuardExample(unittest.TestCase):
     
     def test_guard_implementation(self):
         """Test that the example demonstrates guards."""
-        example_path = project_root / "examples" / "05_production_guard.py"
+        example_path = project_root / "examples" / "advanced" / "05_production_guard.py"
         content = example_path.read_text()
         
         # Verify guard features
@@ -65,7 +65,7 @@ class TestProductionGuardExample(unittest.TestCase):
         
     def test_compliance_features(self):
         """Test that the example shows compliance features."""
-        example_path = project_root / "examples" / "05_production_guard.py"
+        example_path = project_root / "examples" / "advanced" / "05_production_guard.py"
         content = example_path.read_text()
         
         # Verify compliance
@@ -76,7 +76,7 @@ class TestProductionGuardExample(unittest.TestCase):
         
     def test_template_patterns(self):
         """Test that the example includes template patterns."""
-        example_path = project_root / "examples" / "05_production_guard.py"
+        example_path = project_root / "examples" / "advanced" / "05_production_guard.py"
         content = example_path.read_text()
         
         # Verify template implementation
@@ -87,7 +87,7 @@ class TestProductionGuardExample(unittest.TestCase):
         
     def test_fallback_mechanisms(self):
         """Test that the example shows fallback mechanisms."""
-        example_path = project_root / "examples" / "05_production_guard.py"
+        example_path = project_root / "examples" / "advanced" / "05_production_guard.py"
         content = example_path.read_text()
         
         # Verify fallback features
@@ -97,7 +97,7 @@ class TestProductionGuardExample(unittest.TestCase):
         
     def test_audit_trail(self):
         """Test that the example demonstrates audit trails."""
-        example_path = project_root / "examples" / "05_production_guard.py"
+        example_path = project_root / "examples" / "advanced" / "05_production_guard.py"
         content = example_path.read_text()
         
         # Verify audit trail features
@@ -108,7 +108,7 @@ class TestProductionGuardExample(unittest.TestCase):
         
     def test_production_patterns(self):
         """Test that the example includes production patterns."""
-        example_path = project_root / "examples" / "05_production_guard.py"
+        example_path = project_root / "examples" / "advanced" / "05_production_guard.py"
         content = example_path.read_text()
         
         # Verify performance features
@@ -119,7 +119,7 @@ class TestProductionGuardExample(unittest.TestCase):
         
     def test_risk_mitigation(self):
         """Test that the example addresses risk mitigation."""
-        example_path = project_root / "examples" / "05_production_guard.py"
+        example_path = project_root / "examples" / "advanced" / "05_production_guard.py"
         content = example_path.read_text()
         
         # Verify security features

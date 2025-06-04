@@ -48,12 +48,12 @@ class TemplateLoader:
     
     # Registry shortcuts for common templates
     REGISTRY_SHORTCUTS = {
-        'basel-iii': 'https://templates.adri.org/financial/basel-iii/latest',
-        'sox': 'https://templates.adri.org/financial/sox/latest',
-        'hipaa': 'https://templates.adri.org/healthcare/hipaa/latest',
-        'gdpr': 'https://templates.adri.org/privacy/gdpr/latest',
-        'production': 'https://templates.adri.org/general/production/latest',
-        'development': 'https://templates.adri.org/general/development/latest',
+        'basel-iii': 'https://raw.githubusercontent.com/adri-standard/adri/main/adri/templates/catalog/financial/basel-iii-v1.0.0.yaml',
+        'sox': 'https://raw.githubusercontent.com/adri-standard/adri/main/adri/templates/catalog/financial/sox-v1.0.0.yaml',
+        'hipaa': 'https://raw.githubusercontent.com/adri-standard/adri/main/adri/templates/catalog/healthcare/hipaa-v1.0.0.yaml',
+        'gdpr': 'https://raw.githubusercontent.com/adri-standard/adri/main/adri/templates/catalog/privacy/gdpr-v1.0.0.yaml',
+        'production': 'https://raw.githubusercontent.com/adri-standard/adri/main/adri/templates/catalog/general/production-v1.0.0.yaml',
+        'development': 'https://raw.githubusercontent.com/adri-standard/adri/main/adri/templates/catalog/general/development-v1.0.0.yaml',
     }
     
     def __init__(
@@ -125,9 +125,9 @@ class TemplateLoader:
             try:
                 return TemplateRegistry.get_template(source, config=config)
             except TemplateNotFoundError:
-                # Try as a URL with default registry
-                default_url = f"https://templates.adri.org/{source}/latest"
-                logger.info(f"Trying default registry URL: {default_url}")
+                # Try as a URL with default GitHub registry
+                default_url = f"https://raw.githubusercontent.com/adri-standard/adri/main/adri/templates/catalog/{source}.yaml"
+                logger.info(f"Trying default GitHub registry URL: {default_url}")
                 return self._load_from_url(default_url, config, force_refresh)
     
     def _load_from_url(

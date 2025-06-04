@@ -18,6 +18,7 @@ from .templates import TemplateLoader, TemplateEvaluation, BaseTemplate
 from .templates.guard import TemplateGuard
 from .assessment_modes import AssessmentMode, ModeConfig
 from .utils.metadata_generator import MetadataGenerator
+from .version import __version__
 
 logger = logging.getLogger(__name__)
 
@@ -219,12 +220,8 @@ class DataSourceAssessor:
         
         logger.info(f"Starting assessment of {connector} in {actual_mode.value} mode")
         
-        # Get ADRI version
-        try:
-            adri_version = importlib.metadata.version('adri')
-        except importlib.metadata.PackageNotFoundError:
-            adri_version = "unknown"
-            logger.warning("Could not determine ADRI package version.")
+        # Use the imported version directly
+        adri_version = __version__
             
         # Initialize report, passing version and config
         report = ADRIScoreReport(

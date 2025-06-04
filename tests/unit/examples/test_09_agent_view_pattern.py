@@ -23,7 +23,7 @@ class TestAgentViewPattern:
         """Test that the example script runs without errors."""
         # Run the example script
         result = subprocess.run(
-            [sys.executable, str(project_root / "examples" / "09_agent_view_pattern.py")],
+            [sys.executable, str(project_root / "examples" / "templates" / "09_agent_view_pattern.py")],
             capture_output=True,
             text=True,
             cwd=str(project_root)
@@ -49,7 +49,7 @@ class TestAgentViewPattern:
         import importlib.util
         spec = importlib.util.spec_from_file_location(
             "agent_view_pattern", 
-            str(project_root / "examples" / "09_agent_view_pattern.py")
+            str(project_root / "examples" / "templates" / "09_agent_view_pattern.py")
         )
         agent_view_pattern = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(agent_view_pattern)
@@ -78,7 +78,7 @@ class TestAgentViewPattern:
         import importlib.util
         spec = importlib.util.spec_from_file_location(
             "agent_view_pattern", 
-            str(project_root / "examples" / "09_agent_view_pattern.py")
+            str(project_root / "examples" / "templates" / "09_agent_view_pattern.py")
         )
         agent_view_pattern = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(agent_view_pattern)
@@ -114,7 +114,7 @@ class TestAgentViewPattern:
         import importlib.util
         spec = importlib.util.spec_from_file_location(
             "agent_view_pattern", 
-            str(project_root / "examples" / "09_agent_view_pattern.py")
+            str(project_root / "examples" / "templates" / "09_agent_view_pattern.py")
         )
         agent_view_pattern = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(agent_view_pattern)
@@ -157,7 +157,7 @@ class TestAgentViewPattern:
         import importlib.util
         spec = importlib.util.spec_from_file_location(
             "agent_view_pattern", 
-            str(project_root / "examples" / "09_agent_view_pattern.py")
+            str(project_root / "examples" / "templates" / "09_agent_view_pattern.py")
         )
         agent_view_pattern = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(agent_view_pattern)

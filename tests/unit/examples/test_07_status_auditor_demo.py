@@ -25,7 +25,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..', 'ex
 import importlib.util
 spec = importlib.util.spec_from_file_location(
     "status_auditor_demo",
-    os.path.join(os.path.dirname(__file__), '..', '..', '..', 'examples', '07_status_auditor_demo.py')
+    os.path.join(os.path.dirname(__file__), '..', '..', '..', 'examples', 'templates', '07_status_auditor_demo.py')
 )
 status_auditor_demo = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(status_auditor_demo)

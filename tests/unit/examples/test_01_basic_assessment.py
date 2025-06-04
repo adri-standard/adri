@@ -33,7 +33,7 @@ class TestBasicAssessmentExample(unittest.TestCase):
     
     def test_example_exists_and_is_valid(self):
         """Test that the example file exists and contains expected content."""
-        example_path = project_root / "examples" / "01_basic_assessment.py"
+        example_path = project_root / "examples" / "basic" / "01_basic_assessment.py"
         
         # Check file exists
         self.assertTrue(example_path.exists(), f"Example file not found: {example_path}")
@@ -91,7 +91,7 @@ class TestBasicAssessmentExample(unittest.TestCase):
     
     def test_cost_calculation_message(self):
         """Test that the example includes cost impact messaging."""
-        example_path = project_root / "examples" / "01_basic_assessment.py"
+        example_path = project_root / "examples" / "basic" / "01_basic_assessment.py"
         content = example_path.read_text()
         
         # Verify cost-related content
@@ -101,7 +101,7 @@ class TestBasicAssessmentExample(unittest.TestCase):
         
     def test_before_after_comparison(self):
         """Test that the example shows clear before/after comparison."""
-        example_path = project_root / "examples" / "01_basic_assessment.py"
+        example_path = project_root / "examples" / "basic" / "01_basic_assessment.py"
         content = example_path.read_text()
         
         # Verify comparison structure

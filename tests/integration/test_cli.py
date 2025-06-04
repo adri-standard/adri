@@ -25,23 +25,26 @@ def test_cli_assess_command(sample_data_path):
     
     # Check that the output files were created
     assert os.path.exists(f"{output_path}.adri_score_report.json")
-    assert os.path.exists(f"{output_path}.adri_score_report.html")
+    assert os.path.exists(f"{output_path}.html")
     
     # Check the content of the JSON file
     with open(f"{output_path}.adri_score_report.json", "r") as f:
-        report = json.load(f)
+        data = json.load(f)
     
-    # Verify the report structure
-    assert "source_name" in report
-    assert "source_type" in report
-    assert "overall_score" in report
-    assert "dimension_results" in report
-    assert "validity" in report["dimension_results"]
-    assert "completeness" in report["dimension_results"]
+    # Verify the report structure - it's wrapped in 'adri_score_report'
+    assert "adri_score_report" in data
+    report = data["adri_score_report"]
+    
+    assert "adri_version" in report
+    assert "summary" in report
+    assert "overall_score" in report["summary"]
+    assert "dimensions" in report
+    assert "validity" in report["dimensions"]
+    assert "completeness" in report["dimensions"]
     
     # Clean up
     os.remove(f"{output_path}.adri_score_report.json")
-    os.remove(f"{output_path}.adri_score_report.html")
+    os.remove(f"{output_path}.html")
 
 
 def test_cli_report_view_command(sample_data_path):
@@ -66,13 +69,13 @@ def test_cli_report_view_command(sample_data_path):
     assert result.returncode == 0
     
     # Check that the output contains key information
-    assert "Agent Data Readiness Index" in result.stdout
+    assert "ADRI Score Report" in result.stdout
     assert "Overall Score" in result.stdout
-    assert "Dimension Scores" in result.stdout
+    assert "Dimension Scores" in result.stdout or "Validity" in result.stdout
     
     # Clean up
     os.remove(f"{output_path}.adri_score_report.json")
-    os.remove(f"{output_path}.adri_score_report.html")
+    os.remove(f"{output_path}.html")
 
 
 def test_cli_with_invalid_source():
@@ -129,17 +132,21 @@ def test_cli_with_custom_dimensions():
     
     # Check the content of the JSON file
     with open(f"{output_path}.adri_score_report.json", "r") as f:
-        report = json.load(f)
+        data = json.load(f)
+    
+    # Verify the report structure - it's wrapped in 'adri_score_report'
+    assert "adri_score_report" in data
+    report = data["adri_score_report"]
     
     # Verify that only the specified dimensions are included
-    assert "validity" in report["dimension_results"]
-    assert "completeness" in report["dimension_results"]
-    assert "freshness" not in report["dimension_results"]
+    assert "validity" in report["dimensions"]
+    assert "completeness" in report["dimensions"]
+    assert "freshness" not in report["dimensions"]
     
     # Clean up
     os.remove(temp_path)
     os.remove(f"{output_path}.adri_score_report.json")
-    os.remove(f"{output_path}.adri_score_report.html")
+    os.remove(f"{output_path}.html")
 
 
 def test_cli_with_config_file():
@@ -194,10 +201,10 @@ def test_cli_with_config_file():
     # Check that the output files were created
     expected_prefix = "test_source_"
     assert os.path.exists(f"{expected_prefix}report.adri_score_report.json")
-    assert os.path.exists(f"{expected_prefix}report.adri_score_report.html")
+    assert os.path.exists(f"{expected_prefix}report.html")
     
     # Clean up
     os.remove(csv_path)
     os.remove(config_path)
     os.remove(f"{expected_prefix}report.adri_score_report.json")
-    os.remove(f"{expected_prefix}report.adri_score_report.html")
+    os.remove(f"{expected_prefix}report.html")

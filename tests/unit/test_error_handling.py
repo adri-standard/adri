@@ -164,63 +164,91 @@ class TestCertificationGuardErrorHandling(unittest.TestCase):
     
     def test_multiple_dimension_requirements(self):
         """Test handling of multiple dimension requirements."""
-        # Create a report with mixed dimension scores
-        report_data = self.mock_report.copy()
-        report_data["dimension_results"]["validity"]["score"] = 18  # Pass
-        report_data["dimension_results"]["completeness"]["score"] = 8  # Fail
-        report_data["dimension_results"]["freshness"]["score"] = 16  # Pass
+        # Create a temporary test file
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+            f.write("id,value\n1,test\n")
+            test_file = f.name
         
-        with open(self.report_path, "w") as f:
-            json.dump(report_data, f)
-        
-        # Define a guarded function with multiple dimension requirements
-        @adri_guarded(
-            min_score=70,
-            dimensions={
-                "validity": 15,
-                "completeness": 15,  # This one will fail
-                "freshness": 15
-            },
-            use_cached_reports=True
-        )
-        def test_func(data_source):
-            return f"Processed {data_source}"
-        
-        # Call the function and expect failure due to completeness
         try:
-            test_func(self.test_file_path)
-            self.fail("Expected ValueError was not raised")
-        except ValueError as e:
-            # Verify the error message mentions completeness specifically
-            self.assertIn("completeness", str(e).lower())
-            self.assertIn("8/20", str(e))  # Should show the actual score
-            self.assertIn("15/20", str(e))  # Should show the required score
+            # Mock the assessor
+            with mock.patch('adri.assessor.DataSourceAssessor.assess_file') as mock_assess:
+                # Create a mock report with mixed dimension scores
+                mock_report = mock.MagicMock()
+                mock_report.overall_score = 75.0
+                mock_report.dimension_results = {
+                    "validity": {"score": 18, "findings": [], "recommendations": []},  # Pass
+                    "completeness": {"score": 8, "findings": ["Low completeness"], "recommendations": []},  # Fail
+                    "freshness": {"score": 16, "findings": [], "recommendations": []},  # Pass
+                }
+                mock_assess.return_value = mock_report
+                
+                # Define a guarded function with multiple dimension requirements
+                @adri_guarded(
+                    min_score=70,
+                    dimensions={
+                        "validity": 15,
+                        "completeness": 15,  # This one will fail
+                        "freshness": 15
+                    },
+                    use_cached_reports=False,  # Don't use cache to avoid file format issues
+                    save_reports=False
+                )
+                def test_func(data_source):
+                    return f"Processed {data_source}"
+                
+                # Call the function and expect failure due to completeness
+                try:
+                    test_func(test_file)
+                    self.fail("Expected ValueError was not raised")
+                except ValueError as e:
+                    # Verify the error message mentions completeness specifically
+                    self.assertIn("completeness", str(e).lower())
+                    self.assertIn("8/20", str(e))  # Should show the actual score
+                    self.assertIn("15/20", str(e))  # Should show the required score
+        finally:
+            os.unlink(test_file)
     
     def test_missing_dimension_handling(self):
         """Test handling of missing dimensions in requirements."""
-        # Create a report missing a dimension
-        report_data = self.mock_report.copy()
-        del report_data["dimension_results"]["plausibility"]  # Remove plausibility
+        # Create a temporary test file
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+            f.write("id,value\n1,test\n")
+            test_file = f.name
         
-        with open(self.report_path, "w") as f:
-            json.dump(report_data, f)
-        
-        # Define a guarded function requiring the missing dimension
-        @adri_guarded(
-            min_score=70,
-            dimensions={"plausibility": 15},  # This dimension is missing
-            use_cached_reports=True
-        )
-        def test_func(data_source):
-            return f"Processed {data_source}"
-        
-        # Call the function and expect failure due to missing dimension
-        with self.assertRaises(ValueError) as context:
-            test_func(self.test_file_path)
-        
-        # Check that the error message mentions the missing dimension
-        self.assertIn("plausibility", str(context.exception).lower())
-        self.assertIn("not found", str(context.exception).lower())
+        try:
+            # Mock the assessor
+            with mock.patch('adri.assessor.DataSourceAssessor.assess_file') as mock_assess:
+                # Create a mock report missing plausibility dimension
+                mock_report = mock.MagicMock()
+                mock_report.overall_score = 75.0
+                mock_report.dimension_results = {
+                    "validity": {"score": 16, "findings": [], "recommendations": []},
+                    "completeness": {"score": 18, "findings": [], "recommendations": []},
+                    "freshness": {"score": 14, "findings": [], "recommendations": []},
+                    "consistency": {"score": 16, "findings": [], "recommendations": []},
+                    # plausibility is missing
+                }
+                mock_assess.return_value = mock_report
+                
+                # Define a guarded function requiring the missing dimension
+                @adri_guarded(
+                    min_score=70,
+                    dimensions={"plausibility": 15},  # This dimension is missing
+                    use_cached_reports=False,  # Don't use cache to avoid file format issues
+                    save_reports=False
+                )
+                def test_func(data_source):
+                    return f"Processed {data_source}"
+                
+                # Call the function and expect failure due to missing dimension
+                with self.assertRaises(ValueError) as context:
+                    test_func(test_file)
+                
+                # Check that the error message mentions the missing dimension
+                self.assertIn("plausibility", str(context.exception).lower())
+                self.assertIn("not found", str(context.exception).lower())
+        finally:
+            os.unlink(test_file)
 
 
 if __name__ == '__main__':

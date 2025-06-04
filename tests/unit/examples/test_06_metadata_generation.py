@@ -31,7 +31,7 @@ class TestMetadataGenerationExample(unittest.TestCase):
     
     def test_example_exists_and_is_valid(self):
         """Test that the example file exists and contains expected content."""
-        example_path = project_root / "examples" / "06_metadata_generation.py"
+        example_path = project_root / "examples" / "advanced" / "06_metadata_generation.py"
         
         # Check file exists
         self.assertTrue(example_path.exists(), f"Example file not found: {example_path}")
@@ -52,7 +52,7 @@ class TestMetadataGenerationExample(unittest.TestCase):
     
     def test_example_demonstrates_init_command(self):
         """Test that the example demonstrates the init command."""
-        example_path = project_root / "examples" / "06_metadata_generation.py"
+        example_path = project_root / "examples" / "advanced" / "06_metadata_generation.py"
         content = example_path.read_text()
         
         # Verify init command features
@@ -63,7 +63,7 @@ class TestMetadataGenerationExample(unittest.TestCase):
         
     def test_example_shows_time_savings(self):
         """Test that the example highlights time savings."""
-        example_path = project_root / "examples" / "06_metadata_generation.py"
+        example_path = project_root / "examples" / "advanced" / "06_metadata_generation.py"
         content = example_path.read_text()
         
         # Verify time savings claims
@@ -74,18 +74,21 @@ class TestMetadataGenerationExample(unittest.TestCase):
         
     def test_example_covers_all_dimensions(self):
         """Test that the example covers all ADRI dimensions."""
-        example_path = project_root / "examples" / "06_metadata_generation.py"
+        example_path = project_root / "examples" / "advanced" / "06_metadata_generation.py"
         content = example_path.read_text()
         
         # Verify all dimensions are mentioned
         dimensions = ['validity', 'completeness', 'freshness', 'consistency', 'plausibility']
         for dimension in dimensions:
             self.assertIn(dimension, content)
-            self.assertIn(f"test_init_data.{dimension}.json", content)
+        
+        # Verify single combined metadata file is used
+        self.assertIn("test_init_data.adri_metadata.json", content)
+        self.assertIn("Metadata contains all 5 dimensions", content)
             
     def test_example_shows_metadata_content(self):
         """Test that the example shows generated metadata content."""
-        example_path = project_root / "examples" / "06_metadata_generation.py"
+        example_path = project_root / "examples" / "advanced" / "06_metadata_generation.py"
         content = example_path.read_text()
         
         # Verify metadata content examples
@@ -97,7 +100,7 @@ class TestMetadataGenerationExample(unittest.TestCase):
         
     def test_example_includes_benefits(self):
         """Test that the example lists key benefits."""
-        example_path = project_root / "examples" / "06_metadata_generation.py"
+        example_path = project_root / "examples" / "advanced" / "06_metadata_generation.py"
         content = example_path.read_text()
         
         # Verify benefits section
@@ -109,7 +112,7 @@ class TestMetadataGenerationExample(unittest.TestCase):
         
     def test_example_includes_next_steps(self):
         """Test that the example provides next steps."""
-        example_path = project_root / "examples" / "06_metadata_generation.py"
+        example_path = project_root / "examples" / "advanced" / "06_metadata_generation.py"
         content = example_path.read_text()
         
         # Verify next steps
@@ -135,7 +138,7 @@ class TestMetadataGenerationExample(unittest.TestCase):
         
     def test_example_executable_structure(self):
         """Test that the example has proper executable structure."""
-        example_path = project_root / "examples" / "06_metadata_generation.py"
+        example_path = project_root / "examples" / "advanced" / "06_metadata_generation.py"
         content = example_path.read_text()
         
         # Check for main function
@@ -145,7 +148,7 @@ class TestMetadataGenerationExample(unittest.TestCase):
         
     def test_example_imports(self):
         """Test that the example has necessary imports."""
-        example_path = project_root / "examples" / "06_metadata_generation.py"
+        example_path = project_root / "examples" / "advanced" / "06_metadata_generation.py"
         content = example_path.read_text()
         
         # Check required imports

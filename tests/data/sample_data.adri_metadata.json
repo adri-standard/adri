@@ -1,0 +1,190 @@
+{
+  "_generated_by": "adri init",
+  "_generated_at": "2025-06-05T00:26:15.895127",
+  "_adri_version": "0.4.2",
+  "_data_source": "sample_data",
+  "_comment": "Auto-generated ADRI metadata. Please review and adjust all TODO sections.",
+  "validity": {
+    "_comment": "Auto-generated validity metadata. Please review and adjust.",
+    "has_explicit_validity_info": true,
+    "type_definitions": {
+      "id": {
+        "type": "string",
+        "description": "TODO: Add description for id",
+        "_detected_type": "id",
+        "_confidence": 1.0,
+        "_detected_pattern": "Fixed length: 1",
+        "_common_prefixes": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+        ]
+      },
+      "name": {
+        "type": "string",
+        "description": "TODO: Add description for name",
+        "_detected_type": "text",
+        "_confidence": 0.5
+      },
+      "value": {
+        "type": "number",
+        "description": "TODO: Add description for value",
+        "_detected_type": "numeric",
+        "_confidence": 1.0,
+        "range": [
+          100.0,
+          500.0
+        ],
+        "_comment": "TODO: Verify if this range is correct"
+      },
+      "created_date": {
+        "type": "string",
+        "description": "TODO: Add description for created_date",
+        "_detected_type": "date",
+        "_confidence": 1.0,
+        "format": "TODO: Specify date format (e.g., YYYY-MM-DD)",
+        "_samples": [
+          "2025-01-01",
+          "2025-02-01",
+          "2025-03-01",
+          "2025-04-01",
+          "2025-04-02"
+        ]
+      }
+    },
+    "validation_results": {
+      "overall_valid": true,
+      "fields": {
+        "id": {
+          "valid": true,
+          "invalid_count": 0
+        },
+        "name": {
+          "valid": true,
+          "invalid_count": 0
+        },
+        "value": {
+          "valid": true,
+          "invalid_count": 0
+        },
+        "created_date": {
+          "valid": true,
+          "invalid_count": 0
+        }
+      }
+    }
+  },
+  "completeness": {
+    "_comment": "Auto-generated completeness metadata. Please review and adjust required fields.",
+    "has_explicit_completeness_info": true,
+    "overall_completeness": 1.0,
+    "fields": {
+      "id": {
+        "completeness": 1.0,
+        "required": true,
+        "missing_count": 0,
+        "missing_percent": 0.0
+      },
+      "name": {
+        "completeness": 1.0,
+        "required": true,
+        "missing_count": 0,
+        "missing_percent": 0.0
+      },
+      "value": {
+        "completeness": 1.0,
+        "required": true,
+        "missing_count": 0,
+        "missing_percent": 0.0
+      },
+      "created_date": {
+        "completeness": 1.0,
+        "required": true,
+        "missing_count": 0,
+        "missing_percent": 0.0
+      }
+    },
+    "sections": {
+      "_comment": "TODO: Define logical sections grouping related fields"
+    }
+  },
+  "freshness": {
+    "_comment": "Auto-generated freshness metadata. Please review and set appropriate values.",
+    "has_explicit_freshness_info": true,
+    "dataset_timestamp": "TODO: When was this dataset last updated?",
+    "update_frequency": "TODO: daily|weekly|monthly|quarterly|yearly|real-time",
+    "generation_process": "TODO: How is this data generated/updated?",
+    "freshness_sla": {
+      "max_age_hours": 24,
+      "meets_sla": true,
+      "_comment": "TODO: Adjust max_age_hours based on your requirements"
+    },
+    "fields": {
+      "id": {
+        "timestamp_field": false
+      },
+      "name": {
+        "timestamp_field": false
+      },
+      "value": {
+        "timestamp_field": false
+      },
+      "created_date": {
+        "timestamp_field": true,
+        "timestamp_format": "TODO: Specify format (e.g., YYYY-MM-DD HH:MM:SS)",
+        "timestamp_timezone": "TODO: Specify timezone (e.g., UTC)",
+        "_detected_automatically": true,
+        "_samples": [
+          "2025-01-01",
+          "2025-02-01",
+          "2025-03-01"
+        ]
+      }
+    },
+    "historical_updates": [
+      {
+        "timestamp": "TODO: Add historical update timestamps",
+        "description": "Example update"
+      }
+    ],
+    "_detected_timestamp_columns": [
+      "created_date"
+    ],
+    "_suggestion": "Consider using created_date as the primary freshness indicator"
+  },
+  "consistency": {
+    "_comment": "Auto-generated consistency metadata. Please review and add business rules.",
+    "has_explicit_consistency_info": true,
+    "rules": [],
+    "cross_dataset_consistency": [
+      {
+        "id": "CS.X.1",
+        "name": "TODO: Cross-dataset rule name",
+        "description": "TODO: Describe consistency check with external dataset",
+        "related_dataset": "TODO: Specify related dataset",
+        "condition": "TODO: Define the consistency condition",
+        "valid": true
+      }
+    ],
+    "overall_consistency_valid": true
+  },
+  "plausibility": {
+    "_comment": "Auto-generated plausibility metadata. Please review thresholds.",
+    "has_explicit_plausibility_info": true,
+    "rule_results": [
+      {
+        "id": "P.1.0",
+        "rule_name": "TODO: Add domain-specific rule",
+        "type": "domain_specific",
+        "field": "TODO: Specify field",
+        "condition": "TODO: Define what makes values plausible in your domain",
+        "valid": true,
+        "message": "TODO: Describe the plausibility check"
+      }
+    ],
+    "valid_overall": true,
+    "communication_format": "json"
+  }
+}

@@ -1,0 +1,83 @@
+# Production Data Quality Template
+# Version: 1.0.0
+# Authority: ADRI Standards Board
+# Description: Standard template for production data quality requirements
+
+template:
+  id: production
+  version: 1.0.0
+  name: Production Data Quality Template
+  authority: ADRI Standards Board
+  description: Standard template for ensuring production-ready data quality
+  created: 2024-01-01
+  updated: 2024-01-01
+  tags:
+    - production
+    - quality
+    - standard
+
+# Production requirements
+requirements:
+  # Overall data quality must be high
+  overall_minimum: 80
+  
+  # Individual dimension requirements
+  dimension_requirements:
+    validity:
+      minimum_score: 16
+      description: Data must conform to production schemas and types
+      required_rules:
+        - data_types_defined
+        - schemas_validated
+        - format_compliance
+    
+    completeness:
+      minimum_score: 16
+      description: Critical fields must be populated
+      max_missing_percentage: 5
+      required_fields:
+        - id
+        - timestamp
+        - status
+    
+    consistency:
+      minimum_score: 16
+      description: Data must be internally consistent
+      required_rules:
+        - referential_integrity
+        - business_rules_compliance
+    
+    freshness:
+      minimum_score: 16
+      description: Data must be current for production use
+      max_age_hours: 24
+      required_rules:
+        - timestamp_validation
+        - update_frequency_check
+    
+    plausibility:
+      minimum_score: 16
+      description: Data must be statistically sound
+      required_rules:
+        - outlier_detection
+        - distribution_validation
+
+# Certification configuration
+certification:
+  enabled: true
+  validity_period_days: 90
+  id_prefix: PROD-
+  renewal_required: true
+  
+# Additional metadata for production
+metadata:
+  monitoring:
+    enabled: true
+    alert_threshold: 75
+    notification_channels:
+      - email
+      - slack
+  
+  versioning:
+    track_changes: true
+    require_changelog: true

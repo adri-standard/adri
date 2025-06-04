@@ -212,8 +212,11 @@ requirements:
             
             # Other tools can consume this data
             report_data = report.to_dict()
-            assert 'overall_score' in report_data
-            assert 'dimension_results' in report_data
+            assert 'adri_score_report' in report_data
+            adri_report = report_data['adri_score_report']
+            assert 'summary' in adri_report
+            assert 'overall_score' in adri_report['summary']
+            assert 'dimensions' in adri_report
             
         finally:
             os.unlink(test_file)

@@ -32,7 +32,7 @@ class TestMultiSourceExample(unittest.TestCase):
     
     def test_example_exists_and_is_valid(self):
         """Test that the example file exists and contains expected content."""
-        example_path = project_root / "examples" / "04_multi_source.py"
+        example_path = project_root / "examples" / "advanced" / "04_multi_source.py"
         
         # Check file exists
         self.assertTrue(example_path.exists(), f"Example file not found: {example_path}")
@@ -52,7 +52,7 @@ class TestMultiSourceExample(unittest.TestCase):
     
     def test_multi_source_assessment_features(self):
         """Test that the example demonstrates multi-source assessment."""
-        example_path = project_root / "examples" / "04_multi_source.py"
+        example_path = project_root / "examples" / "advanced" / "04_multi_source.py"
         content = example_path.read_text()
         
         # Verify multi-source features
@@ -64,7 +64,7 @@ class TestMultiSourceExample(unittest.TestCase):
         
     def test_data_independence(self):
         """Test that the example shows data source independence."""
-        example_path = project_root / "examples" / "04_multi_source.py"
+        example_path = project_root / "examples" / "advanced" / "04_multi_source.py"
         content = example_path.read_text()
         
         # Verify data independence concepts
@@ -75,7 +75,7 @@ class TestMultiSourceExample(unittest.TestCase):
         
     def test_unified_standards(self):
         """Test that the example includes unified standards."""
-        example_path = project_root / "examples" / "04_multi_source.py"
+        example_path = project_root / "examples" / "advanced" / "04_multi_source.py"
         content = example_path.read_text()
         
         # Verify unified standards elements
@@ -85,7 +85,7 @@ class TestMultiSourceExample(unittest.TestCase):
         
     def test_source_comparison(self):
         """Test that the example shows source comparison."""
-        example_path = project_root / "examples" / "04_multi_source.py"
+        example_path = project_root / "examples" / "advanced" / "04_multi_source.py"
         content = example_path.read_text()
         
         # Verify comparison features
@@ -95,7 +95,7 @@ class TestMultiSourceExample(unittest.TestCase):
         
     def test_cost_optimization(self):
         """Test that the example demonstrates cost optimization."""
-        example_path = project_root / "examples" / "04_multi_source.py"
+        example_path = project_root / "examples" / "advanced" / "04_multi_source.py"
         content = example_path.read_text()
         
         # Verify cost optimization messaging
@@ -105,7 +105,7 @@ class TestMultiSourceExample(unittest.TestCase):
         
     def test_business_impact_analysis(self):
         """Test that the example includes business impact analysis."""
-        example_path = project_root / "examples" / "04_multi_source.py"
+        example_path = project_root / "examples" / "advanced" / "04_multi_source.py"
         content = example_path.read_text()
         
         # Verify business impact

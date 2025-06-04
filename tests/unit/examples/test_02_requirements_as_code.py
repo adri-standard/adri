@@ -32,7 +32,7 @@ class TestRequirementsAsCodeExample(unittest.TestCase):
     
     def test_example_exists_and_is_valid(self):
         """Test that the example file exists and contains expected content."""
-        example_path = project_root / "examples" / "02_requirements_as_code.py"
+        example_path = project_root / "examples" / "basic" / "02_requirements_as_code.py"
         
         # Check file exists
         self.assertTrue(example_path.exists(), f"Example file not found: {example_path}")
@@ -53,7 +53,7 @@ class TestRequirementsAsCodeExample(unittest.TestCase):
     
     def test_contract_structure(self):
         """Test that the example demonstrates proper contract structure."""
-        example_path = project_root / "examples" / "02_requirements_as_code.py"
+        example_path = project_root / "examples" / "basic" / "02_requirements_as_code.py"
         content = example_path.read_text()
         
         # Verify contract elements
@@ -64,7 +64,7 @@ class TestRequirementsAsCodeExample(unittest.TestCase):
         
     def test_automated_compliance_checking(self):
         """Test that the example shows automated compliance checking."""
-        example_path = project_root / "examples" / "02_requirements_as_code.py"
+        example_path = project_root / "examples" / "basic" / "02_requirements_as_code.py"
         content = example_path.read_text()
         
         # Verify compliance checking features
@@ -75,7 +75,7 @@ class TestRequirementsAsCodeExample(unittest.TestCase):
         
     def test_yaml_contract_example(self):
         """Test that the example includes YAML contract format."""
-        example_path = project_root / "examples" / "02_requirements_as_code.py"
+        example_path = project_root / "examples" / "basic" / "02_requirements_as_code.py"
         content = example_path.read_text()
         
         # Verify YAML contract structure
@@ -86,7 +86,7 @@ class TestRequirementsAsCodeExample(unittest.TestCase):
         
     def test_ci_cd_integration_example(self):
         """Test that the example shows CI/CD integration."""
-        example_path = project_root / "examples" / "02_requirements_as_code.py"
+        example_path = project_root / "examples" / "basic" / "02_requirements_as_code.py"
         content = example_path.read_text()
         
         # Verify CI/CD integration concepts
@@ -96,7 +96,7 @@ class TestRequirementsAsCodeExample(unittest.TestCase):
         
     def test_business_impact_messaging(self):
         """Test that the example includes business impact messaging."""
-        example_path = project_root / "examples" / "02_requirements_as_code.py"
+        example_path = project_root / "examples" / "basic" / "02_requirements_as_code.py"
         content = example_path.read_text()
         
         # Verify business impact content
