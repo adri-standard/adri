@@ -12,13 +12,59 @@ We love your input! We want to make contributing to the Agent Data Readiness Ind
 
 We use GitHub to host code, to track issues and feature requests, as well as accept pull requests.
 
-### Pull Requests
+### Issue-First Workflow
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+To maintain project visibility and enable collaboration, we follow an issue-first approach for most contributions.
+
+#### When Issues Are Required
+
+Create an issue **before** starting work on:
+- Any functional changes to the codebase
+- New features (even small ones)
+- Bug fixes (except critical hotfixes)
+- Documentation changes beyond simple typos
+- Any changes to standards, templates, or dimensions
+- Refactoring or code improvements
+
+#### When Direct PRs Are Allowed
+
+You may submit a PR without a prior issue for:
+- Typo fixes in documentation
+- Formatting improvements
+- Comment clarifications
+- Build/CI configuration improvements
+- Emergency security fixes (create issue after PR)
+
+### Contribution Workflow
+
+1. **Check Existing Issues**: Search for existing issues to avoid duplicates
+2. **Create or Claim an Issue**: 
+   - Create a new issue describing what you plan to work on
+   - Comment on an existing issue to claim it
+   - Wait for maintainer acknowledgment before starting major work
+3. **Fork the Repository**: Create your own fork
+4. **Create a Feature Branch**: 
+   - Use descriptive branch names: `issue-123-add-validation`
+   - Format: `issue-<number>-<short-description>`
+5. **Make Your Changes**: 
+   - Follow coding standards
+   - Write/update tests
+   - Update documentation
+6. **Commit with Issue References**:
+   - Use `Fixes #123` in commit messages to auto-close issues
+   - Or `Related to #123` for partial implementations
+7. **Push and Create PR**:
+   - Push to your fork
+   - Create a PR referencing the issue
+   - Use PR template to provide context
+
+### Pull Request Best Practices
+
+- **Branch Naming**: Use `issue-<number>-<short-description>` format
+- **Commit Messages**: Reference issues with `Fixes #123` or `Related to #123`
+- **PR Title**: Include issue number, e.g., "Fix validation logic for empty fields (#123)"
+- **PR Description**: Use the PR template and provide context about the changes
+- **Small PRs**: Keep changes focused - one issue per PR when possible
 
 ### Pull Request Requirements
 
