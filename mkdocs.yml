@@ -2,7 +2,7 @@
 
 # Project information
 site_name: Agent Data Readiness Index (ADRI)
-site_url: !ENV [SITE_BASE_URL, 'https://adri-standard.github.io/adri/']
+site_url: 'https://adri-standard.github.io/adri/'
 site_description: 'ADRI: The Open Standard for Evaluating AI Agent Data Quality.'
 repo_url: https://github.com/adri-standard/adri
 repo_name: adri-standard/adri
