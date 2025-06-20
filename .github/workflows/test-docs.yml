@@ -42,10 +42,6 @@ jobs:
           python -c "import material; print('Material theme imported successfully')"
           python -c "import mkdocs_macros; print('Macros plugin imported successfully')"
           
-      - name: Validate mkdocs config
-        run: |
-          python -m mkdocs config
-          
       - name: Build documentation (dry run)
         run: |
           python -m mkdocs build --verbose --clean
