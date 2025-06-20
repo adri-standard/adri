@@ -29,17 +29,10 @@ jobs:
         with:
           python-version: '3.11'
       
-      - name: Load site configuration
-        id: config
+      - name: Set site URL
         run: |
-          echo "Loading site configuration from adri/config/site_config.yml"
-          SITE_BASE_URL=$(grep 'site_base_url' adri/config/site_config.yml | grep -v '^#' | cut -d':' -f2- | sed 's/^[[:space:]]*//;s/[[:space:]]*$//;s/"//g')
-          if [[ ! $SITE_BASE_URL =~ ^https?:// ]]; then
-            echo "Invalid SITE_BASE_URL: $SITE_BASE_URL"
-            exit 1
-          fi
-          echo "SITE_BASE_URL=$SITE_BASE_URL" >> $GITHUB_ENV
-          echo "Site URL: $SITE_BASE_URL"
+          echo "SITE_BASE_URL=https://adri-standard.github.io/adri/" >> $GITHUB_ENV
+          echo "Site URL: https://adri-standard.github.io/adri/"
           
       - name: Install dependencies
         run: |
@@ -50,7 +43,7 @@ jobs:
       - name: Build documentation
         run: |
           echo "Building documentation with site URL: $SITE_BASE_URL"
-          SITE_BASE_URL=$SITE_BASE_URL mkdocs build --config-file adri/config/mkdocs.yml
+          mkdocs build --config-file adri/config/mkdocs.yml
         
       - name: Deploy
         if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
