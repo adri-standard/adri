@@ -50,7 +50,7 @@ jobs:
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./site
+          publish_dir: ./adri/site
           force_orphan: true  # Use clean history
           keep_files: false  # Delete all existing files
           exclude_assets: ''  # Don't exclude any assets
