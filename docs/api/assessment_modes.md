@@ -118,12 +118,16 @@ Verification Details:
 ADRI's Auto mode intelligently selects the appropriate assessment mode:
 
 ```python
-if has_adri_metadata_files():
-    use_validation_mode()  # Verify claims
-elif has_comprehensive_schema():
-    use_validation_mode()  # Schema acts as claims
-else:
-    use_discovery_mode()   # Analyze and generate
+<!-- audience: ai-builders -->
+# Example of mode selection logic (not meant to be executed directly)
+def select_assessment_mode(data_path):
+    """Determine which assessment mode to use based on data characteristics"""
+    if has_adri_metadata_files(data_path):
+        return "VALIDATION"  # Verify claims
+    elif has_comprehensive_schema(data_path):
+        return "VALIDATION"  # Schema acts as claims
+    else:
+        return "DISCOVERY"   # Analyze and generate
 ```
 
 ## Key Differences
@@ -142,6 +146,7 @@ else:
 ### Workflow 1: New Data Source
 
 ```python
+<!-- audience: ai-builders -->
 # First time - Discovery mode analyzes and generates
 assessor = DataSourceAssessor()  # Auto → Discovery
 report = assessor.assess_file("sales_data.csv")
@@ -153,6 +158,7 @@ print(f"Generated files: {report.generated_metadata}")
 ### Workflow 2: CI/CD Pipeline
 
 ```python
+<!-- audience: ai-builders -->
 # With metadata - Validation mode verifies
 assessor = DataSourceAssessor()  # Auto → Validation
 report = assessor.assess_file("sales_data.csv")
@@ -164,12 +170,21 @@ if report.overall_score < 90:
 ### Workflow 3: Template Compliance
 
 ```python
-# Templates always trigger validation
-assessor = DataSourceAssessor()
-report, evaluation = assessor.assess_file_with_template(
-    "data.csv", 
-    "financial-basel-iii-v1"
-)
+<!-- audience: ai-builders -->
+# Templates always trigger validation (example - not meant to be executed)
+from adri import DataSourceAssessor
+
+def assess_with_template(data_path, template_name):
+    """Assess data against a template"""
+    assessor = DataSourceAssessor()
+    report, evaluation = assessor.assess_file_with_template(
+        data_path, 
+        template_name
+    )
+    return report, evaluation
+
+# Example usage:
+# report, evaluation = assess_with_template("data.csv", "financial-basel-iii-v1")
 ```
 
 ## Why This Approach?
@@ -206,17 +221,29 @@ After Discovery generates starter metadata, customize it to:
 
 ### For Initial Assessment
 ```python
-# Let Discovery mode help you understand
-assessor = DataSourceAssessor()
-report = assessor.assess_file("data.csv")
+<!-- audience: ai-builders -->
+# Example of initial assessment (not meant to be executed)
+from adri import DataSourceAssessor
 
-# Review generated metadata
-for dimension, filepath in report.generated_metadata.items():
-    print(f"Review {dimension}: {filepath}")
+def initial_assessment(data_path):
+    """Run initial discovery assessment and review metadata"""
+    # Let Discovery mode help you understand
+    assessor = DataSourceAssessor()
+    report = assessor.assess_file(data_path)
+    
+    # Review generated metadata
+    for dimension, filepath in report.generated_metadata.items():
+        print(f"Review {dimension}: {filepath}")
+    
+    return report
+
+# Example usage:
+# report = initial_assessment("customer_data.csv")
 ```
 
 ### For Production Guards
 ```python
+<!-- audience: ai-builders -->
 # Ensure metadata exists and validate
 @adri_guarded(min_score=85)
 def process_data(filepath):
@@ -232,9 +259,9 @@ def process_data(filepath):
 
 ## Next Steps
 
-- Try the [metadata generation example](../examples/06_metadata_generation.py)
-- Learn about [Enhancing Data Sources](./ENHANCING_DATA_SOURCES.md)
-- Explore [Templates](./templates/README.md) for standardization
+- Try the [metadata generation example](../../examples/advanced/06_metadata_generation.py)
+- Learn about [Enhancing Data Sources](ENHANCING_DATA_SOURCES.md)
+- Explore [Templates](templates/README.md) for standardization
 
 ## Purpose & Test Coverage
 

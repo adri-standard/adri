@@ -139,6 +139,6 @@ When modifying architecture:
 
 ## Related Documentation
 
-- [Architecture Overview](../architecture.md)
-- [Testing Strategy](../TESTING.md)
-- [Development Guide](../DEVELOPER.md)
+- [Architecture Overview](architecture.md)
+- [Testing Strategy](TESTING.md)
+- [Development Guide](development/developer.md)

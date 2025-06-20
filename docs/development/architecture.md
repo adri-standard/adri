@@ -2,7 +2,7 @@
 
 ## System Architecture
 
-![ADRI System Architecture](architecture.png)
+![ADRI System Architecture](../assets/architecture.png)
 
 ### Architecture Overview
 
@@ -156,5 +156,5 @@ This provides flexibility for complex use cases without compromising ADRI's core
 - Guide developers on system extension points
 
 **Test coverage**: This document's architecture and implementations are verified by tests documented in:
-- [architecture_test_coverage.md](./test_coverage/architecture_test_coverage.md)
-- [ARCHITECTURE_DECISIONS_test_coverage.md](./test_coverage/ARCHITECTURE_DECISIONS_test_coverage.md)
+- [architecture_test_coverage.md](test_coverage/architecture_test_coverage.md)
+- [ARCHITECTURE_DECISIONS_test_coverage.md](test_coverage/ARCHITECTURE_DECISIONS_test_coverage.md)

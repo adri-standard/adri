@@ -48,6 +48,7 @@ flowchart TD
 ### Discovery Example
 
 ```python
+<!-- audience: ai-builders -->
 from adri.templates.matcher import TemplateMatcher
 from adri.templates.registry import TemplateRegistry
 import pandas as pd
@@ -139,6 +140,7 @@ flowchart TD
 ### Validation Example
 
 ```python
+<!-- audience: ai-builders -->
 from adri import DataSourceAssessor
 from adri.templates.loader import TemplateLoader
 
@@ -297,6 +299,7 @@ pattern_matching:
 ### Workflow 1: New Data Source Onboarding
 
 ```python
+<!-- audience: ai-builders -->
 # Step 1: Discover appropriate template
 from adri.templates.matcher import TemplateMatcher
 import pandas as pd
@@ -332,6 +335,7 @@ if not evaluation.compliant:
 ### Workflow 2: Continuous Validation in CI/CD
 
 ```python
+<!-- audience: ai-builders -->
 # In your CI/CD pipeline
 def validate_data_quality(data_file, template_id, min_score=70):
     """Validate data meets quality standards before deployment."""
@@ -365,6 +369,7 @@ def validate_data_quality(data_file, template_id, min_score=70):
 ### Workflow 3: Data Provider Certification
 
 ```python
+<!-- audience: ai-builders -->
 # Data provider prepares certified dataset
 from adri import DataSourceAssessor
 
@@ -434,6 +439,7 @@ def certify_dataset(data_file, template_id, output_dir):
 If discovery confidence is low:
 
 ```python
+<!-- audience: ai-builders -->
 # Check why columns didn't match
 for missing in result.column_match.missing_columns:
     print(f"Missing: {missing}")
@@ -455,6 +461,7 @@ custom_synonyms = {
 When validation fails:
 
 ```python
+<!-- audience: ai-builders -->
 # Group gaps by severity
 from collections import defaultdict
 gaps_by_severity = defaultdict(list)
@@ -471,10 +478,10 @@ if gaps_by_severity['blocking']:
 
 ## Next Steps
 
-- Learn about [Creating Custom Templates](./EXTENDING.md#creating-custom-templates)
-- Explore [Template Catalog](./templates/catalog/)
+- Learn about [Creating Custom Templates](../development/extending.md#creating-custom-templates)
+- Explore [Template Catalog](../../adri/templates/catalog/)
 - See [Integration Examples](./examples/08_template_compliance.py)
-- Read about [Implementing Guards](./IMPLEMENTING_GUARDS.md) for automated protection
+- Read about [Implementing Guards](IMPLEMENTING_GUARDS.md) for automated protection
 
 ## Summary
 

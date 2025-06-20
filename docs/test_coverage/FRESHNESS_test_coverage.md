@@ -64,6 +64,7 @@ Freshness testing ensures data is current, timely, and updated according to expe
 ### Example Test Cases
 
 ```python
+<!-- audience: ai-builders -->
 def test_max_age_rule():
     """Test data age validation."""
     rule = MaxAgeRule(max_age_hours=24)
@@ -125,6 +126,7 @@ freshness:
 ### Time-based Test Utilities
 
 ```python
+<!-- audience: ai-builders -->
 # Test helpers for time-based testing
 def freeze_time(timestamp):
     """Context manager to freeze time for testing."""
@@ -143,9 +145,9 @@ def set_timezone(tz):
 - Cascading freshness dependencies
 
 ### Related Documentation
-- Freshness dimension details: [freshness_dimension.md](/docs/freshness_dimension.md)
-- Rules framework: [RULES_test_coverage.md](./RULES_test_coverage.md)
-- Dimensions overview: [DIMENSIONS_test_coverage.md](./DIMENSIONS_test_coverage.md)
+- Freshness dimension details: [freshness_dimension.md](freshness_dimension.md)
+- Rules framework: [RULES_test_coverage.md](RULES_test_coverage.md)
+- Dimensions overview: [DIMENSIONS_test_coverage.md](DIMENSIONS_test_coverage.md)
 
 ---
 *Last Updated: 2025-06-03*

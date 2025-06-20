@@ -157,4 +157,4 @@ ADRI is designed for extensibility:
 - Show data flow through the system
 - Guide understanding of extension points
 
-**Test coverage**: This document's descriptions and component behaviors are verified by tests documented in [components_test_coverage.md](./test_coverage/components_test_coverage.md)
+**Test coverage**: This document's descriptions and component behaviors are verified by tests documented in [components_test_coverage.md](test_coverage/components_test_coverage.md)

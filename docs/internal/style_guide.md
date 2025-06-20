@@ -48,6 +48,7 @@ This guide helps maintain consistency across ADRI documentation while keeping it
 ### Language Specification
 Always specify the language after triple backticks:
 ```python
+<!-- audience: ai-builders -->
 # Python code
 ```
 
@@ -68,7 +69,7 @@ Always specify the language after triple backticks:
 ## Links
 
 ### Internal Links
-- Use relative paths: `[Link Text](./VISION.md)` (example)
+- Use relative paths: `[Link Text](VISION.md)` (example)
 - Link to sections: `[Section Name](#core-principles)` (example)
 - Verify links exist before committing
 
@@ -163,4 +164,4 @@ Remember: Documentation is for users, not computers. Make it helpful, clear, and
 - Guide tone and technical writing style
 - Ensure alignment with ADRI vision and principles
 
-**Test coverage**: This document's guidelines and standards should be verified through documentation review processes documented in [STYLE_GUIDE_test_coverage.md](./test_coverage/STYLE_GUIDE_test_coverage.md)
+**Test coverage**: This document's guidelines and standards should be verified through documentation review processes documented in [STYLE_GUIDE_test_coverage.md](test_coverage/STYLE_GUIDE_test_coverage.md)

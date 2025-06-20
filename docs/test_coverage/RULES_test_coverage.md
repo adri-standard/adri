@@ -91,6 +91,7 @@ The rules module provides a framework for defining and applying diagnostic rules
 ### Example Test Cases
 
 ```python
+<!-- audience: ai-builders -->
 def test_email_format_rule():
     """Test EmailFormatRule identifies invalid email formats."""
     rule = EmailFormatRule()

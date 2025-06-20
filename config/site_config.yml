@@ -1,0 +1,21 @@
+# ADRI Site Configuration
+
+# Base URL for the documentation site
+site_base_url: "https://adri-standard.github.io/adri/"
+
+# Site title
+site_title: "Agent Data Readiness Index (ADRI)"
+
+# Site description
+site_description: "ADRI: The Open Standard for Evaluating AI Agent Data Quality."
+
+# Repository information
+repo_url: "https://github.com/adri-standard/adri"
+repo_name: "adri-standard/adri"
+
+# Theme configuration
+theme:
+  primary_color: "#007bff"
+  accent_color: "#28a745"
+  logo_path: "docs/assets/logo.png"
+  favicon_path: "docs/assets/favicon.ico"

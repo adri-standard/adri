@@ -41,7 +41,40 @@ Status: Will Crash Agents
 • Date chaos → Scheduling failures
 ```
 
-**[→ Full 5-Minute Quickstart Guide](docs/QUICKSTART.md)**
+**[→ Full 5-Minute Quickstart Guide](docs/ai-builders/getting-started.md)**
+
+## 🎯 Choose Your Path
+
+ADRI serves three distinct audiences. **Select your path** to get the most relevant guidance:
+
+### 🤖 **AI Builders** - "Protect Your Agents"
+You're building AI applications that need reliable data to function correctly.
+
+**Your challenges**: Agents crash on bad data, inconsistent quality across sources, time-consuming debugging
+
+**Your solution**: [**Start Your AI Builder Journey →**](docs/ai-builders/index.md)
+
+---
+
+### 📊 **Data Providers** - "Make Data AI-Ready"  
+You manage data that AI systems need to consume reliably.
+
+**Your challenges**: Unclear what "AI-ready" means, no standard way to communicate quality, difficulty proving reliability
+
+**Your solution**: [**Start Your Data Provider Journey →**](docs/data-providers/index.md)
+
+---
+
+### 🛠️ **Standard Contributors** - "Extend ADRI"
+You want to improve the ADRI standard itself with rules, templates, or enhancements.
+
+**Your challenges**: Understanding ADRI's architecture, contributing validation logic, building industry templates
+
+**Your solution**: [**Start Your Contributor Journey →**](docs/standard-contributors/index.md)
+
+---
+
+**Not sure which path?** [**Explore all documentation →**](docs/index.md)
 
 ## 💡 The Solution: Prevent Crashes Before They Happen
 
@@ -143,7 +176,7 @@ for source in available_sources:
 ```
 
 ### For Enterprises: "Show Me the Ecosystem"
-Visit the [ADRI Marketplace](https://adri-standard.github.io/adri/marketplace) to find:
+Visit the [ADRI Marketplace](https://adri-ai.github.io/adri/) to find:
 - 📦 **Certified Data Sources** by industry
 - 🤖 **Compatible Agents** for your data
 - 📋 **Standard Templates** for common use cases
@@ -225,23 +258,23 @@ compliant_data = load_invoice_data()
 - 🏪 Offer ADRI-certified data products
 - 🤖 Build ADRI-compliant agents
 - 🔧 Provide implementation services
-- 📢 [List in the marketplace](https://adri-standard.github.io/adri/marketplace)
+- 📢 [List in the marketplace](https://adri-ai.github.io/adri/)
 
 ## 📚 Documentation
 
-- **[Understanding Dimensions](docs/UNDERSTANDING_DIMENSIONS.md)** - Core concepts
-- **[Implementation Guide](docs/implementation_guide.md)** - Step-by-step adoption
-- **[Understanding Templates](docs/UNDERSTANDING_TEMPLATES.md)** - Create industry standards
-- **[Contributing Templates](docs/CONTRIBUTING_TEMPLATES.md)** - Help build industry standards
-- **[API Reference](docs/API_REFERENCE.md)** - Technical details
+- **[Quality Dimensions](docs/reference/dimensions/index.md)** - Core quality assessment concepts
+- **[Implementation Guide](docs/ai-builders/implementing-guards.md)** - Step-by-step agent protection
+- **[Data Assessment Guide](docs/data-providers/assessment-guide.md)** - Make data AI-ready
+- **[API Reference](docs/reference/api/index.md)** - Complete technical reference
+- **[Frequently Asked Questions](docs/frequently-asked-questions.md)** - Common questions answered
 
 ## 🏛️ Governance
 
 ADRI is an open standard governed by its community:
 
 - **License**: MIT (use freely in any context)
-- **Governance**: [Open governance model](GOVERNANCE.md)
-- **Charter**: [Read our mission](CHARTER.md)
+- **Governance**: [Open governance model](docs/reference/governance/governance.md)
+- **Charter**: [Read our mission](docs/reference/governance/charter.md)
 - **Maintainers**: Community-elected board
 
 ## 🎯 The Vision
@@ -262,8 +295,8 @@ Imagine a world where:
 
 ### Implementations
 - **Python**: Reference implementation (this repo)
-- **JavaScript**: [adri-js](https://github.com/adri-standard/adri-js)
-- **Go**: [adri-go](https://github.com/adri-standard/adri-go)
+- **JavaScript**: [adri-js](https://github.com/adri-ai/adri-js)
+- **Go**: [adri-go](https://github.com/adri-ai/adri-go)
 - **Your Language**: [Contribute an implementation](CONTRIBUTING.md#implementations)
 
 ## 🚦 Roadmap
@@ -290,7 +323,7 @@ The future of AI interoperability is being built now. Join us:
 - **Website**: [adri-standard.github.io/adri](https://adri-standard.github.io/adri/)
 - **GitHub**: [github.com/adri-standard](https://github.com/adri-standard)
 - **Discord**: [discord.gg/adri](https://discord.gg/adri)
-- **Twitter**: [@adri_standard](https://twitter.com/adri_standard)
+- **Twitter**: [@adri_standard](https://github.com/adri-ai/adri/discussions)
 
 ---
 

@@ -7,7 +7,7 @@ This document tracks test coverage for the docs/VISION.md file.
 
 VISION.md contains various claims about ADRI's capabilities and benefits. We use a multi-faceted approach to verify these claims:
 
-1. **Claims Tracking**: All quantitative and qualitative claims are tracked in [CLAIMS_TRACKER.md](../CLAIMS_TRACKER.md)
+1. **Claims Tracking**: All quantitative and qualitative claims are tracked in [CLAIMS_TRACKER.md](CLAIMS_TRACKER.md)
 2. **Automated Tests**: Performance and reliability claims are tested in `tests/claims/`
 3. **Vision Alignment**: Documentation consistency is verified by `tests/documentation/test_vision_alignment.py`
 4. **Evidence Collection**: Case studies and benchmarks are stored in `docs/evidence/`
@@ -79,7 +79,7 @@ VISION.md contains various claims about ADRI's capabilities and benefits. We use
 4. **Annually**: Update case studies and testimonials
 
 ## Related Files
-- [CLAIMS_TRACKER.md](../CLAIMS_TRACKER.md) - Comprehensive claims tracking
+- [CLAIMS_TRACKER.md](CLAIMS_TRACKER.md) - Comprehensive claims tracking
 - `tests/claims/test_performance_claims.py` - Performance verification tests
 - `tests/documentation/test_vision_alignment.py` - Documentation consistency
 - `docs/evidence/` - Case studies and benchmark data

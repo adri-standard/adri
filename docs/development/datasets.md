@@ -79,10 +79,10 @@ As the catalog grows, we'll provide:
 
 ## 🔗 Resources
 
-- [How to Run Assessments](./GET_STARTED.md)
-- [Understanding ADRI Scores](./UNDERSTANDING_DIMENSIONS.md)
-- [Contributing Guide](../CONTRIBUTING.md)
-- [Template Library](./UNDERSTANDING_TEMPLATES.md)
+- [How to Run Assessments](GET_STARTED.md)
+- [Understanding ADRI Scores](UNDERSTANDING_DIMENSIONS.md)
+- [Contributing Guide](CONTRIBUTING.md)
+- [Template Library](UNDERSTANDING_TEMPLATES.md)
 
 ---
 
@@ -99,4 +99,4 @@ As the catalog grows, we'll provide:
 - Foster community engagement
 - Demonstrate ADRI adoption
 
-**Test coverage**: This document's features should be verified by tests documented in [datasets_test_coverage.md](./test_coverage/datasets_test_coverage.md)
+**Test coverage**: This document's features should be verified by tests documented in [datasets_test_coverage.md](test_coverage/datasets_test_coverage.md)

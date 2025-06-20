@@ -146,10 +146,13 @@ pytest --ff
 ### 3. Use Test Markers
 Group related tests:
 ```python
+<!-- audience: ai-builders -->
 @pytest.mark.slow
 def test_heavy_computation():
     pass
+```
 
+```bash
 # Run excluding slow tests
 pytest -m "not slow"
 ```

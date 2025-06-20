@@ -1,0 +1,366 @@
+{
+  "_generated_by": "adri init",
+  "_generated_at": "2025-06-19T18:54:48.749231",
+  "_adri_version": "0.4.2",
+  "_data_source": "crm_data",
+  "_comment": "Auto-generated ADRI metadata. Please review and adjust all TODO sections.",
+  "validity": {
+    "_comment": "Auto-generated validity metadata. Please review and adjust.",
+    "has_explicit_validity_info": true,
+    "type_definitions": {
+      "opportunity_id": {
+        "type": "string",
+        "description": "TODO: Add description for opportunity_id",
+        "_detected_type": "text",
+        "_confidence": 0.5
+      },
+      "account_name": {
+        "type": "string",
+        "description": "TODO: Add description for account_name",
+        "_detected_type": "text",
+        "_confidence": 0.5
+      },
+      "deal_name": {
+        "type": "string",
+        "description": "TODO: Add description for deal_name",
+        "_detected_type": "text",
+        "_confidence": 0.5
+      },
+      "stage": {
+        "type": "string",
+        "description": "TODO: Add description for stage",
+        "_detected_type": "text",
+        "_confidence": 0.5
+      },
+      "amount": {
+        "type": "number",
+        "description": "TODO: Add description for amount",
+        "_detected_type": "numeric",
+        "_confidence": 1.0,
+        "range": [
+          -5000.0,
+          85000.0
+        ],
+        "_comment": "TODO: Verify if this range is correct"
+      },
+      "owner": {
+        "type": "string",
+        "description": "TODO: Add description for owner",
+        "_detected_type": "text",
+        "_confidence": 0.5
+      },
+      "account_owner": {
+        "type": "string",
+        "description": "TODO: Add description for account_owner",
+        "_detected_type": "text",
+        "_confidence": 0.5
+      },
+      "created_date": {
+        "type": "string",
+        "description": "TODO: Add description for created_date",
+        "_detected_type": "date",
+        "_confidence": 1.0,
+        "format": "TODO: Specify date format (e.g., YYYY-MM-DD)",
+        "_samples": [
+          "2025-03-15",
+          "2025-02-01",
+          "2025-04-20",
+          "2025-01-10",
+          "2025-01-05"
+        ]
+      },
+      "close_date": {
+        "type": "string",
+        "description": "TODO: Add description for close_date",
+        "_detected_type": "date",
+        "_confidence": 1.0,
+        "format": "TODO: Specify date format (e.g., YYYY-MM-DD)",
+        "_samples": [
+          "2025-06-30",
+          "2025-07-15",
+          "2025-03-31",
+          "2025-02-28",
+          "2025-08-31"
+        ]
+      },
+      "last_activity_date": {
+        "type": "string",
+        "description": "TODO: Add description for last_activity_date",
+        "_detected_type": "date",
+        "_confidence": 1.0,
+        "format": "TODO: Specify date format (e.g., YYYY-MM-DD)",
+        "_samples": [
+          "2025-05-15",
+          "2025-05-20",
+          "2025-03-31",
+          "2025-05-22",
+          "2025-04-01"
+        ]
+      },
+      "contact_email": {
+        "type": "string",
+        "description": "TODO: Add description for contact_email",
+        "_detected_type": "text",
+        "_confidence": 0.5
+      }
+    },
+    "validation_results": {
+      "overall_valid": true,
+      "fields": {
+        "opportunity_id": {
+          "valid": true,
+          "invalid_count": 0
+        },
+        "account_name": {
+          "valid": true,
+          "invalid_count": 0
+        },
+        "deal_name": {
+          "valid": true,
+          "invalid_count": 0
+        },
+        "stage": {
+          "valid": true,
+          "invalid_count": 0
+        },
+        "amount": {
+          "valid": true,
+          "invalid_count": 0
+        },
+        "owner": {
+          "valid": true,
+          "invalid_count": 0
+        },
+        "account_owner": {
+          "valid": true,
+          "invalid_count": 0
+        },
+        "created_date": {
+          "valid": true,
+          "invalid_count": 0
+        },
+        "close_date": {
+          "valid": true,
+          "invalid_count": 0
+        },
+        "last_activity_date": {
+          "valid": true,
+          "invalid_count": 0
+        },
+        "contact_email": {
+          "valid": true,
+          "invalid_count": 0
+        }
+      }
+    }
+  },
+  "completeness": {
+    "_comment": "Auto-generated completeness metadata. Please review and adjust required fields.",
+    "has_explicit_completeness_info": true,
+    "overall_completeness": 0.873,
+    "fields": {
+      "opportunity_id": {
+        "completeness": 1.0,
+        "required": true,
+        "missing_count": 0,
+        "missing_percent": 0.0
+      },
+      "account_name": {
+        "completeness": 1.0,
+        "required": true,
+        "missing_count": 0,
+        "missing_percent": 0.0
+      },
+      "deal_name": {
+        "completeness": 1.0,
+        "required": true,
+        "missing_count": 0,
+        "missing_percent": 0.0
+      },
+      "stage": {
+        "completeness": 1.0,
+        "required": true,
+        "missing_count": 0,
+        "missing_percent": 0.0
+      },
+      "amount": {
+        "completeness": 1.0,
+        "required": true,
+        "missing_count": 0,
+        "missing_percent": 0.0
+      },
+      "owner": {
+        "completeness": 1.0,
+        "required": true,
+        "missing_count": 0,
+        "missing_percent": 0.0
+      },
+      "account_owner": {
+        "completeness": 1.0,
+        "required": true,
+        "missing_count": 0,
+        "missing_percent": 0.0
+      },
+      "created_date": {
+        "completeness": 1.0,
+        "required": true,
+        "missing_count": 0,
+        "missing_percent": 0.0
+      },
+      "close_date": {
+        "completeness": 0.32,
+        "required": false,
+        "missing_count": 17,
+        "missing_percent": 68.0,
+        "missing_reason": "TODO: Explain why this field might be missing"
+      },
+      "last_activity_date": {
+        "completeness": 0.68,
+        "required": false,
+        "missing_count": 8,
+        "missing_percent": 32.0,
+        "missing_reason": "TODO: Explain why this field might be missing"
+      },
+      "contact_email": {
+        "completeness": 0.6,
+        "required": false,
+        "missing_count": 10,
+        "missing_percent": 40.0,
+        "missing_reason": "TODO: Explain why this field might be missing"
+      }
+    },
+    "sections": {
+      "_comment": "TODO: Define logical sections grouping related fields"
+    }
+  },
+  "freshness": {
+    "_comment": "Auto-generated freshness metadata. Please review and set appropriate values.",
+    "has_explicit_freshness_info": true,
+    "dataset_timestamp": "TODO: When was this dataset last updated?",
+    "update_frequency": "TODO: daily|weekly|monthly|quarterly|yearly|real-time",
+    "generation_process": "TODO: How is this data generated/updated?",
+    "freshness_sla": {
+      "max_age_hours": 24,
+      "meets_sla": true,
+      "_comment": "TODO: Adjust max_age_hours based on your requirements"
+    },
+    "fields": {
+      "opportunity_id": {
+        "timestamp_field": false
+      },
+      "account_name": {
+        "timestamp_field": false
+      },
+      "deal_name": {
+        "timestamp_field": false
+      },
+      "stage": {
+        "timestamp_field": false
+      },
+      "amount": {
+        "timestamp_field": false
+      },
+      "owner": {
+        "timestamp_field": false
+      },
+      "account_owner": {
+        "timestamp_field": false
+      },
+      "created_date": {
+        "timestamp_field": true,
+        "timestamp_format": "TODO: Specify format (e.g., YYYY-MM-DD HH:MM:SS)",
+        "timestamp_timezone": "TODO: Specify timezone (e.g., UTC)",
+        "_detected_automatically": true,
+        "_samples": [
+          "2025-03-15",
+          "2025-02-01",
+          "2025-04-20"
+        ]
+      },
+      "close_date": {
+        "timestamp_field": true,
+        "timestamp_format": "TODO: Specify format (e.g., YYYY-MM-DD HH:MM:SS)",
+        "timestamp_timezone": "TODO: Specify timezone (e.g., UTC)",
+        "_detected_automatically": true,
+        "_samples": [
+          "2025-06-30",
+          "2025-07-15",
+          "2025-03-31"
+        ]
+      },
+      "last_activity_date": {
+        "timestamp_field": true,
+        "timestamp_format": "TODO: Specify format (e.g., YYYY-MM-DD HH:MM:SS)",
+        "timestamp_timezone": "TODO: Specify timezone (e.g., UTC)",
+        "_detected_automatically": true,
+        "_samples": [
+          "2025-05-15",
+          "2025-05-20",
+          "2025-03-31"
+        ]
+      },
+      "contact_email": {
+        "timestamp_field": false
+      }
+    },
+    "historical_updates": [
+      {
+        "timestamp": "TODO: Add historical update timestamps",
+        "description": "Example update"
+      }
+    ],
+    "_detected_timestamp_columns": [
+      "created_date",
+      "close_date",
+      "last_activity_date"
+    ],
+    "_suggestion": "Consider using created_date as the primary freshness indicator"
+  },
+  "consistency": {
+    "_comment": "Auto-generated consistency metadata. Please review and add business rules.",
+    "has_explicit_consistency_info": true,
+    "rules": [],
+    "cross_dataset_consistency": [
+      {
+        "id": "CS.X.1",
+        "name": "TODO: Cross-dataset rule name",
+        "description": "TODO: Describe consistency check with external dataset",
+        "related_dataset": "TODO: Specify related dataset",
+        "condition": "TODO: Define the consistency condition",
+        "valid": true
+      }
+    ],
+    "overall_consistency_valid": true
+  },
+  "plausibility": {
+    "_comment": "Auto-generated plausibility metadata. Please review thresholds.",
+    "has_explicit_plausibility_info": true,
+    "rule_results": [
+      {
+        "id": "P.1.0",
+        "rule_name": "amount outlier detection",
+        "type": "outlier_detection",
+        "field": "amount",
+        "valid": true,
+        "message": "Values should be within 3.0 standard deviations of mean",
+        "statistics": {
+          "mean": 38150.0,
+          "std_dev": 21489.45,
+          "outlier_threshold": 3.0,
+          "outlier_count": 0
+        }
+      },
+      {
+        "id": "P.2.0",
+        "rule_name": "TODO: Add domain-specific rule",
+        "type": "domain_specific",
+        "field": "TODO: Specify field",
+        "condition": "TODO: Define what makes values plausible in your domain",
+        "valid": true,
+        "message": "TODO: Describe the plausibility check"
+      }
+    ],
+    "valid_overall": true,
+    "communication_format": "json"
+  }
+}

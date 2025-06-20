@@ -1,0 +1,119 @@
+{
+  "_comment": "Auto-generated plausibility metadata. Please review thresholds.",
+  "has_explicit_plausibility_info": true,
+  "rule_results": [
+    {
+      "id": "P.1.0",
+      "rule_name": "lifetime_value outlier detection",
+      "type": "outlier_detection",
+      "field": "lifetime_value",
+      "valid": true,
+      "message": "Values should be within 3.0 standard deviations of mean",
+      "statistics": {
+        "mean": 4671.81,
+        "std_dev": 3107.22,
+        "outlier_threshold": 3.0,
+        "outlier_count": 0
+      }
+    },
+    {
+      "id": "P.2.0",
+      "rule_name": "total_orders outlier detection",
+      "type": "outlier_detection",
+      "field": "total_orders",
+      "valid": true,
+      "message": "Values should be within 3.0 standard deviations of mean",
+      "statistics": {
+        "mean": 4.87,
+        "std_dev": 3.22,
+        "outlier_threshold": 3.0,
+        "outlier_count": 0
+      }
+    },
+    {
+      "id": "P.3.0",
+      "rule_name": "total_order_value outlier detection",
+      "type": "outlier_detection",
+      "field": "total_order_value",
+      "valid": true,
+      "message": "Values should be within 3.0 standard deviations of mean",
+      "statistics": {
+        "mean": 1542.35,
+        "std_dev": 841.06,
+        "outlier_threshold": 3.0,
+        "outlier_count": 0
+      }
+    },
+    {
+      "id": "P.4.0",
+      "rule_name": "avg_order_value outlier detection",
+      "type": "outlier_detection",
+      "field": "avg_order_value",
+      "valid": true,
+      "message": "Values should be within 3.0 standard deviations of mean",
+      "statistics": {
+        "mean": 278.53,
+        "std_dev": 68.68,
+        "outlier_threshold": 3.0,
+        "outlier_count": 0
+      }
+    },
+    {
+      "id": "P.5.0",
+      "rule_name": "total_tickets outlier detection",
+      "type": "outlier_detection",
+      "field": "total_tickets",
+      "valid": true,
+      "message": "Values should be within 3.0 standard deviations of mean",
+      "statistics": {
+        "mean": 2.65,
+        "std_dev": 1.78,
+        "outlier_threshold": 3.0,
+        "outlier_count": 0
+      }
+    },
+    {
+      "id": "P.6.0",
+      "rule_name": "avg_satisfaction outlier detection",
+      "type": "outlier_detection",
+      "field": "avg_satisfaction",
+      "valid": true,
+      "message": "Values should be within 3.0 standard deviations of mean",
+      "statistics": {
+        "mean": 2.4,
+        "std_dev": 1.43,
+        "outlier_threshold": 3.0,
+        "outlier_count": 0
+      }
+    },
+    {
+      "id": "P.7.0",
+      "rule_name": "days_since_last_order outlier detection",
+      "type": "outlier_detection",
+      "field": "days_since_last_order",
+      "valid": false,
+      "message": "Values should be within 3.0 standard deviations of mean",
+      "statistics": {
+        "mean": 18.4,
+        "std_dev": 18.41,
+        "outlier_threshold": 3.0,
+        "outlier_count": 2
+      },
+      "examples": [
+        89.0,
+        87.0
+      ]
+    },
+    {
+      "id": "P.8.0",
+      "rule_name": "TODO: Add domain-specific rule",
+      "type": "domain_specific",
+      "field": "TODO: Specify field",
+      "condition": "TODO: Define what makes values plausible in your domain",
+      "valid": true,
+      "message": "TODO: Describe the plausibility check"
+    }
+  ],
+  "valid_overall": false,
+  "communication_format": "json"
+}

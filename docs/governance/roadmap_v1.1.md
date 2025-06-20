@@ -1,6 +1,6 @@
 # ADRI v1.1 Roadmap (ARCHIVED)
 
-> **⚠️ ARCHIVED DOCUMENT**: This roadmap was created in January 2024 for the originally planned v1.1 release. The project has since evolved differently, and is currently at v0.2.0b1 as of June 2025. Please refer to [ROADMAP.md](./ROADMAP.md) for the current project roadmap.
+> **⚠️ ARCHIVED DOCUMENT**: This roadmap was created in January 2024 for the originally planned v1.1 release. The project has since evolved differently, and is currently at v0.2.0b1 as of June 2025. Please refer to [ROADMAP.md](ROADMAP.md) for the current project roadmap.
 
 ---
 
@@ -53,9 +53,9 @@ The project took a different direction:
 ### Current Development
 
 For the actual current roadmap and development priorities, please see:
-- [ROADMAP.md](./ROADMAP.md) - Current project roadmap
-- [GitHub Issues](https://github.com/verodat/agent-data-readiness-index/issues) - Active development tasks
-- [Release Notes](../CHANGELOG.md) - What's actually been delivered
+- [ROADMAP.md](ROADMAP.md) - Current project roadmap
+- [GitHub Issues](https://github.com/adri-ai/adri/issues) - Active development tasks
+- [Release Notes](CHANGELOG.md) - What's actually been delivered
 
 ---
 

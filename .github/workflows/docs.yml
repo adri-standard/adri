@@ -32,8 +32,8 @@ jobs:
       - name: Load site configuration
         id: config
         run: |
-          echo "Loading site configuration from config/site_config.yml"
-          SITE_BASE_URL=$(grep 'site_base_url' config/site_config.yml | grep -v '^#' | cut -d':' -f2- | sed 's/^[[:space:]]*//;s/[[:space:]]*$//;s/"//g')
+          echo "Loading site configuration from adri/config/site_config.yml"
+          SITE_BASE_URL=$(grep 'site_base_url' adri/config/site_config.yml | grep -v '^#' | cut -d':' -f2- | sed 's/^[[:space:]]*//;s/[[:space:]]*$//;s/"//g')
           if [[ ! $SITE_BASE_URL =~ ^https?:// ]]; then
             echo "Invalid SITE_BASE_URL: $SITE_BASE_URL"
             exit 1
@@ -50,7 +50,7 @@ jobs:
       - name: Build documentation
         run: |
           echo "Building documentation with site URL: $SITE_BASE_URL"
-          SITE_BASE_URL=$SITE_BASE_URL mkdocs build --config-file config/mkdocs.yml
+          SITE_BASE_URL=$SITE_BASE_URL mkdocs build --config-file adri/config/mkdocs.yml
         
       - name: Deploy
         if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'

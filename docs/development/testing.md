@@ -497,4 +497,4 @@ pytest --junitxml=results.xml
 - Explain test data management strategies
 - Provide testing commands and examples
 
-**Test coverage**: This document's examples, claims, and features should be verified by tests documented in [TESTING_test_coverage.md](./test_coverage/TESTING_test_coverage.md)
+**Test coverage**: This document's examples, claims, and features should be verified by tests documented in [TESTING_test_coverage.md](test_coverage/TESTING_test_coverage.md)

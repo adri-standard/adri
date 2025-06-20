@@ -118,6 +118,28 @@ You may submit a PR without a prior issue for:
 - Document new features, APIs, and configuration options
 - Use clear, concise language in documentation
 - Include examples where helpful
+- Tag code examples with the appropriate audience (see below)
+
+### Code Example Audience Tagging
+
+When adding code examples to documentation, tag them with the appropriate audience:
+
+```python
+# [AGENT]
+# Code for AI agent builders using ADRI
+```
+
+```python
+# [STANDARD]
+# Code for contributors extending the ADRI standard
+```
+
+```python
+# [SUPPLIER]
+# Code for data providers implementing ADRI-compatible data sources
+```
+
+This helps our documentation testing system apply the appropriate validation rules. For detailed guidance, see our [Code Example Audience Guide](docs/development/code_example_audiences.md).
 
 ## Reporting Bugs
 

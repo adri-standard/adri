@@ -143,6 +143,6 @@ When modifying the metadata generator:
 
 ## Related Documentation
 
-- [Testing Guide](../TESTING.md)
-- [CLI Documentation](../CLI.md)
-- [Contributing Guide](../CONTRIBUTING.md)
+- [Testing Guide](TESTING.md)
+- [CLI Documentation](CLI.md)
+- [Contributing Guide](CONTRIBUTING.md)

@@ -92,6 +92,7 @@ adri assess contracts.csv
 ### Step 2: Define Quality Requirements
 
 ```python
+<!-- audience: ai-builders -->
 # quality_requirements.py
 QUALITY_REQUIREMENTS = {
     'vendors': {
@@ -125,6 +126,7 @@ QUALITY_REQUIREMENTS = {
 ### Step 3: Implement the Agent with ADRI Guard
 
 ```python
+<!-- audience: ai-builders -->
 # invoice_payment_agent.py
 from adri import DataSourceAssessor, adri_guarded
 from quality_requirements import QUALITY_REQUIREMENTS
@@ -234,6 +236,7 @@ monitoring:
 ### Setup: Prepare Demo Data
 
 ```python
+<!-- audience: ai-builders -->
 # demo_data_generator.py
 import pandas as pd
 import random
@@ -275,6 +278,7 @@ def generate_demo_data():
 ### Demo Flow Script
 
 ```python
+<!-- audience: ai-builders -->
 # demo_script.py
 """
 ADRI Invoice Payment Demo
@@ -336,6 +340,7 @@ print("   With ADRI: $0 loss + peace of mind")
 ### Pattern 1: Verodat Platform Integration
 
 ```python
+<!-- audience: ai-builders -->
 # verodat_integration.py
 from verodat import DataSupply
 from adri import ADRIClient
@@ -370,6 +375,7 @@ class VerodatInvoiceAgent:
 ### Pattern 2: LangChain Integration
 
 ```python
+<!-- audience: ai-builders -->
 # langchain_integration.py
 from langchain.agents import Tool, initialize_agent, AgentType
 from langchain.llms import OpenAI
@@ -492,4 +498,4 @@ For questions about this use case or to discuss implementation:
 - Demonstrate ROI calculations and metrics
 - Guide organizations through adoption steps
 
-**Test coverage**: This document's examples, claims, and features should be verified by tests documented in [invoice_payment_agent_test_coverage.md](./test_coverage/invoice_payment_agent_test_coverage.md)
+**Test coverage**: This document's examples, claims, and features should be verified by tests documented in [invoice_payment_agent_test_coverage.md](test_coverage/invoice_payment_agent_test_coverage.md)

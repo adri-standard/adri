@@ -33,6 +33,40 @@ graph TB
 
 This isn't a linear improvement - it's exponential. And the bottleneck isn't the AI models or the frameworks. It's the lack of standards for what constitutes "agent-ready data."
 
+## Who ADRI Serves
+
+ADRI is designed to serve three primary audiences, each with distinct needs and roles in the AI data ecosystem:
+
+### 🤖 AI Builders
+
+**AI Builders** are developers, engineers, and teams building AI applications and agents. They need reliable, consistent data to ensure their AI systems function correctly.
+
+**Key needs:**
+- Clear data quality standards for AI systems
+- Confidence in data reliability before processing
+- Consistent interfaces across different data sources
+- Protection against data-related failures
+
+### 📊 Data Providers
+
+**Data Providers** are teams and organizations that manage, prepare, and deliver data for AI systems. They need clear standards to ensure their data meets the requirements of AI applications.
+
+**Key needs:**
+- Clear specifications for "AI-ready" data
+- Tools to assess and improve data quality
+- Standard ways to communicate data characteristics
+- Competitive differentiation through quality certification
+
+### 🛠️ Standard Contributors
+
+**Standard Contributors** are open source contributors and organizations improving the ADRI standard itself. They help evolve the standard to meet emerging needs.
+
+**Key needs:**
+- Clear architecture and design principles
+- Extension mechanisms for new capabilities
+- Testing frameworks for validation
+- Governance processes for contributions
+
 ## The Current Reality
 
 Before diving into systematic solutions, let's acknowledge today's pain:
@@ -320,6 +354,7 @@ requires:
 
 ### 2. Data Suppliers Know What to Build
 ```python
+<!-- audience: ai-builders -->
 # Any data source can target the standard
 from adri import validate
 
@@ -329,6 +364,7 @@ print(f"Ready for invoice agent: {result.compliant}")
 
 ### 3. Agents Trust Their Inputs
 ```python
+<!-- audience: ai-builders -->
 # Agents can require compliant data
 @requires_adri("invoice-processor.adri.yaml")
 def process_invoices(data_source):
@@ -606,6 +642,102 @@ ADRI's vision unfolds in practical stages:
 ### The Path is Practical
 Each stage builds on real value delivery, not speculative adoption. Organizations can stop at any level and still achieve positive ROI.
 
+## Documentation Architecture: Audience-First Design
+
+To ensure ADRI serves each audience effectively, our documentation follows an **audience-first architecture** that organizes information around user workflows rather than technical components.
+
+### Documentation Structure Specification
+
+```
+docs/
+├── index.md                           # Audience selection hub
+├── ai-builders/                       # 🤖 AI Builder Journey
+│   ├── index.md                       # "Protect Your Agents"
+│   ├── getting-started.md             # "5-minute agent protection"
+│   ├── understanding-requirements.md   # "What quality means for agents"
+│   ├── setting-thresholds.md         # "Define your quality gates"
+│   ├── implementing-guards.md         # "Add protection to your code"
+│   ├── framework-integration.md       # "LangChain, CrewAI, DSPy guides"
+│   ├── troubleshooting.md            # "When agents fail"
+│   └── advanced-patterns.md          # "Complex agent workflows"
+├── data-providers/                    # 📊 Data Provider Journey  
+│   ├── index.md                       # "Make Data AI-Ready"
+│   ├── getting-started.md             # "5-minute data assessment"
+│   ├── understanding-quality.md       # "What agents need from data"
+│   ├── assessment-guide.md            # "Check your data quality"
+│   ├── improvement-strategies.md      # "Fix common data issues"
+│   ├── metadata-enhancement.md        # "Document your data quality"
+│   ├── certification.md              # "Prove your data is ready"
+│   └── advanced-connectors.md        # "Custom data sources"
+├── standard-contributors/             # 🛠️ Standard Contributor Journey
+│   ├── index.md                       # "Extend ADRI"
+│   ├── getting-started.md             # "5-minute contribution setup"
+│   ├── architecture-overview.md       # "How ADRI works internally"
+│   ├── extending-rules.md             # "Add new validation logic"
+│   ├── creating-templates.md          # "Build industry standards"
+│   ├── testing-guide.md              # "Test your contributions"
+│   ├── contribution-workflow.md       # "Submit your changes"
+│   └── advanced-extensions.md        # "Deep customization"
+├── reference/                         # Technical Reference (audience-agnostic)
+│   ├── api/                          # Core API documentation
+│   ├── dimensions/                   # Detailed dimension specifications
+│   ├── templates/                    # Template system reference
+│   └── governance/                   # Project governance documents
+└── examples/                          # Organized by audience and use case
+    ├── ai-builders/
+    ├── data-providers/
+    ├── standard-contributors/
+    └── by-industry/
+```
+
+### Audience Journey Design Principles
+
+#### 🤖 AI Builders: "Protect Your Agents"
+**Mental Model**: "My agents crash on bad data"
+**Journey Flow**:
+```
+Problem Recognition → Solution Understanding → Implementation → Integration → Optimization
+```
+**Success Criteria**: Agent protected with quality gates, reliable operation achieved
+
+#### 📊 Data Providers: "Make Data AI-Ready"
+**Mental Model**: "Agents won't work with my data"
+**Journey Flow**:
+```
+Quality Understanding → Current Assessment → Issue Resolution → Quality Documentation → Certification
+```
+**Success Criteria**: Data meets agent requirements, quality is verifiable and documented
+
+#### 🛠️ Standard Contributors: "Extend ADRI"
+**Mental Model**: "I want to improve ADRI"
+**Journey Flow**:
+```
+Architecture Understanding → Contribution Planning → Implementation → Testing → Submission
+```
+**Success Criteria**: Successful contribution to ADRI standard, community recognition
+
+### Design Rationale
+
+This audience-first architecture addresses key usability challenges:
+
+1. **Cognitive Load Reduction**: Users see only information relevant to their role and current task
+2. **Workflow Alignment**: Documentation follows natural user workflows, not technical architecture
+3. **Progressive Disclosure**: Information is layered from basic concepts to advanced implementation
+4. **Cross-Reference Optimization**: Clear paths between audience journeys and technical reference
+5. **Maintenance Efficiency**: Logical organization makes updates and additions straightforward
+
+### Implementation Standards
+
+All documentation following this architecture must:
+- **Lead with user problems** rather than technical features
+- **Provide clear next steps** at each stage of the journey
+- **Include audience-appropriate examples** and use cases
+- **Link to relevant reference materials** without overwhelming the workflow
+- **Test all code examples** with appropriate audience validation rules
+- **Maintain consistent navigation** within each audience journey
+
+This architecture ensures ADRI documentation serves each audience's distinct needs while maintaining comprehensive technical reference materials for deep implementation work.
+
 ## Join the Movement
 
 The future of AI interoperability is being built now. Whether you're:
@@ -626,15 +758,15 @@ You have a role in shaping this standard.
 
 #### Resources
 - **Quick Start**: [Get running in 5 minutes](GET_STARTED.md)
-- **Examples**: [See ADRI in action](../examples/README.md)
-- **Community**: [Join the discussion](https://github.com/adri-standard/agent-data-readiness-index/discussions)
+- **Examples**: [See ADRI in action](examples/README.md)
+- **Community**: [Join the discussion](https://github.com/adri-ai/adri/discussions)
 
 ### Get Involved
 
 - **Website**: [adri-standard.github.io/adri](https://adri-standard.github.io/adri/)
 - **GitHub**: [github.com/adri-standard](https://github.com/adri-standard)
 - **Discord**: [discord.gg/adri](https://discord.gg/adri)
-- **Twitter**: [@adri_standard](https://twitter.com/adri_standard)
+- **Twitter**: [@adri_standard](https://github.com/adri-ai/adri/discussions)
 
 ---
 
@@ -657,4 +789,4 @@ You have a role in shaping this standard.
 - Establish the value proposition at different implementation levels
 - Set the vision for creating a true data quality marketplace
 
-**Test coverage**: Verified by tests documented in [VISION_test_coverage.md](./test_coverage/VISION_test_coverage.md)
+**Test coverage**: Verified by tests documented in [VISION_test_coverage.md](test_coverage/VISION_test_coverage.md)

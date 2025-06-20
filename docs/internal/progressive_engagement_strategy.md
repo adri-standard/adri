@@ -70,6 +70,7 @@ adri-quickstart/
 
 ### Sample Implementation
 ```python
+<!-- audience: ai-builders -->
 # try_it.py - No external dependencies
 import csv
 import json

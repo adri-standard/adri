@@ -1,0 +1,87 @@
+{
+  "_comment": "Auto-generated completeness metadata. Please review and adjust required fields.",
+  "has_explicit_completeness_info": true,
+  "overall_completeness": 0.956,
+  "fields": {
+    "customer_id": {
+      "completeness": 1.0,
+      "required": true,
+      "missing_count": 0,
+      "missing_percent": 0.0
+    },
+    "name": {
+      "completeness": 1.0,
+      "required": true,
+      "missing_count": 0,
+      "missing_percent": 0.0
+    },
+    "email": {
+      "completeness": 0.95,
+      "required": false,
+      "missing_count": 5,
+      "missing_percent": 5.0,
+      "missing_reason": "TODO: Explain why this field might be missing"
+    },
+    "created_date": {
+      "completeness": 1.0,
+      "required": true,
+      "missing_count": 0,
+      "missing_percent": 0.0
+    },
+    "lifetime_value": {
+      "completeness": 1.0,
+      "required": true,
+      "missing_count": 0,
+      "missing_percent": 0.0
+    },
+    "total_orders": {
+      "completeness": 1.0,
+      "required": true,
+      "missing_count": 0,
+      "missing_percent": 0.0
+    },
+    "last_order_date": {
+      "completeness": 0.88,
+      "required": false,
+      "missing_count": 12,
+      "missing_percent": 12.0,
+      "missing_reason": "TODO: Explain why this field might be missing"
+    },
+    "total_order_value": {
+      "completeness": 0.88,
+      "required": false,
+      "missing_count": 12,
+      "missing_percent": 12.0,
+      "missing_reason": "TODO: Explain why this field might be missing"
+    },
+    "avg_order_value": {
+      "completeness": 0.88,
+      "required": false,
+      "missing_count": 12,
+      "missing_percent": 12.0,
+      "missing_reason": "TODO: Explain why this field might be missing"
+    },
+    "total_tickets": {
+      "completeness": 1.0,
+      "required": true,
+      "missing_count": 0,
+      "missing_percent": 0.0
+    },
+    "avg_satisfaction": {
+      "completeness": 1.0,
+      "required": true,
+      "missing_count": 0,
+      "missing_percent": 0.0
+    },
+    "days_since_last_order": {
+      "completeness": 0.88,
+      "required": false,
+      "missing_count": 12,
+      "missing_percent": 12.0,
+      "missing_reason": "TODO: Explain why this field might be missing"
+    }
+  },
+  "sections": {
+    "_comment": "TODO: Define logical sections grouping related fields"
+  }
+}

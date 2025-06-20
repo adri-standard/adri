@@ -49,6 +49,7 @@ The following architectural aspects require test coverage:
 To ensure the architecture decision is properly implemented:
 
 ```python
+<!-- audience: ai-builders -->
 def test_single_dataset_only():
     """Verify ADRI rejects multi-dataset operations"""
     assessor = DataSourceAssessor()

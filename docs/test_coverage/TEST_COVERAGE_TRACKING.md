@@ -185,11 +185,12 @@ Test coverage documentation follows a pattern where:
 ```markdown
 ## Test Coverage
 
-This document's examples, claims, and features are verified by tests documented in [FILENAME_test_coverage.md](./test_coverage/FILENAME_test_coverage.md).
+This document's examples, claims, and features are verified by tests documented in [FILENAME_test_coverage.md](FILENAME_test_coverage.md).
 ```
 
 ### For Code Files (.py):
 ```python
+<!-- audience: ai-builders -->
 # ----------------------------------------------
 # TEST COVERAGE
 # ----------------------------------------------

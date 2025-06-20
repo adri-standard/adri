@@ -57,6 +57,7 @@ Test results are saved to:
 
 3. **Use JSON Results**: Parse the JSON output to track progress programmatically
    ```python
+<!-- audience: ai-builders -->
    import json
    with open('test_results/test_results_latest.json') as f:
        results = json.load(f)

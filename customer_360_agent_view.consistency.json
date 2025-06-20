@@ -1,0 +1,29 @@
+{
+  "_comment": "Auto-generated consistency metadata. Please review and add business rules.",
+  "has_explicit_consistency_info": true,
+  "rules": [
+    {
+      "id": "CS.1.1",
+      "name": "TODO: Name this rule",
+      "description": "TODO: Define relationship between lifetime_value, total_orders",
+      "fields": [
+        "lifetime_value",
+        "total_orders"
+      ],
+      "condition": "TODO: e.g., lifetime_value > total_orders or other business rule",
+      "valid": true,
+      "_comment": "This is an example - please update with actual business rules"
+    }
+  ],
+  "cross_dataset_consistency": [
+    {
+      "id": "CS.X.1",
+      "name": "TODO: Cross-dataset rule name",
+      "description": "TODO: Describe consistency check with external dataset",
+      "related_dataset": "TODO: Specify related dataset",
+      "condition": "TODO: Define the consistency condition",
+      "valid": true
+    }
+  ],
+  "overall_consistency_valid": true
+}

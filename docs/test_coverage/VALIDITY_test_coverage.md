@@ -63,6 +63,7 @@ Validity testing ensures data conforms to expected formats, types, and constrain
 ### Example Test Cases
 
 ```python
+<!-- audience: ai-builders -->
 def test_email_validation():
     """Test email format validation."""
     validator = ValidityDimension()
@@ -122,9 +123,9 @@ validity:
 - Performance with large validation rule sets
 
 ### Related Documentation
-- Validity dimension details: [validity_dimension.md](/docs/validity_dimension.md)
-- Rules framework: [RULES_test_coverage.md](./RULES_test_coverage.md)
-- Dimensions overview: [DIMENSIONS_test_coverage.md](./DIMENSIONS_test_coverage.md)
+- Validity dimension details: [validity_dimension.md](concepts/validity_dimension.md)
+- Rules framework: [RULES_test_coverage.md](RULES_test_coverage.md)
+- Dimensions overview: [DIMENSIONS_test_coverage.md](DIMENSIONS_test_coverage.md)
 
 ---
 *Last Updated: 2025-06-03*

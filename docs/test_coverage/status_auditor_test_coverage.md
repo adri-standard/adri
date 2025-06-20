@@ -179,10 +179,10 @@ All 5 dimensions are tested:
 
 ## Related Documentation
 
-- [ADRI Testing Approach](../TESTING.md)
-- [Status Auditor Implementation](../USE_CASE_AI_STATUS_AUDITOR.md)
-- [Example Documentation](../../examples/README.md)
-- [ADRI Vision](../VISION.md)
+- [ADRI Testing Approach](TESTING.md)
+- [Status Auditor Implementation](use-cases/use_case_ai_status_auditor.md)
+- [Example Documentation](examples/README.md)
+- [ADRI Vision](governance/vision.md)
 
 ## Summary
 

@@ -9,6 +9,7 @@ This page provides a comprehensive reference for all public APIs in the Agent Da
 The main class for assessing data sources.
 
 ```python
+<!-- audience: ai-builders -->
 from adri import DataSourceAssessor
 from adri.assessment_modes import AssessmentMode
 
@@ -106,6 +107,7 @@ All dimension classes support template-based rule configuration through the `set
 ### Validity
 
 ```python
+<!-- audience: ai-builders -->
 from adri.dimensions import ValidityAssessor
 
 validity = ValidityAssessor(config={})
@@ -126,6 +128,7 @@ validity.set_template_rules([
 ### Completeness
 
 ```python
+<!-- audience: ai-builders -->
 from adri.dimensions import CompletenessAssessor
 
 completeness = CompletenessAssessor(config={})
@@ -146,6 +149,7 @@ completeness.set_template_rules([
 ### Freshness
 
 ```python
+<!-- audience: ai-builders -->
 from adri.dimensions import FreshnessAssessor
 
 freshness = FreshnessAssessor(config={})
@@ -166,6 +170,7 @@ freshness.set_template_rules([
 ### Consistency
 
 ```python
+<!-- audience: ai-builders -->
 from adri.dimensions import ConsistencyAssessor
 
 consistency = ConsistencyAssessor(config={})
@@ -186,6 +191,7 @@ consistency.set_template_rules([
 ### Plausibility
 
 ```python
+<!-- audience: ai-builders -->
 from adri.dimensions import PlausibilityAssessor
 
 plausibility = PlausibilityAssessor(config={})
@@ -218,6 +224,7 @@ When using templates:
 All rules inherit from the `DiagnosticRule` base class:
 
 ```python
+<!-- audience: ai-builders -->
 from adri.rules.base import DiagnosticRule
 
 class CustomRule(DiagnosticRule):
@@ -239,6 +246,7 @@ class CustomRule(DiagnosticRule):
 
 #### TypeConsistencyRule
 ```python
+<!-- audience: ai-builders -->
 from adri.rules.validity import TypeConsistencyRule
 
 rule = TypeConsistencyRule({
@@ -249,6 +257,7 @@ rule = TypeConsistencyRule({
 
 #### RangeValidationRule
 ```python
+<!-- audience: ai-builders -->
 from adri.rules.validity import RangeValidationRule
 
 rule = RangeValidationRule({
@@ -260,6 +269,7 @@ rule = RangeValidationRule({
 
 #### FormatConsistencyRule
 ```python
+<!-- audience: ai-builders -->
 from adri.rules.validity import FormatConsistencyRule
 
 rule = FormatConsistencyRule({
@@ -273,21 +283,29 @@ rule = FormatConsistencyRule({
 
 ## Guards
 
-### DataQualityGuard
+### adri_guarded Decorator
 
 ```python
-from adri.integrations.guard import DataQualityGuard
+<!-- audience: ai-builders -->
+# Example of using the adri_guarded decorator (not meant to be executed)
+from adri.integrations.guard import adri_guarded
 
-guard = DataQualityGuard(
-    min_overall_score=70.0,
-    dimension_thresholds={
-        'validity': 80.0,
-        'completeness': 90.0
-    }
+# Apply as a decorator to functions that process data
+@adri_guarded(
+    min_score=70.0, 
+    dimensions={
+        'validity': 15.0,
+        'completeness': 18.0
+    },
+    use_cached_reports=True
 )
+def process_data(data_source, other_param):
+    # This function will only run if data quality is sufficient
+    # Otherwise, it will raise a ValueError
+    pass
 
-# Check if data meets quality standards
-is_acceptable, report = guard.check("data.csv")
+# In your actual code:
+# process_data("data.csv", "other_value")
 ```
 
 ## Connectors
@@ -295,6 +313,7 @@ is_acceptable, report = guard.check("data.csv")
 ### FileConnector
 
 ```python
+<!-- audience: ai-builders -->
 from adri.connectors import FileConnector
 
 connector = FileConnector("data.csv", file_type="csv")
@@ -303,6 +322,7 @@ connector = FileConnector("data.csv", file_type="csv")
 ### DatabaseConnector
 
 ```python
+<!-- audience: ai-builders -->
 from adri.connectors import DatabaseConnector
 
 connector = DatabaseConnector(
@@ -314,6 +334,7 @@ connector = DatabaseConnector(
 ### APIConnector
 
 ```python
+<!-- audience: ai-builders -->
 from adri.connectors import APIConnector
 
 connector = APIConnector(
@@ -327,6 +348,7 @@ connector = APIConnector(
 ### Configuration Management
 
 ```python
+<!-- audience: ai-builders -->
 from adri.config import Configuration, get_config, set_config
 
 # Create a custom configuration
@@ -364,6 +386,7 @@ assessor = DataSourceAssessor(config={
 Load a previously saved assessment report.
 
 ```python
+<!-- audience: ai-builders -->
 from adri.utils import load_report
 
 report = load_report("assessment_report.json")
@@ -373,6 +396,7 @@ report = load_report("assessment_report.json")
 Compare two assessment reports.
 
 ```python
+<!-- audience: ai-builders -->
 from adri.utils import compare_reports
 
 differences = compare_reports(old_report, new_report)
@@ -383,6 +407,7 @@ differences = compare_reports(old_report, new_report)
 ### LangChain Integration
 
 ```python
+<!-- audience: ai-builders -->
 from adri.integrations.langchain import ADRIDataValidator
 
 validator = ADRIDataValidator(min_score=75.0)
@@ -392,6 +417,7 @@ validator = ADRIDataValidator(min_score=75.0)
 ### CrewAI Integration
 
 ```python
+<!-- audience: ai-builders -->
 from adri.integrations.crewai import ADRIDataSource
 
 data_source = ADRIDataSource(
@@ -403,6 +429,7 @@ data_source = ADRIDataSource(
 ### DSPy Integration
 
 ```python
+<!-- audience: ai-builders -->
 from adri.integrations.dspy import ADRIQualityConstraint
 
 constraint = ADRIQualityConstraint(
@@ -414,9 +441,9 @@ constraint = ADRIQualityConstraint(
 ---
 
 For more detailed examples and use cases, see:
-- [Implementation Guide](./implementation_guide.md)
-- [Framework Integrations](./INTEGRATIONS.md)
-- [Extending ADRI](./EXTENDING.md)
+- [Implementation Guide](guides/implementation-guide.md)
+- [Framework Integrations](INTEGRATIONS.md)
+- [Extending ADRI](EXTENDING.md)
 
 ## Purpose & Test Coverage
 
@@ -428,4 +455,4 @@ For more detailed examples and use cases, see:
 - Serve as the authoritative reference for developers
 - Maintain consistency with actual implementation
 
-**Test coverage**: This document's examples, claims, and features should be verified by tests documented in [API_REFERENCE_test_coverage.md](./test_coverage/API_REFERENCE_test_coverage.md)
+**Test coverage**: This document's examples, claims, and features should be verified by tests documented in [API_REFERENCE_test_coverage.md](test_coverage/API_REFERENCE_test_coverage.md)

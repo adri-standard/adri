@@ -1,0 +1,182 @@
+{
+  "_comment": "Auto-generated validity metadata. Please review and adjust.",
+  "has_explicit_validity_info": true,
+  "type_definitions": {
+    "customer_id": {
+      "type": "string",
+      "description": "TODO: Add description for customer_id",
+      "_detected_type": "id",
+      "_confidence": 1.0
+    },
+    "name": {
+      "type": "string",
+      "description": "TODO: Add description for name",
+      "_detected_type": "text",
+      "_confidence": 0.5
+    },
+    "email": {
+      "type": "string",
+      "description": "TODO: Add description for email",
+      "_detected_type": "text",
+      "_confidence": 0.5
+    },
+    "created_date": {
+      "type": "string",
+      "description": "TODO: Add description for created_date",
+      "_detected_type": "date",
+      "_confidence": 1.0,
+      "format": "TODO: Specify date format (e.g., YYYY-MM-DD)",
+      "_samples": [
+        "2025-04-24 18:54:50.377629",
+        "2024-09-02 18:54:50.377641",
+        "2024-12-05 18:54:50.377643",
+        "2025-01-13 18:54:50.377644",
+        "2025-02-28 18:54:50.377645"
+      ]
+    },
+    "lifetime_value": {
+      "type": "number",
+      "description": "TODO: Add description for lifetime_value",
+      "_detected_type": "numeric",
+      "_confidence": 1.0,
+      "range": [
+        -100.0,
+        9932.0
+      ],
+      "_comment": "TODO: Verify if this range is correct"
+    },
+    "total_orders": {
+      "type": "number",
+      "description": "TODO: Add description for total_orders",
+      "_detected_type": "numeric",
+      "_confidence": 1.0,
+      "range": [
+        0.0,
+        10.0
+      ],
+      "_comment": "TODO: Verify if this range is correct"
+    },
+    "last_order_date": {
+      "type": "string",
+      "description": "TODO: Add description for last_order_date",
+      "_detected_type": "date",
+      "_confidence": 1.0,
+      "format": "TODO: Specify date format (e.g., YYYY-MM-DD)",
+      "_samples": [
+        "2025-06-09 18:54:50.378241",
+        "2025-03-22 18:54:50.378247",
+        "2025-06-06 18:54:50.378249",
+        "2025-06-08 18:54:50.378254",
+        "2025-06-03 18:54:50.378266"
+      ]
+    },
+    "total_order_value": {
+      "type": "number",
+      "description": "TODO: Add description for total_order_value",
+      "_detected_type": "numeric",
+      "_confidence": 1.0,
+      "range": [
+        96.0,
+        3366.0
+      ],
+      "_comment": "TODO: Verify if this range is correct"
+    },
+    "avg_order_value": {
+      "type": "number",
+      "description": "TODO: Add description for avg_order_value",
+      "_detected_type": "numeric",
+      "_confidence": 1.0,
+      "range": [
+        96.0,
+        464.5
+      ],
+      "_comment": "TODO: Verify if this range is correct"
+    },
+    "total_tickets": {
+      "type": "number",
+      "description": "TODO: Add description for total_tickets",
+      "_detected_type": "numeric",
+      "_confidence": 1.0,
+      "range": [
+        0.0,
+        5.0
+      ],
+      "_comment": "TODO: Verify if this range is correct"
+    },
+    "avg_satisfaction": {
+      "type": "number",
+      "description": "TODO: Add description for avg_satisfaction",
+      "_detected_type": "numeric",
+      "_confidence": 1.0,
+      "range": [
+        0.0,
+        5.0
+      ],
+      "_comment": "TODO: Verify if this range is correct"
+    },
+    "days_since_last_order": {
+      "type": "number",
+      "description": "TODO: Add description for days_since_last_order",
+      "_detected_type": "numeric",
+      "_confidence": 1.0,
+      "range": [
+        0.0,
+        89.0
+      ],
+      "_comment": "TODO: Verify if this range is correct"
+    }
+  },
+  "validation_results": {
+    "overall_valid": true,
+    "fields": {
+      "customer_id": {
+        "valid": true,
+        "invalid_count": 0
+      },
+      "name": {
+        "valid": true,
+        "invalid_count": 0
+      },
+      "email": {
+        "valid": true,
+        "invalid_count": 0
+      },
+      "created_date": {
+        "valid": true,
+        "invalid_count": 0
+      },
+      "lifetime_value": {
+        "valid": true,
+        "invalid_count": 0
+      },
+      "total_orders": {
+        "valid": true,
+        "invalid_count": 0
+      },
+      "last_order_date": {
+        "valid": true,
+        "invalid_count": 0
+      },
+      "total_order_value": {
+        "valid": true,
+        "invalid_count": 0
+      },
+      "avg_order_value": {
+        "valid": true,
+        "invalid_count": 0
+      },
+      "total_tickets": {
+        "valid": true,
+        "invalid_count": 0
+      },
+      "avg_satisfaction": {
+        "valid": true,
+        "invalid_count": 0
+      },
+      "days_since_last_order": {
+        "valid": true,
+        "invalid_count": 0
+      }
+    }
+  }
+}

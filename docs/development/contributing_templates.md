@@ -218,6 +218,8 @@ Ask yourself:
 
 ### Step 2: Analyze Sample Data
 ```python
+<!-- audience: ai-builders -->
+# [STANDARD_CONTRIBUTOR]
 # Use ADRI in discovery mode to understand your data
 from adri import DataSourceAssessor
 
@@ -317,6 +319,8 @@ plausibility:
 Test your template with various data scenarios:
 
 ```python
+<!-- audience: ai-builders -->
+# [STANDARD_CONTRIBUTOR]
 # Test with good data
 good_report = assessor.assess_file_with_template("good-data.csv", "my-template.yaml")
 assert good_report[1].is_compliant
@@ -417,6 +421,8 @@ See: `adri/templates/catalog/financial/basel-iii-v1.0.0.yaml`
 
 ### Template Validation
 ```python
+<!-- audience: ai-builders -->
+# [STANDARD_CONTRIBUTOR]
 from adri.templates import TemplateLoader
 
 # Validate template syntax
@@ -430,6 +436,8 @@ except Exception as e:
 
 ### Quick Testing Script
 ```python
+<!-- audience: ai-builders -->
+# [STANDARD_CONTRIBUTOR]
 # Save as test_template.py
 import sys
 from adri import DataSourceAssessor
@@ -454,8 +462,8 @@ if __name__ == "__main__":
 
 ## 🤝 Getting Help
 
-- **💬 GitHub Discussions**: Ask questions in the [Templates category](https://github.com/adri-standard/agent-data-readiness-index/discussions)
-- **🐛 Issues**: Report problems with the [template label](https://github.com/adri-standard/agent-data-readiness-index/issues)
+- **💬 GitHub Discussions**: Ask questions in the [Templates category](https://github.com/adri-ai/adri/discussions)
+- **🐛 Issues**: Report problems with the [template label](https://github.com/adri-ai/adri/issues)
 - **📧 Community**: Use [GitHub Discussions](https://github.com/adri-standard/adri/discussions) with "template" tag
 - **📚 Examples**: Study existing templates in `adri/templates/catalog/`
 

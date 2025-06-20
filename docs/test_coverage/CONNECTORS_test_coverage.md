@@ -88,6 +88,7 @@ The connectors module provides a pluggable architecture for accessing data from:
 ### Example Test Cases
 
 ```python
+<!-- audience: ai-builders -->
 def test_csv_connector_read():
     """Test CSV connector can read and parse CSV files."""
     connector = FileConnector("test_data.csv")

@@ -9,8 +9,19 @@ This document provides a comprehensive history of ADRI versions, changes to scor
 | 0.1.x        | 0.1.x      | Yes              | Initial alpha version with consistent scoring methodology |
 | 0.1.x        | 0.2.0b1    | Yes              | Beta version maintains scoring compatibility with 0.1.x |
 | 0.2.0b1      | 0.2.0b1    | Yes              | Beta release with version management system |
+| 0.2.0b1      | 0.4.2      | Yes              | Stable release with improved documentation and testing |
 
 ## Detailed Version Information
+
+### 0.4.2 (Current Stable Release)
+- **New Features**: Enhanced documentation and testing infrastructure
+- **Compatibility**: Maintains same scoring methodology as previous versions
+- **Improvements**:
+  - Improved documentation structure and organization
+  - Enhanced test coverage and reliability
+  - Fixed various type checking issues
+  - Updated GitHub Actions workflows
+- **Technical Note**: Reports from this version can be safely compared with previous versions
 
 ### 0.2.0b1 (Beta Release)
 - **New Features**: Comprehensive version management system

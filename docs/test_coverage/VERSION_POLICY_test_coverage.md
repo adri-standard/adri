@@ -38,6 +38,7 @@ This document details how the ADRI version policy (documented in VERSIONS.md) is
 
 Tests:
 ```python
+<!-- audience: ai-builders -->
 - test_version_constants()  # Verify version format
 - test_version_compatibility_checking()  # Test compatibility logic
 - test_report_version_embedding()  # Ensure version in reports
@@ -50,6 +51,7 @@ Tests:
 
 Tests:
 ```python
+<!-- audience: ai-builders -->
 - test_versions_md_contains_current_version()  # Current version documented
 - test_version_consistency_with_pyproject()  # Version files match
 - test_release_documentation_structure()  # Docs follow standard
@@ -61,6 +63,7 @@ Tests:
 
 Tests:
 ```python
+<!-- audience: ai-builders -->
 - test_cli_embeds_version_in_report()  # CLI adds version to reports
 - test_version_consistency_script()  # Verify script works
 ```
@@ -97,6 +100,7 @@ The compatibility matrix in VERSIONS.md is validated by:
 ### Score Compatibility Testing
 
 ```python
+<!-- audience: ai-builders -->
 # Example test case
 def test_score_compatibility_between_versions():
     # Test that 0.1.0 and 0.2.0b1 are marked compatible

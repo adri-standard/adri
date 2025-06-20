@@ -69,6 +69,7 @@ Audit Reports            →    ADRI Assessment Results
 ### Implementation Stack
 
 ```python
+<!-- audience: ai-builders -->
 # Backend: FastAPI + ADRI
 from fastapi import FastAPI, UploadFile
 from adri import DataSourceAssessor
@@ -266,6 +267,7 @@ dimensions:
 **Goal**: Prove concept with single domain (RevOps)
 
 ```python
+<!-- audience: ai-builders -->
 # Simple Flask app for MVP
 from flask import Flask, request, jsonify
 import pandas as pd
@@ -331,6 +333,7 @@ if __name__ == '__main__':
 **Goal**: Connect to live data sources
 
 ```python
+<!-- audience: ai-builders -->
 # Verodat integration
 from verodat import DataSupply
 
@@ -473,6 +476,7 @@ QUICK WINS:
 
 **Before Agent Execution**:
 ```python
+<!-- audience: ai-builders -->
 # In CrewAI, LangChain, or custom agent
 from status_auditor import check_data_readiness
 
@@ -558,7 +562,7 @@ def process_sales_leads(data_source):
 ## Resources
 
 - [ADRI Documentation](https://github.com/adri/docs)
-- [Template Development Guide](./EXTENDING.md#creating-custom-templates)
+- [Template Development Guide](EXTENDING.md#creating-custom-templates)
 - Verodat Integration API (Coming Soon)
 - Status Auditor Mockups (Coming Soon)
 
@@ -579,4 +583,4 @@ For questions about this implementation:
 - Illustrate the business value proposition
 - Guide go-to-market strategy for commercialization
 
-**Test coverage**: This document's examples, claims, and features should be verified by tests documented in [status_auditor_test_coverage.md](./test_coverage/status_auditor_test_coverage.md)
+**Test coverage**: This document's examples, claims, and features should be verified by tests documented in [status_auditor_test_coverage.md](test_coverage/status_auditor_test_coverage.md)

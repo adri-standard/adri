@@ -150,46 +150,76 @@ This document provides a comprehensive overview of all files and directories in 
 | **metadata_generator.py** | Automatic metadata generation |
 | **validators.py** | Common validation functions |
 
-## 📁 docs/ - Documentation
+## 📁 docs/ - Documentation (Audience-First Structure)
 
 | File | Purpose |
 |------|---------|
-| **index.md** | Documentation home page with navigation |
+| **index.md** | Audience selection hub - directs users to their journey |
 
-### 📁 docs/getting-started/
+### 🤖 docs/ai-builders/ - AI Builder Journey
 
-| File | Purpose |
-|------|---------|
-| **index.md** | Getting started overview |
-| **quickstart.md** | 5-minute quickstart tutorial |
-| **get_started.md** | Comprehensive getting started guide |
-| **faq.md** | Frequently asked questions |
+| File | Purpose | Status |
+|------|---------|--------|
+| **index.md** | "Protect Your Agents" landing page | ✅ Complete |
+| **getting-started.md** | 5-minute agent protection guide | ✅ Complete |
+| **implementing-guards.md** | Comprehensive guard implementation | ✅ Complete |
+| **understanding-requirements.md** | What quality means for agents | 🔄 Planned |
+| **framework-integration.md** | LangChain, CrewAI, DSPy guides | 🔄 Planned |
+| **troubleshooting.md** | When agents fail | 🔄 Planned |
+| **advanced-patterns.md** | Complex agent workflows | 🔄 Planned |
 
-### 📁 docs/concepts/
+### 📊 docs/data-providers/ - Data Provider Journey
 
-| File | Purpose |
-|------|---------|
-| **understanding_dimensions.md** | Overview of the five data quality dimensions |
-| **validity_dimension.md** | Detailed validity dimension documentation |
-| **completeness_dimension.md** | Detailed completeness dimension documentation |
-| **freshness_dimension.md** | Detailed freshness dimension documentation |
-| **plausibility_dimension.md** | Detailed plausibility dimension documentation |
-| **consistency_rules.md** | Consistency rules documentation |
-| **plausibility_rules.md** | Plausibility rules documentation |
-| **methodology.md** | ADRI methodology explanation |
+| File | Purpose | Status |
+|------|---------|--------|
+| **index.md** | "Make Data AI-Ready" landing page | ✅ Complete |
+| **getting-started.md** | 5-minute data assessment guide | ✅ Complete |
+| **assessment-guide.md** | Comprehensive assessment modes | 🔄 Planned |
+| **understanding-quality.md** | What agents need from data | 🔄 Planned |
+| **improvement-strategies.md** | Fix common data issues | 🔄 Planned |
+| **metadata-enhancement.md** | Document data quality | 🔄 Planned |
+| **certification.md** | Prove data is ready | 🔄 Planned |
+| **advanced-connectors.md** | Custom data sources | 🔄 Planned |
 
-### 📁 docs/guides/
+### 🛠️ docs/standard-contributors/ - Standard Contributor Journey
 
-| File | Purpose |
-|------|---------|
-| **implementation_guide.md** | Step-by-step implementation guide |
-| **custom_rules_guide.md** | Comprehensive guide for creating custom rules |
-| **implementing_guards.md** | Guide to implementing data quality guards |
-| **template_guard.md** | Template guard documentation |
-| **template_tdd_guide.md** | Test-driven development guide for templates |
-| **enhancing_data_sources.md** | Adding metadata to data sources |
-| **integrations.md** | Framework integration guides |
-| **understanding_templates.md** | Guide to template system and authoring |
+| File | Purpose | Status |
+|------|---------|--------|
+| **index.md** | "Extend ADRI" landing page | ✅ Complete |
+| **getting-started.md** | 30-minute development setup | ✅ Complete |
+| **architecture-overview.md** | How ADRI works internally | 🔄 Planned |
+| **contribution-workflow.md** | Submit changes process | 🔄 Planned |
+| **extending-rules.md** | Add validation logic | 🔄 Planned |
+| **creating-templates.md** | Industry standards | 🔄 Planned |
+| **testing-guide.md** | Test contributions | 🔄 Planned |
+| **advanced-extensions.md** | Complex customizations | 🔄 Planned |
+
+### 📚 docs/reference/ - Technical Reference (Audience-Agnostic)
+
+| File | Purpose | Status |
+|------|---------|--------|
+| **api/** | Complete API documentation | 🔄 To Migrate |
+| **dimensions/** | Technical dimension details | 🔄 To Migrate |
+| **governance/** | Project governance | ✅ Partial |
+| **architecture/** | System architecture | 🔄 To Migrate |
+| **performance/** | Performance optimization | 🔄 To Migrate |
+
+### 📝 docs/examples/ - Organized by Audience
+
+| Directory | Purpose | Status |
+|-----------|---------|--------|
+| **ai-builders/** | Agent protection examples | 🔄 To Organize |
+| **data-providers/** | Data assessment examples | 🔄 To Organize |
+| **standard-contributors/** | Extension examples | 🔄 To Organize |
+| **by-industry/** | Industry-specific examples | 🔄 To Organize |
+
+### 📁 docs/legacy/ - Deprecated Structure (To Be Removed)
+
+| File | Purpose | Migration Status |
+|------|---------|------------------|
+| **getting-started/** | Old getting started structure | 🔄 To Remove |
+| **concepts/** | Old concept documentation | 🔄 To Migrate to reference/ |
+| **guides/** | Old guide structure | 🔄 To Migrate to journeys |
 
 ### 📁 docs/api/
 
@@ -209,6 +239,8 @@ This document provides a comprehensive overview of all files and directories in 
 | **testing.md** | Testing guide and strategy |
 | **contributing.md** | Contribution guidelines |
 | **contributing_templates.md** | Template contribution guidelines |
+| **code_example_audiences.md** | Code example audience tagging system |
+| **audience_badges.md** | Audience badge usage guide for documentation |
 | **rule_testing_architecture.md** | Rule testing architecture guide |
 | **project_structure.md** | Repository structure guide |
 | **datasets.md** | Example datasets catalog |
@@ -217,7 +249,7 @@ This document provides a comprehensive overview of all files and directories in 
 
 | File | Purpose |
 |------|---------|
-| **vision.md** | Core vision and strategic direction |
+| **vision.md** | Core vision and strategic direction with audience definitions (🤖 AI Builders, 📊 Data Providers, 🛠️ Standard Contributors) |
 | **vision_in_action.md** | Concrete examples of the vision |
 | **roadmap.md** | Future development plans |
 | **roadmap_v1.1.md** | Detailed v1.1 roadmap with priority rules |
@@ -296,6 +328,12 @@ Contains evidence files supporting claims and documentation.
 | **04_multi_source.py** | Multi-source assessment |
 | **05_production_guard.py** | Production guard implementation |
 | **06_metadata_generation.py** | Automatic metadata generation |
+
+### 📁 examples/documentation/
+
+| File | Purpose |
+|------|---------|
+| **audience_tagging_examples.py** | Examples of code blocks with audience tags |
 
 ### 📁 examples/templates/
 
@@ -376,6 +414,10 @@ Contains evidence files supporting claims and documentation.
 | **run_financial_market_assessment.py** | Financial market assessment demo |
 | **verify_version.py** | Version verification utility |
 | **template_tdd_runner.py** | Test-driven template development runner |
+| **tag_code_examples.py** | Script to tag code examples with audience tags |
+| **validate_documentation.py** | Documentation quality validation tool |
+| **fix_documentation_issues.py** | Automated documentation fixes |
+| **fix_broken_links.py** | Fix broken internal links |
 
 ## 📁 notebooks/
 

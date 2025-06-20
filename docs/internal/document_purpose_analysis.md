@@ -205,7 +205,7 @@ Update all documentation files with purpose-driven footers:
 - [Responsibility 1]
 - [Responsibility 2]
 
-**Test coverage**: Verified by tests documented in [FILENAME_test_coverage.md](./test_coverage/FILENAME_test_coverage.md)
+**Test coverage**: Verified by tests documented in [FILENAME_test_coverage.md](test_coverage/FILENAME_test_coverage.md)
 ```
 
 ### 4. Documents to Keep As-Is

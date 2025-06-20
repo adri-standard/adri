@@ -26,6 +26,8 @@ To add a new dimension assessor:
 ### Example
 
 ```python
+<!-- audience: ai-builders -->
+# [STANDARD_CONTRIBUTOR]
 # adri/dimensions/my_dimension.py
 import logging
 from typing import Dict, List, Tuple, Any, Optional
@@ -94,6 +96,8 @@ To add a new data source connector:
 ### Example
 
 ```python
+<!-- audience: ai-builders -->
+# [STANDARD_CONTRIBUTOR]
 # adri/connectors/my_connector.py
 import logging
 from typing import Dict, List, Any, Optional
@@ -157,6 +161,8 @@ class MyConnector(BaseConnector):
 Once you've added your custom components, they will be automatically registered and available for use:
 
 ```python
+<!-- audience: ai-builders -->
+# [STANDARD_CONTRIBUTOR]
 from adri import DataSourceAssessor
 
 # The custom dimension will be included automatically
@@ -229,6 +235,8 @@ metadata:
 ### Using Templates
 
 ```python
+<!-- audience: ai-builders -->
+# [STANDARD_CONTRIBUTOR]
 from adri import DataSourceAssessor
 from adri.templates import load_template
 
@@ -264,6 +272,8 @@ ADRI includes pre-built templates for common use cases:
 For third-party packages that want to extend ADRI, you can use setuptools entry points:
 
 ```python
+<!-- audience: ai-builders -->
+# [STANDARD_CONTRIBUTOR]
 # In setup.py or pyproject.toml
 entry_points={
     'adri.dimensions': [
@@ -288,4 +298,4 @@ This allows your components to be discovered and registered automatically when y
 - Show template creation for custom quality standards
 - Demonstrate integration via setuptools entry points
 
-**Test coverage**: This document's examples, claims, and features should be verified by tests documented in [EXTENDING_test_coverage.md](./test_coverage/EXTENDING_test_coverage.md)
+**Test coverage**: This document's examples, claims, and features should be verified by tests documented in [EXTENDING_test_coverage.md](test_coverage/EXTENDING_test_coverage.md)

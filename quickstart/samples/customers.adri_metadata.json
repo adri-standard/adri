@@ -1,0 +1,389 @@
+{
+  "_generated_by": "adri init",
+  "_generated_at": "2025-06-19T18:54:48.772847",
+  "_adri_version": "0.4.2",
+  "_data_source": "customers",
+  "_comment": "Auto-generated ADRI metadata. Please review and adjust all TODO sections.",
+  "validity": {
+    "_comment": "Auto-generated validity metadata. Please review and adjust.",
+    "has_explicit_validity_info": true,
+    "type_definitions": {
+      "customer_id": {
+        "type": "string",
+        "description": "TODO: Add description for customer_id",
+        "_detected_type": "id",
+        "_confidence": 1.0,
+        "_detected_pattern": "Fixed length: 4",
+        "_common_prefixes": [
+          "C01",
+          "C00",
+          "C02"
+        ]
+      },
+      "first_name": {
+        "type": "string",
+        "description": "TODO: Add description for first_name",
+        "_detected_type": "text",
+        "_confidence": 0.5
+      },
+      "last_name": {
+        "type": "string",
+        "description": "TODO: Add description for last_name",
+        "_detected_type": "text",
+        "_confidence": 0.5
+      },
+      "email": {
+        "type": "string",
+        "description": "TODO: Add description for email",
+        "_detected_type": "text",
+        "_confidence": 0.5
+      },
+      "phone": {
+        "type": "string",
+        "description": "TODO: Add description for phone",
+        "_detected_type": "text",
+        "_confidence": 0.5
+      },
+      "address": {
+        "type": "string",
+        "description": "TODO: Add description for address",
+        "_detected_type": "text",
+        "_confidence": 0.5
+      },
+      "city": {
+        "type": "string",
+        "description": "TODO: Add description for city",
+        "_detected_type": "text",
+        "_confidence": 0.5
+      },
+      "state": {
+        "type": "string",
+        "description": "TODO: Add description for state",
+        "_detected_type": "id",
+        "_confidence": 0.93,
+        "_detected_pattern": "Fixed length: 2"
+      },
+      "zip": {
+        "type": "number",
+        "description": "TODO: Add description for zip",
+        "_detected_type": "numeric",
+        "_confidence": 1.0,
+        "range": [
+          2101.0,
+          99999.0
+        ],
+        "_comment": "TODO: Verify if this range is correct"
+      },
+      "country": {
+        "type": "string",
+        "description": "TODO: Add description for country",
+        "_detected_type": "categorical",
+        "_confidence": 0.9,
+        "allowed_values": [
+          "UK",
+          "USA"
+        ]
+      },
+      "created_date": {
+        "type": "string",
+        "description": "TODO: Add description for created_date",
+        "_detected_type": "date",
+        "_confidence": 1.0,
+        "format": "TODO: Specify date format (e.g., YYYY-MM-DD)",
+        "_samples": [
+          "2024-01-15",
+          "2024-02-20",
+          "2024-03-10",
+          "2024-04-05",
+          "2024-05-12"
+        ]
+      },
+      "last_purchase_date": {
+        "type": "string",
+        "description": "TODO: Add description for last_purchase_date",
+        "_detected_type": "date",
+        "_confidence": 1.0,
+        "format": "TODO: Specify date format (e.g., YYYY-MM-DD)",
+        "_samples": [
+          "2025-05-10",
+          "2025-04-28",
+          "2025-05-15",
+          "2025-03-22",
+          "2025-05-20"
+        ]
+      }
+    },
+    "validation_results": {
+      "overall_valid": true,
+      "fields": {
+        "customer_id": {
+          "valid": true,
+          "invalid_count": 0
+        },
+        "first_name": {
+          "valid": true,
+          "invalid_count": 0
+        },
+        "last_name": {
+          "valid": true,
+          "invalid_count": 0
+        },
+        "email": {
+          "valid": true,
+          "invalid_count": 0
+        },
+        "phone": {
+          "valid": true,
+          "invalid_count": 0
+        },
+        "address": {
+          "valid": true,
+          "invalid_count": 0
+        },
+        "city": {
+          "valid": true,
+          "invalid_count": 0
+        },
+        "state": {
+          "valid": true,
+          "invalid_count": 0
+        },
+        "zip": {
+          "valid": true,
+          "invalid_count": 0
+        },
+        "country": {
+          "valid": true,
+          "invalid_count": 0
+        },
+        "created_date": {
+          "valid": true,
+          "invalid_count": 0
+        },
+        "last_purchase_date": {
+          "valid": true,
+          "invalid_count": 0
+        }
+      }
+    }
+  },
+  "completeness": {
+    "_comment": "Auto-generated completeness metadata. Please review and adjust required fields.",
+    "has_explicit_completeness_info": true,
+    "overall_completeness": 0.997,
+    "fields": {
+      "customer_id": {
+        "completeness": 1.0,
+        "required": true,
+        "missing_count": 0,
+        "missing_percent": 0.0
+      },
+      "first_name": {
+        "completeness": 1.0,
+        "required": true,
+        "missing_count": 0,
+        "missing_percent": 0.0
+      },
+      "last_name": {
+        "completeness": 1.0,
+        "required": true,
+        "missing_count": 0,
+        "missing_percent": 0.0
+      },
+      "email": {
+        "completeness": 1.0,
+        "required": true,
+        "missing_count": 0,
+        "missing_percent": 0.0
+      },
+      "phone": {
+        "completeness": 1.0,
+        "required": true,
+        "missing_count": 0,
+        "missing_percent": 0.0
+      },
+      "address": {
+        "completeness": 1.0,
+        "required": true,
+        "missing_count": 0,
+        "missing_percent": 0.0
+      },
+      "city": {
+        "completeness": 1.0,
+        "required": true,
+        "missing_count": 0,
+        "missing_percent": 0.0
+      },
+      "state": {
+        "completeness": 1.0,
+        "required": true,
+        "missing_count": 0,
+        "missing_percent": 0.0
+      },
+      "zip": {
+        "completeness": 0.96,
+        "required": false,
+        "missing_count": 1,
+        "missing_percent": 4.0,
+        "missing_reason": "TODO: Explain why this field might be missing"
+      },
+      "country": {
+        "completeness": 1.0,
+        "required": true,
+        "missing_count": 0,
+        "missing_percent": 0.0
+      },
+      "created_date": {
+        "completeness": 1.0,
+        "required": true,
+        "missing_count": 0,
+        "missing_percent": 0.0
+      },
+      "last_purchase_date": {
+        "completeness": 1.0,
+        "required": true,
+        "missing_count": 0,
+        "missing_percent": 0.0
+      }
+    },
+    "sections": {
+      "_comment": "TODO: Define logical sections grouping related fields"
+    }
+  },
+  "freshness": {
+    "_comment": "Auto-generated freshness metadata. Please review and set appropriate values.",
+    "has_explicit_freshness_info": true,
+    "dataset_timestamp": "TODO: When was this dataset last updated?",
+    "update_frequency": "TODO: daily|weekly|monthly|quarterly|yearly|real-time",
+    "generation_process": "TODO: How is this data generated/updated?",
+    "freshness_sla": {
+      "max_age_hours": 24,
+      "meets_sla": true,
+      "_comment": "TODO: Adjust max_age_hours based on your requirements"
+    },
+    "fields": {
+      "customer_id": {
+        "timestamp_field": false
+      },
+      "first_name": {
+        "timestamp_field": false
+      },
+      "last_name": {
+        "timestamp_field": false
+      },
+      "email": {
+        "timestamp_field": false
+      },
+      "phone": {
+        "timestamp_field": false
+      },
+      "address": {
+        "timestamp_field": false
+      },
+      "city": {
+        "timestamp_field": false
+      },
+      "state": {
+        "timestamp_field": false
+      },
+      "zip": {
+        "timestamp_field": false
+      },
+      "country": {
+        "timestamp_field": false
+      },
+      "created_date": {
+        "timestamp_field": true,
+        "timestamp_format": "TODO: Specify format (e.g., YYYY-MM-DD HH:MM:SS)",
+        "timestamp_timezone": "TODO: Specify timezone (e.g., UTC)",
+        "_detected_automatically": true,
+        "_samples": [
+          "2024-01-15",
+          "2024-02-20",
+          "2024-03-10"
+        ]
+      },
+      "last_purchase_date": {
+        "timestamp_field": true,
+        "timestamp_format": "TODO: Specify format (e.g., YYYY-MM-DD HH:MM:SS)",
+        "timestamp_timezone": "TODO: Specify timezone (e.g., UTC)",
+        "_detected_automatically": true,
+        "_samples": [
+          "2025-05-10",
+          "2025-04-28",
+          "2025-05-15"
+        ]
+      }
+    },
+    "historical_updates": [
+      {
+        "timestamp": "TODO: Add historical update timestamps",
+        "description": "Example update"
+      }
+    ],
+    "_detected_timestamp_columns": [
+      "created_date",
+      "last_purchase_date"
+    ],
+    "_suggestion": "Consider using created_date as the primary freshness indicator"
+  },
+  "consistency": {
+    "_comment": "Auto-generated consistency metadata. Please review and add business rules.",
+    "has_explicit_consistency_info": true,
+    "rules": [
+      {
+        "id": "CS.2.1",
+        "name": "ID consistency check",
+        "description": "TODO: Define relationship between customer_id and state",
+        "fields": [
+          "customer_id",
+          "state"
+        ],
+        "condition": "TODO: Define the consistency rule",
+        "valid": true
+      }
+    ],
+    "cross_dataset_consistency": [
+      {
+        "id": "CS.X.1",
+        "name": "TODO: Cross-dataset rule name",
+        "description": "TODO: Describe consistency check with external dataset",
+        "related_dataset": "TODO: Specify related dataset",
+        "condition": "TODO: Define the consistency condition",
+        "valid": true
+      }
+    ],
+    "overall_consistency_valid": true
+  },
+  "plausibility": {
+    "_comment": "Auto-generated plausibility metadata. Please review thresholds.",
+    "has_explicit_plausibility_info": true,
+    "rule_results": [
+      {
+        "id": "P.1.0",
+        "rule_name": "zip outlier detection",
+        "type": "outlier_detection",
+        "field": "zip",
+        "valid": true,
+        "message": "Values should be within 3.0 standard deviations of mean",
+        "statistics": {
+          "mean": 60544.42,
+          "std_dev": 30787.43,
+          "outlier_threshold": 3.0,
+          "outlier_count": 0
+        }
+      },
+      {
+        "id": "P.2.0",
+        "rule_name": "TODO: Add domain-specific rule",
+        "type": "domain_specific",
+        "field": "TODO: Specify field",
+        "condition": "TODO: Define what makes values plausible in your domain",
+        "valid": true,
+        "message": "TODO: Describe the plausibility check"
+      }
+    ],
+    "valid_overall": true,
+    "communication_format": "json"
+  }
+}

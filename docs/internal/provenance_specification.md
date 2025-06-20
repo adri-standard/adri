@@ -8,6 +8,7 @@ This specification defines how ADRI will implement cryptographic provenance chai
 
 ### Core Provenance Block
 ```python
+<!-- audience: ai-builders -->
 @dataclass
 class ProvenanceBlock:
     """Immutable provenance information for an assessment"""
@@ -30,6 +31,7 @@ class ProvenanceBlock:
 
 ### Dataset Hash Structure
 ```python
+<!-- audience: ai-builders -->
 @dataclass
 class DatasetHash:
     algorithm: str = "sha256-merkle"  # For large datasets
@@ -43,6 +45,7 @@ class DatasetHash:
 
 ### Template Hash Structure
 ```python
+<!-- audience: ai-builders -->
 @dataclass
 class TemplateHash:
     template_id: str
@@ -54,6 +57,7 @@ class TemplateHash:
 
 ### Test Bundle Hash Structure
 ```python
+<!-- audience: ai-builders -->
 @dataclass 
 class TestBundleHash:
     bundle_id: str
@@ -70,6 +74,7 @@ class TestFileHash:
 
 ### Assessment Context
 ```python
+<!-- audience: ai-builders -->
 @dataclass
 class AssessmentContext:
     timestamp: datetime
@@ -81,6 +86,7 @@ class AssessmentContext:
 
 ### Provenance Signature
 ```python
+<!-- audience: ai-builders -->
 @dataclass
 class ProvenanceSignature:
     algorithm: str = "sha256"
@@ -95,6 +101,7 @@ class ProvenanceSignature:
 For efficient hashing of datasets of any size:
 
 ```python
+<!-- audience: ai-builders -->
 class DatasetHasher:
     """Efficient hashing for datasets of any size"""
     
@@ -122,6 +129,7 @@ class DatasetHasher:
 ### 2.2 Template Hashing
 
 ```python
+<!-- audience: ai-builders -->
 def hash_template(template_path: str) -> TemplateHash:
     """Hash template content and metadata"""
     with open(template_path, 'r') as f:
@@ -142,6 +150,7 @@ def hash_template(template_path: str) -> TemplateHash:
 ### 2.3 Test Bundle Hashing
 
 ```python
+<!-- audience: ai-builders -->
 def hash_test_bundle(bundle_path: str) -> TestBundleHash:
     """Hash all test files in a bundle"""
     manifest = load_bundle_manifest(bundle_path)
@@ -212,6 +221,7 @@ coverage:
 ### 4.1 Verification Levels
 
 ```python
+<!-- audience: ai-builders -->
 class ProvenanceVerifier:
     """Verify provenance chains"""
     
@@ -243,6 +253,7 @@ class ProvenanceVerifier:
 ### 4.2 Quick Verification
 
 ```python
+<!-- audience: ai-builders -->
 def quick_verify(self, report: ADRIReport, df: pd.DataFrame) -> bool:
     """Fast verification for guards"""
     # Just check dataset sample hash (first 1000 rows)
@@ -296,6 +307,7 @@ adri verify-test-bundle ./bundles/financial/basel-iii-v1.0.0/
 ### 6.1 Guard with Provenance
 
 ```python
+<!-- audience: ai-builders -->
 @adri_guarded(
     template="financial/basel-iii",
     verify_provenance=True,
@@ -314,6 +326,7 @@ def process_financial_data(df: pd.DataFrame):
 ### 6.2 Guard Verification Flow
 
 ```python
+<!-- audience: ai-builders -->
 class ProvenanceGuard:
     def verify_data(self, df: pd.DataFrame, report: ADRIReport) -> bool:
         # 1. Quick hash comparison (sample)
@@ -348,6 +361,7 @@ class ProvenanceGuard:
 ### 7.2 Caching Strategy
 
 ```python
+<!-- audience: ai-builders -->
 class ProvenanceCache:
     """LRU cache for verification results"""
     
@@ -365,6 +379,7 @@ class ProvenanceCache:
 ### 7.3 Parallel Processing
 
 ```python
+<!-- audience: ai-builders -->
 def parallel_hash_large_dataset(df: pd.DataFrame, num_workers: int = 4) -> str:
     """Hash large dataset using multiple workers"""
     chunk_size = len(df) // num_workers
@@ -392,6 +407,7 @@ def parallel_hash_large_dataset(df: pd.DataFrame, num_workers: int = 4) -> str:
 
 ### 8.2 Timing Attack Prevention
 ```python
+<!-- audience: ai-builders -->
 def constant_time_compare(a: str, b: str) -> bool:
     """Compare hashes in constant time"""
     if len(a) != len(b):
@@ -406,6 +422,7 @@ def constant_time_compare(a: str, b: str) -> bool:
 
 ### 8.3 Future: Digital Signatures
 ```python
+<!-- audience: ai-builders -->
 # Future enhancement: Sign provenance with private key
 class SignedProvenance:
     def sign(self, private_key: str) -> str:
@@ -449,6 +466,7 @@ class SignedProvenance:
 
 ### Basic Provenance Check
 ```python
+<!-- audience: ai-builders -->
 # Assess with provenance
 assessor = DataSourceAssessor()
 report = assessor.assess_file("data.csv", with_provenance=True)
@@ -460,6 +478,7 @@ is_valid = verifier.verify_dataset("data.csv", report.provenance.dataset)
 
 ### Guard with Cached Verification
 ```python
+<!-- audience: ai-builders -->
 @adri_guarded(
     template="production-v1.0.0",
     verify_provenance=True,

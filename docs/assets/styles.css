@@ -1473,6 +1473,77 @@ input:checked + .slider:before {
   font-weight: bold;
 }
 
+/* Audience Badge Styles */
+.audience-badge {
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  margin: 2px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.audience-badge-ai-builder {
+  background-color: #3b82f6; /* Blue */
+  color: white;
+}
+
+.audience-badge-data-provider {
+  background-color: #10b981; /* Green */
+  color: white;
+}
+
+.audience-badge-standard-contributor {
+  background-color: #8b5cf6; /* Purple */
+  color: white;
+}
+
+.audience-badge .emoji {
+  font-size: 1.1rem;
+}
+
+/* Add audience badges to headings */
+h1[data-audience], 
+h2[data-audience], 
+h3[data-audience] {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+h1[data-audience]:before, 
+h2[data-audience]:before, 
+h3[data-audience]:before {
+  content: attr(data-audience);
+  font-size: 0.7em;
+  padding: 3px 8px;
+  border-radius: 20px;
+  font-weight: bold;
+}
+
+h1[data-audience="AI_BUILDER"]:before, 
+h2[data-audience="AI_BUILDER"]:before, 
+h3[data-audience="AI_BUILDER"]:before {
+  background-color: #3b82f6; /* Blue */
+  color: white;
+}
+
+h1[data-audience="DATA_PROVIDER"]:before, 
+h2[data-audience="DATA_PROVIDER"]:before, 
+h3[data-audience="DATA_PROVIDER"]:before {
+  background-color: #10b981; /* Green */
+  color: white;
+}
+
+h1[data-audience="STANDARD_CONTRIBUTOR"]:before, 
+h2[data-audience="STANDARD_CONTRIBUTOR"]:before, 
+h3[data-audience="STANDARD_CONTRIBUTOR"]:before {
+  background-color: #8b5cf6; /* Purple */
+  color: white;
+}
+
 .badge {
   padding: 5px 10px;
   border-radius: 20px;

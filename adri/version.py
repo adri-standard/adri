@@ -20,7 +20,7 @@ __min_compatible_version__ = "0.1.0"
 # Reports from these versions can be directly compared
 __score_compatible_versions__ = ["0.1.0", "0.2.0b1", "0.3.0", "0.3.1", "0.4.0", "0.4.1", "0.4.2"]
 
-def is_version_compatible(version):
+def is_version_compatible(version: str) -> bool:
     """
     Check if the given version is compatible with the current version.
     
@@ -44,7 +44,7 @@ def is_version_compatible(version):
     except (ValueError, IndexError):
         return False
 
-def get_score_compatibility_message(version):
+def get_score_compatibility_message(version: str) -> str:
     """
     Get a human-readable message about score compatibility.
     

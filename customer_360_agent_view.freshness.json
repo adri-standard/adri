@@ -1,0 +1,86 @@
+{
+  "_comment": "Auto-generated freshness metadata. Please review and set appropriate values.",
+  "has_explicit_freshness_info": true,
+  "dataset_timestamp": "TODO: When was this dataset last updated?",
+  "update_frequency": "TODO: daily|weekly|monthly|quarterly|yearly|real-time",
+  "generation_process": "TODO: How is this data generated/updated?",
+  "freshness_sla": {
+    "max_age_hours": 24,
+    "meets_sla": true,
+    "_comment": "TODO: Adjust max_age_hours based on your requirements"
+  },
+  "fields": {
+    "customer_id": {
+      "timestamp_field": false
+    },
+    "name": {
+      "timestamp_field": false
+    },
+    "email": {
+      "timestamp_field": false
+    },
+    "created_date": {
+      "timestamp_field": true,
+      "timestamp_format": "TODO: Specify format (e.g., YYYY-MM-DD HH:MM:SS)",
+      "timestamp_timezone": "TODO: Specify timezone (e.g., UTC)",
+      "_detected_automatically": true,
+      "_samples": [
+        "2025-04-24 18:54:50.377629",
+        "2024-09-02 18:54:50.377641",
+        "2024-12-05 18:54:50.377643"
+      ]
+    },
+    "lifetime_value": {
+      "timestamp_field": true,
+      "timestamp_format": "TODO: Specify format (e.g., YYYY-MM-DD HH:MM:SS)",
+      "timestamp_timezone": "TODO: Specify timezone (e.g., UTC)",
+      "_detected_automatically": true,
+      "_samples": [
+        "-100",
+        "2954",
+        "9590"
+      ]
+    },
+    "total_orders": {
+      "timestamp_field": false
+    },
+    "last_order_date": {
+      "timestamp_field": true,
+      "timestamp_format": "TODO: Specify format (e.g., YYYY-MM-DD HH:MM:SS)",
+      "timestamp_timezone": "TODO: Specify timezone (e.g., UTC)",
+      "_detected_automatically": true,
+      "_samples": [
+        "2025-06-09 18:54:50.378241",
+        "2025-03-22 18:54:50.378247",
+        "2025-06-06 18:54:50.378249"
+      ]
+    },
+    "total_order_value": {
+      "timestamp_field": false
+    },
+    "avg_order_value": {
+      "timestamp_field": false
+    },
+    "total_tickets": {
+      "timestamp_field": false
+    },
+    "avg_satisfaction": {
+      "timestamp_field": false
+    },
+    "days_since_last_order": {
+      "timestamp_field": false
+    }
+  },
+  "historical_updates": [
+    {
+      "timestamp": "TODO: Add historical update timestamps",
+      "description": "Example update"
+    }
+  ],
+  "_detected_timestamp_columns": [
+    "created_date",
+    "lifetime_value",
+    "last_order_date"
+  ],
+  "_suggestion": "Consider using created_date as the primary freshness indicator"
+}

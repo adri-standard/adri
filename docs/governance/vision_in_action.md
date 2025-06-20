@@ -8,6 +8,7 @@
 ## 🚨 The $100K Wake-Up Call
 
 ```python
+<!-- audience: ai-builders -->
 # Friday 4:47 PM: Your agent goes live
 agent.process_orders(customer_data)
 # "Successfully processed 1,247 orders"
@@ -29,6 +30,7 @@ agent.process_orders(customer_data)
 
 **Reality in 3 Lines:**
 ```python
+<!-- audience: ai-builders -->
 # Before: Agent processes blindly
 result = agent.analyze(customer_data)  # 🤷‍♂️ YOLO
 
@@ -71,6 +73,7 @@ data_requirements:
 
 **Reality - Everyone Speaks ADRI:**
 ```python
+<!-- audience: ai-builders -->
 # AI Engineer defines needs
 requirements = adri.create_requirements("fraud-detection-v1")
 requirements.share_with_data_team()
@@ -93,6 +96,7 @@ print(f"Currently meeting {score}% of requirements")
 
 **Reality - True Plug & Play:**
 ```python
+<!-- audience: ai-builders -->
 # Your agent doesn't care WHERE data comes from
 REQUIRED_STANDARD = "adri:financial-v2.0"
 
@@ -118,6 +122,7 @@ if new_vendor.meets(REQUIRED_STANDARD):
 
 **Reality - Sleep Well at Night:**
 ```python
+<!-- audience: ai-builders -->
 @adri_guard(template="healthcare-hipaa-v1")
 def diagnose_patient(patient_data):
     # This code ONLY runs if data passes ALL checks:
@@ -169,6 +174,7 @@ pip install adri
 
 ### Minute 2: Assess
 ```python
+<!-- audience: ai-builders -->
 from adri import assess
 report = assess("your_data.csv")
 print(report.summary())
@@ -178,6 +184,7 @@ print(report.summary())
 
 ### Minute 3: Protect
 ```python
+<!-- audience: ai-builders -->
 from adri import adri_guard
 
 @adri_guard(min_score=80)
@@ -188,6 +195,7 @@ def your_agent_function(data):
 
 ### Minute 4: Share Requirements
 ```python
+<!-- audience: ai-builders -->
 # Export requirements for your data team
 requirements = adri.create_template("my-agent-v1")
 requirements.export("data_team_requirements.yaml")
@@ -195,6 +203,7 @@ requirements.export("data_team_requirements.yaml")
 
 ### Minute 5: Deploy with Confidence
 ```python
+<!-- audience: ai-builders -->
 # Your agent now refuses to process bad data
 # Automatic quality gates in production
 # Full audit trail for compliance
@@ -211,6 +220,7 @@ adri assess your_production_data.csv --explain
 
 ### 🛡️ **Tomorrow:** Protect your agents
 ```python
+<!-- audience: ai-builders -->
 @adri_guard(template="production-v1.0")
 def critical_agent_function(data):
     # Safe from bad data
@@ -251,6 +261,7 @@ Every AI engineer has been burned by bad data. ADRI ensures it never happens aga
 ## Ready to Stop Hoping and Start Knowing?
 
 ```python
+<!-- audience: ai-builders -->
 # Your next step (literally copy-paste this)
 pip install adri
 python -c "from adri import assess; print(assess('your_data.csv').summary())"
@@ -273,4 +284,4 @@ python -c "from adri import assess; print(assess('your_data.csv').summary())"
 - Provide testimonials and real-world results
 - Make the value proposition immediately clear
 
-**Test coverage**: This document's examples, claims, and features should be verified by tests documented in [VISION_IN_ACTION_test_coverage.md](./test_coverage/VISION_IN_ACTION_test_coverage.md)
+**Test coverage**: This document's examples, claims, and features should be verified by tests documented in [VISION_IN_ACTION_test_coverage.md](test_coverage/VISION_IN_ACTION_test_coverage.md)

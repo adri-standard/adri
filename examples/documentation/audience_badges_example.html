@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ADRI Audience Badges Example</title>
+    <link rel="stylesheet" href="../../docs/assets/styles.css">
+    <style>
+        body {
+            font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .example-section {
+            margin-bottom: 40px;
+            padding: 20px;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <h1>ADRI Audience Badges Example</h1>
+    <p>This page demonstrates how to use the audience badges in your documentation.</p>
+
+    <div class="example-section">
+        <h2>Inline Audience Badges</h2>
+        <p>You can use audience badges inline in your content:</p>
+        
+        <div>
+            <span class="audience-badge audience-badge-ai-builder"><span class="emoji">🤖</span> AI Builder</span>
+            <span class="audience-badge audience-badge-data-provider"><span class="emoji">📊</span> Data Provider</span>
+            <span class="audience-badge audience-badge-standard-contributor"><span class="emoji">🛠️</span> Standard Contributor</span>
+        </div>
+    </div>
+
+    <div class="example-section">
+        <h2>Audience-Specific Headings</h2>
+        <p>You can add audience indicators to headings using the data-audience attribute:</p>
+        
+        <h3 data-audience="AI_BUILDER">This heading is for AI Builders</h3>
+        <p>Content specifically for developers building AI applications and agents.</p>
+        
+        <h3 data-audience="DATA_PROVIDER">This heading is for Data Providers</h3>
+        <p>Content specifically for teams that manage, prepare, and deliver data for AI systems.</p>
+        
+        <h3 data-audience="STANDARD_CONTRIBUTOR">This heading is for Standard Contributors</h3>
+        <p>Content specifically for open source contributors and organizations improving ADRI.</p>
+    </div>
+
+    <div class="example-section">
+        <h2>Usage in Documentation</h2>
+        <p>To use these badges in your documentation:</p>
+        
+        <h3>For inline badges:</h3>
+        <pre><code>&lt;span class="audience-badge audience-badge-ai-builder"&gt;&lt;span class="emoji"&gt;🤖&lt;/span&gt; AI Builder&lt;/span&gt;</code></pre>
+        
+        <h3>For heading badges:</h3>
+        <pre><code>&lt;h3 data-audience="AI_BUILDER"&gt;This heading is for AI Builders&lt;/h3&gt;</code></pre>
+        
+        <p>Available audience types:</p>
+        <ul>
+            <li><code>AI_BUILDER</code> - For developers building AI applications and agents</li>
+            <li><code>DATA_PROVIDER</code> - For teams that manage, prepare, and deliver data for AI systems</li>
+            <li><code>STANDARD_CONTRIBUTOR</code> - For open source contributors and organizations improving ADRI</li>
+        </ul>
+    </div>
+</body>
+</html>

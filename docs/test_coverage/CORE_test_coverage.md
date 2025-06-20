@@ -50,6 +50,7 @@ The core modules provide the foundational functionality for ADRI including:
 ### Example Test Cases
 
 ```python
+<!-- audience: ai-builders -->
 def test_assessor_initialization():
     """Test DataSourceAssessor can be initialized with defaults."""
     assessor = DataSourceAssessor()

@@ -25,7 +25,7 @@ This guide is intended for developers who want to contribute to the Agent Data R
 1. **Clone the repository**
 
    ```bash
-   git clone https://github.com/verodat/agent-data-readiness-index.git
+   git clone https://github.com/adri-ai/adri.git
    cd agent-data-readiness-index
    ```
 
@@ -108,6 +108,7 @@ adri/
 Example:
 
 ```python
+<!-- audience: ai-builders -->
 # adri/dimensions/my_dimension.py
 import logging
 from typing import Dict, List, Tuple, Any, Optional
@@ -206,6 +207,7 @@ pytest --cov=adri
 Example:
 
 ```python
+<!-- audience: ai-builders -->
 # tests/dimensions/test_my_dimension.py
 import pytest
 from unittest.mock import MagicMock
@@ -246,6 +248,7 @@ def test_my_dimension_assessment():
 Use Google-style docstrings for all public classes and methods:
 
 ```python
+<!-- audience: ai-builders -->
 def function(arg1: str, arg2: int = 10) -> bool:
     """
     Short description of the function.
@@ -266,10 +269,24 @@ def function(arg1: str, arg2: int = 10) -> bool:
         
     Example:
         ```python
-        result = function("example", 5)
+        # Import required modules
+        import re
+        from typing import Optional
+        
+        # Call the function with different arguments
+        result1 = function("example", 5)
+        result2 = function("test", 10)
+        
+        # Use the results
+        if result1 and result2:
+            print("Both calls succeeded")
         ```
     """
-    # Function implementation
+    if not arg1:
+        raise ValueError("arg1 cannot be empty")
+    if not isinstance(arg2, int):
+        raise TypeError("arg2 must be an integer")
+    return True  # Example implementation
 ```
 
 ### Building Documentation
@@ -410,4 +427,4 @@ The project utilizes GitHub Actions for automating several key processes:
 - Define testing and documentation standards
 - Detail maintainer workflows and automation
 
-**Test coverage**: This document's examples, workflows, and technical specifications should be verified by tests documented in [DEVELOPER_test_coverage.md](./test_coverage/DEVELOPER_test_coverage.md)
+**Test coverage**: This document's examples, workflows, and technical specifications should be verified by tests documented in [DEVELOPER_test_coverage.md](test_coverage/DEVELOPER_test_coverage.md)

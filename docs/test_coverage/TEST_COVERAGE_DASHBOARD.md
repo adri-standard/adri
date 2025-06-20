@@ -105,11 +105,12 @@ Target:    ████████████████░░░░  80%
 ```markdown
 ## Test Coverage
 
-This document's examples, claims, and features are verified by tests documented in [FILENAME_test_coverage.md](./test_coverage/FILENAME_test_coverage.md).
+This document's examples, claims, and features are verified by tests documented in [FILENAME_test_coverage.md](FILENAME_test_coverage.md).
 ```
 
 ### For Code Files:
 ```python
+<!-- audience: ai-builders -->
 # ----------------------------------------------
 # TEST COVERAGE
 # ----------------------------------------------
@@ -122,4 +123,4 @@ This document's examples, claims, and features are verified by tests documented 
 
 ---
 
-*Use [PROJECT_INDEX_TEST_STATUS.md](./PROJECT_INDEX_TEST_STATUS.md) for detailed file-by-file status*
+*Use [PROJECT_INDEX_TEST_STATUS.md](PROJECT_INDEX_TEST_STATUS.md) for detailed file-by-file status*

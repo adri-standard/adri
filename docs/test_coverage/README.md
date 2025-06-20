@@ -12,19 +12,35 @@ Each test coverage document follows a consistent structure:
 
 ## Test Coverage Documents
 
+### Audience-First Documentation (New Structure)
+
 | Component | Coverage Document | Source File |
 |-----------|-------------------|------------|
-| Vision and Core Concepts | [VISION_test_coverage.md](./VISION_test_coverage.md) | [VISION.md](/docs/VISION.md) |
-| Guard Implementation Guide | [IMPLEMENTING_GUARDS_test_coverage.md](./IMPLEMENTING_GUARDS_test_coverage.md) | [IMPLEMENTING_GUARDS.md](/docs/IMPLEMENTING_GUARDS.md) |
-| Certification Example | [certification_example_test_coverage.md](./certification_example_test_coverage.md) | [certification_example.py](/examples/guard/certification_example.py) |
-| Guard Implementation | [guard_implementation_test_coverage.md](./guard_implementation_test_coverage.md) | [guard.py](/adri/integrations/guard.py) |
-| Certification Guard Test Plan | [certification_guard_test_plan_coverage.md](./certification_guard_test_plan_coverage.md) | Test plan not available |
-| Plausibility Dimension | [plausibility_dimension_test_coverage.md](./plausibility_dimension_test_coverage.md) | [plausibility.py](/adri/dimensions/plausibility.py) |
-| Error Handling | [error_handling_test_coverage.md](./error_handling_test_coverage.md) | [test_error_handling.py](/tests/unit/test_error_handling.py) |
-| FAQ | [FAQ_test_coverage.md](./FAQ_test_coverage.md) | [FAQ.md](/docs/FAQ.md) |
-| Architecture Decisions | [ARCHITECTURE_DECISIONS_test_coverage.md](./ARCHITECTURE_DECISIONS_test_coverage.md) | [ARCHITECTURE_DECISIONS.md](/docs/ARCHITECTURE_DECISIONS.md) |
-| Getting Started | [GET_STARTED_test_coverage.md](./GET_STARTED_test_coverage.md) | [GET_STARTED.md](/docs/GET_STARTED.md) |
-| Understanding Dimensions | [UNDERSTANDING_DIMENSIONS_test_coverage.md](./UNDERSTANDING_DIMENSIONS_test_coverage.md) | [UNDERSTANDING_DIMENSIONS.md](/docs/UNDERSTANDING_DIMENSIONS.md) |
+| AI Builders Getting Started | [ai_builders_getting_started_test_coverage.md](ai_builders_getting_started_test_coverage.md) | [docs/ai-builders/getting-started.md](ai-builders/getting-started.md) |
+| AI Builders Implementing Guards | [ai_builders_implementing_guards_test_coverage.md](ai_builders_implementing_guards_test_coverage.md) | [docs/ai-builders/implementing-guards.md](ai-builders/implementing-guards.md) |
+| Data Providers Getting Started | [data_providers_getting_started_test_coverage.md](data_providers_getting_started_test_coverage.md) | [docs/data-providers/getting-started.md](data-providers/getting-started.md) |
+| Standard Contributors Getting Started | [standard_contributors_getting_started_test_coverage.md](standard_contributors_getting_started_test_coverage.md) | [docs/standard-contributors/getting-started.md](standard-contributors/getting-started.md) |
+
+### Legacy Documentation (To Be Migrated)
+
+| Component | Coverage Document | Source File |
+|-----------|-------------------|------------|
+| Vision and Core Concepts | [VISION_test_coverage.md](VISION_test_coverage.md) | [VISION.md](VISION.md) |
+| Guard Implementation Guide | [IMPLEMENTING_GUARDS_test_coverage.md](IMPLEMENTING_GUARDS_test_coverage.md) | [IMPLEMENTING_GUARDS.md](IMPLEMENTING_GUARDS.md) |
+| Getting Started | [GET_STARTED_test_coverage.md](GET_STARTED_test_coverage.md) | [GET_STARTED.md](GET_STARTED.md) |
+| Understanding Dimensions | [UNDERSTANDING_DIMENSIONS_test_coverage.md](UNDERSTANDING_DIMENSIONS_test_coverage.md) | [UNDERSTANDING_DIMENSIONS.md](UNDERSTANDING_DIMENSIONS.md) |
+| FAQ | [FAQ_test_coverage.md](FAQ_test_coverage.md) | [FAQ.md](FAQ.md) |
+| Architecture Decisions | [ARCHITECTURE_DECISIONS_test_coverage.md](ARCHITECTURE_DECISIONS_test_coverage.md) | [ARCHITECTURE_DECISIONS.md](ARCHITECTURE_DECISIONS.md) |
+
+### Implementation Coverage
+
+| Component | Coverage Document | Source File |
+|-----------|-------------------|------------|
+| Guard Implementation | [guard_implementation_test_coverage.md](guard_implementation_test_coverage.md) | [guard.py](../../adri/integrations/guard.py) |
+| Certification Example | [certification_example_test_coverage.md](certification_example_test_coverage.md) | [certification_example.py](../../examples/guard/certification_example.py) |
+| Certification Guard Test Plan | [certification_guard_test_plan_coverage.md](certification_guard_test_plan_coverage.md) | Test plan not available |
+| Plausibility Dimension | [plausibility_dimension_test_coverage.md](plausibility_dimension_test_coverage.md) | [plausibility.py](../../adri/dimensions/plausibility.py) |
+| Error Handling | [error_handling_test_coverage.md](error_handling_test_coverage.md) | [test_error_handling.py](../../tests/unit/test_error_handling.py) |
 
 ## Coverage Summary
 

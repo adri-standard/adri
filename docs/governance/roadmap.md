@@ -105,8 +105,8 @@ We welcome contributions in the following areas:
 
 To contribute to the ADRI project:
 
-1. Review the [Vision Document](./VISION.md) to understand our goals
-2. Explore the [Contribution Guidelines](./CONTRIBUTING.md)
+1. Review the [Vision Document](VISION.md) to understand our goals
+2. Explore the [Contribution Guidelines](CONTRIBUTING.md)
 3. Check the GitHub Issues for current needs
 4. Join the Discussion Forum to connect with the community
 
@@ -123,4 +123,4 @@ Together, we can establish a robust standard for agent data reliability that ben
 - Establish governance and versioning principles
 - Guide community involvement and participation
 
-**Test coverage**: This document's roadmap milestones and planned features should be verified by tests documented in [ROADMAP_test_coverage.md](./test_coverage/ROADMAP_test_coverage.md)
+**Test coverage**: This document's roadmap milestones and planned features should be verified by tests documented in [ROADMAP_test_coverage.md](test_coverage/ROADMAP_test_coverage.md)

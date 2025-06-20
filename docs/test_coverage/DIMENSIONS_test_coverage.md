@@ -94,6 +94,7 @@ Each business dimension extends the base dimension with industry-specific rules:
 ### Example Test Cases
 
 ```python
+<!-- audience: ai-builders -->
 def test_validity_dimension_type_checking():
     """Test validity dimension correctly identifies type mismatches."""
     dimension = ValidityDimension()

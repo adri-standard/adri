@@ -30,6 +30,7 @@ For example, `TypeConsistencyRule` has tests for:
 ### 2. **Test Pattern: Given-When-Then**
 
 ```python
+<!-- audience: ai-builders -->
 def test_evaluate_type_consistency(self):
     """Test evaluate method for type consistency check."""
     # GIVEN: Data with mixed types
@@ -77,6 +78,7 @@ def test_evaluate_type_consistency(self):
 
 ### Example 1: RangeValidationRule Tests
 ```python
+<!-- audience: ai-builders -->
 def test_evaluate_explicit_range(self):
     """Test with explicit min/max range."""
     data = {
@@ -100,6 +102,7 @@ def test_evaluate_explicit_range(self):
 
 ### Example 2: FormatConsistencyRule Tests
 ```python
+<!-- audience: ai-builders -->
 def test_evaluate_auto_detect_formats(self):
     """Test auto-detection of formats."""
     data = {
@@ -161,6 +164,7 @@ pytest tests/unit/rules/test_validity_rules.py::TestTypeConsistencyRule::test_ev
 Tests use carefully crafted data to verify behavior:
 
 ```python
+<!-- audience: ai-builders -->
 # Pattern 1: Known good data (should pass)
 good_data = {
     'id': ['A001', 'A002', 'A003'],
@@ -197,6 +201,7 @@ When an agent uses `@adri_guarded` and data is rejected, you can trust that the 
 ### 4. **Documentation**
 Tests serve as living documentation of how rules work:
 ```python
+<!-- audience: ai-builders -->
 def test_evaluate_with_all_consistent_types(self):
     """Test evaluate method with data having consistent types."""
     # This test shows exactly what "consistent types" means

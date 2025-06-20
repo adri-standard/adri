@@ -82,7 +82,7 @@ class ModeConfig:
         return configs.get(mode, configs[AssessmentMode.AUTO])
     
     @staticmethod
-    def detect_mode(connector, has_metadata: bool = False, has_template: bool = False) -> AssessmentMode:
+    def detect_mode(connector: Any, has_metadata: bool = False, has_template: bool = False) -> AssessmentMode:
         """
         Automatically detect which mode to use based on available information.
         
