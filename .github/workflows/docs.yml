@@ -42,7 +42,7 @@ jobs:
       - name: Build documentation
         run: |
           echo "Building documentation with site URL: $SITE_BASE_URL"
-          cd adri && mkdocs build
+          cd adri && python -m mkdocs build
         
       - name: Deploy
         if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
