@@ -29,14 +29,13 @@ jobs:
           pwd
           echo "Files in current directory:"
           ls -la
-          echo "Files in adri directory:"
-          ls -la adri/
-          echo "Files in adri/docs directory:"
-          ls -la adri/docs/
+          echo "Files in docs directory:"
+          ls -la docs/
+          echo "MkDocs config file:"
+          ls -la mkdocs.yml
           
       - name: Test mkdocs config
         run: |
-          cd adri
           echo "Testing mkdocs config..."
           python -m mkdocs --version
           python -c "import mkdocs; print('MkDocs imported successfully')"
@@ -45,10 +44,8 @@ jobs:
           
       - name: Validate mkdocs config
         run: |
-          cd adri
           python -m mkdocs config
           
       - name: Build documentation (dry run)
         run: |
-          cd adri
           python -m mkdocs build --verbose --clean
