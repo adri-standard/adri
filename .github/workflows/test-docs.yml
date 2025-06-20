@@ -1,0 +1,52 @@
+name: Test Documentation Build
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test-build:
+    name: Test documentation build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install mkdocs-material mkdocs-macros-plugin
+          
+      - name: List files
+        run: |
+          echo "Current directory:"
+          pwd
+          echo "Files in current directory:"
+          ls -la
+          echo "Files in adri directory:"
+          ls -la adri/
+          echo "Files in adri/docs directory:"
+          ls -la adri/docs/
+          
+      - name: Test mkdocs config
+        run: |
+          cd adri
+          echo "Testing mkdocs config..."
+          python -m mkdocs --version
+          python -c "import mkdocs; print('MkDocs imported successfully')"
+          python -c "import material; print('Material theme imported successfully')"
+          python -c "import mkdocs_macros; print('Macros plugin imported successfully')"
+          
+      - name: Validate mkdocs config
+        run: |
+          cd adri
+          python -m mkdocs config
+          
+      - name: Build documentation (dry run)
+        run: |
+          cd adri
+          python -m mkdocs build --verbose --clean
