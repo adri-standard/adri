@@ -2,15 +2,15 @@
 
 # Project information
 site_name: Agent Data Readiness Index (ADRI)
-site_url: !ENV [SITE_BASE_URL, 'https://probable-adventure-3jve6ry.pages.github.io/']
+site_url: !ENV [SITE_BASE_URL, 'https://adri-standard.github.io/adri/']
 site_description: 'ADRI: The Open Standard for Evaluating AI Agent Data Quality.'
-repo_url: https://github.com/ThinkEvolveSolve/agent-data-readiness-index
-repo_name: ThinkEvolveSolve/agent-data-readiness-index
+repo_url: https://github.com/adri-standard/adri
+repo_name: adri-standard/adri
 edit_uri: "" # Disable direct edit links for now
 
 # Build directories
-docs_dir: ../docs  # Path relative to config file location
-site_dir: ../site  # Output directory for built site (relative to config file location)
+docs_dir: docs  # Path relative to config file location
+site_dir: site  # Output directory for built site (relative to config file location)
 
 # Theme Configuration (Material for MkDocs)
 theme:
@@ -57,43 +57,71 @@ markdown_extensions:
       permalink: true
   - attr_list # Allows adding HTML attributes/CSS classes to Markdown elements
 
-# Navigation Structure (Adjust paths as needed)
+# Navigation Structure - Updated for new documentation structure
 nav:
-  - Vision & Overview:
-    - Why ADRI Exists: VISION.md
-    - Vision in Action: VISION_IN_ACTION.md
-    - Home: index.md
-    - Roadmap: ROADMAP.md
+  - Home: index.md
   - Getting Started:
-    - Quick Start Guide: GET_STARTED.md
-    - Understanding Dimensions: UNDERSTANDING_DIMENSIONS.md
-    - FAQ: FAQ.md
-  - Core Concepts:
-    - Methodology: Methodology.md
-    - Implementation Guide: implementation_guide.md
-    - Dimensions in Detail:
-      - Validity: validity_dimension.md
-      - Completeness: completeness_dimension.md
-      - Freshness: freshness_dimension.md
-      - Consistency: consistency_rules.md
-      - Plausibility: plausibility_dimension.md
-      - Plausibility Rules: plausibility_rules.md
+    - Overview: getting-started/index.md
+    - Installation: getting-started/installation.md
+    - Quickstart: getting-started/quickstart.md
+  - For AI Builders:
+    - Overview: ai-builders/index.md
+    - Getting Started: ai-builders/getting-started.md
+    - Implementing Guards: ai-builders/implementing-guards.md
+    - Framework Integration: ai-builders/framework-integration.md
+    - Advanced Patterns: ai-builders/advanced-patterns.md
+    - Setting Thresholds: ai-builders/setting-thresholds.md
+    - Understanding Requirements: ai-builders/understanding-requirements.md
+    - Troubleshooting: ai-builders/troubleshooting.md
+  - For Data Providers:
+    - Overview: data-providers/index.md
+    - Getting Started: data-providers/getting-started.md
+    - Assessment Guide: data-providers/assessment-guide.md
+    - Improvement Strategies: data-providers/improvement-strategies.md
+    - Advanced Connectors: data-providers/advanced-connectors.md
+    - Metadata Enhancement: data-providers/metadata-enhancement.md
+    - Understanding Quality: data-providers/understanding-quality.md
+    - Certification: data-providers/certification.md
+  - For Standard Contributors:
+    - Overview: standard-contributors/index.md
+    - Getting Started: standard-contributors/getting-started.md
+    - Architecture Overview: standard-contributors/architecture-overview.md
+    - Contribution Workflow: standard-contributors/contribution-workflow.md
+    - Creating Connectors: standard-contributors/creating-connectors.md
+    - Creating Templates: standard-contributors/creating-templates.md
+    - Extending Dimensions: standard-contributors/extending-dimensions.md
+    - Extending Rules: standard-contributors/extending-rules.md
+    - Testing Guide: standard-contributors/testing-guide.md
+  - Examples:
+    - Overview: examples/index.md
+    - AI Builders: examples/ai-builders/index.md
+    - Data Providers: examples/data-providers/index.md
+    - Standard Contributors: examples/standard-contributors/index.md
+    - By Industry: examples/by-industry/index.md
+  - Tutorials:
+    - Basic Usage: tutorials/basic-usage.md
+    - Advanced Features: tutorials/advanced-features.md
+    - Custom Rules: tutorials/custom-rules.md
+  - Guides:
+    - Implementation Guide: guides/implementation-guide.md
+    - Best Practices: guides/best-practices.md
+    - Troubleshooting: guides/troubleshooting.md
   - Use Cases:
-    - AI Status Auditor: USE_CASE_AI_STATUS_AUDITOR.md
-    - Invoice Payment Agent: USE_CASE_INVOICE_PAYMENT_AGENT.md
-  - Using ADRI:
-    - Implementing Guards: IMPLEMENTING_GUARDS.md
-    - Enhancing Data Sources: ENHANCING_DATA_SOURCES.md
-    - Integrations: INTEGRATIONS.md
-  - Extending & Contributing:
-    - Extending ADRI: EXTENDING.md
-    - Developer Guide: DEVELOPER.md
-    - Contributing: CONTRIBUTING.md
+    - Financial Services: use-cases/financial-services.md
+    - Healthcare: use-cases/healthcare.md
+    - Retail: use-cases/retail.md
   - Reference:
-    - API Reference: API_REFERENCE.md
-    - Catalog Info: datasets.md
-    - Testing Guide: TESTING.md
-    - Security: SECURITY.md
+    - API Reference: reference/api/index.md
+    - Dimensions: reference/dimensions/index.md
+    - Templates: reference/templates/index.md
+    - Performance: reference/performance/index.md
+    - Governance:
+      - Overview: reference/governance/index.md
+      - Charter: reference/governance/charter.md
+      - Governance: reference/governance/governance.md
+      - Code of Conduct: reference/governance/code-of-conduct.md
+      - Security: reference/governance/security.md
+    - Press: reference/press/index.md
 
 # Copyright
 copyright: 'Copyright &copy; 2025 - ADRI is licensed under MIT'

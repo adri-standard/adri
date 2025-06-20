@@ -1,0 +1,109 @@
+# MkDocs Configuration for ADRI Project
+
+# Project information
+site_name: Agent Data Readiness Index (ADRI)
+site_url: !ENV [SITE_BASE_URL, 'https://probable-adventure-3jve6ry.pages.github.io/']
+site_description: 'ADRI: The Open Standard for Evaluating AI Agent Data Quality.'
+repo_url: https://github.com/ThinkEvolveSolve/agent-data-readiness-index
+repo_name: ThinkEvolveSolve/agent-data-readiness-index
+edit_uri: "" # Disable direct edit links for now
+
+# Build directories
+docs_dir: ../docs  # Path relative to config file location
+site_dir: ../site  # Output directory for built site (relative to config file location)
+
+# Theme Configuration (Material for MkDocs)
+theme:
+  name: material
+  logo: # Placeholder - Add path to an ADRI logo if available
+  favicon: # Placeholder - Add path to a favicon if available
+  palette:
+    # Palette toggle for light/dark mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default # Default light mode
+      primary: 'grey' # Match dark grey text
+      accent: 'lime' # Use lime green accent
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate # Default dark mode
+      primary: 'grey'
+      accent: 'lime'
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs # Use tabs for top-level sections
+    - navigation.sections # Expand sections in the sidebar
+    - navigation.top # Back-to-top button
+    - search.suggest # Search autocompletion
+    - search.highlight # Highlight search terms
+    - content.code.annotate # Code annotations
+    - content.code.copy # Copy button for code blocks
+  font:
+    text: DM Sans # Match primary font
+    code: Roboto Mono
+
+# Extensions
+markdown_extensions:
+  - pymdownx.highlight: # Code highlighting
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - admonition # Nice looking note/warning boxes
+  - toc: # Table of contents generation
+      permalink: true
+  - attr_list # Allows adding HTML attributes/CSS classes to Markdown elements
+
+# Navigation Structure (Adjust paths as needed)
+nav:
+  - Vision & Overview:
+    - Why ADRI Exists: VISION.md
+    - Vision in Action: VISION_IN_ACTION.md
+    - Home: index.md
+    - Roadmap: ROADMAP.md
+  - Getting Started:
+    - Quick Start Guide: GET_STARTED.md
+    - Understanding Dimensions: UNDERSTANDING_DIMENSIONS.md
+    - FAQ: FAQ.md
+  - Core Concepts:
+    - Methodology: Methodology.md
+    - Implementation Guide: implementation_guide.md
+    - Dimensions in Detail:
+      - Validity: validity_dimension.md
+      - Completeness: completeness_dimension.md
+      - Freshness: freshness_dimension.md
+      - Consistency: consistency_rules.md
+      - Plausibility: plausibility_dimension.md
+      - Plausibility Rules: plausibility_rules.md
+  - Use Cases:
+    - AI Status Auditor: USE_CASE_AI_STATUS_AUDITOR.md
+    - Invoice Payment Agent: USE_CASE_INVOICE_PAYMENT_AGENT.md
+  - Using ADRI:
+    - Implementing Guards: IMPLEMENTING_GUARDS.md
+    - Enhancing Data Sources: ENHANCING_DATA_SOURCES.md
+    - Integrations: INTEGRATIONS.md
+  - Extending & Contributing:
+    - Extending ADRI: EXTENDING.md
+    - Developer Guide: DEVELOPER.md
+    - Contributing: CONTRIBUTING.md
+  - Reference:
+    - API Reference: API_REFERENCE.md
+    - Catalog Info: datasets.md
+    - Testing Guide: TESTING.md
+    - Security: SECURITY.md
+
+# Copyright
+copyright: 'Copyright &copy; 2025 - ADRI is licensed under MIT'
+
+# Extra CSS (Optional - if needed beyond theme customization)
+# extra_css:
+#   - stylesheets/extra.css
+
+# Plugins for functionality
+plugins:
+  - search
+  - macros: # For environment variables
+      module_name: main
