@@ -133,5 +133,4 @@ copyright: 'Copyright &copy; 2025 - ADRI is licensed under MIT'
 # Plugins for functionality
 plugins:
   - search
-  - macros: # For environment variables
-      module_name: main
+  - macros # For environment variables
