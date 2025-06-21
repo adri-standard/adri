@@ -1,3 +1,197 @@
+# 🚨 AI ASSISTANT COLLABORATION PROTOCOL
+
+## MANDATORY INITIALIZATION SEQUENCE:
+1. **Read docs/VISION.md** (ADRI's core vision for AI-ready data quality)
+2. **Read README.md** (user journey and experience)  
+3. **Read this PROJECT_INDEX.md** completely
+4. **Read AI Learning Journal** (how to work effectively with Thomas)
+5. **Check "Current Session Context"** below
+6. **Follow file creation rules** (NO EXCEPTIONS)
+
+## 🚫 FILE CREATION RULES (ZERO TOLERANCE):
+**Actions Remaining Before Review**: 5
+
+### Before Creating ANY File:
+- [ ] **Add to "Planned File Additions"** section first
+- [ ] **Answer**: How does this serve ADRI's mission of AI-ready data quality assessment?
+- [ ] **Answer**: Can I modify existing file instead?
+- [ ] **Get explicit approval** before creating
+- [ ] **Decrement counter** after creation
+
+### When Counter Hits 0:
+- 🛑 **STOP** and re-read VISION.md + README.md
+- 📝 **UPDATE LEARNING JOURNAL** (mandatory reflection on last 5 interactions)
+- **Confirm alignment** with ADRI's data quality focus
+- **Reset counter to 5**
+- **Continue work**
+
+## 🧠 AI LEARNING JOURNAL (AI-to-AI Communication)
+
+### Working Style Profile
+- **Problem-Solving Approach**: Systematic, evidence-based approach with focus on root causes over symptoms
+- **Communication Preference**: Direct, technical communication with clear action items and measurable outcomes
+- **Decision-Making Style**: Evidence-based with preference for proven solutions over experimental approaches
+- **Feedback Patterns**: Provides specific, actionable feedback with clear success criteria
+
+### Successful Collaboration Patterns
+- **What Works Well**: 
+  - Step-by-step implementation with verification at each stage
+  - Clear documentation of changes and their rationale
+  - Focus on fixing actual problems rather than creating new solutions
+  - Preference for modifying existing files over creating new ones
+- **Preferred Workflows**: 
+  - Read existing documentation thoroughly before making changes
+  - Test changes locally before committing
+  - Provide clear commit messages explaining the "why" behind changes
+  - Focus on one objective at a time
+- **Effective Communication**: 
+  - Present findings with evidence and specific examples
+  - Explain technical decisions with clear reasoning
+  - Provide status updates with concrete progress indicators
+  - Ask specific questions when clarification is needed
+
+### Learning from Corrections
+- **Misinterpretations**: 
+  - Tendency to over-engineer solutions when simple fixes are needed
+  - Sometimes assumes new files are needed when existing ones can be modified
+  - May focus on peripheral improvements rather than core objectives
+- **Preference Discoveries**: 
+  - Values efficiency and avoiding unnecessary work
+  - Prefers proven, tested approaches over experimental ones
+  - Appreciates when AI assistants follow established protocols
+  - Values clear project structure and organization
+- **Improved Approaches**: 
+  - Always check if existing files can be modified before creating new ones
+  - Focus on the specific objective rather than expanding scope
+  - Provide evidence for recommendations and changes
+  - Test solutions thoroughly before presenting them
+
+### Intent Interpretation Guide
+- **Common Phrases & Meanings**: 
+  - "Apply this to the project" = Implement systematically with proper testing
+  - "Fix this issue" = Focus on root cause, not symptoms
+  - "Review the project" = Comprehensive analysis with actionable insights
+  - "Make it work" = Prioritize functionality over perfection
+- **Context Clues**: 
+  - References to specific files indicate focused work scope
+  - Mentions of testing indicate need for verification
+  - Questions about existing functionality suggest investigation needed
+  - Requests for implementation suggest action-oriented approach needed
+- **Priority Indicators**: 
+  - "Ensure" or "Make sure" indicates high priority requirements
+  - "Also" indicates secondary objectives
+  - Time references indicate urgency levels
+  - "Please" indicates polite request but still important
+
+### Collaboration Evolution Notes
+- **Session Patterns**: Focused work sessions with clear objectives and verification steps
+- **Learning Preferences**: Prefers learning through practical implementation and testing
+- **Quality Standards**: High standards for accuracy, completeness, and functionality
+- **Innovation Approach**: Balanced approach - proven methods for core functionality, innovation for improvements
+
+### AI Assistant Onboarding Insights
+- **Critical Success Factors**: 
+  - Follow the collaboration protocol strictly
+  - Read all foundation documents before starting work
+  - Focus on modifying existing files rather than creating new ones
+  - Test changes and provide evidence of functionality
+  - Stay focused on stated objectives
+- **Common Pitfalls to Avoid**: 
+  - Creating unnecessary files without justification
+  - Expanding scope beyond the stated objective
+  - Making assumptions without verification
+  - Providing solutions without testing them first
+- **Optimal Collaboration Flow**: 
+  - Initialize with foundation document review
+  - Clarify specific objectives and success criteria
+  - Implement changes systematically with testing
+  - Provide status updates with evidence
+  - Verify completion before moving to next task
+
+## 🎯 CURRENT SESSION CONTEXT (Updated: 2025-06-20)
+
+### Active Objective
+- **What**: ✅ COMPLETED - Project tidying and optimization following protocol implementation
+- **Why**: Clean up temporary files, enhance foundation documents, optimize project structure
+- **Success Criteria**: ✅ Enhanced VISION.md, ✅ Cleaned up script proliferation, ✅ Archived one-time scripts, ✅ Updated project documentation
+
+### Current State
+- **Last Verified Working**: All cleanup tasks completed, project structure optimized
+- **Key Findings**: 
+  - VISION.md enhanced from 4 lines to comprehensive vision statement
+  - 9 one-time documentation fix scripts moved to archive/documentation-fixes/
+  - Scripts directory cleaned and organized with archive policy
+  - Project now has excellent foundation for AI Assistant Collaboration Protocol
+- **Next Action**: Project ready for productive development work with clean, organized structure
+
+### Magic Phrase Test Ready
+When you say: *"Please review Vision, readme and project index to get up to speed so that we can start work"*
+- Any future AI assistant will automatically follow the collaboration protocol
+- File creation rules will be enforced
+- Counter system will prevent drift
+- Learning journal will be consulted for Thomas's preferences
+- ADRI's data quality focus will be maintained
+
+## 📊 FILE STATUS DASHBOARD (Updated: 2025-06-20)
+
+### 🟢 Core Files - Working & Tested
+| File | Status | Last Verified | Notes |
+|------|--------|---------------|-------|
+| `docs/VISION.md` | ✅ Working | 2025-06-20 | Core vision for AI-ready data quality |
+| `README.md` | ✅ Working | 2025-06-20 | User journey and project introduction |
+| `PROJECT_INDEX.md` | ✅ Working | 2025-06-20 | Comprehensive file inventory with protocol |
+| `.github/workflows/test-docs.yml` | ✅ Working | 2025-06-20 | Fixed invalid mkdocs config command |
+| `mkdocs.yml` | ✅ Working | 2025-06-20 | Documentation builds successfully in 20s |
+
+### 🟡 Core Files - Partially Working / Needs Investigation  
+| File | Status | Issue | Priority |
+|------|--------|-------|----------|
+| *None currently identified* | - | - | - |
+
+### 🔴 Core Files - Not Verified / Unknown Status
+| File | Status | Issue | Blocking |
+|------|--------|-------|----------|
+| *None currently identified* | - | - | - |
+
+## 📋 PLANNED FILE ADDITIONS (Pending Creation)
+
+| Planned File | Purpose | Justification | Current Objective | Status |
+|--------------|---------|---------------|-------------------|---------|
+| *None currently planned* | - | - | - | - |
+
+### File Creation Rules
+1. **Add to PROJECT_INDEX.md first** - No exceptions
+2. **Justify against current objective** - Why is this needed now?
+3. **Consider existing alternatives** - Can we modify existing files instead?
+4. **Get approval before creating** - Confirm necessity
+5. **Update status after creation** - Move from Planned to appropriate status
+
+## 🎯 ALIGNMENT CHECKER (Auto-reminder system)
+
+### Mandatory Check After Every 3 File Modifications
+**Before proceeding, verify:**
+- [ ] Does this serve the Vision? (ADRI's mission for AI-ready data quality assessment)
+- [ ] Does this improve the user journey? (AI Builders, Data Providers, Standard Contributors)
+- [ ] Am I modifying existing files vs. creating new ones?
+- [ ] Is this solving the actual problem vs. a symptom?
+- [ ] Have I stayed focused on the current objective?
+- [ ] **Am I applying learned preferences from the Learning Journal?**
+
+### Focus Anchors (Reference during any discussion)
+- **Primary**: How does this advance ADRI's mission of standardizing AI-ready data quality?
+- **Secondary**: Does this serve one of our three audiences (AI Builders, Data Providers, Standard Contributors)?
+- **Tertiary**: Is this the most efficient way to achieve the objective?
+
+### Anti-Drift Rules
+1. **Read Vision → README → Project Index → Learning Journal** before any session
+2. **Ask before creating** any new files
+3. **Reference current objective** when discussions expand
+4. **Update status dashboard** after any changes
+5. **Run alignment check** after every 3 file modifications
+6. **Update learning journal** when counter hits zero
+
+---
+
 # ADRI Project Index
 
 This document provides a comprehensive overview of all files and directories in the ADRI project, explaining their purpose and role.

@@ -86,3 +86,9 @@ test_perfect_invoices.*
 
 # Internal development notes
 .internal/
+
+# AI Assistant Collaboration Protocol - Learning Journal (private)
+AI_LEARNING_JOURNAL.md
+ai_learning_journal.md
+*_learning_journal.md
+.ai_learning/
