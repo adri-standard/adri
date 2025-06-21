@@ -2,322 +2,914 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://adri-standard.github.io/adri/</loc>
-         <lastmod>2025-06-04</lastmod>
+         <lastmod>2025-06-21</lastmod>
     </url>
     <url>
-         <loc>https://adri-standard.github.io/adri/API_REFERENCE/</loc>
-         <lastmod>2025-06-04</lastmod>
-    </url>
-    <url>
-         <loc>https://adri-standard.github.io/adri/ASSESSMENT_MODES/</loc>
-         <lastmod>2025-06-04</lastmod>
+         <loc>https://adri-standard.github.io/adri/ARCHITECTURE_DECISIONS/</loc>
+         <lastmod>2025-06-21</lastmod>
     </url>
     <url>
          <loc>https://adri-standard.github.io/adri/CLAIMS_TRACKER/</loc>
-         <lastmod>2025-06-04</lastmod>
+         <lastmod>2025-06-21</lastmod>
     </url>
     <url>
-         <loc>https://adri-standard.github.io/adri/CONTRIBUTING/</loc>
-         <lastmod>2025-06-04</lastmod>
-    </url>
-    <url>
-         <loc>https://adri-standard.github.io/adri/CONTRIBUTING_TEMPLATES/</loc>
-         <lastmod>2025-06-04</lastmod>
-    </url>
-    <url>
-         <loc>https://adri-standard.github.io/adri/CUSTOM_RULES_GUIDE/</loc>
-         <lastmod>2025-06-04</lastmod>
+         <loc>https://adri-standard.github.io/adri/CLI/</loc>
+         <lastmod>2025-06-21</lastmod>
     </url>
     <url>
          <loc>https://adri-standard.github.io/adri/DEVELOPER/</loc>
-         <lastmod>2025-06-04</lastmod>
-    </url>
-    <url>
-         <loc>https://adri-standard.github.io/adri/DISCOVERY_AND_VALIDATION/</loc>
-         <lastmod>2025-06-04</lastmod>
-    </url>
-    <url>
-         <loc>https://adri-standard.github.io/adri/DOCUMENTATION_ALIGNMENT/</loc>
-         <lastmod>2025-06-04</lastmod>
-    </url>
-    <url>
-         <loc>https://adri-standard.github.io/adri/DOCUMENT_PURPOSE_ANALYSIS/</loc>
-         <lastmod>2025-06-04</lastmod>
-    </url>
-    <url>
-         <loc>https://adri-standard.github.io/adri/ENHANCING_DATA_SOURCES/</loc>
-         <lastmod>2025-06-04</lastmod>
-    </url>
-    <url>
-         <loc>https://adri-standard.github.io/adri/EXTENDING/</loc>
-         <lastmod>2025-06-04</lastmod>
+         <lastmod>2025-06-21</lastmod>
     </url>
     <url>
          <loc>https://adri-standard.github.io/adri/FAQ/</loc>
-         <lastmod>2025-06-04</lastmod>
+         <lastmod>2025-06-21</lastmod>
     </url>
     <url>
          <loc>https://adri-standard.github.io/adri/GET_STARTED/</loc>
-         <lastmod>2025-06-04</lastmod>
-    </url>
-    <url>
-         <loc>https://adri-standard.github.io/adri/GITHUB_PAGES/</loc>
-         <lastmod>2025-06-04</lastmod>
-    </url>
-    <url>
-         <loc>https://adri-standard.github.io/adri/GOVERNANCE_SETUP_CHECKLIST/</loc>
-         <lastmod>2025-06-04</lastmod>
+         <lastmod>2025-06-21</lastmod>
     </url>
     <url>
          <loc>https://adri-standard.github.io/adri/IMPLEMENTING_GUARDS/</loc>
-         <lastmod>2025-06-04</lastmod>
-    </url>
-    <url>
-         <loc>https://adri-standard.github.io/adri/INTEGRATIONS/</loc>
-         <lastmod>2025-06-04</lastmod>
-    </url>
-    <url>
-         <loc>https://adri-standard.github.io/adri/Methodology/</loc>
-         <lastmod>2025-06-04</lastmod>
-    </url>
-    <url>
-         <loc>https://adri-standard.github.io/adri/PROGRESSIVE_ENGAGEMENT_STRATEGY/</loc>
-         <lastmod>2025-06-04</lastmod>
-    </url>
-    <url>
-         <loc>https://adri-standard.github.io/adri/PROJECT_STRUCTURE/</loc>
-         <lastmod>2025-06-04</lastmod>
-    </url>
-    <url>
-         <loc>https://adri-standard.github.io/adri/PROVENANCE_SPECIFICATION/</loc>
-         <lastmod>2025-06-04</lastmod>
-    </url>
-    <url>
-         <loc>https://adri-standard.github.io/adri/QUICKSTART/</loc>
-         <lastmod>2025-06-04</lastmod>
-    </url>
-    <url>
-         <loc>https://adri-standard.github.io/adri/ROADMAP/</loc>
-         <lastmod>2025-06-04</lastmod>
-    </url>
-    <url>
-         <loc>https://adri-standard.github.io/adri/ROADMAP_V1.1/</loc>
-         <lastmod>2025-06-04</lastmod>
-    </url>
-    <url>
-         <loc>https://adri-standard.github.io/adri/RULE_TESTING_ARCHITECTURE/</loc>
-         <lastmod>2025-06-04</lastmod>
-    </url>
-    <url>
-         <loc>https://adri-standard.github.io/adri/STYLE_GUIDE/</loc>
-         <lastmod>2025-06-04</lastmod>
-    </url>
-    <url>
-         <loc>https://adri-standard.github.io/adri/TEMPLATE_GUARD/</loc>
-         <lastmod>2025-06-04</lastmod>
-    </url>
-    <url>
-         <loc>https://adri-standard.github.io/adri/TEMPLATE_TDD_GUIDE/</loc>
-         <lastmod>2025-06-04</lastmod>
+         <lastmod>2025-06-21</lastmod>
     </url>
     <url>
          <loc>https://adri-standard.github.io/adri/TESTING/</loc>
-         <lastmod>2025-06-04</lastmod>
-    </url>
-    <url>
-         <loc>https://adri-standard.github.io/adri/UNDERSTANDING_DIMENSIONS/</loc>
-         <lastmod>2025-06-04</lastmod>
-    </url>
-    <url>
-         <loc>https://adri-standard.github.io/adri/UNDERSTANDING_TEMPLATES/</loc>
-         <lastmod>2025-06-04</lastmod>
+         <lastmod>2025-06-21</lastmod>
     </url>
     <url>
          <loc>https://adri-standard.github.io/adri/USE_CASE_AI_STATUS_AUDITOR/</loc>
-         <lastmod>2025-06-04</lastmod>
-    </url>
-    <url>
-         <loc>https://adri-standard.github.io/adri/USE_CASE_INVOICE_PAYMENT_AGENT/</loc>
-         <lastmod>2025-06-04</lastmod>
+         <lastmod>2025-06-21</lastmod>
     </url>
     <url>
          <loc>https://adri-standard.github.io/adri/VISION/</loc>
-         <lastmod>2025-06-04</lastmod>
-    </url>
-    <url>
-         <loc>https://adri-standard.github.io/adri/VISION_IN_ACTION/</loc>
-         <lastmod>2025-06-04</lastmod>
+         <lastmod>2025-06-21</lastmod>
     </url>
     <url>
          <loc>https://adri-standard.github.io/adri/architecture/</loc>
-         <lastmod>2025-06-04</lastmod>
+         <lastmod>2025-06-21</lastmod>
     </url>
     <url>
-         <loc>https://adri-standard.github.io/adri/completeness_dimension/</loc>
-         <lastmod>2025-06-04</lastmod>
-    </url>
-    <url>
-         <loc>https://adri-standard.github.io/adri/components/</loc>
-         <lastmod>2025-06-04</lastmod>
-    </url>
-    <url>
-         <loc>https://adri-standard.github.io/adri/consistency_rules/</loc>
-         <lastmod>2025-06-04</lastmod>
-    </url>
-    <url>
-         <loc>https://adri-standard.github.io/adri/datasets/</loc>
-         <lastmod>2025-06-04</lastmod>
+         <loc>https://adri-standard.github.io/adri/frequently-asked-questions/</loc>
+         <lastmod>2025-06-21</lastmod>
     </url>
     <url>
          <loc>https://adri-standard.github.io/adri/freshness_dimension/</loc>
-         <lastmod>2025-06-04</lastmod>
+         <lastmod>2025-06-21</lastmod>
     </url>
     <url>
          <loc>https://adri-standard.github.io/adri/implementation_guide/</loc>
-         <lastmod>2025-06-04</lastmod>
+         <lastmod>2025-06-21</lastmod>
     </url>
     <url>
-         <loc>https://adri-standard.github.io/adri/plausibility_dimension/</loc>
-         <lastmod>2025-06-04</lastmod>
+         <loc>https://adri-standard.github.io/adri/ai-builders/</loc>
+         <lastmod>2025-06-21</lastmod>
     </url>
     <url>
-         <loc>https://adri-standard.github.io/adri/plausibility_rules/</loc>
-         <lastmod>2025-06-04</lastmod>
+         <loc>https://adri-standard.github.io/adri/ai-builders/advanced-patterns/</loc>
+         <lastmod>2025-06-21</lastmod>
     </url>
     <url>
-         <loc>https://adri-standard.github.io/adri/test-deployment/</loc>
-         <lastmod>2025-06-04</lastmod>
+         <loc>https://adri-standard.github.io/adri/ai-builders/framework-integration/</loc>
+         <lastmod>2025-06-21</lastmod>
     </url>
     <url>
-         <loc>https://adri-standard.github.io/adri/validity_dimension/</loc>
-         <lastmod>2025-06-04</lastmod>
+         <loc>https://adri-standard.github.io/adri/ai-builders/getting-started/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/ai-builders/implementing-guards/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/ai-builders/setting-thresholds/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/ai-builders/troubleshooting/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/ai-builders/understanding-requirements/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/api/ENHANCING_DATA_SOURCES/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/api/EXTENDING/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/api/INTEGRATIONS/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/api/api_reference/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/api/assessment_modes/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/api/implementation_guide/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/api/templates/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/api/test_coverage/API_REFERENCE_test_coverage/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/data-providers/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/data-providers/advanced-connectors/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/data-providers/assessment-guide/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/data-providers/certification/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/data-providers/getting-started/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/data-providers/improvement-strategies/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/data-providers/metadata-enhancement/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/data-providers/understanding-quality/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/development/GET_STARTED/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/development/INTEGRATIONS/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/development/UNDERSTANDING_DIMENSIONS/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/development/UNDERSTANDING_TEMPLATES/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/development/architecture/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/development/audience_badges/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/development/code_example_audiences/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/development/components/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/development/contributing/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/development/contributing_templates/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/development/datasets/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/development/developer/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/development/extending/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/development/project_structure/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/development/rule_testing_architecture/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/development/testing/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/development/testing_compact/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/development/testing_context_efficient/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/development/test_coverage/DEVELOPER_test_coverage/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/development/test_coverage/TESTING_test_coverage/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/development/test_coverage/components_test_coverage/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/development/test_coverage/datasets_test_coverage/</loc>
+         <lastmod>2025-06-21</lastmod>
     </url>
     <url>
          <loc>https://adri-standard.github.io/adri/diagrams/</loc>
-         <lastmod>2025-06-04</lastmod>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/examples/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/examples/ai-builders/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/examples/ai-builders/alert-systems/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/examples/ai-builders/basic-guard/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/examples/ai-builders/customer-service-agent/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/examples/ai-builders/customer-service/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/examples/ai-builders/document-processing/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/examples/ai-builders/financial-analysis/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/examples/ai-builders/framework-integration/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/examples/ai-builders/invoice-agent/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/examples/ai-builders/production-guards/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/examples/ai-builders/quality-dashboards/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/examples/ai-builders/real-time-monitoring/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/examples/ai-builders/sales-intelligence/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/examples/ai-builders/status-auditor/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/examples/by-industry/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/examples/by-industry/financial/kyc-data/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/examples/by-industry/financial/risk-assessment/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/examples/by-industry/financial/transactions/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/examples/by-industry/healthcare/clinical-trials/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/examples/by-industry/healthcare/medical-records/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/examples/by-industry/healthcare/patient-data/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/examples/by-industry/logistics/route-optimization/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/examples/by-industry/logistics/shipment-tracking/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/examples/by-industry/logistics/supplier-data/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/examples/by-industry/retail/customer-analytics/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/examples/by-industry/retail/inventory/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/examples/by-industry/retail/product-catalog/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/examples/data-providers/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/examples/data-providers/analytics-preparation/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/examples/data-providers/basic-assessment/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/examples/data-providers/certification-process/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/examples/data-providers/completeness-improvement/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/examples/data-providers/consistency-fixes/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/examples/data-providers/discovery-mode/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/examples/data-providers/enterprise-standards/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/examples/data-providers/marketplace-certification/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/examples/data-providers/metadata-generation/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/examples/data-providers/pipeline-integration/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/examples/data-providers/quality-documentation/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/examples/data-providers/validation-mode/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/examples/data-providers/validity-enhancement/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/examples/standard-contributors/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/examples/standard-contributors/api-connector/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/examples/standard-contributors/business-email-rule/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/examples/standard-contributors/duplicate-detection-rule/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/examples/standard-contributors/industry-template/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/examples/standard-contributors/mongodb-connector/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/examples/standard-contributors/performance-dimension/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/examples/standard-contributors/privacy-dimension/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/examples/standard-contributors/revenue-logic-rule/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/examples/standard-contributors/security-dimension/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/examples/standard-contributors/streaming-connector/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/examples/standard-contributors/template-documentation/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/examples/standard-contributors/template-testing/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/getting-started/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/getting-started/installation/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/getting-started/quickstart/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/governance/CONTRIBUTING/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/governance/GET_STARTED/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/governance/governance_setup_checklist/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/governance/roadmap/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/governance/roadmap_v1.1/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/governance/vision/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/governance/vision_in_action/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/governance/test_coverage/ROADMAP_test_coverage/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/governance/test_coverage/VISION_IN_ACTION_test_coverage/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/governance/test_coverage/VISION_test_coverage/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/guides/best-practices/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/guides/implementation-guide/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/guides/troubleshooting/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/integrations/crewai/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/integrations/langchain/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/internal/IMPLEMENTING_GUARDS/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/internal/VISION/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/internal/claims_tracker/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/internal/discovery_and_validation/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/internal/document_purpose_analysis/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/internal/documentation_alignment/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/internal/github_pages/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/internal/progressive_engagement_strategy/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/internal/provenance_specification/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/internal/style_guide/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/internal/test-deployment/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/internal/test_coverage/FILENAME_test_coverage/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/internal/test_coverage/STYLE_GUIDE_test_coverage/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/reference/api/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/reference/dimensions/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/reference/governance/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/reference/governance/charter/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/reference/governance/code-of-conduct/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/reference/governance/governance/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/reference/governance/security/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/reference/performance/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/reference/performance/optimization/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/reference/press/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/reference/templates/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/reference/templates/catalog/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/reference/templates/development/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/reference/test-coverage/charter_test_coverage/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/reference/test-coverage/governance_test_coverage/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/standard-contributors/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/standard-contributors/advanced-extensions/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/standard-contributors/architecture-overview/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/standard-contributors/code-style-guide/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/standard-contributors/contribution-workflow/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/standard-contributors/creating-connectors/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/standard-contributors/creating-templates/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/standard-contributors/extending-dimensions/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/standard-contributors/extending-rules/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/standard-contributors/getting-started/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/standard-contributors/testing-guide/</loc>
+         <lastmod>2025-06-21</lastmod>
     </url>
     <url>
          <loc>https://adri-standard.github.io/adri/test_coverage/</loc>
-         <lastmod>2025-06-04</lastmod>
+         <lastmod>2025-06-21</lastmod>
     </url>
     <url>
          <loc>https://adri-standard.github.io/adri/test_coverage/ARCHITECTURE_DECISIONS_test_coverage/</loc>
-         <lastmod>2025-06-04</lastmod>
+         <lastmod>2025-06-21</lastmod>
     </url>
     <url>
          <loc>https://adri-standard.github.io/adri/test_coverage/CHARTER_test_coverage/</loc>
-         <lastmod>2025-06-04</lastmod>
+         <lastmod>2025-06-21</lastmod>
     </url>
     <url>
          <loc>https://adri-standard.github.io/adri/test_coverage/CONNECTORS_test_coverage/</loc>
-         <lastmod>2025-06-04</lastmod>
+         <lastmod>2025-06-21</lastmod>
     </url>
     <url>
          <loc>https://adri-standard.github.io/adri/test_coverage/CORE_test_coverage/</loc>
-         <lastmod>2025-06-04</lastmod>
+         <lastmod>2025-06-21</lastmod>
     </url>
     <url>
          <loc>https://adri-standard.github.io/adri/test_coverage/DIMENSIONS_test_coverage/</loc>
-         <lastmod>2025-06-04</lastmod>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/test_coverage/EXTENDING_test_coverage/</loc>
+         <lastmod>2025-06-21</lastmod>
     </url>
     <url>
          <loc>https://adri-standard.github.io/adri/test_coverage/FAQ_test_coverage/</loc>
-         <lastmod>2025-06-04</lastmod>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/test_coverage/FILENAME_test_coverage/</loc>
+         <lastmod>2025-06-21</lastmod>
     </url>
     <url>
          <loc>https://adri-standard.github.io/adri/test_coverage/FRESHNESS_test_coverage/</loc>
-         <lastmod>2025-06-04</lastmod>
+         <lastmod>2025-06-21</lastmod>
     </url>
     <url>
          <loc>https://adri-standard.github.io/adri/test_coverage/GET_STARTED_test_coverage/</loc>
-         <lastmod>2025-06-04</lastmod>
+         <lastmod>2025-06-21</lastmod>
     </url>
     <url>
          <loc>https://adri-standard.github.io/adri/test_coverage/GOVERNANCE_test_coverage/</loc>
-         <lastmod>2025-06-04</lastmod>
+         <lastmod>2025-06-21</lastmod>
     </url>
     <url>
          <loc>https://adri-standard.github.io/adri/test_coverage/IMPLEMENTING_GUARDS_test_coverage/</loc>
-         <lastmod>2025-06-04</lastmod>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/test_coverage/PROJECT_INDEX_TEST_STATUS/</loc>
+         <lastmod>2025-06-21</lastmod>
     </url>
     <url>
          <loc>https://adri-standard.github.io/adri/test_coverage/README_test_coverage/</loc>
-         <lastmod>2025-06-04</lastmod>
+         <lastmod>2025-06-21</lastmod>
     </url>
     <url>
          <loc>https://adri-standard.github.io/adri/test_coverage/RELEASE_PROCESS_test_coverage/</loc>
-         <lastmod>2025-06-04</lastmod>
+         <lastmod>2025-06-21</lastmod>
     </url>
     <url>
          <loc>https://adri-standard.github.io/adri/test_coverage/RULES_test_coverage/</loc>
-         <lastmod>2025-06-04</lastmod>
+         <lastmod>2025-06-21</lastmod>
     </url>
     <url>
          <loc>https://adri-standard.github.io/adri/test_coverage/TEMPLATES_test_coverage/</loc>
-         <lastmod>2025-06-04</lastmod>
+         <lastmod>2025-06-21</lastmod>
     </url>
     <url>
          <loc>https://adri-standard.github.io/adri/test_coverage/TEST_COVERAGE_DASHBOARD/</loc>
-         <lastmod>2025-06-04</lastmod>
+         <lastmod>2025-06-21</lastmod>
     </url>
     <url>
          <loc>https://adri-standard.github.io/adri/test_coverage/TEST_COVERAGE_TRACKING/</loc>
-         <lastmod>2025-06-04</lastmod>
+         <lastmod>2025-06-21</lastmod>
     </url>
     <url>
          <loc>https://adri-standard.github.io/adri/test_coverage/UNDERSTANDING_DIMENSIONS_test_coverage/</loc>
-         <lastmod>2025-06-04</lastmod>
+         <lastmod>2025-06-21</lastmod>
     </url>
     <url>
          <loc>https://adri-standard.github.io/adri/test_coverage/VALIDITY_test_coverage/</loc>
-         <lastmod>2025-06-04</lastmod>
+         <lastmod>2025-06-21</lastmod>
     </url>
     <url>
          <loc>https://adri-standard.github.io/adri/test_coverage/VERSION_MANAGEMENT_test_coverage/</loc>
-         <lastmod>2025-06-04</lastmod>
+         <lastmod>2025-06-21</lastmod>
     </url>
     <url>
          <loc>https://adri-standard.github.io/adri/test_coverage/VERSION_POLICY_test_coverage/</loc>
-         <lastmod>2025-06-04</lastmod>
+         <lastmod>2025-06-21</lastmod>
     </url>
     <url>
          <loc>https://adri-standard.github.io/adri/test_coverage/VISION_IN_ACTION_test_coverage/</loc>
-         <lastmod>2025-06-04</lastmod>
+         <lastmod>2025-06-21</lastmod>
     </url>
     <url>
          <loc>https://adri-standard.github.io/adri/test_coverage/VISION_test_coverage/</loc>
-         <lastmod>2025-06-04</lastmod>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/test_coverage/ai_builders_getting_started_test_coverage/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/test_coverage/ai_builders_implementing_guards_test_coverage/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/test_coverage/ai_builders_understanding_requirements_test_coverage/</loc>
+         <lastmod>2025-06-21</lastmod>
     </url>
     <url>
          <loc>https://adri-standard.github.io/adri/test_coverage/architecture_test_coverage/</loc>
-         <lastmod>2025-06-04</lastmod>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/test_coverage/assessment_modes_test_coverage/</loc>
+         <lastmod>2025-06-21</lastmod>
     </url>
     <url>
          <loc>https://adri-standard.github.io/adri/test_coverage/certification_example_test_coverage/</loc>
-         <lastmod>2025-06-04</lastmod>
+         <lastmod>2025-06-21</lastmod>
     </url>
     <url>
          <loc>https://adri-standard.github.io/adri/test_coverage/certification_guard_test_plan_coverage/</loc>
-         <lastmod>2025-06-04</lastmod>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/test_coverage/custom_rules_test_coverage/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/test_coverage/data_providers_getting_started_test_coverage/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/test_coverage/dev_tools_test_coverage/</loc>
+         <lastmod>2025-06-21</lastmod>
     </url>
     <url>
          <loc>https://adri-standard.github.io/adri/test_coverage/error_handling_test_coverage/</loc>
-         <lastmod>2025-06-04</lastmod>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/test_coverage/frequently_asked_questions_test_coverage/</loc>
+         <lastmod>2025-06-21</lastmod>
     </url>
     <url>
          <loc>https://adri-standard.github.io/adri/test_coverage/guard_implementation_test_coverage/</loc>
-         <lastmod>2025-06-04</lastmod>
+         <lastmod>2025-06-21</lastmod>
     </url>
     <url>
          <loc>https://adri-standard.github.io/adri/test_coverage/metadata_generator_test_coverage/</loc>
-         <lastmod>2025-06-04</lastmod>
+         <lastmod>2025-06-21</lastmod>
     </url>
     <url>
          <loc>https://adri-standard.github.io/adri/test_coverage/plausibility_dimension_test_coverage/</loc>
-         <lastmod>2025-06-04</lastmod>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/test_coverage/standard_contributors_getting_started_test_coverage/</loc>
+         <lastmod>2025-06-21</lastmod>
     </url>
     <url>
          <loc>https://adri-standard.github.io/adri/test_coverage/status_auditor_test_coverage/</loc>
-         <lastmod>2025-06-04</lastmod>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/tutorials/advanced-features/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/tutorials/basic-usage/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/tutorials/custom-rules/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/use-cases/EXTENDING/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/use-cases/financial-services/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/use-cases/healthcare/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/use-cases/retail/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/use-cases/use_case_ai_status_auditor/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/use-cases/use_case_invoice_payment_agent/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/use-cases/test_coverage/invoice_payment_agent_test_coverage/</loc>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://adri-standard.github.io/adri/use-cases/test_coverage/status_auditor_test_coverage/</loc>
+         <lastmod>2025-06-21</lastmod>
     </url>
 </urlset>
