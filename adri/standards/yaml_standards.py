@@ -1,6 +1,6 @@
 """
 YAML Standards module for ADRI.
-Provides compatibility layer for legacy imports.
+Simple wrapper for standards functionality.
 """
 
 from typing import Any, Dict, List, Optional
@@ -9,9 +9,10 @@ from .loader import StandardsLoader
 
 
 class YAMLStandards:
-    """Legacy compatibility class for YAML standards."""
+    """Simple wrapper for YAML standards functionality."""
 
     def __init__(self):
+        """Initialize YAMLStandards."""
         self.loader = StandardsLoader()
 
     def list_standards(self) -> List[str]:

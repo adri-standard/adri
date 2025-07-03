@@ -533,7 +533,7 @@ def _load_parquet_data(file_path: Path) -> List[Dict[str, Any]]:
             raise
 
 
-def load_standard(file_path: str) -> YAMLStandards:
+def load_standard(file_path: str) -> dict:
     """
     Load YAML standard from file.
 
@@ -541,7 +541,7 @@ def load_standard(file_path: str) -> YAMLStandards:
         file_path: Path to YAML standard file
 
     Returns:
-        YAMLStandards object
+        Standard dictionary
 
     Raises:
         FileNotFoundError: If file doesn't exist
@@ -553,10 +553,7 @@ def load_standard(file_path: str) -> YAMLStandards:
     try:
         with open(file_path, "r", encoding="utf-8") as f:
             yaml_content = yaml.safe_load(f)
-
-        # Create YAMLStandards object
-        standard = YAMLStandards(yaml_content)
-        return standard
+        return yaml_content
 
     except yaml.YAMLError as e:
         raise Exception(f"Invalid YAML format: {e}")
