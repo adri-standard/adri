@@ -24,17 +24,17 @@ def adri_protected(
     on_failure: Optional[str] = None,
     auto_generate: Optional[bool] = None,
     cache_assessments: Optional[bool] = None,
-    verbose: Optional[bool] = None
+    verbose: Optional[bool] = None,
 ):
     """
     Decorator to protect agent functions with ADRI data quality checks.
-    
+
     This decorator automatically:
     1. Generates data quality standards (if they don't exist)
     2. Assesses data quality against the standard
     3. Guards function execution based on quality thresholds
     4. Provides detailed error reports when quality fails
-    
+
     Args:
         data_param: Name of the parameter containing data to check (default: "data")
         standard_file: Explicit standard file to use (e.g., "customer_data.yaml")
@@ -45,14 +45,14 @@ def adri_protected(
         auto_generate: Whether to auto-generate missing standards (uses config default if None)
         cache_assessments: Whether to cache assessment results (uses config default if None)
         verbose: Whether to show detailed protection logs (uses config default if None)
-    
+
     Returns:
         Decorated function that includes data quality protection
-    
+
     Raises:
         ProtectionError: If data quality is insufficient and on_failure="raise"
         ValueError: If the specified data parameter is not found
-    
+
     Examples:
         Basic protection with auto-generated standard:
         ```python
@@ -60,7 +60,7 @@ def adri_protected(
         def process_customers(customer_data):
             return processed_data
         ```
-        
+
         Use existing standard file:
         ```python
         @adri_protected(
@@ -70,7 +70,7 @@ def adri_protected(
         def validate_claim(claims_data):
             return validated_claim
         ```
-        
+
         High-stakes workflow with strict requirements:
         ```python
         @adri_protected(
@@ -82,7 +82,7 @@ def adri_protected(
         def process_transaction(financial_data):
             return transaction_result
         ```
-        
+
         Development-friendly configuration:
         ```python
         @adri_protected(
@@ -95,14 +95,14 @@ def adri_protected(
             return results
         ```
     """
-    
+
     def decorator(func: Callable) -> Callable:
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
             try:
                 # Initialize protection engine
                 engine = DataProtectionEngine()
-                
+
                 # Protect the function call
                 return engine.protect_function_call(
                     func=func,
@@ -117,9 +117,9 @@ def adri_protected(
                     on_failure=on_failure,
                     auto_generate=auto_generate,
                     cache_assessments=cache_assessments,
-                    verbose=verbose
+                    verbose=verbose,
                 )
-                
+
             except ProtectionError:
                 # Re-raise protection errors as-is (they have detailed messages)
                 raise
@@ -130,24 +130,24 @@ def adri_protected(
                     f"Data protection failed for function '{func.__name__}': {e}\n"
                     f"This may indicate a configuration or system issue."
                 )
-        
+
         # Mark the function as ADRI protected
         wrapper._adri_protected = True
         wrapper._adri_config = {
-            'data_param': data_param,
-            'standard_file': standard_file,
-            'standard_name': standard_name,
-            'standard_id': standard_id,
-            'min_score': min_score,
-            'dimensions': dimensions,
-            'on_failure': on_failure,
-            'auto_generate': auto_generate,
-            'cache_assessments': cache_assessments,
-            'verbose': verbose
+            "data_param": data_param,
+            "standard_file": standard_file,
+            "standard_name": standard_name,
+            "standard_id": standard_id,
+            "min_score": min_score,
+            "dimensions": dimensions,
+            "on_failure": on_failure,
+            "auto_generate": auto_generate,
+            "cache_assessments": cache_assessments,
+            "verbose": verbose,
         }
-        
+
         return wrapper
-    
+
     return decorator
 
 
@@ -155,46 +155,44 @@ def adri_protected(
 def adri_strict(data_param: str = "data", **kwargs):
     """
     Strict data protection with high quality requirements.
-    
+
     Equivalent to @adri_protected with min_score=90 and on_failure="raise".
     """
     return adri_protected(
         data_param=data_param,
-        min_score=kwargs.pop('min_score', 90),
-        on_failure=kwargs.pop('on_failure', 'raise'),
-        **kwargs
+        min_score=kwargs.pop("min_score", 90),
+        on_failure=kwargs.pop("on_failure", "raise"),
+        **kwargs,
     )
 
 
 def adri_permissive(data_param: str = "data", **kwargs):
     """
     Permissive data protection for development and testing.
-    
+
     Equivalent to @adri_protected with min_score=70 and on_failure="warn".
     """
     return adri_protected(
         data_param=data_param,
-        min_score=kwargs.pop('min_score', 70),
-        on_failure=kwargs.pop('on_failure', 'warn'),
-        verbose=kwargs.pop('verbose', True),
-        **kwargs
+        min_score=kwargs.pop("min_score", 70),
+        on_failure=kwargs.pop("on_failure", "warn"),
+        verbose=kwargs.pop("verbose", True),
+        **kwargs,
     )
 
 
 def adri_financial(data_param: str = "data", **kwargs):
     """
     Financial-grade data protection with strict requirements.
-    
+
     Equivalent to @adri_protected with high standards for financial data.
     """
     return adri_protected(
         data_param=data_param,
-        min_score=kwargs.pop('min_score', 95),
-        dimensions=kwargs.pop('dimensions', {
-            'validity': 19,
-            'completeness': 19,
-            'consistency': 18
-        }),
-        on_failure=kwargs.pop('on_failure', 'raise'),
-        **kwargs
+        min_score=kwargs.pop("min_score", 95),
+        dimensions=kwargs.pop(
+            "dimensions", {"validity": 19, "completeness": 19, "consistency": 18}
+        ),
+        on_failure=kwargs.pop("on_failure", "raise"),
+        **kwargs,
     )

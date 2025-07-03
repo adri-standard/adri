@@ -13,7 +13,7 @@ Key Features:
 
 Quick Start:
     from adri import adri_protected
-    
+
     @adri_protected(data_param="customer_data")
     def my_agent_function(customer_data):
         # Your agent logic here
@@ -25,8 +25,8 @@ CLI Usage:
     adri assess data.csv --standard std.yaml  # Run assessment
 """
 
-from .version import __version__, get_version_info
 from .decorators.guard import adri_protected
+from .version import __version__, get_version_info
 
 # Import what actually exists, with fallbacks for missing components
 try:
@@ -49,11 +49,7 @@ try:
 except ImportError:
     StandardGenerator = None
 
-__all__ = [
-    "__version__",
-    "adri_protected",
-    "get_version_info"
-]
+__all__ = ["__version__", "adri_protected", "get_version_info"]
 
 # Add available components to __all__
 if DataQualityAssessor:
@@ -69,5 +65,7 @@ if StandardGenerator:
 __author__ = "Thomas"
 __email__ = "thomas@adri.dev"
 __license__ = "MIT"
-__description__ = "Stop Your AI Agents Breaking on Bad Data - Data Quality Assessment Framework"
+__description__ = (
+    "Stop Your AI Agents Breaking on Bad Data - Data Quality Assessment Framework"
+)
 __url__ = "https://github.com/adri-framework/adri"

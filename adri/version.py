@@ -70,7 +70,7 @@ def get_score_compatibility_message(version: str) -> str:
 def get_version_info() -> dict:
     """
     Get comprehensive version information.
-    
+
     Returns:
         dict: Version information including current version, compatibility, etc.
     """
@@ -80,7 +80,7 @@ def get_version_info() -> dict:
         "score_compatible_versions": __score_compatible_versions__,
         "is_production_ready": True,
         "api_version": "1.0",
-        "standards_format_version": "1.0"
+        "standards_format_version": "1.0",
     }
 
 

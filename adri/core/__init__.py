@@ -6,4 +6,4 @@ Core functionality for data quality protection and assessment.
 
 from .protection import DataProtectionEngine, ProtectionError
 
-__all__ = ['DataProtectionEngine', 'ProtectionError']
+__all__ = ["DataProtectionEngine", "ProtectionError"]

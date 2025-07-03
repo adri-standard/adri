@@ -10,9 +10,10 @@ Following TDD methodology:
 import os
 import tempfile
 from pathlib import Path
+from unittest.mock import MagicMock, patch
+
 import pytest
 import yaml
-from unittest.mock import patch, MagicMock
 
 # These imports will fail initially - that's expected in TDD
 try:
@@ -30,7 +31,7 @@ class TestSetupCommand:
     def test_setup_creates_config_file(self, tmp_path):
         """
         RED: Test that 'adri setup' creates adri-config.yaml
-        
+
         This test defines the expected behavior:
         - Running setup should create a config file
         - Config file should be named 'adri-config.yaml'
@@ -38,22 +39,22 @@ class TestSetupCommand:
         """
         # Arrange
         os.chdir(tmp_path)
-        
+
         # Act
         if setup_command:
             result = setup_command()
         else:
             pytest.skip("setup_command not implemented yet")
-        
+
         # Assert
-        config_file = tmp_path / 'adri-config.yaml'
+        config_file = tmp_path / "adri-config.yaml"
         assert config_file.exists(), "adri-config.yaml should be created"
         assert result == 0, "setup command should return success (0)"
 
     def test_setup_creates_directory_structure(self, tmp_path):
         """
         RED: Test that 'adri setup' creates the expected directory structure
-        
+
         Expected structure:
         ADRI/
         ├── dev/
@@ -68,24 +69,24 @@ class TestSetupCommand:
         """
         # Arrange
         os.chdir(tmp_path)
-        
+
         # Act
         if setup_command:
             result = setup_command()
         else:
             pytest.skip("setup_command not implemented yet")
-        
+
         # Assert - Check all expected directories exist
         expected_dirs = [
-            'ADRI/dev/standards',
-            'ADRI/dev/assessments', 
-            'ADRI/dev/training-data',
-            'ADRI/prod/standards',
-            'ADRI/prod/assessments',
-            'ADRI/prod/training-data',
-            '.adri/cache'
+            "ADRI/dev/standards",
+            "ADRI/dev/assessments",
+            "ADRI/dev/training-data",
+            "ADRI/prod/standards",
+            "ADRI/prod/assessments",
+            "ADRI/prod/training-data",
+            ".adri/cache",
         ]
-        
+
         for dir_path in expected_dirs:
             full_path = tmp_path / dir_path
             assert full_path.exists(), f"Directory {dir_path} should be created"
@@ -98,48 +99,50 @@ class TestSetupCommand:
         """
         # Arrange
         os.chdir(tmp_path)
-        
+
         # Act
         if setup_command:
             result = setup_command()
         else:
             pytest.skip("setup_command not implemented yet")
-        
+
         # Assert
-        config_file = tmp_path / 'adri-config.yaml'
+        config_file = tmp_path / "adri-config.yaml"
         assert config_file.exists()
-        
+
         # Load and validate YAML structure
-        with open(config_file, 'r') as f:
+        with open(config_file, "r") as f:
             config = yaml.safe_load(f)
-        
+
         # Check required top-level structure
-        assert 'adri' in config, "Config should have 'adri' root section"
-        adri_config = config['adri']
-        
+        assert "adri" in config, "Config should have 'adri' root section"
+        adri_config = config["adri"]
+
         # Check required sections
-        assert 'version' in adri_config, "Config should specify version"
-        assert 'project_name' in adri_config, "Config should have project_name"
-        assert 'environments' in adri_config, "Config should have environments"
-        assert 'default_environment' in adri_config, "Config should have default_environment"
-        
+        assert "version" in adri_config, "Config should specify version"
+        assert "project_name" in adri_config, "Config should have project_name"
+        assert "environments" in adri_config, "Config should have environments"
+        assert (
+            "default_environment" in adri_config
+        ), "Config should have default_environment"
+
         # Check environments structure
-        environments = adri_config['environments']
-        assert 'development' in environments, "Should have development environment"
-        assert 'production' in environments, "Should have production environment"
-        
+        environments = adri_config["environments"]
+        assert "development" in environments, "Should have development environment"
+        assert "production" in environments, "Should have production environment"
+
         # Check environment paths
-        dev_env = environments['development']
-        assert 'paths' in dev_env, "Development environment should have paths"
-        dev_paths = dev_env['paths']
-        assert 'standards' in dev_paths, "Should have standards path"
-        assert 'assessments' in dev_paths, "Should have assessments path"
-        assert 'training_data' in dev_paths, "Should have training_data path"
+        dev_env = environments["development"]
+        assert "paths" in dev_env, "Development environment should have paths"
+        dev_paths = dev_env["paths"]
+        assert "standards" in dev_paths, "Should have standards path"
+        assert "assessments" in dev_paths, "Should have assessments path"
+        assert "training_data" in dev_paths, "Should have training_data path"
 
     def test_setup_handles_existing_config(self, tmp_path):
         """
         RED: Test that 'adri setup' handles existing configuration appropriately
-        
+
         Expected behavior:
         - If config exists, should exit with error message
         - Should suggest using --force to overwrite
@@ -147,22 +150,23 @@ class TestSetupCommand:
         """
         # Arrange
         os.chdir(tmp_path)
-        existing_config = tmp_path / 'adri-config.yaml'
+        existing_config = tmp_path / "adri-config.yaml"
         existing_content = "existing: config\ndata: should_not_change"
         existing_config.write_text(existing_content)
-        
+
         # Act
         if setup_command:
             result = setup_command()
         else:
             pytest.skip("setup_command not implemented yet")
-        
+
         # Assert
         assert result != 0, "Should return error code when config exists"
-        
+
         # Config should be unchanged
-        assert existing_config.read_text() == existing_content, \
-            "Existing config should not be modified"
+        assert (
+            existing_config.read_text() == existing_content
+        ), "Existing config should not be modified"
 
     def test_setup_force_overwrites_existing_config(self, tmp_path):
         """
@@ -170,25 +174,25 @@ class TestSetupCommand:
         """
         # Arrange
         os.chdir(tmp_path)
-        existing_config = tmp_path / 'adri-config.yaml'
+        existing_config = tmp_path / "adri-config.yaml"
         existing_config.write_text("old: config")
-        
+
         # Act
         if setup_command:
             result = setup_command(force=True)
         else:
             pytest.skip("setup_command not implemented yet")
-        
+
         # Assert
         assert result == 0, "Should succeed with --force"
-        
+
         # Config should be replaced with new content
-        with open(existing_config, 'r') as f:
+        with open(existing_config, "r") as f:
             new_config = yaml.safe_load(f)
-        
-        assert 'adri' in new_config, "Should have new ADRI config structure"
-        assert 'old' not in new_config, "Old config should be replaced"
-        assert new_config['adri']['version'] == '2.0', "Should have new config version"
+
+        assert "adri" in new_config, "Should have new ADRI config structure"
+        assert "old" not in new_config, "Old config should be replaced"
+        assert new_config["adri"]["version"] == "2.0", "Should have new config version"
 
     def test_setup_custom_project_name(self, tmp_path):
         """
@@ -197,20 +201,21 @@ class TestSetupCommand:
         # Arrange
         os.chdir(tmp_path)
         custom_name = "my-custom-project"
-        
+
         # Act
         if setup_command:
             result = setup_command(project_name=custom_name)
         else:
             pytest.skip("setup_command not implemented yet")
-        
+
         # Assert
-        config_file = tmp_path / 'adri-config.yaml'
-        with open(config_file, 'r') as f:
+        config_file = tmp_path / "adri-config.yaml"
+        with open(config_file, "r") as f:
             config = yaml.safe_load(f)
-        
-        assert config['adri']['project_name'] == custom_name, \
-            "Should use custom project name"
+
+        assert (
+            config["adri"]["project_name"] == custom_name
+        ), "Should use custom project name"
 
     def test_setup_default_project_name_from_directory(self, tmp_path):
         """
@@ -220,20 +225,21 @@ class TestSetupCommand:
         project_dir = tmp_path / "test-project-dir"
         project_dir.mkdir()
         os.chdir(project_dir)
-        
+
         # Act
         if setup_command:
             result = setup_command()
         else:
             pytest.skip("setup_command not implemented yet")
-        
+
         # Assert
-        config_file = project_dir / 'adri-config.yaml'
-        with open(config_file, 'r') as f:
+        config_file = project_dir / "adri-config.yaml"
+        with open(config_file, "r") as f:
             config = yaml.safe_load(f)
-        
-        assert config['adri']['project_name'] == "test-project-dir", \
-            "Should use directory name as default project name"
+
+        assert (
+            config["adri"]["project_name"] == "test-project-dir"
+        ), "Should use directory name as default project name"
 
     def test_setup_permission_error_handling(self, tmp_path):
         """
@@ -244,17 +250,17 @@ class TestSetupCommand:
         readonly_dir.mkdir()
         os.chdir(readonly_dir)
         readonly_dir.chmod(0o444)  # Read-only
-        
+
         try:
             # Act
             if setup_command:
                 result = setup_command()
             else:
                 pytest.skip("setup_command not implemented yet")
-            
+
             # Assert
             assert result != 0, "Should return error code for permission issues"
-            
+
         finally:
             # Cleanup - restore permissions
             readonly_dir.chmod(0o755)
@@ -272,12 +278,12 @@ class TestConfigManager:
             config = manager.create_default_config("test-project")
         else:
             pytest.skip("ConfigManager not implemented yet")
-        
+
         # Assert structure
         assert isinstance(config, dict)
-        assert 'adri' in config
-        assert config['adri']['project_name'] == "test-project"
-        assert config['adri']['version'] == "2.0"
+        assert "adri" in config
+        assert config["adri"]["project_name"] == "test-project"
+        assert config["adri"]["version"] == "2.0"
 
     def test_config_manager_validates_config(self):
         """
@@ -285,29 +291,29 @@ class TestConfigManager:
         """
         if ConfigManager:
             manager = ConfigManager()
-            
+
             # Valid config should pass
             valid_config = {
-                'adri': {
-                    'version': '2.0',
-                    'project_name': 'test',
-                    'environments': {
-                        'development': {
-                            'paths': {
-                                'standards': './ADRI/dev/standards',
-                                'assessments': './ADRI/dev/assessments',
-                                'training_data': './ADRI/dev/training-data'
+                "adri": {
+                    "version": "2.0",
+                    "project_name": "test",
+                    "environments": {
+                        "development": {
+                            "paths": {
+                                "standards": "./ADRI/dev/standards",
+                                "assessments": "./ADRI/dev/assessments",
+                                "training_data": "./ADRI/dev/training-data",
                             }
                         }
                     },
-                    'default_environment': 'development'
+                    "default_environment": "development",
                 }
             }
-            
+
             assert manager.validate_config(valid_config) == True
-            
+
             # Invalid config should fail
-            invalid_config = {'invalid': 'structure'}
+            invalid_config = {"invalid": "structure"}
             assert manager.validate_config(invalid_config) == False
         else:
             pytest.skip("ConfigManager not implemented yet")
@@ -318,26 +324,26 @@ class TestConfigManager:
 def sample_config():
     """Fixture providing a sample valid configuration."""
     return {
-        'adri': {
-            'version': '2.0',
-            'project_name': 'test-project',
-            'environments': {
-                'development': {
-                    'paths': {
-                        'standards': './ADRI/dev/standards',
-                        'assessments': './ADRI/dev/assessments',
-                        'training_data': './ADRI/dev/training-data'
+        "adri": {
+            "version": "2.0",
+            "project_name": "test-project",
+            "environments": {
+                "development": {
+                    "paths": {
+                        "standards": "./ADRI/dev/standards",
+                        "assessments": "./ADRI/dev/assessments",
+                        "training_data": "./ADRI/dev/training-data",
                     }
                 },
-                'production': {
-                    'paths': {
-                        'standards': './ADRI/prod/standards',
-                        'assessments': './ADRI/prod/assessments',
-                        'training_data': './ADRI/prod/training-data'
+                "production": {
+                    "paths": {
+                        "standards": "./ADRI/prod/standards",
+                        "assessments": "./ADRI/prod/assessments",
+                        "training_data": "./ADRI/prod/training-data",
                     }
-                }
+                },
             },
-            'default_environment': 'development'
+            "default_environment": "development",
         }
     }
 

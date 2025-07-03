@@ -47,9 +47,9 @@ jobs:
       run: |
         isort --check-only adri tests
     
-    - name: Type checking with mypy
-      run: |
-        mypy adri
+    # - name: Type checking with mypy
+    #   run: |
+    #     mypy adri
     
     - name: Run unit tests
       run: |

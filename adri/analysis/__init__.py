@@ -5,7 +5,7 @@ This module provides data profiling and standard generation capabilities.
 """
 
 from .data_profiler import DataProfiler
-from .type_inference import TypeInference
 from .standard_generator import StandardGenerator
+from .type_inference import TypeInference
 
-__all__ = ['DataProfiler', 'TypeInference', 'StandardGenerator']
+__all__ = ["DataProfiler", "TypeInference", "StandardGenerator"]
