@@ -61,12 +61,16 @@ class DimensionScore:
 class FieldAnalysis:
     """Represents analysis results for a specific field."""
 
-    def __init__(self, field_name: str, data_type: str, null_count: int, total_count: int):
+    def __init__(
+        self, field_name: str, data_type: str, null_count: int, total_count: int
+    ):
         self.field_name = field_name
         self.data_type = data_type
         self.null_count = null_count
         self.total_count = total_count
-        self.completeness = (total_count - null_count) / total_count if total_count > 0 else 0.0
+        self.completeness = (
+            (total_count - null_count) / total_count if total_count > 0 else 0.0
+        )
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert field analysis to dictionary."""
