@@ -1,0 +1,18 @@
+requirements:
+  dimension_requirements:
+    completeness:
+      minimum_score: 15
+    consistency:
+      minimum_score: 15
+    freshness:
+      minimum_score: 15
+    plausibility:
+      minimum_score: 15
+    validity:
+      minimum_score: 16
+  overall_minimum: 80
+standards:
+  authority: ADRI Auto-Generated
+  id: test_func_data_standard
+  name: Auto-generated standard
+  version: 1.0.0

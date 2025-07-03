@@ -1,0 +1,61 @@
+standards:
+  id: "customer-quality-standard"
+  name: "Customer Data Quality Standard"
+  version: "1.0.0"
+  authority: "ADRI Test Suite"
+  description: "Quality standard for customer data validation"
+  effective_date: "2023-01-01"
+  jurisdiction: ["test"]
+
+requirements:
+  overall_minimum: 80.0
+  
+  dimension_requirements:
+    validity:
+      minimum_score: 18.0
+      weight: 0.2
+    completeness:
+      minimum_score: 17.0
+      weight: 0.2
+    consistency:
+      minimum_score: 16.0
+      weight: 0.2
+    freshness:
+      minimum_score: 15.0
+      weight: 0.2
+    plausibility:
+      minimum_score: 14.0
+      weight: 0.2
+  
+  mandatory_fields:
+    - customer_id
+    - name
+    - email
+    - age
+  
+  field_requirements:
+    customer_id:
+      type: "integer"
+      nullable: false
+      unique: true
+    name:
+      type: "string"
+      nullable: false
+      min_length: 2
+      max_length: 100
+    email:
+      type: "string"
+      nullable: true
+      pattern: "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+    age:
+      type: "integer"
+      nullable: false
+      min_value: 0
+      max_value: 150
+    registration_date:
+      type: "date"
+      nullable: false
+    status:
+      type: "string"
+      nullable: false
+      allowed_values: ["active", "inactive", "suspended"]

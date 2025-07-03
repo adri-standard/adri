@@ -1,0 +1,186 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "adri"
+version = "0.1.0"
+authors = [
+    {name = "ThinkEvolvesolve", email = "dev@thinkevolvesolve.com"},
+]
+description = "ADRI - Enterprise-grade data validation for AI agent workflows"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.8"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Topic :: Software Development :: Quality Assurance",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Operating System :: OS Independent",
+    "Intended Audience :: Financial and Insurance Industry",
+    "Intended Audience :: Healthcare Industry",
+    "Topic :: Office/Business",
+]
+keywords = [
+    "ai", "agents", "data-quality", "validation", "protection",
+    "adri", "workflow", "automation", "reliability", "enterprise"
+]
+dependencies = [
+    "pandas>=1.5.0",
+    "numpy>=1.20.0",
+    "pyyaml>=6.0",
+    "jsonschema>=4.0",
+    "click>=8.0",
+    "rich>=12.0",
+    "cachetools>=5.0",
+    "psutil>=5.8",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+    "pytest-mock>=3.0",
+    "pytest-benchmark>=4.0",
+    "black>=22.0",
+    "isort>=5.0",
+    "flake8>=5.0",
+    "mypy>=1.0",
+    "pre-commit>=2.0",
+]
+performance = [
+    "numba>=0.56",
+    "polars>=0.15",
+    "pyarrow>=10.0",
+]
+monitoring = [
+    "prometheus-client>=0.15",
+    "structlog>=22.0",
+]
+
+[project.scripts]
+adri = "adri.cli.commands:main"
+adri-protect = "adri.cli.commands:protect"
+adri-profile = "adri.cli.commands:profile"
+adri-generate = "adri.cli.commands:generate"
+
+[project.urls]
+Repository = "https://github.com/ThinkEvolveSolve/adri-validator"
+Homepage = "https://github.com/ThinkEvolveSolve/adri-validator"
+Documentation = "https://github.com/ThinkEvolveSolve/adri-validator#readme"
+Issues = "https://github.com/ThinkEvolveSolve/adri-validator/issues"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["adri*"]
+
+[tool.setuptools.package-data]
+adri = ["**/*.yaml", "**/*.yml"]
+tests = ["**/*.py", "**/*.yaml", "**/*.csv"]
+
+[tool.black]
+line-length = 88
+target-version = ['py38']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+)/
+'''
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+line_length = 88
+known_first_party = ["adri"]
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+strict_equality = true
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = "-ra -q --strict-markers --strict-config"
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+    "unit: marks tests as unit tests",
+    "benchmark: marks tests as benchmark tests",
+]
+
+[tool.coverage.run]
+source = ["adri"]
+omit = [
+    "*/tests/*",
+    "*/test_*",
+    "setup.py",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug:",
+    "if settings.DEBUG",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if 0:",
+    "if __name__ == .__main__.:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
+]
+
+[tool.pytest-benchmark]
+min_rounds = 5
+max_time = 1.0
+min_time = 0.000005
+timer = "time.perf_counter"
+calibration_precision = 10
+warmup = false
+warmup_iterations = 100000
+disable_gc = false
+sort = "mean"
+group_by = "group"
+save = "benchmark"
+save_data = false
+autosave = false
+compare = false
+compare_fail = ["min:5%", "mean:5%"]
+
+[tool.bandit]
+exclude_dirs = ["tests"]
+skips = ["B101", "B601"]
+
+[tool.bandit.assert_used]
+skips = ["*_test.py", "test_*.py"]

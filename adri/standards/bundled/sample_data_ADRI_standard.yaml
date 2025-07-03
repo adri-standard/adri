@@ -1,0 +1,73 @@
+standards:
+  id: sample_data-v1
+  name: Sample Data Quality Standard
+  version: 1.0.0
+  authority: ADRI Auto-Generated
+  effective_date: '2025-07-02'
+  description: Auto-generated data quality standard for sample data
+requirements:
+  overall_minimum: 85.0
+  dimension_requirements:
+    validity:
+      minimum_score: 18.0
+      description: Data must conform to expected formats and constraints
+    completeness:
+      minimum_score: 17.0
+      description: Required fields must be populated
+    consistency:
+      minimum_score: 16.0
+      description: Data must be consistent across related fields
+    freshness:
+      minimum_score: 15.0
+      description: Data must be recent and up-to-date
+    plausibility:
+      minimum_score: 12.0
+      description: Data values must be reasonable and realistic
+  field_requirements:
+    customer_id:
+      type: integer
+      nullable: false
+      description: Customer Id - numeric identifier or count
+      min_value: 1001
+      max_value: 2010
+    name:
+      type: string
+      nullable: false
+      description: Name - text value
+      min_length: 7
+      max_length: 24
+    email:
+      type: string
+      nullable: false
+      description: Email - text value
+      min_length: 17
+      max_length: 34
+      pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
+    age:
+      type: integer
+      nullable: false
+      description: Age - numeric identifier or count
+      min_value: 28
+      max_value: 84
+    registration_date:
+      type: date
+      nullable: false
+      description: Registration Date - date value
+      format: YYYY-MM-DD
+    account_balance:
+      type: float
+      nullable: false
+      description: Account Balance - numeric value with decimal precision
+      min_value: 0.0
+metadata:
+  created_by: ADRI V2 Auto-Generation
+  created_date: '2025-07-02'
+  last_modified: '2025-07-02'
+  source_data_rows: 5
+  source_data_columns: 6
+  tags:
+  - auto-generated
+  - customer-data
+  - personal-data
+  - financial
+  - temporal
