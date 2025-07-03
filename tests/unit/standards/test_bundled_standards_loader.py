@@ -12,27 +12,27 @@ import pytest
 import yaml
 
 from adri.standards.exceptions import InvalidStandardError, StandardNotFoundError
-from adri.standards.loader import BundledStandardsLoader
+from adri.standards.loader import StandardsLoader
 
 
 class TestBundledStandardsLoader:
-    """Test cases for the BundledStandardsLoader class."""
+    """Test cases for the StandardsLoader class."""
 
     def setup_method(self):
         """Set up test fixtures."""
-        self.loader = BundledStandardsLoader()
+        self.loader = StandardsLoader()
 
     def test_loader_initialization(self):
         """Test that the loader initializes correctly."""
         assert self.loader is not None
-        assert hasattr(self.loader, "bundled_standards_path")
-        assert isinstance(self.loader.bundled_standards_path, Path)
+        assert hasattr(self.loader, "standards_path")
+        assert isinstance(self.loader.standards_path, Path)
 
     def test_bundled_standards_directory_exists(self):
-        """Test that the bundled standards directory exists."""
+        """Test that the standards directory exists."""
         # This test will fail initially - we need to create the directory
-        assert self.loader.bundled_standards_path.exists()
-        assert self.loader.bundled_standards_path.is_dir()
+        assert self.loader.standards_path.exists()
+        assert self.loader.standards_path.is_dir()
 
     def test_load_customer_data_standard(self):
         """Test loading the customer data standard."""
@@ -218,7 +218,7 @@ class TestBundledStandardsIntegration:
             mock_socket.side_effect = Exception("Network access attempted!")
 
             # Loading standards should work without network
-            loader = BundledStandardsLoader()
+            loader = StandardsLoader()
             standard = loader.load_standard("customer_data_standard")
 
             assert standard is not None
