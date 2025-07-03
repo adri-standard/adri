@@ -1,18 +1,18 @@
 """
 ADRI Standards Module
 
-This module provides bundled standards loading functionality for the ADRI validator.
-All standards are bundled with the package to ensure offline-first operation and
-eliminate network dependencies.
+This module provides standards loading functionality for the ADRI validator.
+Standards are loaded from the adri-standards submodule to ensure offline-first 
+operation and eliminate network dependencies.
 """
 
 from .exceptions import InvalidStandardError, StandardNotFoundError
-from .loader import BundledStandardsLoader
+from .loader import StandardsLoader
 
-__all__ = ["BundledStandardsLoader", "StandardNotFoundError", "InvalidStandardError"]
+__all__ = ["StandardsLoader", "StandardNotFoundError", "InvalidStandardError"]
 
 # Default loader instance for convenience
-default_loader = BundledStandardsLoader()
+default_loader = StandardsLoader()
 
 
 def load_standard(standard_name: str):

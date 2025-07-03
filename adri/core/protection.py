@@ -16,7 +16,7 @@ import pandas as pd
 from ..analysis.standard_generator import StandardGenerator
 from ..config.manager import ConfigManager
 from ..core.assessor import AssessmentEngine
-from ..standards import BundledStandardsLoader, StandardNotFoundError
+from ..standards import StandardsLoader, StandardNotFoundError
 
 logger = logging.getLogger(__name__)
 
@@ -43,7 +43,7 @@ class DataProtectionEngine:
         self.config_manager = ConfigManager()
         self.protection_config = self.config_manager.get_protection_config()
         self._assessment_cache = {}
-        self.bundled_loader = BundledStandardsLoader()
+        self.standards_loader = StandardsLoader()
 
         logger.debug("DataProtectionEngine initialized")
 
@@ -122,17 +122,17 @@ class DataProtectionEngine:
                 if base_name.endswith("_standard"):
                     base_name = base_name[:-9]  # Remove '_standard' suffix
 
-                if self.bundled_loader.standard_exists(base_name):
+                if self.standards_loader.standard_exists(base_name):
                     logger.debug(
                         f"Found bundled standard for explicit file: {base_name}"
                     )
-                    return self.bundled_loader.load_standard(base_name)
+                    return self.standards_loader.load_standard(base_name)
 
             # If custom standard name is specified, try to find it
             if standard_name:
-                if self.bundled_loader.standard_exists(standard_name):
+                if self.standards_loader.standard_exists(standard_name):
                     logger.debug(f"Found bundled standard: {standard_name}")
-                    return self.bundled_loader.load_standard(standard_name)
+                    return self.standards_loader.load_standard(standard_name)
 
             # Try common naming patterns for bundled standards
             potential_names = [
@@ -144,11 +144,11 @@ class DataProtectionEngine:
             ]
 
             for name in potential_names:
-                if self.bundled_loader.standard_exists(name):
+                if self.standards_loader.standard_exists(name):
                     logger.debug(
                         f"Found bundled standard with pattern matching: {name}"
                     )
-                    return self.bundled_loader.load_standard(name)
+                    return self.standards_loader.load_standard(name)
 
             logger.debug(
                 "No matching bundled standard found, falling back to file-based standards"

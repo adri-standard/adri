@@ -1,8 +1,8 @@
 """
-Bundled Standards Loader
+ADRI Standards Loader
 
-This module provides offline-first loading of ADRI standards that are bundled
-with the package. No network requests are made, ensuring enterprise-friendly
+This module provides offline-first loading of ADRI standards from the
+adri-standards submodule. No network requests are made, ensuring enterprise-friendly
 operation and air-gap compatibility.
 """
 
@@ -20,47 +20,47 @@ from .exceptions import (
 )
 
 
-class BundledStandardsLoader:
+class StandardsLoader:
     """
-    Loads ADRI standards from bundled files within the package.
+    Loads ADRI standards from the adri-standards submodule.
 
-    This loader provides fast, offline access to all bundled standards
+    This loader provides fast, offline access to all standards
     without any network dependencies. All standards are validated on
     loading to ensure they conform to the ADRI standard format.
     """
 
     def __init__(self):
-        """Initialize the bundled standards loader."""
+        """Initialize the standards loader."""
         self._lock = threading.RLock()
-        self._bundled_standards_path = self._get_bundled_standards_path()
-        self._validate_bundled_directory()
+        self._standards_path = self._get_standards_path()
+        self._validate_standards_directory()
 
     @property
-    def bundled_standards_path(self) -> Path:
-        """Get the path to the bundled standards directory."""
-        return self._bundled_standards_path
+    def standards_path(self) -> Path:
+        """Get the path to the standards directory."""
+        return self._standards_path
 
-    def _get_bundled_standards_path(self) -> Path:
-        """Get the path to the bundled standards directory."""
-        # Get the directory where this module is located
-        module_dir = Path(__file__).parent
-        bundled_path = module_dir / "bundled"
-        return bundled_path
+    def _get_standards_path(self) -> Path:
+        """Get the path to the standards directory from submodule."""
+        # Get the package root directory (go up from adri/standards/ to package root)
+        module_dir = Path(__file__).parent.parent.parent
+        standards_path = module_dir / "external" / "adri-standards" / "standards" / "core"
+        return standards_path
 
-    def _validate_bundled_directory(self):
-        """Validate that the bundled standards directory exists."""
-        if not self._bundled_standards_path.exists():
-            raise StandardsDirectoryNotFoundError(str(self._bundled_standards_path))
+    def _validate_standards_directory(self):
+        """Validate that the standards directory exists."""
+        if not self._standards_path.exists():
+            raise StandardsDirectoryNotFoundError(str(self._standards_path))
 
-        if not self._bundled_standards_path.is_dir():
+        if not self._standards_path.is_dir():
             raise StandardsDirectoryNotFoundError(
-                f"Bundled standards path is not a directory: {self._bundled_standards_path}"
+                f"Standards path is not a directory: {self._standards_path}"
             )
 
     @lru_cache(maxsize=128)
     def load_standard(self, standard_name: str) -> Dict[str, Any]:
         """
-        Load a bundled standard by name.
+        Load a standard by name.
 
         Args:
             standard_name: Name of the standard to load (without .yaml extension)
@@ -74,7 +74,7 @@ class BundledStandardsLoader:
         """
         with self._lock:
             # Construct the file path
-            standard_file = self._bundled_standards_path / f"{standard_name}.yaml"
+            standard_file = self._standards_path / f"{standard_name}.yaml"
 
             # Check if the file exists
             if not standard_file.exists():
@@ -150,7 +150,7 @@ class BundledStandardsLoader:
 
     def list_available_standards(self) -> List[str]:
         """
-        List all available bundled standards.
+        List all available standards.
 
         Returns:
             list: List of standard names (without .yaml extension)
@@ -158,8 +158,8 @@ class BundledStandardsLoader:
         with self._lock:
             standards = []
 
-            # Find all .yaml files in the bundled directory
-            for yaml_file in self._bundled_standards_path.glob("*.yaml"):
+            # Find all .yaml files in the standards directory
+            for yaml_file in self._standards_path.glob("*.yaml"):
                 # Remove the .yaml extension to get the standard name
                 standard_name = yaml_file.stem
                 standards.append(standard_name)
@@ -168,7 +168,7 @@ class BundledStandardsLoader:
 
     def standard_exists(self, standard_name: str) -> bool:
         """
-        Check if a standard exists in the bundled standards.
+        Check if a standard exists in the standards directory.
 
         Args:
             standard_name: Name of the standard to check
@@ -176,7 +176,7 @@ class BundledStandardsLoader:
         Returns:
             bool: True if the standard exists, False otherwise
         """
-        standard_file = self._bundled_standards_path / f"{standard_name}.yaml"
+        standard_file = self._standards_path / f"{standard_name}.yaml"
         return standard_file.exists()
 
     def get_standard_metadata(self, standard_name: str) -> Dict[str, Any]:
@@ -205,7 +205,7 @@ class BundledStandardsLoader:
             "description": standards_section.get(
                 "description", "No description available"
             ),
-            "file_path": str(self._bundled_standards_path / f"{standard_name}.yaml"),
+            "file_path": str(self._standards_path / f"{standard_name}.yaml"),
             "id": standards_section.get("id", standard_name),
         }
 
@@ -223,7 +223,7 @@ class BundledStandardsLoader:
 # Convenience functions for backward compatibility
 def load_bundled_standard(standard_name: str) -> Dict[str, Any]:
     """
-    Load a bundled standard using the default loader.
+    Load a standard using the default loader.
 
     Args:
         standard_name: Name of the standard to load
@@ -231,16 +231,16 @@ def load_bundled_standard(standard_name: str) -> Dict[str, Any]:
     Returns:
         dict: The loaded standard
     """
-    loader = BundledStandardsLoader()
+    loader = StandardsLoader()
     return loader.load_standard(standard_name)
 
 
 def list_bundled_standards() -> List[str]:
     """
-    List all available bundled standards.
+    List all available standards.
 
     Returns:
         list: List of standard names
     """
-    loader = BundledStandardsLoader()
+    loader = StandardsLoader()
     return loader.list_available_standards()
