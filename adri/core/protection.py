@@ -551,13 +551,18 @@ class DataProtectionEngine:
         self,
         assessment_result: Any,
         min_score: float,
-        standard_path: Optional[str] = None,
+        standard: Union[str, Dict, None] = None,
     ) -> str:
         """Format a detailed quality error message with actionable CLI commands."""
         # Extract standard name for CLI commands
         standard_name = "your-standard"
-        if standard_path:
-            standard_name = Path(standard_path).stem.replace("_standard", "")
+        if isinstance(standard, str):
+            # File-based standard
+            standard_name = Path(standard).stem.replace("_standard", "")
+        elif isinstance(standard, dict):
+            # Bundled standard
+            standards_section = standard.get("standards", {})
+            standard_name = standards_section.get("id", "bundled-standard")
 
         error_lines = [
             "🛡️ ADRI Protection: BLOCKED ❌",
@@ -569,8 +574,12 @@ class DataProtectionEngine:
             f"   Overall Score: {assessment_result.overall_score:.1f}/100 (Required: {min_score:.1f}/100)",
         ]
 
-        if standard_path:
-            error_lines.append(f"   Standard: {standard_path}")
+        if isinstance(standard, str):
+            error_lines.append(f"   Standard: {standard}")
+        elif isinstance(standard, dict):
+            standards_section = standard.get("standards", {})
+            standard_id = standards_section.get("id", "bundled-standard")
+            error_lines.append(f"   Standard: {standard_id} (bundled)")
 
         # Add dimension breakdown if available
         if hasattr(assessment_result, "dimension_scores"):

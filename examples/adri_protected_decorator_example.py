@@ -1,0 +1,1 @@
+../external/adri-standards/examples/frameworks/adri_protected_decorator_example.py

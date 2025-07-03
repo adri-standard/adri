@@ -119,10 +119,14 @@ class TestLangChainExamples(TestFrameworkExamples):
 
             # ADRI should handle bad data gracefully (either block or warn)
             # The important thing is that the decorator is working
-            result = module.customer_service_agent(bad_customer_data)
-            # Function should either raise an exception or return a result with warnings
-            # Both are acceptable behaviors depending on ADRI configuration
-            assert True  # Test passes if we get here without crashing
+            try:
+                result = module.customer_service_agent(bad_customer_data)
+                # If we get here, ADRI allowed the function to run (maybe with warnings)
+                assert result is not None
+            except Exception as e:
+                # ADRI blocked the function due to poor data quality - this is expected
+                assert "ADRI Protection: BLOCKED" in str(e) or "ProtectionError" in str(type(e).__name__)
+                # Test passes - ADRI is working correctly by blocking bad data
 
 
 class TestCrewAIExamples(TestFrameworkExamples):

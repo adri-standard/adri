@@ -1,0 +1,1 @@
+../external/adri-standards/examples/frameworks/semantic_kernel_basic.py

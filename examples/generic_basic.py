@@ -1,0 +1,1 @@
+../external/adri-standards/examples/frameworks/generic_basic.py
