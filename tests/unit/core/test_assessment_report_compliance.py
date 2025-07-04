@@ -1,8 +1,8 @@
 """
-Tests for ADRI Assessment Report Standard v2.0.0 compliance.
+Tests for ADRI Assessment Report Standard compliance.
 
 This module tests that the enhanced AssessmentResult class can generate
-reports that comply with the ADRI Assessment Report Standard v2.0.0.
+reports that comply with the ADRI Assessment Report Standard.
 """
 
 import json
@@ -19,8 +19,8 @@ from adri.core.assessor import (
 from adri.standards.yaml_standards import YAMLStandards
 
 
-class TestAssessmentReportV2Compliance:
-    """Test compliance with ADRI Assessment Report Standard v2.0.0."""
+class TestAssessmentReportCompliance:
+    """Test compliance with ADRI Assessment Report Standard."""
 
     def setup_method(self):
         """Set up test data."""
@@ -111,10 +111,10 @@ class TestAssessmentReportV2Compliance:
         )
         self.assessment_result.set_execution_stats(duration_ms=1250)
 
-    def test_v2_standard_dict_structure(self):
-        """Test that v2 standard dict has correct structure."""
+    def test_standard_dict_structure(self):
+        """Test that standard dict has correct structure."""
         report = self.assessment_result.to_v2_standard_dict(
-            dataset_name="customer_data.csv", adri_version="2.0.0"
+            dataset_name="customer_data.csv", adri_version="0.1.0"
         )
 
         # Check root structure
@@ -128,9 +128,9 @@ class TestAssessmentReportV2Compliance:
         assert "field_analysis" in root
 
     def test_metadata_section_compliance(self):
-        """Test metadata section compliance with v2.0.0 standard."""
+        """Test metadata section compliance with standard."""
         report = self.assessment_result.to_v2_standard_dict(
-            dataset_name="customer_data.csv", adri_version="2.0.0"
+            dataset_name="customer_data.csv", adri_version="0.1.0"
         )
 
         metadata = report["adri_assessment_report"]["metadata"]
@@ -172,9 +172,9 @@ class TestAssessmentReportV2Compliance:
         assert "total_validations" in execution
 
     def test_summary_section_compliance(self):
-        """Test summary section compliance with v2.0.0 standard."""
+        """Test summary section compliance with standard."""
         report = self.assessment_result.to_v2_standard_dict(
-            dataset_name="customer_data.csv", adri_version="2.0.0"
+            dataset_name="customer_data.csv", adri_version="0.1.0"
         )
 
         summary = report["adri_assessment_report"]["summary"]
@@ -211,9 +211,9 @@ class TestAssessmentReportV2Compliance:
         assert isinstance(pass_fail_status["total_failures"], int)
 
     def test_rule_execution_log_compliance(self):
-        """Test rule execution log compliance with v2.0.0 standard."""
+        """Test rule execution log compliance with standard."""
         report = self.assessment_result.to_v2_standard_dict(
-            dataset_name="customer_data.csv", adri_version="2.0.0"
+            dataset_name="customer_data.csv", adri_version="0.1.0"
         )
 
         rule_log = report["adri_assessment_report"]["rule_execution_log"]
@@ -254,9 +254,9 @@ class TestAssessmentReportV2Compliance:
                 assert isinstance(failures["failure_patterns"], dict)
 
     def test_field_analysis_compliance(self):
-        """Test field analysis compliance with v2.0.0 standard."""
+        """Test field analysis compliance with standard."""
         report = self.assessment_result.to_v2_standard_dict(
-            dataset_name="customer_data.csv", adri_version="2.0.0"
+            dataset_name="customer_data.csv", adri_version="0.1.0"
         )
 
         field_analysis = report["adri_assessment_report"]["field_analysis"]
@@ -295,7 +295,7 @@ class TestAssessmentReportV2Compliance:
     def test_mathematical_consistency(self):
         """Test mathematical consistency requirements."""
         report = self.assessment_result.to_v2_standard_dict(
-            dataset_name="customer_data.csv", adri_version="2.0.0"
+            dataset_name="customer_data.csv", adri_version="0.1.0"
         )
 
         summary = report["adri_assessment_report"]["summary"]
@@ -320,7 +320,7 @@ class TestAssessmentReportV2Compliance:
     def test_json_serializable(self):
         """Test that the report is JSON serializable."""
         report = self.assessment_result.to_v2_standard_dict(
-            dataset_name="customer_data.csv", adri_version="2.0.0"
+            dataset_name="customer_data.csv", adri_version="0.1.0"
         )
 
         # Should not raise an exception
@@ -331,17 +331,17 @@ class TestAssessmentReportV2Compliance:
         parsed = json.loads(json_str)
         assert parsed == report
 
-    def test_load_v2_standard_and_validate(self):
-        """Test loading the v2.0.0 standard and validating against it."""
-        # Load the v2.0.0 standard
+    def test_load_standard_and_validate(self):
+        """Test loading the standard and validating against it."""
+        # Load the v0.1.0 standard
         try:
             standard = YAMLStandards(
-                "Data Standards Catalogue/Open Source/adri_assessment_report_standard_v2.yaml"
+                "ADRI Catalogue/Open Source/adri_assessment_report_standard.yaml"
             )
 
             # Generate a report
             report = self.assessment_result.to_v2_standard_dict(
-                dataset_name="customer_data.csv", adri_version="2.0.0"
+                dataset_name="customer_data.csv", adri_version="0.1.0"
             )
 
             # Validate the report against the standard
@@ -352,7 +352,7 @@ class TestAssessmentReportV2Compliance:
             assert "adri_assessment_report" in report
 
         except Exception as e:
-            pytest.skip(f"Could not load v2.0.0 standard: {e}")
+            pytest.skip(f"Could not load v0.1.0 standard: {e}")
 
     def test_rule_execution_result_to_dict(self):
         """Test RuleExecutionResult.to_dict() method."""

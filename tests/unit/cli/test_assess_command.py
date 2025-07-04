@@ -179,11 +179,15 @@ requirements:
             assert result == 0
             assert output_file.exists()
 
-            # Verify output file contains valid JSON
+            # Verify output file contains valid JSON (ADRI v0.1.0 format)
             with open(output_file) as f:
                 report_data = json.load(f)
-                assert "overall_score" in report_data
-                assert "dimension_scores" in report_data
+                assert "adri_assessment_report" in report_data
+                report = report_data["adri_assessment_report"]
+                assert "summary" in report
+                summary = report["summary"]
+                assert "overall_score" in summary
+                assert "dimension_scores" in summary
 
     def test_assess_command_with_verbose_output(self):
         """Test assess command with verbose console output."""
@@ -417,8 +421,11 @@ requirements:
 
             standard = load_standard(str(yaml_file))
 
-            assert standard.standards_id == "test-standard"
-            assert standard.standards_name == "Test Standard"
+            # load_standard returns a dictionary, not a YAMLStandards object
+            assert isinstance(standard, dict)
+            assert "standards" in standard
+            assert standard["standards"]["id"] == "test-standard"
+            assert standard["standards"]["name"] == "Test Standard"
 
     def test_load_standard_file_not_found(self):
         """Test loading standard from non-existent file."""

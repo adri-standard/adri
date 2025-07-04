@@ -338,7 +338,8 @@ class TestDataProtectionEngine(unittest.TestCase):
         self.assertEqual(engine.protection_config["default_min_score"], 80)
 
     @patch("adri.core.protection.ConfigManager")
-    def test_resolve_standard_with_explicit_file(self, mock_config_manager):
+    @patch("adri.core.protection.StandardsLoader")
+    def test_resolve_standard_with_explicit_file(self, mock_loader_class, mock_config_manager):
         """Test standard resolution with explicit file."""
         mock_manager = MagicMock()
         mock_manager.get_protection_config.return_value = self.mock_config["adri"][
@@ -348,6 +349,11 @@ class TestDataProtectionEngine(unittest.TestCase):
             "/path/to/custom_standard.yaml"
         )
         mock_config_manager.return_value = mock_manager
+
+        # Mock standards loader to return None (no bundled standard found)
+        mock_loader = MagicMock()
+        mock_loader.standard_exists.return_value = False
+        mock_loader_class.return_value = mock_loader
 
         engine = DataProtectionEngine()
 
@@ -364,7 +370,8 @@ class TestDataProtectionEngine(unittest.TestCase):
         )
 
     @patch("adri.core.protection.ConfigManager")
-    def test_resolve_standard_with_auto_generation(self, mock_config_manager):
+    @patch("adri.core.protection.StandardsLoader")
+    def test_resolve_standard_with_auto_generation(self, mock_loader_class, mock_config_manager):
         """Test standard resolution with auto-generated name."""
         mock_manager = MagicMock()
         mock_manager.get_protection_config.return_value = self.mock_config["adri"][
@@ -374,6 +381,11 @@ class TestDataProtectionEngine(unittest.TestCase):
             "/path/to/test_func_data_standard.yaml"
         )
         mock_config_manager.return_value = mock_manager
+
+        # Mock standards loader to return None (no bundled standard found)
+        mock_loader = MagicMock()
+        mock_loader.standard_exists.return_value = False
+        mock_loader_class.return_value = mock_loader
 
         engine = DataProtectionEngine()
 
@@ -391,8 +403,9 @@ class TestDataProtectionEngine(unittest.TestCase):
 
     @patch("adri.core.protection.ConfigManager")
     @patch("adri.core.protection.StandardGenerator")
+    @patch("adri.analysis.data_profiler.DataProfiler")
     def test_ensure_standard_exists_generates_when_missing(
-        self, mock_generator_class, mock_config_manager
+        self, mock_profiler_class, mock_generator_class, mock_config_manager
     ):
         """Test standard generation when file doesn't exist."""
         mock_manager = MagicMock()
@@ -401,7 +414,16 @@ class TestDataProtectionEngine(unittest.TestCase):
         ]
         mock_config_manager.return_value = mock_manager
 
+        # Mock the data profiler
+        mock_profiler = MagicMock()
+        mock_profile = {"field_analysis": {"overall": {"field_count": 3}}}
+        mock_profiler.profile_data.return_value = mock_profile
+        mock_profiler_class.return_value = mock_profiler
+
+        # Mock the standard generator
         mock_generator = MagicMock()
+        mock_standard_dict = {"standards": {"id": "test"}, "requirements": {}}
+        mock_generator.generate_standard.return_value = mock_standard_dict
         mock_generator_class.return_value = mock_generator
 
         engine = DataProtectionEngine()
@@ -411,7 +433,9 @@ class TestDataProtectionEngine(unittest.TestCase):
         # File doesn't exist, should generate
         engine.ensure_standard_exists(standard_path, self.sample_data)
 
-        mock_generator.generate_from_dataframe.assert_called_once()
+        # Verify the correct methods were called
+        mock_profiler.profile_data.assert_called_once()
+        mock_generator.generate_standard.assert_called_once()
 
     @patch("adri.core.protection.ConfigManager")
     def test_ensure_standard_exists_skips_when_exists(self, mock_config_manager):
@@ -483,8 +507,11 @@ class TestDataProtectionEngine(unittest.TestCase):
         with self.assertRaises(ProtectionError) as context:
             engine.handle_quality_failure(mock_assessment, "raise", 80)
 
-        self.assertIn("Data Quality Insufficient", str(context.exception))
-        self.assertIn("65.0", str(context.exception))
+        # Check for the new error message format
+        error_message = str(context.exception)
+        self.assertIn("🛡️ ADRI Protection: BLOCKED ❌", error_message)
+        self.assertIn("65.0", error_message)
+        self.assertIn("80.0", error_message)
 
     @patch("adri.core.protection.ConfigManager")
     @patch("adri.core.protection.logger")
@@ -509,10 +536,10 @@ class TestDataProtectionEngine(unittest.TestCase):
         mock_logger.warning.assert_called()
 
     @patch("adri.core.protection.ConfigManager")
-    @patch("adri.core.protection.StandardGenerator")
+    @patch("adri.core.protection.StandardsLoader")
     @patch("adri.core.protection.AssessmentEngine")
     def test_protect_function_call_full_workflow(
-        self, mock_assessor_class, mock_generator_class, mock_config_manager
+        self, mock_assessor_class, mock_loader_class, mock_config_manager
     ):
         """Test complete protection workflow."""
         # Setup mocks
@@ -520,16 +547,31 @@ class TestDataProtectionEngine(unittest.TestCase):
         mock_manager.get_protection_config.return_value = self.mock_config["adri"][
             "protection"
         ]
-        mock_manager.resolve_standard_path_simple.return_value = os.path.join(
-            self.standards_dir, "test_standard.yaml"
-        )
+        standard_path = os.path.join(self.standards_dir, "test_standard.yaml")
+        mock_manager.resolve_standard_path_simple.return_value = standard_path
         mock_config_manager.return_value = mock_manager
 
-        mock_generator = MagicMock()
-        mock_generator_class.return_value = mock_generator
+        # Mock standards loader to return None (no bundled standard found)
+        mock_loader = MagicMock()
+        mock_loader.standard_exists.return_value = False
+        mock_loader_class.return_value = mock_loader
+
+        # Create a real standard file to avoid generation
+        with open(standard_path, "w") as f:
+            f.write("""
+standards:
+  id: "test-standard"
+  name: "Test Standard"
+  version: "1.0.0"
+  authority: "Test Authority"
+
+requirements:
+  overall_minimum: 80.0
+""")
 
         mock_assessor = MagicMock()
         mock_assessment_result = MagicMock()
+        # Make sure overall_score is a real number, not a MagicMock
         mock_assessment_result.overall_score = 85.0
         mock_assessment_result.passed = True
         mock_assessor.assess.return_value = mock_assessment_result

@@ -176,13 +176,16 @@ class ConfigManager:
             config_path: Path to the configuration file
 
         Returns:
-            Configuration dictionary or None if file doesn't exist
+            Configuration dictionary or None if file doesn't exist or is invalid
         """
         if not os.path.exists(config_path):
             return None
 
-        with open(config_path, "r") as f:
-            return yaml.safe_load(f)
+        try:
+            with open(config_path, "r") as f:
+                return yaml.safe_load(f)
+        except (yaml.YAMLError, IOError):
+            return None
 
     def create_directory_structure(self, config: Dict[str, Any]) -> None:
         """

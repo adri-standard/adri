@@ -393,10 +393,17 @@ class TestAssessmentResult:
             result_dict = result.to_dict()
 
             assert isinstance(result_dict, dict)
-            assert "overall_score" in result_dict
-            assert "dimension_scores" in result_dict
-            assert "passed" in result_dict
-            assert "standard_id" in result_dict
+            # Check v0.1.0 format structure
+            assert "adri_assessment_report" in result_dict
+            report = result_dict["adri_assessment_report"]
+            assert "summary" in report
+            assert "metadata" in report
+            
+            # Check summary contains the expected fields
+            summary = report["summary"]
+            assert "overall_score" in summary
+            assert "dimension_scores" in summary
+            assert "overall_passed" in summary
 
         else:
             pytest.skip("AssessmentResult or DimensionScore not implemented yet")

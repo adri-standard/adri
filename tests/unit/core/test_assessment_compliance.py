@@ -237,8 +237,16 @@ class TestAssessmentReportCompliance:
             engine = AssessmentEngine()
             result = engine.assess(df, customer_standard)
 
-            # Get standard format (this method needs to be implemented)
-            standard_dict = result.to_standard_dict()
+            # Get standard format using v0.1.0 format
+            standard_dict = result.to_v2_standard_dict()
+            
+            # Extract the summary section for compatibility
+            if "adri_assessment_report" in standard_dict:
+                summary = standard_dict["adri_assessment_report"]["summary"]
+                standard_dict = {
+                    "overall_score": summary["overall_score"],
+                    "dimension_scores": summary["dimension_scores"]
+                }
 
             # Check required fields are present
             assert "overall_score" in standard_dict
@@ -295,7 +303,17 @@ class TestAssessmentReportCompliance:
             # Perform assessment
             engine = AssessmentEngine()
             result = engine.assess(df, customer_standard)
-            standard_dict = result.to_standard_dict()
+            
+            # Get standard format using v0.1.0 format
+            standard_dict = result.to_v2_standard_dict()
+            
+            # Extract the summary section for compatibility
+            if "adri_assessment_report" in standard_dict:
+                summary = standard_dict["adri_assessment_report"]["summary"]
+                standard_dict = {
+                    "overall_score": summary["overall_score"],
+                    "dimension_scores": summary["dimension_scores"]
+                }
 
             # Validate score ranges according to ADRI standard
             assert (
@@ -335,7 +353,17 @@ class TestAssessmentReportCompliance:
             # Perform assessment
             engine = AssessmentEngine()
             result = engine.assess(df, customer_standard)
-            standard_dict = result.to_standard_dict()
+            
+            # Get standard format using v0.1.0 format
+            standard_dict = result.to_v2_standard_dict()
+            
+            # Extract the summary section for compatibility
+            if "adri_assessment_report" in standard_dict:
+                summary = standard_dict["adri_assessment_report"]["summary"]
+                standard_dict = {
+                    "overall_score": summary["overall_score"],
+                    "dimension_scores": summary["dimension_scores"]
+                }
 
             # Check data types per ADRI standard
             assert isinstance(
@@ -380,9 +408,16 @@ class TestAssessmentReportCompliance:
             result = engine.assess(df, customer_standard)
             standard_dict = result.to_standard_dict()
 
-            # Apply mathematical consistency rule from ADRI standard
-            overall_score = standard_dict["overall_score"]
-            dimension_sum = sum(standard_dict["dimension_scores"].values())
+            # Extract scores from ADRI v0.1.0 format
+            if "adri_assessment_report" in standard_dict:
+                summary = standard_dict["adri_assessment_report"]["summary"]
+                overall_score = summary["overall_score"]
+                dimension_sum = sum(summary["dimension_scores"].values())
+            else:
+                # Fallback to legacy format
+                overall_score = standard_dict["overall_score"]
+                dimension_sum = sum(standard_dict["dimension_scores"].values())
+            
             tolerance = 0.1  # As specified in ADRI standard
 
             assert (
@@ -419,6 +454,13 @@ class TestAssessmentReportCompliance:
             result = engine.assess(df, customer_standard)
             standard_dict = result.to_standard_dict()
 
+            # Extract dimension scores from ADRI v0.1.0 format
+            if "adri_assessment_report" in standard_dict:
+                dimension_scores = standard_dict["adri_assessment_report"]["summary"]["dimension_scores"]
+            else:
+                # Fallback to legacy format
+                dimension_scores = standard_dict["dimension_scores"]
+
             # Check all required dimensions are present
             required_dimensions = [
                 "validity",
@@ -427,7 +469,6 @@ class TestAssessmentReportCompliance:
                 "freshness",
                 "plausibility",
             ]
-            dimension_scores = standard_dict["dimension_scores"]
 
             for dim in required_dimensions:
                 assert dim in dimension_scores, f"Missing required dimension: {dim}"

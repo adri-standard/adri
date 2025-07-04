@@ -208,16 +208,27 @@ class TestEndToEndWorkflow:
                 )
                 assert len(assessment_files) > 0, "Assessment report should be created"
 
-                # Verify assessment report content
+                # Verify assessment report content (ADRI v0.1.0 format)
                 with open(assessment_files[0], "r") as f:
                     assessment_data = json.load(f)
 
-                assert "overall_score" in assessment_data
-                assert "dimension_scores" in assessment_data
-                assert "passed" in assessment_data
-                assert isinstance(assessment_data["overall_score"], (int, float))
-                assert assessment_data["overall_score"] >= 0
-                assert assessment_data["overall_score"] <= 100
+                # Check for ADRI v0.1.0 format structure
+                assert "adri_assessment_report" in assessment_data
+                report = assessment_data["adri_assessment_report"]
+                assert "summary" in report
+                assert "metadata" in report
+                
+                # Extract summary data
+                summary = report["summary"]
+                assert "overall_score" in summary
+                assert "dimension_scores" in summary
+                assert "pass_fail_status" in summary
+                assert "overall_passed" in summary["pass_fail_status"]
+                
+                # Validate overall score
+                assert isinstance(summary["overall_score"], (int, float))
+                assert summary["overall_score"] >= 0
+                assert summary["overall_score"] <= 100
 
                 # Verify all dimensions are present
                 expected_dimensions = [
@@ -227,13 +238,13 @@ class TestEndToEndWorkflow:
                     "freshness",
                     "plausibility",
                 ]
+                dimension_scores = summary["dimension_scores"]
                 for dimension in expected_dimensions:
-                    assert dimension in assessment_data["dimension_scores"]
-                    dim_score = assessment_data["dimension_scores"][dimension]
-                    assert "score" in dim_score
-                    assert "percentage" in dim_score
-                    assert isinstance(dim_score["score"], (int, float))
-                    assert isinstance(dim_score["percentage"], (int, float))
+                    assert dimension in dimension_scores
+                    dim_score = dimension_scores[dimension]
+                    assert isinstance(dim_score, (int, float))
+                    assert dim_score >= 0
+                    assert dim_score <= 20  # Max score per dimension
 
             finally:
                 # Restore original working directory

@@ -41,11 +41,18 @@ class StandardsLoader:
         return self._standards_path
 
     def _get_standards_path(self) -> Path:
-        """Get the path to the standards directory from submodule."""
+        """Get the path to the standards directory, preferring submodule over ADRI folder."""
         # Get the package root directory (go up from adri/standards/ to package root)
         module_dir = Path(__file__).parent.parent.parent
-        standards_path = module_dir / "external" / "adri-standards" / "standards" / "core"
-        return standards_path
+        
+        # First try the submodule path
+        submodule_standards_path = module_dir / "external" / "adri-standards" / "standards" / "core"
+        if submodule_standards_path.exists() and submodule_standards_path.is_dir():
+            return submodule_standards_path.resolve()
+        
+        # Fallback to ADRI folder
+        adri_standards_path = module_dir / ".." / "ADRI" / "adri" / "dev" / "standards"
+        return adri_standards_path.resolve()
 
     def _validate_standards_directory(self):
         """Validate that the standards directory exists."""

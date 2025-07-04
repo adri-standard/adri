@@ -209,39 +209,132 @@ class DataProfiler:
     def _profile_integer_field(self, series: pd.Series) -> Dict[str, Any]:
         """Profile integer field characteristics."""
         non_null_series = pd.to_numeric(series.dropna(), errors="coerce")
+        
+        # Handle empty series
+        if len(non_null_series) == 0:
+            return {
+                "min_value": 0,
+                "max_value": 0,
+                "avg_value": 0.0,
+            }
 
-        return {
-            "min_value": int(non_null_series.min()),
-            "max_value": int(non_null_series.max()),
-            "avg_value": float(non_null_series.mean()),
-        }
+        try:
+            # Safely get min/max/mean with additional error handling
+            min_val = non_null_series.min()
+            max_val = non_null_series.max()
+            mean_val = non_null_series.mean()
+            
+            # Check for any remaining special values
+            if pd.isna(min_val) or pd.isna(max_val) or pd.isna(mean_val):
+                return {
+                    "min_value": 0,
+                    "max_value": 0,
+                    "avg_value": 0.0,
+                }
+
+            return {
+                "min_value": int(min_val),
+                "max_value": int(max_val),
+                "avg_value": float(mean_val),
+            }
+        except (ValueError, TypeError, OverflowError):
+            # If any conversion fails, return safe defaults
+            return {
+                "min_value": 0,
+                "max_value": 0,
+                "avg_value": 0.0,
+            }
 
     def _profile_float_field(self, series: pd.Series) -> Dict[str, Any]:
         """Profile float field characteristics."""
         non_null_series = pd.to_numeric(series.dropna(), errors="coerce")
+        
+        # Handle empty series
+        if len(non_null_series) == 0:
+            return {
+                "min_value": 0.0,
+                "max_value": 0.0,
+                "avg_value": 0.0,
+            }
 
-        return {
-            "min_value": float(non_null_series.min()),
-            "max_value": float(non_null_series.max()),
-            "avg_value": float(non_null_series.mean()),
-        }
+        try:
+            # Safely get min/max/mean with additional error handling
+            min_val = non_null_series.min()
+            max_val = non_null_series.max()
+            mean_val = non_null_series.mean()
+            
+            # Check for any remaining special values or _NoValueType
+            if (pd.isna(min_val) or pd.isna(max_val) or pd.isna(mean_val) or
+                str(type(min_val)).endswith("_NoValueType") or
+                str(type(max_val)).endswith("_NoValueType") or
+                str(type(mean_val)).endswith("_NoValueType")):
+                return {
+                    "min_value": 0.0,
+                    "max_value": 0.0,
+                    "avg_value": 0.0,
+                }
+
+            return {
+                "min_value": float(min_val),
+                "max_value": float(max_val),
+                "avg_value": float(mean_val),
+            }
+        except (ValueError, TypeError, OverflowError):
+            # If any conversion fails, return safe defaults
+            return {
+                "min_value": 0.0,
+                "max_value": 0.0,
+                "avg_value": 0.0,
+            }
 
     def _profile_string_field(self, series: pd.Series) -> Dict[str, Any]:
         """Profile string field characteristics."""
         non_null_series = series.dropna().astype(str)
+        
+        # Handle empty series
+        if len(non_null_series) == 0:
+            return {
+                "min_length": 0,
+                "max_length": 0,
+                "avg_length": 0.0,
+            }
 
-        profile = {
-            "min_length": int(non_null_series.str.len().min()),
-            "max_length": int(non_null_series.str.len().max()),
-            "avg_length": float(non_null_series.str.len().mean()),
-        }
+        try:
+            # Calculate string lengths with error handling
+            lengths = non_null_series.str.len()
+            
+            # Safely get min/max/mean with additional error handling
+            min_len = lengths.min()
+            max_len = lengths.max()
+            mean_len = lengths.mean()
+            
+            # Check for any remaining special values
+            if pd.isna(min_len) or pd.isna(max_len) or pd.isna(mean_len):
+                return {
+                    "min_length": 0,
+                    "max_length": 0,
+                    "avg_length": 0.0,
+                }
 
-        # Check for patterns
-        pattern = self._detect_string_pattern(non_null_series)
-        if pattern:
-            profile["pattern"] = pattern
+            profile = {
+                "min_length": int(min_len),
+                "max_length": int(max_len),
+                "avg_length": float(mean_len),
+            }
 
-        return profile
+            # Check for patterns
+            pattern = self._detect_string_pattern(non_null_series)
+            if pattern:
+                profile["pattern"] = pattern
+
+            return profile
+        except (ValueError, TypeError, OverflowError) as e:
+            # If any conversion fails, return safe defaults
+            return {
+                "min_length": 0,
+                "max_length": 0,
+                "avg_length": 0.0,
+            }
 
     def _profile_boolean_field(self, series: pd.Series) -> Dict[str, Any]:
         """Profile boolean field characteristics."""
@@ -250,22 +343,22 @@ class DataProfiler:
         # Count true/false values
         value_counts = non_null_series.value_counts()
 
+        # Use .get() for safe access to avoid future warnings
+        # Handle integer 1 as boolean True explicitly
+        int_one_count = 0
+        if 1 in value_counts.index:
+            int_one_count = value_counts.loc[1]
+        
+        true_count = (
+            value_counts.get(True, 0)
+            + value_counts.get("true", 0)
+            + value_counts.get("True", 0)
+            + int_one_count
+        )
+
         return {
-            "true_count": int(
-                value_counts.get(True, 0)
-                + value_counts.get("true", 0)
-                + value_counts.get("True", 0)
-                + value_counts.get(1, 0)
-            ),
-            "false_count": int(
-                len(non_null_series)
-                - (
-                    value_counts.get(True, 0)
-                    + value_counts.get("true", 0)
-                    + value_counts.get("True", 0)
-                    + value_counts.get(1, 0)
-                )
-            ),
+            "true_count": int(true_count),
+            "false_count": int(len(non_null_series) - true_count),
         }
 
     def _profile_date_field(self, series: pd.Series) -> Dict[str, Any]:

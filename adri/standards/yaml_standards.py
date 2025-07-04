@@ -11,9 +11,71 @@ from .loader import StandardsLoader
 class YAMLStandards:
     """Simple wrapper for YAML standards functionality."""
 
-    def __init__(self):
-        """Initialize YAMLStandards."""
+    def __init__(self, standard_path: str = None):
+        """Initialize YAMLStandards with optional standard file path."""
         self.loader = StandardsLoader()
+        self.standard_path = standard_path
+        self.standard_data = None
+        
+        if standard_path:
+            self.load_from_file(standard_path)
+    
+    def load_from_file(self, file_path: str):
+        """Load standard from YAML file."""
+        import yaml
+        import os
+        from pathlib import Path
+        
+        try:
+            # Try the path as-is first
+            if os.path.exists(file_path):
+                with open(file_path, 'r') as f:
+                    self.standard_data = yaml.safe_load(f)
+                return
+            
+            # If not found, try relative to the project root
+            # Find the project root by looking for pyproject.toml
+            current_dir = Path(__file__).parent
+            while current_dir.parent != current_dir:
+                if (current_dir / 'pyproject.toml').exists():
+                    project_root = current_dir
+                    break
+                current_dir = current_dir.parent
+            else:
+                # Fallback to current working directory
+                project_root = Path.cwd()
+            
+            # Try the path relative to project root
+            full_path = project_root / file_path
+            if full_path.exists():
+                with open(full_path, 'r') as f:
+                    self.standard_data = yaml.safe_load(f)
+                return
+            
+            # If still not found, raise the original error
+            raise FileNotFoundError(f"[Errno 2] No such file or directory: '{file_path}'")
+            
+        except Exception as e:
+            raise ValueError(f"Failed to load standard from {file_path}: {e}")
+    
+    def get_field_requirements(self) -> Dict[str, Any]:
+        """Get field requirements from loaded standard."""
+        if not self.standard_data:
+            return {}
+        return self.standard_data.get("requirements", {}).get("field_requirements", {})
+    
+    def get_overall_minimum(self) -> float:
+        """Get overall minimum score requirement."""
+        if not self.standard_data:
+            return 75.0
+        return self.standard_data.get("requirements", {}).get("overall_minimum", 75.0)
+    
+    @property
+    def standards_id(self) -> str:
+        """Get the standards ID for compatibility."""
+        if not self.standard_data:
+            return "unknown"
+        return self.standard_data.get("standards", {}).get("id", "unknown")
 
     def list_standards(self) -> List[str]:
         """List all available standards."""
@@ -30,3 +92,67 @@ class YAMLStandards:
         """Validate a standard structure."""
         required_fields = ["standard_id", "version", "description"]
         return all(field in standard_data for field in required_fields)
+
+    def check_compliance(self, report_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Check compliance of a report against this standard."""
+        compliance_result = {
+            "compliant": True,
+            "overall_compliance": True,  # Add this key for test compatibility
+            "errors": [],
+            "warnings": [],
+            "score": 100.0,
+            "gaps": [],  # Add this key for test compatibility
+            "failed_requirements": []  # Add this key for test compatibility
+        }
+        
+        if not self.standard_data:
+            compliance_result["errors"].append("No standard loaded for compliance checking")
+            compliance_result["compliant"] = False
+            compliance_result["overall_compliance"] = False
+            compliance_result["score"] = 0.0
+            return compliance_result
+        
+        # Check basic structure requirements
+        requirements = self.standard_data.get("requirements", {})
+        
+        # Check overall score requirement
+        overall_minimum = requirements.get("overall_minimum", 75.0)
+        if "overall_score" in report_data:
+            if report_data["overall_score"] < overall_minimum:
+                error_msg = f"Overall score {report_data['overall_score']} below minimum {overall_minimum}"
+                compliance_result["errors"].append(error_msg)
+                compliance_result["gaps"].append(error_msg)
+                compliance_result["failed_requirements"].append("overall_minimum")
+                compliance_result["compliant"] = False
+                compliance_result["overall_compliance"] = False
+                compliance_result["score"] = report_data["overall_score"]
+        
+        # Check dimension score requirements
+        dimension_requirements = requirements.get("dimension_requirements", {})
+        if "dimension_scores" in report_data:
+            for dim, min_score in dimension_requirements.items():
+                if dim in report_data["dimension_scores"]:
+                    actual_score = report_data["dimension_scores"][dim]
+                    if isinstance(actual_score, dict) and "score" in actual_score:
+                        actual_score = actual_score["score"]
+                    
+                    if actual_score < min_score:
+                        error_msg = f"Dimension {dim} score {actual_score} below minimum {min_score}"
+                        compliance_result["errors"].append(error_msg)
+                        compliance_result["gaps"].append(error_msg)
+                        compliance_result["failed_requirements"].append(f"dimension_{dim}_minimum")
+                        compliance_result["compliant"] = False
+                        compliance_result["overall_compliance"] = False
+        
+        # Check required fields
+        required_fields = requirements.get("required_fields", [])
+        for field in required_fields:
+            if field not in report_data:
+                error_msg = f"Missing required field: {field}"
+                compliance_result["errors"].append(error_msg)
+                compliance_result["gaps"].append(error_msg)
+                compliance_result["failed_requirements"].append(field)
+                compliance_result["compliant"] = False
+                compliance_result["overall_compliance"] = False
+        
+        return compliance_result

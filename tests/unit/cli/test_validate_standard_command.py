@@ -16,13 +16,37 @@ class TestValidateStandardCommand(unittest.TestCase):
 
     def setUp(self):
         """Set up test fixtures."""
-        self.test_dir = Path(__file__).parent.parent.parent.parent
+        self.test_dir = Path(__file__).parent.parent.parent
         self.valid_standard_path = (
-            self.test_dir / "examples" / "standards" / "test_standard.yaml"
+            self.test_dir / "fixtures" / "standards" / "customer_standard.yaml"
         )
-        self.invalid_standard_path = (
-            self.test_dir / "examples" / "standards" / "invalid_standard.yaml"
-        )
+        # Create a temporary invalid standard for testing
+        self.temp_dir = tempfile.mkdtemp()
+        self.invalid_standard_path = Path(self.temp_dir) / "invalid_standard.yaml"
+        self.invalid_standard_path.write_text("""
+standards:
+  id: ""  # Empty required field
+  name: "Invalid Standard"
+  # Missing version and authority
+
+requirements:
+  overall_minimum: 150.0  # Invalid value > 100
+  
+  dimension_requirements:
+    invalid_dimension:  # Unknown dimension
+      minimum_score: 25.0  # Invalid score > 20
+      
+  field_requirements:
+    test_field:
+      type: "invalid_type"  # Invalid type
+      pattern: "[unclosed"  # Invalid regex
+""")
+
+    def tearDown(self):
+        """Clean up test fixtures."""
+        import shutil
+        if hasattr(self, 'temp_dir') and os.path.exists(self.temp_dir):
+            shutil.rmtree(self.temp_dir)
 
     def test_validate_standard_command_valid_standard(self):
         """Test validate-standard command with valid standard."""
@@ -58,9 +82,9 @@ class TestValidateStandardCommand(unittest.TestCase):
                 report = json.load(f)
 
             self.assertTrue(report["is_valid"])
-            self.assertEqual(report["standard_name"], "User Data Quality Standard")
+            self.assertEqual(report["standard_name"], "Customer Data Quality Standard")
             self.assertEqual(report["standard_version"], "1.0.0")
-            self.assertEqual(report["authority"], "ADRI Test Authority")
+            self.assertEqual(report["authority"], "ADRI Test Suite")
 
         finally:
             if os.path.exists(output_path):
@@ -72,9 +96,9 @@ class TestValidateStandardCommand(unittest.TestCase):
 
         self.assertTrue(result["is_valid"])
         self.assertEqual(len(result["errors"]), 0)
-        self.assertEqual(result["standard_name"], "User Data Quality Standard")
+        self.assertEqual(result["standard_name"], "Customer Data Quality Standard")
         self.assertEqual(result["standard_version"], "1.0.0")
-        self.assertEqual(result["authority"], "ADRI Test Authority")
+        self.assertEqual(result["authority"], "ADRI Test Suite")
 
         # Check that all expected validation checks passed
         expected_checks = [
