@@ -398,7 +398,7 @@ class TestAssessmentResult:
             report = result_dict["adri_assessment_report"]
             assert "summary" in report
             assert "metadata" in report
-            
+
             # Check summary contains the expected fields
             summary = report["summary"]
             assert "overall_score" in summary

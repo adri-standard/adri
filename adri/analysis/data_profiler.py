@@ -8,6 +8,7 @@ to support automatic standard generation.
 import re
 from typing import Any, Dict, List, Optional, Union
 
+import numpy as np
 import pandas as pd
 
 
@@ -209,7 +210,7 @@ class DataProfiler:
     def _profile_integer_field(self, series: pd.Series) -> Dict[str, Any]:
         """Profile integer field characteristics."""
         non_null_series = pd.to_numeric(series.dropna(), errors="coerce")
-        
+
         # Handle empty series
         if len(non_null_series) == 0:
             return {
@@ -219,13 +220,13 @@ class DataProfiler:
             }
 
         try:
-            # Safely get min/max/mean with additional error handling
-            min_val = non_null_series.min()
-            max_val = non_null_series.max()
-            mean_val = non_null_series.mean()
-            
+            # Use nan-safe operations to prevent RuntimeWarning
+            min_val = np.nanmin(non_null_series.values)
+            max_val = np.nanmax(non_null_series.values)
+            mean_val = np.nanmean(non_null_series.values)
+
             # Check for any remaining special values
-            if pd.isna(min_val) or pd.isna(max_val) or pd.isna(mean_val):
+            if np.isnan(min_val) or np.isnan(max_val) or np.isnan(mean_val):
                 return {
                     "min_value": 0,
                     "max_value": 0,
@@ -248,7 +249,7 @@ class DataProfiler:
     def _profile_float_field(self, series: pd.Series) -> Dict[str, Any]:
         """Profile float field characteristics."""
         non_null_series = pd.to_numeric(series.dropna(), errors="coerce")
-        
+
         # Handle empty series
         if len(non_null_series) == 0:
             return {
@@ -258,16 +259,20 @@ class DataProfiler:
             }
 
         try:
-            # Safely get min/max/mean with additional error handling
-            min_val = non_null_series.min()
-            max_val = non_null_series.max()
-            mean_val = non_null_series.mean()
-            
+            # Use nan-safe operations to prevent RuntimeWarning
+            min_val = np.nanmin(non_null_series.values)
+            max_val = np.nanmax(non_null_series.values)
+            mean_val = np.nanmean(non_null_series.values)
+
             # Check for any remaining special values or _NoValueType
-            if (pd.isna(min_val) or pd.isna(max_val) or pd.isna(mean_val) or
-                str(type(min_val)).endswith("_NoValueType") or
-                str(type(max_val)).endswith("_NoValueType") or
-                str(type(mean_val)).endswith("_NoValueType")):
+            if (
+                np.isnan(min_val)
+                or np.isnan(max_val)
+                or np.isnan(mean_val)
+                or str(type(min_val)).endswith("_NoValueType")
+                or str(type(max_val)).endswith("_NoValueType")
+                or str(type(mean_val)).endswith("_NoValueType")
+            ):
                 return {
                     "min_value": 0.0,
                     "max_value": 0.0,
@@ -290,7 +295,7 @@ class DataProfiler:
     def _profile_string_field(self, series: pd.Series) -> Dict[str, Any]:
         """Profile string field characteristics."""
         non_null_series = series.dropna().astype(str)
-        
+
         # Handle empty series
         if len(non_null_series) == 0:
             return {
@@ -302,14 +307,14 @@ class DataProfiler:
         try:
             # Calculate string lengths with error handling
             lengths = non_null_series.str.len()
-            
-            # Safely get min/max/mean with additional error handling
-            min_len = lengths.min()
-            max_len = lengths.max()
-            mean_len = lengths.mean()
-            
+
+            # Use nan-safe operations to prevent RuntimeWarning
+            min_len = np.nanmin(lengths.values)
+            max_len = np.nanmax(lengths.values)
+            mean_len = np.nanmean(lengths.values)
+
             # Check for any remaining special values
-            if pd.isna(min_len) or pd.isna(max_len) or pd.isna(mean_len):
+            if np.isnan(min_len) or np.isnan(max_len) or np.isnan(mean_len):
                 return {
                     "min_length": 0,
                     "max_length": 0,
@@ -348,7 +353,7 @@ class DataProfiler:
         int_one_count = 0
         if 1 in value_counts.index:
             int_one_count = value_counts.loc[1]
-        
+
         true_count = (
             value_counts.get(True, 0)
             + value_counts.get("true", 0)

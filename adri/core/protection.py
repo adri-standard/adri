@@ -16,7 +16,7 @@ import pandas as pd
 from ..analysis.standard_generator import StandardGenerator
 from ..config.manager import ConfigManager
 from ..core.assessor import AssessmentEngine
-from ..standards import StandardsLoader, StandardNotFoundError
+from ..standards import StandardNotFoundError, StandardsLoader
 
 logger = logging.getLogger(__name__)
 

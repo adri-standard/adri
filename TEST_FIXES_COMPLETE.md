@@ -10,7 +10,7 @@ Successfully fixed all failing tests in the ADRI validator package. All **879 te
 
 **Root Cause**: The data profiler logic was working correctly, but there were some edge cases in error handling that needed refinement.
 
-**Solution**: 
+**Solution**:
 - Enhanced error handling in numeric field profiling methods
 - Improved string pattern detection reliability
 - Added better handling for empty series and conversion errors
@@ -23,7 +23,7 @@ Successfully fixed all failing tests in the ADRI validator package. All **879 te
 
 **Root Cause**: The `load_config()` method didn't catch `yaml.YAMLError` exceptions.
 
-**Solution**: 
+**Solution**:
 - Added try-catch block around `yaml.safe_load()` to handle parsing errors
 - Return `None` when YAML parsing fails instead of crashing
 
@@ -35,7 +35,7 @@ Successfully fixed all failing tests in the ADRI validator package. All **879 te
 
 **Root Cause**: Tests were mocking `os.makedirs` but the code was using `pathlib.Path.mkdir`.
 
-**Solution**: 
+**Solution**:
 - Updated test mocks to target the correct methods (`pathlib.Path.mkdir`, `pathlib.Path.glob`)
 - Simplified complex permission scenarios to focus on actual error handling
 - Fixed mock function signatures and implementations

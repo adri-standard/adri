@@ -7,20 +7,17 @@ on:
     branches: [ main ]
 
 jobs:
-  test:
+  # Quality checks run first and fast-fail if issues found
+  quality-gate:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
-
     steps:
     - uses: actions/checkout@v4
-    
-    - name: Set up Python ${{ matrix.python-version }}
+
+    - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: ${{ matrix.python-version }}
-    
+        python-version: "3.11"
+
     - name: Cache pip dependencies
       uses: actions/cache@v3
       with:
@@ -28,49 +25,71 @@ jobs:
         key: ${{ runner.os }}-pip-${{ hashFiles('**/pyproject.toml') }}
         restore-keys: |
           ${{ runner.os }}-pip-
-    
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -e ".[dev]"
-    
-    - name: Lint with flake8
+
+    - name: Run code quality checks
       run: |
-        flake8 adri --count --select=E9,F63,F7,F82 --show-source --statistics
-        flake8 adri --count --exit-zero --max-complexity=10 --max-line-length=88 --statistics
-    
-    - name: Check code formatting with black
+        echo "🎨 Running Black formatting check..."
+        black --check --diff adri/ tests/
+
+        echo "📦 Running isort import sorting check..."
+        isort --check-only --diff adri/ tests/
+
+        echo "🔍 Running flake8 linting..."
+        flake8 adri/ tests/
+
+        echo "🔬 Running mypy type checking..."
+        mypy adri/ --ignore-missing-imports
+
+    - name: Run security scan
       run: |
-        black --check adri tests
-    
-    - name: Check import sorting with isort
+        echo "🔒 Running Bandit security scan..."
+        bandit -r adri/ -f json -o bandit-report.json || true
+        bandit -r adri/
+
+        echo "🛡️ Running Safety vulnerability check..."
+        safety check
+
+  test:
+    needs: quality-gate
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Cache pip dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/pyproject.toml') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+
+    - name: Install dependencies
       run: |
-        isort --check-only adri tests
-    
-    # - name: Type checking with mypy
-    #   run: |
-    #     mypy adri
-    
-    - name: Run unit tests with strict coverage
+        python -m pip install --upgrade pip
+        pip install -e ".[dev]"
+
+    - name: Run unit tests with coverage
       run: |
         pytest tests/unit/ -v --cov=adri --cov-report=xml --cov-report=term-missing --cov-fail-under=90
-    
+
     - name: Run integration tests
       run: |
         pytest tests/integration/ -v
-    
-    - name: Run performance benchmarks
-      if: matrix.python-version == '3.11'
-      run: |
-        pytest tests/unit/ -v --benchmark-only --benchmark-json=benchmark.json
-    
-    - name: Upload benchmark results
-      if: matrix.python-version == '3.11'
-      uses: actions/upload-artifact@v3
-      with:
-        name: benchmark-results
-        path: benchmark.json
-    
+
     - name: Upload coverage to Codecov
       if: matrix.python-version == '3.11'
       uses: codecov/codecov-action@v3
@@ -79,34 +98,84 @@ jobs:
         flags: unittests
         name: codecov-umbrella
 
-  security:
+  performance:
+    needs: [quality-gate, test]
     runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
+
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: "3.11"
-    
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install bandit[toml] safety
-    
-    - name: Run security checks with bandit
+        pip install -e ".[dev]"
+        pip install pytest-benchmark
+
+    - name: Run performance benchmarks
       run: |
-        bandit -r adri -f json -o bandit-report.json
-    
-    - name: Check dependencies for vulnerabilities
-      run: |
-        safety check --json --output safety-report.json
-    
-    - name: Upload security reports
+        pytest tests/test_benchmarks.py -v --benchmark-only --benchmark-json=benchmark.json
+
+    - name: Upload benchmark results
       uses: actions/upload-artifact@v3
-      if: always()
       with:
-        name: security-reports
-        path: |
-          bandit-report.json
-          safety-report.json
+        name: benchmark-results-${{ github.sha }}
+        path: benchmark.json
+
+  build-validation:
+    needs: [quality-gate, test]
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.11"
+
+    - name: Install build dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install build twine
+
+    - name: Build package
+      run: |
+        python -m build
+
+    - name: Check package
+      run: |
+        twine check dist/*
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: dist-${{ github.sha }}
+        path: dist/
+
+  summary:
+    needs: [quality-gate, test, performance, build-validation]
+    runs-on: ubuntu-latest
+    if: always()
+
+    steps:
+    - name: CI Summary
+      run: |
+        echo "## 🚀 CI Pipeline Summary" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### Quality Gate: ${{ needs.quality-gate.result }}" >> $GITHUB_STEP_SUMMARY
+        echo "### Tests: ${{ needs.test.result }}" >> $GITHUB_STEP_SUMMARY
+        echo "### Performance: ${{ needs.performance.result }}" >> $GITHUB_STEP_SUMMARY
+        echo "### Build: ${{ needs.build-validation.result }}" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+
+        if [[ "${{ needs.quality-gate.result }}" == "success" && "${{ needs.test.result }}" == "success" && "${{ needs.build-validation.result }}" == "success" ]]; then
+          echo "✅ **All checks passed!** Ready for merge." >> $GITHUB_STEP_SUMMARY
+        else
+          echo "❌ **Some checks failed.** Please review and fix issues." >> $GITHUB_STEP_SUMMARY
+        fi

@@ -8,24 +8,24 @@ standards:
 
 requirements:
   overall_minimum: 75.0
-  
+
   dimension_requirements:
     validity:
       minimum_score: 15.0
       description: "Data must conform to expected formats and constraints"
-    
+
     completeness:
       minimum_score: 14.0
       description: "Required fields must be populated"
-    
+
     consistency:
       minimum_score: 12.0
       description: "Data must be consistent across related fields"
-    
+
     freshness:
       minimum_score: 15.0
       description: "Data must be recent and up-to-date"
-    
+
     plausibility:
       minimum_score: 12.0
       description: "Data values must be reasonable and realistic"
@@ -35,32 +35,32 @@ requirements:
       type: "integer"
       nullable: false
       description: "Unique customer identifier"
-    
+
     name:
       type: "string"
       nullable: false
       min_length: 2
       max_length: 100
       description: "Customer full name"
-    
+
     email:
       type: "string"
       nullable: false
       pattern: "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
       description: "Valid email address"
-    
+
     age:
       type: "integer"
       nullable: false
       min_value: 18
       max_value: 120
       description: "Customer age in years"
-    
+
     registration_date:
       type: "date"
       nullable: false
       description: "Date when customer registered"
-    
+
     account_balance:
       type: "float"
       nullable: false

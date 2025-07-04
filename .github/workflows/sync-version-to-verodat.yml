@@ -26,14 +26,14 @@ jobs:
         repository: ThinkEvolveSolve/adri-validator
         token: ${{ secrets.GITHUB_TOKEN }}
         path: adri-validator
-    
+
     - name: Checkout ADRI Standards
       uses: actions/checkout@v4
       with:
         repository: ThinkEvolveSolve/adri-validator  # This will be changed to verodat repo
         token: ${{ secrets.GITHUB_TOKEN }}
         path: adri-standards
-    
+
     - name: Checkout Verodat Standards (when ready)
       # This step will be activated when the verodat-standards repo is ready
       if: false  # Set to true when verodat repo is available
@@ -42,24 +42,24 @@ jobs:
         repository: Verodat/adri-standards
         token: ${{ secrets.VERODAT_SYNC_TOKEN }}  # Special token for cross-org access
         path: verodat-standards
-    
+
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: "3.11"
-    
+
     - name: Copy version tracking files to local standards
       run: |
         # Copy the updated version files from validator to standards
         cp adri-validator/../adri-standards/ADRI_VALIDATOR_RELEASES.json adri-standards/
         cp adri-validator/../adri-standards/ADRI-Validator-Releases.md adri-standards/
-    
+
     - name: Commit and push to ADRI Standards
       run: |
         cd adri-standards
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action - Version Sync"
-        
+
         if git diff --quiet; then
           echo "No changes to commit"
         else
@@ -67,18 +67,18 @@ jobs:
           git commit -m "Auto-sync: Update ADRI Validator version tracking files"
           git push origin main
         fi
-    
+
     - name: Sync to Verodat Standards (when ready)
       if: false  # Set to true when verodat repo is available
       run: |
         cd verodat-standards
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action - Verodat Sync"
-        
+
         # Copy version files
         cp ../adri-standards/ADRI_VALIDATOR_RELEASES.json .
         cp ../adri-standards/ADRI-Validator-Releases.md .
-        
+
         if git diff --quiet; then
           echo "No changes to sync to Verodat"
         else
@@ -86,7 +86,7 @@ jobs:
           git commit -m "Auto-sync: Update ADRI Validator version from ThinkEvolveSolve"
           git push origin main
         fi
-    
+
     - name: Create summary
       run: |
         echo "## Version Sync Summary" >> $GITHUB_STEP_SUMMARY

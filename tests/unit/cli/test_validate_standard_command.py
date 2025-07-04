@@ -23,7 +23,8 @@ class TestValidateStandardCommand(unittest.TestCase):
         # Create a temporary invalid standard for testing
         self.temp_dir = tempfile.mkdtemp()
         self.invalid_standard_path = Path(self.temp_dir) / "invalid_standard.yaml"
-        self.invalid_standard_path.write_text("""
+        self.invalid_standard_path.write_text(
+            """
 standards:
   id: ""  # Empty required field
   name: "Invalid Standard"
@@ -31,21 +32,23 @@ standards:
 
 requirements:
   overall_minimum: 150.0  # Invalid value > 100
-  
+
   dimension_requirements:
     invalid_dimension:  # Unknown dimension
       minimum_score: 25.0  # Invalid score > 20
-      
+
   field_requirements:
     test_field:
       type: "invalid_type"  # Invalid type
       pattern: "[unclosed"  # Invalid regex
-""")
+"""
+        )
 
     def tearDown(self):
         """Clean up test fixtures."""
         import shutil
-        if hasattr(self, 'temp_dir') and os.path.exists(self.temp_dir):
+
+        if hasattr(self, "temp_dir") and os.path.exists(self.temp_dir):
             shutil.rmtree(self.temp_dir)
 
     def test_validate_standard_command_valid_standard(self):
@@ -217,7 +220,7 @@ standards:
 
 requirements:
   overall_minimum: 80.0
-  
+
   dimension_requirements:
     validity:
       minimum_score: 15.0

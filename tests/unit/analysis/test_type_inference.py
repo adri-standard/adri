@@ -2,8 +2,8 @@
 Tests for the TypeInference module.
 """
 
-import pytest
 import pandas as pd
+import pytest
 
 from adri.analysis.type_inference import TypeInference
 
@@ -14,19 +14,24 @@ class TestTypeInferenceInit:
     def test_init_creates_patterns(self):
         """Test that initialization creates regex patterns."""
         inference = TypeInference()
-        
-        assert hasattr(inference, 'patterns')
+
+        assert hasattr(inference, "patterns")
         assert isinstance(inference.patterns, dict)
-        
+
         # Check that expected patterns exist
         expected_patterns = [
-            "email", "phone", "url", "uuid", 
-            "date_iso", "date_us", "time"
+            "email",
+            "phone",
+            "url",
+            "uuid",
+            "date_iso",
+            "date_us",
+            "time",
         ]
-        
+
         for pattern in expected_patterns:
             assert pattern in inference.patterns
-            assert hasattr(inference.patterns[pattern], 'match')
+            assert hasattr(inference.patterns[pattern], "match")
 
 
 class TestInferType:
@@ -48,7 +53,7 @@ class TestInferType:
 
     def test_infer_type_all_nan(self):
         """Test type inference with all NaN values."""
-        result = self.inference.infer_type([pd.NA, pd.NaT, float('nan')])
+        result = self.inference.infer_type([pd.NA, pd.NaT, float("nan")])
         assert result == "string"
 
     def test_infer_type_boolean_true_false(self):
@@ -143,7 +148,7 @@ class TestInferConstraints:
         """Test constraint inference for integers."""
         values = [1, 5, 3, 9, 2]
         result = self.inference.infer_constraints(values, "integer")
-        
+
         assert "min_value" in result
         assert "max_value" in result
         assert "avg_value" in result
@@ -155,7 +160,7 @@ class TestInferConstraints:
         """Test constraint inference for floats."""
         values = [1.5, 2.7, 3.14]
         result = self.inference.infer_constraints(values, "float")
-        
+
         assert "min_value" in result
         assert "max_value" in result
         assert "avg_value" in result
@@ -166,7 +171,7 @@ class TestInferConstraints:
         """Test constraint inference for strings."""
         values = ["hello", "world", "test"]
         result = self.inference.infer_constraints(values, "string")
-        
+
         assert "min_length" in result
         assert "max_length" in result
         assert "avg_length" in result
@@ -177,7 +182,7 @@ class TestInferConstraints:
         """Test constraint inference for strings with pattern."""
         values = ["test@example.com", "user@domain.org"]
         result = self.inference.infer_constraints(values, "string")
-        
+
         assert "pattern" in result
         assert result["pattern"] == "email"
 
@@ -185,7 +190,7 @@ class TestInferConstraints:
         """Test constraint inference for dates."""
         values = ["2023-01-01", "2023-12-31"]
         result = self.inference.infer_constraints(values, "date")
-        
+
         assert "format" in result
         assert result["format"] == "YYYY-MM-DD"
 
@@ -193,7 +198,7 @@ class TestInferConstraints:
         """Test constraint inference for US date format."""
         values = ["01/01/2023", "12/31/2023"]
         result = self.inference.infer_constraints(values, "date")
-        
+
         assert "format" in result
         assert result["format"] == "MM/DD/YYYY"
 
@@ -201,7 +206,7 @@ class TestInferConstraints:
         """Test constraint inference for unknown type."""
         values = ["test", "data"]
         result = self.inference.infer_constraints(values, "unknown_type")
-        
+
         assert result == {}
 
 
@@ -239,7 +244,7 @@ class TestDetectPattern:
         """Test UUID pattern detection."""
         values = [
             "123e4567-e89b-12d3-a456-426614174000",
-            "987fcdeb-51d2-43a1-b123-456789abcdef"
+            "987fcdeb-51d2-43a1-b123-456789abcdef",
         ]
         result = self.inference.detect_pattern(values)
         assert result == "uuid"
@@ -375,10 +380,11 @@ class TestPrivateMethods:
 
     def test_is_float_type_exception_objects(self):
         """Test float type detection with objects that raise exceptions."""
+
         class BadFloatObject:
             def __float__(self):
                 raise ValueError("Cannot convert to float")
-        
+
         result = self.inference._is_float_type([BadFloatObject()])
         assert result is False
 
@@ -411,7 +417,7 @@ class TestPrivateMethods:
         """Test integer constraint inference."""
         values = [1, 5, 3]
         result = self.inference._infer_integer_constraints(values)
-        
+
         assert result["min_value"] == 1
         assert result["max_value"] == 5
         assert result["avg_value"] == 3.0
@@ -420,7 +426,7 @@ class TestPrivateMethods:
         """Test float constraint inference."""
         values = [1.5, 2.5, 3.5]
         result = self.inference._infer_float_constraints(values)
-        
+
         assert result["min_value"] == 1.5
         assert result["max_value"] == 3.5
         assert result["avg_value"] == 2.5
@@ -429,7 +435,7 @@ class TestPrivateMethods:
         """Test string constraint inference."""
         values = ["hello", "world"]
         result = self.inference._infer_string_constraints(values)
-        
+
         assert result["min_length"] == 5
         assert result["max_length"] == 5
         assert result["avg_length"] == 5.0
@@ -438,7 +444,7 @@ class TestPrivateMethods:
         """Test string constraint inference with pattern."""
         values = ["test@example.com", "user@domain.org"]
         result = self.inference._infer_string_constraints(values)
-        
+
         assert "pattern" in result
         assert result["pattern"] == "email"
 
@@ -446,21 +452,21 @@ class TestPrivateMethods:
         """Test date constraint inference with ISO format."""
         values = ["2023-01-01", "2023-12-31"]
         result = self.inference._infer_date_constraints(values)
-        
+
         assert result["format"] == "YYYY-MM-DD"
 
     def test_infer_date_constraints_us(self):
         """Test date constraint inference with US format."""
         values = ["01/01/2023", "12/31/2023"]
         result = self.inference._infer_date_constraints(values)
-        
+
         assert result["format"] == "MM/DD/YYYY"
 
     def test_infer_date_constraints_unknown(self):
         """Test date constraint inference with unknown format."""
         values = ["some random date"]
         result = self.inference._infer_date_constraints(values)
-        
+
         assert result["format"] == "unknown"
 
     def test_infer_date_constraints_empty(self):
@@ -479,11 +485,11 @@ class TestTypeInferenceIntegration:
     def test_full_workflow_integer(self):
         """Test complete workflow for integer data."""
         values = [1, 2, 3, 4, 5]
-        
+
         # Infer type
         data_type = self.inference.infer_type(values)
         assert data_type == "integer"
-        
+
         # Infer constraints
         constraints = self.inference.infer_constraints(values, data_type)
         assert constraints["min_value"] == 1
@@ -492,15 +498,15 @@ class TestTypeInferenceIntegration:
     def test_full_workflow_email_strings(self):
         """Test complete workflow for email string data."""
         values = ["test@example.com", "user@domain.org", "admin@site.net"]
-        
+
         # Infer type
         data_type = self.inference.infer_type(values)
         assert data_type == "string"
-        
+
         # Infer constraints
         constraints = self.inference.infer_constraints(values, data_type)
         assert constraints["pattern"] == "email"
-        
+
         # Detect pattern directly
         pattern = self.inference.detect_pattern(values)
         assert pattern == "email"
@@ -508,11 +514,11 @@ class TestTypeInferenceIntegration:
     def test_full_workflow_mixed_data_with_nulls(self):
         """Test complete workflow with mixed data including nulls."""
         values = [1, 2, None, 3, pd.NA, 4]
-        
+
         # Infer type (should ignore nulls)
         data_type = self.inference.infer_type(values)
         assert data_type == "integer"
-        
+
         # Infer constraints (should ignore nulls)
         constraints = self.inference.infer_constraints(values, data_type)
         assert constraints["min_value"] == 1
@@ -521,10 +527,10 @@ class TestTypeInferenceIntegration:
     def test_edge_case_single_value(self):
         """Test edge case with single value."""
         values = ["test@example.com"]
-        
+
         data_type = self.inference.infer_type(values)
         assert data_type == "string"
-        
+
         constraints = self.inference.infer_constraints(values, data_type)
         assert constraints["pattern"] == "email"
 

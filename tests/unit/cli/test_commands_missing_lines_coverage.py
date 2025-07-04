@@ -9,42 +9,43 @@ import os
 import tempfile
 import unittest
 from pathlib import Path
-from unittest.mock import Mock, patch, mock_open, MagicMock
+from unittest.mock import MagicMock, Mock, mock_open, patch
+
 import yaml
 
 from adri.cli.commands import (
-    setup_command,
-    assess_command,
-    generate_adri_standard_command,
-    validate_standard_command,
-    validate_yaml_standard,
-    _validate_standards_metadata,
-    _validate_requirements_section,
-    _validate_dimension_requirements,
-    _validate_field_requirements,
-    show_config_command,
-    _output_config_json,
-    _output_config_human,
-    _show_assessment_settings,
-    _show_generation_settings,
-    _show_validation_results,
-    list_standards_command,
-    list_training_data_command,
-    list_assessments_command,
-    clean_cache_command,
-    export_report_command,
-    show_standard_command,
-    explain_failure_command,
+    _count_csv_rows,
+    _format_file_size,
     _get_dimension_recommendations,
-    load_data,
     _load_csv_data,
     _load_json_data,
     _load_parquet_data,
-    load_standard,
+    _output_config_human,
+    _output_config_json,
     _resolve_data_path,
     _resolve_standard_path,
-    _format_file_size,
-    _count_csv_rows,
+    _show_assessment_settings,
+    _show_generation_settings,
+    _show_validation_results,
+    _validate_dimension_requirements,
+    _validate_field_requirements,
+    _validate_requirements_section,
+    _validate_standards_metadata,
+    assess_command,
+    clean_cache_command,
+    explain_failure_command,
+    export_report_command,
+    generate_adri_standard_command,
+    list_assessments_command,
+    list_standards_command,
+    list_training_data_command,
+    load_data,
+    load_standard,
+    setup_command,
+    show_config_command,
+    show_standard_command,
+    validate_standard_command,
+    validate_yaml_standard,
 )
 
 
@@ -64,7 +65,9 @@ class TestCommandsMissingLinesCoverage(unittest.TestCase):
                         "paths": {
                             "standards": os.path.join(self.temp_dir, "standards"),
                             "assessments": os.path.join(self.temp_dir, "assessments"),
-                            "training_data": os.path.join(self.temp_dir, "training_data"),
+                            "training_data": os.path.join(
+                                self.temp_dir, "training_data"
+                            ),
                         }
                     }
                 },
@@ -88,16 +91,21 @@ class TestCommandsMissingLinesCoverage(unittest.TestCase):
     def tearDown(self):
         """Clean up test fixtures."""
         import shutil
+
         shutil.rmtree(self.temp_dir, ignore_errors=True)
 
     @patch("adri.cli.commands.ConfigManager")
     def test_setup_command_permission_error(self, mock_config_manager):
         """Test setup command with permission error (lines 103-105)."""
         mock_manager = Mock()
-        mock_manager.create_default_config.side_effect = PermissionError("Permission denied")
+        mock_manager.create_default_config.side_effect = PermissionError(
+            "Permission denied"
+        )
         mock_config_manager.return_value = mock_manager
 
-        result = setup_command(force=False, project_name="test", config_path="test.yaml")
+        result = setup_command(
+            force=False, project_name="test", config_path="test.yaml"
+        )
         self.assertEqual(result, 1)
 
     @patch("adri.cli.commands.ConfigManager")
@@ -107,7 +115,9 @@ class TestCommandsMissingLinesCoverage(unittest.TestCase):
         mock_manager.create_default_config.side_effect = Exception("Generic error")
         mock_config_manager.return_value = mock_manager
 
-        result = setup_command(force=False, project_name="test", config_path="test.yaml")
+        result = setup_command(
+            force=False, project_name="test", config_path="test.yaml"
+        )
         self.assertEqual(result, 1)
 
     @patch("adri.cli.commands.ConfigManager")
@@ -116,7 +126,9 @@ class TestCommandsMissingLinesCoverage(unittest.TestCase):
         """Test assess command with FileNotFoundError (lines 301-302)."""
         mock_manager = Mock()
         mock_manager.get_active_config.return_value = self.config
-        mock_manager.get_environment_config.return_value = self.config["adri"]["environments"]["development"]
+        mock_manager.get_environment_config.return_value = self.config["adri"][
+            "environments"
+        ]["development"]
         mock_config_manager.return_value = mock_manager
 
         mock_load_data.side_effect = FileNotFoundError("File not found")
@@ -124,54 +136,62 @@ class TestCommandsMissingLinesCoverage(unittest.TestCase):
         result = assess_command(
             data_path="nonexistent.csv",
             standard_path="test_standard.yaml",
-            verbose=False
+            verbose=False,
         )
         self.assertEqual(result, 1)
 
     @patch("adri.cli.commands.ConfigManager")
     @patch("adri.cli.commands.load_data")
-    def test_assess_command_generic_exception(self, mock_load_data, mock_config_manager):
+    def test_assess_command_generic_exception(
+        self, mock_load_data, mock_config_manager
+    ):
         """Test assess command with generic exception (lines 564-565)."""
         mock_manager = Mock()
         mock_manager.get_active_config.return_value = self.config
-        mock_manager.get_environment_config.return_value = self.config["adri"]["environments"]["development"]
+        mock_manager.get_environment_config.return_value = self.config["adri"][
+            "environments"
+        ]["development"]
         mock_config_manager.return_value = mock_manager
 
         mock_load_data.side_effect = Exception("Generic error")
 
         result = assess_command(
-            data_path="test.csv",
-            standard_path="test_standard.yaml",
-            verbose=False
+            data_path="test.csv", standard_path="test_standard.yaml", verbose=False
         )
         self.assertEqual(result, 1)
 
     @patch("adri.cli.commands.ConfigManager")
     @patch("adri.cli.commands.load_data")
-    def test_generate_standard_file_not_found(self, mock_load_data, mock_config_manager):
+    def test_generate_standard_file_not_found(
+        self, mock_load_data, mock_config_manager
+    ):
         """Test generate standard command with FileNotFoundError (lines 595-597)."""
         mock_manager = Mock()
         mock_manager.get_active_config.return_value = self.config
-        mock_manager.get_environment_config.return_value = self.config["adri"]["environments"]["development"]
+        mock_manager.get_environment_config.return_value = self.config["adri"][
+            "environments"
+        ]["development"]
         mock_config_manager.return_value = mock_manager
 
         mock_load_data.side_effect = FileNotFoundError("File not found")
 
         result = generate_adri_standard_command(
-            data_path="nonexistent.csv",
-            force=False,
-            verbose=False
+            data_path="nonexistent.csv", force=False, verbose=False
         )
         self.assertEqual(result, 1)
 
     @patch("adri.cli.commands.ConfigManager")
     @patch("adri.cli.commands.load_data")
     @patch("adri.cli.commands.DataProfiler")
-    def test_generate_standard_generic_exception(self, mock_profiler, mock_load_data, mock_config_manager):
+    def test_generate_standard_generic_exception(
+        self, mock_profiler, mock_load_data, mock_config_manager
+    ):
         """Test generate standard command with generic exception (lines 724-726)."""
         mock_manager = Mock()
         mock_manager.get_active_config.return_value = self.config
-        mock_manager.get_environment_config.return_value = self.config["adri"]["environments"]["development"]
+        mock_manager.get_environment_config.return_value = self.config["adri"][
+            "environments"
+        ]["development"]
         mock_config_manager.return_value = mock_manager
 
         mock_load_data.return_value = [{"test": "data"}]
@@ -180,9 +200,7 @@ class TestCommandsMissingLinesCoverage(unittest.TestCase):
         mock_profiler.return_value = mock_profiler_instance
 
         result = generate_adri_standard_command(
-            data_path="test.csv",
-            force=False,
-            verbose=True  # Test verbose path
+            data_path="test.csv", force=False, verbose=True  # Test verbose path
         )
         self.assertEqual(result, 1)
 
@@ -211,7 +229,7 @@ class TestCommandsMissingLinesCoverage(unittest.TestCase):
     def test_validate_yaml_standard_file_not_found(self):
         """Test validate YAML standard with file not found (lines 1253-1269)."""
         result = validate_yaml_standard("nonexistent.yaml")
-        
+
         self.assertFalse(result["is_valid"])
         self.assertIn("File not found", result["errors"][0])
 
@@ -222,7 +240,7 @@ class TestCommandsMissingLinesCoverage(unittest.TestCase):
             f.write("invalid: yaml: content: [")
 
         result = validate_yaml_standard(invalid_yaml)
-        
+
         self.assertFalse(result["is_valid"])
         self.assertIn("Invalid YAML syntax", result["errors"][0])
 
@@ -233,7 +251,7 @@ class TestCommandsMissingLinesCoverage(unittest.TestCase):
             yaml.dump(["not", "a", "dict"], f)
 
         result = validate_yaml_standard(non_dict_yaml)
-        
+
         self.assertFalse(result["is_valid"])
         self.assertIn("dictionary at the root level", result["errors"][0])
 
@@ -244,7 +262,7 @@ class TestCommandsMissingLinesCoverage(unittest.TestCase):
             yaml.dump({"standards": {"name": "test"}}, f)  # Missing requirements
 
         result = validate_yaml_standard(incomplete_yaml)
-        
+
         self.assertFalse(result["is_valid"])
         self.assertIn("Missing required section: 'requirements'", result["errors"][0])
 
@@ -256,20 +274,18 @@ class TestCommandsMissingLinesCoverage(unittest.TestCase):
                 "id": "test-v1",
                 "name": "Test Standard",
                 "version": "1.0.0",
-                "authority": "Test Authority"
+                "authority": "Test Authority",
             },
-            "requirements": {
-                "overall_minimum": 80
-            }
+            "requirements": {"overall_minimum": 80},
         }
         with open(valid_yaml, "w") as f:
             yaml.dump(yaml_content, f)
 
         with patch("adri.cli.commands.YAMLStandards") as mock_yaml_standards:
             mock_yaml_standards.side_effect = Exception("Instantiation failed")
-            
+
             result = validate_yaml_standard(valid_yaml)
-            
+
             # Should still extract metadata even if YAMLStandards fails
             self.assertEqual(result["standard_name"], "Test Standard")
             self.assertEqual(result["standard_version"], "1.0.0")
@@ -278,73 +294,73 @@ class TestCommandsMissingLinesCoverage(unittest.TestCase):
     def test_validate_standards_metadata_empty_fields(self):
         """Test validate standards metadata with empty fields (lines 1659-1661)."""
         result = {"errors": [], "warnings": [], "passed_checks": [], "is_valid": True}
-        
+
         standards_section = {
             "id": "",  # Empty field
             "name": "Test",
             "version": "1.0.0",
-            "authority": "Test"
+            "authority": "Test",
         }
-        
+
         _validate_standards_metadata(standards_section, result)
-        
+
         self.assertFalse(result["is_valid"])
         self.assertIn("Empty value for required field: 'id'", result["errors"][0])
 
     def test_validate_standards_metadata_invalid_version(self):
         """Test validate standards metadata with invalid version format (lines 1701)."""
         result = {"errors": [], "warnings": [], "passed_checks": [], "is_valid": True}
-        
+
         standards_section = {
             "id": "test-v1",
             "name": "Test",
             "version": "invalid-version",  # Invalid semver
-            "authority": "Test"
+            "authority": "Test",
         }
-        
+
         _validate_standards_metadata(standards_section, result)
-        
+
         self.assertIn("does not follow semantic versioning", result["warnings"][0])
 
     def test_validate_standards_metadata_invalid_date(self):
         """Test validate standards metadata with invalid effective_date (lines 1713)."""
         result = {"errors": [], "warnings": [], "passed_checks": [], "is_valid": True}
-        
+
         standards_section = {
             "id": "test-v1",
             "name": "Test",
             "version": "1.0.0",
             "authority": "Test",
-            "effective_date": "invalid-date"
+            "effective_date": "invalid-date",
         }
-        
+
         _validate_standards_metadata(standards_section, result)
-        
+
         self.assertFalse(result["is_valid"])
         self.assertIn("Invalid effective_date format", result["errors"][0])
 
     def test_validate_requirements_section_not_dict(self):
         """Test validate requirements section with non-dict (lines 1822)."""
         result = {"errors": [], "warnings": [], "passed_checks": [], "is_valid": True}
-        
+
         _validate_requirements_section("not a dict", result)
-        
+
         self.assertFalse(result["is_valid"])
         self.assertIn("Requirements section must be a dictionary", result["errors"][0])
 
     def test_validate_requirements_section_invalid_overall_minimum(self):
         """Test validate requirements section with invalid overall_minimum (lines 1845-1855)."""
         result = {"errors": [], "warnings": [], "passed_checks": [], "is_valid": True}
-        
+
         # Test non-numeric overall_minimum
         requirements = {"overall_minimum": "not a number"}
         _validate_requirements_section(requirements, result)
         self.assertFalse(result["is_valid"])
         self.assertIn("overall_minimum must be a number", result["errors"][0])
-        
+
         # Reset result
         result = {"errors": [], "warnings": [], "passed_checks": [], "is_valid": True}
-        
+
         # Test out of range overall_minimum
         requirements = {"overall_minimum": 150}  # > 100
         _validate_requirements_section(requirements, result)
@@ -354,124 +370,121 @@ class TestCommandsMissingLinesCoverage(unittest.TestCase):
     def test_validate_dimension_requirements_not_dict(self):
         """Test validate dimension requirements with non-dict (lines 1969-1971)."""
         result = {"errors": [], "warnings": [], "passed_checks": [], "is_valid": True}
-        
+
         _validate_dimension_requirements("not a dict", result)
-        
+
         self.assertFalse(result["is_valid"])
-        self.assertIn("dimension_requirements must be a dictionary", result["errors"][0])
+        self.assertIn(
+            "dimension_requirements must be a dictionary", result["errors"][0]
+        )
 
     def test_validate_dimension_requirements_invalid_dimension(self):
         """Test validate dimension requirements with invalid dimension (lines 2036-2039)."""
         result = {"errors": [], "warnings": [], "passed_checks": [], "is_valid": True}
-        
-        dim_requirements = {
-            "invalid_dimension": {"minimum_score": 15}
-        }
-        
+
+        dim_requirements = {"invalid_dimension": {"minimum_score": 15}}
+
         _validate_dimension_requirements(dim_requirements, result)
-        
+
         self.assertFalse(result["is_valid"])
         self.assertIn("Unknown dimension: 'invalid_dimension'", result["errors"][0])
 
     def test_validate_dimension_requirements_invalid_score(self):
         """Test validate dimension requirements with invalid minimum_score (lines 2124-2125, 2131)."""
         result = {"errors": [], "warnings": [], "passed_checks": [], "is_valid": True}
-        
+
         # Test non-numeric minimum_score
-        dim_requirements = {
-            "validity": {"minimum_score": "not a number"}
-        }
+        dim_requirements = {"validity": {"minimum_score": "not a number"}}
         _validate_dimension_requirements(dim_requirements, result)
         self.assertFalse(result["is_valid"])
-        self.assertIn("minimum_score for validity must be a number", result["errors"][0])
-        
+        self.assertIn(
+            "minimum_score for validity must be a number", result["errors"][0]
+        )
+
         # Reset result
         result = {"errors": [], "warnings": [], "passed_checks": [], "is_valid": True}
-        
+
         # Test out of range minimum_score
-        dim_requirements = {
-            "validity": {"minimum_score": 25}  # > 20
-        }
+        dim_requirements = {"validity": {"minimum_score": 25}}  # > 20
         _validate_dimension_requirements(dim_requirements, result)
         self.assertFalse(result["is_valid"])
-        self.assertIn("minimum_score for validity must be between 0 and 20", result["errors"][0])
+        self.assertIn(
+            "minimum_score for validity must be between 0 and 20", result["errors"][0]
+        )
 
     def test_validate_field_requirements_not_dict(self):
         """Test validate field requirements with non-dict (lines 2312)."""
         result = {"errors": [], "warnings": [], "passed_checks": [], "is_valid": True}
-        
+
         _validate_field_requirements("not a dict", result)
-        
+
         self.assertFalse(result["is_valid"])
         self.assertIn("field_requirements must be a dictionary", result["errors"][0])
 
     def test_validate_field_requirements_field_config_not_dict(self):
         """Test validate field requirements with field config not dict (lines 2320)."""
         result = {"errors": [], "warnings": [], "passed_checks": [], "is_valid": True}
-        
-        field_requirements = {
-            "test_field": "not a dict"
-        }
-        
+
+        field_requirements = {"test_field": "not a dict"}
+
         _validate_field_requirements(field_requirements, result)
-        
+
         self.assertFalse(result["is_valid"])
-        self.assertIn("Field 'test_field' configuration must be a dictionary", result["errors"][0])
+        self.assertIn(
+            "Field 'test_field' configuration must be a dictionary", result["errors"][0]
+        )
 
     def test_validate_field_requirements_invalid_type(self):
         """Test validate field requirements with invalid type (lines 2335)."""
         result = {"errors": [], "warnings": [], "passed_checks": [], "is_valid": True}
-        
-        field_requirements = {
-            "test_field": {"type": "invalid_type"}
-        }
-        
+
+        field_requirements = {"test_field": {"type": "invalid_type"}}
+
         _validate_field_requirements(field_requirements, result)
-        
+
         self.assertFalse(result["is_valid"])
-        self.assertIn("Invalid type 'invalid_type' for field 'test_field'", result["errors"][0])
+        self.assertIn(
+            "Invalid type 'invalid_type' for field 'test_field'", result["errors"][0]
+        )
 
     def test_validate_field_requirements_invalid_nullable(self):
         """Test validate field requirements with invalid nullable (lines 2347)."""
         result = {"errors": [], "warnings": [], "passed_checks": [], "is_valid": True}
-        
-        field_requirements = {
-            "test_field": {"nullable": "not a boolean"}
-        }
-        
+
+        field_requirements = {"test_field": {"nullable": "not a boolean"}}
+
         _validate_field_requirements(field_requirements, result)
-        
+
         self.assertFalse(result["is_valid"])
-        self.assertIn("nullable for field 'test_field' must be true or false", result["errors"][0])
+        self.assertIn(
+            "nullable for field 'test_field' must be true or false", result["errors"][0]
+        )
 
     def test_validate_field_requirements_invalid_min_max_range(self):
         """Test validate field requirements with invalid min/max range (lines 2357)."""
         result = {"errors": [], "warnings": [], "passed_checks": [], "is_valid": True}
-        
+
         field_requirements = {
-            "test_field": {
-                "min_value": 100,
-                "max_value": 50  # min > max
-            }
+            "test_field": {"min_value": 100, "max_value": 50}  # min > max
         }
-        
+
         _validate_field_requirements(field_requirements, result)
-        
+
         self.assertFalse(result["is_valid"])
         self.assertIn("min_value must be less than max_value", result["errors"][0])
 
     def test_validate_field_requirements_invalid_regex(self):
         """Test validate field requirements with invalid regex pattern (lines 2365)."""
         result = {"errors": [], "warnings": [], "passed_checks": [], "is_valid": True}
-        
-        field_requirements = {
-            "test_field": {"pattern": "[invalid regex"}
-        }
-        
+
+        field_requirements = {"test_field": {"pattern": "[invalid regex"}}
+
         _validate_field_requirements(field_requirements, result)
-        
+
         self.assertFalse(result["is_valid"])
-        self.assertIn("Invalid regex pattern for field 'test_field'", result["errors"][0])
+        self.assertIn(
+            "Invalid regex pattern for field 'test_field'", result["errors"][0]
+        )
 
     @patch("adri.cli.commands.ConfigManager")
     def test_validate_standard_command_file_not_found(self, mock_config_manager):
@@ -484,7 +497,7 @@ class TestCommandsMissingLinesCoverage(unittest.TestCase):
         """Test validate standard command with generic exception."""
         with patch("adri.cli.commands.validate_yaml_standard") as mock_validate:
             mock_validate.side_effect = Exception("Validation error")
-            
+
             result = validate_standard_command("test.yaml", verbose=False)
             self.assertEqual(result, 1)
 
@@ -532,19 +545,19 @@ class TestCommandsMissingLinesCoverage(unittest.TestCase):
             "warnings": ["Test warning"],
             "path_status": {
                 "development.standards": {"exists": True, "file_count": 5},
-                "development.assessments": {"exists": False, "file_count": -1}
-            }
+                "development.assessments": {"exists": False, "file_count": -1},
+            },
         }
-        
+
         mock_config_manager = Mock()
-        
+
         result = _output_config_human(
             self.config,
             "development",
             False,  # paths_only
-            True,   # validate
+            True,  # validate
             validation_results,
-            mock_config_manager
+            mock_config_manager,
         )
         self.assertEqual(result, 0)
 
@@ -566,10 +579,10 @@ class TestCommandsMissingLinesCoverage(unittest.TestCase):
             "warnings": ["Test warning"],
             "path_status": {
                 "development.standards": {"exists": True, "file_count": 5},
-                "development.assessments": {"exists": False, "file_count": 0}
-            }
+                "development.assessments": {"exists": False, "file_count": 0},
+            },
         }
-        
+
         # This should not raise any exceptions
         _show_validation_results(validation_results)
 
@@ -588,7 +601,9 @@ class TestCommandsMissingLinesCoverage(unittest.TestCase):
         """Test list standards command with invalid environment."""
         mock_manager = Mock()
         mock_manager.get_active_config.return_value = self.config
-        mock_manager.get_environment_config.side_effect = ValueError("Invalid environment")
+        mock_manager.get_environment_config.side_effect = ValueError(
+            "Invalid environment"
+        )
         mock_config_manager.return_value = mock_manager
 
         result = list_standards_command(environment="invalid")

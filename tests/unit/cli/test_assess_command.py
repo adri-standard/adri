@@ -41,7 +41,7 @@ standards:
 
 requirements:
   overall_minimum: 80.0
-  
+
   field_requirements:
     name:
       type: "string"
@@ -88,7 +88,7 @@ standards:
 
 requirements:
   overall_minimum: 80.0
-  
+
   field_requirements:
     name:
       type: "string"
@@ -160,7 +160,7 @@ standards:
 
 requirements:
   overall_minimum: 80.0
-  
+
   field_requirements:
     name:
       type: "string"
@@ -206,7 +206,7 @@ standards:
 
 requirements:
   overall_minimum: 80.0
-  
+
   field_requirements:
     name:
       type: "string"
@@ -266,7 +266,7 @@ standards:
 
 requirements:
   overall_minimum: 80.0
-  
+
   field_requirements:
     name:
       type: "string"
@@ -309,7 +309,7 @@ standards:
 
 requirements:
   overall_minimum: 80.0
-  
+
   field_requirements:
     name:
       type: "string"
@@ -411,7 +411,7 @@ standards:
 
 requirements:
   overall_minimum: 80.0
-  
+
   field_requirements:
     name:
       type: "string"

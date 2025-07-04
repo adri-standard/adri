@@ -5,7 +5,7 @@ Tests for the ConfigManager module.
 import os
 import tempfile
 from pathlib import Path
-from unittest.mock import patch, mock_open
+from unittest.mock import mock_open, patch
 
 import pytest
 import yaml
@@ -32,10 +32,10 @@ class TestCreateDefaultConfig:
     def test_create_default_config_structure(self):
         """Test that default config has correct structure."""
         config = self.manager.create_default_config("test_project")
-        
+
         assert "adri" in config
         adri_config = config["adri"]
-        
+
         # Check required top-level fields
         assert adri_config["version"] == "2.0"
         assert adri_config["project_name"] == "test_project"
@@ -50,20 +50,20 @@ class TestCreateDefaultConfig:
         """Test that default config has correct environments."""
         config = self.manager.create_default_config("test_project")
         environments = config["adri"]["environments"]
-        
+
         assert "development" in environments
         assert "production" in environments
-        
+
         # Check development environment
         dev_env = environments["development"]
         assert "paths" in dev_env
         assert "protection" in dev_env
-        
+
         dev_paths = dev_env["paths"]
         assert "standards" in dev_paths
         assert "assessments" in dev_paths
         assert "training_data" in dev_paths
-        
+
         # Check production environment
         prod_env = environments["production"]
         assert "paths" in prod_env
@@ -73,10 +73,10 @@ class TestCreateDefaultConfig:
         """Test default config with different project names."""
         config1 = self.manager.create_default_config("project_one")
         config2 = self.manager.create_default_config("project_two")
-        
+
         assert config1["adri"]["project_name"] == "project_one"
         assert config2["adri"]["project_name"] == "project_two"
-        
+
         # Other parts should be the same
         assert config1["adri"]["version"] == config2["adri"]["version"]
 
@@ -118,7 +118,7 @@ class TestValidateConfig:
             "adri": {
                 "version": "2.0",
                 "project_name": "test",
-                "default_environment": "dev"
+                "default_environment": "dev",
             }
         }
         result = self.manager.validate_config(invalid_config)
@@ -127,11 +127,7 @@ class TestValidateConfig:
     def test_validate_config_missing_default_environment(self):
         """Test validation with missing default_environment."""
         invalid_config = {
-            "adri": {
-                "version": "2.0",
-                "project_name": "test",
-                "environments": {}
-            }
+            "adri": {"version": "2.0", "project_name": "test", "environments": {}}
         }
         result = self.manager.validate_config(invalid_config)
         assert result is False
@@ -143,7 +139,7 @@ class TestValidateConfig:
                 "version": "2.0",
                 "project_name": "test",
                 "environments": "not_a_dict",
-                "default_environment": "dev"
+                "default_environment": "dev",
             }
         }
         result = self.manager.validate_config(invalid_config)
@@ -155,10 +151,8 @@ class TestValidateConfig:
             "adri": {
                 "version": "2.0",
                 "project_name": "test",
-                "environments": {
-                    "dev": {"other": "data"}
-                },
-                "default_environment": "dev"
+                "environments": {"dev": {"other": "data"}},
+                "default_environment": "dev",
             }
         }
         result = self.manager.validate_config(invalid_config)
@@ -178,7 +172,7 @@ class TestValidateConfig:
                         }
                     }
                 },
-                "default_environment": "dev"
+                "default_environment": "dev",
             }
         }
         result = self.manager.validate_config(invalid_config)
@@ -201,16 +195,16 @@ class TestSaveConfig:
     def test_save_config_default_path(self):
         """Test saving config to default path."""
         config = {"test": "data"}
-        
+
         with tempfile.TemporaryDirectory() as temp_dir:
             original_cwd = os.getcwd()
             try:
                 os.chdir(temp_dir)
                 self.manager.save_config(config)
-                
+
                 # Check file was created
                 assert os.path.exists("adri-config.yaml")
-                
+
                 # Check content
                 with open("adri-config.yaml", "r") as f:
                     loaded_config = yaml.safe_load(f)
@@ -221,14 +215,14 @@ class TestSaveConfig:
     def test_save_config_custom_path(self):
         """Test saving config to custom path."""
         config = {"test": "data"}
-        
+
         with tempfile.TemporaryDirectory() as temp_dir:
             config_path = os.path.join(temp_dir, "custom-config.yaml")
             self.manager.save_config(config, config_path)
-            
+
             # Check file was created
             assert os.path.exists(config_path)
-            
+
             # Check content
             with open(config_path, "r") as f:
                 loaded_config = yaml.safe_load(f)
@@ -237,14 +231,14 @@ class TestSaveConfig:
     def test_save_config_creates_directories(self):
         """Test that save_config creates necessary directories."""
         config = {"test": "data"}
-        
+
         with tempfile.TemporaryDirectory() as temp_dir:
             config_path = os.path.join(temp_dir, "subdir", "config.yaml")
-            
+
             # Create the parent directory first (since save_config doesn't create dirs)
             os.makedirs(os.path.dirname(config_path), exist_ok=True)
             self.manager.save_config(config, config_path)
-            
+
             # Check file was created
             assert os.path.exists(config_path)
 
@@ -259,8 +253,8 @@ class TestLoadConfig:
     def test_load_config_existing_file(self):
         """Test loading existing config file."""
         config = {"test": "data", "nested": {"key": "value"}}
-        
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
+
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
             yaml.dump(config, f)
             temp_path = f.name
 
@@ -278,16 +272,16 @@ class TestLoadConfig:
     def test_load_config_default_path(self):
         """Test loading config from default path."""
         config = {"test": "data"}
-        
+
         with tempfile.TemporaryDirectory() as temp_dir:
             original_cwd = os.getcwd()
             try:
                 os.chdir(temp_dir)
-                
+
                 # Create config file
                 with open("adri-config.yaml", "w") as f:
                     yaml.dump(config, f)
-                
+
                 loaded_config = self.manager.load_config()
                 assert loaded_config == config
             finally:
@@ -307,7 +301,7 @@ class TestCreateDirectoryStructure:
             original_cwd = os.getcwd()
             try:
                 os.chdir(temp_dir)
-                
+
                 config = {
                     "adri": {
                         "environments": {
@@ -315,22 +309,22 @@ class TestCreateDirectoryStructure:
                                 "paths": {
                                     "standards": "./dev/standards",
                                     "assessments": "./dev/assessments",
-                                    "training_data": "./dev/training"
+                                    "training_data": "./dev/training",
                                 }
                             },
                             "prod": {
                                 "paths": {
                                     "standards": "./prod/standards",
                                     "assessments": "./prod/assessments",
-                                    "training_data": "./prod/training"
+                                    "training_data": "./prod/training",
                                 }
-                            }
+                            },
                         }
                     }
                 }
-                
+
                 self.manager.create_directory_structure(config)
-                
+
                 # Check that directories were created
                 assert os.path.exists("./dev/standards")
                 assert os.path.exists("./dev/assessments")
@@ -358,10 +352,10 @@ class TestFindConfigFile:
             adri_dir = os.path.join(temp_dir, "ADRI")
             os.makedirs(adri_dir)
             config_path = os.path.join(adri_dir, "adri-config.yaml")
-            
+
             with open(config_path, "w") as f:
                 f.write("test: data")
-            
+
             result = self.manager.find_config_file(temp_dir)
             # Normalize paths for comparison (macOS resolves /var to /private/var)
             assert os.path.realpath(result) == os.path.realpath(config_path)
@@ -371,10 +365,10 @@ class TestFindConfigFile:
         with tempfile.TemporaryDirectory() as temp_dir:
             # Create adri-config.yaml in root
             config_path = os.path.join(temp_dir, "adri-config.yaml")
-            
+
             with open(config_path, "w") as f:
                 f.write("test: data")
-            
+
             result = self.manager.find_config_file(temp_dir)
             assert os.path.realpath(result) == os.path.realpath(config_path)
 
@@ -382,10 +376,10 @@ class TestFindConfigFile:
         """Test finding config file with .yml extension."""
         with tempfile.TemporaryDirectory() as temp_dir:
             config_path = os.path.join(temp_dir, "adri-config.yml")
-            
+
             with open(config_path, "w") as f:
                 f.write("test: data")
-            
+
             result = self.manager.find_config_file(temp_dir)
             assert os.path.realpath(result) == os.path.realpath(config_path)
 
@@ -393,10 +387,10 @@ class TestFindConfigFile:
         """Test finding config file in dotfile locations."""
         with tempfile.TemporaryDirectory() as temp_dir:
             config_path = os.path.join(temp_dir, ".adri.yaml")
-            
+
             with open(config_path, "w") as f:
                 f.write("test: data")
-            
+
             result = self.manager.find_config_file(temp_dir)
             assert os.path.realpath(result) == os.path.realpath(config_path)
 
@@ -406,12 +400,12 @@ class TestFindConfigFile:
             # Create subdirectory
             subdir = os.path.join(temp_dir, "subdir")
             os.makedirs(subdir)
-            
+
             # Create config in parent
             config_path = os.path.join(temp_dir, "adri-config.yaml")
             with open(config_path, "w") as f:
                 f.write("test: data")
-            
+
             result = self.manager.find_config_file(subdir)
             assert os.path.realpath(result) == os.path.realpath(config_path)
 
@@ -427,15 +421,15 @@ class TestFindConfigFile:
             # Create both ADRI/adri-config.yaml and adri-config.yaml
             adri_dir = os.path.join(temp_dir, "ADRI")
             os.makedirs(adri_dir)
-            
+
             primary_config = os.path.join(adri_dir, "adri-config.yaml")
             fallback_config = os.path.join(temp_dir, "adri-config.yaml")
-            
+
             with open(primary_config, "w") as f:
                 f.write("primary: config")
             with open(fallback_config, "w") as f:
                 f.write("fallback: config")
-            
+
             result = self.manager.find_config_file(temp_dir)
             assert os.path.realpath(result) == os.path.realpath(primary_config)
 
@@ -450,8 +444,8 @@ class TestGetActiveConfig:
     def test_get_active_config_with_path(self):
         """Test getting active config with specific path."""
         config = {"test": "data"}
-        
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
+
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
             yaml.dump(config, f)
             temp_path = f.name
 
@@ -464,24 +458,24 @@ class TestGetActiveConfig:
     def test_get_active_config_search_for_file(self):
         """Test getting active config by searching for file."""
         config = {"test": "data"}
-        
+
         with tempfile.TemporaryDirectory() as temp_dir:
             config_path = os.path.join(temp_dir, "adri-config.yaml")
             with open(config_path, "w") as f:
                 yaml.dump(config, f)
-            
-            with patch.object(self.manager, 'find_config_file') as mock_find:
+
+            with patch.object(self.manager, "find_config_file") as mock_find:
                 mock_find.return_value = config_path
-                
+
                 result = self.manager.get_active_config()
                 assert result == config
                 mock_find.assert_called_once()
 
     def test_get_active_config_no_file_found(self):
         """Test getting active config when no file is found."""
-        with patch.object(self.manager, 'find_config_file') as mock_find:
+        with patch.object(self.manager, "find_config_file") as mock_find:
             mock_find.return_value = None
-            
+
             result = self.manager.get_active_config()
             assert result is None
 
@@ -502,7 +496,7 @@ class TestGetEnvironmentConfig:
     def test_get_environment_config_specific_environment(self):
         """Test getting config for specific environment."""
         result = self.manager.get_environment_config(self.config, "development")
-        
+
         assert "paths" in result
         assert "protection" in result
         assert result["paths"]["standards"] == "./ADRI/dev/standards"
@@ -510,7 +504,7 @@ class TestGetEnvironmentConfig:
     def test_get_environment_config_default_environment(self):
         """Test getting config for default environment."""
         result = self.manager.get_environment_config(self.config)
-        
+
         # Should return development environment (the default)
         assert "paths" in result
         assert result["paths"]["standards"] == "./ADRI/dev/standards"
@@ -524,9 +518,9 @@ class TestGetEnvironmentConfig:
         """Test getting config with custom default environment."""
         custom_config = self.config.copy()
         custom_config["adri"]["default_environment"] = "production"
-        
+
         result = self.manager.get_environment_config(custom_config)
-        
+
         # Should return production environment
         assert result["paths"]["standards"] == "./ADRI/prod/standards"
 
@@ -544,7 +538,7 @@ class TestResolveStandardPath:
         result = self.manager.resolve_standard_path(
             "test_standard.yaml", self.config, "development"
         )
-        
+
         expected = os.path.join("./ADRI/dev/standards", "test_standard.yaml")
         assert result == expected
 
@@ -553,7 +547,7 @@ class TestResolveStandardPath:
         result = self.manager.resolve_standard_path(
             "test_standard", self.config, "development"
         )
-        
+
         expected = os.path.join("./ADRI/dev/standards", "test_standard.yaml")
         assert result == expected
 
@@ -562,7 +556,7 @@ class TestResolveStandardPath:
         result = self.manager.resolve_standard_path(
             "test_standard.yml", self.config, "development"
         )
-        
+
         expected = os.path.join("./ADRI/dev/standards", "test_standard.yml")
         assert result == expected
 
@@ -571,16 +565,14 @@ class TestResolveStandardPath:
         result = self.manager.resolve_standard_path(
             "test_standard", self.config, "production"
         )
-        
+
         expected = os.path.join("./ADRI/prod/standards", "test_standard.yaml")
         assert result == expected
 
     def test_resolve_standard_path_default_environment(self):
         """Test resolving standard path with default environment."""
-        result = self.manager.resolve_standard_path(
-            "test_standard", self.config
-        )
-        
+        result = self.manager.resolve_standard_path("test_standard", self.config)
+
         # Should use development (default environment)
         expected = os.path.join("./ADRI/dev/standards", "test_standard.yaml")
         assert result == expected
@@ -641,15 +633,15 @@ class TestValidatePaths:
                         "paths": {
                             "standards": "/nonexistent/path1",
                             "assessments": "/nonexistent/path2",
-                            "training_data": "/nonexistent/path3"
+                            "training_data": "/nonexistent/path3",
                         }
                     }
                 }
             }
         }
-        
+
         result = self.manager.validate_paths(config)
-        
+
         assert result["valid"] is True  # Warnings don't make it invalid
         assert len(result["warnings"]) >= 3  # Should have warnings for missing paths
         assert "path_status" in result
@@ -661,11 +653,11 @@ class TestValidatePaths:
             standards_dir = os.path.join(temp_dir, "standards")
             assessments_dir = os.path.join(temp_dir, "assessments")
             training_dir = os.path.join(temp_dir, "training")
-            
+
             os.makedirs(standards_dir)
             os.makedirs(assessments_dir)
             os.makedirs(training_dir)
-            
+
             config = {
                 "adri": {
                     "environments": {
@@ -673,18 +665,18 @@ class TestValidatePaths:
                             "paths": {
                                 "standards": standards_dir,
                                 "assessments": assessments_dir,
-                                "training_data": training_dir
+                                "training_data": training_dir,
                             }
                         }
                     }
                 }
             }
-            
+
             result = self.manager.validate_paths(config)
-            
+
             assert result["valid"] is True
             assert len(result["errors"]) == 0
-            
+
             # Check path status
             for path_key in ["dev.standards", "dev.assessments", "dev.training_data"]:
                 status = result["path_status"][path_key]
@@ -699,7 +691,7 @@ class TestValidatePaths:
             file_path = os.path.join(temp_dir, "not_a_directory.txt")
             with open(file_path, "w") as f:
                 f.write("test")
-            
+
             config = {
                 "adri": {
                     "environments": {
@@ -707,15 +699,15 @@ class TestValidatePaths:
                             "paths": {
                                 "standards": file_path,
                                 "assessments": "/nonexistent",
-                                "training_data": "/nonexistent"
+                                "training_data": "/nonexistent",
                             }
                         }
                     }
                 }
             }
-            
+
             result = self.manager.validate_paths(config)
-            
+
             assert result["valid"] is False
             assert len(result["errors"]) >= 1
             assert any("not a directory" in error for error in result["errors"])
@@ -730,11 +722,11 @@ class TestGetProtectionConfig:
 
     def test_get_protection_config_no_active_config(self):
         """Test getting protection config when no active config exists."""
-        with patch.object(self.manager, 'get_active_config') as mock_get:
+        with patch.object(self.manager, "get_active_config") as mock_get:
             mock_get.return_value = None
-            
+
             result = self.manager.get_protection_config()
-            
+
             # Should return default protection config
             assert "default_failure_mode" in result
             assert "default_min_score" in result
@@ -744,12 +736,12 @@ class TestGetProtectionConfig:
     def test_get_protection_config_with_active_config(self):
         """Test getting protection config with active config."""
         config = self.manager.create_default_config("test_project")
-        
-        with patch.object(self.manager, 'get_active_config') as mock_get:
+
+        with patch.object(self.manager, "get_active_config") as mock_get:
             mock_get.return_value = config
-            
+
             result = self.manager.get_protection_config("development")
-            
+
             # Should return development environment protection config
             assert result["default_failure_mode"] == "warn"
             assert result["default_min_score"] == 75
@@ -757,12 +749,12 @@ class TestGetProtectionConfig:
     def test_get_protection_config_production_environment(self):
         """Test getting protection config for production environment."""
         config = self.manager.create_default_config("test_project")
-        
-        with patch.object(self.manager, 'get_active_config') as mock_get:
+
+        with patch.object(self.manager, "get_active_config") as mock_get:
             mock_get.return_value = config
-            
+
             result = self.manager.get_protection_config("production")
-            
+
             # Should return production environment protection config
             assert result["default_failure_mode"] == "raise"
             assert result["default_min_score"] == 85
@@ -770,12 +762,12 @@ class TestGetProtectionConfig:
     def test_get_protection_config_environment_override(self):
         """Test that environment config overrides global config."""
         config = self.manager.create_default_config("test_project")
-        
-        with patch.object(self.manager, 'get_active_config') as mock_get:
+
+        with patch.object(self.manager, "get_active_config") as mock_get:
             mock_get.return_value = config
-            
+
             result = self.manager.get_protection_config("development")
-            
+
             # Environment-specific settings should override global ones
             assert result["default_failure_mode"] == "warn"  # From dev environment
             assert result["default_min_score"] == 75  # From dev environment
@@ -793,44 +785,50 @@ class TestResolveStandardPathSimple:
     def test_resolve_standard_path_simple_with_config(self):
         """Test simple standard path resolution with active config."""
         config = self.manager.create_default_config("test_project")
-        
-        with patch.object(self.manager, 'get_active_config') as mock_get:
+
+        with patch.object(self.manager, "get_active_config") as mock_get:
             mock_get.return_value = config
-            
-            result = self.manager.resolve_standard_path_simple("test_standard", "development")
-            
+
+            result = self.manager.resolve_standard_path_simple(
+                "test_standard", "development"
+            )
+
             expected = os.path.join("./ADRI/dev/standards", "test_standard.yaml")
             assert result == expected
 
     def test_resolve_standard_path_simple_no_config(self):
         """Test simple standard path resolution without active config."""
-        with patch.object(self.manager, 'get_active_config') as mock_get:
+        with patch.object(self.manager, "get_active_config") as mock_get:
             mock_get.return_value = None
-            
-            result = self.manager.resolve_standard_path_simple("test_standard", "development")
-            
+
+            result = self.manager.resolve_standard_path_simple(
+                "test_standard", "development"
+            )
+
             # Should use fallback path structure
             expected = os.path.join("./ADRI/dev/standards", "test_standard.yaml")
             assert result == expected
 
     def test_resolve_standard_path_simple_no_config_default_env(self):
         """Test simple standard path resolution without config and default environment."""
-        with patch.object(self.manager, 'get_active_config') as mock_get:
+        with patch.object(self.manager, "get_active_config") as mock_get:
             mock_get.return_value = None
-            
+
             result = self.manager.resolve_standard_path_simple("test_standard")
-            
+
             # Should use development as default
             expected = os.path.join("./ADRI/dev/standards", "test_standard.yaml")
             assert result == expected
 
     def test_resolve_standard_path_simple_production_fallback(self):
         """Test simple standard path resolution fallback for production."""
-        with patch.object(self.manager, 'get_active_config') as mock_get:
+        with patch.object(self.manager, "get_active_config") as mock_get:
             mock_get.return_value = None
-            
-            result = self.manager.resolve_standard_path_simple("test_standard", "production")
-            
+
+            result = self.manager.resolve_standard_path_simple(
+                "test_standard", "production"
+            )
+
             # Should use prod (first 3 chars of production)
             expected = os.path.join("./ADRI/pro/standards", "test_standard.yaml")
             assert result == expected
@@ -849,49 +847,53 @@ class TestConfigManagerIntegration:
             original_cwd = os.getcwd()
             try:
                 os.chdir(temp_dir)
-                
+
                 # Create default config
                 config = self.manager.create_default_config("integration_test")
-                
+
                 # Validate the created config
                 assert self.manager.validate_config(config) is True
-                
+
                 # Save the config
                 self.manager.save_config(config, "test-config.yaml")
-                
+
                 # Load the config back
                 loaded_config = self.manager.load_config("test-config.yaml")
                 assert loaded_config == config
-                
+
                 # Validate the loaded config
                 assert self.manager.validate_config(loaded_config) is True
-                
+
                 # Create directory structure
                 self.manager.create_directory_structure(config)
-                
+
                 # Verify directories were created
                 assert os.path.exists("./ADRI/dev/standards")
                 assert os.path.exists("./ADRI/prod/assessments")
-                
+
             finally:
                 os.chdir(original_cwd)
 
     def test_environment_workflow(self):
         """Test environment-specific workflow."""
         config = self.manager.create_default_config("env_test")
-        
+
         # Test development environment
         dev_config = self.manager.get_environment_config(config, "development")
         assert dev_config["protection"]["default_failure_mode"] == "warn"
-        
+
         # Test production environment
         prod_config = self.manager.get_environment_config(config, "production")
         assert prod_config["protection"]["default_failure_mode"] == "raise"
-        
+
         # Test path resolution
-        dev_path = self.manager.resolve_standard_path("test.yaml", config, "development")
-        prod_path = self.manager.resolve_standard_path("test.yaml", config, "production")
-        
+        dev_path = self.manager.resolve_standard_path(
+            "test.yaml", config, "development"
+        )
+        prod_path = self.manager.resolve_standard_path(
+            "test.yaml", config, "production"
+        )
+
         assert "dev" in dev_path
         assert "prod" in prod_path
 
@@ -901,21 +903,21 @@ class TestConfigManagerIntegration:
             # Create config in ADRI directory
             adri_dir = os.path.join(temp_dir, "ADRI")
             os.makedirs(adri_dir)
-            
+
             config = self.manager.create_default_config("search_test")
             config_path = os.path.join(adri_dir, "adri-config.yaml")
-            
+
             with open(config_path, "w") as f:
                 yaml.dump(config, f)
-            
+
             # Test finding the config
             found_path = self.manager.find_config_file(temp_dir)
             assert os.path.realpath(found_path) == os.path.realpath(config_path)
-            
+
             # Test loading active config
-            with patch.object(self.manager, 'find_config_file') as mock_find:
+            with patch.object(self.manager, "find_config_file") as mock_find:
                 mock_find.return_value = config_path
-                
+
                 active_config = self.manager.get_active_config()
                 assert active_config == config
 

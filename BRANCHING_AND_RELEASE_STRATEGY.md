@@ -107,7 +107,7 @@ Use GitHub Actions "Promote to Production" workflow:
 Required Status Checks:
   - Feature Branch CI / test
   - Feature Branch CI / security-scan
-  
+
 Required Reviews:
   - 1+ approvals required
   - Dismiss stale reviews: true
@@ -124,11 +124,11 @@ Restrictions:
 Required Status Checks:
   - Main Branch CI / test
   - Main Branch CI / security
-  
+
 Required Reviews:
   - 2+ approvals for manual merges
   - Only release automation can push
-  
+
 Restrictions:
   - No direct pushes by anyone
   - No force pushes allowed

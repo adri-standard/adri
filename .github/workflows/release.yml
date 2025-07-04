@@ -30,20 +30,20 @@ jobs:
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
         fetch-depth: 0
-    
+
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: "3.11"
-    
+
     - name: Install bump2version
       run: pip install bump2version
-    
+
     - name: Configure git
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
-    
+
     - name: Bump version
       id: version
       run: |
@@ -67,17 +67,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: "3.11"
-    
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -e ".[dev]"
-    
+
     - name: Run full test suite
       run: |
         pytest tests/ -v --cov=adri --cov-report=xml --cov-fail-under=90
@@ -87,25 +87,25 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: "3.11"
-    
+
     - name: Install build dependencies
       run: |
         python -m pip install --upgrade pip
         pip install build twine
-    
+
     - name: Build package
       run: |
         python -m build
-    
+
     - name: Check package
       run: |
         twine check dist/*
-    
+
     - name: Upload build artifacts
       uses: actions/upload-artifact@v3
       with:
@@ -123,7 +123,7 @@ jobs:
       with:
         name: dist
         path: dist/
-    
+
     - name: Publish to PyPI
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
@@ -139,17 +139,17 @@ jobs:
     - uses: actions/checkout@v4
       with:
         fetch-depth: 0
-    
+
     - name: Get version from tag
       id: get_version
       run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
-    
+
     - name: Download build artifacts
       uses: actions/download-artifact@v3
       with:
         name: dist
         path: dist/
-    
+
     - name: Generate changelog
       id: changelog
       run: |
@@ -161,7 +161,7 @@ jobs:
           echo "" >> release_notes.md
           echo "See commit history for changes." >> release_notes.md
         fi
-    
+
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v1
       with:

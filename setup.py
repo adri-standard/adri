@@ -4,8 +4,9 @@ ADRI Validator - Internal Python Implementation
 The proprietary validation engine for ADRI Standards.
 """
 
-from setuptools import setup, find_packages
 import os
+
+from setuptools import find_packages, setup
 
 # Read the README file
 with open("README.md", "r", encoding="utf-8") as fh:
@@ -87,8 +88,14 @@ setup(
         ],
     },
     keywords=[
-        "ai", "agents", "data-quality", "validation", "protection",
-        "internal", "proprietary", "adri"
+        "ai",
+        "agents",
+        "data-quality",
+        "validation",
+        "protection",
+        "internal",
+        "proprietary",
+        "adri",
     ],
     license="MIT",
     zip_safe=False,

@@ -485,7 +485,7 @@ def _load_csv_data(file_path: Path) -> List[Dict[str, Any]]:
         reader = csv.DictReader(f)
         for row in reader:
             data.append(dict(row))
-    
+
     # Check if no data was loaded (empty file)
     if not data:
         # Re-read to check if file is truly empty
@@ -493,7 +493,7 @@ def _load_csv_data(file_path: Path) -> List[Dict[str, Any]]:
             content = f.read()
             if not content.strip():
                 raise ValueError("CSV file is empty")
-    
+
     return data
 
 
@@ -701,13 +701,21 @@ def validate_yaml_standard(file_path: str) -> Dict[str, Any]:
         try:
             standard = YAMLStandards()
             # Load the standard data into the instance
-            loaded_standard = standard.load_standard("dummy")  # We'll use the yaml_content directly
-            
+            loaded_standard = standard.load_standard(
+                "dummy"
+            )  # We'll use the yaml_content directly
+
             # Extract metadata directly from yaml_content since we can't pass it to constructor
             standards_section = yaml_content.get("standards", {})
-            validation_result["standard_name"] = standards_section.get("name", "Unknown")
-            validation_result["standard_version"] = standards_section.get("version", "Unknown")
-            validation_result["authority"] = standards_section.get("authority", "Unknown")
+            validation_result["standard_name"] = standards_section.get(
+                "name", "Unknown"
+            )
+            validation_result["standard_version"] = standards_section.get(
+                "version", "Unknown"
+            )
+            validation_result["authority"] = standards_section.get(
+                "authority", "Unknown"
+            )
             validation_result["passed_checks"].append(
                 "YAMLStandards instantiation successful"
             )
@@ -715,14 +723,22 @@ def validate_yaml_standard(file_path: str) -> Dict[str, Any]:
             # If YAMLStandards fails, still extract metadata directly from yaml_content
             try:
                 standards_section = yaml_content.get("standards", {})
-                validation_result["standard_name"] = standards_section.get("name", "Unknown")
-                validation_result["standard_version"] = standards_section.get("version", "Unknown")
-                validation_result["authority"] = standards_section.get("authority", "Unknown")
+                validation_result["standard_name"] = standards_section.get(
+                    "name", "Unknown"
+                )
+                validation_result["standard_version"] = standards_section.get(
+                    "version", "Unknown"
+                )
+                validation_result["authority"] = standards_section.get(
+                    "authority", "Unknown"
+                )
                 validation_result["passed_checks"].append(
                     "Metadata extraction successful (YAMLStandards instantiation skipped)"
                 )
             except Exception:
-                validation_result["errors"].append(f"Standards instantiation failed: {e}")
+                validation_result["errors"].append(
+                    f"Standards instantiation failed: {e}"
+                )
                 validation_result["is_valid"] = False
 
     except Exception as e:

@@ -5,7 +5,7 @@ Tests for the YAMLStandards module.
 import os
 import tempfile
 from pathlib import Path
-from unittest.mock import patch, mock_open
+from unittest.mock import mock_open, patch
 
 import pytest
 import yaml
@@ -27,17 +27,14 @@ class TestYAMLStandardsInit:
         """Test initialization with valid standard path."""
         # Create a temporary YAML file
         valid_standard = {
-            "standard_metadata": {
-                "id": "test-standard",
-                "version": "1.0.0"
-            },
+            "standard_metadata": {"id": "test-standard", "version": "1.0.0"},
             "requirements": {
                 "overall_minimum": 80.0,
-                "field_requirements": {"test_field": "test_value"}
-            }
+                "field_requirements": {"test_field": "test_value"},
+            },
         }
-        
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
+
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
             yaml.dump(valid_standard, f)
             temp_path = f.name
 
@@ -61,19 +58,16 @@ class TestLoadFromFile:
         """Set up test fixtures."""
         self.standards = YAMLStandards()
         self.valid_standard = {
-            "standard_metadata": {
-                "id": "test-standard",
-                "version": "1.0.0"
-            },
+            "standard_metadata": {"id": "test-standard", "version": "1.0.0"},
             "requirements": {
                 "overall_minimum": 75.0,
-                "field_requirements": {"test_field": "test_value"}
-            }
+                "field_requirements": {"test_field": "test_value"},
+            },
         }
 
     def test_load_from_file_success(self):
         """Test successful loading from file."""
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
             yaml.dump(self.valid_standard, f)
             temp_path = f.name
 
@@ -90,7 +84,7 @@ class TestLoadFromFile:
 
     def test_load_from_file_invalid_yaml(self):
         """Test loading from file with invalid YAML."""
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
             f.write("invalid: yaml: [unclosed")
             temp_path = f.name
 
@@ -121,16 +115,13 @@ class TestGetFieldRequirements:
             "requirements": {
                 "field_requirements": {
                     "field1": {"type": "string"},
-                    "field2": {"type": "number"}
+                    "field2": {"type": "number"},
                 }
             }
         }
-        
+
         result = self.standards.get_field_requirements()
-        expected = {
-            "field1": {"type": "string"},
-            "field2": {"type": "number"}
-        }
+        expected = {"field1": {"type": "string"}, "field2": {"type": "number"}}
         assert result == expected
 
     def test_get_field_requirements_no_data(self):
@@ -154,12 +145,8 @@ class TestGetOverallMinimum:
 
     def test_get_overall_minimum_with_data(self):
         """Test getting overall minimum when data is loaded."""
-        self.standards.standard_data = {
-            "requirements": {
-                "overall_minimum": 85.0
-            }
-        }
-        
+        self.standards.standard_data = {"requirements": {"overall_minimum": 85.0}}
+
         result = self.standards.get_overall_minimum()
         assert result == 85.0
 
@@ -184,12 +171,8 @@ class TestStandardsId:
 
     def test_standards_id_with_data(self):
         """Test getting standards ID when data is loaded."""
-        self.standards.standard_data = {
-            "standards": {
-                "id": "test-standard-id"
-            }
-        }
-        
+        self.standards.standard_data = {"standards": {"id": "test-standard-id"}}
+
         result = self.standards.standards_id
         assert result == "test-standard-id"
 
@@ -211,11 +194,11 @@ class TestListStandards:
     def test_list_standards(self):
         """Test listing available standards."""
         standards = YAMLStandards()
-        
+
         # Mock the loader's list_available_standards method
-        with patch.object(standards.loader, 'list_available_standards') as mock_list:
+        with patch.object(standards.loader, "list_available_standards") as mock_list:
             mock_list.return_value = ["standard1", "standard2", "standard3"]
-            
+
             result = standards.list_standards()
             assert result == ["standard1", "standard2", "standard3"]
             mock_list.assert_called_once()
@@ -228,10 +211,10 @@ class TestLoadStandard:
         """Test successful standard loading."""
         standards = YAMLStandards()
         mock_standard = {"id": "test", "version": "1.0.0"}
-        
-        with patch.object(standards.loader, 'load_standard') as mock_load:
+
+        with patch.object(standards.loader, "load_standard") as mock_load:
             mock_load.return_value = mock_standard
-            
+
             result = standards.load_standard("test_standard")
             assert result == mock_standard
             mock_load.assert_called_once_with("test_standard")
@@ -239,10 +222,10 @@ class TestLoadStandard:
     def test_load_standard_failure(self):
         """Test standard loading failure."""
         standards = YAMLStandards()
-        
-        with patch.object(standards.loader, 'load_standard') as mock_load:
+
+        with patch.object(standards.loader, "load_standard") as mock_load:
             mock_load.side_effect = Exception("Load failed")
-            
+
             result = standards.load_standard("test_standard")
             assert result is None
 
@@ -256,9 +239,9 @@ class TestValidateStandard:
         valid_standard = {
             "standard_id": "test",
             "version": "1.0.0",
-            "description": "Test standard"
+            "description": "Test standard",
         }
-        
+
         result = standards.validate_standard(valid_standard)
         assert result is True
 
@@ -269,7 +252,7 @@ class TestValidateStandard:
             "standard_id": "test",
             # Missing version and description
         }
-        
+
         result = standards.validate_standard(invalid_standard)
         assert result is False
 
@@ -289,20 +272,17 @@ class TestCheckCompliance:
         self.standards.standard_data = {
             "requirements": {
                 "overall_minimum": 80.0,
-                "dimension_requirements": {
-                    "validity": 15.0,
-                    "completeness": 15.0
-                },
-                "required_fields": ["field1", "field2"]
+                "dimension_requirements": {"validity": 15.0, "completeness": 15.0},
+                "required_fields": ["field1", "field2"],
             }
         }
 
     def test_check_compliance_no_standard_loaded(self):
         """Test compliance checking when no standard is loaded."""
         standards = YAMLStandards()  # No standard loaded
-        
+
         result = standards.check_compliance({"overall_score": 90.0})
-        
+
         assert result["compliant"] is False
         assert result["overall_compliance"] is False
         assert "No standard loaded" in result["errors"][0]
@@ -312,16 +292,13 @@ class TestCheckCompliance:
         """Test compliance checking with passing report."""
         report_data = {
             "overall_score": 85.0,
-            "dimension_scores": {
-                "validity": 16.0,
-                "completeness": 17.0
-            },
+            "dimension_scores": {"validity": 16.0, "completeness": 17.0},
             "field1": "present",
-            "field2": "present"
+            "field2": "present",
         }
-        
+
         result = self.standards.check_compliance(report_data)
-        
+
         assert result["compliant"] is True
         assert result["overall_compliance"] is True
         assert len(result["errors"]) == 0
@@ -331,16 +308,13 @@ class TestCheckCompliance:
         """Test compliance checking with failing overall score."""
         report_data = {
             "overall_score": 70.0,  # Below minimum of 80.0
-            "dimension_scores": {
-                "validity": 16.0,
-                "completeness": 17.0
-            },
+            "dimension_scores": {"validity": 16.0, "completeness": 17.0},
             "field1": "present",
-            "field2": "present"
+            "field2": "present",
         }
-        
+
         result = self.standards.check_compliance(report_data)
-        
+
         assert result["compliant"] is False
         assert result["overall_compliance"] is False
         assert "Overall score 70.0 below minimum 80.0" in result["errors"][0]
@@ -352,14 +326,14 @@ class TestCheckCompliance:
             "overall_score": 85.0,
             "dimension_scores": {
                 "validity": 10.0,  # Below minimum of 15.0
-                "completeness": 17.0
+                "completeness": 17.0,
             },
             "field1": "present",
-            "field2": "present"
+            "field2": "present",
         }
-        
+
         result = self.standards.check_compliance(report_data)
-        
+
         assert result["compliant"] is False
         assert result["overall_compliance"] is False
         assert "Dimension validity score 10.0 below minimum 15.0" in result["errors"][0]
@@ -369,16 +343,13 @@ class TestCheckCompliance:
         """Test compliance checking with missing required field."""
         report_data = {
             "overall_score": 85.0,
-            "dimension_scores": {
-                "validity": 16.0,
-                "completeness": 17.0
-            },
-            "field1": "present"
+            "dimension_scores": {"validity": 16.0, "completeness": 17.0},
+            "field1": "present",
             # field2 is missing
         }
-        
+
         result = self.standards.check_compliance(report_data)
-        
+
         assert result["compliant"] is False
         assert result["overall_compliance"] is False
         assert "Missing required field: field2" in result["errors"][0]
@@ -390,14 +361,14 @@ class TestCheckCompliance:
             "overall_score": 85.0,
             "dimension_scores": {
                 "validity": {"score": 16.0},  # Nested structure
-                "completeness": {"score": 17.0}
+                "completeness": {"score": 17.0},
             },
             "field1": "present",
-            "field2": "present"
+            "field2": "present",
         }
-        
+
         result = self.standards.check_compliance(report_data)
-        
+
         assert result["compliant"] is True
         assert result["overall_compliance"] is True
 
@@ -411,53 +382,45 @@ class TestYAMLStandardsIntegration:
         standard_data = {
             "standard_metadata": {
                 "id": "integration-test-standard",
-                "version": "1.0.0"
+                "version": "1.0.0",
             },
             "requirements": {
                 "overall_minimum": 75.0,
-                "dimension_requirements": {
-                    "validity": 15.0,
-                    "completeness": 15.0
-                },
+                "dimension_requirements": {"validity": 15.0, "completeness": 15.0},
                 "required_fields": ["test_field"],
                 "field_requirements": {
                     "test_field": {"type": "string", "required": True}
-                }
+                },
             },
-            "standards": {
-                "id": "integration-test"
-            }
+            "standards": {"id": "integration-test"},
         }
-        
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
+
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
             yaml.dump(standard_data, f)
             temp_path = f.name
 
         try:
             # Load the standard
             standards = YAMLStandards(temp_path)
-            
+
             # Test all methods
             assert standards.standards_id == "integration-test"
             assert standards.get_overall_minimum() == 75.0
-            
+
             field_reqs = standards.get_field_requirements()
             assert "test_field" in field_reqs
-            
+
             # Test compliance checking
             passing_report = {
                 "overall_score": 80.0,
-                "dimension_scores": {
-                    "validity": 16.0,
-                    "completeness": 16.0
-                },
-                "test_field": "present"
+                "dimension_scores": {"validity": 16.0, "completeness": 16.0},
+                "test_field": "present",
             }
-            
+
             compliance = standards.check_compliance(passing_report)
             assert compliance["compliant"] is True
             assert compliance["overall_compliance"] is True
-            
+
         finally:
             os.unlink(temp_path)
 

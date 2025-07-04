@@ -8,7 +8,7 @@ We have successfully improved the ADRI Validator package test coverage to **prod
 
 ### 🎯 Perfect Coverage (100%)
 - `adri/__init__.py` - **100%** (32/32 statements)
-- `adri/standards/loader.py` - **100%** (87/87 statements) 
+- `adri/standards/loader.py` - **100%** (87/87 statements)
 - `adri/standards/yaml_standards.py` - **100%** (99/99 statements)
 - `adri/standards/exceptions.py` - **100%** (14/14 statements)
 - `adri/standards/__init__.py` - **100%** (10/10 statements)

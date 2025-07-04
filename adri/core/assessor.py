@@ -28,8 +28,13 @@ class AssessmentResult:
     """Represents the result of a data quality assessment."""
 
     def __init__(
-        self, overall_score: float, passed: bool, dimension_scores: Dict[str, Any], 
-        standard_id: str = None, assessment_date=None, metadata: Dict[str, Any] = None
+        self,
+        overall_score: float,
+        passed: bool,
+        dimension_scores: Dict[str, Any],
+        standard_id: str = None,
+        assessment_date=None,
+        metadata: Dict[str, Any] = None,
     ):
         self.overall_score = overall_score
         self.passed = bool(passed)  # Ensure it's a Python bool, not numpy bool
@@ -53,98 +58,143 @@ class AssessmentResult:
         self.dataset_info = {
             "total_records": total_records,
             "total_fields": total_fields,
-            "size_mb": size_mb
+            "size_mb": size_mb,
         }
 
-    def set_execution_stats(self, total_execution_time_ms: int = None, rules_executed: int = None, duration_ms: int = None):
+    def set_execution_stats(
+        self,
+        total_execution_time_ms: int = None,
+        rules_executed: int = None,
+        duration_ms: int = None,
+    ):
         """Set execution statistics."""
         # Support both parameter names for compatibility
         if duration_ms is not None:
             total_execution_time_ms = duration_ms
-        
+
         self.execution_stats = {
             "total_execution_time_ms": total_execution_time_ms,
             "duration_ms": total_execution_time_ms,  # Alias for compatibility
-            "rules_executed": rules_executed or len(self.rule_execution_log)
+            "rules_executed": rules_executed or len(self.rule_execution_log),
         }
 
     def to_standard_dict(self) -> Dict[str, Any]:
         """Convert assessment result to ADRI v0.1.0 compliant format using ReportGenerator."""
         from .report_generator import ReportGenerator
-        
+
         # Use the template-driven report generator
         generator = ReportGenerator()
         return generator.generate_report(self)
 
-    def to_v2_standard_dict(self, dataset_name: str = None, adri_version: str = "0.1.0") -> Dict[str, Any]:
+    def to_v2_standard_dict(
+        self, dataset_name: str = None, adri_version: str = "0.1.0"
+    ) -> Dict[str, Any]:
         """Convert assessment result to ADRI v0.1.0 compliant format."""
         from datetime import datetime
-        
+
         # Convert dimension scores to simple numbers
         dimension_scores = {}
         for dim, score in self.dimension_scores.items():
-            if hasattr(score, 'score'):
+            if hasattr(score, "score"):
                 dimension_scores[dim] = float(score.score)
             else:
-                dimension_scores[dim] = float(score) if isinstance(score, (int, float)) else score
-        
+                dimension_scores[dim] = (
+                    float(score) if isinstance(score, (int, float)) else score
+                )
+
         # Build the v2 format structure
         report = {
             "adri_assessment_report": {
                 "metadata": {
                     "assessment_id": f"adri_assessment_{datetime.now().strftime('%Y%m%d_%H%M%S')}",
                     "adri_version": adri_version,
-                    "timestamp": (self.assessment_date.isoformat() + 'Z') if self.assessment_date else (datetime.now().isoformat() + 'Z'),
+                    "timestamp": (
+                        (self.assessment_date.isoformat() + "Z")
+                        if self.assessment_date
+                        else (datetime.now().isoformat() + "Z")
+                    ),
                     "dataset_name": dataset_name or "unknown_dataset",
                     "dataset": {  # Required field as object
                         "name": dataset_name or "unknown_dataset",
-                        "size_mb": getattr(self, 'dataset_info', {}).get('size_mb', 0.0),
-                        "total_records": getattr(self, 'dataset_info', {}).get('total_records', 0),
-                        "total_fields": getattr(self, 'dataset_info', {}).get('total_fields', 0)
+                        "size_mb": getattr(self, "dataset_info", {}).get(
+                            "size_mb", 0.0
+                        ),
+                        "total_records": getattr(self, "dataset_info", {}).get(
+                            "total_records", 0
+                        ),
+                        "total_fields": getattr(self, "dataset_info", {}).get(
+                            "total_fields", 0
+                        ),
                     },
                     "standard_id": self.standard_id or "unknown_standard",
                     "standard_applied": {  # Required field as object
                         "id": self.standard_id or "unknown_standard",
                         "version": "1.0.0",
-                        "domain": self.metadata.get("domain", "data_quality")
+                        "domain": self.metadata.get("domain", "data_quality"),
                     },
                     "execution": {  # Required field
-                        "total_execution_time_ms": getattr(self, 'execution_stats', {}).get('total_execution_time_ms', 0),
-                        "duration_ms": getattr(self, 'execution_stats', {}).get('total_execution_time_ms', 0),  # Required field
+                        "total_execution_time_ms": getattr(
+                            self, "execution_stats", {}
+                        ).get("total_execution_time_ms", 0),
+                        "duration_ms": getattr(self, "execution_stats", {}).get(
+                            "total_execution_time_ms", 0
+                        ),  # Required field
                         "rules_executed": len(self.rule_execution_log),
-                        "total_validations": sum(getattr(rule, 'total_records', 0) for rule in self.rule_execution_log)  # Required field
+                        "total_validations": sum(
+                            getattr(rule, "total_records", 0)
+                            for rule in self.rule_execution_log
+                        ),  # Required field
                     },
-                    **self.metadata
+                    **self.metadata,
                 },
                 "summary": {
                     "overall_score": float(self.overall_score),
                     "overall_passed": bool(self.passed),
                     "pass_fail_status": {  # Required field as object
                         "overall_passed": bool(self.passed),
-                        "dimension_passed": {dim: score >= 15.0 for dim, score in dimension_scores.items()},
-                        "failed_dimensions": [dim for dim, score in dimension_scores.items() if score < 15.0],
+                        "dimension_passed": {
+                            dim: score >= 15.0
+                            for dim, score in dimension_scores.items()
+                        },
+                        "failed_dimensions": [
+                            dim
+                            for dim, score in dimension_scores.items()
+                            if score < 15.0
+                        ],
                         "critical_issues": 0,  # Required field as integer
-                        "total_failures": sum(getattr(analysis, 'total_failures', 0) for analysis in self.field_analysis.values())  # Required field
+                        "total_failures": sum(
+                            getattr(analysis, "total_failures", 0)
+                            for analysis in self.field_analysis.values()
+                        ),  # Required field
                     },
                     "dimension_scores": dimension_scores,
-                    "total_failures": sum(getattr(analysis, 'total_failures', 0) for analysis in self.field_analysis.values())
+                    "total_failures": sum(
+                        getattr(analysis, "total_failures", 0)
+                        for analysis in self.field_analysis.values()
+                    ),
                 },
-                "rule_execution_log": [rule.to_dict() for rule in self.rule_execution_log],
+                "rule_execution_log": [
+                    rule.to_dict() for rule in self.rule_execution_log
+                ],
                 "field_analysis": {
-                    field_name: analysis.to_dict() 
+                    field_name: analysis.to_dict()
                     for field_name, analysis in self.field_analysis.items()
-                }
+                },
             }
         }
-        
+
         # Add dataset info if available
-        if hasattr(self, 'dataset_info'):
-            report["adri_assessment_report"]["metadata"]["dataset_info"] = self.dataset_info
-            
+        if hasattr(self, "dataset_info"):
+            report["adri_assessment_report"]["metadata"][
+                "dataset_info"
+            ] = self.dataset_info
+
         # Add execution stats if available
-        if hasattr(self, 'execution_stats'):
-            report["adri_assessment_report"]["metadata"]["execution_stats"] = self.execution_stats
-            
+        if hasattr(self, "execution_stats"):
+            report["adri_assessment_report"]["metadata"][
+                "execution_stats"
+            ] = self.execution_stats
+
         return report
 
     def to_dict(self) -> Dict[str, Any]:
@@ -155,7 +205,13 @@ class AssessmentResult:
 class DimensionScore:
     """Represents a score for a specific data quality dimension."""
 
-    def __init__(self, score: float, max_score: float = 20.0, issues: list = None, details: dict = None):
+    def __init__(
+        self,
+        score: float,
+        max_score: float = 20.0,
+        issues: list = None,
+        details: dict = None,
+    ):
         self.score = score
         self.max_score = max_score
         self.issues = issues or []
@@ -170,10 +226,16 @@ class FieldAnalysis:
     """Represents analysis results for a specific field."""
 
     def __init__(
-        self, field_name: str, data_type: str = None, null_count: int = None, 
-        total_count: int = None, rules_applied: list = None, 
-        overall_field_score: float = None, total_failures: int = None,
-        ml_readiness: str = None, recommended_actions: list = None
+        self,
+        field_name: str,
+        data_type: str = None,
+        null_count: int = None,
+        total_count: int = None,
+        rules_applied: list = None,
+        overall_field_score: float = None,
+        total_failures: int = None,
+        ml_readiness: str = None,
+        recommended_actions: list = None,
     ):
         self.field_name = field_name
         self.data_type = data_type
@@ -184,7 +246,7 @@ class FieldAnalysis:
         self.total_failures = total_failures or 0
         self.ml_readiness = ml_readiness
         self.recommended_actions = recommended_actions or []
-        
+
         # Calculate completeness if we have the data
         if total_count is not None and null_count is not None:
             self.completeness = (
@@ -203,7 +265,7 @@ class FieldAnalysis:
             "ml_readiness": self.ml_readiness,
             "recommended_actions": self.recommended_actions,
         }
-        
+
         # Include legacy fields if available
         if self.data_type is not None:
             result["data_type"] = self.data_type
@@ -213,19 +275,31 @@ class FieldAnalysis:
             result["total_count"] = self.total_count
         if self.completeness is not None:
             result["completeness"] = self.completeness
-            
+
         return result
 
 
 class RuleExecutionResult:
     """Represents the result of executing a validation rule."""
 
-    def __init__(self, rule_id: str = None, dimension: str = None, field: str = None, 
-                 rule_definition: str = None, total_records: int = 0, passed: int = 0, 
-                 failed: int = 0, rule_score: float = 0.0, rule_weight: float = 1.0, 
-                 execution_time_ms: int = 0, sample_failures: list = None, 
-                 failure_patterns: dict = None, rule_name: str = None, score: float = None, 
-                 message: str = ""):
+    def __init__(
+        self,
+        rule_id: str = None,
+        dimension: str = None,
+        field: str = None,
+        rule_definition: str = None,
+        total_records: int = 0,
+        passed: int = 0,
+        failed: int = 0,
+        rule_score: float = 0.0,
+        rule_weight: float = 1.0,
+        execution_time_ms: int = 0,
+        sample_failures: list = None,
+        failure_patterns: dict = None,
+        rule_name: str = None,
+        score: float = None,
+        message: str = "",
+    ):
         # Support both old and new signatures
         if rule_name is not None:
             # Old signature compatibility
@@ -266,8 +340,12 @@ class RuleExecutionResult:
     def to_dict(self) -> Dict[str, Any]:
         """Convert rule execution result to dictionary."""
         # Fix passed count to be numeric, not boolean
-        passed_count = self.passed if isinstance(self.passed, int) else (self.total_records - self.failed)
-        
+        passed_count = (
+            self.passed
+            if isinstance(self.passed, int)
+            else (self.total_records - self.failed)
+        )
+
         return {
             "rule_id": self.rule_id,
             "rule_name": self.rule_name,
@@ -290,13 +368,13 @@ class RuleExecutionResult:
                 "failed": self.failed,
                 "execution_time_ms": self.execution_time_ms,
                 "rule_score": self.rule_score,  # Required field
-                "rule_weight": self.rule_weight  # Required field
+                "rule_weight": self.rule_weight,  # Required field
             },
             "failures": {  # Required field for v2.0 compliance
                 "sample_failures": self.sample_failures,
                 "failure_patterns": self.failure_patterns,
-                "total_failed": self.failed
-            }
+                "total_failed": self.failed,
+            },
         }
 
 
@@ -651,36 +729,50 @@ class AssessmentEngine:
         return 15.5
 
     # Public methods for backward compatibility with tests
-    def assess_validity(self, data: pd.DataFrame, field_requirements: Dict[str, Any] = None) -> float:
+    def assess_validity(
+        self, data: pd.DataFrame, field_requirements: Dict[str, Any] = None
+    ) -> float:
         """Public method for validity assessment."""
         if field_requirements:
             # Create a mock standard wrapper for the field requirements
-            mock_standard = type('MockStandard', (), {
-                'get_field_requirements': lambda: field_requirements
-            })()
+            mock_standard = type(
+                "MockStandard",
+                (),
+                {"get_field_requirements": lambda: field_requirements},
+            )()
             return self._assess_validity_with_standard(data, mock_standard)
         return self._assess_validity(data)
 
-    def assess_completeness(self, data: pd.DataFrame, requirements: Dict[str, Any] = None) -> float:
+    def assess_completeness(
+        self, data: pd.DataFrame, requirements: Dict[str, Any] = None
+    ) -> float:
         """Public method for completeness assessment."""
         if requirements:
             # Handle completeness requirements
             mandatory_fields = requirements.get("mandatory_fields", [])
             if mandatory_fields:
                 total_required_cells = len(data) * len(mandatory_fields)
-                missing_required_cells = sum(data[field].isnull().sum() for field in mandatory_fields if field in data.columns)
+                missing_required_cells = sum(
+                    data[field].isnull().sum()
+                    for field in mandatory_fields
+                    if field in data.columns
+                )
                 if total_required_cells > 0:
-                    completeness_rate = (total_required_cells - missing_required_cells) / total_required_cells
+                    completeness_rate = (
+                        total_required_cells - missing_required_cells
+                    ) / total_required_cells
                     return completeness_rate * 20.0
         return self._assess_completeness(data)
 
-    def assess_consistency(self, data: pd.DataFrame, consistency_rules: Dict[str, Any] = None) -> float:
+    def assess_consistency(
+        self, data: pd.DataFrame, consistency_rules: Dict[str, Any] = None
+    ) -> float:
         """Public method for consistency assessment."""
         if consistency_rules:
             # Basic consistency scoring based on format rules
             total_checks = 0
             failed_checks = 0
-            
+
             format_rules = consistency_rules.get("format_rules", {})
             for field, rule in format_rules.items():
                 if field in data.columns:
@@ -691,13 +783,15 @@ class AssessmentEngine:
                             failed_checks += 1
                         elif rule == "lowercase" and str(value) != str(value).lower():
                             failed_checks += 1
-            
+
             if total_checks > 0:
                 success_rate = (total_checks - failed_checks) / total_checks
                 return success_rate * 20.0
         return self._assess_consistency(data)
 
-    def assess_freshness(self, data: pd.DataFrame, freshness_config: Dict[str, Any] = None) -> float:
+    def assess_freshness(
+        self, data: pd.DataFrame, freshness_config: Dict[str, Any] = None
+    ) -> float:
         """Public method for freshness assessment."""
         if freshness_config:
             # Basic freshness assessment
@@ -707,16 +801,18 @@ class AssessmentEngine:
                 return 18.0
         return self._assess_freshness(data)
 
-    def assess_plausibility(self, data: pd.DataFrame, plausibility_config: Dict[str, Any] = None) -> float:
+    def assess_plausibility(
+        self, data: pd.DataFrame, plausibility_config: Dict[str, Any] = None
+    ) -> float:
         """Public method for plausibility assessment."""
         if plausibility_config:
             # Basic plausibility assessment
             total_checks = 0
             failed_checks = 0
-            
+
             outlier_detection = plausibility_config.get("outlier_detection", {})
             business_rules = plausibility_config.get("business_rules", {})
-            
+
             # Check business rules
             for field, rules in business_rules.items():
                 if field in data.columns:
@@ -732,7 +828,7 @@ class AssessmentEngine:
                                 failed_checks += 1
                         except:
                             failed_checks += 1
-            
+
             # Check outlier detection rules
             for field, rules in outlier_detection.items():
                 if field in data.columns:
@@ -750,7 +846,7 @@ class AssessmentEngine:
                                     failed_checks += 1
                             except:
                                 failed_checks += 1
-            
+
             if total_checks > 0:
                 success_rate = (total_checks - failed_checks) / total_checks
                 return success_rate * 20.0

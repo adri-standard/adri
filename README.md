@@ -39,7 +39,7 @@ def process_customer_data(customer_data):
 ```
 adri/
 ├── decorators/     # @adri_protected decorator
-├── core/          # Protection engine and assessor  
+├── core/          # Protection engine and assessor
 ├── standards/     # Built-in YAML standards (15 included)
 ├── analysis/      # Data profiling and standard generation
 ├── config/        # Configuration management
@@ -50,7 +50,7 @@ adri/
 ## Dependencies
 
 - **pandas** - Data manipulation and analysis
-- **numpy** - Numerical computations  
+- **numpy** - Numerical computations
 - **pyyaml** - YAML processing
 - **jsonschema** - Schema validation
 - **click** - CLI interface
@@ -126,7 +126,7 @@ ADRI includes 15 production-ready standards:
 ### Custom Standards
 ```python
 @adri_protected(
-    data_param="data", 
+    data_param="data",
     standard_path="path/to/custom_standard.yaml",
     min_score=85
 )

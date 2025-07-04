@@ -2,7 +2,7 @@
 ADRI Standards Module
 
 This module provides standards loading functionality for the ADRI validator.
-Standards are loaded from the adri-standards submodule to ensure offline-first 
+Standards are loaded from the adri-standards submodule to ensure offline-first
 operation and eliminate network dependencies.
 """
 

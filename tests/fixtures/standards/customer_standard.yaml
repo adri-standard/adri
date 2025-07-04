@@ -9,7 +9,7 @@ standards:
 
 requirements:
   overall_minimum: 80.0
-  
+
   dimension_requirements:
     validity:
       minimum_score: 18.0
@@ -26,13 +26,13 @@ requirements:
     plausibility:
       minimum_score: 14.0
       weight: 0.2
-  
+
   mandatory_fields:
     - customer_id
     - name
     - email
     - age
-  
+
   field_requirements:
     customer_id:
       type: "integer"

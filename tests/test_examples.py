@@ -125,7 +125,9 @@ class TestLangChainExamples(TestFrameworkExamples):
                 assert result is not None
             except Exception as e:
                 # ADRI blocked the function due to poor data quality - this is expected
-                assert "ADRI Protection: BLOCKED" in str(e) or "ProtectionError" in str(type(e).__name__)
+                assert "ADRI Protection: BLOCKED" in str(e) or "ProtectionError" in str(
+                    type(e).__name__
+                )
                 # Test passes - ADRI is working correctly by blocking bad data
 
 

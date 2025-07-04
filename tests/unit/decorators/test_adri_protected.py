@@ -9,7 +9,7 @@ import os
 import tempfile
 import unittest
 from pathlib import Path
-from unittest.mock import MagicMock, call, patch
+from unittest.mock import call, MagicMock, patch
 
 import pandas as pd
 
@@ -339,7 +339,9 @@ class TestDataProtectionEngine(unittest.TestCase):
 
     @patch("adri.core.protection.ConfigManager")
     @patch("adri.core.protection.StandardsLoader")
-    def test_resolve_standard_with_explicit_file(self, mock_loader_class, mock_config_manager):
+    def test_resolve_standard_with_explicit_file(
+        self, mock_loader_class, mock_config_manager
+    ):
         """Test standard resolution with explicit file."""
         mock_manager = MagicMock()
         mock_manager.get_protection_config.return_value = self.mock_config["adri"][
@@ -371,7 +373,9 @@ class TestDataProtectionEngine(unittest.TestCase):
 
     @patch("adri.core.protection.ConfigManager")
     @patch("adri.core.protection.StandardsLoader")
-    def test_resolve_standard_with_auto_generation(self, mock_loader_class, mock_config_manager):
+    def test_resolve_standard_with_auto_generation(
+        self, mock_loader_class, mock_config_manager
+    ):
         """Test standard resolution with auto-generated name."""
         mock_manager = MagicMock()
         mock_manager.get_protection_config.return_value = self.mock_config["adri"][
@@ -558,7 +562,8 @@ class TestDataProtectionEngine(unittest.TestCase):
 
         # Create a real standard file to avoid generation
         with open(standard_path, "w") as f:
-            f.write("""
+            f.write(
+                """
 standards:
   id: "test-standard"
   name: "Test Standard"
@@ -567,7 +572,8 @@ standards:
 
 requirements:
   overall_minimum: 80.0
-""")
+"""
+            )
 
         mock_assessor = MagicMock()
         mock_assessment_result = MagicMock()

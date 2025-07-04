@@ -12,19 +12,19 @@ class TestVersionConstants:
 
     def test_version_constant_exists(self):
         """Test that __version__ constant exists and is a string."""
-        assert hasattr(version, '__version__')
+        assert hasattr(version, "__version__")
         assert isinstance(version.__version__, str)
         assert version.__version__ == "1.0.0"
 
     def test_min_compatible_version_exists(self):
         """Test that __min_compatible_version__ constant exists."""
-        assert hasattr(version, '__min_compatible_version__')
+        assert hasattr(version, "__min_compatible_version__")
         assert isinstance(version.__min_compatible_version__, str)
         assert version.__min_compatible_version__ == "1.0.0"
 
     def test_score_compatible_versions_exists(self):
         """Test that __score_compatible_versions__ constant exists."""
-        assert hasattr(version, '__score_compatible_versions__')
+        assert hasattr(version, "__score_compatible_versions__")
         assert isinstance(version.__score_compatible_versions__, list)
         assert "1.0.0" in version.__score_compatible_versions__
 
@@ -59,8 +59,12 @@ class TestIsVersionCompatible:
 
     def test_non_numeric_version_incompatible(self):
         """Test that non-numeric version components are incompatible."""
-        assert version.is_version_compatible("a.b.c") is False  # Can't parse major version
-        assert version.is_version_compatible("v1.0.0") is False  # Can't parse major version
+        assert (
+            version.is_version_compatible("a.b.c") is False
+        )  # Can't parse major version
+        assert (
+            version.is_version_compatible("v1.0.0") is False
+        )  # Can't parse major version
         # This passes because it can extract major version "1"
         assert version.is_version_compatible("1.a.0") is True
 
@@ -73,7 +77,7 @@ class TestIsVersionCompatible:
     def test_edge_case_versions(self):
         """Test edge case version strings."""
         assert version.is_version_compatible("0.0.0") is False  # Different major
-        assert version.is_version_compatible("1.0.0") is True   # Exact match
+        assert version.is_version_compatible("1.0.0") is True  # Exact match
 
 
 class TestGetScoreCompatibilityMessage:
@@ -82,7 +86,9 @@ class TestGetScoreCompatibilityMessage:
     def test_fully_compatible_version_message(self):
         """Test message for fully compatible versions."""
         message = version.get_score_compatibility_message("1.0.0")
-        expected = "Version 1.0.0 has fully compatible scoring with current version 1.0.0"
+        expected = (
+            "Version 1.0.0 has fully compatible scoring with current version 1.0.0"
+        )
         assert message == expected
 
     def test_generally_compatible_version_message(self):
@@ -110,26 +116,26 @@ class TestGetVersionInfo:
     def test_version_info_structure(self):
         """Test that get_version_info returns correct structure."""
         info = version.get_version_info()
-        
+
         assert isinstance(info, dict)
-        
+
         # Check all required keys exist
         required_keys = [
             "version",
-            "min_compatible_version", 
+            "min_compatible_version",
             "score_compatible_versions",
             "is_production_ready",
             "api_version",
-            "standards_format_version"
+            "standards_format_version",
         ]
-        
+
         for key in required_keys:
             assert key in info, f"Missing key: {key}"
 
     def test_version_info_values(self):
         """Test that get_version_info returns correct values."""
         info = version.get_version_info()
-        
+
         assert info["version"] == "1.0.0"
         assert info["min_compatible_version"] == "1.0.0"
         assert info["score_compatible_versions"] == ["1.0.0"]
@@ -140,7 +146,7 @@ class TestGetVersionInfo:
     def test_version_info_types(self):
         """Test that get_version_info returns correct types."""
         info = version.get_version_info()
-        
+
         assert isinstance(info["version"], str)
         assert isinstance(info["min_compatible_version"], str)
         assert isinstance(info["score_compatible_versions"], list)
@@ -152,7 +158,7 @@ class TestGetVersionInfo:
         """Test that modifying returned dict doesn't affect subsequent calls."""
         info1 = version.get_version_info()
         info1["version"] = "modified"
-        
+
         info2 = version.get_version_info()
         assert info2["version"] == "1.0.0"  # Should not be modified
 
@@ -178,10 +184,12 @@ class TestVersionIntegration:
     def test_version_info_consistency(self):
         """Test that version info is consistent with module constants."""
         info = version.get_version_info()
-        
+
         assert info["version"] == version.__version__
         assert info["min_compatible_version"] == version.__min_compatible_version__
-        assert info["score_compatible_versions"] == version.__score_compatible_versions__
+        assert (
+            info["score_compatible_versions"] == version.__score_compatible_versions__
+        )
 
     def test_compatibility_message_for_current_version(self):
         """Test compatibility message for current version."""
@@ -204,9 +212,9 @@ class TestVersionDocumentation:
         functions = [
             version.is_version_compatible,
             version.get_score_compatibility_message,
-            version.get_version_info
+            version.get_version_info,
         ]
-        
+
         for func in functions:
             assert func.__doc__ is not None
             assert len(func.__doc__.strip()) > 0

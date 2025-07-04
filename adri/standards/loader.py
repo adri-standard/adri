@@ -44,12 +44,14 @@ class StandardsLoader:
         """Get the path to the standards directory, preferring submodule over ADRI folder."""
         # Get the package root directory (go up from adri/standards/ to package root)
         module_dir = Path(__file__).parent.parent.parent
-        
+
         # First try the submodule path
-        submodule_standards_path = module_dir / "external" / "adri-standards" / "standards" / "core"
+        submodule_standards_path = (
+            module_dir / "external" / "adri-standards" / "standards" / "core"
+        )
         if submodule_standards_path.exists() and submodule_standards_path.is_dir():
             return submodule_standards_path.resolve()
-        
+
         # Fallback to ADRI folder
         adri_standards_path = module_dir / ".." / "ADRI" / "adri" / "dev" / "standards"
         return adri_standards_path.resolve()

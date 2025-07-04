@@ -239,13 +239,13 @@ class TestAssessmentReportCompliance:
 
             # Get standard format using v0.1.0 format
             standard_dict = result.to_v2_standard_dict()
-            
+
             # Extract the summary section for compatibility
             if "adri_assessment_report" in standard_dict:
                 summary = standard_dict["adri_assessment_report"]["summary"]
                 standard_dict = {
                     "overall_score": summary["overall_score"],
-                    "dimension_scores": summary["dimension_scores"]
+                    "dimension_scores": summary["dimension_scores"],
                 }
 
             # Check required fields are present
@@ -303,16 +303,16 @@ class TestAssessmentReportCompliance:
             # Perform assessment
             engine = AssessmentEngine()
             result = engine.assess(df, customer_standard)
-            
+
             # Get standard format using v0.1.0 format
             standard_dict = result.to_v2_standard_dict()
-            
+
             # Extract the summary section for compatibility
             if "adri_assessment_report" in standard_dict:
                 summary = standard_dict["adri_assessment_report"]["summary"]
                 standard_dict = {
                     "overall_score": summary["overall_score"],
-                    "dimension_scores": summary["dimension_scores"]
+                    "dimension_scores": summary["dimension_scores"],
                 }
 
             # Validate score ranges according to ADRI standard
@@ -353,16 +353,16 @@ class TestAssessmentReportCompliance:
             # Perform assessment
             engine = AssessmentEngine()
             result = engine.assess(df, customer_standard)
-            
+
             # Get standard format using v0.1.0 format
             standard_dict = result.to_v2_standard_dict()
-            
+
             # Extract the summary section for compatibility
             if "adri_assessment_report" in standard_dict:
                 summary = standard_dict["adri_assessment_report"]["summary"]
                 standard_dict = {
                     "overall_score": summary["overall_score"],
-                    "dimension_scores": summary["dimension_scores"]
+                    "dimension_scores": summary["dimension_scores"],
                 }
 
             # Check data types per ADRI standard
@@ -417,7 +417,7 @@ class TestAssessmentReportCompliance:
                 # Fallback to legacy format
                 overall_score = standard_dict["overall_score"]
                 dimension_sum = sum(standard_dict["dimension_scores"].values())
-            
+
             tolerance = 0.1  # As specified in ADRI standard
 
             assert (
@@ -456,7 +456,9 @@ class TestAssessmentReportCompliance:
 
             # Extract dimension scores from ADRI v0.1.0 format
             if "adri_assessment_report" in standard_dict:
-                dimension_scores = standard_dict["adri_assessment_report"]["summary"]["dimension_scores"]
+                dimension_scores = standard_dict["adri_assessment_report"]["summary"][
+                    "dimension_scores"
+                ]
             else:
                 # Fallback to legacy format
                 dimension_scores = standard_dict["dimension_scores"]

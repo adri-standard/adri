@@ -199,7 +199,7 @@ fi
 # Step 5: Run tests (unless skipped)
 if [ "$SKIP_TESTS" = false ]; then
     echo -e "\n${BLUE}🧪 Step 5: Test Suite Execution${NC}"
-    
+
     if [ "$DRY_RUN" = false ]; then
         # Run package tests
         if [ -f "../test_adri_validator_package.py" ]; then
@@ -209,7 +209,7 @@ if [ "$SKIP_TESTS" = false ]; then
         else
             print_warning "Package test file not found, skipping tests"
         fi
-        
+
         # Run integration tests if available
         if [ -f "../test_ecosystem_integration.py" ]; then
             print_status "Running ecosystem integration tests..."
@@ -241,7 +241,7 @@ if [ "$DRY_RUN" = false ]; then
     # Build source distribution and wheel
     python -m build
     print_status "Package built successfully"
-    
+
     # List built files
     echo "Built files:"
     ls -la dist/
@@ -263,7 +263,7 @@ fi
 # Step 9: Check if version already exists (unless forced)
 if [ "$FORCE_PUBLISH" = false ]; then
     echo -e "\n${BLUE}🔍 Step 9: Version Conflict Check${NC}"
-    
+
     if [ "$DRY_RUN" = false ]; then
         # Try to install the specific version to see if it exists
         if pip install --dry-run --index-url "$PYPI_URL" "$PACKAGE_NAME==$VERSION" 2>/dev/null; then
@@ -285,10 +285,10 @@ echo -e "\n${BLUE}📋 Step 10: Update Release Registry${NC}"
 
 if [ "$DRY_RUN" = false ]; then
     echo "Updating ADRI Validator release registry..."
-    
+
     # Update the release registry in adri-standards
     python scripts/update_release_registry.py --auto --type "$ENVIRONMENT" --description "Published to $ENV_NAME"
-    
+
     if [ $? -eq 0 ]; then
         print_status "Release registry updated"
     else
@@ -306,7 +306,7 @@ if [ "$DRY_RUN" = false ]; then
     echo "Repository: $PYPI_REPO"
     echo "Version: $VERSION"
     echo ""
-    
+
     # Confirm publication for production
     if [ "$ENVIRONMENT" = "prod" ]; then
         echo -e "${YELLOW}⚠️  You are about to publish to PRODUCTION PyPI!${NC}"
@@ -319,7 +319,7 @@ if [ "$DRY_RUN" = false ]; then
             exit 0
         fi
     fi
-    
+
     # Upload to PyPI
     twine upload --repository "$PYPI_REPO" dist/*
     print_status "Package published successfully!"
@@ -333,11 +333,11 @@ echo -e "\n${BLUE}🔍 Step 12: Installation Verification${NC}"
 if [ "$DRY_RUN" = false ]; then
     # Wait a moment for PyPI to process
     sleep 5
-    
+
     # Try to install the published package
     echo "Verifying installation from $ENV_NAME..."
     pip install --index-url "$PYPI_URL" --upgrade "$PACKAGE_NAME==$VERSION"
-    
+
     # Test import
     python -c "import adri; print(f'Successfully imported adri-validator v{adri.__version__}')"
     print_status "Installation verification passed"
@@ -361,7 +361,7 @@ if [ "$DRY_RUN" = false ]; then
     else
         echo "  pip install --index-url $PYPI_URL $PACKAGE_NAME"
     fi
-    
+
     echo ""
     echo "Usage:"
     echo "  from adri.decorators.guard import adri_protected"

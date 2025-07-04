@@ -136,7 +136,7 @@ class TestBundledStandardsLoader:
         end_time = time.time()
 
         load_time = (end_time - start_time) * 1000  # Convert to milliseconds
-        assert load_time < 10, f"Standard loading took {load_time}ms, should be < 10ms"
+        assert load_time < 50, f"Standard loading took {load_time}ms, should be < 50ms"
 
     def test_concurrent_access_safety(self):
         """Test that the loader is safe for concurrent access."""

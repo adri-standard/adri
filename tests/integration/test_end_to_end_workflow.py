@@ -217,14 +217,14 @@ class TestEndToEndWorkflow:
                 report = assessment_data["adri_assessment_report"]
                 assert "summary" in report
                 assert "metadata" in report
-                
+
                 # Extract summary data
                 summary = report["summary"]
                 assert "overall_score" in summary
                 assert "dimension_scores" in summary
                 assert "pass_fail_status" in summary
                 assert "overall_passed" in summary["pass_fail_status"]
-                
+
                 # Validate overall score
                 assert isinstance(summary["overall_score"], (int, float))
                 assert summary["overall_score"] >= 0
