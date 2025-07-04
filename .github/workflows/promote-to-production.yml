@@ -46,7 +46,7 @@ jobs:
         git merge main --no-ff -m "Release v${{ github.event.inputs.version }}: Merge main to production"
         git push origin production
     
-    - name: Update CHANGELOG
+    - name: Update CHANGELOG and Version Tracking
       run: |
         git checkout main
         DATE=$(date +%Y-%m-%d)
@@ -72,8 +72,23 @@ jobs:
         cat temp_changelog.md >> CHANGELOG.md
         rm temp_changelog.md
         
-        git add CHANGELOG.md
-        git commit -m "Update CHANGELOG for v${{ github.event.inputs.version }}"
+        # Update version tracking files for cross-repository coordination
+        python scripts/update_version_tracking.py \
+          --validator-repo . \
+          --standards-repo ../adri-standards \
+          --release-type "Beta" \
+          --description \
+            "Production-ready CI/CD pipeline" \
+            "91% test coverage with comprehensive test suite" \
+            "@adri_protected decorator with variants" \
+            "Complete CLI workflow (setup, assess, generate)" \
+            "Data quality assessment engine" \
+            "Configuration management system" \
+            "Analysis tools (profiler, generator)" \
+            "Full integration with adri-standards"
+        
+        git add CHANGELOG.md ../adri-standards/ADRI_VALIDATOR_RELEASES.json ../adri-standards/ADRI-Validator-Releases.md
+        git commit -m "Update CHANGELOG and version tracking for v${{ github.event.inputs.version }}"
         git push origin main
     
     - name: Create GitHub Release
