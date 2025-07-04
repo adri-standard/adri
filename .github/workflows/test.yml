@@ -118,7 +118,7 @@ jobs:
         pytest tests/test_benchmarks.py -v --benchmark-only --benchmark-json=benchmark.json
 
     - name: Upload benchmark results
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: benchmark-results-${{ github.sha }}
         path: benchmark.json
@@ -149,7 +149,7 @@ jobs:
         twine check dist/*
 
     - name: Upload build artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: dist-${{ github.sha }}
         path: dist/
