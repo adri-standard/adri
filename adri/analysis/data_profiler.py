@@ -6,6 +6,7 @@ to support automatic standard generation.
 """
 
 import re
+import warnings
 from typing import Any, Dict, List, Optional, Union
 
 import numpy as np
@@ -220,13 +221,16 @@ class DataProfiler:
             }
 
         try:
-            # Use nan-safe operations to prevent RuntimeWarning
-            min_val = np.nanmin(non_null_series.values)
-            max_val = np.nanmax(non_null_series.values)
-            mean_val = np.nanmean(non_null_series.values)
+            # Use pandas methods for compatibility with tests
+            # Suppress warnings for all-NaN operations
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", RuntimeWarning)
+                min_val = non_null_series.min()
+                max_val = non_null_series.max()
+                mean_val = non_null_series.mean()
 
             # Check for any remaining special values
-            if np.isnan(min_val) or np.isnan(max_val) or np.isnan(mean_val):
+            if pd.isna(min_val) or pd.isna(max_val) or pd.isna(mean_val):
                 return {
                     "min_value": 0,
                     "max_value": 0,
@@ -259,20 +263,16 @@ class DataProfiler:
             }
 
         try:
-            # Use nan-safe operations to prevent RuntimeWarning
-            min_val = np.nanmin(non_null_series.values)
-            max_val = np.nanmax(non_null_series.values)
-            mean_val = np.nanmean(non_null_series.values)
+            # Use pandas methods for compatibility with tests
+            # Suppress warnings for all-NaN operations
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", RuntimeWarning)
+                min_val = non_null_series.min()
+                max_val = non_null_series.max()
+                mean_val = non_null_series.mean()
 
-            # Check for any remaining special values or _NoValueType
-            if (
-                np.isnan(min_val)
-                or np.isnan(max_val)
-                or np.isnan(mean_val)
-                or str(type(min_val)).endswith("_NoValueType")
-                or str(type(max_val)).endswith("_NoValueType")
-                or str(type(mean_val)).endswith("_NoValueType")
-            ):
+            # Check for any remaining special values
+            if pd.isna(min_val) or pd.isna(max_val) or pd.isna(mean_val):
                 return {
                     "min_value": 0.0,
                     "max_value": 0.0,
@@ -308,13 +308,16 @@ class DataProfiler:
             # Calculate string lengths with error handling
             lengths = non_null_series.str.len()
 
-            # Use nan-safe operations to prevent RuntimeWarning
-            min_len = np.nanmin(lengths.values)
-            max_len = np.nanmax(lengths.values)
-            mean_len = np.nanmean(lengths.values)
+            # Use pandas methods for compatibility with tests
+            # Suppress warnings for all-NaN operations
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", RuntimeWarning)
+                min_len = lengths.min()
+                max_len = lengths.max()
+                mean_len = lengths.mean()
 
             # Check for any remaining special values
-            if np.isnan(min_len) or np.isnan(max_len) or np.isnan(mean_len):
+            if pd.isna(min_len) or pd.isna(max_len) or pd.isna(mean_len):
                 return {
                     "min_length": 0,
                     "max_length": 0,
