@@ -88,7 +88,7 @@ jobs:
 
     - name: Run integration tests
       run: |
-        pytest tests/integration/ -v
+        pytest tests/integration/ -v --no-cov
 
     - name: Upload coverage to Codecov
       if: matrix.python-version == '3.11'
