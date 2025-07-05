@@ -39,7 +39,7 @@ def _get_version_from_metadata() -> str:
 
         with open("pyproject.toml", "rb") as f:
             data = tomllib.load(f)
-            return data["project"]["version"]
+            return str(data["project"]["version"])
     except (ImportError, FileNotFoundError, KeyError, Exception):  # nosec B110
         pass
 
