@@ -167,6 +167,21 @@ adri-protect my_script.py
 - 🐛 **Issues** - [GitHub Issues](https://github.com/ThinkEvolveSolve/adri-validator/issues)
 - 💬 **Discussions** - [GitHub Discussions](https://github.com/ThinkEvolveSolve/adri-validator/discussions)
 
+## Release Process
+
+For maintainers releasing new versions:
+
+```bash
+# Prepare a new release
+python scripts/prepare_release.py 0.1.1
+
+# Push changes and create GitHub Release
+git push origin main
+# Then create release at: https://github.com/ThinkEvolveSolve/adri-validator/releases/new
+```
+
+See [RELEASE_PROCESS.md](RELEASE_PROCESS.md) for detailed release instructions.
+
 ## License
 
 MIT License - see [LICENSE](LICENSE) for details.

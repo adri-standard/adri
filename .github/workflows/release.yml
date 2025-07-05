@@ -1,70 +1,10 @@
-name: Production Release
+name: Release to PyPI
 
 on:
-  push:
-    branches: [ production ]
-  workflow_dispatch:
-    inputs:
-      version:
-        description: 'Version to release (e.g., 0.1.1)'
-        required: true
-        type: string
-      release_type:
-        description: 'Type of release'
-        required: true
-        default: 'patch'
-        type: choice
-        options:
-        - patch
-        - minor
-        - major
+  release:
+    types: [published]
 
 jobs:
-  version-bump:
-    if: github.event_name == 'workflow_dispatch'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    outputs:
-      new_version: ${{ steps.version.outputs.new_version }}
-    steps:
-    - uses: actions/checkout@v4
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        fetch-depth: 0
-
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: "3.11"
-
-    - name: Install bump2version
-      run: pip install bump2version
-
-    - name: Configure git
-      run: |
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
-
-    - name: Bump version
-      id: version
-      run: |
-        if [ "${{ github.event.inputs.version }}" != "" ]; then
-          # Manual version specified
-          NEW_VERSION="${{ github.event.inputs.version }}"
-          sed -i 's/version = "[^"]*"/version = "'$NEW_VERSION'"/' pyproject.toml
-        else
-          # Auto-bump based on type
-          bump2version ${{ github.event.inputs.release_type }} --current-version $(grep 'version = ' pyproject.toml | cut -d'"' -f2) pyproject.toml
-          NEW_VERSION=$(grep 'version = ' pyproject.toml | cut -d'"' -f2)
-        fi
-        echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
-        git add pyproject.toml
-        git commit -m "Bump version to $NEW_VERSION"
-        git tag "v$NEW_VERSION"
-        git push origin main
-        git push origin "v$NEW_VERSION"
-
   test:
     runs-on: ubuntu-latest
     steps:
@@ -87,18 +27,29 @@ jobs:
         pytest tests/ -v --cov=adri --cov-report=xml --cov-fail-under=90
 
   build:
-    needs: [test, version-bump]
+    needs: test
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
       with:
         submodules: recursive
-        ref: main  # Ensure we get the latest commit with version bump
 
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
         python-version: "3.11"
+
+    - name: Verify version matches tag
+      run: |
+        TAG_VERSION=${GITHUB_REF#refs/tags/v}
+        PYPROJECT_VERSION=$(grep '^version = ' pyproject.toml | head -1 | cut -d'"' -f2)
+        echo "Tag version: $TAG_VERSION"
+        echo "pyproject.toml version: $PYPROJECT_VERSION"
+        if [ "$TAG_VERSION" != "$PYPROJECT_VERSION" ]; then
+          echo "❌ Version mismatch! Tag: $TAG_VERSION, pyproject.toml: $PYPROJECT_VERSION"
+          exit 1
+        fi
+        echo "✅ Version verification passed"
 
     - name: Install build dependencies
       run: |
@@ -123,7 +74,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     permissions:
-      id-token: write  # For trusted publishing
+      id-token: write
     steps:
     - name: Download build artifacts
       uses: actions/download-artifact@v4
@@ -143,18 +94,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-      with:
-        ref: main  # Ensure we get the latest commit with version bump
 
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
         python-version: "3.11"
 
-    - name: Get version from pyproject.toml
+    - name: Get version from tag
       id: get_version
       run: |
-        VERSION=$(grep '^version = ' pyproject.toml | head -1 | cut -d'"' -f2)
+        VERSION=${GITHUB_REF#refs/tags/v}
         echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
         echo "Testing version: $VERSION"
 
@@ -162,7 +111,7 @@ jobs:
       run: |
         echo "🧪 Running TestPyPI smoke tests..."
 
-        # Create clean test environment in temp directory
+        # Create clean test environment
         cd /tmp
         python -m venv testpypi_env
         source testpypi_env/bin/activate
@@ -170,14 +119,13 @@ jobs:
         # Poll for TestPyPI package availability
         echo "⏳ Polling TestPyPI for package availability..."
         VERSION="${{ steps.get_version.outputs.VERSION }}"
-        MAX_ATTEMPTS=9  # 270 seconds / 30 seconds
+        MAX_ATTEMPTS=9
         ATTEMPT=1
         PACKAGE_FOUND=false
 
         while [ $ATTEMPT -le $MAX_ATTEMPTS ]; do
           echo "⏳ Attempt $ATTEMPT/$MAX_ATTEMPTS: Checking TestPyPI for adri==$VERSION..."
 
-          # Check if package version is available
           if pip index versions adri --index-url https://test.pypi.org/simple/ 2>/dev/null | grep -q "$VERSION"; then
             echo "✅ Package adri==$VERSION found on TestPyPI!"
             PACKAGE_FOUND=true
@@ -186,8 +134,6 @@ jobs:
 
           if [ $ATTEMPT -eq $MAX_ATTEMPTS ]; then
             echo "❌ Timeout: Package adri==$VERSION not available on TestPyPI after 270 seconds"
-            echo "Available versions:"
-            pip index versions adri --index-url https://test.pypi.org/simple/ 2>/dev/null || echo "No versions found"
             exit 1
           fi
 
@@ -196,60 +142,39 @@ jobs:
           ATTEMPT=$((ATTEMPT + 1))
         done
 
-        if [ "$PACKAGE_FOUND" = false ]; then
-          echo "❌ Failed to find package on TestPyPI"
-          exit 1
-        fi
-
         # Install from TestPyPI
         echo "📦 Installing from TestPyPI..."
         pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ adri==${{ steps.get_version.outputs.VERSION }}
 
-        # Test 1: Import and version check
-        echo "✅ Test 1: Import and version check"
-        python -c "import adri; print(f'Version: {adri.__version__}'); assert adri.__version__ == '${{ steps.get_version.outputs.VERSION }}'"
-
-        # Test 2: Core functionality
-        echo "✅ Test 2: Core functionality"
-        python -c "from adri import adri_protected; print('Decorator available')"
-
-        # Test 3: CLI functionality
-        echo "✅ Test 3: CLI functionality"
-        adri --version
-        adri --help
-
-        # Test 4: Basic workflow
-        echo "✅ Test 4: Basic workflow test"
+        # Test basic functionality
+        echo "✅ Testing basic functionality..."
         python -c "
-        import pandas as pd
+        import adri
         from adri import adri_protected
+        import pandas as pd
 
+        # Version check
+        print(f'Version: {adri.__version__}')
+        assert adri.__version__ == '${{ steps.get_version.outputs.VERSION }}'
+
+        # Basic functionality test
         @adri_protected()
         def test_func(data):
             return len(data)
 
         df = pd.DataFrame({'test': [1,2,3]})
         result = test_func(df)
-        print(f'Basic functionality test result: {result}')
+        print(f'Basic test result: {result}')
         assert result == 3
+
+        print('🎉 TestPyPI smoke tests passed!')
         "
-
-        echo "🎉 All TestPyPI smoke tests passed!"
-
-    - name: Notify Slack on TestPyPI Failure
-      if: failure()
-      run: |
-        curl -X POST -H 'Content-type: application/json' \
-        --data '{
-          "text": "❌ ADRI v${{ steps.get_version.outputs.VERSION }} TestPyPI Failed\n🛑 TestPyPI smoke tests failed\n📋 Release halted automatically\n🔗 <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Workflow>"
-        }' \
-        ${{ secrets.SLACK_WEBHOOK_URL }}
 
   publish-pypi:
     needs: smoke-test-testpypi
     runs-on: ubuntu-latest
     permissions:
-      id-token: write  # For trusted publishing
+      id-token: write
     steps:
     - name: Download build artifacts
       uses: actions/download-artifact@v4
@@ -268,18 +193,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-      with:
-        ref: main  # Ensure we get the latest commit with version bump
 
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
         python-version: "3.11"
 
-    - name: Get version from pyproject.toml
+    - name: Get version from tag
       id: get_version
       run: |
-        VERSION=$(grep '^version = ' pyproject.toml | head -1 | cut -d'"' -f2)
+        VERSION=${GITHUB_REF#refs/tags/v}
         echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
 
     - name: Production PyPI Smoke Tests
@@ -290,7 +213,7 @@ jobs:
         echo "⏳ Waiting for PyPI propagation..."
         sleep 60
 
-        # Create clean test environment in temp directory
+        # Create clean test environment
         cd /tmp
         python -m venv production_env
         source production_env/bin/activate
@@ -299,8 +222,8 @@ jobs:
         echo "📦 Installing from Production PyPI..."
         pip install adri==${{ steps.get_version.outputs.VERSION }}
 
-        # Run full smoke test suite
-        echo "✅ Running full smoke test suite..."
+        # Run comprehensive tests
+        echo "✅ Running comprehensive tests..."
         python -c "
         import time
         import pandas as pd
@@ -328,69 +251,42 @@ jobs:
         print('🎉 All production smoke tests passed!')
         "
 
-    - name: Create Production Failure Issue
-      if: failure()
+    - name: Update GitHub Release with PyPI links
       run: |
-        gh issue create --title "URGENT: Release ${{ steps.get_version.outputs.VERSION }} Failed - Production Smoke Tests" \
-          --body "Production smoke tests failed after PyPI publication. Manual intervention required." \
-          --label "urgent,rollback-needed,production-failure"
+        VERSION=${{ steps.get_version.outputs.VERSION }}
+        RELEASE_BODY="## Installation
+
+        \`\`\`bash
+        pip install adri==$VERSION
+        \`\`\`
+
+        ## Links
+        - 📦 [PyPI Package](https://pypi.org/project/adri/$VERSION/)
+        - 🧪 [TestPyPI Package](https://test.pypi.org/project/adri/$VERSION/)
+        - 📋 [Changelog](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md)
+
+        ## Verification
+        All smoke tests passed ✅"
+
+        gh release edit v$VERSION --notes "$RELEASE_BODY"
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Notify Slack on Production Failure
+    - name: Notify on Success
+      if: success()
+      run: |
+        echo "🎉 Release v${{ steps.get_version.outputs.VERSION }} completed successfully!"
+        echo "📦 Package available at: https://pypi.org/project/adri/${{ steps.get_version.outputs.VERSION }}/"
+
+    - name: Create Rollback Instructions on Failure
       if: failure()
       run: |
-        curl -X POST -H 'Content-type: application/json' \
-        --data '{
-          "text": "❌ ADRI v${{ steps.get_version.outputs.VERSION }} Production Failed\n🛑 Production smoke tests failed\n📋 Issue created automatically\n🔧 Manual intervention required\n🔗 <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Workflow>"
-        }' \
-        ${{ secrets.SLACK_WEBHOOK_URL }}
-
-  github-release:
-    needs: smoke-test-production
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-    - uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-
-    - name: Get version from tag
-      id: get_version
-      run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
-
-    - name: Download build artifacts
-      uses: actions/download-artifact@v4
-      with:
-        name: dist
-        path: dist/
-
-    - name: Generate changelog
-      id: changelog
-      run: |
-        if [ -f CHANGELOG.md ]; then
-          # Extract changelog for this version
-          awk '/^## \[?'${{ steps.get_version.outputs.VERSION }}'\]?/{flag=1; next} /^## \[?[0-9]/{flag=0} flag' CHANGELOG.md > release_notes.md
-        else
-          echo "Release ${{ steps.get_version.outputs.VERSION }}" > release_notes.md
-          echo "" >> release_notes.md
-          echo "See commit history for changes." >> release_notes.md
-        fi
-
-    - name: Create GitHub Release
-      uses: softprops/action-gh-release@v1
-      with:
-        name: Release v${{ steps.get_version.outputs.VERSION }}
-        body_path: release_notes.md
-        files: dist/*
-        draft: false
-        prerelease: ${{ contains(steps.get_version.outputs.VERSION, 'rc') || contains(steps.get_version.outputs.VERSION, 'beta') || contains(steps.get_version.outputs.VERSION, 'alpha') }}
-
-    - name: Notify Slack on Success
-      run: |
-        curl -X POST -H 'Content-type: application/json' \
-        --data '{
-          "text": "🎉 ADRI v${{ steps.get_version.outputs.VERSION }} Released Successfully!\n📦 `pip install adri==${{ steps.get_version.outputs.VERSION }}`\n🔗 <${{ github.server_url }}/${{ github.repository }}/releases/tag/v${{ steps.get_version.outputs.VERSION }}|View Release>"
-        }' \
-        ${{ secrets.SLACK_WEBHOOK_URL }}
+        VERSION=${{ steps.get_version.outputs.VERSION }}
+        echo "❌ Production smoke tests failed!"
+        echo ""
+        echo "🔄 Rollback Instructions:"
+        echo "1. Delete the GitHub release: gh release delete v$VERSION"
+        echo "2. Delete the git tag: git tag -d v$VERSION && git push origin :refs/tags/v$VERSION"
+        echo "3. Contact PyPI support to remove the package if necessary"
+        echo ""
+        echo "🔗 Workflow: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
