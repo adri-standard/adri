@@ -137,7 +137,7 @@ class TestGetVersionInfo:
         assert info["version"] == "0.1.0"
         assert info["min_compatible_version"] == "0.1.0"
         assert info["score_compatible_versions"] == ["0.1.0"]
-        assert info["is_production_ready"] is False
+        assert info["is_production_ready"] is True
         assert info["api_version"] == "0.1"
         assert info["standards_format_version"] == "1.0"
 
