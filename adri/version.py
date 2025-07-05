@@ -26,7 +26,7 @@ def _get_version_from_metadata() -> str:
     try:
         import importlib.metadata
 
-        return importlib.metadata.version("adri-validator")
+        return importlib.metadata.version("adri")
     except (ImportError, Exception):  # nosec B110
         pass
 
