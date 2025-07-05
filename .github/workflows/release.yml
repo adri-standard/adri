@@ -162,7 +162,8 @@ jobs:
       run: |
         echo "🧪 Running TestPyPI smoke tests..."
 
-        # Create clean test environment
+        # Create clean test environment in temp directory
+        cd /tmp
         python -m venv testpypi_env
         source testpypi_env/bin/activate
 
@@ -259,7 +260,8 @@ jobs:
         echo "⏳ Waiting for PyPI propagation..."
         sleep 60
 
-        # Create clean test environment
+        # Create clean test environment in temp directory
+        cd /tmp
         python -m venv production_env
         source production_env/bin/activate
 
