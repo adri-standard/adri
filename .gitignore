@@ -223,3 +223,28 @@ yarn-error.log*
 dev/
 local/
 scratch/
+
+# Build and test artifacts
+bandit-report.json
+flake8-report.txt
+coverage.json
+.benchmarks/
+*.egg-info/
+
+# Temporary documentation files (development process)
+*_COMPLETE.md
+*_SUMMARY.md
+*_FIXES*.md
+*_STATUS.md
+*_COVERAGE*.md
+GITHUB_ACTIONS_*.md
+ADRI_VALIDATOR_*.md
+CLI_COMMANDS_*.md
+ASSESSOR_*.md
+MANUAL_FIX_STEPS.md
+PRE_COMMIT_FIX_SUMMARY.md
+REBASE_INSTRUCTIONS.md
+TESTING_PLAN_*.md
+CI_CD_ENHANCEMENTS.md
+COVERAGE_IMPROVEMENT_*.md
+FULL_TEST_*.md

@@ -9,7 +9,7 @@ operation and air-gap compatibility.
 import threading
 from functools import lru_cache
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 import yaml
 
@@ -97,7 +97,13 @@ class StandardsLoader:
                 # Validate the standard structure
                 self._validate_standard_structure(standard_content, standard_name)
 
-                return standard_content
+                # Ensure we return the correct type
+                if isinstance(standard_content, dict):
+                    return standard_content
+                else:
+                    raise InvalidStandardError(
+                        "Standard content must be a dictionary", standard_name
+                    )
 
             except yaml.YAMLError as e:
                 raise InvalidStandardError(f"YAML parsing error: {e}", standard_name)

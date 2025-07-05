@@ -29,9 +29,7 @@ class TestAssessmentReportCompliance:
     """Test cases for ADRI Assessment Report Standard compliance."""
 
     def test_assessment_result_passes_adri_standard(self):
-        """
-        RED: Assessment results must pass ADRI Assessment Report Standard validation
-        """
+        """RED: Assessment results must pass ADRI Assessment Report Standard validation."""
         if AssessmentEngine and YAMLStandards:
             # Create perfect data that will pass ADRI Assessment Report Standard
             # The standard requires overall_score = 100 and all dimension minimums met
@@ -87,7 +85,7 @@ class TestAssessmentReportCompliance:
             # Load ADRI Assessment Report Standard
             adri_standard_path = (
                 Path(__file__).parent.parent.parent.parent
-                / "ADRI Catalogue"
+                / "adri-catalogue"
                 / "Open Source"
                 / "adri_assessment_report_standard.yaml"
             )
@@ -105,7 +103,7 @@ class TestAssessmentReportCompliance:
                 print(f"Compliance gaps: {compliance['gaps']}")
 
             assert (
-                compliance["overall_compliance"] == True
+                compliance["overall_compliance"] is True
             ), f"Compliance failed: {compliance['gaps']}"
             assert (
                 len(compliance["failed_requirements"]) == 0
@@ -115,9 +113,7 @@ class TestAssessmentReportCompliance:
             pytest.skip("AssessmentEngine or YAMLStandards not implemented yet")
 
     def test_dimension_scores_never_exceed_maximum(self):
-        """
-        RED: Dimension scores must never exceed 20.0
-        """
+        """RED: Dimension scores must never exceed 20.0."""
         if AssessmentEngine and YAMLStandards:
             # Create perfect data that might cause scores to exceed 20
             perfect_data = pd.DataFrame(
@@ -172,9 +168,7 @@ class TestAssessmentReportCompliance:
             pytest.skip("AssessmentEngine or YAMLStandards not implemented yet")
 
     def test_overall_score_equals_dimension_sum(self):
-        """
-        RED: Overall score must equal sum of dimension scores (with tolerance)
-        """
+        """RED: Overall score must equal sum of dimension scores (with tolerance)."""
         if AssessmentEngine and YAMLStandards:
             # Load test data
             csv_path = (
@@ -212,9 +206,7 @@ class TestAssessmentReportCompliance:
             pytest.skip("AssessmentEngine or YAMLStandards not implemented yet")
 
     def test_standard_dict_format_compliance(self):
-        """
-        RED: to_standard_dict() must produce ADRI standard-compliant format
-        """
+        """RED: to_standard_dict() must produce ADRI standard-compliant format."""
         if AssessmentEngine and YAMLStandards:
             # Load test data
             csv_path = (
@@ -279,9 +271,7 @@ class TestAssessmentReportCompliance:
             pytest.skip("AssessmentEngine or YAMLStandards not implemented yet")
 
     def test_score_range_validation(self):
-        """
-        RED: All scores must be within valid ranges per ADRI standard
-        """
+        """RED: All scores must be within valid ranges per ADRI standard."""
         if AssessmentEngine and YAMLStandards:
             # Load test data
             csv_path = (
@@ -329,9 +319,7 @@ class TestAssessmentReportCompliance:
             pytest.skip("AssessmentEngine or YAMLStandards not implemented yet")
 
     def test_data_type_compliance(self):
-        """
-        RED: All data types must match ADRI standard requirements
-        """
+        """RED: All data types must match ADRI standard requirements."""
         if AssessmentEngine and YAMLStandards:
             # Load test data
             csv_path = (
@@ -382,9 +370,7 @@ class TestAssessmentReportCompliance:
             pytest.skip("AssessmentEngine or YAMLStandards not implemented yet")
 
     def test_mathematical_consistency_rule(self):
-        """
-        RED: Mathematical consistency rule from ADRI standard must pass
-        """
+        """RED: Mathematical consistency rule from ADRI standard must pass."""
         if AssessmentEngine and YAMLStandards:
             # Load test data
             csv_path = (
@@ -428,9 +414,7 @@ class TestAssessmentReportCompliance:
             pytest.skip("AssessmentEngine or YAMLStandards not implemented yet")
 
     def test_all_required_dimensions_present(self):
-        """
-        RED: All five standard dimensions must be present
-        """
+        """RED: All five standard dimensions must be present."""
         if AssessmentEngine and YAMLStandards:
             # Load test data
             csv_path = (
@@ -488,9 +472,7 @@ class TestAssessmentResultEnhancements:
     """Test cases for enhanced AssessmentResult functionality."""
 
     def test_to_standard_dict_method_exists(self):
-        """
-        RED: AssessmentResult must have to_standard_dict() method
-        """
+        """RED: AssessmentResult must have to_standard_dict() method."""
         if AssessmentResult and DimensionScore:
             # Create a sample result
             dimension_scores = {
@@ -522,9 +504,7 @@ class TestAssessmentResultEnhancements:
             pytest.skip("AssessmentResult or DimensionScore not implemented yet")
 
     def test_validate_against_adri_standard_method(self):
-        """
-        RED: AssessmentResult should have validation helper method
-        """
+        """RED: AssessmentResult should have validation helper method."""
         if AssessmentResult and DimensionScore:
             # Create a sample result
             dimension_scores = {
@@ -586,7 +566,7 @@ def adri_assessment_standard():
     if YAMLStandards:
         standard_path = (
             Path(__file__).parent.parent.parent.parent
-            / "ADRI Catalogue"
+            / "adri-catalogue"
             / "Open Source"
             / "adri_assessment_report_standard.yaml"
         )

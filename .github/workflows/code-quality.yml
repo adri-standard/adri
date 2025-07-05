@@ -10,13 +10,15 @@ on:
 jobs:
   code-quality:
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
+      with:
+        submodules: recursive
 
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: "3.11"
 
@@ -51,6 +53,7 @@ jobs:
         echo "🔍 Running flake8 linting..."
         flake8 adri/ tests/ --statistics --tee --output-file=flake8-report.txt || {
           echo "❌ Linting issues found. Please fix the issues above."
+          echo "Flake8 failed" > flake8-report.txt
           exit 1
         }
         echo "✅ No linting issues found"
@@ -70,7 +73,7 @@ jobs:
         pylint adri/ --output-format=text --reports=yes --score=yes > pylint-report.txt || true
         PYLINT_SCORE=$(tail -2 pylint-report.txt | grep "Your code has been rated" | awk '{print $7}' | cut -d'/' -f1)
         echo "Pylint score: $PYLINT_SCORE/10"
-        
+
         # Fail if score is below 8.0
         if (( $(echo "$PYLINT_SCORE < 8.0" | bc -l) )); then
           echo "❌ Pylint score too low: $PYLINT_SCORE/10 (minimum: 8.0)"
@@ -95,18 +98,18 @@ jobs:
       run: |
         echo "## 🎨 Code Quality Summary" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
-        
+
         echo "### Formatting & Style" >> $GITHUB_STEP_SUMMARY
         echo "- ✅ Black formatting: Passed" >> $GITHUB_STEP_SUMMARY
         echo "- ✅ isort import sorting: Passed" >> $GITHUB_STEP_SUMMARY
         echo "- ✅ flake8 linting: Passed" >> $GITHUB_STEP_SUMMARY
         echo "- ✅ mypy type checking: Passed" >> $GITHUB_STEP_SUMMARY
-        
+
         if [ -f pylint-report.txt ]; then
           PYLINT_SCORE=$(tail -2 pylint-report.txt | grep "Your code has been rated" | awk '{print $7}' | cut -d'/' -f1 2>/dev/null || echo "N/A")
           echo "- ✅ pylint analysis: $PYLINT_SCORE/10" >> $GITHUB_STEP_SUMMARY
         fi
-        
+
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "### Quality Standards Met" >> $GITHUB_STEP_SUMMARY
         echo "- Code follows PEP 8 style guidelines" >> $GITHUB_STEP_SUMMARY
@@ -117,16 +120,20 @@ jobs:
   auto-format:
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
-    
+    permissions:
+      contents: write
+      pull-requests: write
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
         ref: ${{ github.head_ref }}
+        submodules: recursive
 
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: "3.11"
 
@@ -139,7 +146,7 @@ jobs:
       run: |
         echo "🎨 Auto-formatting code with Black..."
         black adri/ tests/
-        
+
         echo "📦 Auto-sorting imports with isort..."
         isort adri/ tests/
 

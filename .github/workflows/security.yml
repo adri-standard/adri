@@ -21,9 +21,11 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
+      with:
+        submodules: recursive
 
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: "3.11"
 
@@ -44,8 +46,8 @@ jobs:
     - name: Run Safety Check
       run: |
         echo "🛡️ Running Safety vulnerability check..."
-        safety check --json --output safety-report.json || true
-        safety check
+        safety scan --output=json > safety-report.json || true
+        safety scan
       continue-on-error: true
 
     - name: Run pip-audit
@@ -78,7 +80,7 @@ jobs:
       run: |
         echo "## 🔒 Security Scan Summary" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
-        
+
         echo "### Bandit Results" >> $GITHUB_STEP_SUMMARY
         if [ -f bandit-report.json ]; then
           BANDIT_ISSUES=$(jq '.results | length' bandit-report.json 2>/dev/null || echo "0")
@@ -86,7 +88,7 @@ jobs:
         else
           echo "- Scan completed successfully" >> $GITHUB_STEP_SUMMARY
         fi
-        
+
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "### Safety Results" >> $GITHUB_STEP_SUMMARY
         if [ -f safety-report.json ]; then
@@ -95,7 +97,7 @@ jobs:
         else
           echo "- No known vulnerabilities found" >> $GITHUB_STEP_SUMMARY
         fi
-        
+
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "### pip-audit Results" >> $GITHUB_STEP_SUMMARY
         if [ -f pip-audit-report.json ]; then
@@ -104,7 +106,7 @@ jobs:
         else
           echo "- No package vulnerabilities found" >> $GITHUB_STEP_SUMMARY
         fi
-        
+
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "### Semgrep Results" >> $GITHUB_STEP_SUMMARY
         if [ -f semgrep-report.json ]; then
@@ -118,17 +120,17 @@ jobs:
       run: |
         # Check for high-severity issues and fail the build if found
         CRITICAL_ISSUES=0
-        
+
         if [ -f bandit-report.json ]; then
           HIGH_SEVERITY=$(jq '[.results[] | select(.issue_severity == "HIGH")] | length' bandit-report.json 2>/dev/null || echo "0")
           CRITICAL_ISSUES=$((CRITICAL_ISSUES + HIGH_SEVERITY))
         fi
-        
+
         if [ -f safety-report.json ]; then
           SAFETY_CRITICAL=$(jq '. | length' safety-report.json 2>/dev/null || echo "0")
           CRITICAL_ISSUES=$((CRITICAL_ISSUES + SAFETY_CRITICAL))
         fi
-        
+
         if [ $CRITICAL_ISSUES -gt 0 ]; then
           echo "❌ Critical security issues found: $CRITICAL_ISSUES"
           echo "Please review and fix security issues before merging."

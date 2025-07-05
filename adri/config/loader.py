@@ -5,7 +5,6 @@ This module handles loading and parsing of ADRI configuration files.
 """
 
 import os
-from pathlib import Path
 from typing import Any, Dict, Optional
 
 import yaml

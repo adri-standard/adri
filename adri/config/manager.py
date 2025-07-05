@@ -183,7 +183,12 @@ class ConfigManager:
 
         try:
             with open(config_path, "r") as f:
-                return yaml.safe_load(f)
+                config_data = yaml.safe_load(f)
+                # Ensure we return the correct type
+                if isinstance(config_data, dict):
+                    return config_data
+                else:
+                    return None
         except (yaml.YAMLError, IOError):
             return None
 
@@ -283,7 +288,12 @@ class ConfigManager:
         if environment not in adri_config["environments"]:
             raise ValueError(f"Environment '{environment}' not found in configuration")
 
-        return adri_config["environments"][environment]
+        env_config = adri_config["environments"][environment]
+        # Ensure we return the correct type
+        if isinstance(env_config, dict):
+            return env_config
+        else:
+            raise ValueError(f"Invalid environment configuration for '{environment}'")
 
     def resolve_standard_path(
         self,
@@ -325,7 +335,12 @@ class ConfigManager:
             Path to assessments directory
         """
         env_config = self.get_environment_config(config, environment)
-        return env_config["paths"]["assessments"]
+        assessments_path = env_config["paths"]["assessments"]
+        # Ensure we return a string
+        if isinstance(assessments_path, str):
+            return assessments_path
+        else:
+            raise ValueError("Invalid assessments path configuration")
 
     def get_training_data_dir(
         self, config: Dict[str, Any], environment: Optional[str] = None
@@ -341,7 +356,12 @@ class ConfigManager:
             Path to training data directory
         """
         env_config = self.get_environment_config(config, environment)
-        return env_config["paths"]["training_data"]
+        training_data_path = env_config["paths"]["training_data"]
+        # Ensure we return a string
+        if isinstance(training_data_path, str):
+            return training_data_path
+        else:
+            raise ValueError("Invalid training data path configuration")
 
     def validate_paths(self, config: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -353,7 +373,13 @@ class ConfigManager:
         Returns:
             Dictionary with validation results
         """
-        results = {"valid": True, "errors": [], "warnings": [], "path_status": {}}
+        # Properly type the results dictionary
+        results: Dict[str, Any] = {
+            "valid": True,
+            "errors": [],
+            "warnings": [],
+            "path_status": {},
+        }
 
         adri_config = config["adri"]
 
@@ -382,25 +408,32 @@ class ConfigManager:
 
                 results["path_status"][f"{env_name}.{path_type}"] = status
 
-                # Check for issues
+                # Check for issues - ensure we're working with lists
+                warnings_list = results["warnings"]
+                errors_list = results["errors"]
+
                 if not status["exists"]:
-                    results["warnings"].append(
-                        f"Path does not exist: {path_value} ({env_name}.{path_type})"
-                    )
+                    if isinstance(warnings_list, list):
+                        warnings_list.append(
+                            f"Path does not exist: {path_value} ({env_name}.{path_type})"
+                        )
                 elif not status["is_directory"]:
-                    results["errors"].append(
-                        f"Path is not a directory: {path_value} ({env_name}.{path_type})"
-                    )
+                    if isinstance(errors_list, list):
+                        errors_list.append(
+                            f"Path is not a directory: {path_value} ({env_name}.{path_type})"
+                        )
                     results["valid"] = False
                 elif not status["readable"]:
-                    results["errors"].append(
-                        f"Path is not readable: {path_value} ({env_name}.{path_type})"
-                    )
+                    if isinstance(errors_list, list):
+                        errors_list.append(
+                            f"Path is not readable: {path_value} ({env_name}.{path_type})"
+                        )
                     results["valid"] = False
                 elif not status["writable"]:
-                    results["warnings"].append(
-                        f"Path is not writable: {path_value} ({env_name}.{path_type})"
-                    )
+                    if isinstance(warnings_list, list):
+                        warnings_list.append(
+                            f"Path is not writable: {path_value} ({env_name}.{path_type})"
+                        )
 
         return results
 
@@ -432,7 +465,11 @@ class ConfigManager:
         adri_config = config["adri"]
 
         # Start with global protection config
-        protection_config = adri_config.get("protection", {}).copy()
+        protection_config_raw = adri_config.get("protection", {})
+        if isinstance(protection_config_raw, dict):
+            protection_config = protection_config_raw.copy()
+        else:
+            protection_config = {}
 
         # Override with environment-specific settings
         if environment is None:
@@ -441,7 +478,9 @@ class ConfigManager:
         if environment in adri_config["environments"]:
             env_config = adri_config["environments"][environment]
             if "protection" in env_config:
-                protection_config.update(env_config["protection"])
+                env_protection = env_config["protection"]
+                if isinstance(env_protection, dict):
+                    protection_config.update(env_protection)
 
         return protection_config
 

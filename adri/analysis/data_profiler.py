@@ -5,11 +5,11 @@ This module provides functionality to analyze data structure and content
 to support automatic standard generation.
 """
 
+import logging
 import re
 import warnings
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, Optional
 
-import numpy as np
 import pandas as pd
 
 
@@ -86,7 +86,7 @@ class DataProfiler:
     ) -> Dict[str, Any]:
         """Create summary statistics for the dataset."""
         # Count data types
-        data_types = {}
+        data_types: Dict[str, int] = {}
         for column in data.columns:
             field_type = self._infer_field_type(data[column])
             data_types[field_type] = data_types.get(field_type, 0) + 1
@@ -166,7 +166,7 @@ class DataProfiler:
                 "n",
             }
             return unique_values.issubset(boolean_values) and len(unique_values) <= 2
-        except:
+        except Exception:
             return False
 
     def _is_integer_series(self, series: pd.Series) -> bool:
@@ -176,8 +176,10 @@ class DataProfiler:
             numeric_series = pd.to_numeric(series, errors="coerce")
             if numeric_series.isnull().any():
                 return False
-            return (numeric_series % 1 == 0).all()
-        except:
+            # Explicitly convert to bool to satisfy mypy
+            result = (numeric_series % 1 == 0).all()
+            return bool(result)
+        except Exception:
             return False
 
     def _is_float_series(self, series: pd.Series) -> bool:
@@ -185,8 +187,10 @@ class DataProfiler:
         try:
             # Try to convert to numeric
             numeric_series = pd.to_numeric(series, errors="coerce")
-            return not numeric_series.isnull().any()
-        except:
+            # Explicitly convert to bool to satisfy mypy
+            result = not numeric_series.isnull().any()
+            return bool(result)
+        except Exception:
             return False
 
     def _is_date_series(self, series: pd.Series) -> bool:
@@ -197,16 +201,18 @@ class DataProfiler:
             sample_values = series.head(sample_size).astype(str)
 
             for value in sample_values:
-                if any(pattern.match(value) for pattern in self.date_patterns):
+                # Explicitly convert to bool to satisfy mypy
+                if bool(any(pattern.match(value) for pattern in self.date_patterns)):
                     return True
             return False
-        except:
+        except Exception:
             return False
 
     def _is_nullable(self, series: pd.Series) -> bool:
         """Determine if field should be considered nullable."""
         null_percentage = (series.isnull().sum() / len(series)) * 100
-        return null_percentage > 0
+        # Explicitly convert to bool to satisfy mypy
+        return bool(null_percentage > 0)
 
     def _profile_integer_field(self, series: pd.Series) -> Dict[str, Any]:
         """Profile integer field characteristics."""
@@ -324,7 +330,7 @@ class DataProfiler:
                     "avg_length": 0.0,
                 }
 
-            profile = {
+            profile: Dict[str, Any] = {
                 "min_length": int(min_len),
                 "max_length": int(max_len),
                 "avg_length": float(mean_len),
@@ -336,7 +342,7 @@ class DataProfiler:
                 profile["pattern"] = pattern
 
             return profile
-        except (ValueError, TypeError, OverflowError) as e:
+        except (ValueError, TypeError, OverflowError):
             # If any conversion fails, return safe defaults
             return {
                 "min_length": 0,
@@ -384,8 +390,8 @@ class DataProfiler:
                     "max_date": valid_dates.max().strftime("%Y-%m-%d"),
                     "date_format": self._detect_date_format(non_null_series.iloc[0]),
                 }
-        except:
-            pass
+        except Exception as e:
+            logging.warning(f"Failed to parse dates: {e}")
 
         return {"date_format": "unknown"}
 

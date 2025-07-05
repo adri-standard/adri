@@ -6,9 +6,8 @@ Provides the @adri_protected decorator for protecting agent workflows from dirty
 
 import functools
 import logging
-from typing import Any, Callable, Dict, Optional
+from typing import Callable, Dict, Optional
 
-from ..config.manager import ConfigManager
 from ..core.protection import DataProtectionEngine, ProtectionError
 
 logger = logging.getLogger(__name__)
@@ -128,23 +127,27 @@ def adri_protected(
                 logger.error(f"Unexpected error in @adri_protected decorator: {e}")
                 raise ProtectionError(
                     f"Data protection failed for function '{func.__name__}': {e}\n"
-                    f"This may indicate a configuration or system issue."
+                    "This may indicate a configuration or system issue."
                 )
 
         # Mark the function as ADRI protected
-        wrapper._adri_protected = True
-        wrapper._adri_config = {
-            "data_param": data_param,
-            "standard_file": standard_file,
-            "standard_name": standard_name,
-            "standard_id": standard_id,
-            "min_score": min_score,
-            "dimensions": dimensions,
-            "on_failure": on_failure,
-            "auto_generate": auto_generate,
-            "cache_assessments": cache_assessments,
-            "verbose": verbose,
-        }
+        setattr(wrapper, "_adri_protected", True)
+        setattr(
+            wrapper,
+            "_adri_config",
+            {
+                "data_param": data_param,
+                "standard_file": standard_file,
+                "standard_name": standard_name,
+                "standard_id": standard_id,
+                "min_score": min_score,
+                "dimensions": dimensions,
+                "on_failure": on_failure,
+                "auto_generate": auto_generate,
+                "cache_assessments": cache_assessments,
+                "verbose": verbose,
+            },
+        )
 
         return wrapper
 

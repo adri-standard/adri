@@ -1,1 +1,0 @@
-# Standards testing module

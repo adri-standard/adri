@@ -5,7 +5,7 @@ This module provides functionality to generate assessment reports using
 compiled ADRI Standard templates for efficient runtime performance.
 """
 
-import random
+import secrets
 import string
 from datetime import datetime, timezone
 from typing import Any, Dict
@@ -23,7 +23,7 @@ class ReportGenerator:
 
     def __init__(self):
         """Initialize the report generator with compiled template."""
-        self.template = ADRI_ASSESSMENT_REPORT_TEMPLATE_V0_1_0
+        self.template: Dict[str, Any] = ADRI_ASSESSMENT_REPORT_TEMPLATE_V0_1_0
 
     def generate_report(self, assessment_result) -> Dict[str, Any]:
         """
@@ -63,13 +63,10 @@ class ReportGenerator:
         Returns:
             Formatted assessment ID
         """
-        import random
-        import string
-
         date_str = timestamp.strftime("%Y%m%d")
         time_str = timestamp.strftime("%H%M%S")
         random_str = "".join(
-            random.choices(string.ascii_lowercase + string.digits, k=6)
+            secrets.choice(string.ascii_lowercase + string.digits) for _ in range(6)
         )
 
         return f"adri_{date_str}_{time_str}_{random_str}"
@@ -81,7 +78,9 @@ class ReportGenerator:
         return {
             "assessment_id": assessment_id,
             "timestamp": timestamp.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            "adri_version": self.template["standard_metadata"]["version"],
+            "adri_version": self.template.get("standard_metadata", {}).get(
+                "version", "0.1.0"
+            ),
             "standard_applied": {
                 "id": getattr(assessment_result, "standard_id", "unknown-standard"),
                 "version": getattr(assessment_result, "standard_version", "1.0.0"),
@@ -187,11 +186,15 @@ class ReportGenerator:
             },
         }
 
-    def _build_rule_execution_log(self, assessment_result) -> list:
+    def _build_rule_execution_log(self, assessment_result) -> list[Any]:
         """Build the rule execution log section of the report."""
         # Check if assessment_result has rule execution details
         if hasattr(assessment_result, "rule_executions"):
-            return assessment_result.rule_executions
+            rule_executions = getattr(assessment_result, "rule_executions", [])
+            if isinstance(rule_executions, list):
+                return rule_executions
+            else:
+                return []
 
         # Generate basic rule execution log from dimension scores
         rule_log = []
@@ -256,7 +259,11 @@ class ReportGenerator:
             hasattr(assessment_result, "field_analysis")
             and assessment_result.field_analysis
         ):
-            field_analysis = assessment_result.field_analysis.copy()
+            field_analysis_attr = getattr(assessment_result, "field_analysis", {})
+            if isinstance(field_analysis_attr, dict):
+                field_analysis = field_analysis_attr.copy()
+            else:
+                field_analysis = {}
         else:
             field_analysis = {}
 
@@ -273,19 +280,23 @@ class ReportGenerator:
 
         # If we have field-level information, add it
         if hasattr(assessment_result, "field_scores"):
-            for field_name, field_data in assessment_result.field_scores.items():
-                if field_name not in field_analysis:
-                    field_analysis[field_name] = {
-                        "rules_applied": getattr(
-                            field_data, "rules_applied", [f"{field_name}_validation"]
-                        ),
-                        "overall_field_score": getattr(field_data, "score", 0.0),
-                        "total_failures": getattr(field_data, "failures", 0),
-                        "ml_readiness": self._assess_ml_readiness(
-                            getattr(field_data, "score", 0.0)
-                        ),
-                        "recommended_actions": [],
-                    }
+            field_scores_attr = getattr(assessment_result, "field_scores", {})
+            if isinstance(field_scores_attr, dict):
+                for field_name, field_data in field_scores_attr.items():
+                    if field_name not in field_analysis:
+                        field_analysis[field_name] = {
+                            "rules_applied": getattr(
+                                field_data,
+                                "rules_applied",
+                                [f"{field_name}_validation"],
+                            ),
+                            "overall_field_score": getattr(field_data, "score", 0.0),
+                            "total_failures": getattr(field_data, "failures", 0),
+                            "ml_readiness": self._assess_ml_readiness(
+                                getattr(field_data, "score", 0.0)
+                            ),
+                            "recommended_actions": [],
+                        }
 
         return field_analysis
 
@@ -324,7 +335,11 @@ class ReportGenerator:
         Returns:
             Validation results
         """
-        validation_results = {"valid": True, "errors": [], "warnings": []}
+        validation_results: Dict[str, Any] = {
+            "valid": True,
+            "errors": [],
+            "warnings": [],
+        }
 
         # Basic structure validation
         if "adri_assessment_report" not in report:
@@ -337,9 +352,25 @@ class ReportGenerator:
         root = report["adri_assessment_report"]
 
         # Check required sections from template
-        required_sections = self.template["field_requirements"][
-            "adri_assessment_report"
-        ]["required_fields"]
+        try:
+            field_requirements = self.template.get("field_requirements", {})
+            if isinstance(field_requirements, dict):
+                adri_report_reqs = field_requirements.get("adri_assessment_report", {})
+                if isinstance(adri_report_reqs, dict):
+                    required_sections = adri_report_reqs.get("required_fields", [])
+                else:
+                    required_sections = []
+            else:
+                required_sections = []
+        except (KeyError, TypeError, AttributeError):
+            # Fallback to basic required sections
+            required_sections = [
+                "metadata",
+                "summary",
+                "rule_execution_log",
+                "field_analysis",
+            ]
+
         for section in required_sections:
             if section not in root:
                 validation_results["errors"].append(

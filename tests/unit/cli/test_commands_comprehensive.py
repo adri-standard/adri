@@ -312,9 +312,12 @@ class TestAssessCommandComprehensive:
         mock_engine.return_value = mock_engine_instance
         mock_engine_instance.assess.return_value = mock_assessment
 
-        with patch("adri.cli.commands.Path"), patch(
-            "adri.cli.commands.datetime"
-        ), patch("builtins.open", mock_open()), patch("adri.cli.commands.json.dump"):
+        with (
+            patch("adri.cli.commands.Path"),
+            patch("adri.cli.commands.datetime"),
+            patch("builtins.open", mock_open()),
+            patch("adri.cli.commands.json.dump"),
+        ):
             result = assess_command("test_data.csv", "test_standard.yaml", verbose=True)
 
         assert result == 0
@@ -472,8 +475,9 @@ class TestGenerateStandardCommandComprehensive:
         mock_load_data.return_value = [{"col1": "value1"}]
         mock_profiler.side_effect = Exception("Profiling error")
 
-        with patch("adri.cli.commands.os.path.exists", return_value=False), patch(
-            "pandas.DataFrame"
+        with (
+            patch("adri.cli.commands.os.path.exists", return_value=False),
+            patch("pandas.DataFrame"),
         ):
             result = generate_adri_standard_command("test_data.csv")
 
@@ -618,8 +622,9 @@ class TestPathResolutionComprehensive:
         """Test resolving data path that exists as-is."""
         env_config = {"paths": {"training_data": "/test/training"}}
 
-        with patch("adri.cli.commands.os.path.isabs", return_value=False), patch(
-            "adri.cli.commands.os.path.exists", return_value=True
+        with (
+            patch("adri.cli.commands.os.path.isabs", return_value=False),
+            patch("adri.cli.commands.os.path.exists", return_value=True),
         ):
             result = _resolve_data_path("data.csv", env_config)
 
@@ -629,8 +634,9 @@ class TestPathResolutionComprehensive:
         """Test resolving data path in training directory."""
         env_config = {"paths": {"training_data": "/test/training"}}
 
-        with patch("adri.cli.commands.os.path.isabs", return_value=False), patch(
-            "adri.cli.commands.os.path.exists", side_effect=[False, True]
+        with (
+            patch("adri.cli.commands.os.path.isabs", return_value=False),
+            patch("adri.cli.commands.os.path.exists", side_effect=[False, True]),
         ):
             result = _resolve_data_path("data.csv", env_config)
 
@@ -640,8 +646,9 @@ class TestPathResolutionComprehensive:
         """Test resolving data path that doesn't exist anywhere."""
         env_config = {"paths": {"training_data": "/test/training"}}
 
-        with patch("adri.cli.commands.os.path.isabs", return_value=False), patch(
-            "adri.cli.commands.os.path.exists", return_value=False
+        with (
+            patch("adri.cli.commands.os.path.isabs", return_value=False),
+            patch("adri.cli.commands.os.path.exists", return_value=False),
         ):
             result = _resolve_data_path("nonexistent.csv", env_config)
 
@@ -651,8 +658,9 @@ class TestPathResolutionComprehensive:
         """Test resolving standard path with automatic extension."""
         env_config = {"paths": {"standards": "/test/standards"}}
 
-        with patch("adri.cli.commands.os.path.isabs", return_value=False), patch(
-            "adri.cli.commands.os.path.exists", side_effect=[False, False, True]
+        with (
+            patch("adri.cli.commands.os.path.isabs", return_value=False),
+            patch("adri.cli.commands.os.path.exists", side_effect=[False, False, True]),
         ):
             result = _resolve_standard_path("standard", env_config)
 
@@ -662,8 +670,9 @@ class TestPathResolutionComprehensive:
         """Test resolving standard path that already has extension."""
         env_config = {"paths": {"standards": "/test/standards"}}
 
-        with patch("adri.cli.commands.os.path.isabs", return_value=False), patch(
-            "adri.cli.commands.os.path.exists", side_effect=[False, True]
+        with (
+            patch("adri.cli.commands.os.path.isabs", return_value=False),
+            patch("adri.cli.commands.os.path.exists", side_effect=[False, True]),
         ):
             result = _resolve_standard_path("standard.yaml", env_config)
 

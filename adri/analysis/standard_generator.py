@@ -6,7 +6,7 @@ This module provides functionality to generate YAML standards from data profiles
 
 import re
 from datetime import datetime
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 
 
 class StandardGenerator:
@@ -48,7 +48,13 @@ class StandardGenerator:
         }
 
         # Convert to serializable format
-        return self._convert_to_serializable(standard)
+        serialized = self._convert_to_serializable(standard)
+        # Ensure we return the correct type
+        if isinstance(serialized, dict):
+            return serialized
+        else:
+            # Fallback to empty dict if conversion failed
+            return {}
 
     def _generate_standards_metadata(self, data_name: str) -> Dict[str, Any]:
         """Generate the standards metadata section."""
@@ -96,7 +102,6 @@ class StandardGenerator:
         ]
 
         # Adjust based on data characteristics
-        summary = data_profile.get("summary", {})
         fields = data_profile.get("fields", {})
 
         # Lower requirements if data has many nullable fields
@@ -112,7 +117,7 @@ class StandardGenerator:
         overall_min = sum(base_scores) / len(base_scores) + adjustment
 
         # Ensure reasonable bounds
-        return max(60.0, min(95.0, overall_min))
+        return float(max(60.0, min(95.0, overall_min)))
 
     def _generate_dimension_requirements(
         self, thresholds: Dict[str, Any]
@@ -270,9 +275,9 @@ class StandardGenerator:
             pattern = field_profile["pattern"]
             if "email" in pattern.lower() or "@" in pattern:
                 # Use standard email pattern
-                constraints[
-                    "pattern"
-                ] = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+                constraints["pattern"] = (
+                    "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+                )
             else:
                 constraints["pattern"] = pattern
 

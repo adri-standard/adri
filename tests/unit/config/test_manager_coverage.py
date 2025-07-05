@@ -193,9 +193,6 @@ class TestConfigManagerCoverage:
                 }
             }
 
-            # Test without mocking first to see normal behavior
-            result_normal = self.manager.validate_paths(config)
-
             # Now test with permission error on glob
             with patch(
                 "pathlib.Path.glob", side_effect=PermissionError("Permission denied")

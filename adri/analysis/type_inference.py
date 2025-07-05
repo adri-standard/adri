@@ -6,7 +6,7 @@ from data values.
 """
 
 import re
-from typing import Any, List, Optional, Union
+from typing import Any, Dict, List, Optional
 
 import pandas as pd
 
@@ -83,7 +83,7 @@ class TypeInference:
         Returns:
             Dictionary of constraints
         """
-        constraints = {}
+        constraints: dict = {}
 
         # Remove None/null values
         non_null_values = [v for v in values if v is not None and pd.notna(v)]
@@ -139,7 +139,7 @@ class TypeInference:
                 "n",
             }
             return unique_values.issubset(boolean_values) and len(unique_values) <= 2
-        except:
+        except Exception:
             return False
 
     def _is_integer_type(self, values: List[Any]) -> bool:
@@ -150,7 +150,7 @@ class TypeInference:
                 if float_val != int(float_val):
                     return False
             return True
-        except:
+        except Exception:
             return False
 
     def _is_float_type(self, values: List[Any]) -> bool:
@@ -159,7 +159,7 @@ class TypeInference:
             for value in values:
                 float(value)
             return True
-        except:
+        except Exception:
             return False
 
     def _is_date_type(self, values: List[Any]) -> bool:
@@ -176,7 +176,7 @@ class TypeInference:
                 ):
                     return True
             return False
-        except:
+        except Exception:
             return False
 
     def _infer_integer_constraints(self, values: List[Any]) -> dict:
@@ -204,10 +204,10 @@ class TypeInference:
         str_values = [str(v) for v in values]
         lengths = [len(s) for s in str_values]
 
-        constraints = {
+        constraints: Dict[str, Any] = {
             "min_length": min(lengths),
             "max_length": max(lengths),
-            "avg_length": sum(lengths) / len(lengths),
+            "avg_length": float(sum(lengths) / len(lengths)),
         }
 
         # Check for patterns

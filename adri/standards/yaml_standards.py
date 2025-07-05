@@ -11,7 +11,7 @@ from .loader import StandardsLoader
 class YAMLStandards:
     """Simple wrapper for YAML standards functionality."""
 
-    def __init__(self, standard_path: str = None):
+    def __init__(self, standard_path: Optional[str] = None):
         """Initialize YAMLStandards with optional standard file path."""
         self.loader = StandardsLoader()
         self.standard_path = standard_path
@@ -20,7 +20,7 @@ class YAMLStandards:
         if standard_path:
             self.load_from_file(standard_path)
 
-    def load_from_file(self, file_path: str):
+    def load_from_file(self, file_path: str) -> None:
         """Load standard from YAML file."""
         import os
         from pathlib import Path
@@ -37,12 +37,14 @@ class YAMLStandards:
             # If not found, try relative to the project root
             # Find the project root by looking for pyproject.toml
             current_dir = Path(__file__).parent
+            project_root = None
             while current_dir.parent != current_dir:
                 if (current_dir / "pyproject.toml").exists():
                     project_root = current_dir
                     break
                 current_dir = current_dir.parent
-            else:
+
+            if project_root is None:
                 # Fallback to current working directory
                 project_root = Path.cwd()
 
@@ -63,22 +65,30 @@ class YAMLStandards:
 
     def get_field_requirements(self) -> Dict[str, Any]:
         """Get field requirements from loaded standard."""
-        if not self.standard_data:
-            return {}
-        return self.standard_data.get("requirements", {}).get("field_requirements", {})
+        return (
+            {}
+            if self.standard_data is None
+            else self.standard_data.get("requirements", {}).get(
+                "field_requirements", {}
+            )
+        )
 
     def get_overall_minimum(self) -> float:
         """Get overall minimum score requirement."""
-        if not self.standard_data:
-            return 75.0
-        return self.standard_data.get("requirements", {}).get("overall_minimum", 75.0)
+        return (
+            75.0
+            if self.standard_data is None
+            else self.standard_data.get("requirements", {}).get("overall_minimum", 75.0)
+        )
 
     @property
     def standards_id(self) -> str:
         """Get the standards ID for compatibility."""
-        if not self.standard_data:
-            return "unknown"
-        return self.standard_data.get("standards", {}).get("id", "unknown")
+        return (
+            "unknown"
+            if self.standard_data is None
+            else self.standard_data.get("standards", {}).get("id", "unknown")
+        )
 
     def list_standards(self) -> List[str]:
         """List all available standards."""
@@ -98,7 +108,7 @@ class YAMLStandards:
 
     def check_compliance(self, report_data: Dict[str, Any]) -> Dict[str, Any]:
         """Check compliance of a report against this standard."""
-        compliance_result = {
+        compliance_result: Dict[str, Any] = {
             "compliant": True,
             "overall_compliance": True,  # Add this key for test compatibility
             "errors": [],
@@ -118,7 +128,7 @@ class YAMLStandards:
             return compliance_result
 
         # Check basic structure requirements
-        requirements = self.standard_data.get("requirements", {})
+        requirements = self.standard_data.get("requirements", {})  # type: ignore[unreachable]
 
         # Check overall score requirement
         overall_minimum = requirements.get("overall_minimum", 75.0)

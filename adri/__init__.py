@@ -32,33 +32,33 @@ from .version import __version__, get_version_info
 try:
     from .core.assessor import DataQualityAssessor
 except ImportError:
-    DataQualityAssessor = None
+    DataQualityAssessor = None  # type: ignore
 
 try:
     from .core.protection import DataProtectionEngine
 except ImportError:
-    DataProtectionEngine = None
+    DataProtectionEngine = None  # type: ignore
 
 try:
     from .analysis.data_profiler import DataProfiler
 except ImportError:
-    DataProfiler = None
+    DataProfiler = None  # type: ignore
 
 try:
     from .analysis.standard_generator import StandardGenerator
 except ImportError:
-    StandardGenerator = None
+    StandardGenerator = None  # type: ignore
 
 __all__ = ["__version__", "adri_protected", "get_version_info"]
 
 # Add available components to __all__
-if DataQualityAssessor:
+if DataQualityAssessor is not None:
     __all__.append("DataQualityAssessor")
-if DataProtectionEngine:
+if DataProtectionEngine is not None:
     __all__.append("DataProtectionEngine")
-if DataProfiler:
+if DataProfiler is not None:
     __all__.append("DataProfiler")
-if StandardGenerator:
+if StandardGenerator is not None:
     __all__.append("StandardGenerator")
 
 # Version information

@@ -17,9 +17,7 @@ class TestInitImportErrorCoverage:
     def test_data_protection_engine_import_error(self):
         """Test ImportError handling for DataProtectionEngine (lines 39-40)."""
         # Mock the import to raise ImportError
-        with patch(
-            "builtins.__import__", side_effect=ImportError("Mock import error")
-        ) as mock_import:
+        with patch("builtins.__import__", side_effect=ImportError("Mock import error")):
             # Create a test scenario that mimics the __init__.py logic
             try:
                 from adri.core.protection import DataProtectionEngine
@@ -32,9 +30,7 @@ class TestInitImportErrorCoverage:
     def test_data_profiler_import_error(self):
         """Test ImportError handling for DataProfiler (lines 44-45)."""
         # Mock the import to raise ImportError
-        with patch(
-            "builtins.__import__", side_effect=ImportError("Mock import error")
-        ) as mock_import:
+        with patch("builtins.__import__", side_effect=ImportError("Mock import error")):
             # Create a test scenario that mimics the __init__.py logic
             try:
                 from adri.analysis.data_profiler import DataProfiler
@@ -47,9 +43,7 @@ class TestInitImportErrorCoverage:
     def test_standard_generator_import_error(self):
         """Test ImportError handling for StandardGenerator (lines 49-50)."""
         # Mock the import to raise ImportError
-        with patch(
-            "builtins.__import__", side_effect=ImportError("Mock import error")
-        ) as mock_import:
+        with patch("builtins.__import__", side_effect=ImportError("Mock import error")):
             # Create a test scenario that mimics the __init__.py logic
             try:
                 from adri.analysis.standard_generator import StandardGenerator
@@ -149,16 +143,16 @@ class TestInitImportErrorCoverage:
 
         assert StandardGenerator is None
 
-    def test_mixed_import_scenarios(self):
+    def test_mixed_import_scenarios(self):  # noqa: C901
         """Test scenarios where some imports succeed and others fail."""
         # Simulate mixed success/failure scenario
         components = {}
 
         # DataQualityAssessor succeeds
         try:
-            components[
-                "DataQualityAssessor"
-            ] = MagicMock()  # Simulate successful import
+            components["DataQualityAssessor"] = (
+                MagicMock()
+            )  # Simulate successful import
         except ImportError:
             components["DataQualityAssessor"] = None
 

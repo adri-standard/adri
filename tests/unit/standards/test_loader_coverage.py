@@ -30,17 +30,9 @@ class TestStandardsLoaderCoverage:
         # This test ensures the fallback logic is executed by testing the code path
         # We'll create a scenario where the submodule path check fails
 
-        # Create a mock that simulates the submodule path not existing
-        original_get_standards_path = StandardsLoader._get_standards_path
-
         def mock_get_standards_path(self):
             # Simulate the logic from the actual method
             module_dir = Path(__file__).parent.parent.parent
-
-            # First try the submodule path (simulate it doesn't exist)
-            submodule_standards_path = (
-                module_dir / "external" / "adri-standards" / "standards" / "core"
-            )
 
             # Since we can't easily mock the path existence, we'll just ensure
             # the fallback path is created and returned
@@ -53,8 +45,9 @@ class TestStandardsLoaderCoverage:
         with patch.object(
             StandardsLoader, "_get_standards_path", mock_get_standards_path
         ):
-            with patch.object(Path, "exists", return_value=True), patch.object(
-                Path, "is_dir", return_value=True
+            with (
+                patch.object(Path, "exists", return_value=True),
+                patch.object(Path, "is_dir", return_value=True),
             ):
                 loader = StandardsLoader()
 
@@ -70,8 +63,9 @@ class TestStandardsLoaderCoverage:
 
     def test_standards_path_not_directory_error(self):
         """Test StandardsDirectoryNotFoundError when path is not a directory (line 63)."""
-        with patch.object(Path, "exists", return_value=True), patch.object(
-            Path, "is_dir", return_value=False
+        with (
+            patch.object(Path, "exists", return_value=True),
+            patch.object(Path, "is_dir", return_value=False),
         ):
             with pytest.raises(StandardsDirectoryNotFoundError) as exc_info:
                 StandardsLoader()
@@ -83,8 +77,9 @@ class TestStandardsLoaderCoverage:
         loader = StandardsLoader()
 
         # Mock file exists but raise a general exception during loading
-        with patch.object(Path, "exists", return_value=True), patch(
-            "builtins.open", side_effect=OSError("Permission denied")
+        with (
+            patch.object(Path, "exists", return_value=True),
+            patch("builtins.open", side_effect=OSError("Permission denied")),
         ):
             with pytest.raises(InvalidStandardError) as exc_info:
                 loader.load_standard("test_standard")
@@ -242,8 +237,9 @@ class TestStandardsLoaderCoverage:
             "requirements": {"overall_minimum": 80},
         }
 
-        with patch.object(loader, "standard_exists", return_value=True), patch.object(
-            loader, "load_standard", return_value=minimal_standard
+        with (
+            patch.object(loader, "standard_exists", return_value=True),
+            patch.object(loader, "load_standard", return_value=minimal_standard),
         ):
             metadata = loader.get_standard_metadata("test_standard")
 
@@ -260,8 +256,9 @@ class TestStandardsLoaderCoverage:
         # Mock file exists but contains invalid YAML
         invalid_yaml = "invalid: yaml: content: ["
 
-        with patch.object(Path, "exists", return_value=True), patch(
-            "builtins.open", mock_open(read_data=invalid_yaml)
+        with (
+            patch.object(Path, "exists", return_value=True),
+            patch("builtins.open", mock_open(read_data=invalid_yaml)),
         ):
             with pytest.raises(InvalidStandardError) as exc_info:
                 loader.load_standard("invalid_yaml_standard")
@@ -285,8 +282,9 @@ class TestStandardsLoaderCoverage:
             "requirements": {"overall_minimum": 80},
         }
 
-        with patch.object(Path, "exists", return_value=True), patch(
-            "builtins.open", mock_open(read_data=yaml.dump(mock_standard))
+        with (
+            patch.object(Path, "exists", return_value=True),
+            patch("builtins.open", mock_open(read_data=yaml.dump(mock_standard))),
         ):
             # Load the same standard twice
             result1 = loader.load_standard("cached_standard")
@@ -305,9 +303,11 @@ class TestStandardsLoaderEdgeCases:
 
     def test_empty_standards_directory(self):
         """Test behavior with empty standards directory."""
-        with patch.object(Path, "exists", return_value=True), patch.object(
-            Path, "is_dir", return_value=True
-        ), patch.object(Path, "glob", return_value=[]):
+        with (
+            patch.object(Path, "exists", return_value=True),
+            patch.object(Path, "is_dir", return_value=True),
+            patch.object(Path, "glob", return_value=[]),
+        ):
             loader = StandardsLoader()
             standards = loader.list_available_standards()
 
@@ -321,9 +321,11 @@ class TestStandardsLoaderEdgeCases:
             MagicMock(stem="standard2"),
         ]
 
-        with patch.object(Path, "exists", return_value=True), patch.object(
-            Path, "is_dir", return_value=True
-        ), patch.object(Path, "glob", return_value=mock_yaml_files):
+        with (
+            patch.object(Path, "exists", return_value=True),
+            patch.object(Path, "is_dir", return_value=True),
+            patch.object(Path, "glob", return_value=mock_yaml_files),
+        ):
             loader = StandardsLoader()
             standards = loader.list_available_standards()
 

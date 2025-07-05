@@ -95,17 +95,10 @@ class TestAdriProtectedDecorator(unittest.TestCase):
 
         shutil.rmtree(self.temp_dir, ignore_errors=True)
 
-    @patch("adri.decorators.guard.ConfigManager")
     @patch("adri.decorators.guard.DataProtectionEngine")
-    def test_basic_decorator_usage(self, mock_engine_class, mock_config_manager):
+    def test_basic_decorator_usage(self, mock_engine_class):
         """Test basic decorator usage with default parameters."""
         # Setup mocks
-        mock_manager = MagicMock()
-        mock_manager.get_protection_config.return_value = self.mock_config["adri"][
-            "protection"
-        ]
-        mock_config_manager.return_value = mock_manager
-
         mock_engine = MagicMock()
         mock_engine.protect_function_call.return_value = "processed_result"
         mock_engine_class.return_value = mock_engine
@@ -127,19 +120,10 @@ class TestAdriProtectedDecorator(unittest.TestCase):
         self.assertEqual(call_args[1]["data_param"], "data")
         self.assertEqual(call_args[1]["function_name"], "test_function")
 
-    @patch("adri.decorators.guard.ConfigManager")
     @patch("adri.decorators.guard.DataProtectionEngine")
-    def test_decorator_with_explicit_standard_file(
-        self, mock_engine_class, mock_config_manager
-    ):
+    def test_decorator_with_explicit_standard_file(self, mock_engine_class):
         """Test decorator with explicit standard file specification."""
         # Setup mocks
-        mock_manager = MagicMock()
-        mock_manager.get_protection_config.return_value = self.mock_config["adri"][
-            "protection"
-        ]
-        mock_config_manager.return_value = mock_manager
-
         mock_engine = MagicMock()
         mock_engine.protect_function_call.return_value = "processed_result"
         mock_engine_class.return_value = mock_engine
@@ -161,19 +145,10 @@ class TestAdriProtectedDecorator(unittest.TestCase):
         call_args = mock_engine.protect_function_call.call_args
         self.assertEqual(call_args[1]["standard_file"], "custom_standard.yaml")
 
-    @patch("adri.decorators.guard.ConfigManager")
     @patch("adri.decorators.guard.DataProtectionEngine")
-    def test_decorator_with_custom_parameters(
-        self, mock_engine_class, mock_config_manager
-    ):
+    def test_decorator_with_custom_parameters(self, mock_engine_class):
         """Test decorator with custom parameters overriding config defaults."""
         # Setup mocks
-        mock_manager = MagicMock()
-        mock_manager.get_protection_config.return_value = self.mock_config["adri"][
-            "protection"
-        ]
-        mock_config_manager.return_value = mock_manager
-
         mock_engine = MagicMock()
         mock_engine.protect_function_call.return_value = "processed_result"
         mock_engine_class.return_value = mock_engine
@@ -202,19 +177,10 @@ class TestAdriProtectedDecorator(unittest.TestCase):
             call_args[1]["dimensions"], {"validity": 19, "completeness": 18}
         )
 
-    @patch("adri.decorators.guard.ConfigManager")
     @patch("adri.decorators.guard.DataProtectionEngine")
-    def test_decorator_quality_failure_raises_exception(
-        self, mock_engine_class, mock_config_manager
-    ):
+    def test_decorator_quality_failure_raises_exception(self, mock_engine_class):
         """Test decorator raises exception when data quality fails."""
         # Setup mocks
-        mock_manager = MagicMock()
-        mock_manager.get_protection_config.return_value = self.mock_config["adri"][
-            "protection"
-        ]
-        mock_config_manager.return_value = mock_manager
-
         mock_engine = MagicMock()
         mock_engine.protect_function_call.side_effect = ProtectionError(
             "Data quality insufficient"
@@ -232,21 +198,12 @@ class TestAdriProtectedDecorator(unittest.TestCase):
 
         self.assertIn("Data quality insufficient", str(context.exception))
 
-    @patch("adri.decorators.guard.ConfigManager")
     @patch("adri.decorators.guard.DataProtectionEngine")
-    def test_decorator_missing_data_parameter(
-        self, mock_engine_class, mock_config_manager
-    ):
+    def test_decorator_missing_data_parameter(self, mock_engine_class):
         """Test decorator handles missing data parameter gracefully."""
         # Setup mocks
-        mock_manager = MagicMock()
-        mock_manager.get_protection_config.return_value = self.mock_config["adri"][
-            "protection"
-        ]
-        mock_config_manager.return_value = mock_manager
-
         mock_engine = MagicMock()
-        mock_engine.protect_function_call.side_effect = ValueError(
+        mock_engine.protect_function_call.side_effect = ProtectionError(
             "Could not find data parameter 'missing_param'"
         )
         mock_engine_class.return_value = mock_engine

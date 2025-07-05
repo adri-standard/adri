@@ -367,7 +367,7 @@ class TestAssessmentResult:
             )
 
             assert result.overall_score == 85.0
-            assert result.passed == True
+            assert result.passed is True
             assert result.standard_id == "customer-quality-standard"
             assert len(result.dimension_scores) == 5
 

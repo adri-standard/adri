@@ -67,9 +67,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
+      with:
+        submodules: recursive
 
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: "3.11"
 
@@ -87,9 +89,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
+      with:
+        submodules: recursive
 
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: "3.11"
 
@@ -112,7 +116,7 @@ jobs:
         name: dist
         path: dist/
 
-  publish:
+  publish-testpypi:
     needs: build
     runs-on: ubuntu-latest
     permissions:
@@ -124,14 +128,187 @@ jobs:
         name: dist
         path: dist/
 
-    - name: Publish to PyPI
+    - name: Publish to TestPyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        repository-url: https://test.pypi.org/legacy/
+        password: ${{ secrets.TESTPYPI }}
+        verbose: true
+
+  smoke-test-testpypi:
+    needs: publish-testpypi
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.11"
+
+    - name: Get version from pyproject.toml
+      id: get_version
+      run: |
+        VERSION=$(grep 'version = ' pyproject.toml | cut -d'"' -f2)
+        echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+        echo "Testing version: $VERSION"
+
+    - name: TestPyPI Smoke Tests
+      run: |
+        echo "🧪 Running TestPyPI smoke tests..."
+
+        # Create clean test environment
+        python -m venv testpypi_env
+        source testpypi_env/bin/activate
+
+        # Wait for TestPyPI propagation
+        echo "⏳ Waiting for TestPyPI propagation..."
+        sleep 30
+
+        # Install from TestPyPI
+        echo "📦 Installing from TestPyPI..."
+        pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ adri==${{ steps.get_version.outputs.VERSION }}
+
+        # Test 1: Import and version check
+        echo "✅ Test 1: Import and version check"
+        python -c "import adri; print(f'Version: {adri.__version__}'); assert adri.__version__ == '${{ steps.get_version.outputs.VERSION }}'"
+
+        # Test 2: Core functionality
+        echo "✅ Test 2: Core functionality"
+        python -c "from adri import adri_protected; print('Decorator available')"
+
+        # Test 3: CLI functionality
+        echo "✅ Test 3: CLI functionality"
+        adri --version
+        adri --help
+
+        # Test 4: Basic workflow
+        echo "✅ Test 4: Basic workflow test"
+        python -c "
+        import pandas as pd
+        from adri import adri_protected
+
+        @adri_protected()
+        def test_func(data):
+            return len(data)
+
+        df = pd.DataFrame({'test': [1,2,3]})
+        result = test_func(df)
+        print(f'Basic functionality test result: {result}')
+        assert result == 3
+        "
+
+        echo "🎉 All TestPyPI smoke tests passed!"
+
+    - name: Notify Slack on TestPyPI Failure
+      if: failure()
+      run: |
+        curl -X POST -H 'Content-type: application/json' \
+        --data '{
+          "text": "❌ ADRI v${{ steps.get_version.outputs.VERSION }} TestPyPI Failed\n🛑 TestPyPI smoke tests failed\n📋 Release halted automatically\n🔗 <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Workflow>"
+        }' \
+        ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  publish-pypi:
+    needs: smoke-test-testpypi
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write  # For trusted publishing
+    steps:
+    - name: Download build artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: dist
+        path: dist/
+
+    - name: Publish to Production PyPI
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
         password: ${{ secrets.PYPI_API_TOKEN }}
         verbose: true
 
+  smoke-test-production:
+    needs: publish-pypi
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.11"
+
+    - name: Get version from pyproject.toml
+      id: get_version
+      run: |
+        VERSION=$(grep 'version = ' pyproject.toml | cut -d'"' -f2)
+        echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+
+    - name: Production PyPI Smoke Tests
+      run: |
+        echo "🧪 Running Production PyPI smoke tests..."
+
+        # Wait for PyPI propagation
+        echo "⏳ Waiting for PyPI propagation..."
+        sleep 60
+
+        # Create clean test environment
+        python -m venv production_env
+        source production_env/bin/activate
+
+        # Install from production PyPI
+        echo "📦 Installing from Production PyPI..."
+        pip install adri==${{ steps.get_version.outputs.VERSION }}
+
+        # Run full smoke test suite
+        echo "✅ Running full smoke test suite..."
+        python -c "
+        import time
+        import pandas as pd
+        from adri import adri_protected
+        import adri
+
+        # Version check
+        print(f'✅ Version: {adri.__version__}')
+        assert adri.__version__ == '${{ steps.get_version.outputs.VERSION }}'
+
+        # Performance check
+        @adri_protected()
+        def perf_test(data):
+            return data.shape[0]
+
+        df = pd.DataFrame({'test': range(1000)})
+        start = time.time()
+        result = perf_test(df)
+        duration = time.time() - start
+
+        print(f'✅ Performance check: {duration:.2f}s')
+        assert duration < 10.0, f'Performance regression: {duration}s'
+        assert result == 1000
+
+        print('🎉 All production smoke tests passed!')
+        "
+
+    - name: Create Production Failure Issue
+      if: failure()
+      run: |
+        gh issue create --title "URGENT: Release ${{ steps.get_version.outputs.VERSION }} Failed - Production Smoke Tests" \
+          --body "Production smoke tests failed after PyPI publication. Manual intervention required." \
+          --label "urgent,rollback-needed,production-failure"
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Notify Slack on Production Failure
+      if: failure()
+      run: |
+        curl -X POST -H 'Content-type: application/json' \
+        --data '{
+          "text": "❌ ADRI v${{ steps.get_version.outputs.VERSION }} Production Failed\n🛑 Production smoke tests failed\n📋 Issue created automatically\n🔧 Manual intervention required\n🔗 <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Workflow>"
+        }' \
+        ${{ secrets.SLACK_WEBHOOK_URL }}
+
   github-release:
-    needs: publish
+    needs: smoke-test-production
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -170,3 +347,11 @@ jobs:
         files: dist/*
         draft: false
         prerelease: ${{ contains(steps.get_version.outputs.VERSION, 'rc') || contains(steps.get_version.outputs.VERSION, 'beta') || contains(steps.get_version.outputs.VERSION, 'alpha') }}
+
+    - name: Notify Slack on Success
+      run: |
+        curl -X POST -H 'Content-type: application/json' \
+        --data '{
+          "text": "🎉 ADRI v${{ steps.get_version.outputs.VERSION }} Released Successfully!\n📦 `pip install adri==${{ steps.get_version.outputs.VERSION }}`\n🔗 <${{ github.server_url }}/${{ github.repository }}/releases/tag/v${{ steps.get_version.outputs.VERSION }}|View Release>"
+        }' \
+        ${{ secrets.SLACK_WEBHOOK_URL }}

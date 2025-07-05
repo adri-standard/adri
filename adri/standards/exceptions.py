@@ -4,6 +4,8 @@ ADRI Standards Exceptions
 Custom exceptions for the ADRI standards loading system.
 """
 
+from typing import Optional
+
 
 class StandardNotFoundError(Exception):
     """
@@ -26,7 +28,7 @@ class InvalidStandardError(Exception):
     or does not conform to the expected ADRI standard format.
     """
 
-    def __init__(self, message: str, standard_name: str = None):
+    def __init__(self, message: str, standard_name: Optional[str] = None):
         self.standard_name = standard_name
         if standard_name:
             super().__init__(f"Invalid standard '{standard_name}': {message}")

@@ -33,10 +33,41 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-pip-
 
+    - name: Debug submodule status
+      run: |
+        echo "=== Git submodule status ==="
+        git submodule status
+        echo "=== External directory contents ==="
+        ls -la external/ || echo "No external directory"
+        echo "=== Adri-standards directory contents ==="
+        ls -la external/adri-standards/ || echo "No adri-standards directory"
+        echo "=== Standards core directory contents ==="
+        ls -la external/adri-standards/standards/core/ || echo "No standards/core directory"
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -e ".[dev]"
+
+    - name: Debug Python environment
+      run: |
+        echo "=== Python path and adri module test ==="
+        python -c "
+        import sys
+        print('Python path:')
+        for p in sys.path: print(f'  {p}')
+        print()
+        try:
+            from adri.standards.loader import StandardsLoader
+            loader = StandardsLoader()
+            print(f'Standards path: {loader.standards_path}')
+            print(f'Standards exist: {loader.standards_path.exists()}')
+            print(f'Available standards: {len(loader.list_available_standards())}')
+        except Exception as e:
+            print(f'Error loading standards: {e}')
+            import traceback
+            traceback.print_exc()
+        "
 
     - name: Lint with flake8
       run: |
@@ -63,13 +94,9 @@ jobs:
           echo "No Python directories found, skipping isort"
         fi
 
-    - name: Run unit tests with coverage
+    - name: Run all tests with coverage
       run: |
-        pytest tests/unit/ -v --cov=adri --cov-report=xml --cov-report=term-missing --cov-fail-under=90
-
-    - name: Run integration tests
-      run: |
-        pytest tests/integration/ -v
+        pytest tests/ -v --cov=adri --cov-report=xml --cov-report=term-missing --cov-fail-under=90
 
     - name: Upload coverage to Codecov
       if: matrix.python-version == '3.11'

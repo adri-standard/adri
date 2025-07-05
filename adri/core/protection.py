@@ -9,7 +9,7 @@ import logging
 import os
 import time
 from pathlib import Path
-from typing import Any, Dict, Optional, Union
+from typing import Any, Callable, Dict, Optional, Union
 
 import pandas as pd
 
@@ -196,7 +196,7 @@ class DataProtectionEngine:
         if not self.protection_config.get("auto_generate_standards", True):
             raise ProtectionError(
                 f"Standard file not found: {standard_path}\n"
-                f"Auto-generation is disabled. Please create the standard manually or enable auto_generate_standards."
+                "Auto-generation is disabled. Please create the standard manually or enable auto_generate_standards."
             )
 
         logger.info(f"Generating new standard: {standard_path}")
@@ -215,7 +215,7 @@ class DataProtectionEngine:
                 else:
                     raise ProtectionError(
                         f"Cannot generate standard from data type: {type(sample_data)}\n"
-                        f"Supported types: pandas.DataFrame, list, dict"
+                        "Supported types: pandas.DataFrame, list, dict"
                     )
             else:
                 df = sample_data
@@ -328,7 +328,7 @@ class DataProtectionEngine:
                 else:
                     raise ProtectionError(
                         f"Cannot assess data type: {type(data)}\n"
-                        f"Supported types: pandas.DataFrame, list, dict"
+                        "Supported types: pandas.DataFrame, list, dict"
                     )
             else:
                 df = data
@@ -390,7 +390,7 @@ class DataProtectionEngine:
 
     def protect_function_call(
         self,
-        func: callable,
+        func: Callable,
         args: tuple,
         kwargs: dict,
         data_param: str,
@@ -481,8 +481,10 @@ class DataProtectionEngine:
 
         # Check overall score
         if assessment_result.overall_score < min_score:
+            # Pass standard path only if standard is a string (file path)
+            standard_path = standard if isinstance(standard, str) else None
             self.handle_quality_failure(
-                assessment_result, on_failure, min_score, standard
+                assessment_result, on_failure, min_score, standard_path
             )
 
         # Check dimension-specific requirements
@@ -505,7 +507,7 @@ class DataProtectionEngine:
         return func(*args, **kwargs)
 
     def _extract_data_parameter(
-        self, func: callable, args: tuple, kwargs: dict, data_param: str
+        self, func: Callable, args: tuple, kwargs: dict, data_param: str
     ) -> Any:
         """Extract the data parameter from function arguments."""
         import inspect
@@ -542,7 +544,7 @@ class DataProtectionEngine:
             else:
                 content = str(data)[:1000]  # Limit to avoid memory issues
 
-            return hashlib.md5(content.encode()).hexdigest()[:16]
+            return hashlib.sha256(content.encode()).hexdigest()[:16]
         except Exception:
             # Fallback to timestamp-based cache key
             return str(int(time.time()))
@@ -609,9 +611,9 @@ class DataProtectionEngine:
                 f"   3. adri assess <fixed-data> --standard {standard_name}",
                 "",
                 "💬 Message for Your Data Team:",
-                f'   "Our AI agent requires data meeting the attached ADRI standard. Current data fails',
+                '   "Our AI agent requires data meeting the attached ADRI standard. Current data fails',
                 f'   quality checks ({main_issues if main_issues else "multiple issues"}). Please review the',
-                f'   attached report and fix the identified issues."',
+                '   attached report and fix the identified issues."',
                 "",
                 "📞 Need Help?",
                 "   • View detailed report: adri list-assessments --recent 1 --verbose",
@@ -685,8 +687,9 @@ class DataProtectionEngine:
                             and "version" in standard_data["standards"]
                         ):
                             standard_version = standard_data["standards"]["version"]
-                except Exception:
-                    pass  # Use default version if can't read
+                except Exception as e:
+                    logger.warning(f"Error reading standard version: {e}")
+                    # Use default version if can't read
 
             # Check if this was a new standard creation
             standard_created = self._was_standard_just_created(standard)

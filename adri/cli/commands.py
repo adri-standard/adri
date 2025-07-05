@@ -10,7 +10,7 @@ import os
 import re
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional
 
 import yaml
 
@@ -167,6 +167,9 @@ def assess_command(
         Path(output_path).parent.mkdir(parents=True, exist_ok=True)
 
         if verbose:
+            env_name = environment or config["adri"].get(
+                "default_environment", "development"
+            )
             print(f"🌍 Environment: {env_name}")
             print(f"📊 Data: {resolved_data_path}")
             print(f"📋 Standard: {resolved_standard_path}")
@@ -195,12 +198,12 @@ def assess_command(
             )
             data = data.head(max_rows)
 
-        # Load standard
-        standard = load_standard(resolved_standard_path)
+        # Load standard (validates it exists and is valid YAML)
+        load_standard(resolved_standard_path)
 
         # Run assessment
         engine = AssessmentEngine()
-        assessment = engine.assess(data, standard)
+        assessment = engine.assess(data, resolved_standard_path)
 
         # Output results
         if verbose:
@@ -327,7 +330,7 @@ def generate_adri_standard_command(
 
         if verbose:
             summary = data_profile["summary"]
-            print(f"📊 Data Summary:")
+            print("📊 Data Summary:")
             print(f"  Rows: {summary['total_rows']:,}")
             print(f"  Columns: {summary['total_columns']}")
             print(f"  Data Types: {dict(summary['data_types'])}")
@@ -361,7 +364,7 @@ def generate_adri_standard_command(
 
         if verbose:
             requirements = standard_dict["requirements"]
-            print(f"\n📋 Generated Requirements:")
+            print("\n📋 Generated Requirements:")
             print(f"  Overall Minimum: {requirements['overall_minimum']:.1f}/100")
             print(
                 f"  Field Requirements: {len(requirements['field_requirements'])} fields"
@@ -370,7 +373,7 @@ def generate_adri_standard_command(
                 f"  Dimension Requirements: {len(requirements['dimension_requirements'])} dimensions"
             )
 
-        print(f"\n📋 Next steps:")
+        print("\n📋 Next steps:")
         print(f"1. Review the generated standard: {output_path}")
         print(
             f"2. Run assessment: adri assess {data_path} --standard {output_filename}"
@@ -466,16 +469,16 @@ def load_data(file_path: str) -> List[Dict[str, Any]]:
     if not os.path.exists(file_path):
         raise FileNotFoundError(f"Data file not found: {file_path}")
 
-    file_path = Path(file_path)
+    file_path_obj = Path(file_path)
 
-    if file_path.suffix.lower() == ".csv":
-        return _load_csv_data(file_path)
-    elif file_path.suffix.lower() == ".json":
-        return _load_json_data(file_path)
-    elif file_path.suffix.lower() == ".parquet":
-        return _load_parquet_data(file_path)
+    if file_path_obj.suffix.lower() == ".csv":
+        return _load_csv_data(file_path_obj)
+    elif file_path_obj.suffix.lower() == ".json":
+        return _load_json_data(file_path_obj)
+    elif file_path_obj.suffix.lower() == ".parquet":
+        return _load_parquet_data(file_path_obj)
     else:
-        raise ValueError(f"Unsupported file format: {file_path.suffix}")
+        raise ValueError(f"Unsupported file format: {file_path_obj.suffix}")
 
 
 def _load_csv_data(file_path: Path) -> List[Dict[str, Any]]:
@@ -526,7 +529,7 @@ def _load_parquet_data(file_path: Path) -> List[Dict[str, Any]]:
 
         # Convert DataFrame to list of dictionaries
         # Use .to_dict('records') to convert each row to a dictionary
-        data = df.to_dict("records")
+        data: List[Dict[str, Any]] = df.to_dict("records")
 
         return data
 
@@ -556,7 +559,7 @@ def load_standard(file_path: str) -> dict:
 
     try:
         with open(file_path, "r", encoding="utf-8") as f:
-            yaml_content = yaml.safe_load(f)
+            yaml_content: Dict[Any, Any] = yaml.safe_load(f)
         return yaml_content
 
     except yaml.YAMLError as e:
@@ -633,10 +636,9 @@ def validate_yaml_standard(file_path: str) -> Dict[str, Any]:
     Returns:
         Dict containing validation results
     """
-    import re
     from datetime import datetime
 
-    validation_result = {
+    validation_result: Dict[str, Any] = {
         "file_path": file_path,
         "is_valid": True,
         "errors": [],
@@ -701,11 +703,10 @@ def validate_yaml_standard(file_path: str) -> Dict[str, Any]:
         try:
             standard = YAMLStandards()
             # Load the standard data into the instance
-            loaded_standard = standard.load_standard(
-                "dummy"
-            )  # We'll use the yaml_content directly
+            standard.load_standard("dummy")  # We'll use the yaml_content directly
 
-            # Extract metadata directly from yaml_content since we can't pass it to constructor
+            # Extract metadata directly from yaml_content since we can't pass it to
+            # constructor
             standards_section = yaml_content.get("standards", {})
             validation_result["standard_name"] = standards_section.get(
                 "name", "Unknown"
@@ -789,8 +790,8 @@ def _validate_standards_metadata(
 
 
 def _validate_requirements_section(
-    requirements_section: Dict[str, Any], result: Dict[str, Any]
-):
+    requirements_section: Any, result: Dict[str, Any]
+) -> None:
     """Validate the requirements section."""
     if not isinstance(requirements_section, dict):
         result["errors"].append("Requirements section must be a dictionary")
@@ -823,8 +824,8 @@ def _validate_requirements_section(
 
 
 def _validate_dimension_requirements(
-    dim_requirements: Dict[str, Any], result: Dict[str, Any]
-):
+    dim_requirements: Any, result: Dict[str, Any]
+) -> None:
     """Validate dimension requirements."""
     valid_dimensions = [
         "validity",
@@ -868,8 +869,8 @@ def _validate_dimension_requirements(
 
 
 def _validate_field_requirements(
-    field_requirements: Dict[str, Any], result: Dict[str, Any]
-):
+    field_requirements: Any, result: Dict[str, Any]
+) -> None:
     """Validate field requirements."""
     if not isinstance(field_requirements, dict):
         result["errors"].append("field_requirements must be a dictionary")
@@ -1210,9 +1211,6 @@ def list_standards_command(
         # Get environment configuration
         try:
             env_config = config_manager.get_environment_config(config, environment)
-            env_name = environment or config["adri"].get(
-                "default_environment", "development"
-            )
         except ValueError as e:
             print(f"❌ Error: {e}")
             return 1
@@ -1237,6 +1235,9 @@ def list_standards_command(
                 standard_files.append(file_path)
 
         if not standard_files:
+            env_name = environment or config["adri"].get(
+                "default_environment", "development"
+            )
             print(f"📋 No standards found in {env_name} environment")
             print(f"📁 Directory: {standards_dir}")
             print("💡 Run 'adri generate-standard <data-file>' to create standards")
@@ -1246,6 +1247,9 @@ def list_standards_command(
         standard_files.sort(key=lambda x: x.stat().st_mtime, reverse=True)
 
         # Display results
+        env_name = environment or config["adri"].get(
+            "default_environment", "development"
+        )
         print(f"📋 ADRI Standards ({env_name} environment)")
         print(f"📁 Directory: {standards_dir}")
         print(f"📄 Found {len(standard_files)} standard(s)")
@@ -1319,7 +1323,7 @@ def list_training_data_command(
         Exit code: 0 for success, non-zero for error
     """
     try:
-        # Load configuration
+        # Load configuration and get environment
         config_manager = ConfigManager()
         config = config_manager.get_active_config(config_path)
 
@@ -1328,111 +1332,139 @@ def list_training_data_command(
             print("💡 Run 'adri setup' to initialize ADRI in this project")
             return 1
 
-        # Get environment configuration
-        try:
-            env_config = config_manager.get_environment_config(config, environment)
-            env_name = environment or config["adri"].get(
-                "default_environment", "development"
-            )
-        except ValueError as e:
-            print(f"❌ Error: {e}")
+        env_config = _get_environment_config(config_manager, config, environment)
+        if env_config is None:
             return 1
 
-        training_data_dir = env_config["paths"]["training_data"]
-
-        # Check if training data directory exists
-        if not os.path.exists(training_data_dir):
-            print(f"📁 Training data directory not found: {training_data_dir}")
-            print("💡 Create the directory and add data files to get started")
+        # Find and process data files
+        data_files = _find_training_data_files(env_config, environment, config)
+        if data_files is None:
             return 0
-
-        # Find supported data files
-        data_files = []
-        supported_extensions = [".csv", ".json", ".parquet"]
-
-        for ext in supported_extensions:
-            for file_path in Path(training_data_dir).glob(f"*{ext}"):
-                if file_path.is_file():
-                    data_files.append(file_path)
-
-        if not data_files:
-            print(f"📊 No training data found in {env_name} environment")
-            print(f"📁 Directory: {training_data_dir}")
-            print(f"💡 Supported formats: {', '.join(supported_extensions)}")
-            return 0
-
-        # Sort by modification time (newest first)
-        data_files.sort(key=lambda x: x.stat().st_mtime, reverse=True)
-
-        # Group by file type
-        files_by_type = {}
-        for file_path in data_files:
-            ext = file_path.suffix.lower()
-            if ext not in files_by_type:
-                files_by_type[ext] = []
-            files_by_type[ext].append(file_path)
 
         # Display results
-        print(f"📊 Training Data ({env_name} environment)")
-        print(f"📁 Directory: {training_data_dir}")
-        print(f"📄 Found {len(data_files)} file(s)")
-        print()
-
-        file_counter = 1
-        for ext in sorted(files_by_type.keys()):
-            files = files_by_type[ext]
-            print(f"📋 {ext.upper()} Files ({len(files)}):")
-
-            for file_path in files:
-                file_stats = file_path.stat()
-                modified_time = datetime.fromtimestamp(file_stats.st_mtime)
-                file_size = file_stats.st_size
-
-                print(f"{file_counter:2d}. {file_path.name}")
-                print(f"    📅 Modified: {modified_time.strftime('%Y-%m-%d %H:%M:%S')}")
-                print(f"    📏 Size: {_format_file_size(file_size)}")
-
-                if verbose:
-                    # Try to get basic file info
-                    try:
-                        if ext == ".csv":
-                            row_count = _count_csv_rows(file_path)
-                            print(f"    📊 Rows: ~{row_count:,}")
-                        elif ext == ".json":
-                            with open(file_path, "r") as f:
-                                data = json.load(f)
-                                if isinstance(data, list):
-                                    print(f"    📊 Records: {len(data):,}")
-                                else:
-                                    print(f"    📊 Type: {type(data).__name__}")
-                        elif ext == ".parquet":
-                            try:
-                                import pandas as pd
-
-                                df = pd.read_parquet(file_path)
-                                print(
-                                    f"    📊 Shape: {df.shape[0]:,} rows × {df.shape[1]} columns"
-                                )
-                            except ImportError:
-                                print(
-                                    f"    📊 Format: Parquet (pandas required for details)"
-                                )
-
-                    except Exception as e:
-                        print(f"    ⚠️  Could not read file details: {e}")
-
-                file_counter += 1
-                print()
-
-        print("📋 Usage:")
-        print("  • Generate standard: adri generate-standard <data-file>")
-        print("  • Run assessment: adri assess <data-file> --standard <standard>")
+        _display_training_data_results(data_files, environment, config, verbose)
+        _display_training_data_usage()
 
         return 0
 
     except Exception as e:
         print(f"❌ Error: Failed to list training data: {e}")
         return 1
+
+
+def _find_training_data_files(
+    env_config: Dict[str, Any], environment: Optional[str], config: Dict[str, Any]
+) -> Optional[List[Path]]:
+    """Find and validate training data files."""
+    training_data_dir = env_config["paths"]["training_data"]
+
+    # Check if training data directory exists
+    if not os.path.exists(training_data_dir):
+        print(f"📁 Training data directory not found: {training_data_dir}")
+        print("💡 Create the directory and add data files to get started")
+        return None
+
+    # Find supported data files
+    data_files = []
+    supported_extensions = [".csv", ".json", ".parquet"]
+
+    for ext in supported_extensions:
+        for file_path in Path(training_data_dir).glob(f"*{ext}"):
+            if file_path.is_file():
+                data_files.append(file_path)
+
+    if not data_files:
+        env_name = environment or config["adri"].get(
+            "default_environment", "development"
+        )
+        print(f"📊 No training data found in {env_name} environment")
+        print(f"📁 Directory: {training_data_dir}")
+        print(f"💡 Supported formats: {', '.join(supported_extensions)}")
+        return None
+
+    # Sort by modification time (newest first)
+    data_files.sort(key=lambda x: x.stat().st_mtime, reverse=True)
+    return data_files
+
+
+def _display_training_data_results(
+    data_files: List[Path],
+    environment: Optional[str],
+    config: Dict[str, Any],
+    verbose: bool,
+):
+    """Display training data files with details."""
+    # Group by file type
+    files_by_type: Dict[str, List[Path]] = {}
+    for file_path in data_files:
+        ext = file_path.suffix.lower()
+        if ext not in files_by_type:
+            files_by_type[ext] = []
+        files_by_type[ext].append(file_path)
+
+    # Display header
+    env_name = environment or config["adri"].get("default_environment", "development")
+    print(f"📊 Training Data ({env_name} environment)")
+    print(f"📄 Found {len(data_files)} file(s)")
+    print()
+
+    # Display files by type
+    file_counter = 1
+    for ext in sorted(files_by_type.keys()):
+        files = files_by_type[ext]
+        print(f"📋 {ext.upper()} Files ({len(files)}):")
+
+        for file_path in files:
+            _display_file_details(file_path, file_counter, ext, verbose)
+            file_counter += 1
+            print()
+
+
+def _display_file_details(file_path: Path, file_counter: int, ext: str, verbose: bool):
+    """Display details for a single training data file."""
+    file_stats = file_path.stat()
+    modified_time = datetime.fromtimestamp(file_stats.st_mtime)
+    file_size = file_stats.st_size
+
+    print(f"{file_counter:2d}. {file_path.name}")
+    print(f"    📅 Modified: {modified_time.strftime('%Y-%m-%d %H:%M:%S')}")
+    print(f"    📏 Size: {_format_file_size(file_size)}")
+
+    if verbose:
+        _display_verbose_file_info(file_path, ext)
+
+
+def _display_verbose_file_info(file_path: Path, ext: str):
+    """Display verbose information about a file."""
+    try:
+        if ext == ".csv":
+            row_count = _count_csv_rows(file_path)
+            print(f"    📊 Rows: ~{row_count:,}")
+        elif ext == ".json":
+            with open(file_path, "r") as f:
+                data = json.load(f)
+                if isinstance(data, list):
+                    print(f"    📊 Records: {len(data):,}")
+                else:
+                    print(f"    📊 Type: {type(data).__name__}")
+        elif ext == ".parquet":
+            try:
+                import pandas as pd
+
+                df = pd.read_parquet(file_path)
+                print(f"    📊 Shape: {df.shape[0]:,} rows × {df.shape[1]} columns")
+            except ImportError:
+                print("    📊 Format: Parquet (pandas required for details)")
+
+    except Exception as e:
+        print(f"    ⚠️  Could not read file details: {e}")
+
+
+def _display_training_data_usage():
+    """Display usage instructions for training data."""
+    print("📋 Usage:")
+    print("  • Generate standard: adri generate-standard <data-file>")
+    print("  • Run assessment: adri assess <data-file> --standard <standard>")
 
 
 def list_assessments_command(
@@ -1454,7 +1486,7 @@ def list_assessments_command(
         Exit code: 0 for success, non-zero for error
     """
     try:
-        # Load configuration
+        # Load configuration and get environment
         config_manager = ConfigManager()
         config = config_manager.get_active_config(config_path)
 
@@ -1463,112 +1495,155 @@ def list_assessments_command(
             print("💡 Run 'adri setup' to initialize ADRI in this project")
             return 1
 
-        # Get environment configuration
-        try:
-            env_config = config_manager.get_environment_config(config, environment)
-            env_name = environment or config["adri"].get(
-                "default_environment", "development"
-            )
-        except ValueError as e:
-            print(f"❌ Error: {e}")
+        env_config = _get_environment_config(config_manager, config, environment)
+        if env_config is None:
             return 1
 
-        assessments_dir = env_config["paths"]["assessments"]
-
-        # Check if assessments directory exists
-        if not os.path.exists(assessments_dir):
-            print(f"📁 Assessments directory not found: {assessments_dir}")
-            print("💡 Run 'adri assess' to create assessment reports")
+        # Find and process assessment files
+        assessment_files = _find_assessment_files(env_config, environment, config)
+        if assessment_files is None:
             return 0
-
-        # Find JSON assessment files
-        assessment_files = []
-        for file_path in Path(assessments_dir).glob("*.json"):
-            if file_path.is_file():
-                assessment_files.append(file_path)
-
-        if not assessment_files:
-            print(f"📊 No assessments found in {env_name} environment")
-            print(f"📁 Directory: {assessments_dir}")
-            print(
-                "💡 Run 'adri assess <data> --standard <standard>' to create assessments"
-            )
-            return 0
-
-        # Sort by modification time (newest first)
-        assessment_files.sort(key=lambda x: x.stat().st_mtime, reverse=True)
 
         # Limit to recent assessments
         if recent > 0:
             assessment_files = assessment_files[:recent]
 
         # Display results
-        print(f"📊 Assessment Reports ({env_name} environment)")
-        print(f"📁 Directory: {assessments_dir}")
-        print(f"📄 Showing {len(assessment_files)} most recent assessment(s)")
-        print()
-
-        for i, file_path in enumerate(assessment_files, 1):
-            file_stats = file_path.stat()
-            modified_time = datetime.fromtimestamp(file_stats.st_mtime)
-            file_size = file_stats.st_size
-
-            print(f"{i:2d}. {file_path.name}")
-            print(f"    📅 Created: {modified_time.strftime('%Y-%m-%d %H:%M:%S')}")
-            print(f"    📏 Size: {_format_file_size(file_size)}")
-
-            if verbose:
-                # Try to load assessment details
-                try:
-                    with open(file_path, "r", encoding="utf-8") as f:
-                        assessment_data = json.load(f)
-
-                    # Extract key information
-                    overall_score = assessment_data.get("overall_score", "Unknown")
-                    passed = assessment_data.get("passed", False)
-                    status = "✅ PASSED" if passed else "❌ FAILED"
-
-                    print(f"    📊 Score: {overall_score}/100 ({status})")
-
-                    # Show dimension scores if available
-                    if "dimension_scores" in assessment_data:
-                        dim_scores = assessment_data["dimension_scores"]
-                        print(f"    📋 Dimensions:")
-                        for dim_name, dim_data in dim_scores.items():
-                            if isinstance(dim_data, dict) and "score" in dim_data:
-                                score = dim_data["score"]
-                                print(f"      {dim_name.title()}: {score:.1f}/20")
-
-                    # Show data and standard info if available
-                    metadata = assessment_data.get("metadata", {})
-                    if "data_source" in metadata:
-                        print(f"    📊 Data: {metadata['data_source']}")
-                    if "standard_name" in metadata:
-                        print(f"    📋 Standard: {metadata['standard_name']}")
-
-                except Exception as e:
-                    print(f"    ⚠️  Could not read assessment details: {e}")
-
-            print()
-
-        if len(assessment_files) == recent and recent > 0:
-            total_files = len(list(Path(assessments_dir).glob("*.json")))
-            if total_files > recent:
-                print(f"📋 Showing {recent} of {total_files} total assessments")
-                print(f"💡 Use --recent {total_files} to see all assessments")
-                print()
-
-        print("📋 Usage:")
-        print("  • View details: cat <assessment-file>")
-        print(
-            "  • Compare: adri assess <data> --standard <standard> (creates new assessment)"
-        )
+        _display_assessment_results(assessment_files, environment, config, verbose)
+        _display_assessment_pagination(assessment_files, recent, env_config)
+        _display_assessment_usage()
 
         return 0
 
     except Exception as e:
         print(f"❌ Error: Failed to list assessments: {e}")
         return 1
+
+
+def _find_assessment_files(
+    env_config: Dict[str, Any], environment: Optional[str], config: Dict[str, Any]
+) -> Optional[List[Path]]:
+    """Find and validate assessment files."""
+    assessments_dir = env_config["paths"]["assessments"]
+
+    # Check if assessments directory exists
+    if not os.path.exists(assessments_dir):
+        print(f"📁 Assessments directory not found: {assessments_dir}")
+        print("💡 Run 'adri assess' to create assessment reports")
+        return None
+
+    # Find JSON assessment files
+    assessment_files = []
+    for file_path in Path(assessments_dir).glob("*.json"):
+        if file_path.is_file():
+            assessment_files.append(file_path)
+
+    if not assessment_files:
+        env_name = environment or config["adri"].get(
+            "default_environment", "development"
+        )
+        print(f"📊 No assessments found in {env_name} environment")
+        print(f"📁 Directory: {assessments_dir}")
+        print("💡 Run 'adri assess <data> --standard <standard>' to create assessments")
+        return None
+
+    # Sort by modification time (newest first)
+    assessment_files.sort(key=lambda x: x.stat().st_mtime, reverse=True)
+    return assessment_files
+
+
+def _display_assessment_results(
+    assessment_files: List[Path],
+    environment: Optional[str],
+    config: Dict[str, Any],
+    verbose: bool,
+):
+    """Display assessment files with details."""
+    env_name = environment or config["adri"].get("default_environment", "development")
+    print(f"📊 Assessment Reports ({env_name} environment)")
+    print(f"📄 Showing {len(assessment_files)} most recent assessment(s)")
+    print()
+
+    for i, file_path in enumerate(assessment_files, 1):
+        _display_assessment_file_details(file_path, i, verbose)
+        print()
+
+
+def _display_assessment_file_details(file_path: Path, file_number: int, verbose: bool):
+    """Display details for a single assessment file."""
+    file_stats = file_path.stat()
+    modified_time = datetime.fromtimestamp(file_stats.st_mtime)
+    file_size = file_stats.st_size
+
+    print(f"{file_number:2d}. {file_path.name}")
+    print(f"    📅 Created: {modified_time.strftime('%Y-%m-%d %H:%M:%S')}")
+    print(f"    📏 Size: {_format_file_size(file_size)}")
+
+    if verbose:
+        _display_verbose_assessment_info(file_path)
+
+
+def _display_verbose_assessment_info(file_path: Path):
+    """Display verbose information about an assessment file."""
+    try:
+        with open(file_path, "r", encoding="utf-8") as f:
+            assessment_data = json.load(f)
+
+        # Extract key information
+        overall_score = assessment_data.get("overall_score", "Unknown")
+        passed = assessment_data.get("passed", False)
+        status = "✅ PASSED" if passed else "❌ FAILED"
+
+        print(f"    📊 Score: {overall_score}/100 ({status})")
+
+        # Show dimension scores if available
+        if "dimension_scores" in assessment_data:
+            _display_dimension_scores(assessment_data["dimension_scores"])
+
+        # Show data and standard info if available
+        _display_assessment_metadata(assessment_data.get("metadata", {}))
+
+    except Exception as e:
+        print(f"    ⚠️  Could not read assessment details: {e}")
+
+
+def _display_dimension_scores(dim_scores: Dict[str, Any]):
+    """Display dimension scores for an assessment."""
+    print("    📋 Dimensions:")
+    for dim_name, dim_data in dim_scores.items():
+        if isinstance(dim_data, dict) and "score" in dim_data:
+            score = dim_data["score"]
+            print(f"      {dim_name.title()}: {score:.1f}/20")
+
+
+def _display_assessment_metadata(metadata: Dict[str, Any]):
+    """Display assessment metadata."""
+    if "data_source" in metadata:
+        print(f"    📊 Data: {metadata['data_source']}")
+    if "standard_name" in metadata:
+        print(f"    📋 Standard: {metadata['standard_name']}")
+
+
+def _display_assessment_pagination(
+    assessment_files: List[Path], recent: int, env_config: Dict[str, Any]
+):
+    """Display pagination information if needed."""
+    if len(assessment_files) == recent and recent > 0:
+        assessments_dir = env_config["paths"]["assessments"]
+        total_files = len(list(Path(assessments_dir).glob("*.json")))
+        if total_files > recent:
+            print(f"📋 Showing {recent} of {total_files} total assessments")
+            print(f"💡 Use --recent {total_files} to see all assessments")
+            print()
+
+
+def _display_assessment_usage():
+    """Display usage instructions for assessments."""
+    print("📋 Usage:")
+    print("  • View details: cat <assessment-file>")
+    print(
+        "  • Compare: adri assess <data> --standard <standard> (creates new assessment)"
+    )
 
 
 def clean_cache_command(
@@ -1602,150 +1677,184 @@ def clean_cache_command(
         # Get environment configuration
         try:
             env_config = config_manager.get_environment_config(config, environment)
-            env_name = environment or config["adri"].get(
-                "default_environment", "development"
-            )
         except ValueError as e:
             print(f"❌ Error: {e}")
             return 1
 
-        # Define cache patterns and locations
-        cache_patterns = [
-            # Temporary files
-            "*.tmp",
-            "*.temp",
-            ".*.tmp",
-            # Python cache
-            "__pycache__",
-            "*.pyc",
-            "*.pyo",
-            # Assessment cache (if caching is enabled)
-            ".adri_cache",
-            "*.cache",
-            # Backup files
-            "*.backup",
-            "*.bak",
-            "*~",
-        ]
+        # Find files to clean
+        files_to_delete, dirs_to_delete, total_size = _find_cache_files(env_config)
 
-        # Directories to clean
-        directories_to_clean = [
-            env_config["paths"]["assessments"],
-            env_config["paths"]["standards"],
-            env_config["paths"]["training_data"],
-            ".",  # Current directory
-        ]
+        # Handle empty case
+        if not files_to_delete and not dirs_to_delete:
+            return _handle_no_cache_files(environment, config)
 
-        files_to_delete = []
-        dirs_to_delete = []
-        total_size = 0
-
-        # Find files to delete
-        for directory in directories_to_clean:
-            if not os.path.exists(directory):
-                continue
-
-            dir_path = Path(directory)
-
-            for pattern in cache_patterns:
-                if pattern == "__pycache__":
-                    # Handle __pycache__ directories specially
-                    for pycache_dir in dir_path.rglob("__pycache__"):
-                        if pycache_dir.is_dir():
-                            dirs_to_delete.append(pycache_dir)
-                            # Calculate size of directory contents
-                            for file_path in pycache_dir.rglob("*"):
-                                if file_path.is_file():
-                                    total_size += file_path.stat().st_size
-                else:
-                    # Handle file patterns
-                    for file_path in dir_path.rglob(pattern):
-                        if file_path.is_file():
-                            files_to_delete.append(file_path)
-                            total_size += file_path.stat().st_size
-
-        # Remove duplicates and sort
-        files_to_delete = sorted(set(files_to_delete), key=lambda x: str(x))
-        dirs_to_delete = sorted(set(dirs_to_delete), key=lambda x: str(x))
-
-        # Display what will be cleaned
-        total_items = len(files_to_delete) + len(dirs_to_delete)
-
-        if total_items == 0:
-            print(f"🧹 Cache Clean ({env_name} environment)")
-            print("✨ No cache files found to clean")
-            return 0
-
-        action_word = "Would delete" if dry_run else "Cleaning"
-        print(f"🧹 Cache Clean ({env_name} environment)")
-        print(f"📁 Scanning directories: {len(directories_to_clean)}")
-        print(
-            f"🗑️  {action_word} {total_items} item(s) ({_format_file_size(total_size)})"
+        # Display cleanup plan
+        _display_cleanup_plan(
+            files_to_delete,
+            dirs_to_delete,
+            total_size,
+            environment,
+            config,
+            verbose,
+            dry_run,
         )
-        print()
-
-        if verbose or dry_run:
-            if files_to_delete:
-                print(f"📄 Files to delete ({len(files_to_delete)}):")
-                for file_path in files_to_delete:
-                    file_size = file_path.stat().st_size
-                    print(f"  🗑️  {file_path} ({_format_file_size(file_size)})")
-                print()
-
-            if dirs_to_delete:
-                print(f"📁 Directories to delete ({len(dirs_to_delete)}):")
-                for dir_path in dirs_to_delete:
-                    print(f"  🗑️  {dir_path}/")
-                print()
 
         if dry_run:
-            print("🔍 Dry run mode - no files were actually deleted")
-            print("💡 Run without --dry-run to perform the cleanup")
-            return 0
+            return _handle_dry_run()
 
-        # Perform the cleanup
-        deleted_files = 0
-        deleted_dirs = 0
-        errors = []
-
-        # Delete files
-        for file_path in files_to_delete:
-            try:
-                file_path.unlink()
-                deleted_files += 1
-                if verbose:
-                    print(f"✅ Deleted file: {file_path}")
-            except Exception as e:
-                errors.append(f"Failed to delete file {file_path}: {e}")
-
-        # Delete directories
-        for dir_path in dirs_to_delete:
-            try:
-                import shutil
-
-                shutil.rmtree(dir_path)
-                deleted_dirs += 1
-                if verbose:
-                    print(f"✅ Deleted directory: {dir_path}")
-            except Exception as e:
-                errors.append(f"Failed to delete directory {dir_path}: {e}")
-
-        # Report results
-        print(f"✅ Cache cleanup completed!")
-        print(f"🗑️  Deleted: {deleted_files} files, {deleted_dirs} directories")
-        print(f"💾 Freed: {_format_file_size(total_size)}")
-
-        if errors:
-            print(f"\n⚠️  Errors ({len(errors)}):")
-            for error in errors:
-                print(f"  ❌ {error}")
-            return 1
-
-        return 0
+        # Perform cleanup
+        return _perform_cleanup(files_to_delete, dirs_to_delete, total_size, verbose)
 
     except Exception as e:
         print(f"❌ Error: Failed to clean cache: {e}")
         return 1
+
+
+def _find_cache_files(env_config: Dict[str, Any]) -> tuple:
+    """Find cache files and directories to delete."""
+    cache_patterns = [
+        "*.tmp",
+        "*.temp",
+        ".*.tmp",
+        "__pycache__",
+        "*.pyc",
+        "*.pyo",
+        ".adri_cache",
+        "*.cache",
+        "*.backup",
+        "*.bak",
+        "*~",
+    ]
+
+    directories_to_clean = [
+        env_config["paths"]["assessments"],
+        env_config["paths"]["standards"],
+        env_config["paths"]["training_data"],
+        ".",
+    ]
+
+    files_to_delete = []
+    dirs_to_delete = []
+    total_size = 0
+
+    for directory in directories_to_clean:
+        if not os.path.exists(directory):
+            continue
+
+        dir_path = Path(directory)
+        for pattern in cache_patterns:
+            if pattern == "__pycache__":
+                for pycache_dir in dir_path.rglob("__pycache__"):
+                    if pycache_dir.is_dir():
+                        dirs_to_delete.append(pycache_dir)
+                        for file_path in pycache_dir.rglob("*"):
+                            if file_path.is_file():
+                                total_size += file_path.stat().st_size
+            else:
+                for file_path in dir_path.rglob(pattern):
+                    if file_path.is_file():
+                        files_to_delete.append(file_path)
+                        total_size += file_path.stat().st_size
+
+    files_to_delete = sorted(set(files_to_delete), key=lambda x: str(x))
+    dirs_to_delete = sorted(set(dirs_to_delete), key=lambda x: str(x))
+
+    return files_to_delete, dirs_to_delete, total_size
+
+
+def _handle_no_cache_files(environment: Optional[str], config: Dict[str, Any]) -> int:
+    """Handle case when no cache files are found."""
+    env_name = environment or config["adri"].get("default_environment", "development")
+    print(f"🧹 Cache Clean ({env_name} environment)")
+    print("✨ No cache files found to clean")
+    return 0
+
+
+def _display_cleanup_plan(
+    files_to_delete: List[Path],
+    dirs_to_delete: List[Path],
+    total_size: int,
+    environment: Optional[str],
+    config: Dict[str, Any],
+    verbose: bool,
+    dry_run: bool,
+):
+    """Display what will be cleaned."""
+    total_items = len(files_to_delete) + len(dirs_to_delete)
+    action_word = "Would delete" if dry_run else "Cleaning"
+    env_name = environment or config["adri"].get("default_environment", "development")
+
+    print(f"🧹 Cache Clean ({env_name} environment)")
+    print(f"🗑️  {action_word} {total_items} item(s) ({_format_file_size(total_size)})")
+    print()
+
+    if verbose or dry_run:
+        if files_to_delete:
+            print(f"📄 Files to delete ({len(files_to_delete)}):")
+            for file_path in files_to_delete:
+                file_size = file_path.stat().st_size
+                print(f"  🗑️  {file_path} ({_format_file_size(file_size)})")
+            print()
+
+        if dirs_to_delete:
+            print(f"📁 Directories to delete ({len(dirs_to_delete)}):")
+            for dir_path in dirs_to_delete:
+                print(f"  🗑️  {dir_path}/")
+            print()
+
+
+def _handle_dry_run() -> int:
+    """Handle dry run mode."""
+    print("🔍 Dry run mode - no files were actually deleted")
+    print("💡 Run without --dry-run to perform the cleanup")
+    return 0
+
+
+def _perform_cleanup(
+    files_to_delete: List[Path],
+    dirs_to_delete: List[Path],
+    total_size: int,
+    verbose: bool,
+) -> int:
+    """Perform the actual cleanup."""
+    deleted_files = 0
+    deleted_dirs = 0
+    errors = []
+
+    # Delete files
+    for file_path in files_to_delete:
+        try:
+            file_path.unlink()
+            deleted_files += 1
+            if verbose:
+                print(f"✅ Deleted file: {file_path}")
+        except Exception as e:
+            errors.append(f"Failed to delete file {file_path}: {e}")
+
+    # Delete directories
+    for dir_path in dirs_to_delete:
+        try:
+            import shutil
+
+            shutil.rmtree(dir_path)
+            deleted_dirs += 1
+            if verbose:
+                print(f"✅ Deleted directory: {dir_path}")
+        except Exception as e:
+            errors.append(f"Failed to delete directory {dir_path}: {e}")
+
+    # Report results
+    print("✅ Cache cleanup completed!")
+    print(f"🗑️  Deleted: {deleted_files} files, {deleted_dirs} directories")
+    print(f"💾 Freed: {_format_file_size(total_size)}")
+
+    if errors:
+        print(f"\n⚠️  Errors ({len(errors)}):")
+        for error in errors:
+            print(f"  ❌ {error}")
+        return 1
+
+    return 0
 
 
 def _format_file_size(size_bytes: int) -> str:
@@ -1808,9 +1917,6 @@ def export_report_command(
         # Get environment configuration
         try:
             env_config = config_manager.get_environment_config(config, environment)
-            env_name = environment or config["adri"].get(
-                "default_environment", "development"
-            )
         except ValueError as e:
             print(f"❌ Error: {e}")
             return 1
@@ -1922,7 +2028,7 @@ def export_report_command(
         # Show sharing instructions
         print("\n💬 Share with your data team:")
         print(f"   'Please review the attached ADRI assessment report ({output_path})")
-        print(f"   and address the data quality issues identified.'")
+        print("   and address the data quality issues identified.'")
 
         return 0
 
@@ -1950,7 +2056,7 @@ def show_standard_command(
         Exit code: 0 for success, non-zero for error
     """
     try:
-        # Load configuration
+        # Load configuration and resolve paths
         config_manager = ConfigManager()
         config = config_manager.get_active_config(config_path)
 
@@ -1959,131 +2065,189 @@ def show_standard_command(
             print("💡 Run 'adri setup' to initialize ADRI in this project")
             return 1
 
-        # Get environment configuration
-        try:
-            env_config = config_manager.get_environment_config(config, environment)
-            env_name = environment or config["adri"].get(
-                "default_environment", "development"
-            )
-        except ValueError as e:
-            print(f"❌ Error: {e}")
+        env_config = _get_environment_config(config_manager, config, environment)
+        if env_config is None:
             return 1
 
-        # Resolve standard path
-        standard_path = _resolve_standard_path(standard_name, env_config)
-
-        if not os.path.exists(standard_path):
-            print(f"❌ Error: Standard not found: {standard_name}")
-            print(f"📁 Searched in: {env_config['paths']['standards']}")
-            print("💡 Use 'adri list-standards' to see available standards")
-            return 1
-
-        # Load standard
-        try:
-            with open(standard_path, "r") as f:
-                standard_data = yaml.safe_load(f)
-        except Exception as e:
-            print(f"❌ Error: Failed to load standard: {e}")
+        # Load standard data
+        standard_data = _load_standard_data(standard_name, env_config)
+        if standard_data is None:
             return 1
 
         # Display standard information
-        standards_info = standard_data.get("standards", {})
-        requirements_info = standard_data.get("requirements", {})
-
-        print(f"📋 ADRI Standard Details")
-        print(f"📁 Environment: {env_name}")
-        print(f"📄 File: {Path(standard_path).name}")
-        print()
-
-        # Basic information
-        print("📊 Standard Information:")
-        print(f"  Name: {standards_info.get('name', 'Unknown')}")
-        print(f"  ID: {standards_info.get('id', 'Unknown')}")
-        print(f"  Version: {standards_info.get('version', 'Unknown')}")
-        print(f"  Authority: {standards_info.get('authority', 'Unknown')}")
-
-        if "effective_date" in standards_info:
-            print(f"  Effective Date: {standards_info['effective_date']}")
-
-        if "description" in standards_info:
-            print(f"  Description: {standards_info['description']}")
-
-        print()
-
-        # Requirements summary
-        print("🎯 Quality Requirements:")
-        overall_min = requirements_info.get("overall_minimum", "Not set")
-        print(f"  Overall Minimum Score: {overall_min}/100")
-
-        # Dimension requirements
-        if "dimension_requirements" in requirements_info:
-            dim_reqs = requirements_info["dimension_requirements"]
-            print(f"  Dimension Requirements: {len(dim_reqs)} configured")
-
-            if verbose:
-                print("    📋 Dimension Details:")
-                for dim_name, dim_config in dim_reqs.items():
-                    if isinstance(dim_config, dict) and "minimum_score" in dim_config:
-                        min_score = dim_config["minimum_score"]
-                        print(f"      {dim_name.title()}: ≥{min_score}/20")
-                    else:
-                        print(f"      {dim_name.title()}: Default rules")
-
-        # Field requirements
-        if "field_requirements" in requirements_info:
-            field_reqs = requirements_info["field_requirements"]
-            print(f"  Field Requirements: {len(field_reqs)} fields")
-
-            if verbose:
-                print("    📋 Field Details:")
-                for field_name, field_config in field_reqs.items():
-                    field_type = field_config.get("type", "unknown")
-                    nullable = field_config.get("nullable", True)
-                    nullable_str = "nullable" if nullable else "required"
-
-                    print(f"      {field_name}: {field_type} ({nullable_str})")
-
-                    # Show additional constraints
-                    if "min_value" in field_config or "max_value" in field_config:
-                        min_val = field_config.get("min_value", "")
-                        max_val = field_config.get("max_value", "")
-                        if min_val and max_val:
-                            print(f"        Range: {min_val} - {max_val}")
-                        elif min_val:
-                            print(f"        Minimum: {min_val}")
-                        elif max_val:
-                            print(f"        Maximum: {max_val}")
-
-                    if "pattern" in field_config:
-                        print(f"        Pattern: {field_config['pattern']}")
-
-                    if "allowed_values" in field_config:
-                        values = field_config["allowed_values"]
-                        if len(values) <= 5:
-                            print(f"        Allowed: {', '.join(map(str, values))}")
-                        else:
-                            print(f"        Allowed: {len(values)} values")
-
-        print()
-
-        # Usage instructions
-        print("📋 Usage:")
-        data_name = (
-            Path(standard_path)
-            .stem.replace("_standard", "")
-            .replace("_ADRI_standard", "")
-        )
-        print(
-            f"  • Test data: adri assess <data-file> --standard {Path(standard_path).name}"
-        )
-        print(f"  • Validate: adri validate-standard {Path(standard_path).name}")
-        print(f"  • Generate from data: adri generate-standard <data-file>")
+        _display_standard_header(standard_data, environment, config)
+        _display_standard_info(standard_data)
+        _display_requirements_summary(standard_data, verbose)
+        _display_usage_instructions(standard_data)
 
         return 0
 
     except Exception as e:
         print(f"❌ Error: Failed to show standard: {e}")
         return 1
+
+
+def _get_environment_config(
+    config_manager: ConfigManager, config: Dict[str, Any], environment: Optional[str]
+) -> Optional[Dict[str, Any]]:
+    """Get environment configuration with error handling."""
+    try:
+        return config_manager.get_environment_config(config, environment)
+    except ValueError as e:
+        print(f"❌ Error: {e}")
+        return None
+
+
+def _load_standard_data(
+    standard_name: str, env_config: Dict[str, Any]
+) -> Optional[Dict[str, Any]]:
+    """Load and validate standard data."""
+    standard_path = _resolve_standard_path(standard_name, env_config)
+
+    if not os.path.exists(standard_path):
+        print(f"❌ Error: Standard not found: {standard_name}")
+        print(f"📁 Searched in: {env_config['paths']['standards']}")
+        print("💡 Use 'adri list-standards' to see available standards")
+        return None
+
+    try:
+        with open(standard_path, "r") as f:
+            data = yaml.safe_load(f)
+            if isinstance(data, dict):
+                return data
+            else:
+                print("❌ Error: Standard file does not contain a valid dictionary")
+                return None
+    except Exception as e:
+        print(f"❌ Error: Failed to load standard: {e}")
+        return None
+
+
+def _display_standard_header(
+    standard_data: Dict[str, Any], environment: Optional[str], config: Dict[str, Any]
+):
+    """Display standard header information."""
+    print("📋 ADRI Standard Details")
+    env_name = environment or config["adri"].get("default_environment", "development")
+    print(f"📁 Environment: {env_name}")
+
+    standards_info = standard_data.get("standards", {})
+    if "name" in standards_info:
+        print(f"📄 File: {standards_info['name']}")
+    print()
+
+
+def _display_standard_info(standard_data: Dict[str, Any]):
+    """Display basic standard information."""
+    standards_info = standard_data.get("standards", {})
+
+    print("📊 Standard Information:")
+    print(f"  Name: {standards_info.get('name', 'Unknown')}")
+    print(f"  ID: {standards_info.get('id', 'Unknown')}")
+    print(f"  Version: {standards_info.get('version', 'Unknown')}")
+    print(f"  Authority: {standards_info.get('authority', 'Unknown')}")
+
+    if "effective_date" in standards_info:
+        print(f"  Effective Date: {standards_info['effective_date']}")
+
+    if "description" in standards_info:
+        print(f"  Description: {standards_info['description']}")
+
+    print()
+
+
+def _display_requirements_summary(standard_data: Dict[str, Any], verbose: bool):
+    """Display requirements summary with optional verbose details."""
+    requirements_info = standard_data.get("requirements", {})
+
+    print("🎯 Quality Requirements:")
+    overall_min = requirements_info.get("overall_minimum", "Not set")
+    print(f"  Overall Minimum Score: {overall_min}/100")
+
+    _display_dimension_requirements(requirements_info, verbose)
+    _display_field_requirements(requirements_info, verbose)
+    print()
+
+
+def _display_dimension_requirements(requirements_info: Dict[str, Any], verbose: bool):
+    """Display dimension requirements."""
+    if "dimension_requirements" not in requirements_info:
+        return
+
+    dim_reqs = requirements_info["dimension_requirements"]
+    print(f"  Dimension Requirements: {len(dim_reqs)} configured")
+
+    if verbose:
+        print("    📋 Dimension Details:")
+        for dim_name, dim_config in dim_reqs.items():
+            if isinstance(dim_config, dict) and "minimum_score" in dim_config:
+                min_score = dim_config["minimum_score"]
+                print(f"      {dim_name.title()}: ≥{min_score}/20")
+            else:
+                print(f"      {dim_name.title()}: Default rules")
+
+
+def _display_field_requirements(requirements_info: Dict[str, Any], verbose: bool):
+    """Display field requirements."""
+    if "field_requirements" not in requirements_info:
+        return
+
+    field_reqs = requirements_info["field_requirements"]
+    print(f"  Field Requirements: {len(field_reqs)} fields")
+
+    if verbose:
+        print("    📋 Field Details:")
+        for field_name, field_config in field_reqs.items():
+            _display_field_details(field_name, field_config)
+
+
+def _display_field_details(field_name: str, field_config: Dict[str, Any]):
+    """Display details for a single field."""
+    field_type = field_config.get("type", "unknown")
+    nullable = field_config.get("nullable", True)
+    nullable_str = "nullable" if nullable else "required"
+
+    print(f"      {field_name}: {field_type} ({nullable_str})")
+
+    # Show additional constraints
+    _display_field_constraints(field_config)
+
+
+def _display_field_constraints(field_config: Dict[str, Any]):
+    """Display field constraints like ranges, patterns, etc."""
+    # Range constraints
+    if "min_value" in field_config or "max_value" in field_config:
+        min_val = field_config.get("min_value", "")
+        max_val = field_config.get("max_value", "")
+        if min_val and max_val:
+            print(f"        Range: {min_val} - {max_val}")
+        elif min_val:
+            print(f"        Minimum: {min_val}")
+        elif max_val:
+            print(f"        Maximum: {max_val}")
+
+    # Pattern constraint
+    if "pattern" in field_config:
+        print(f"        Pattern: {field_config['pattern']}")
+
+    # Allowed values constraint
+    if "allowed_values" in field_config:
+        values = field_config["allowed_values"]
+        if len(values) <= 5:
+            print(f"        Allowed: {', '.join(map(str, values))}")
+        else:
+            print(f"        Allowed: {len(values)} values")
+
+
+def _display_usage_instructions(standard_data: Dict[str, Any]):
+    """Display usage instructions."""
+    standards_info = standard_data.get("standards", {})
+    standard_name = standards_info.get("name", "standard")
+
+    print("📋 Usage:")
+    print(f"  • Test data: adri assess <data-file> --standard {standard_name}")
+    print(f"  • Validate: adri validate-standard {standard_name}")
+    print("  • Generate from data: adri generate-standard <data-file>")
 
 
 def explain_failure_command(
@@ -2117,9 +2281,6 @@ def explain_failure_command(
         # Get environment configuration
         try:
             env_config = config_manager.get_environment_config(config, environment)
-            env_name = environment or config["adri"].get(
-                "default_environment", "development"
-            )
         except ValueError as e:
             print(f"❌ Error: {e}")
             return 1
@@ -2318,13 +2479,13 @@ def _get_dimension_recommendations(
 
 
 def main():
-    """Main CLI entry point for ADRI validator commands."""
+    """Provide main CLI entry point for ADRI validator commands."""
     import click
 
     @click.group()
     @click.version_option(version="1.0.0", prog_name="adri")
     def cli():
-        """ADRI - Stop Your AI Agents Breaking on Bad Data"""
+        """ADRI - Stop Your AI Agents Breaking on Bad Data."""
         pass
 
     @cli.command()

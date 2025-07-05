@@ -389,8 +389,11 @@ class TestListCommandsMissingCoverage:
         mock_path_instance.glob.return_value = [mock_file_path]
 
         # Mock YAML loading to fail
-        with patch("builtins.open", mock_open()), patch(
-            "adri.cli.commands.yaml.safe_load", side_effect=Exception("YAML error")
+        with (
+            patch("builtins.open", mock_open()),
+            patch(
+                "adri.cli.commands.yaml.safe_load", side_effect=Exception("YAML error")
+            ),
         ):
             result = list_standards_command(verbose=True)
 

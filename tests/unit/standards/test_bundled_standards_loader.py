@@ -67,8 +67,9 @@ class TestBundledStandardsLoader:
         invalid_yaml = "invalid: yaml: content: ["
 
         # Mock both file existence and file content
-        with patch.object(Path, "exists", return_value=True), patch(
-            "builtins.open", mock_open(read_data=invalid_yaml)
+        with (
+            patch.object(Path, "exists", return_value=True),
+            patch("builtins.open", mock_open(read_data=invalid_yaml)),
         ):
             with pytest.raises(InvalidStandardError):
                 self.loader.load_standard("invalid_standard")

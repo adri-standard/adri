@@ -126,13 +126,15 @@ class TestStandardsInit:
         import adri.standards
 
         # Mock the default loader's methods
-        with patch.object(
-            adri.standards.default_loader, "load_standard"
-        ) as mock_load, patch.object(
-            adri.standards.default_loader, "list_available_standards"
-        ) as mock_list, patch.object(
-            adri.standards.default_loader, "standard_exists"
-        ) as mock_exists:
+        with (
+            patch.object(adri.standards.default_loader, "load_standard") as mock_load,
+            patch.object(
+                adri.standards.default_loader, "list_available_standards"
+            ) as mock_list,
+            patch.object(
+                adri.standards.default_loader, "standard_exists"
+            ) as mock_exists,
+        ):
             mock_load.return_value = {"test": "data"}
             mock_list.return_value = ["test"]
             mock_exists.return_value = True

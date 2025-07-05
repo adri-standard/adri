@@ -253,9 +253,7 @@ class TestDataProfilerCoverage:
         # All-null column should default to string type
         all_nulls_profile = profile["fields"]["all_nulls"]
         assert all_nulls_profile["type"] == "string"
-        assert (
-            all_nulls_profile["nullable"] == True
-        )  # Use == instead of is for numpy bool
+        assert all_nulls_profile["nullable"] is True
         assert all_nulls_profile["null_count"] == 4
         assert all_nulls_profile["null_percentage"] == 100.0
 
@@ -288,12 +286,12 @@ class TestDataProfilerCoverage:
         # Series with float values that are actually integers
         float_int_series = pd.Series([1.0, 2.0, 3.0, 4.0])
         result = profiler._is_integer_series(float_int_series)
-        assert result == True  # Use == instead of is for numpy bool
+        assert result is True
 
         # Series with actual float values
         actual_float_series = pd.Series([1.1, 2.2, 3.3])
         result = profiler._is_integer_series(actual_float_series)
-        assert result == False  # Use == instead of is for numpy bool
+        assert result is False
 
     def test_date_series_detection_patterns(self):
         """Test date series detection with various patterns."""

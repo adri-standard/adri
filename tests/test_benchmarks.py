@@ -1,290 +1,227 @@
-"""
-Performance benchmark tests for ADRI Validator.
+"""Performance benchmarks for ADRI validator."""
 
-This module contains pytest-benchmark tests to measure and track
-performance of critical ADRI components.
-"""
-
+import numpy as np
 import pandas as pd
 import pytest
 
-from adri.core.assessor import DataQualityAssessor
-from adri.decorators.guard import adri_protected
+from adri.analysis.data_profiler import DataProfiler
+from adri.analysis.standard_generator import StandardGenerator
+from adri.core.assessor import AssessmentEngine
 
 
-class TestDecoratorBenchmarks:
-    """Benchmark tests for the @adri_protected decorator."""
+class TestPerformanceBenchmarks:
+    """Performance benchmark tests for core ADRI functionality."""
 
     @pytest.fixture
-    def small_dataset(self):
-        """Create a small test dataset (100 rows)."""
+    def large_dataset(self):
+        """Generate a large dataset for benchmarking."""
+        np.random.seed(42)
+        size = 10000
         return pd.DataFrame(
             {
-                "id": range(100),
-                "name": [f"user_{i}" for i in range(100)],
-                "score": [i * 0.1 for i in range(100)],
+                "id": range(size),
+                "name": [f"Customer_{i}" for i in range(size)],
+                "age": np.random.randint(18, 80, size),
+                "email": [f"user{i}@example.com" for i in range(size)],
+                "score": np.random.uniform(0, 100, size),
+                "category": np.random.choice(["A", "B", "C", "D"], size),
+                "date": pd.date_range("2020-01-01", periods=size, freq="h"),
+                "is_active": np.random.choice([True, False], size),
+                "value": np.random.exponential(100, size),
+                "description": [f"Description text {i}" * 10 for i in range(size)],
             }
         )
 
     @pytest.fixture
     def medium_dataset(self):
-        """Create a medium test dataset (1000 rows)."""
+        """Generate a medium dataset for benchmarking."""
+        np.random.seed(42)
+        size = 1000
         return pd.DataFrame(
             {
-                "id": range(1000),
-                "name": [f"user_{i}" for i in range(1000)],
-                "score": [i * 0.1 for i in range(1000)],
+                "id": range(size),
+                "name": [f"Item_{i}" for i in range(size)],
+                "price": np.random.uniform(10, 1000, size),
+                "quantity": np.random.randint(1, 100, size),
+                "category": np.random.choice(
+                    ["Electronics", "Clothing", "Food", "Books"], size
+                ),
             }
         )
 
     @pytest.fixture
-    def large_dataset(self):
-        """Create a large test dataset (10000 rows)."""
-        return pd.DataFrame(
-            {
-                "id": range(10000),
-                "name": [f"user_{i}" for i in range(10000)],
-                "score": [i * 0.1 for i in range(10000)],
+    def assessment_engine(self):
+        """Create an assessment engine instance."""
+        return AssessmentEngine()
+
+    @pytest.fixture
+    def data_profiler(self):
+        """Create a data profiler instance."""
+        return DataProfiler()
+
+    @pytest.fixture
+    def standard_generator(self):
+        """Create a standard generator instance."""
+        return StandardGenerator()
+
+    def test_benchmark_data_loading(self, benchmark, large_dataset, tmp_path):
+        """Benchmark data loading performance."""
+        # Save dataset to CSV
+        csv_path = tmp_path / "large_dataset.csv"
+        large_dataset.to_csv(csv_path, index=False)
+
+        # Benchmark CSV loading using pandas
+        result = benchmark(pd.read_csv, str(csv_path))
+        assert result is not None
+        assert len(result) == len(large_dataset)
+
+    def test_benchmark_data_profiling(self, benchmark, data_profiler, large_dataset):
+        """Benchmark data profiling performance."""
+        result = benchmark(data_profiler.profile_data, large_dataset)
+        assert result is not None
+        assert "summary" in result
+        assert "fields" in result
+
+    def test_benchmark_standard_generation(
+        self, benchmark, standard_generator, data_profiler, medium_dataset
+    ):
+        """Benchmark standard generation performance."""
+        # First profile the data
+        data_profile = data_profiler.profile_data(medium_dataset)
+
+        # Create generation config
+        generation_config = {
+            "default_thresholds": {
+                "completeness_min": 85,
+                "validity_min": 90,
+                "consistency_min": 80,
             }
-        )
-
-    def unprotected_function(self, data):
-        """Baseline function without decorator."""
-        return len(data)
-
-    @adri_protected(data_param="data")
-    def protected_function(self, data):
-        """Function with @adri_protected decorator."""
-        return len(data)
-
-    @pytest.mark.benchmark(group="decorator-overhead")
-    def test_decorator_overhead_small(self, benchmark, small_dataset):
-        """Benchmark decorator overhead on small dataset."""
-        result = benchmark(self.protected_function, small_dataset)
-        assert result == 100
-
-    @pytest.mark.benchmark(group="decorator-overhead")
-    def test_decorator_overhead_medium(self, benchmark, medium_dataset):
-        """Benchmark decorator overhead on medium dataset."""
-        result = benchmark(self.protected_function, medium_dataset)
-        assert result == 1000
-
-    @pytest.mark.benchmark(group="decorator-overhead")
-    def test_decorator_overhead_large(self, benchmark, large_dataset):
-        """Benchmark decorator overhead on large dataset."""
-        result = benchmark(self.protected_function, large_dataset)
-        assert result == 10000
-
-    @pytest.mark.benchmark(group="baseline")
-    def test_baseline_small(self, benchmark, small_dataset):
-        """Baseline benchmark on small dataset."""
-        result = benchmark(self.unprotected_function, small_dataset)
-        assert result == 100
-
-    @pytest.mark.benchmark(group="baseline")
-    def test_baseline_medium(self, benchmark, medium_dataset):
-        """Baseline benchmark on medium dataset."""
-        result = benchmark(self.unprotected_function, medium_dataset)
-        assert result == 1000
-
-    @pytest.mark.benchmark(group="baseline")
-    def test_baseline_large(self, benchmark, large_dataset):
-        """Baseline benchmark on large dataset."""
-        result = benchmark(self.unprotected_function, large_dataset)
-        assert result == 10000
-
-
-class TestAssessorBenchmarks:
-    """Benchmark tests for the DataQualityAssessor."""
-
-    @pytest.fixture
-    def assessor(self):
-        """Create a DataQualityAssessor instance."""
-        return DataQualityAssessor()
-
-    @pytest.fixture
-    def assessment_config(self):
-        """Basic assessment configuration."""
-        return {
-            "completeness": {"enabled": True},
-            "consistency": {"enabled": True},
-            "validity": {"enabled": True},
         }
 
-    @pytest.fixture
-    def small_dataset(self):
-        """Create a small test dataset (100 rows)."""
-        return pd.DataFrame(
-            {
-                "id": range(100),
-                "name": [f"user_{i}" for i in range(100)],
-                "email": [f"user_{i}@example.com" for i in range(100)],
-                "age": [20 + (i % 60) for i in range(100)],
-                "score": [0.1 * (i % 100) for i in range(100)],
-            }
+        # Benchmark standard generation
+        result = benchmark(
+            standard_generator.generate_standard,
+            data_profile,
+            "test_standard",
+            generation_config,
         )
+        assert result is not None
+        assert "metadata" in result
+        assert "standards" in result
 
-    @pytest.fixture
-    def medium_dataset(self):
-        """Create a medium test dataset (1000 rows)."""
-        return pd.DataFrame(
-            {
-                "id": range(1000),
-                "name": [f"user_{i}" for i in range(1000)],
-                "email": [f"user_{i}@example.com" for i in range(1000)],
-                "age": [20 + (i % 60) for i in range(1000)],
-                "score": [0.1 * (i % 100) for i in range(1000)],
-            }
-        )
-
-    @pytest.fixture
-    def large_dataset(self):
-        """Create a large test dataset (10000 rows)."""
-        return pd.DataFrame(
-            {
-                "id": range(10000),
-                "name": [f"user_{i}" for i in range(10000)],
-                "email": [f"user_{i}@example.com" for i in range(10000)],
-                "age": [20 + (i % 60) for i in range(10000)],
-                "score": [0.1 * (i % 100) for i in range(10000)],
-            }
-        )
-
-    @pytest.mark.benchmark(group="assessor-performance")
-    def test_assess_small_dataset(
-        self, benchmark, assessor, small_dataset, assessment_config
+    def test_benchmark_assessment_simple(
+        self, benchmark, assessment_engine, medium_dataset
     ):
-        """Benchmark assessment on small dataset."""
-        result = benchmark(assessor.assess, small_dataset)
+        """Benchmark simple assessment performance."""
+        # Create a simple standard
+        standard = {
+            "metadata": {"name": "test_standard", "version": "1.0.0"},
+            "standards": {"fields": {}, "requirements": {"overall_minimum": 80}},
+        }
+
+        result = benchmark(assessment_engine.assess, medium_dataset, standard)
         assert result is not None
         assert hasattr(result, "overall_score")
 
-    @pytest.mark.benchmark(group="assessor-performance")
-    def test_assess_medium_dataset(
-        self, benchmark, assessor, medium_dataset, assessment_config
+    def test_benchmark_assessment_complex(
+        self, benchmark, assessment_engine, large_dataset
     ):
-        """Benchmark assessment on medium dataset."""
-        result = benchmark(assessor.assess, medium_dataset)
+        """Benchmark complex assessment with field requirements."""
+        # Create a complex standard with field requirements
+        standard = {
+            "metadata": {"name": "complex_standard", "version": "1.0.0"},
+            "standards": {
+                "fields": {
+                    "email": {
+                        "type": "string",
+                        "pattern": r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$",
+                        "required": True,
+                    },
+                    "age": {
+                        "type": "integer",
+                        "range": {"min": 18, "max": 120},
+                        "required": True,
+                    },
+                    "score": {
+                        "type": "float",
+                        "range": {"min": 0, "max": 100},
+                        "required": True,
+                    },
+                },
+                "requirements": {
+                    "overall_minimum": 85,
+                    "dimension_minimums": {
+                        "validity": 90,
+                        "completeness": 95,
+                        "consistency": 85,
+                    },
+                },
+            },
+        }
+
+        result = benchmark(assessment_engine.assess, large_dataset, standard)
         assert result is not None
         assert hasattr(result, "overall_score")
+        assert hasattr(result, "dimension_scores")
 
-    @pytest.mark.benchmark(group="assessor-performance")
-    def test_assess_large_dataset(
-        self, benchmark, assessor, large_dataset, assessment_config
-    ):
-        """Benchmark assessment on large dataset."""
-        result = benchmark(assessor.assess, large_dataset)
-        assert result is not None
-        assert hasattr(result, "overall_score")
-
-
-class TestDataProcessingBenchmarks:
-    """Benchmark tests for data processing operations."""
-
-    @pytest.fixture
-    def wide_dataset(self):
-        """Create a dataset with many columns."""
-        data = {}
-        for i in range(50):  # 50 columns
-            data[f"col_{i}"] = [j * 0.1 for j in range(1000)]
-        return pd.DataFrame(data)
-
-    @pytest.fixture
-    def mixed_types_dataset(self):
-        """Create a dataset with mixed data types."""
-        return pd.DataFrame(
-            {
-                "integers": range(1000),
-                "floats": [i * 0.1 for i in range(1000)],
-                "strings": [f"text_{i}" for i in range(1000)],
-                "booleans": [i % 2 == 0 for i in range(1000)],
-                "dates": pd.date_range("2023-01-01", periods=1000, freq="D"),
-            }
-        )
-
-    @pytest.mark.benchmark(group="data-processing")
-    def test_wide_dataset_processing(self, benchmark, wide_dataset):
-        """Benchmark processing of wide datasets."""
-        assessor = DataQualityAssessor()
-
-        result = benchmark(assessor.assess, wide_dataset)
-        assert result is not None
-
-    @pytest.mark.benchmark(group="data-processing")
-    def test_mixed_types_processing(self, benchmark, mixed_types_dataset):
-        """Benchmark processing of mixed data types."""
-        assessor = DataQualityAssessor()
-
-        result = benchmark(assessor.assess, mixed_types_dataset)
-        assert result is not None
-
-
-class TestMemoryBenchmarks:
-    """Memory usage benchmark tests."""
-
-    @pytest.mark.benchmark(group="memory-usage")
-    def test_memory_efficiency_large_dataset(self, benchmark):
-        """Test memory efficiency with large datasets."""
-
-        def create_and_assess():
-            # Create large dataset
-            data = pd.DataFrame(
+    def test_benchmark_batch_assessment(self, benchmark, assessment_engine):
+        """Benchmark batch assessment of multiple datasets."""
+        # Create multiple small datasets
+        datasets = []
+        for i in range(10):
+            df = pd.DataFrame(
                 {
-                    "col1": range(50000),
-                    "col2": [f"text_{i}" for i in range(50000)],
-                    "col3": [i * 0.1 for i in range(50000)],
+                    "id": range(100),
+                    "value": np.random.uniform(0, 100, 100),
+                    "category": np.random.choice(["A", "B", "C"], 100),
                 }
             )
+            datasets.append(df)
 
-            # Assess it
-            assessor = DataQualityAssessor()
-            result = assessor.assess(data)
+        standard = {
+            "metadata": {"name": "batch_standard", "version": "1.0.0"},
+            "standards": {"fields": {}, "requirements": {"overall_minimum": 80}},
+        }
 
-            # Clean up
-            del data
-            return result
-
-        result = benchmark(create_and_assess)
-        assert result is not None
-
-    @pytest.mark.benchmark(group="memory-usage")
-    def test_memory_efficiency_multiple_assessments(self, benchmark):
-        """Test memory efficiency with multiple sequential assessments."""
-
-        def multiple_assessments():
-            assessor = DataQualityAssessor()
+        def assess_batch():
             results = []
-
-            for i in range(10):
-                data = pd.DataFrame(
-                    {"id": range(1000), "value": [j * 0.1 for j in range(1000)]}
-                )
-                result = assessor.assess(data)
+            for df in datasets:
+                result = assessment_engine.assess(df, standard)
                 results.append(result)
-                del data
-
             return results
 
-        results = benchmark(multiple_assessments)
+        results = benchmark(assess_batch)
         assert len(results) == 10
-        assert all(r is not None for r in results)
+        assert all(hasattr(r, "overall_score") for r in results)
 
+    def test_benchmark_memory_usage(self, benchmark, assessment_engine, large_dataset):
+        """Benchmark memory usage during assessment."""
+        standard = {
+            "metadata": {"name": "memory_test", "version": "1.0.0"},
+            "standards": {"fields": {}, "requirements": {"overall_minimum": 80}},
+        }
 
-# Performance regression thresholds
-PERFORMANCE_THRESHOLDS = {
-    "decorator_overhead_max_ms": 10.0,  # Max 10ms overhead
-    "small_dataset_max_ms": 100.0,  # Max 100ms for small datasets
-    "medium_dataset_max_ms": 500.0,  # Max 500ms for medium datasets
-    "large_dataset_max_ms": 2000.0,  # Max 2s for large datasets
-}
+        # This will also track memory usage if pytest-benchmark is configured for it
+        result = benchmark(assessment_engine.assess, large_dataset, standard)
+        assert result is not None
 
+    @pytest.mark.parametrize("size", [100, 1000, 5000])
+    def test_benchmark_scaling(self, benchmark, assessment_engine, size):
+        """Benchmark assessment performance with different dataset sizes."""
+        # Generate dataset of specified size
+        df = pd.DataFrame(
+            {
+                "id": range(size),
+                "value": np.random.uniform(0, 100, size),
+                "category": np.random.choice(["A", "B", "C"], size),
+            }
+        )
 
-def test_performance_regression_check():
-    """
-    Test to ensure performance doesn't regress beyond acceptable thresholds.
+        standard = {
+            "metadata": {"name": "scaling_test", "version": "1.0.0"},
+            "standards": {"fields": {}, "requirements": {"overall_minimum": 80}},
+        }
 
-    This test should be run after benchmark tests to validate performance.
-    """
-    # This is a placeholder - in practice, this would read benchmark results
-    # and compare against thresholds
-    assert True, "Performance regression check placeholder"
+        result = benchmark(assessment_engine.assess, df, standard)
+        assert result is not None
+        assert hasattr(result, "overall_score")

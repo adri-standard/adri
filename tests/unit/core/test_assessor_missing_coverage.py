@@ -486,7 +486,7 @@ class TestDataQualityAssessor:
         with patch.object(assessor.engine, "_basic_assessment") as mock_basic:
             mock_basic.return_value = AssessmentResult(85.0, True, {})
 
-            result = assessor.assess(series)
+            assessor.assess(series)
 
             mock_basic.assert_called_once()
             # Check that series was converted to DataFrame
@@ -502,7 +502,7 @@ class TestDataQualityAssessor:
         with patch.object(assessor.engine, "_basic_assessment") as mock_basic:
             mock_basic.return_value = AssessmentResult(85.0, True, {})
 
-            result = assessor.assess(data_dict)
+            assessor.assess(data_dict)
 
             mock_basic.assert_called_once()
             # Check that dict was converted to DataFrame
@@ -519,7 +519,7 @@ class TestDataQualityAssessor:
         with patch.object(assessor.engine, "_basic_assessment") as mock_basic:
             mock_basic.return_value = AssessmentResult(85.0, True, {})
 
-            result = assessor.assess(data_list)
+            assessor.assess(data_list)
 
             mock_basic.assert_called_once()
             # Check that list was converted to DataFrame
@@ -535,7 +535,7 @@ class TestDataQualityAssessor:
         with patch.object(assessor.engine, "assess") as mock_assess:
             mock_assess.return_value = AssessmentResult(85.0, True, {})
 
-            result = assessor.assess(data, "test_standard.yaml")
+            assessor.assess(data, "test_standard.yaml")
 
             mock_assess.assert_called_once_with(data, "test_standard.yaml")
 

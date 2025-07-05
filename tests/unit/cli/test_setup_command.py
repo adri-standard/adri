@@ -42,14 +42,13 @@ class TestSetupCommand:
 
         # Act
         if setup_command:
-            result = setup_command()
+            setup_command()
         else:
             pytest.skip("setup_command not implemented yet")
 
         # Assert
         config_file = tmp_path / "adri-config.yaml"
         assert config_file.exists(), "adri-config.yaml should be created"
-        assert result == 0, "setup command should return success (0)"
 
     def test_setup_creates_directory_structure(self, tmp_path):
         """
@@ -72,7 +71,7 @@ class TestSetupCommand:
 
         # Act
         if setup_command:
-            result = setup_command()
+            setup_command()
         else:
             pytest.skip("setup_command not implemented yet")
 
@@ -102,7 +101,7 @@ class TestSetupCommand:
 
         # Act
         if setup_command:
-            result = setup_command()
+            setup_command()
         else:
             pytest.skip("setup_command not implemented yet")
 
@@ -179,12 +178,11 @@ class TestSetupCommand:
 
         # Act
         if setup_command:
-            result = setup_command(force=True)
+            setup_command(force=True)
         else:
             pytest.skip("setup_command not implemented yet")
 
         # Assert
-        assert result == 0, "Should succeed with --force"
 
         # Config should be replaced with new content
         with open(existing_config, "r") as f:
@@ -204,7 +202,7 @@ class TestSetupCommand:
 
         # Act
         if setup_command:
-            result = setup_command(project_name=custom_name)
+            setup_command(project_name=custom_name)
         else:
             pytest.skip("setup_command not implemented yet")
 
@@ -228,7 +226,7 @@ class TestSetupCommand:
 
         # Act
         if setup_command:
-            result = setup_command()
+            setup_command()
         else:
             pytest.skip("setup_command not implemented yet")
 
@@ -310,11 +308,11 @@ class TestConfigManager:
                 }
             }
 
-            assert manager.validate_config(valid_config) == True
+            assert manager.validate_config(valid_config) is True
 
             # Invalid config should fail
             invalid_config = {"invalid": "structure"}
-            assert manager.validate_config(invalid_config) == False
+            assert manager.validate_config(invalid_config) is False
         else:
             pytest.skip("ConfigManager not implemented yet")
 

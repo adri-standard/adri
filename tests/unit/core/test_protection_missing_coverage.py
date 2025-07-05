@@ -49,8 +49,9 @@ class TestResolveStandardMissingCoverage:
 
     def setup_method(self):
         """Set up test fixtures."""
-        with patch("adri.core.protection.ConfigManager"), patch(
-            "adri.core.protection.StandardsLoader"
+        with (
+            patch("adri.core.protection.ConfigManager"),
+            patch("adri.core.protection.StandardsLoader"),
         ):
             self.engine = DataProtectionEngine()
 
@@ -107,8 +108,9 @@ class TestTryBundledStandardMissingCoverage:
 
     def setup_method(self):
         """Set up test fixtures."""
-        with patch("adri.core.protection.ConfigManager"), patch(
-            "adri.core.protection.StandardsLoader"
+        with (
+            patch("adri.core.protection.ConfigManager"),
+            patch("adri.core.protection.StandardsLoader"),
         ):
             self.engine = DataProtectionEngine()
 
@@ -198,8 +200,9 @@ class TestEnsureStandardExistsMissingCoverage:
 
     def setup_method(self):
         """Set up test fixtures."""
-        with patch("adri.core.protection.ConfigManager"), patch(
-            "adri.core.protection.StandardsLoader"
+        with (
+            patch("adri.core.protection.ConfigManager"),
+            patch("adri.core.protection.StandardsLoader"),
         ):
             self.engine = DataProtectionEngine()
 
@@ -427,8 +430,9 @@ class TestAssessDataQualityMissingCoverage:
 
     def setup_method(self):
         """Set up test fixtures."""
-        with patch("adri.core.protection.ConfigManager"), patch(
-            "adri.core.protection.StandardsLoader"
+        with (
+            patch("adri.core.protection.ConfigManager"),
+            patch("adri.core.protection.StandardsLoader"),
         ):
             self.engine = DataProtectionEngine()
             self.engine.protection_config = {"cache_duration_hours": 1}
@@ -444,9 +448,10 @@ class TestAssessDataQualityMissingCoverage:
         mock_result = MagicMock()
         mock_result.overall_score = 85.0
 
-        with patch.object(
-            self.engine, "_generate_data_hash", return_value="hash123"
-        ), patch("adri.core.protection.AssessmentEngine") as mock_assessor_class:
+        with (
+            patch.object(self.engine, "_generate_data_hash", return_value="hash123"),
+            patch("adri.core.protection.AssessmentEngine") as mock_assessor_class,
+        ):
             mock_assessor = MagicMock()
             mock_assessor_class.return_value = mock_assessor
             mock_assessor.assess_with_standard_dict.return_value = mock_result
@@ -471,9 +476,10 @@ class TestAssessDataQualityMissingCoverage:
         mock_result = MagicMock()
         mock_result.overall_score = 90.0
 
-        with patch.object(
-            self.engine, "_generate_data_hash", return_value="hash456"
-        ), patch("adri.core.protection.AssessmentEngine") as mock_assessor_class:
+        with (
+            patch.object(self.engine, "_generate_data_hash", return_value="hash456"),
+            patch("adri.core.protection.AssessmentEngine") as mock_assessor_class,
+        ):
             mock_assessor = MagicMock()
             mock_assessor_class.return_value = mock_assessor
             mock_assessor.assess.return_value = mock_result
@@ -498,9 +504,10 @@ class TestAssessDataQualityMissingCoverage:
 
         mock_result = MagicMock()
 
-        with patch.object(
-            self.engine, "_generate_data_hash", return_value="hash789"
-        ), patch("adri.core.protection.AssessmentEngine") as mock_assessor_class:
+        with (
+            patch.object(self.engine, "_generate_data_hash", return_value="hash789"),
+            patch("adri.core.protection.AssessmentEngine") as mock_assessor_class,
+        ):
             mock_assessor = MagicMock()
             mock_assessor_class.return_value = mock_assessor
             mock_assessor.assess_with_standard_dict.return_value = mock_result
@@ -580,8 +587,9 @@ class TestHandleQualityFailureMissingCoverage:
 
     def setup_method(self):
         """Set up test fixtures."""
-        with patch("adri.core.protection.ConfigManager"), patch(
-            "adri.core.protection.StandardsLoader"
+        with (
+            patch("adri.core.protection.ConfigManager"),
+            patch("adri.core.protection.StandardsLoader"),
         ):
             self.engine = DataProtectionEngine()
 
@@ -590,9 +598,12 @@ class TestHandleQualityFailureMissingCoverage:
         mock_result = MagicMock()
         mock_result.overall_score = 60.0
 
-        with patch.object(
-            self.engine, "_format_quality_error", return_value="Test error message"
-        ), patch("adri.core.protection.logger") as mock_logger:
+        with (
+            patch.object(
+                self.engine, "_format_quality_error", return_value="Test error message"
+            ),
+            patch("adri.core.protection.logger") as mock_logger,
+        ):
             # Should not raise exception, just log warning
             self.engine.handle_quality_failure(
                 mock_result, "warn", 80.0, "/test/standard.yaml"
@@ -607,9 +618,12 @@ class TestHandleQualityFailureMissingCoverage:
         mock_result = MagicMock()
         mock_result.overall_score = 60.0
 
-        with patch.object(
-            self.engine, "_format_quality_error", return_value="Test error message"
-        ), patch("adri.core.protection.logger") as mock_logger:
+        with (
+            patch.object(
+                self.engine, "_format_quality_error", return_value="Test error message"
+            ),
+            patch("adri.core.protection.logger") as mock_logger,
+        ):
             # Should not raise exception, just log debug
             self.engine.handle_quality_failure(
                 mock_result, "continue", 80.0, "/test/standard.yaml"
@@ -624,9 +638,12 @@ class TestHandleQualityFailureMissingCoverage:
         mock_result = MagicMock()
         mock_result.overall_score = 60.0
 
-        with patch.object(
-            self.engine, "_format_quality_error", return_value="Test error message"
-        ), patch("adri.core.protection.logger") as mock_logger:
+        with (
+            patch.object(
+                self.engine, "_format_quality_error", return_value="Test error message"
+            ),
+            patch("adri.core.protection.logger") as mock_logger,
+        ):
             # Should default to raise mode and log error
             with pytest.raises(ProtectionError, match="Test error message"):
                 self.engine.handle_quality_failure(mock_result, "invalid_mode", 80.0)
@@ -641,8 +658,9 @@ class TestProtectFunctionCallMissingCoverage:
 
     def setup_method(self):
         """Set up test fixtures."""
-        with patch("adri.core.protection.ConfigManager"), patch(
-            "adri.core.protection.StandardsLoader"
+        with (
+            patch("adri.core.protection.ConfigManager"),
+            patch("adri.core.protection.StandardsLoader"),
         ):
             self.engine = DataProtectionEngine()
             self.engine.protection_config = {
@@ -667,18 +685,21 @@ class TestProtectFunctionCallMissingCoverage:
 
         dimensions = {"validity": 15.0, "completeness": 15.0}
 
-        with patch.object(
-            self.engine, "_extract_data_parameter", return_value=test_data
-        ), patch.object(
-            self.engine, "resolve_standard", return_value="/test/standard.yaml"
-        ), patch.object(
-            self.engine, "ensure_standard_exists", return_value=True
-        ), patch.object(
-            self.engine, "assess_data_quality", return_value=mock_result
-        ), patch.object(
-            self.engine, "_check_dimension_requirements"
-        ) as mock_check_dims, patch.object(
-            self.engine, "_format_quality_success", return_value="Success message"
+        with (
+            patch.object(
+                self.engine, "_extract_data_parameter", return_value=test_data
+            ),
+            patch.object(
+                self.engine, "resolve_standard", return_value="/test/standard.yaml"
+            ),
+            patch.object(self.engine, "ensure_standard_exists", return_value=True),
+            patch.object(self.engine, "assess_data_quality", return_value=mock_result),
+            patch.object(
+                self.engine, "_check_dimension_requirements"
+            ) as mock_check_dims,
+            patch.object(
+                self.engine, "_format_quality_success", return_value="Success message"
+            ),
         ):
             result = self.engine.protect_function_call(
                 test_func,
@@ -706,19 +727,20 @@ class TestProtectFunctionCallMissingCoverage:
         mock_result = MagicMock()
         mock_result.overall_score = 85.0
 
-        with patch.object(
-            self.engine, "_extract_data_parameter", return_value=test_data
-        ), patch.object(
-            self.engine, "resolve_standard", return_value=bundled_standard
-        ), patch.object(
-            self.engine, "ensure_standard_exists", return_value=True
-        ), patch.object(
-            self.engine, "assess_data_quality", return_value=mock_result
-        ), patch.object(
-            self.engine, "_format_quality_success", return_value="Success message"
-        ), patch(
-            "adri.core.protection.logger"
-        ) as mock_logger:
+        with (
+            patch.object(
+                self.engine, "_extract_data_parameter", return_value=test_data
+            ),
+            patch.object(
+                self.engine, "resolve_standard", return_value=bundled_standard
+            ),
+            patch.object(self.engine, "ensure_standard_exists", return_value=True),
+            patch.object(self.engine, "assess_data_quality", return_value=mock_result),
+            patch.object(
+                self.engine, "_format_quality_success", return_value="Success message"
+            ),
+            patch("adri.core.protection.logger") as mock_logger,
+        ):
             result = self.engine.protect_function_call(
                 test_func, (test_data,), {}, "data", "test_func", verbose=True
             )
@@ -737,19 +759,20 @@ class TestProtectFunctionCallMissingCoverage:
         mock_result = MagicMock()
         mock_result.overall_score = 85.0
 
-        with patch.object(
-            self.engine, "_extract_data_parameter", return_value=test_data
-        ), patch.object(
-            self.engine, "resolve_standard", return_value="/test/standard.yaml"
-        ), patch.object(
-            self.engine, "ensure_standard_exists", return_value=True
-        ), patch.object(
-            self.engine, "assess_data_quality", return_value=mock_result
-        ), patch.object(
-            self.engine, "_format_quality_success", return_value="Success message"
-        ), patch(
-            "builtins.print"
-        ) as mock_print:
+        with (
+            patch.object(
+                self.engine, "_extract_data_parameter", return_value=test_data
+            ),
+            patch.object(
+                self.engine, "resolve_standard", return_value="/test/standard.yaml"
+            ),
+            patch.object(self.engine, "ensure_standard_exists", return_value=True),
+            patch.object(self.engine, "assess_data_quality", return_value=mock_result),
+            patch.object(
+                self.engine, "_format_quality_success", return_value="Success message"
+            ),
+            patch("builtins.print") as mock_print,
+        ):
             result = self.engine.protect_function_call(
                 test_func, (test_data,), {}, "data", "test_func", verbose=False
             )
@@ -764,8 +787,9 @@ class TestExtractDataParameterMissingCoverage:
 
     def setup_method(self):
         """Set up test fixtures."""
-        with patch("adri.core.protection.ConfigManager"), patch(
-            "adri.core.protection.StandardsLoader"
+        with (
+            patch("adri.core.protection.ConfigManager"),
+            patch("adri.core.protection.StandardsLoader"),
         ):
             self.engine = DataProtectionEngine()
 
@@ -797,16 +821,19 @@ class TestExtractDataParameterMissingCoverage:
 
     def test_extract_data_parameter_inspection_failure(self):
         """Test data parameter extraction with function inspection failure."""
+
         # Create a function that can't be inspected easily
-        test_func = lambda: None  # Lambda functions can be tricky to inspect
+        def test_func():
+            return None  # Functions can be tricky to inspect
 
         # Don't provide the parameter in kwargs, so it has to use inspection
         kwargs = {"other_param": "other_value"}
         args = ("test_data",)  # Provide data as positional arg
 
-        with patch(
-            "inspect.signature", side_effect=Exception("Inspection failed")
-        ), patch("adri.core.protection.logger") as mock_logger:
+        with (
+            patch("inspect.signature", side_effect=Exception("Inspection failed")),
+            patch("adri.core.protection.logger") as mock_logger,
+        ):
             # This should trigger the inspection failure and raise ValueError
             with pytest.raises(
                 ValueError, match="Could not find data parameter 'data'"
@@ -839,8 +866,9 @@ class TestGenerateDataHashMissingCoverage:
 
     def setup_method(self):
         """Set up test fixtures."""
-        with patch("adri.core.protection.ConfigManager"), patch(
-            "adri.core.protection.StandardsLoader"
+        with (
+            patch("adri.core.protection.ConfigManager"),
+            patch("adri.core.protection.StandardsLoader"),
         ):
             self.engine = DataProtectionEngine()
 
@@ -879,8 +907,9 @@ class TestFormatQualityErrorMissingCoverage:
 
     def setup_method(self):
         """Set up test fixtures."""
-        with patch("adri.core.protection.ConfigManager"), patch(
-            "adri.core.protection.StandardsLoader"
+        with (
+            patch("adri.core.protection.ConfigManager"),
+            patch("adri.core.protection.StandardsLoader"),
         ):
             self.engine = DataProtectionEngine()
 
@@ -937,8 +966,9 @@ class TestIdentifyMainIssuesMissingCoverage:
 
     def setup_method(self):
         """Set up test fixtures."""
-        with patch("adri.core.protection.ConfigManager"), patch(
-            "adri.core.protection.StandardsLoader"
+        with (
+            patch("adri.core.protection.ConfigManager"),
+            patch("adri.core.protection.StandardsLoader"),
         ):
             self.engine = DataProtectionEngine()
 
@@ -998,8 +1028,9 @@ class TestFormatQualitySuccessMissingCoverage:
 
     def setup_method(self):
         """Set up test fixtures."""
-        with patch("adri.core.protection.ConfigManager"), patch(
-            "adri.core.protection.StandardsLoader"
+        with (
+            patch("adri.core.protection.ConfigManager"),
+            patch("adri.core.protection.StandardsLoader"),
         ):
             self.engine = DataProtectionEngine()
 
@@ -1040,12 +1071,13 @@ class TestFormatQualitySuccessMissingCoverage:
 
         standard_path = "/test/new_standard.yaml"
 
-        with patch.object(
-            self.engine, "_was_standard_just_created", return_value=True
-        ), patch("os.path.exists", return_value=True), patch(
-            "builtins.open", mock_open(read_data='standards:\n  version: "1.5.0"')
-        ), patch(
-            "yaml.safe_load", return_value={"standards": {"version": "1.5.0"}}
+        with (
+            patch.object(self.engine, "_was_standard_just_created", return_value=True),
+            patch("os.path.exists", return_value=True),
+            patch(
+                "builtins.open", mock_open(read_data='standards:\n  version: "1.5.0"')
+            ),
+            patch("yaml.safe_load", return_value={"standards": {"version": "1.5.0"}}),
         ):
             result = self.engine._format_quality_success(
                 mock_result, 80.0, standard_path, "test_func", verbose=True
@@ -1082,8 +1114,9 @@ class TestWasStandardJustCreatedMissingCoverage:
 
     def setup_method(self):
         """Set up test fixtures."""
-        with patch("adri.core.protection.ConfigManager"), patch(
-            "adri.core.protection.StandardsLoader"
+        with (
+            patch("adri.core.protection.ConfigManager"),
+            patch("adri.core.protection.StandardsLoader"),
         ):
             self.engine = DataProtectionEngine()
 
@@ -1151,8 +1184,9 @@ class TestCheckDimensionRequirementsMissingCoverage:
 
     def setup_method(self):
         """Set up test fixtures."""
-        with patch("adri.core.protection.ConfigManager"), patch(
-            "adri.core.protection.StandardsLoader"
+        with (
+            patch("adri.core.protection.ConfigManager"),
+            patch("adri.core.protection.StandardsLoader"),
         ):
             self.engine = DataProtectionEngine()
 

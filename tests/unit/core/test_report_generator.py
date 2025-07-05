@@ -55,8 +55,8 @@ class TestReportGenerator:
         """Test assessment ID generation follows correct pattern."""
         timestamp = datetime(2025, 7, 3, 17, 30, 15)
 
-        with patch("random.choices") as mock_choices:
-            mock_choices.return_value = ["a", "b", "c", "1", "2", "3"]
+        with patch("secrets.choice") as mock_choice:
+            mock_choice.side_effect = ["a", "b", "c", "1", "2", "3"]
             assessment_id = self.generator._generate_assessment_id(timestamp)
 
         expected = "adri_20250703_173015_abc123"

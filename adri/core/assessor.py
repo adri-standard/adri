@@ -4,7 +4,7 @@ Basic assessment engine for ADRI V2.
 This is a simplified stub implementation for testing the configuration integration.
 """
 
-from typing import Any, Dict
+from typing import Any, Dict, List, Optional
 
 import pandas as pd
 
@@ -17,11 +17,23 @@ class BundledStandardWrapper:
 
     def get_field_requirements(self) -> Dict[str, Any]:
         """Get field requirements from the bundled standard."""
-        return self.standard_dict.get("requirements", {}).get("field_requirements", {})
+        requirements = self.standard_dict.get("requirements", {})
+        if isinstance(requirements, dict):
+            field_requirements = requirements.get("field_requirements", {})
+            return field_requirements if isinstance(field_requirements, dict) else {}
+        return {}
 
     def get_overall_minimum(self) -> float:
         """Get the overall minimum score requirement."""
-        return self.standard_dict.get("requirements", {}).get("overall_minimum", 75.0)
+        requirements = self.standard_dict.get("requirements", {})
+        if isinstance(requirements, dict):
+            overall_minimum = requirements.get("overall_minimum", 75.0)
+            return (
+                float(overall_minimum)
+                if isinstance(overall_minimum, (int, float))
+                else 75.0
+            )
+        return 75.0
 
 
 class AssessmentResult:
@@ -32,9 +44,9 @@ class AssessmentResult:
         overall_score: float,
         passed: bool,
         dimension_scores: Dict[str, Any],
-        standard_id: str = None,
+        standard_id: Optional[str] = None,
         assessment_date=None,
-        metadata: Dict[str, Any] = None,
+        metadata: Optional[Dict[str, Any]] = None,
     ):
         self.overall_score = overall_score
         self.passed = bool(passed)  # Ensure it's a Python bool, not numpy bool
@@ -42,8 +54,8 @@ class AssessmentResult:
         self.standard_id = standard_id
         self.assessment_date = assessment_date
         self.metadata = metadata or {}
-        self.rule_execution_log = []
-        self.field_analysis = {}
+        self.rule_execution_log: List[Any] = []
+        self.field_analysis: Dict[str, Any] = {}
 
     def add_rule_execution(self, rule_result):
         """Add a rule execution result to the assessment."""
@@ -63,9 +75,9 @@ class AssessmentResult:
 
     def set_execution_stats(
         self,
-        total_execution_time_ms: int = None,
-        rules_executed: int = None,
-        duration_ms: int = None,
+        total_execution_time_ms: Optional[int] = None,
+        rules_executed: Optional[int] = None,
+        duration_ms: Optional[int] = None,
     ):
         """Set execution statistics."""
         # Support both parameter names for compatibility
@@ -87,7 +99,7 @@ class AssessmentResult:
         return generator.generate_report(self)
 
     def to_v2_standard_dict(
-        self, dataset_name: str = None, adri_version: str = "0.1.0"
+        self, dataset_name: Optional[str] = None, adri_version: str = "0.1.0"
     ) -> Dict[str, Any]:
         """Convert assessment result to ADRI v0.1.0 compliant format."""
         from datetime import datetime
@@ -185,15 +197,15 @@ class AssessmentResult:
 
         # Add dataset info if available
         if hasattr(self, "dataset_info"):
-            report["adri_assessment_report"]["metadata"][
-                "dataset_info"
-            ] = self.dataset_info
+            metadata_dict = report["adri_assessment_report"]["metadata"]
+            if isinstance(metadata_dict, dict):
+                metadata_dict["dataset_info"] = self.dataset_info
 
         # Add execution stats if available
         if hasattr(self, "execution_stats"):
-            report["adri_assessment_report"]["metadata"][
-                "execution_stats"
-            ] = self.execution_stats
+            metadata_dict = report["adri_assessment_report"]["metadata"]
+            if isinstance(metadata_dict, dict):
+                metadata_dict["execution_stats"] = self.execution_stats
 
         return report
 
@@ -209,8 +221,8 @@ class DimensionScore:
         self,
         score: float,
         max_score: float = 20.0,
-        issues: list = None,
-        details: dict = None,
+        issues: Optional[List[Any]] = None,
+        details: Optional[Dict[str, Any]] = None,
     ):
         self.score = score
         self.max_score = max_score
@@ -228,14 +240,14 @@ class FieldAnalysis:
     def __init__(
         self,
         field_name: str,
-        data_type: str = None,
-        null_count: int = None,
-        total_count: int = None,
-        rules_applied: list = None,
-        overall_field_score: float = None,
-        total_failures: int = None,
-        ml_readiness: str = None,
-        recommended_actions: list = None,
+        data_type: Optional[str] = None,
+        null_count: Optional[int] = None,
+        total_count: Optional[int] = None,
+        rules_applied: Optional[List[Any]] = None,
+        overall_field_score: Optional[float] = None,
+        total_failures: Optional[int] = None,
+        ml_readiness: Optional[str] = None,
+        recommended_actions: Optional[List[Any]] = None,
     ):
         self.field_name = field_name
         self.data_type = data_type
@@ -249,7 +261,7 @@ class FieldAnalysis:
 
         # Calculate completeness if we have the data
         if total_count is not None and null_count is not None:
-            self.completeness = (
+            self.completeness: Optional[float] = (
                 (total_count - null_count) / total_count if total_count > 0 else 0.0
             )
         else:
@@ -284,20 +296,20 @@ class RuleExecutionResult:
 
     def __init__(
         self,
-        rule_id: str = None,
-        dimension: str = None,
-        field: str = None,
-        rule_definition: str = None,
+        rule_id: Optional[str] = None,
+        dimension: Optional[str] = None,
+        field: Optional[str] = None,
+        rule_definition: Optional[str] = None,
         total_records: int = 0,
         passed: int = 0,
         failed: int = 0,
         rule_score: float = 0.0,
         rule_weight: float = 1.0,
         execution_time_ms: int = 0,
-        sample_failures: list = None,
-        failure_patterns: dict = None,
-        rule_name: str = None,
-        score: float = None,
+        sample_failures: Optional[List[Any]] = None,
+        failure_patterns: Optional[Dict[str, Any]] = None,
+        rule_name: Optional[str] = None,
+        score: Optional[float] = None,
         message: str = "",
     ):
         # Support both old and new signatures
@@ -305,7 +317,7 @@ class RuleExecutionResult:
             # Old signature compatibility
             self.rule_name = rule_name
             self.rule_id = rule_name
-            self.passed = passed if isinstance(passed, bool) else passed > 0
+            self.passed = passed if isinstance(passed, int) else (1 if passed else 0)
             self.score = score if score is not None else rule_score
             self.message = message
             # Set defaults for new fields
@@ -321,11 +333,11 @@ class RuleExecutionResult:
             self.failure_patterns = failure_patterns or {}
         else:
             # New signature
-            self.rule_id = rule_id
-            self.rule_name = rule_id  # For backward compatibility
-            self.dimension = dimension
-            self.field = field
-            self.rule_definition = rule_definition
+            self.rule_id = rule_id or "unknown"
+            self.rule_name = rule_id or "unknown"  # For backward compatibility
+            self.dimension = dimension or "unknown"
+            self.field = field or "unknown"
+            self.rule_definition = rule_definition or ""
             self.total_records = total_records
             self.passed = passed  # Keep as numeric count, not boolean
             self.failed = failed
@@ -420,11 +432,10 @@ class AssessmentEngine:
         """
         # Load the YAML standard
         from ..cli.commands import load_standard
-        from ..standards.yaml_standards import YAMLStandards
 
         try:
             yaml_standard = load_standard(standard_path)
-        except Exception as e:
+        except Exception:
             # Fallback to basic assessment if standard can't be loaded
             return self._basic_assessment(data)
 
@@ -505,7 +516,7 @@ class AssessmentEngine:
 
             return AssessmentResult(overall_score, passed, dimension_scores)
 
-        except Exception as e:
+        except Exception:
             # Fallback to basic assessment if standard can't be processed
             return self._basic_assessment(data)
 
@@ -541,7 +552,7 @@ class AssessmentEngine:
         # Get field requirements from standard
         try:
             field_requirements = standard.get_field_requirements()
-        except:
+        except Exception:
             # Fallback to basic validity check
             return self._assess_validity(data)
 
@@ -580,7 +591,7 @@ class AssessmentEngine:
         """Assess completeness using nullable requirements from standard."""
         try:
             field_requirements = standard.get_field_requirements()
-        except:
+        except Exception:
             # Fallback to basic completeness check
             return self._assess_completeness(data)
 
@@ -634,7 +645,7 @@ class AssessmentEngine:
                     r"^\d{2}/\d{2}/\d{4}$",  # MM/DD/YYYY
                 ]
                 return any(re.match(pattern, str(value)) for pattern in date_patterns)
-        except:
+        except Exception:
             return False
 
         return True
@@ -649,7 +660,7 @@ class AssessmentEngine:
             import re
 
             return bool(re.match(pattern, str(value)))
-        except:
+        except Exception:
             return False
 
     def _check_field_range(self, value: Any, field_req: Dict[str, Any]) -> bool:
@@ -667,7 +678,7 @@ class AssessmentEngine:
                 return False
 
             return True
-        except:
+        except Exception:
             # Not a numeric value, skip range check
             return True
 
@@ -707,11 +718,11 @@ class AssessmentEngine:
         if data.empty:
             return 0.0
 
-        total_cells = data.size
-        missing_cells = data.isnull().sum().sum()
+        total_cells = int(data.size)
+        missing_cells = int(data.isnull().sum().sum())
         completeness_rate = (total_cells - missing_cells) / total_cells
 
-        return completeness_rate * 20.0
+        return float(completeness_rate * 20.0)
 
     def _assess_consistency(self, data: pd.DataFrame) -> float:
         """Assess data consistency."""
@@ -730,7 +741,7 @@ class AssessmentEngine:
 
     # Public methods for backward compatibility with tests
     def assess_validity(
-        self, data: pd.DataFrame, field_requirements: Dict[str, Any] = None
+        self, data: pd.DataFrame, field_requirements: Optional[Dict[str, Any]] = None
     ) -> float:
         """Public method for validity assessment."""
         if field_requirements:
@@ -744,7 +755,7 @@ class AssessmentEngine:
         return self._assess_validity(data)
 
     def assess_completeness(
-        self, data: pd.DataFrame, requirements: Dict[str, Any] = None
+        self, data: pd.DataFrame, requirements: Optional[Dict[str, Any]] = None
     ) -> float:
         """Public method for completeness assessment."""
         if requirements:
@@ -761,11 +772,11 @@ class AssessmentEngine:
                     completeness_rate = (
                         total_required_cells - missing_required_cells
                     ) / total_required_cells
-                    return completeness_rate * 20.0
+                    return float(completeness_rate * 20.0)
         return self._assess_completeness(data)
 
     def assess_consistency(
-        self, data: pd.DataFrame, consistency_rules: Dict[str, Any] = None
+        self, data: pd.DataFrame, consistency_rules: Optional[Dict[str, Any]] = None
     ) -> float:
         """Public method for consistency assessment."""
         if consistency_rules:
@@ -790,7 +801,7 @@ class AssessmentEngine:
         return self._assess_consistency(data)
 
     def assess_freshness(
-        self, data: pd.DataFrame, freshness_config: Dict[str, Any] = None
+        self, data: pd.DataFrame, freshness_config: Optional[Dict[str, Any]] = None
     ) -> float:
         """Public method for freshness assessment."""
         if freshness_config:
@@ -802,7 +813,7 @@ class AssessmentEngine:
         return self._assess_freshness(data)
 
     def assess_plausibility(
-        self, data: pd.DataFrame, plausibility_config: Dict[str, Any] = None
+        self, data: pd.DataFrame, plausibility_config: Optional[Dict[str, Any]] = None
     ) -> float:
         """Public method for plausibility assessment."""
         if plausibility_config:
@@ -826,7 +837,7 @@ class AssessmentEngine:
                                 failed_checks += 1
                             elif max_val is not None and numeric_value > max_val:
                                 failed_checks += 1
-                        except:
+                        except Exception:
                             failed_checks += 1
 
             # Check outlier detection rules
@@ -844,7 +855,7 @@ class AssessmentEngine:
                                     failed_checks += 1
                                 elif max_val is not None and numeric_value > max_val:
                                     failed_checks += 1
-                            except:
+                            except Exception:
                                 failed_checks += 1
 
             if total_checks > 0:
