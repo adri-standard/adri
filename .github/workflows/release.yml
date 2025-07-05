@@ -167,9 +167,39 @@ jobs:
         python -m venv testpypi_env
         source testpypi_env/bin/activate
 
-        # Wait for TestPyPI propagation
-        echo "⏳ Waiting for TestPyPI propagation..."
-        sleep 90
+        # Poll for TestPyPI package availability
+        echo "⏳ Polling TestPyPI for package availability..."
+        VERSION="${{ steps.get_version.outputs.VERSION }}"
+        MAX_ATTEMPTS=9  # 270 seconds / 30 seconds
+        ATTEMPT=1
+        PACKAGE_FOUND=false
+
+        while [ $ATTEMPT -le $MAX_ATTEMPTS ]; do
+          echo "⏳ Attempt $ATTEMPT/$MAX_ATTEMPTS: Checking TestPyPI for adri==$VERSION..."
+
+          # Check if package version is available
+          if pip index versions adri --index-url https://test.pypi.org/simple/ 2>/dev/null | grep -q "$VERSION"; then
+            echo "✅ Package adri==$VERSION found on TestPyPI!"
+            PACKAGE_FOUND=true
+            break
+          fi
+
+          if [ $ATTEMPT -eq $MAX_ATTEMPTS ]; then
+            echo "❌ Timeout: Package adri==$VERSION not available on TestPyPI after 270 seconds"
+            echo "Available versions:"
+            pip index versions adri --index-url https://test.pypi.org/simple/ 2>/dev/null || echo "No versions found"
+            exit 1
+          fi
+
+          echo "⏳ Package not found yet, waiting 30 seconds before retry..."
+          sleep 30
+          ATTEMPT=$((ATTEMPT + 1))
+        done
+
+        if [ "$PACKAGE_FOUND" = false ]; then
+          echo "❌ Failed to find package on TestPyPI"
+          exit 1
+        fi
 
         # Install from TestPyPI
         echo "📦 Installing from TestPyPI..."
