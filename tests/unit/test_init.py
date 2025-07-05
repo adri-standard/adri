@@ -1,6 +1,4 @@
-"""
-Tests for the main adri __init__.py module.
-"""
+"""Tests for the main adri __init__.py module."""
 
 from unittest.mock import MagicMock, patch
 
@@ -15,11 +13,11 @@ class TestMainInit:
         from adri import __version__, get_version_info
 
         assert isinstance(__version__, str)
-        assert __version__ == "1.0.0"
+        assert __version__ == "0.1.0"
 
         version_info = get_version_info()
         assert isinstance(version_info, dict)
-        assert version_info["version"] == "1.0.0"
+        assert version_info["version"] == "0.1.0"
 
     def test_adri_protected_import(self):
         """Test that adri_protected decorator is properly imported."""
@@ -64,7 +62,7 @@ class TestMainInit:
         # Should not raise an error even if component is missing
         from adri import __version__
 
-        assert __version__ == "1.0.0"
+        assert __version__ == "0.1.0"
 
     @patch("adri.core.protection.DataProtectionEngine", None)
     def test_missing_protection_import(self):
@@ -80,7 +78,7 @@ class TestMainInit:
         # Should not raise an error even if component is missing
         from adri import __version__
 
-        assert __version__ == "1.0.0"
+        assert __version__ == "0.1.0"
 
     def test_all_exports(self):
         """Test that __all__ contains expected exports."""
@@ -142,7 +140,7 @@ class TestMainInit:
             # Core functionality should still work
             from adri import __version__, adri_protected
 
-            assert __version__ == "1.0.0"
+            assert __version__ == "0.1.0"
             assert callable(adri_protected)
 
     def test_conditional_exports(self):
