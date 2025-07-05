@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "adri"
-version = "0.1.5"
+version = "0.1.6"
 description = "AI Data Reliability Intelligence - Comprehensive data quality assessment and validation framework"
 readme = "README.md"
 license = {file = "LICENSE"}
@@ -112,7 +112,7 @@ force_alphabetical_sort_within_sections = true
 
 # mypy configuration
 [tool.mypy]
-python_version = "0.1.5"
+python_version = "0.1.6"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = false
@@ -163,7 +163,7 @@ skips = ["B101", "B601"]  # Skip assert_used and shell_injection_process_args
 
 # pytest configuration
 [tool.pytest.ini_options]
-minversion = "0.1.5"
+minversion = "0.1.6"
 addopts = [
     "--strict-markers",
     "--strict-config",
