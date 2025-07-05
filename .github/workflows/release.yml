@@ -308,15 +308,24 @@ jobs:
         echo "🎉 Release v${{ steps.get_version.outputs.VERSION }} completed successfully!"
         echo "📦 Package available at: https://pypi.org/project/adri/${{ steps.get_version.outputs.VERSION }}/"
 
-    - name: Create Rollback Instructions on Failure
+    - name: Auto-Rollback on Failure
       if: failure()
       run: |
         VERSION=${{ steps.get_version.outputs.VERSION }}
         echo "❌ Production smoke tests failed!"
-        echo ""
-        echo "🔄 Rollback Instructions:"
-        echo "1. Delete the GitHub release: gh release delete v$VERSION"
-        echo "2. Delete the git tag: git tag -d v$VERSION && git push origin :refs/tags/v$VERSION"
-        echo "3. Contact PyPI support to remove the package if necessary"
+        echo "🔄 Auto-rollback: Cleaning up failed release..."
+
+        # Delete GitHub release
+        gh release delete v$VERSION --yes || echo "Release v$VERSION not found or already deleted"
+
+        # Delete git tag locally and remotely
+        git tag -d v$VERSION || echo "Local tag v$VERSION not found"
+        git push origin :refs/tags/v$VERSION || echo "Remote tag v$VERSION not found"
+
+        echo "✅ Cleanup completed. Repository is ready for retry."
         echo ""
         echo "🔗 Workflow: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+        echo ""
+        echo "Note: If PyPI package was published, contact PyPI support to remove it."
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
