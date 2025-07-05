@@ -11,15 +11,24 @@ For ADRI:
 - PATCH: Bug fixes and documentation improvements
 """
 
-__version__ = "1.0.0"  # Current version
+__version__ = "0.1.9"  # Current version
 
 # Minimum version compatible with current version (for report loading)
-__min_compatible_version__ = "1.0.0"
+__min_compatible_version__ = "0.1.0"
 
 # Versions with compatible scoring methodology
 # Reports from these versions can be directly compared
 __score_compatible_versions__ = [
-    "1.0.0",
+    "0.1.0",
+    "0.1.1",
+    "0.1.2",
+    "0.1.3",
+    "0.1.4",
+    "0.1.5",
+    "0.1.6",
+    "0.1.7",
+    "0.1.8",
+    "0.1.9",
 ]
 
 
