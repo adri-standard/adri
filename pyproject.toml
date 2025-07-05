@@ -112,7 +112,7 @@ force_alphabetical_sort_within_sections = true
 
 # mypy configuration
 [tool.mypy]
-python_version = "3.10"
+python_version = "0.1.0"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = false
@@ -163,7 +163,7 @@ skips = ["B101", "B601"]  # Skip assert_used and shell_injection_process_args
 
 # pytest configuration
 [tool.pytest.ini_options]
-minversion = "7.0"
+minversion = "0.1.0"
 addopts = [
     "--strict-markers",
     "--strict-config",
