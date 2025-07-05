@@ -13,11 +13,16 @@ class TestMainInit:
         from adri import __version__, get_version_info
 
         assert isinstance(__version__, str)
-        assert __version__ == "0.1.0"
+        # Test version format (semantic versioning)
+        import re
+
+        assert re.match(
+            r"^\d+\.\d+\.\d+", __version__
+        ), f"Invalid version format: {__version__}"
 
         version_info = get_version_info()
         assert isinstance(version_info, dict)
-        assert version_info["version"] == "0.1.0"
+        assert version_info["version"] == __version__
 
     def test_adri_protected_import(self):
         """Test that adri_protected decorator is properly imported."""
@@ -60,9 +65,14 @@ class TestMainInit:
         importlib.reload(adri)
 
         # Should not raise an error even if component is missing
+        # Test version format instead of hardcoded value
+        import re
+
         from adri import __version__
 
-        assert __version__ == "0.1.0"
+        assert re.match(
+            r"^\d+\.\d+\.\d+", __version__
+        ), f"Invalid version format: {__version__}"
 
     @patch("adri.core.protection.DataProtectionEngine", None)
     def test_missing_protection_import(self):
@@ -76,9 +86,14 @@ class TestMainInit:
         importlib.reload(adri)
 
         # Should not raise an error even if component is missing
+        # Test version format instead of hardcoded value
+        import re
+
         from adri import __version__
 
-        assert __version__ == "0.1.0"
+        assert re.match(
+            r"^\d+\.\d+\.\d+", __version__
+        ), f"Invalid version format: {__version__}"
 
     def test_all_exports(self):
         """Test that __all__ contains expected exports."""
@@ -138,9 +153,14 @@ class TestMainInit:
             importlib.reload(adri)
 
             # Core functionality should still work
+            # Test version format instead of hardcoded value
+            import re
+
             from adri import __version__, adri_protected
 
-            assert __version__ == "0.1.0"
+            assert re.match(
+                r"^\d+\.\d+\.\d+", __version__
+            ), f"Invalid version format: {__version__}"
             assert callable(adri_protected)
 
     def test_conditional_exports(self):

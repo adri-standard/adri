@@ -12,7 +12,12 @@ class TestVersionConstants:
         """Test that __version__ constant exists and is a string."""
         assert hasattr(version, "__version__")
         assert isinstance(version.__version__, str)
-        assert version.__version__ == "0.1.0"
+        # Test version format (semantic versioning)
+        import re
+
+        assert re.match(
+            r"^\d+\.\d+\.\d+", version.__version__
+        ), f"Invalid version format: {version.__version__}"
 
     def test_min_compatible_version_exists(self):
         """Test that __min_compatible_version__ constant exists."""
@@ -83,28 +88,35 @@ class TestGetScoreCompatibilityMessage:
 
     def test_fully_compatible_version_message(self):
         """Test message for fully compatible versions."""
-        message = version.get_score_compatibility_message("0.1.0")
-        expected = (
-            "Version 0.1.0 has fully compatible scoring with current version 0.1.0"
-        )
+        # Use a version that's in the compatible list
+        compatible_version = version.__score_compatible_versions__[0]
+        message = version.get_score_compatibility_message(compatible_version)
+        expected = f"Version {compatible_version} has fully compatible scoring with current version {version.__version__}"
         assert message == expected
 
     def test_generally_compatible_version_message(self):
         """Test message for generally compatible versions."""
-        message = version.get_score_compatibility_message("0.2.0")
-        expected = "Version 0.2.0 has generally compatible scoring with current version 0.1.0, but check CHANGELOG.md for details"
+        # Use a version with same major but not in compatible list
+        current_major = version.__version__.split(".")[0]
+        test_version = f"{current_major}.99.0"  # Unlikely to be in compatible list
+        message = version.get_score_compatibility_message(test_version)
+        expected = f"Version {test_version} has generally compatible scoring with current version {version.__version__}, but check CHANGELOG.md for details"
         assert message == expected
 
     def test_incompatible_version_message(self):
         """Test message for incompatible versions."""
-        message = version.get_score_compatibility_message("1.0.0")
-        expected = "Warning: Version 1.0.0 has incompatible scoring with current version 0.1.0. See CHANGELOG.md for details."
+        # Use a version with different major
+        current_major = int(version.__version__.split(".")[0])
+        incompatible_major = current_major + 1
+        test_version = f"{incompatible_major}.0.0"
+        message = version.get_score_compatibility_message(test_version)
+        expected = f"Warning: Version {test_version} has incompatible scoring with current version {version.__version__}. See CHANGELOG.md for details."
         assert message == expected
 
     def test_invalid_version_message(self):
         """Test message for invalid version formats."""
         message = version.get_score_compatibility_message("invalid")
-        expected = "Warning: Version invalid has incompatible scoring with current version 0.1.0. See CHANGELOG.md for details."
+        expected = f"Warning: Version invalid has incompatible scoring with current version {version.__version__}. See CHANGELOG.md for details."
         assert message == expected
 
 
@@ -134,9 +146,11 @@ class TestGetVersionInfo:
         """Test that get_version_info returns correct values."""
         info = version.get_version_info()
 
-        assert info["version"] == "0.1.0"
+        assert info["version"] == version.__version__
         assert info["min_compatible_version"] == "0.1.0"
-        assert info["score_compatible_versions"] == ["0.1.0"]
+        assert (
+            info["score_compatible_versions"] == version.__score_compatible_versions__
+        )
         assert info["is_production_ready"] is True
         assert info["api_version"] == "0.1"
         assert info["standards_format_version"] == "1.0"
@@ -155,10 +169,11 @@ class TestGetVersionInfo:
     def test_version_info_immutability(self):
         """Test that modifying returned dict doesn't affect subsequent calls."""
         info1 = version.get_version_info()
+        original_version = info1["version"]
         info1["version"] = "modified"
 
         info2 = version.get_version_info()
-        assert info2["version"] == "0.1.0"  # Should not be modified
+        assert info2["version"] == original_version  # Should not be modified
 
 
 class TestVersionIntegration:

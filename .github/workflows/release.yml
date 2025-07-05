@@ -28,9 +28,21 @@ jobs:
         python -m pip install --upgrade pip
         pip install -e ".[dev]"
 
+    - name: Set version environment variable
+      run: |
+        if [ "${{ github.event_name }}" = "release" ]; then
+          VERSION=${GITHUB_REF#refs/tags/v}
+        else
+          VERSION="${{ github.event.inputs.version }}"
+        fi
+        echo "ADRI_VERSION=$VERSION" >> $GITHUB_ENV
+        echo "Setting ADRI_VERSION to: $VERSION"
+
     - name: Run full test suite
       run: |
         pytest tests/ -v --cov=adri --cov-report=xml --cov-fail-under=90
+      env:
+        ADRI_VERSION: ${{ env.ADRI_VERSION }}
 
   build:
     needs: test

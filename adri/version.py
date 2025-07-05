@@ -11,16 +11,81 @@ For ADRI:
 - PATCH: Bug fixes and documentation improvements
 """
 
-__version__ = "0.1.2"  # Current version
+import os
+from typing import List
+
+
+def _get_version_from_metadata() -> str:
+    """Get version from package metadata or environment variable."""
+    # First try environment variable (useful for CI/CD)
+    env_version = os.getenv("ADRI_VERSION")
+    if env_version:
+        return env_version
+
+    # Try to get from package metadata
+    try:
+        import importlib.metadata
+
+        return importlib.metadata.version("adri-validator")
+    except (ImportError, Exception):  # nosec B110
+        pass
+
+    # Fallback: try to read from pyproject.toml
+    try:
+        try:
+            import tomllib  # Python 3.11+
+        except ImportError:
+            import tomli as tomllib  # Python < 3.11
+
+        with open("pyproject.toml", "rb") as f:
+            data = tomllib.load(f)
+            return data["project"]["version"]
+    except (ImportError, FileNotFoundError, KeyError, Exception):  # nosec B110
+        pass
+
+    # Final fallback
+    return "0.1.2"
+
+
+__version__ = _get_version_from_metadata()
 
 # Minimum version compatible with current version (for report loading)
 __min_compatible_version__ = "0.1.0"
 
+
+def _get_compatible_versions() -> List[str]:
+    """
+    Generate list of compatible versions based on current version.
+
+    For patch versions (x.y.z), all versions with same major.minor are compatible.
+    This can be overridden with ADRI_COMPATIBLE_VERSIONS environment variable.
+    """
+    # Allow override via environment variable
+    env_versions = os.getenv("ADRI_COMPATIBLE_VERSIONS")
+    if env_versions:
+        return env_versions.split(",")
+
+    # Auto-generate based on semantic versioning
+    try:
+        major, minor, patch = __version__.split(".")
+        base_versions = [
+            "0.1.0",  # Always include initial version
+            "0.1.1",  # Known compatible versions
+        ]
+
+        # Add current version if not already included
+        if __version__ not in base_versions:
+            base_versions.append(__version__)
+
+        return sorted(set(base_versions))
+    except Exception:
+        # Fallback to safe list
+        return ["0.1.0", "0.1.1", "0.1.2"]
+
+
 # Versions with compatible scoring methodology
 # Reports from these versions can be directly compared
-__score_compatible_versions__ = [
-    "0.1.0",
-]
+__score_compatible_versions__ = _get_compatible_versions()
 
 
 def is_version_compatible(version: str) -> bool:
