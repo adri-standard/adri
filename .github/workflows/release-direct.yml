@@ -102,21 +102,20 @@ jobs:
         python -m pip install --upgrade pip
         pip install twine
 
-    - name: Check if PYPI_API_TOKEN is available
+    - name: List available environment variables (debug)
       run: |
-        if [ -z "${{ secrets.PYPI_API_TOKEN }}" ]; then
-          echo "❌ PYPI_API_TOKEN secret is not set or empty"
-          exit 1
-        else
-          echo "✅ PYPI_API_TOKEN secret is available"
-        fi
+        echo "Available secrets (checking common names):"
+        echo "PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN != '' && 'SET' || 'NOT_SET' }}"
+        echo "PYPI_TOKEN: ${{ secrets.PYPI_TOKEN != '' && 'SET' || 'NOT_SET' }}"
+        echo "PYPI_PASSWORD: ${{ secrets.PYPI_PASSWORD != '' && 'SET' || 'NOT_SET' }}"
+        echo "TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD != '' && 'SET' || 'NOT_SET' }}"
 
     - name: Publish to Production PyPI
       run: |
         twine upload dist/* --verbose
       env:
         TWINE_USERNAME: __token__
-        TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
+        TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN || secrets.PYPI_TOKEN || secrets.PYPI_PASSWORD || secrets.TWINE_PASSWORD }}
 
   smoke-test-production:
     needs: publish-pypi
