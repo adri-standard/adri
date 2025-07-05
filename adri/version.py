@@ -78,8 +78,8 @@ def get_version_info() -> dict:
         "version": __version__,
         "min_compatible_version": __min_compatible_version__,
         "score_compatible_versions": __score_compatible_versions__,
-        "is_production_ready": True,
-        "api_version": "1.0",
+        "is_production_ready": False,
+        "api_version": "0.1",
         "standards_format_version": "1.0",
     }
 
