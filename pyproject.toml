@@ -79,7 +79,13 @@ include = ["adri*"]
 exclude = ["tests*", "docs*", "examples*"]
 
 [tool.setuptools.package-data]
-adri = ["*.yaml", "*.yml", "templates/*.yaml"]
+adri = [
+    "*.yaml",
+    "*.yml",
+    "templates/*.yaml",
+    "standards/bundled/*.yaml",
+    "standards/bundled/*.yml"
+]
 
 # Black configuration
 [tool.black]
