@@ -9,7 +9,7 @@ It updates both JSON and Markdown formats for cross-repository coordination.
 import json
 import re
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List
 
@@ -115,7 +115,7 @@ class VersionTracker:
 
         # Update metadata
         data["metadata"]["last_updated"] = (
-            datetime.now(datetime.timezone.utc).isoformat().replace("+00:00", "Z")
+            datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
         )
 
         # Update installation guide
