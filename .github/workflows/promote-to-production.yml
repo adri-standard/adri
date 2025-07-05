@@ -37,6 +37,13 @@ jobs:
 
     - name: Create release tag
       run: |
+        if git rev-parse "v${{ github.event.inputs.version }}" >/dev/null 2>&1; then
+          echo "❌ Tag v${{ github.event.inputs.version }} already exists. Please use a different version number."
+          echo "Existing tags:"
+          git tag -l | grep -E "^v[0-9]" | sort -V | tail -10
+          exit 1
+        fi
+        echo "✅ Creating new tag v${{ github.event.inputs.version }}"
         git tag "v${{ github.event.inputs.version }}"
         git push origin "v${{ github.event.inputs.version }}"
 
