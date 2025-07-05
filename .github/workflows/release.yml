@@ -47,7 +47,11 @@ jobs:
 
     - name: Verify version matches tag
       run: |
-        TAG_VERSION=${GITHUB_REF#refs/tags/v}
+        if [ "${{ github.event_name }}" = "release" ]; then
+          TAG_VERSION=${GITHUB_REF#refs/tags/v}
+        else
+          TAG_VERSION="${{ github.event.inputs.version }}"
+        fi
         PYPROJECT_VERSION=$(grep '^version = ' pyproject.toml | head -1 | cut -d'"' -f2)
         echo "Tag version: $TAG_VERSION"
         echo "pyproject.toml version: $PYPROJECT_VERSION"
@@ -109,7 +113,11 @@ jobs:
     - name: Get version from tag
       id: get_version
       run: |
-        VERSION=${GITHUB_REF#refs/tags/v}
+        if [ "${{ github.event_name }}" = "release" ]; then
+          VERSION=${GITHUB_REF#refs/tags/v}
+        else
+          VERSION="${{ github.event.inputs.version }}"
+        fi
         echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
         echo "Testing version: $VERSION"
 
@@ -208,7 +216,11 @@ jobs:
     - name: Get version from tag
       id: get_version
       run: |
-        VERSION=${GITHUB_REF#refs/tags/v}
+        if [ "${{ github.event_name }}" = "release" ]; then
+          VERSION=${GITHUB_REF#refs/tags/v}
+        else
+          VERSION="${{ github.event.inputs.version }}"
+        fi
         echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
 
     - name: Production PyPI Smoke Tests
