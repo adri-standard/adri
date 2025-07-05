@@ -87,12 +87,13 @@ jobs:
         pytest tests/ -v --cov=adri --cov-report=xml --cov-fail-under=90
 
   build:
-    needs: test
+    needs: [test, version-bump]
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
       with:
         submodules: recursive
+        ref: main  # Ensure we get the latest commit with version bump
 
     - name: Set up Python
       uses: actions/setup-python@v5
@@ -142,6 +143,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
+      with:
+        ref: main  # Ensure we get the latest commit with version bump
 
     - name: Set up Python
       uses: actions/setup-python@v5
@@ -234,6 +237,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
+      with:
+        ref: main  # Ensure we get the latest commit with version bump
 
     - name: Set up Python
       uses: actions/setup-python@v5
