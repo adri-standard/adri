@@ -169,7 +169,7 @@ jobs:
 
         # Wait for TestPyPI propagation
         echo "⏳ Waiting for TestPyPI propagation..."
-        sleep 60
+        sleep 90
 
         # Install from TestPyPI
         echo "📦 Installing from TestPyPI..."
