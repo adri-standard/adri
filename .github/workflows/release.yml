@@ -23,6 +23,8 @@ jobs:
   version-bump:
     if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     outputs:
       new_version: ${{ steps.version.outputs.new_version }}
     steps:
