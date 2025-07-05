@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-ADRI Validator Version Tracking Updater
+ADRI Validator Version Tracking Updater.
 
 This script automatically updates the version tracking files when a new release is made.
 It updates both JSON and Markdown formats for cross-repository coordination.
@@ -15,7 +15,10 @@ from typing import Any, Dict, List
 
 
 class VersionTracker:
+    """Manages version tracking for ADRI Validator releases."""
+
     def __init__(self, validator_repo_path: str, standards_repo_path: str):
+        """Initialize the version tracker with repository paths."""
         self.validator_repo = Path(validator_repo_path)
         self.standards_repo = Path(standards_repo_path)
 
@@ -24,8 +27,32 @@ class VersionTracker:
         self.md_file = self.standards_repo / "ADRI-Validator-Releases.md"
         self.pyproject_file = self.validator_repo / "pyproject.toml"
 
+        # Validate and create directories if needed
+        self._validate_and_setup()
+
+    def _validate_and_setup(self) -> None:
+        """Validate repository paths and create necessary directories."""
+        # Check validator repo exists
+        if not self.validator_repo.exists():
+            raise FileNotFoundError(
+                f"Validator repository not found: {self.validator_repo}"
+            )
+
+        # Check standards repo exists, create if missing
+        if not self.standards_repo.exists():
+            print(f"⚠️  Standards repository not found at {self.standards_repo}")
+            print("🔧 Creating standards repository directory...")
+            self.standards_repo.mkdir(parents=True, exist_ok=True)
+
+        # Check pyproject.toml exists
+        if not self.pyproject_file.exists():
+            raise FileNotFoundError(f"pyproject.toml not found: {self.pyproject_file}")
+
+        print(f"✅ Validator repo: {self.validator_repo}")
+        print(f"✅ Standards repo: {self.standards_repo}")
+
     def get_current_version(self) -> str:
-        """Extract current version from pyproject.toml"""
+        """Extract current version from pyproject.toml."""
         if not self.pyproject_file.exists():
             raise FileNotFoundError(
                 f"pyproject.toml not found at {self.pyproject_file}"
@@ -39,7 +66,7 @@ class VersionTracker:
         return version_match.group(1)
 
     def load_release_data(self) -> Dict[str, Any]:
-        """Load existing release data from JSON file"""
+        """Load existing release data from JSON file."""
         if self.json_file.exists():
             return json.loads(self.json_file.read_text())
         else:
@@ -67,8 +94,7 @@ class VersionTracker:
         description: List[str],
         breaking_changes: List[str] = None,
     ) -> None:
-        """Add a new release to the tracking system"""
-
+        """Add a new release to the tracking system."""
         # Load existing data
         data = self.load_release_data()
 
@@ -128,8 +154,7 @@ class VersionTracker:
         self._update_markdown_file(data)
 
     def _update_markdown_file(self, data: Dict[str, Any]) -> None:
-        """Update the markdown release file"""
-
+        """Update the markdown release file."""
         # Generate table rows
         table_rows = []
         for release in data["releases"]:
@@ -178,7 +203,7 @@ class VersionTracker:
         self.md_file.write_text(content)
 
     def _get_markdown_template(self) -> str:
-        """Get the markdown template for new files"""
+        """Get the markdown template for new files."""
         return """# ADRI Validator Releases
 
 This document tracks all releases of the ADRI Validator package. The ADRI Validator provides the implementation layer for ADRI Standards, including decorators, CLI tools, and validation engines.
@@ -234,7 +259,7 @@ def process_customers(customer_data):
 
 
 def main():
-    """Main function for CLI usage"""
+    """Run the main function for CLI usage."""
     import argparse
 
     parser = argparse.ArgumentParser(

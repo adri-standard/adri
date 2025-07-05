@@ -24,6 +24,13 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
         fetch-depth: 0
 
+    - name: Checkout adri-standards repository
+      uses: actions/checkout@v4
+      with:
+        repository: ThinkEvolveSolve/adri-standards
+        path: ../adri-standards
+        token: ${{ secrets.GITHUB_TOKEN }}
+
     - name: Configure git
       run: |
         git config --local user.email "action@github.com"
