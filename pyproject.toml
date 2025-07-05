@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "adri"
-version = "0.1.1"
+version = "0.1.0"
 description = "AI Data Reliability Intelligence - Comprehensive data quality assessment and validation framework"
 readme = "README.md"
 license = {file = "LICENSE"}
