@@ -1,0 +1,372 @@
+name: Rollback Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Tag to rollback (e.g., candidate-beta-minor-v0.3.0 or Pre-release.Minor.v0.3.0-beta.1)'
+        required: true
+        type: string
+      rollback_reason:
+        description: 'Reason for rollback'
+        required: true
+        type: string
+      force_rollback:
+        description: 'Force rollback even if published to PyPI (will yank)'
+        required: false
+        type: boolean
+        default: false
+  workflow_call:
+    inputs:
+      tag_name:
+        description: 'Tag to rollback'
+        required: true
+        type: string
+      rollback_reason:
+        description: 'Reason for rollback'
+        required: true
+        type: string
+      failure_stage:
+        description: 'Stage where failure occurred'
+        required: false
+        type: string
+        default: 'unknown'
+      force_rollback:
+        description: 'Force rollback even if published to PyPI'
+        required: false
+        type: boolean
+        default: false
+
+env:
+  PYTHON_VERSION: "3.11"
+
+jobs:
+  analyze-rollback:
+    runs-on: ubuntu-latest
+    outputs:
+      rollback_type: ${{ steps.analyze.outputs.rollback_type }}
+      version: ${{ steps.analyze.outputs.version }}
+      can_clean_rollback: ${{ steps.analyze.outputs.can_clean_rollback }}
+      pypi_published: ${{ steps.analyze.outputs.pypi_published }}
+      testpypi_published: ${{ steps.analyze.outputs.testpypi_published }}
+      github_release_exists: ${{ steps.analyze.outputs.github_release_exists }}
+      git_tag_exists: ${{ steps.analyze.outputs.git_tag_exists }}
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install requests
+
+    - name: Analyze rollback requirements
+      id: analyze
+      run: |
+        TAG_NAME="${{ inputs.tag_name }}"
+        echo "🔍 Analyzing rollback requirements for: $TAG_NAME"
+
+        # Convert candidate tags to proper format for analysis
+        if [[ "$TAG_NAME" == candidate-* ]]; then
+          echo "📋 Converting candidate tag for analysis..."
+          if [[ "$TAG_NAME" == candidate-beta-* ]]; then
+            CHANGE_TYPE=$(echo "$TAG_NAME" | sed 's/candidate-beta-\([^-]*\)-v.*/\1/')
+            VERSION_BASE=$(echo "$TAG_NAME" | sed 's/candidate-beta-[^-]*-v\(.*\)/\1/')
+            PROPER_TAG="Pre-release.${CHANGE_TYPE^}.v${VERSION_BASE}-beta.1"
+            VERSION="${VERSION_BASE}-beta.1"
+          else
+            CHANGE_TYPE=$(echo "$TAG_NAME" | sed 's/candidate-\([^-]*\)-v.*/\1/')
+            VERSION_BASE=$(echo "$TAG_NAME" | sed 's/candidate-[^-]*-v\(.*\)/\1/')
+            PROPER_TAG="Release.${CHANGE_TYPE^}.v${VERSION_BASE}"
+            VERSION="$VERSION_BASE"
+          fi
+          echo "🔄 Converted: $TAG_NAME -> $PROPER_TAG"
+          ANALYSIS_TAG="$PROPER_TAG"
+        else
+          ANALYSIS_TAG="$TAG_NAME"
+          # Extract version from proper tag
+          if [[ "$TAG_NAME" == *"-beta."* ]]; then
+            VERSION=$(echo "$TAG_NAME" | sed 's/.*\.v\(.*\)/\1/')
+          else
+            VERSION=$(echo "$TAG_NAME" | sed 's/.*\.v\(.*\)/\1/')
+          fi
+        fi
+
+        echo "📦 Version to analyze: $VERSION"
+
+        # Check if Git tag exists
+        if git tag -l | grep -q "^${TAG_NAME}$"; then
+          GIT_TAG_EXISTS="true"
+          echo "✅ Git tag exists: $TAG_NAME"
+        else
+          GIT_TAG_EXISTS="false"
+          echo "❌ Git tag does not exist: $TAG_NAME"
+        fi
+
+        # Check if GitHub release exists
+        if gh release view "$TAG_NAME" >/dev/null 2>&1; then
+          GITHUB_RELEASE_EXISTS="true"
+          echo "✅ GitHub release exists: $TAG_NAME"
+        else
+          GITHUB_RELEASE_EXISTS="false"
+          echo "❌ GitHub release does not exist: $TAG_NAME"
+        fi
+
+        # Check PyPI publication status
+        echo "🔍 Checking PyPI publication status..."
+        PYPI_CHECK=$(python -c "
+        import requests
+        import sys
+
+        try:
+            response = requests.get(f'https://pypi.org/pypi/adri/$VERSION/json', timeout=10)
+            if response.status_code == 200:
+                print('true')
+            else:
+                print('false')
+        except:
+            print('false')
+        " 2>/dev/null || echo "false")
+
+        # Check TestPyPI publication status
+        echo "🔍 Checking TestPyPI publication status..."
+        TESTPYPI_CHECK=$(python -c "
+        import requests
+        import sys
+
+        try:
+            response = requests.get(f'https://test.pypi.org/pypi/adri/$VERSION/json', timeout=10)
+            if response.status_code == 200:
+                print('true')
+            else:
+                print('false')
+        except:
+            print('false')
+        " 2>/dev/null || echo "false")
+
+        echo "📊 Publication Status:"
+        echo "   - PyPI: $PYPI_CHECK"
+        echo "   - TestPyPI: $TESTPYPI_CHECK"
+        echo "   - GitHub Release: $GITHUB_RELEASE_EXISTS"
+        echo "   - Git Tag: $GIT_TAG_EXISTS"
+
+        # Determine rollback type
+        if [[ "$PYPI_CHECK" == "true" ]]; then
+          if [[ "${{ inputs.force_rollback }}" == "true" ]]; then
+            ROLLBACK_TYPE="yank"
+            CAN_CLEAN_ROLLBACK="false"
+            echo "⚠️ PyPI published - will require yanking"
+          else
+            echo "❌ Cannot rollback: Package published to PyPI"
+            echo "Use force_rollback=true to yank the package"
+            exit 1
+          fi
+        elif [[ "$TESTPYPI_CHECK" == "true" ]]; then
+          ROLLBACK_TYPE="partial"
+          CAN_CLEAN_ROLLBACK="true"
+          echo "🔄 TestPyPI published - partial rollback possible"
+        else
+          ROLLBACK_TYPE="clean"
+          CAN_CLEAN_ROLLBACK="true"
+          echo "✅ Clean rollback possible - no PyPI publication"
+        fi
+
+        # Set outputs
+        echo "rollback_type=$ROLLBACK_TYPE" >> $GITHUB_OUTPUT
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+        echo "can_clean_rollback=$CAN_CLEAN_ROLLBACK" >> $GITHUB_OUTPUT
+        echo "pypi_published=$PYPI_CHECK" >> $GITHUB_OUTPUT
+        echo "testpypi_published=$TESTPYPI_CHECK" >> $GITHUB_OUTPUT
+        echo "github_release_exists=$GITHUB_RELEASE_EXISTS" >> $GITHUB_OUTPUT
+        echo "git_tag_exists=$GIT_TAG_EXISTS" >> $GITHUB_OUTPUT
+
+        echo "🎯 Rollback type determined: $ROLLBACK_TYPE"
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  execute-rollback:
+    needs: analyze-rollback
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install twine requests
+
+    - name: Execute rollback
+      run: |
+        TAG_NAME="${{ inputs.tag_name }}"
+        VERSION="${{ needs.analyze-rollback.outputs.version }}"
+        ROLLBACK_TYPE="${{ needs.analyze-rollback.outputs.rollback_type }}"
+        ROLLBACK_REASON="${{ inputs.rollback_reason }}"
+
+        echo "🚨 Executing $ROLLBACK_TYPE rollback for $TAG_NAME"
+        echo "📝 Reason: $ROLLBACK_REASON"
+
+        # Step 1: Handle PyPI yanking if needed
+        if [[ "$ROLLBACK_TYPE" == "yank" ]]; then
+          echo "⚠️ Yanking package from PyPI..."
+
+          # Note: Yanking requires special permissions and is irreversible
+          echo "🔧 To yank from PyPI, run manually:"
+          echo "   twine yank adri $VERSION --reason '$ROLLBACK_REASON'"
+          echo "⚠️ This action is irreversible and requires PyPI maintainer permissions"
+
+          # For now, we'll document this step rather than execute it automatically
+          # Uncomment below if you want automatic yanking (requires PYPI token with yank permissions)
+          # twine yank adri $VERSION --reason "$ROLLBACK_REASON" || echo "⚠️ Yank failed - may require manual intervention"
+        fi
+
+        # Step 2: Delete GitHub release if it exists
+        if [[ "${{ needs.analyze-rollback.outputs.github_release_exists }}" == "true" ]]; then
+          echo "🗑️ Deleting GitHub release..."
+          gh release delete "$TAG_NAME" --yes || echo "⚠️ Failed to delete GitHub release"
+        fi
+
+        # Step 3: Delete Git tag if it exists and we can do clean rollback
+        if [[ "${{ needs.analyze-rollback.outputs.git_tag_exists }}" == "true" && "${{ needs.analyze-rollback.outputs.can_clean_rollback }}" == "true" ]]; then
+          echo "🗑️ Deleting Git tag..."
+          git tag -d "$TAG_NAME" || echo "⚠️ Failed to delete local tag"
+          git push origin ":refs/tags/$TAG_NAME" || echo "⚠️ Failed to delete remote tag"
+        fi
+
+        # Step 4: Clean up any draft releases with similar names
+        echo "🧹 Cleaning up related draft releases..."
+
+        # List and delete any candidate tags for this version
+        if [[ "$TAG_NAME" != candidate-* ]]; then
+          # Try to find and delete corresponding candidate tags
+          for candidate_pattern in "candidate-patch-v${VERSION%%-*}" "candidate-minor-v${VERSION%%-*}" "candidate-major-v${VERSION%%-*}" "candidate-beta-patch-v${VERSION%%-*}" "candidate-beta-minor-v${VERSION%%-*}" "candidate-beta-major-v${VERSION%%-*}"; do
+            if gh release view "$candidate_pattern" >/dev/null 2>&1; then
+              echo "🗑️ Deleting candidate release: $candidate_pattern"
+              gh release delete "$candidate_pattern" --yes || echo "⚠️ Failed to delete $candidate_pattern"
+            fi
+            if git tag -l | grep -q "^${candidate_pattern}$"; then
+              echo "🗑️ Deleting candidate tag: $candidate_pattern"
+              git tag -d "$candidate_pattern" || echo "⚠️ Failed to delete local tag $candidate_pattern"
+              git push origin ":refs/tags/$candidate_pattern" || echo "⚠️ Failed to delete remote tag $candidate_pattern"
+            fi
+          done
+        fi
+
+        echo "✅ Rollback execution completed"
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        TWINE_USERNAME: __token__
+        TWINE_PASSWORD: ${{ secrets.PYPI }}
+
+    - name: Create rollback summary
+      run: |
+        TAG_NAME="${{ inputs.tag_name }}"
+        VERSION="${{ needs.analyze-rollback.outputs.version }}"
+        ROLLBACK_TYPE="${{ needs.analyze-rollback.outputs.rollback_type }}"
+        ROLLBACK_REASON="${{ inputs.rollback_reason }}"
+        FAILURE_STAGE="${{ inputs.failure_stage }}"
+
+        echo "📋 Rollback Summary for $TAG_NAME"
+        echo "=================================="
+        echo "🏷️ Tag: $TAG_NAME"
+        echo "📦 Version: $VERSION"
+        echo "🔄 Rollback Type: $ROLLBACK_TYPE"
+        echo "📝 Reason: $ROLLBACK_REASON"
+        echo "🚨 Failure Stage: $FAILURE_STAGE"
+        echo "⏰ Time: $(date -u)"
+        echo ""
+        echo "🧹 Actions Taken:"
+
+        if [[ "${{ needs.analyze-rollback.outputs.github_release_exists }}" == "true" ]]; then
+          echo "   ✅ GitHub release deleted"
+        else
+          echo "   ➖ No GitHub release to delete"
+        fi
+
+        if [[ "${{ needs.analyze-rollback.outputs.git_tag_exists }}" == "true" && "${{ needs.analyze-rollback.outputs.can_clean_rollback }}" == "true" ]]; then
+          echo "   ✅ Git tag deleted"
+        elif [[ "${{ needs.analyze-rollback.outputs.git_tag_exists }}" == "true" ]]; then
+          echo "   ⚠️ Git tag preserved (PyPI published)"
+        else
+          echo "   ➖ No Git tag to delete"
+        fi
+
+        if [[ "$ROLLBACK_TYPE" == "yank" ]]; then
+          echo "   ⚠️ PyPI package yank required (manual step)"
+        fi
+
+        echo ""
+        echo "🎯 Next Steps:"
+        if [[ "$ROLLBACK_TYPE" == "yank" ]]; then
+          echo "   1. Manually yank PyPI package: twine yank adri $VERSION"
+          echo "   2. Communicate to users about the yanked version"
+          echo "   3. Prepare hotfix release if needed"
+        else
+          echo "   1. Fix the issues that caused the rollback"
+          echo "   2. Test fixes thoroughly"
+          echo "   3. Retry release process"
+        fi
+
+    - name: Notify rollback completion
+      run: |
+        TAG_NAME="${{ inputs.tag_name }}"
+        ROLLBACK_TYPE="${{ needs.analyze-rollback.outputs.rollback_type }}"
+        ROLLBACK_REASON="${{ inputs.rollback_reason }}"
+
+        echo "🚨 Rollback completed for $TAG_NAME"
+        echo "🔄 Type: $ROLLBACK_TYPE"
+        echo "📝 Reason: $ROLLBACK_REASON"
+        echo "🔗 Workflow: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+
+        # Send Slack notification
+        if [[ -n "${{ secrets.SLACK_WEBHOOK_URL }}" ]]; then
+          echo "📢 Sending Slack notification..."
+
+          # Determine urgency and action required
+          if [[ "$ROLLBACK_TYPE" == "yank" ]]; then
+            URGENCY="🚨 URGENT ACTION REQUIRED"
+            ACTION_REQUIRED="Manual PyPI package yanking required"
+            COLOR="danger"
+          else
+            URGENCY="ℹ️ Automated Rollback Completed"
+            ACTION_REQUIRED="Review and retry after fixes"
+            COLOR="warning"
+          fi
+
+          curl -X POST -H 'Content-type: application/json' \
+            --data "{
+              \"attachments\": [{
+                \"color\": \"$COLOR\",
+                \"title\": \"$URGENCY: ADRI Release Rollback\",
+                \"fields\": [
+                  {\"title\": \"Tag\", \"value\": \"$TAG_NAME\", \"short\": true},
+                  {\"title\": \"Type\", \"value\": \"$ROLLBACK_TYPE\", \"short\": true},
+                  {\"title\": \"Reason\", \"value\": \"$ROLLBACK_REASON\", \"short\": false},
+                  {\"title\": \"Action Required\", \"value\": \"$ACTION_REQUIRED\", \"short\": false}
+                ],
+                \"actions\": [{
+                  \"type\": \"button\",
+                  \"text\": \"View Workflow\",
+                  \"url\": \"https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\"
+                }],
+                \"footer\": \"ADRI Release System\",
+                \"ts\": $(date +%s)
+              }]
+            }" \
+            "${{ secrets.SLACK_WEBHOOK_URL }}" || echo "⚠️ Failed to send Slack notification"
+        else
+          echo "⚠️ SLACK_WEBHOOK_URL not configured - skipping notification"
+        fi

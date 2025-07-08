@@ -449,12 +449,42 @@ jobs:
         echo "📦 Package available at: https://pypi.org/project/adri/$VERSION/"
         echo "🏷️ GitHub release: https://github.com/ThinkEvolveSolve/adri-validator/releases/tag/$TAG_NAME"
 
-        # TODO: Add Slack webhook notification here
-        # curl -X POST -H 'Content-type: application/json' \
-        #   --data '{"text":"🎉 ADRI Release '$TAG_NAME' deployed successfully!\n📦 https://pypi.org/project/adri/'$VERSION'/"}' \
-        #   ${{ secrets.SLACK_WEBHOOK_URL }}
+        # Send Slack success notification
+        if [[ -n "${{ secrets.SLACK_WEBHOOK_URL }}" ]]; then
+          echo "📢 Sending Slack success notification..."
 
-  # Failure recovery job
+          curl -X POST -H 'Content-type: application/json' \
+            --data "{
+              \"attachments\": [{
+                \"color\": \"good\",
+                \"title\": \"🎉 ADRI Release $TAG_NAME Successfully Deployed!\",
+                \"fields\": [
+                  {\"title\": \"Version\", \"value\": \"$VERSION\", \"short\": true},
+                  {\"title\": \"Type\", \"value\": \"${{ needs.validate-version.outputs.release_type }}\", \"short\": true},
+                  {\"title\": \"PyPI Package\", \"value\": \"https://pypi.org/project/adri/$VERSION/\", \"short\": false}
+                ],
+                \"actions\": [
+                  {
+                    \"type\": \"button\",
+                    \"text\": \"View on PyPI\",
+                    \"url\": \"https://pypi.org/project/adri/$VERSION/\"
+                  },
+                  {
+                    \"type\": \"button\",
+                    \"text\": \"View Release\",
+                    \"url\": \"https://github.com/${{ github.repository }}/releases/tag/$TAG_NAME\"
+                  }
+                ],
+                \"footer\": \"ADRI Release System\",
+                \"ts\": $(date +%s)
+              }]
+            }" \
+            "${{ secrets.SLACK_WEBHOOK_URL }}" || echo "⚠️ Failed to send Slack notification"
+        else
+          echo "⚠️ SLACK_WEBHOOK_URL not configured - skipping notification"
+        fi
+
+  # Failure recovery job with automated rollback
   cleanup-on-failure:
     if: failure()
     needs: [validate-version, test, build, publish-testpypi, smoke-test-testpypi, publish-pypi, smoke-test-pypi, finalize-release]
@@ -468,40 +498,108 @@ jobs:
         if [[ "${{ needs.test.result }}" == "failure" ]]; then
           echo "stage=test" >> $GITHUB_OUTPUT
           echo "message=Test suite failed" >> $GITHUB_OUTPUT
+          echo "can_rollback=true" >> $GITHUB_OUTPUT
         elif [[ "${{ needs.build.result }}" == "failure" ]]; then
           echo "stage=build" >> $GITHUB_OUTPUT
           echo "message=Package build failed" >> $GITHUB_OUTPUT
+          echo "can_rollback=true" >> $GITHUB_OUTPUT
         elif [[ "${{ needs.publish-testpypi.result }}" == "failure" ]]; then
           echo "stage=testpypi" >> $GITHUB_OUTPUT
           echo "message=TestPyPI publication failed" >> $GITHUB_OUTPUT
+          echo "can_rollback=true" >> $GITHUB_OUTPUT
         elif [[ "${{ needs.smoke-test-testpypi.result }}" == "failure" ]]; then
           echo "stage=testpypi-smoke" >> $GITHUB_OUTPUT
           echo "message=TestPyPI smoke tests failed" >> $GITHUB_OUTPUT
+          echo "can_rollback=true" >> $GITHUB_OUTPUT
         elif [[ "${{ needs.publish-pypi.result }}" == "failure" ]]; then
           echo "stage=pypi" >> $GITHUB_OUTPUT
           echo "message=Production PyPI publication failed" >> $GITHUB_OUTPUT
+          echo "can_rollback=false" >> $GITHUB_OUTPUT
         elif [[ "${{ needs.smoke-test-pypi.result }}" == "failure" ]]; then
           echo "stage=pypi-smoke" >> $GITHUB_OUTPUT
           echo "message=Production PyPI smoke tests failed" >> $GITHUB_OUTPUT
+          echo "can_rollback=false" >> $GITHUB_OUTPUT
         else
           echo "stage=unknown" >> $GITHUB_OUTPUT
           echo "message=Unknown failure" >> $GITHUB_OUTPUT
+          echo "can_rollback=true" >> $GITHUB_OUTPUT
         fi
 
-    - name: Mark Release as Failed (if from release trigger)
-      if: github.event_name == 'release'
+    - name: Trigger automated rollback (pre-PyPI failures)
+      if: steps.failure-stage.outputs.can_rollback == 'true'
+      uses: ./.github/workflows/rollback-release.yml
+      with:
+        tag_name: ${{ needs.validate-version.outputs.tag_name }}
+        rollback_reason: "Automated rollback due to ${{ steps.failure-stage.outputs.message }} in ${{ steps.failure-stage.outputs.stage }} stage"
+        failure_stage: ${{ steps.failure-stage.outputs.stage }}
+        force_rollback: false
+
+    - name: Mark Release as Failed (manual intervention required)
+      if: steps.failure-stage.outputs.can_rollback == 'false' && github.event_name == 'release'
       run: |
         TAG_NAME="${{ needs.validate-version.outputs.tag_name }}"
         FAILURE_STAGE="${{ steps.failure-stage.outputs.stage }}"
         FAILURE_MESSAGE="${{ steps.failure-stage.outputs.message }}"
 
-        echo "🚨 Marking release as failed..."
+        echo "🚨 Marking release as failed (manual intervention required)..."
 
         # Convert release to draft and update with failure info
         gh release edit $TAG_NAME \
           --draft \
-          --title "🚨 FAILED: Release $TAG_NAME" \
-          --notes "❌ **Release Failed During Deployment**
+          --title "🚨 FAILED: Release $TAG_NAME (Manual Intervention Required)" \
+          --notes "❌ **Release Failed During Deployment - MANUAL INTERVENTION REQUIRED**
+
+        ## 🚨 **Critical Failure Details**
+        - **Stage**: $FAILURE_STAGE
+        - **Message**: $FAILURE_MESSAGE
+        - **Workflow**: [${{ github.run_id }}](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
+        - **Time**: $(date -u)
+
+        ## ⚠️ **IMPORTANT: PyPI Publication Status**
+        This failure occurred after potential PyPI publication. **Manual intervention is required.**
+
+        ### 🔍 **Immediate Actions Required:**
+        1. **Check PyPI**: Verify if package was published to https://pypi.org/project/adri/${{ needs.validate-version.outputs.version }}/
+        2. **If Published**: Consider yanking the package if it's broken
+        3. **If Not Published**: Safe to retry after fixes
+
+        ### 🔧 **Manual Rollback (if needed):**
+        \`\`\`bash
+        # If package was published and is broken, yank it:
+        twine yank adri ${{ needs.validate-version.outputs.version }} --reason '$FAILURE_MESSAGE'
+        \`\`\`
+
+        ### 🔄 **To Retry:**
+        1. **Fix the issues** identified in the workflow logs
+        2. **If yanked**: Increment version number for new release
+        3. **If not published**: Can retry with same version
+
+        ## 📋 **Cleanup Status**
+        - ✅ Release marked as draft
+        - ⚠️ Git tag preserved (check PyPI status before deleting)
+        - ⚠️ Manual PyPI cleanup may be required
+
+        ## 🔗 **Useful Links**
+        - [Workflow Run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
+        - [PyPI Package](https://pypi.org/project/adri/${{ needs.validate-version.outputs.version }}/)
+        - [Manual Rollback Workflow](https://github.com/${{ github.repository }}/actions/workflows/rollback-release.yml)"
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Mark Release as Failed (automated rollback completed)
+      if: steps.failure-stage.outputs.can_rollback == 'true' && github.event_name == 'release'
+      run: |
+        TAG_NAME="${{ needs.validate-version.outputs.tag_name }}"
+        FAILURE_STAGE="${{ steps.failure-stage.outputs.stage }}"
+        FAILURE_MESSAGE="${{ steps.failure-stage.outputs.message }}"
+
+        echo "🚨 Updating release with automated rollback completion..."
+
+        # Update release with rollback completion info
+        gh release edit $TAG_NAME \
+          --draft \
+          --title "🔄 ROLLED BACK: Release $TAG_NAME" \
+          --notes "🔄 **Release Automatically Rolled Back**
 
         ## 🚨 **Failure Details**
         - **Stage**: $FAILURE_STAGE
@@ -509,44 +607,111 @@ jobs:
         - **Workflow**: [${{ github.run_id }}](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
         - **Time**: $(date -u)
 
+        ## ✅ **Automated Rollback Completed**
+        - ✅ Git tags cleaned up
+        - ✅ Draft releases removed
+        - ✅ No PyPI publication occurred
+        - ✅ Clean state restored
+
         ## 🔧 **To Retry**
         1. **Fix the issues** identified in the workflow logs
-        2. **Push fixes** to the repository if needed
-        3. **Re-publish this draft release** to trigger the workflow again
-        4. **Same version number** - no need to bump
+        2. **Push fixes** to the repository
+        3. **Run prepare-releases workflow** to create new drafts
+        4. **Publish new draft** to trigger release again
+        5. **Same version number** can be reused
 
-        ## 📋 **Cleanup Status**
-        - ✅ Release marked as draft (can be re-published)
-        - ✅ Git tag preserved (no version bump needed)
-        - ⚠️ PyPI packages cannot be automatically deleted if published
+        ## 📋 **Next Steps**
+        1. Review workflow logs to identify root cause
+        2. Implement fixes for the identified issues
+        3. Test fixes locally before retrying release
+        4. Monitor the retry release closely
 
         ## 🔗 **Useful Links**
-        - [Workflow Run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
+        - [Failed Workflow Run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
+        - [Rollback Workflow](https://github.com/${{ github.repository }}/actions/workflows/rollback-release.yml)
         - [Repository](https://github.com/${{ github.repository }})
-        - [Issues](https://github.com/${{ github.repository }}/issues)"
+        - [Issues](https://github.com/${{ github.repository }}/issues)" 2>/dev/null || echo "⚠️ Could not update release (may have been deleted by rollback)"
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Slack Failure Notification
+    - name: Enhanced failure notification
       run: |
         TAG_NAME="${{ needs.validate-version.outputs.tag_name }}"
         FAILURE_STAGE="${{ steps.failure-stage.outputs.stage }}"
         FAILURE_MESSAGE="${{ steps.failure-stage.outputs.message }}"
+        CAN_ROLLBACK="${{ steps.failure-stage.outputs.can_rollback }}"
 
         echo "🚨 Release $TAG_NAME failed at stage: $FAILURE_STAGE"
         echo "💬 Message: $FAILURE_MESSAGE"
+        echo "🔄 Automated rollback: $CAN_ROLLBACK"
         echo "🔗 Workflow: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
 
-        # TODO: Add Slack webhook notification here
-        # curl -X POST -H 'Content-type: application/json' \
-        #   --data '{"text":"🚨 ADRI Release '$TAG_NAME' FAILED!\n❌ Stage: '$FAILURE_STAGE'\n💬 '$FAILURE_MESSAGE'\n🔗 https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"}' \
-        #   ${{ secrets.SLACK_WEBHOOK_URL }}
+        if [[ "$CAN_ROLLBACK" == "true" ]]; then
+          echo "✅ Automated rollback completed - safe to retry"
+        else
+          echo "⚠️ Manual intervention required - check PyPI status"
+        fi
+
+        # Send Slack failure notification
+        if [[ -n "${{ secrets.SLACK_WEBHOOK_URL }}" ]]; then
+          echo "📢 Sending Slack failure notification..."
+
+          ROLLBACK_STATUS=""
+          if [[ "$CAN_ROLLBACK" == "true" ]]; then
+            ROLLBACK_STATUS="✅ Automated rollback completed"
+            COLOR="warning"
+            URGENCY="⚠️ Release Failed - Rollback Completed"
+          else
+            ROLLBACK_STATUS="🚨 Manual intervention required"
+            COLOR="danger"
+            URGENCY="🚨 URGENT: Release Failed - Manual Action Required"
+          fi
+
+          curl -X POST -H 'Content-type: application/json' \
+            --data "{
+              \"attachments\": [{
+                \"color\": \"$COLOR\",
+                \"title\": \"$URGENCY: ADRI Release $TAG_NAME\",
+                \"fields\": [
+                  {\"title\": \"Failed Stage\", \"value\": \"$FAILURE_STAGE\", \"short\": true},
+                  {\"title\": \"Status\", \"value\": \"$ROLLBACK_STATUS\", \"short\": true},
+                  {\"title\": \"Error Message\", \"value\": \"$FAILURE_MESSAGE\", \"short\": false},
+                  {\"title\": \"Next Steps\", \"value\": \"$(if [[ \"$CAN_ROLLBACK\" == \"true\" ]]; then echo \"Fix issues and retry release\"; else echo \"Check PyPI status and manual cleanup\"; fi)\", \"short\": false}
+                ],
+                \"actions\": [{
+                  \"type\": \"button\",
+                  \"text\": \"View Workflow\",
+                  \"url\": \"https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\"
+                }],
+                \"footer\": \"ADRI Release System\",
+                \"ts\": $(date +%s)
+              }]
+            }" \
+            "${{ secrets.SLACK_WEBHOOK_URL }}" || echo "⚠️ Failed to send Slack notification"
+        else
+          echo "⚠️ SLACK_WEBHOOK_URL not configured - skipping notification"
+        fi
 
     - name: Cleanup Summary
       run: |
+        FAILURE_STAGE="${{ steps.failure-stage.outputs.stage }}"
+        CAN_ROLLBACK="${{ steps.failure-stage.outputs.can_rollback }}"
+
         echo "🧹 Cleanup completed for failed release"
         echo "📝 Summary:"
-        echo "   - Release marked as draft (can be re-published)"
-        echo "   - Git tag preserved"
-        echo "   - Team notified via Slack"
-        echo "   - Workflow logs available for debugging"
+        echo "   - Failure stage: $FAILURE_STAGE"
+
+        if [[ "$CAN_ROLLBACK" == "true" ]]; then
+          echo "   - ✅ Automated rollback executed"
+          echo "   - ✅ Git tags cleaned up"
+          echo "   - ✅ Draft releases removed"
+          echo "   - ✅ Safe to retry with same version"
+        else
+          echo "   - ⚠️ Manual intervention required"
+          echo "   - ⚠️ Check PyPI publication status"
+          echo "   - ⚠️ May need to yank package if published"
+        fi
+
+        echo "   - 📋 Release updated with failure details"
+        echo "   - 🔔 Team notified"
+        echo "   - 📊 Workflow logs available for debugging"
