@@ -216,7 +216,37 @@ jobs:
     - name: Publish to TestPyPI
       run: |
         echo "🧪 Publishing to TestPyPI..."
-        twine upload --repository testpypi dist/* --verbose
+
+        # Try to upload, but don't fail if version already exists
+        if twine upload --repository testpypi dist/* --verbose; then
+          echo "✅ Successfully published to TestPyPI"
+        else
+          echo "⚠️ Upload failed - checking if version already exists..."
+
+          # Check if our version exists on TestPyPI
+          VERSION="${{ needs.validate-version.outputs.version }}"
+          if python -c "
+          import requests
+          try:
+              r = requests.get('https://test.pypi.org/pypi/adri/json')
+              versions = list(r.json()['releases'].keys())
+              # Check for both original and normalized versions
+              if '$VERSION' in versions or '$(python -c \"from packaging.version import Version; print(Version('$VERSION'))\")' in versions:
+                  print('Version exists on TestPyPI')
+                  exit(0)
+              else:
+                  print('Version not found on TestPyPI')
+                  exit(1)
+          except Exception as e:
+              print(f'Error checking TestPyPI: {e}')
+              exit(1)
+          "; then
+            echo "✅ Version already exists on TestPyPI - continuing with workflow"
+          else
+            echo "❌ Upload failed and version not found on TestPyPI"
+            exit 1
+          fi
+        fi
       env:
         TWINE_USERNAME: __token__
         TWINE_PASSWORD: ${{ secrets.TESTPYPI }}
