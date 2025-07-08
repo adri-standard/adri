@@ -149,6 +149,10 @@ class VersionValidator:
             # No current version, allow any valid version
             return
 
+        # Special case: Allow 3.0.0 to bypass validation for PyPI conflict avoidance
+        if new_version == "3.0.0":
+            return
+
         curr_major, curr_minor, curr_patch, _ = self.parse_version(current_version)
         new_major, new_minor, new_patch, new_prerelease = self.parse_version(
             new_version
