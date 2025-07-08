@@ -60,7 +60,7 @@ def _get_version_from_metadata() -> str:
         pass
 
     # Final fallback
-    return "1.0.0"
+    return "0.2.0"
 
 
 __version__ = _get_version_from_metadata()

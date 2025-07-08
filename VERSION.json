@@ -1,0 +1,29 @@
+{
+  "current_release": null,
+  "current_testpypi": "0.2.0",
+  "next_allowed": {
+    "patch": "0.2.1",
+    "minor": "0.3.0",
+    "major": "1.0.0"
+  },
+  "validation_rules": {
+    "tag_format": "<Release Type>.<Change Type>.v<Version>",
+    "release_types": ["Release", "Pre-release"],
+    "change_types": ["Patch", "Minor", "Major"],
+    "prerelease_suffixes": ["alpha", "beta", "rc"]
+  },
+  "release_history": [
+    {
+      "version": "0.2.0",
+      "tag": "Manual.TestPyPI.v0.2.0",
+      "date": "2025-01-07",
+      "type": "testpypi",
+      "notes": "Baseline version - deployed to TestPyPI only"
+    }
+  ],
+  "metadata": {
+    "last_updated": "2025-01-08T12:56:00Z",
+    "schema_version": "1.0",
+    "description": "ADRI Validator version tracking and validation system"
+  }
+}

@@ -1,253 +1,181 @@
-# ADRI Validator Release Process
-
-This document describes the streamlined release process for ADRI Validator. The process is designed to be simple, reliable, and easy to rollback if needed.
+# ADRI Validator Release Process 🚀
 
 ## Overview
 
-The release process follows these principles:
-- **Simple**: Minimal steps, clear instructions
-- **Reliable**: Automated testing and validation
-- **Transparent**: All changes are visible in git history
-- **Rollback-friendly**: Easy to undo if something goes wrong
-
-## Release Workflow
-
-```
-Development (main) → Prepare Release → GitHub Release → Automated Pipeline → PyPI
-```
-
-## Step-by-Step Process
-
-### 1. Prepare the Release
-
-Use the automated preparation script:
-
-```bash
-# Navigate to project root
-cd adri-validator
-
-# Prepare release (replace 0.1.1 with your target version)
-python scripts/prepare_release.py 0.1.1
-
-# Or with custom changelog entry
-python scripts/prepare_release.py 0.1.1 --changelog "Added new validation features"
-```
-
-This script will:
-- ✅ Update version in `pyproject.toml`
-- ✅ Update `CHANGELOG.md` with new version
-- ✅ Create a commit with the changes
-- ✅ Provide next steps
-
-### 2. Push Changes
-
-```bash
-git push origin main
-```
-
-### 3. Create GitHub Release
-
-1. Go to [GitHub Releases](https://github.com/ThinkEvolveSolve/adri-validator/releases/new)
-2. Fill in the details:
-   - **Tag**: `v0.1.1` (must match the version you prepared)
-   - **Title**: `Release v0.1.1`
-   - **Description**: Copy from CHANGELOG.md or write custom notes
-3. Click **"Publish release"**
-
-### 4. Monitor the Pipeline
-
-The GitHub Release will automatically trigger the release workflow:
-
-1. **Test**: Run full test suite
-2. **Build**: Build the package and verify version matches tag
-3. **TestPyPI**: Publish to TestPyPI and run smoke tests
-4. **PyPI**: Publish to production PyPI
-5. **Validation**: Run final smoke tests
-6. **Complete**: Update release notes with PyPI links
-
-Monitor progress at: https://github.com/ThinkEvolveSolve/adri-validator/actions
-
-## Pipeline Details
-
-### Automated Steps
-
-1. **Version Verification**: Ensures tag version matches `pyproject.toml`
-2. **Full Testing**: Runs complete test suite with coverage requirements
-3. **Package Building**: Creates wheel and source distributions
-4. **TestPyPI Publishing**: Publishes to test environment first
-5. **TestPyPI Validation**: Installs and tests from TestPyPI
-6. **Production Publishing**: Only proceeds if TestPyPI tests pass
-7. **Production Validation**: Final verification from production PyPI
-8. **Release Updates**: Adds installation instructions and links
-
-### Safety Features
-
-- **Version Mismatch Detection**: Fails if tag doesn't match pyproject.toml
-- **Test Gate**: Won't publish if tests fail
-- **TestPyPI Gate**: Won't publish to production if TestPyPI tests fail
-- **Rollback Instructions**: Provides clear rollback steps on failure
-
-## Rollback Procedures
-
-If something goes wrong during or after release:
-
-### 1. If Pipeline Fails
-
-The pipeline will provide rollback instructions in the logs:
-
-```bash
-# Delete the GitHub release
-gh release delete v0.1.1
-
-# Delete the git tag
-git tag -d v0.1.1
-git push origin :refs/tags/v0.1.1
-
-# Revert the version commit (if needed)
-git revert HEAD
-git push origin main
-```
-
-### 2. If Package is Published but Broken
-
-```bash
-# Delete GitHub release and tag (as above)
-gh release delete v0.1.1
-git tag -d v0.1.1
-git push origin :refs/tags/v0.1.1
-
-# Contact PyPI support to remove the package
-# (PyPI doesn't allow automatic deletion of published packages)
-```
-
-### 3. Emergency Hotfix
-
-For critical issues in a published release:
-
-```bash
-# Create hotfix version
-python scripts/prepare_release.py 0.1.2 --changelog "Critical bug fix"
-git push origin main
-
-# Create emergency release
-# Follow normal release process with new version
-```
-
-## Version Management
-
-### Semantic Versioning
-
-We follow [Semantic Versioning](https://semver.org/):
-
-- **MAJOR** (1.0.0): Breaking changes
-- **MINOR** (0.1.0): New features, backwards compatible
-- **PATCH** (0.0.1): Bug fixes, backwards compatible
-
-### Version Examples
-
-```bash
-# Patch release (bug fixes)
-python scripts/prepare_release.py 0.1.1
-
-# Minor release (new features)
-python scripts/prepare_release.py 0.2.0
-
-# Major release (breaking changes)
-python scripts/prepare_release.py 1.0.0
-
-# Pre-release versions
-python scripts/prepare_release.py 0.2.0-rc1
-python scripts/prepare_release.py 0.2.0-beta1
-```
-
-## Troubleshooting
-
-### Common Issues
-
-#### "Version already exists"
-- Check if tag already exists: `git tag -l`
-- Delete existing tag if needed: `git tag -d v0.1.1`
-
-#### "Git working directory not clean"
-- Commit or stash changes: `git status`
-- Use `--skip-git-check` flag if intentional
-
-#### "TestPyPI timeout"
-- TestPyPI can be slow to update
-- Pipeline waits up to 4.5 minutes
-- Check TestPyPI manually if needed
-
-#### "Production smoke tests fail"
-- Usually indicates a real issue with the package
-- Follow rollback procedures
-- Investigate and fix before retrying
-
-### Getting Help
-
-1. **Check the logs**: GitHub Actions provides detailed logs
-2. **Check the issues**: Look for similar problems in GitHub issues
-3. **Manual verification**: Test the package locally before releasing
-
-## Best Practices
-
-### Before Releasing
-
-- [ ] All tests pass locally
-- [ ] Documentation is updated
-- [ ] CHANGELOG.md reflects all changes
-- [ ] Version number follows semantic versioning
-- [ ] No uncommitted changes
-
-### During Release
-
-- [ ] Monitor the GitHub Actions workflow
-- [ ] Verify TestPyPI installation works
-- [ ] Check production PyPI after completion
-
-### After Release
-
-- [ ] Test installation from PyPI
-- [ ] Update any dependent projects
-- [ ] Announce the release if significant
-
-## Scripts Reference
-
-### prepare_release.py
-
-```bash
-# Basic usage
-python scripts/prepare_release.py 0.1.1
-
-# With custom changelog
-python scripts/prepare_release.py 0.1.1 --changelog "Added new features"
-
-# Skip git status check (use with caution)
-python scripts/prepare_release.py 0.1.1 --skip-git-check
-```
-
-### Manual Commands
-
-```bash
-# Check current version
-grep 'version = ' pyproject.toml
-
-# List existing tags
-git tag -l
-
-# Check release status
-gh release list
-
-# View workflow runs
-gh run list --workflow="release.yml"
-```
-
-## Security Notes
-
-- PyPI tokens are stored as GitHub secrets
-- TestPyPI and production use separate tokens
-- Releases are only triggered by GitHub Releases (not pushes)
-- All steps are logged and auditable
+The ADRI Validator uses an automated, GitHub Release-triggered deployment pipeline with pre-filled draft releases that automatically handles TestPyPI → Production PyPI deployment with comprehensive failure recovery.
+
+## 🎯 Key Features
+
+- ✅ **Automated Draft Releases** - Pre-filled release notes on every push
+- ✅ **GitHub Release Triggered** - Select and publish from ready drafts
+- ✅ **TestPyPI → Production Pipeline** - Automatic safety validation
+- ✅ **Failure Recovery** - Automatic rollback and retry capability
+- ✅ **Version Auto-Update** - No manual version file editing required
+- ✅ **Comprehensive Testing** - Full test suite + smoke tests
+- ✅ **Smart Tag Conversion** - Candidate tags automatically converted
+- ✅ **Slack Notifications** - Success/failure alerts (configurable)
+
+## 🔄 Release Workflow
+
+### 1. **Automated Draft Preparation**
+Every push to `main` automatically:
+1. ✅ **Calculates valid next versions** from VERSION.json
+2. ✅ **Creates/updates draft releases** with pre-filled notes
+3. ✅ **Generates commit summaries** since last release
+4. ✅ **Provides ready-to-publish options**
+
+### 2. **Select and Publish Release**
+1. Go to [GitHub Releases](https://github.com/ThinkEvolveSolve/adri-validator/releases)
+2. **Select from available drafts:**
+   - 🚀 **ADRI v0.3.0 - Minor Release (DRAFT)** ← Production release
+   - 🧪 **ADRI v0.3.0-beta.1 - Beta Minor (DRAFT)** ← Beta testing
+   - 🔧 **ADRI v0.2.1 - Patch Release (DRAFT)** ← Bug fixes
+3. **Edit release notes** (add specific changes)
+4. **Click "Publish release"** to trigger deployment
+
+### 3. **Automatic Pipeline Execution**
+The workflow automatically:
+1. ✅ **Converts candidate tag** to proper release format
+2. ✅ **Validates version** against VERSION.json rules
+3. ✅ **Updates version files** (pyproject.toml, adri/version.py)
+4. ✅ **Runs full test suite** (90% coverage requirement)
+5. ✅ **Builds package** (source + wheel distributions)
+6. ✅ **Publishes to TestPyPI** first
+7. ✅ **Runs TestPyPI smoke tests** (installation + functionality)
+8. ✅ **Publishes to Production PyPI** (only if TestPyPI succeeds)
+9. ✅ **Runs Production smoke tests** (final validation)
+10. ✅ **Updates release notes** with deployment status
+11. ✅ **Sends notifications** (Slack, if configured)
+
+### 4. **Success Outcome**
+- 📦 Package available on PyPI: `pip install adri==0.3.0`
+- 🏷️ GitHub release updated with deployment status
+- 📝 Installation instructions and links provided
+- 🔔 Team notified via Slack
+- ✅ VERSION.json automatically updated for next release
+
+## 🎯 Available Release Types
+
+### **Production Releases**
+- **🔧 Patch Release** (e.g., v0.2.1) - Bug fixes only
+- **🚀 Minor Release** (e.g., v0.3.0) - New features, backward compatible
+- **💥 Major Release** (e.g., v1.0.0) - Breaking changes
+
+### **Beta Releases**
+- **🧪 Beta Patch** (e.g., v0.2.1-beta.1) - Testing bug fixes
+- **🧪 Beta Minor** (e.g., v0.3.0-beta.1) - Testing new features
+- **🧪 Beta Major** (e.g., v1.0.0-beta.1) - Testing breaking changes
+
+## 🚨 Failure Recovery
+
+### If Release Fails:
+1. **Release marked as draft** automatically
+2. **Failure details** added to release notes
+3. **Git tag preserved** (no version bump needed)
+4. **Team notified** via Slack with failure details
+
+### To Retry Failed Release:
+1. **Fix the issues** identified in workflow logs
+2. **Push fixes** to repository (if code changes needed)
+3. **Re-publish the draft release** (same version number)
+4. **Workflow re-runs automatically**
+
+## 📋 Manual Workflow Trigger (Backup)
+
+If needed, you can manually trigger the workflow:
+
+1. Go to **Actions** → **"Release to PyPI (TestPyPI → Production)"**
+2. Click **"Run workflow"**
+3. Enter **tag name**: `Release.Minor.v0.3.0`
+4. Optionally check **force republish** (if version exists)
+5. Click **"Run workflow"**
+
+## 🔧 Configuration
+
+### Required Secrets
+- `TESTPYPI` - TestPyPI API token
+- `PYPI` - Production PyPI API token
+- `SLACK_WEBHOOK_URL` - Slack notifications (optional)
+
+### Environment Protection
+- **testpypi** environment - For TestPyPI deployment
+- **production** environment - For Production PyPI deployment
+
+## 📊 Current Status
+
+### ✅ Completed Setup
+- [x] Automated draft release system (`prepare-releases.yml`)
+- [x] Enhanced release workflow (`release-to-pypi.yml`)
+- [x] Release note templates created
+- [x] Candidate tag conversion system
+- [x] Version updated to 0.3.0 (ready for release)
+- [x] Failure recovery system implemented
+- [x] TestPyPI → Production pipeline configured
+
+### 🔄 Ready for Release
+- **Version**: 0.3.0
+- **Package Name**: `adri`
+- **Installation**: `pip install adri==0.3.0`
+- **Release Type**: Minor (new features, backward compatible)
+
+## 🚀 Next Steps
+
+### To Release v0.3.0:
+1. **Push any final changes** to main branch
+2. **Check GitHub Releases** for updated draft releases
+3. **Select appropriate draft** (recommend: Minor Release)
+4. **Edit release notes** with specific changes
+5. **Publish release** to trigger deployment
+6. **Monitor workflow** in GitHub Actions
+
+### Future Releases:
+- Push code → Draft releases auto-update
+- Select appropriate draft → Edit notes → Publish
+- Version numbers automatically calculated
+- TestPyPI validation ensures production safety
+- Failure recovery allows easy retries
+
+## 🎮 User Experience
+
+**Before (Manual):**
+1. Manually create tag with complex format
+2. Manually write release notes
+3. Risk of tag format errors
+4. Manual version management
+
+**After (Automated):**
+1. Push code → See updated draft releases
+2. Select desired release type → Edit notes → Publish
+3. Zero tag format errors
+4. Automatic version management
+
+## 🔗 Useful Links
+
+- **GitHub Releases**: https://github.com/ThinkEvolveSolve/adri-validator/releases
+- **GitHub Actions**: https://github.com/ThinkEvolveSolve/adri-validator/actions
+- **PyPI Package**: https://pypi.org/project/adri/
+- **TestPyPI Package**: https://test.pypi.org/project/adri/
+- **Release Workflow**: `.github/workflows/release-to-pypi.yml`
+- **Draft Preparation**: `.github/workflows/prepare-releases.yml`
+
+## 📞 Support
+
+For issues with the release process:
+1. Check **GitHub Actions logs** for detailed error information
+2. Review **release notes** for failure details
+3. Use **manual workflow trigger** as backup
+4. Contact team via **Slack** for assistance
+
+## 🧪 Testing the Release Process
+
+### Recommended First Test:
+1. **Push a small change** to main branch
+2. **Verify draft releases** are created/updated
+3. **Publish beta release** (`v0.3.0-beta.1`) for testing
+4. **Monitor full pipeline** execution
+5. **Test installation** from both TestPyPI and PyPI
+6. **Publish production release** (`v0.3.0`) if beta succeeds
 
 ---
 
-For questions or issues with the release process, please create an issue in the repository.
+**ADRI Validator Release Process: Automated, Safe, Reliable** ✅
