@@ -275,9 +275,9 @@ class StandardGenerator:
             pattern = field_profile["pattern"]
             if "email" in pattern.lower() or "@" in pattern:
                 # Use standard email pattern
-                constraints[
-                    "pattern"
-                ] = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+                constraints["pattern"] = (
+                    "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+                )
             else:
                 constraints["pattern"] = pattern
 
