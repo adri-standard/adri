@@ -218,32 +218,17 @@ jobs:
         echo "🧪 Publishing to TestPyPI..."
 
         # Try to upload, but don't fail if version already exists
-        if twine upload --repository testpypi dist/* --verbose; then
+        if twine upload --repository testpypi dist/* --verbose 2>&1 | tee upload_output.log; then
           echo "✅ Successfully published to TestPyPI"
         else
-          echo "⚠️ Upload failed - checking if version already exists..."
+          echo "⚠️ Upload failed - checking if it's due to existing version..."
 
-          # Check if our version exists on TestPyPI
-          VERSION="${{ needs.validate-version.outputs.version }}"
-          if python -c "
-          import requests
-          try:
-              r = requests.get('https://test.pypi.org/pypi/adri/json')
-              versions = list(r.json()['releases'].keys())
-              # Check for both original and normalized versions
-              if '$VERSION' in versions or '$(python -c \"from packaging.version import Version; print(Version('$VERSION'))\")' in versions:
-                  print('Version exists on TestPyPI')
-                  exit(0)
-              else:
-                  print('Version not found on TestPyPI')
-                  exit(1)
-          except Exception as e:
-              print(f'Error checking TestPyPI: {e}')
-              exit(1)
-          "; then
+          # Check if the error is about file already existing
+          if grep -q "File already exists" upload_output.log; then
             echo "✅ Version already exists on TestPyPI - continuing with workflow"
           else
-            echo "❌ Upload failed and version not found on TestPyPI"
+            echo "❌ Upload failed for unknown reason"
+            cat upload_output.log
             exit 1
           fi
         fi
