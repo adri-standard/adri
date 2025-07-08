@@ -123,6 +123,7 @@ class StandardGenerator:
         self, thresholds: Dict[str, Any]
     ) -> Dict[str, Any]:
         """Generate dimension requirements."""
+
         # Convert percentage thresholds to 20-point scale
         def percentage_to_score(percentage: float) -> float:
             return (percentage / 100.0) * 20.0
@@ -274,9 +275,9 @@ class StandardGenerator:
             pattern = field_profile["pattern"]
             if "email" in pattern.lower() or "@" in pattern:
                 # Use standard email pattern
-                constraints["pattern"] = (
-                    "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
-                )
+                constraints[
+                    "pattern"
+                ] = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
             else:
                 constraints["pattern"] = pattern
 
