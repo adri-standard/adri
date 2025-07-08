@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-ADRI Release Rollback Script
+ADRI Release Rollback Script.
 
 This script provides comprehensive rollback functionality for ADRI releases.
 It can handle different rollback scenarios based on the publication stage.
@@ -20,20 +20,18 @@ Examples:
 """
 
 import argparse
-import json
 import os
 import re
-import subprocess
+import subprocess  # nosec B404
 import sys
-import time
 from datetime import datetime
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Tuple
 
 import requests
 
 
 class ReleaseRollback:
-    """Handles comprehensive release rollback operations."""
+    """Handle comprehensive release rollback operations."""
 
     def __init__(
         self,
@@ -42,6 +40,7 @@ class ReleaseRollback:
         force: bool = False,
         dry_run: bool = False,
     ):
+        """Initialize the rollback handler."""
         self.tag_name = tag_name
         self.reason = reason or "Manual rollback requested"
         self.force = force
@@ -107,7 +106,7 @@ class ReleaseRollback:
 
         # Check Git tag
         try:
-            result = subprocess.run(
+            result = subprocess.run(  # nosec B603 B607
                 ["git", "tag", "-l", self.tag_name],
                 capture_output=True,
                 text=True,
@@ -123,7 +122,7 @@ class ReleaseRollback:
         # Check GitHub release
         if self.github_token:
             try:
-                result = subprocess.run(
+                result = subprocess.run(  # nosec B603 B607
                     ["gh", "release", "view", self.tag_name],
                     capture_output=True,
                     text=True,
@@ -197,7 +196,7 @@ class ReleaseRollback:
 
             if not self.dry_run:
                 try:
-                    result = subprocess.run(
+                    subprocess.run(  # nosec B603 B607
                         [
                             "twine",
                             "yank",
@@ -229,7 +228,7 @@ class ReleaseRollback:
             print("🗑️ Deleting GitHub release...")
             if not self.dry_run and self.github_token:
                 try:
-                    result = subprocess.run(
+                    subprocess.run(  # nosec B603 B607
                         ["gh", "release", "delete", self.tag_name, "--yes"],
                         capture_output=True,
                         text=True,
@@ -250,7 +249,7 @@ class ReleaseRollback:
             # Delete local tag
             if not self.dry_run:
                 try:
-                    subprocess.run(
+                    subprocess.run(  # nosec B603 B607
                         ["git", "tag", "-d", self.tag_name],
                         capture_output=True,
                         text=True,
@@ -262,7 +261,7 @@ class ReleaseRollback:
 
                 # Delete remote tag
                 try:
-                    subprocess.run(
+                    subprocess.run(  # nosec B603 B607
                         ["git", "push", "origin", f":refs/tags/{self.tag_name}"],
                         capture_output=True,
                         text=True,
@@ -306,13 +305,13 @@ class ReleaseRollback:
             # Check and delete GitHub release
             if not self.dry_run and self.github_token:
                 try:
-                    result = subprocess.run(
+                    result = subprocess.run(  # nosec B603 B607
                         ["gh", "release", "view", pattern],
                         capture_output=True,
                         text=True,
                     )
                     if result.returncode == 0:
-                        subprocess.run(
+                        subprocess.run(  # nosec B603 B607
                             ["gh", "release", "delete", pattern, "--yes"],
                             capture_output=True,
                             text=True,
@@ -326,19 +325,19 @@ class ReleaseRollback:
             # Check and delete Git tag
             if not self.dry_run:
                 try:
-                    result = subprocess.run(
+                    result = subprocess.run(  # nosec B603 B607
                         ["git", "tag", "-l", pattern],
                         capture_output=True,
                         text=True,
                         check=True,
                     )
                     if result.stdout.strip():
-                        subprocess.run(
+                        subprocess.run(  # nosec B603 B607
                             ["git", "tag", "-d", pattern],
                             capture_output=True,
                             text=True,
                         )
-                        subprocess.run(
+                        subprocess.run(  # nosec B603 B607
                             ["git", "push", "origin", f":refs/tags/{pattern}"],
                             capture_output=True,
                             text=True,
@@ -411,7 +410,7 @@ class ReleaseRollback:
 
 
 def main():
-    """Main entry point."""
+    """Main entry point for the rollback script."""
     parser = argparse.ArgumentParser(
         description="ADRI Release Rollback Tool",
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -452,7 +451,9 @@ Examples:
 
         # Check for required tools
         try:
-            subprocess.run(["git", "--version"], capture_output=True, check=True)
+            subprocess.run(  # nosec B603 B607
+                ["git", "--version"], capture_output=True, check=True
+            )
         except (subprocess.CalledProcessError, FileNotFoundError):
             print("❌ Error: git is required but not available")
             sys.exit(1)
