@@ -279,6 +279,16 @@ jobs:
         # Install packaging for version normalization
         pip install packaging
 
+        # Normalize version for PyPI (rc.1 -> b1, alpha.1 -> a1, etc.)
+        NORMALIZED_VERSION=$(python -c "
+        from packaging.version import Version
+        v = Version('$VERSION')
+        print(str(v))
+        ")
+
+        echo "📋 Original version: $VERSION"
+        echo "📋 Normalized version: $NORMALIZED_VERSION"
+
         # Install from TestPyPI using normalized version
         echo "📦 Installing from TestPyPI..."
         pip install -i https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ adri==$NORMALIZED_VERSION
@@ -568,12 +578,22 @@ jobs:
 
     - name: Trigger automated rollback (pre-PyPI failures)
       if: steps.failure-stage.outputs.can_rollback == 'true'
-      uses: ./.github/workflows/rollback-release.yml
-      with:
-        tag_name: ${{ needs.validate-version.outputs.tag_name }}
-        rollback_reason: "Automated rollback due to ${{ steps.failure-stage.outputs.message }} in ${{ steps.failure-stage.outputs.stage }} stage"
-        failure_stage: ${{ steps.failure-stage.outputs.stage }}
-        force_rollback: false
+      run: |
+        echo "🔄 Triggering automated rollback..."
+        TAG_NAME="${{ needs.validate-version.outputs.tag_name }}"
+        FAILURE_STAGE="${{ steps.failure-stage.outputs.stage }}"
+        FAILURE_MESSAGE="${{ steps.failure-stage.outputs.message }}"
+
+        # Use GitHub CLI to trigger rollback workflow
+        gh workflow run rollback-release.yml \
+          --field tag_name="$TAG_NAME" \
+          --field rollback_reason="Automated rollback due to $FAILURE_MESSAGE in $FAILURE_STAGE stage" \
+          --field failure_stage="$FAILURE_STAGE" \
+          --field force_rollback="false"
+
+        echo "✅ Rollback workflow triggered"
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Mark Release as Failed (manual intervention required)
       if: steps.failure-stage.outputs.can_rollback == 'false' && github.event_name == 'release'
