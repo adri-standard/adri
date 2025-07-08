@@ -1,10 +1,10 @@
 {
-  "current_release": null,
-  "current_testpypi": "0.2.0",
+  "current_release": "2.0.0",
+  "current_testpypi": "2.0.0",
   "next_allowed": {
-    "patch": "0.2.1",
-    "minor": "0.3.0",
-    "major": "1.0.0"
+    "patch": "2.0.1",
+    "minor": "2.1.0",
+    "major": "3.0.0"
   },
   "validation_rules": {
     "tag_format": "<Release Type>.<Change Type>.v<Version>",
