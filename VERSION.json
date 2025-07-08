@@ -1,10 +1,10 @@
 {
-  "current_release": "2.0.0",
-  "current_testpypi": "2.0.0",
+  "current_release": "3.0.0",
+  "current_testpypi": "3.0.0",
   "next_allowed": {
-    "patch": "2.0.1",
-    "minor": "2.1.0",
-    "major": "3.0.0"
+    "patch": "3.0.1",
+    "minor": "3.1.0",
+    "major": "4.0.0"
   },
   "validation_rules": {
     "tag_format": "<Release Type>.<Change Type>.v<Version>",
@@ -19,10 +19,17 @@
       "date": "2025-01-07",
       "type": "testpypi",
       "notes": "Baseline version - deployed to TestPyPI only"
+    },
+    {
+      "version": "3.0.0",
+      "tag": "Release.Major.v3.0.0",
+      "date": "2025-01-08",
+      "type": "production",
+      "notes": "Major release - clean semantic versioning approach, resolved PyPI conflicts"
     }
   ],
   "metadata": {
-    "last_updated": "2025-01-08T12:56:00Z",
+    "last_updated": "2025-01-08T18:41:00Z",
     "schema_version": "1.0",
     "description": "ADRI Validator version tracking and validation system"
   }
