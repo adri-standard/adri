@@ -150,9 +150,9 @@ class TestInitImportErrorCoverage:
 
         # DataQualityAssessor succeeds
         try:
-            components[
-                "DataQualityAssessor"
-            ] = MagicMock()  # Simulate successful import
+            components["DataQualityAssessor"] = (
+                MagicMock()
+            )  # Simulate successful import
         except ImportError:
             components["DataQualityAssessor"] = None
 
