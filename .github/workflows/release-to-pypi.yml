@@ -257,16 +257,6 @@ jobs:
         echo "🧪 Running TestPyPI smoke tests..."
         VERSION="${{ needs.validate-version.outputs.version }}"
 
-        # Normalize version for PyPI (rc.1 -> b1, alpha.1 -> a1, etc.)
-        NORMALIZED_VERSION=$(python -c "
-        from packaging.version import Version
-        v = Version('$VERSION')
-        print(str(v))
-        ")
-
-        echo "📋 Original version: $VERSION"
-        echo "📋 Normalized version: $NORMALIZED_VERSION"
-
         # Wait for TestPyPI propagation
         echo "⏳ Waiting for TestPyPI propagation..."
         sleep 60
@@ -387,16 +377,6 @@ jobs:
         echo "🧪 Running Production PyPI smoke tests..."
         VERSION="${{ needs.validate-version.outputs.version }}"
 
-        # Normalize version for PyPI (rc.1 -> b1, alpha.1 -> a1, etc.)
-        NORMALIZED_VERSION=$(python -c "
-        from packaging.version import Version
-        v = Version('$VERSION')
-        print(str(v))
-        ")
-
-        echo "📋 Original version: $VERSION"
-        echo "📋 Normalized version: $NORMALIZED_VERSION"
-
         # Wait for PyPI propagation
         echo "⏳ Waiting for PyPI propagation..."
         sleep 60
@@ -408,6 +388,16 @@ jobs:
 
         # Install packaging for version normalization
         pip install packaging
+
+        # Normalize version for PyPI (rc.1 -> b1, alpha.1 -> a1, etc.)
+        NORMALIZED_VERSION=$(python -c "
+        from packaging.version import Version
+        v = Version('$VERSION')
+        print(str(v))
+        ")
+
+        echo "📋 Original version: $VERSION"
+        echo "📋 Normalized version: $NORMALIZED_VERSION"
 
         # Install from production PyPI using normalized version
         echo "📦 Installing from Production PyPI..."
