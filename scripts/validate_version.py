@@ -31,6 +31,9 @@ class VersionValidator:
 
     def __init__(self, version_file: str = "VERSION.json"):
         """Initialize validator with version tracking file."""
+        # If running from scripts directory, look in parent directory
+        if not Path(version_file).exists() and Path("../VERSION.json").exists():
+            version_file = "../VERSION.json"
         self.version_file = Path(version_file)
         self.version_data = self._load_version_data()
 
