@@ -242,6 +242,16 @@ jobs:
         echo "🧪 Running TestPyPI smoke tests..."
         VERSION="${{ needs.validate-version.outputs.version }}"
 
+        # Normalize version for PyPI (rc.1 -> b1, alpha.1 -> a1, etc.)
+        NORMALIZED_VERSION=$(python -c "
+        from packaging.version import Version
+        v = Version('$VERSION')
+        print(str(v))
+        ")
+
+        echo "📋 Original version: $VERSION"
+        echo "📋 Normalized version: $NORMALIZED_VERSION"
+
         # Wait for TestPyPI propagation
         echo "⏳ Waiting for TestPyPI propagation..."
         sleep 60
@@ -251,9 +261,12 @@ jobs:
         python -m venv testpypi_env
         source testpypi_env/bin/activate
 
-        # Install from TestPyPI
+        # Install packaging for version normalization
+        pip install packaging
+
+        # Install from TestPyPI using normalized version
         echo "📦 Installing from TestPyPI..."
-        pip install -i https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ adri==$VERSION
+        pip install -i https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ adri==$NORMALIZED_VERSION
 
         # Run comprehensive tests
         echo "✅ Running comprehensive tests..."
@@ -349,6 +362,16 @@ jobs:
         echo "🧪 Running Production PyPI smoke tests..."
         VERSION="${{ needs.validate-version.outputs.version }}"
 
+        # Normalize version for PyPI (rc.1 -> b1, alpha.1 -> a1, etc.)
+        NORMALIZED_VERSION=$(python -c "
+        from packaging.version import Version
+        v = Version('$VERSION')
+        print(str(v))
+        ")
+
+        echo "📋 Original version: $VERSION"
+        echo "📋 Normalized version: $NORMALIZED_VERSION"
+
         # Wait for PyPI propagation
         echo "⏳ Waiting for PyPI propagation..."
         sleep 60
@@ -358,9 +381,12 @@ jobs:
         python -m venv production_env
         source production_env/bin/activate
 
-        # Install from production PyPI
+        # Install packaging for version normalization
+        pip install packaging
+
+        # Install from production PyPI using normalized version
         echo "📦 Installing from Production PyPI..."
-        pip install adri==$VERSION
+        pip install adri==$NORMALIZED_VERSION
 
         # Run comprehensive tests
         echo "✅ Running comprehensive tests..."
