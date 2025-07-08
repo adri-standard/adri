@@ -41,13 +41,18 @@ class TestIsVersionCompatible:
 
     def test_same_major_version_compatible(self):
         """Test that same major version is compatible."""
-        assert version.is_version_compatible("0.1.1") is True
-        assert version.is_version_compatible("0.2.5") is True
-        assert version.is_version_compatible("0.99.99") is True
+        # Current version is 1.0.0, so major version 1 should be compatible
+        assert version.is_version_compatible("1.0.1") is True
+        assert version.is_version_compatible("1.2.5") is True
+        assert version.is_version_compatible("1.99.99") is True
 
     def test_different_major_version_incompatible(self):
         """Test that different major version is incompatible."""
-        assert version.is_version_compatible("1.0.0") is False
+        # Current version is 1.0.0, so major version 0 and 2+ should be incompatible
+        assert (
+            version.is_version_compatible("0.1.0") is True
+        )  # Exception: in compatible list
+        assert version.is_version_compatible("0.2.5") is False  # Not in compatible list
         assert version.is_version_compatible("2.0.0") is False
         assert version.is_version_compatible("3.1.0") is False
 
@@ -56,9 +61,15 @@ class TestIsVersionCompatible:
         assert version.is_version_compatible("invalid") is False
         assert version.is_version_compatible("") is False
         # These actually pass because the function only checks major version
-        assert version.is_version_compatible("0") is True  # Major version 0 matches
-        assert version.is_version_compatible("0.") is True  # Major version 0 matches
-        assert version.is_version_compatible("0.1") is True  # Major version 0 matches
+        assert (
+            version.is_version_compatible("1") is True
+        )  # Major version 1 matches current
+        assert (
+            version.is_version_compatible("1.") is True
+        )  # Major version 1 matches current
+        assert (
+            version.is_version_compatible("1.1") is True
+        )  # Major version 1 matches current
 
     def test_non_numeric_version_incompatible(self):
         """Test that non-numeric version components are incompatible."""
@@ -66,21 +77,21 @@ class TestIsVersionCompatible:
             version.is_version_compatible("a.b.c") is False
         )  # Can't parse major version
         assert (
-            version.is_version_compatible("v0.1.0") is False
+            version.is_version_compatible("v1.1.0") is False
         )  # Can't parse major version
-        # This passes because it can extract major version "0"
-        assert version.is_version_compatible("0.a.0") is True
+        # This passes because it can extract major version "1"
+        assert version.is_version_compatible("1.a.0") is True
 
     def test_version_with_extra_components(self):
         """Test versions with extra components (like pre-release)."""
         # These actually pass because the function only checks major version
-        assert version.is_version_compatible("0.1.0-alpha") is True
-        assert version.is_version_compatible("0.1.0.1") is True
+        assert version.is_version_compatible("1.1.0-alpha") is True
+        assert version.is_version_compatible("1.1.0.1") is True
 
     def test_edge_case_versions(self):
         """Test edge case version strings."""
-        assert version.is_version_compatible("0.0.0") is True  # Same major
-        assert version.is_version_compatible("1.0.0") is False  # Different major
+        assert version.is_version_compatible("1.0.0") is True  # Same major as current
+        assert version.is_version_compatible("0.1.0") is True  # In compatible list
 
 
 class TestGetScoreCompatibilityMessage:

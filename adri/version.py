@@ -22,7 +22,36 @@ def _get_version_from_metadata() -> str:
     if env_version:
         return env_version
 
-    # Try to get from package metadata
+    # Try to read from pyproject.toml first (more reliable for development)
+    try:
+        import os.path as ospath
+
+        # Look for pyproject.toml in current directory or parent directories
+        current_dir = ospath.dirname(ospath.abspath(__file__))
+        for _ in range(3):  # Check up to 3 levels up
+            pyproject_path = ospath.join(current_dir, "pyproject.toml")
+            if ospath.exists(pyproject_path):
+                try:
+                    import tomllib  # Python 3.11+
+                except ImportError:
+                    try:
+                        import tomli as tomllib  # Python < 3.11
+                    except ImportError:
+                        # If no TOML library available, parse manually
+                        with open(pyproject_path, "r") as f:
+                            for line in f:
+                                if line.strip().startswith('version = "'):
+                                    return line.split('"')[1]
+                        break
+
+                with open(pyproject_path, "rb") as f:
+                    data = tomllib.load(f)
+                    return str(data["project"]["version"])
+            current_dir = ospath.dirname(current_dir)
+    except (ImportError, FileNotFoundError, KeyError, Exception):  # nosec B110
+        pass
+
+    # Fallback: try to get from package metadata
     try:
         import importlib.metadata
 
@@ -30,21 +59,8 @@ def _get_version_from_metadata() -> str:
     except (ImportError, Exception):  # nosec B110
         pass
 
-    # Fallback: try to read from pyproject.toml
-    try:
-        try:
-            import tomllib  # Python 3.11+
-        except ImportError:
-            import tomli as tomllib  # Python < 3.11
-
-        with open("pyproject.toml", "rb") as f:
-            data = tomllib.load(f)
-            return str(data["project"]["version"])
-    except (ImportError, FileNotFoundError, KeyError, Exception):  # nosec B110
-        pass
-
     # Final fallback
-    return "0.1.2"
+    return "1.0.0"
 
 
 __version__ = _get_version_from_metadata()
@@ -71,6 +87,8 @@ def _get_compatible_versions() -> List[str]:
         base_versions = [
             "0.1.0",  # Always include initial version
             "0.1.1",  # Known compatible versions
+            "0.1.2",  # Known compatible versions
+            "1.0.0",  # Current major version
         ]
 
         # Add current version if not already included
@@ -80,7 +98,7 @@ def _get_compatible_versions() -> List[str]:
         return sorted(set(base_versions))
     except Exception:
         # Fallback to safe list
-        return ["0.1.0", "0.1.1", "0.1.2"]
+        return ["0.1.0", "0.1.1", "0.1.2", "1.0.0"]
 
 
 # Versions with compatible scoring methodology
