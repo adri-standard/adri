@@ -83,27 +83,56 @@ def _get_compatible_versions() -> List[str]:
 
     # Auto-generate based on semantic versioning
     try:
-        major, minor, patch = __version__.split(".")
+        # Handle pre-release versions (e.g., "0.3.0-beta.1")
+        version_base = __version__.split("-")[0]  # Get "0.3.0" from "0.3.0-beta.1"
+        major, minor, patch = version_base.split(".")
+
         base_versions = [
             "0.1.0",  # Always include initial version
             "0.1.1",  # Known compatible versions
             "0.1.2",  # Known compatible versions
-            "1.0.0",  # Current major version
+            "0.2.0",  # Previous release
+            "1.0.0",  # Future major version
         ]
 
-        # Add current version if not already included
-        if __version__ not in base_versions:
-            base_versions.append(__version__)
+        # Always add current version - this is critical for tests
+        base_versions.append(__version__)
 
         return sorted(set(base_versions))
     except Exception:
-        # Fallback to safe list
-        return ["0.1.0", "0.1.1", "0.1.2", "1.0.0"]
+        # Fallback to safe list that includes current version
+        fallback_versions = ["0.1.0", "0.1.1", "0.1.2", "0.2.0", "1.0.0", __version__]
+        return sorted(set(fallback_versions))
 
 
 # Versions with compatible scoring methodology
 # Reports from these versions can be directly compared
-__score_compatible_versions__ = _get_compatible_versions()
+# Note: This is calculated dynamically to handle environment variable changes
+
+
+# For backward compatibility, provide a property-like access
+class _CompatibleVersions:
+    def _get_versions(self):
+        """Get compatible versions, calculated dynamically."""
+        return _get_compatible_versions()
+
+    def __iter__(self):
+        return iter(self._get_versions())
+
+    def __contains__(self, item):
+        return item in self._get_versions()
+
+    def __getitem__(self, index):
+        return self._get_versions()[index]
+
+    def __len__(self):
+        return len(self._get_versions())
+
+    def __repr__(self):
+        return repr(self._get_versions())
+
+
+__score_compatible_versions__ = _CompatibleVersions()
 
 
 def is_version_compatible(version: str) -> bool:
@@ -121,9 +150,12 @@ def is_version_compatible(version: str) -> bool:
 
     # Parse versions - basic semver handling
     try:
-        # Simple version comparison - should be expanded with proper semver parsing
-        current_major = int(__version__.split(".")[0])
-        check_major = int(version.split(".")[0])
+        # Handle pre-release versions by extracting base version
+        current_base = __version__.split("-")[0]  # "0.3.0-beta.1" -> "0.3.0"
+        check_base = version.split("-")[0]  # "1.0.0-alpha" -> "1.0.0"
+
+        current_major = int(current_base.split(".")[0])
+        check_major = int(check_base.split(".")[0])
 
         # For now, only compatible within same major version
         return current_major == check_major
@@ -160,7 +192,7 @@ def get_version_info() -> dict:
     return {
         "version": __version__,
         "min_compatible_version": __min_compatible_version__,
-        "score_compatible_versions": __score_compatible_versions__,
+        "score_compatible_versions": list(__score_compatible_versions__),
         "is_production_ready": True,
         "api_version": "0.1",
         "standards_format_version": "1.0",
