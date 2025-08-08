@@ -1226,139 +1226,16 @@ def list_standards_command(
         print()
 
         if bundled_standards:
-            print(f"📦 Bundled Standards ({len(bundled_standards)} available)")
-            print(f"📁 Location: {loader.standards_path}")
-            print()
-
-            for i, standard_name in enumerate(bundled_standards, 1):
-                print(f"{i:2d}. {standard_name}")
-
-                if verbose:
-                    try:
-                        metadata = loader.get_standard_metadata(standard_name)
-                        print(f"    🏷️  Name: {metadata.get('name', 'Unknown')}")
-                        print(f"    🆔 ID: {metadata.get('id', 'Unknown')}")
-                        print(f"    📦 Version: {metadata.get('version', 'Unknown')}")
-                        print(
-                            f"    📄 Description: {metadata.get('description', 'No description')}"
-                        )
-
-                        # Load full standard for requirements info
-                        standard_data = loader.load_standard(standard_name)
-                        if "requirements" in standard_data:
-                            req_info = standard_data["requirements"]
-                            overall_min = req_info.get("overall_minimum", "Not set")
-                            print(f"    📊 Min Score: {overall_min}")
-
-                            field_count = len(req_info.get("field_requirements", {}))
-                            dim_count = len(req_info.get("dimension_requirements", {}))
-                            print(
-                                f"    📋 Requirements: {field_count} fields, {dim_count} dimensions"
-                            )
-
-                    except Exception as e:
-                        print(f"    ⚠️  Could not read standard details: {e}")
-
-                print()
+            _display_bundled_standards(bundled_standards, loader, verbose)
 
         # Then check for project-specific standards if config exists
         config_manager = ConfigManager()
         config = config_manager.get_active_config(config_path)
 
         if config is not None:
-            try:
-                env_config = config_manager.get_environment_config(config, environment)
-                standards_dir = env_config["paths"]["standards"]
-
-                # Find YAML standard files in project directory
-                project_standards = []
-                if os.path.exists(standards_dir):
-                    for file_path in Path(standards_dir).glob("*.yaml"):
-                        if file_path.is_file():
-                            project_standards.append(file_path)
-
-                    # Also check for .yml files
-                    for file_path in Path(standards_dir).glob("*.yml"):
-                        if file_path.is_file():
-                            project_standards.append(file_path)
-
-                if project_standards:
-                    # Sort by modification time (newest first)
-                    project_standards.sort(
-                        key=lambda x: x.stat().st_mtime, reverse=True
-                    )
-
-                    env_name = environment or config["adri"].get(
-                        "default_environment", "development"
-                    )
-                    print(f"🏗️  Project Standards ({env_name} environment)")
-                    print(f"📁 Directory: {standards_dir}")
-                    print(f"📄 Found {len(project_standards)} standard(s)")
-                    print()
-
-                    for i, file_path in enumerate(project_standards, 1):
-                        file_stats = file_path.stat()
-                        modified_time = datetime.fromtimestamp(file_stats.st_mtime)
-                        file_size = file_stats.st_size
-
-                        print(f"{i:2d}. {file_path.name}")
-                        print(
-                            f"    📅 Modified: {modified_time.strftime('%Y-%m-%d %H:%M:%S')}"
-                        )
-                        print(f"    📏 Size: {file_size:,} bytes")
-
-                        if verbose:
-                            # Try to load standard details
-                            try:
-                                with open(file_path, "r", encoding="utf-8") as f:
-                                    yaml_content = yaml.safe_load(f)
-
-                                if "standards" in yaml_content:
-                                    std_info = yaml_content["standards"]
-                                    print(
-                                        f"    🏷️  Name: {std_info.get('name', 'Unknown')}"
-                                    )
-                                    print(f"    🆔 ID: {std_info.get('id', 'Unknown')}")
-                                    print(
-                                        f"    📦 Version: {std_info.get('version', 'Unknown')}"
-                                    )
-                                    print(
-                                        f"    🏛️  Authority: {std_info.get('authority', 'Unknown')}"
-                                    )
-
-                                    if "requirements" in yaml_content:
-                                        req_info = yaml_content["requirements"]
-                                        overall_min = req_info.get(
-                                            "overall_minimum", "Not set"
-                                        )
-                                        print(f"    📊 Min Score: {overall_min}")
-
-                                        field_count = len(
-                                            req_info.get("field_requirements", {})
-                                        )
-                                        dim_count = len(
-                                            req_info.get("dimension_requirements", {})
-                                        )
-                                        print(
-                                            f"    📋 Requirements: {field_count} fields, {dim_count} dimensions"
-                                        )
-
-                            except Exception as e:
-                                print(f"    ⚠️  Could not read standard details: {e}")
-
-                        print()
-
-                elif not bundled_standards:
-                    env_name = environment or config["adri"].get(
-                        "default_environment", "development"
-                    )
-                    print(f"📋 No project standards found in {env_name} environment")
-                    print(f"📁 Directory: {standards_dir}")
-
-            except ValueError:
-                # Environment config error - just show bundled standards
-                pass
-
+            _display_project_standards(
+                config, config_manager, environment, verbose, bundled_standards
+            )
         elif not bundled_standards:
             print("📁 No ADRI configuration found and no bundled standards available")
             print("💡 Run 'adri setup' to initialize ADRI in this project")
@@ -1374,6 +1251,158 @@ def list_standards_command(
     except Exception as e:
         print(f"❌ Error: Failed to list standards: {e}")
         return 1
+
+
+def _display_bundled_standards(
+    bundled_standards: List[str], loader: Any, verbose: bool
+) -> None:
+    """Display bundled standards with optional verbose details."""
+    print(f"📦 Bundled Standards ({len(bundled_standards)} available)")
+    print(f"📁 Location: {loader.standards_path}")
+    print()
+
+    for i, standard_name in enumerate(bundled_standards, 1):
+        print(f"{i:2d}. {standard_name}")
+
+        if verbose:
+            _display_bundled_standard_details(standard_name, loader)
+
+        print()
+
+
+def _display_bundled_standard_details(standard_name: str, loader: Any) -> None:
+    """Display detailed information for a bundled standard."""
+    try:
+        metadata = loader.get_standard_metadata(standard_name)
+        print(f"    🏷️  Name: {metadata.get('name', 'Unknown')}")
+        print(f"    🆔 ID: {metadata.get('id', 'Unknown')}")
+        print(f"    📦 Version: {metadata.get('version', 'Unknown')}")
+        print(f"    📄 Description: {metadata.get('description', 'No description')}")
+
+        # Load full standard for requirements info
+        standard_data = loader.load_standard(standard_name)
+        if "requirements" in standard_data:
+            req_info = standard_data["requirements"]
+            overall_min = req_info.get("overall_minimum", "Not set")
+            print(f"    📊 Min Score: {overall_min}")
+
+            field_count = len(req_info.get("field_requirements", {}))
+            dim_count = len(req_info.get("dimension_requirements", {}))
+            print(f"    📋 Requirements: {field_count} fields, {dim_count} dimensions")
+
+    except Exception as e:
+        print(f"    ⚠️  Could not read standard details: {e}")
+
+
+def _display_project_standards(
+    config: Dict[str, Any],
+    config_manager: ConfigManager,
+    environment: Optional[str],
+    verbose: bool,
+    bundled_standards: List[str],
+) -> None:
+    """Display project-specific standards."""
+    try:
+        env_config = config_manager.get_environment_config(config, environment)
+        standards_dir = env_config["paths"]["standards"]
+
+        # Find YAML standard files in project directory
+        project_standards = _find_project_standard_files(standards_dir)
+
+        if project_standards:
+            _display_project_standard_list(
+                project_standards, environment, config, standards_dir, verbose
+            )
+        elif not bundled_standards:
+            env_name = environment or config["adri"].get(
+                "default_environment", "development"
+            )
+            print(f"📋 No project standards found in {env_name} environment")
+            print(f"📁 Directory: {standards_dir}")
+
+    except ValueError:
+        # Environment config error - just show bundled standards
+        pass
+
+
+def _find_project_standard_files(standards_dir: str) -> List[Path]:
+    """Find YAML standard files in project directory."""
+    project_standards = []
+    if os.path.exists(standards_dir):
+        for file_path in Path(standards_dir).glob("*.yaml"):
+            if file_path.is_file():
+                project_standards.append(file_path)
+
+        # Also check for .yml files
+        for file_path in Path(standards_dir).glob("*.yml"):
+            if file_path.is_file():
+                project_standards.append(file_path)
+
+    return project_standards
+
+
+def _display_project_standard_list(
+    project_standards: List[Path],
+    environment: Optional[str],
+    config: Dict[str, Any],
+    standards_dir: str,
+    verbose: bool,
+) -> None:
+    """Display list of project standards."""
+    # Sort by modification time (newest first)
+    project_standards.sort(key=lambda x: x.stat().st_mtime, reverse=True)
+
+    env_name = environment or config["adri"].get("default_environment", "development")
+    print(f"🏗️  Project Standards ({env_name} environment)")
+    print(f"📁 Directory: {standards_dir}")
+    print(f"📄 Found {len(project_standards)} standard(s)")
+    print()
+
+    for i, file_path in enumerate(project_standards, 1):
+        _display_project_standard_file(file_path, i, verbose)
+        print()
+
+
+def _display_project_standard_file(file_path: Path, index: int, verbose: bool) -> None:
+    """Display a single project standard file."""
+    file_stats = file_path.stat()
+    modified_time = datetime.fromtimestamp(file_stats.st_mtime)
+    file_size = file_stats.st_size
+
+    print(f"{index:2d}. {file_path.name}")
+    print(f"    📅 Modified: {modified_time.strftime('%Y-%m-%d %H:%M:%S')}")
+    print(f"    📏 Size: {file_size:,} bytes")
+
+    if verbose:
+        _display_project_standard_details(file_path)
+
+
+def _display_project_standard_details(file_path: Path) -> None:
+    """Display detailed information for a project standard."""
+    try:
+        with open(file_path, "r", encoding="utf-8") as f:
+            yaml_content = yaml.safe_load(f)
+
+        if "standards" in yaml_content:
+            std_info = yaml_content["standards"]
+            print(f"    🏷️  Name: {std_info.get('name', 'Unknown')}")
+            print(f"    🆔 ID: {std_info.get('id', 'Unknown')}")
+            print(f"    📦 Version: {std_info.get('version', 'Unknown')}")
+            print(f"    🏛️  Authority: {std_info.get('authority', 'Unknown')}")
+
+            if "requirements" in yaml_content:
+                req_info = yaml_content["requirements"]
+                overall_min = req_info.get("overall_minimum", "Not set")
+                print(f"    📊 Min Score: {overall_min}")
+
+                field_count = len(req_info.get("field_requirements", {}))
+                dim_count = len(req_info.get("dimension_requirements", {}))
+                print(
+                    f"    📋 Requirements: {field_count} fields, {dim_count} dimensions"
+                )
+
+    except Exception as e:
+        print(f"    ⚠️  Could not read standard details: {e}")
 
 
 def list_training_data_command(
