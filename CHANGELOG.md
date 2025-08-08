@@ -5,6 +5,24 @@ All notable changes to ADRI Validator will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.0.1] - 2025-01-08
+
+### Fixed
+- Removed unnecessary git submodule `external/adri-standards`
+- Simplified StandardsLoader to use only bundled standards
+- Fixed unused imports in CLI commands
+- Added nosec comment for intentional try/except/pass pattern
+
+### Improved
+- Easier installation process (no submodule initialization required)
+- Reduced deployment complexity
+- Cleaner codebase with all tests passing
+- Test coverage maintained at 94.10%
+
+### Changed
+- StandardsLoader now uses only bundled standards from `adri/standards/bundled/`
+- Removed dependency on external git submodule
+
 ## [0.1.1] - 2025-07-05
 
 ### Added
