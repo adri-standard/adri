@@ -14,8 +14,6 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-      with:
-        submodules: recursive
 
     - name: Set up Python
       uses: actions/setup-python@v5
@@ -130,7 +128,6 @@ jobs:
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
         ref: ${{ github.head_ref }}
-        submodules: recursive
 
     - name: Set up Python
       uses: actions/setup-python@v5
