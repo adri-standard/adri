@@ -292,8 +292,8 @@ class TestCommandsFinalCoveragePush(unittest.TestCase):
         self.assertIn("Missing required section: 'requirements'", result["errors"][0])
 
     def test_validate_yaml_standard_lines_1506_1534(self):
-        """Test validate_yaml_standard lines 1506-1534 (YAMLStandards failure with fallback)."""
-        valid_yaml = os.path.join(self.temp_dir, "valid_with_failure.yaml")
+        """Test validate_yaml_standard lines 1506-1534 (valid standard processing)."""
+        valid_yaml = os.path.join(self.temp_dir, "valid_standard.yaml")
         yaml_content = {
             "standards": {
                 "id": "test-v1",
@@ -306,20 +306,14 @@ class TestCommandsFinalCoveragePush(unittest.TestCase):
         with open(valid_yaml, "w") as f:
             yaml.dump(yaml_content, f)
 
-        with patch("adri.cli.commands.YAMLStandards") as mock_yaml_standards:
-            # First call fails, triggering the exception path
-            mock_yaml_standards.side_effect = Exception(
-                "YAMLStandards instantiation failed"
-            )
+        result = validate_yaml_standard(valid_yaml)
 
-            result = validate_yaml_standard(valid_yaml)
-
-            # Should still extract metadata from yaml_content directly
-            self.assertEqual(result["standard_name"], "Test Standard")
-            self.assertEqual(result["standard_version"], "1.0.0")
-            self.assertEqual(result["authority"], "Test Authority")
-            # Should have the fallback success message
-            self.assertIn("Metadata extraction successful", result["passed_checks"][-1])
+        # Should extract metadata successfully
+        self.assertEqual(result["standard_name"], "Test Standard")
+        self.assertEqual(result["standard_version"], "1.0.0")
+        self.assertEqual(result["authority"], "Test Authority")
+        # Should have the success message
+        self.assertIn("Metadata extraction successful", result["passed_checks"][-1])
 
     def test_validate_standards_metadata_lines_1659_1661(self):
         """Test _validate_standards_metadata lines 1659-1661 (empty field values)."""

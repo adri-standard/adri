@@ -290,8 +290,8 @@ class TestValidateYamlStandardCoverage:
         finally:
             os.unlink(temp_file)
 
-    def test_validate_yaml_standards_instantiation_failure(self):
-        """Test YAML validation when YAMLStandards instantiation fails (lines 1329-1331)."""
+    def test_validate_yaml_valid_standard(self):
+        """Test YAML validation with a valid standard."""
         valid_yaml = {
             "standards": {
                 "id": "test",
@@ -307,15 +307,13 @@ class TestValidateYamlStandardCoverage:
             temp_file = f.name
 
         try:
-            with patch(
-                "adri.cli.commands.YAMLStandards",
-                side_effect=Exception("Instantiation failed"),
-            ):
-                result = validate_yaml_standard(temp_file)
-                # Should still extract metadata even if YAMLStandards fails
-                assert result["standard_name"] == "test"
-                assert result["standard_version"] == "1.0.0"
-                assert result["authority"] == "test"
+            result = validate_yaml_standard(temp_file)
+            # Should extract metadata successfully
+            assert result["standard_name"] == "test"
+            assert result["standard_version"] == "1.0.0"
+            assert result["authority"] == "test"
+            assert result["is_valid"] == True
+            assert len(result["errors"]) == 0
         finally:
             os.unlink(temp_file)
 

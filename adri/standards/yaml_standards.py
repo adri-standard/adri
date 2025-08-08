@@ -105,7 +105,7 @@ class YAMLStandards:
         """Validate a standard structure against expected ADRI schema."""
         try:
             if not isinstance(standard_data, dict):
-                return False
+                return False  # type: ignore[unreachable]
 
             # Top-level sections
             if "standards" not in standard_data or "requirements" not in standard_data:
@@ -143,7 +143,7 @@ class YAMLStandards:
             "failed_requirements": [],  # Add this key for test compatibility
         }
 
-        if not self.standard_data:
+        if self.standard_data is None:
             compliance_result["errors"].append(
                 "No standard loaded for compliance checking"
             )
@@ -153,6 +153,7 @@ class YAMLStandards:
             return compliance_result
 
         # Check basic structure requirements
+        # Type narrowing: self.standard_data is not None here
         requirements = self.standard_data.get("requirements", {})  # type: ignore[unreachable]
 
         # Check overall score requirement

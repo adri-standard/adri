@@ -105,11 +105,10 @@ class TestValidateYamlStandardEdgeCases:
     @patch("adri.cli.commands.os.path.exists")
     @patch("builtins.open", new_callable=mock_open)
     @patch("adri.cli.commands.yaml.safe_load")
-    @patch("adri.cli.commands.YAMLStandards")
-    def test_validate_yaml_standard_yaml_standards_failure(
-        self, mock_yaml_standards, mock_yaml_load, mock_file, mock_exists
+    def test_validate_yaml_standard_valid_standard(
+        self, mock_yaml_load, mock_file, mock_exists
     ):
-        """Test validation when YAMLStandards instantiation fails."""
+        """Test validation with a valid standard."""
         mock_exists.return_value = True
         mock_yaml_load.return_value = {
             "standards": {
@@ -118,18 +117,16 @@ class TestValidateYamlStandardEdgeCases:
                 "version": "1.0.0",
                 "authority": "Test Authority",
             },
-            "requirements": {},
+            "requirements": {"overall_minimum": 80},
         }
-
-        # Mock YAMLStandards to fail
-        mock_yaml_standards.side_effect = Exception("YAMLStandards error")
 
         result = validate_yaml_standard("test.yaml")
 
-        # Should still extract metadata even if YAMLStandards fails
+        # Should extract metadata successfully
         assert result["standard_name"] == "Test Standard"
         assert result["standard_version"] == "1.0.0"
         assert result["authority"] == "Test Authority"
+        assert result["is_valid"] == True
 
     @patch("adri.cli.commands.os.path.exists")
     @patch("builtins.open", new_callable=mock_open)

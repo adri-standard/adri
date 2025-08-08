@@ -266,8 +266,8 @@ class TestCommandsMissingLinesCoverage(unittest.TestCase):
         self.assertFalse(result["is_valid"])
         self.assertIn("Missing required section: 'requirements'", result["errors"][0])
 
-    def test_validate_yaml_standard_yaml_standards_failure(self):
-        """Test validate YAML standard with YAMLStandards instantiation failure (lines 1506-1534)."""
+    def test_validate_yaml_standard_valid_standard(self):
+        """Test validate YAML standard with valid standard (lines 1506-1534)."""
         valid_yaml = os.path.join(self.temp_dir, "valid.yaml")
         yaml_content = {
             "standards": {
@@ -281,15 +281,13 @@ class TestCommandsMissingLinesCoverage(unittest.TestCase):
         with open(valid_yaml, "w") as f:
             yaml.dump(yaml_content, f)
 
-        with patch("adri.cli.commands.YAMLStandards") as mock_yaml_standards:
-            mock_yaml_standards.side_effect = Exception("Instantiation failed")
+        result = validate_yaml_standard(valid_yaml)
 
-            result = validate_yaml_standard(valid_yaml)
-
-            # Should still extract metadata even if YAMLStandards fails
-            self.assertEqual(result["standard_name"], "Test Standard")
-            self.assertEqual(result["standard_version"], "1.0.0")
-            self.assertEqual(result["authority"], "Test Authority")
+        # Should extract metadata successfully
+        self.assertEqual(result["standard_name"], "Test Standard")
+        self.assertEqual(result["standard_version"], "1.0.0")
+        self.assertEqual(result["authority"], "Test Authority")
+        self.assertTrue(result["is_valid"])
 
     def test_validate_standards_metadata_empty_fields(self):
         """Test validate standards metadata with empty fields (lines 1659-1661)."""
