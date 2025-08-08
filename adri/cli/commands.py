@@ -23,7 +23,7 @@ from ..analysis.data_profiler import DataProfiler
 from ..analysis.standard_generator import StandardGenerator
 from ..config.manager import ConfigManager
 from ..core.assessor import AssessmentEngine
-from ..standards.yaml_standards import YAMLStandards
+from ..version import __version__
 
 
 def setup_command(
@@ -201,7 +201,7 @@ def assess_command(
         # Load standard (validates it exists and is valid YAML)
         load_standard(resolved_standard_path)
 
-        # Run assessment
+        # Run assessment using the loaded standard
         engine = AssessmentEngine()
         assessment = engine.assess(data, resolved_standard_path)
 
@@ -452,6 +452,54 @@ def _resolve_standard_path(standard_path: str, env_config: Dict[str, Any]) -> st
     return standard_path
 
 
+def _resolve_standard_for_validation(standard_path: str) -> str:
+    """
+    Resolve standard path for validation, checking bundled standards first.
+
+    Args:
+        standard_path: Original standard path or standard name
+
+    Returns:
+        Resolved absolute path to standard file
+    """
+    # If absolute path or exists as-is, use it
+    if os.path.isabs(standard_path) or os.path.exists(standard_path):
+        return standard_path
+
+    # Try to load from bundled standards using StandardsLoader
+    try:
+        from ..standards.loader import StandardsLoader
+
+        loader = StandardsLoader()
+
+        # Check if it's a bundled standard (with or without .yaml extension)
+        standard_name = standard_path
+        if standard_name.endswith((".yaml", ".yml")):
+            standard_name = (
+                standard_name[:-5]
+                if standard_name.endswith(".yaml")
+                else standard_name[:-4]
+            )
+
+        if loader.standard_exists(standard_name):
+            # Return the full path to the bundled standard
+            return str(loader.standards_path / f"{standard_name}.yaml")
+
+    except Exception:  # nosec B110
+        # If StandardsLoader fails, continue with file-based resolution
+        # This is intentional - we want to fall back to file-based resolution
+        pass
+
+    # Try adding .yaml extension if not present
+    if not standard_path.endswith((".yaml", ".yml")):
+        candidate_with_ext = standard_path + ".yaml"
+        if os.path.exists(candidate_with_ext):
+            return candidate_with_ext
+
+    # Return original path (will cause FileNotFoundError later if it doesn't exist)
+    return standard_path
+
+
 def load_data(file_path: str) -> List[Dict[str, Any]]:
     """
     Load data from file (CSV, JSON, or Parquet).
@@ -575,7 +623,7 @@ def validate_standard_command(
     Validate YAML standard file.
 
     Args:
-        standard_path: Path to YAML standard file
+        standard_path: Path to YAML standard file or standard name
         verbose: Enable verbose output
         output_path: Optional path to save validation report
 
@@ -583,8 +631,11 @@ def validate_standard_command(
         Exit code: 0 for valid standard, non-zero for invalid
     """
     try:
+        # First try to resolve the standard path
+        resolved_path = _resolve_standard_for_validation(standard_path)
+
         # Load and validate standard
-        validation_result = validate_yaml_standard(standard_path)
+        validation_result = validate_yaml_standard(resolved_path)
 
         # Output results
         if validation_result["is_valid"]:
@@ -699,48 +750,14 @@ def validate_yaml_standard(file_path: str) -> Dict[str, Any]:
                 yaml_content["requirements"], validation_result
             )
 
-        # Try to instantiate YAMLStandards to catch any additional issues
-        try:
-            standard = YAMLStandards()
-            # Load the standard data into the instance
-            standard.load_standard("dummy")  # We'll use the yaml_content directly
-
-            # Extract metadata directly from yaml_content since we can't pass it to
-            # constructor
-            standards_section = yaml_content.get("standards", {})
-            validation_result["standard_name"] = standards_section.get(
-                "name", "Unknown"
-            )
-            validation_result["standard_version"] = standards_section.get(
-                "version", "Unknown"
-            )
-            validation_result["authority"] = standards_section.get(
-                "authority", "Unknown"
-            )
-            validation_result["passed_checks"].append(
-                "YAMLStandards instantiation successful"
-            )
-        except Exception as e:
-            # If YAMLStandards fails, still extract metadata directly from yaml_content
-            try:
-                standards_section = yaml_content.get("standards", {})
-                validation_result["standard_name"] = standards_section.get(
-                    "name", "Unknown"
-                )
-                validation_result["standard_version"] = standards_section.get(
-                    "version", "Unknown"
-                )
-                validation_result["authority"] = standards_section.get(
-                    "authority", "Unknown"
-                )
-                validation_result["passed_checks"].append(
-                    "Metadata extraction successful (YAMLStandards instantiation skipped)"
-                )
-            except Exception:
-                validation_result["errors"].append(
-                    f"Standards instantiation failed: {e}"
-                )
-                validation_result["is_valid"] = False
+        # Extract metadata directly from yaml_content
+        standards_section = yaml_content.get("standards", {})
+        validation_result["standard_name"] = standards_section.get("name", "Unknown")
+        validation_result["standard_version"] = standards_section.get(
+            "version", "Unknown"
+        )
+        validation_result["authority"] = standards_section.get("authority", "Unknown")
+        validation_result["passed_checks"].append("Metadata extraction successful")
 
     except Exception as e:
         validation_result["errors"].append(f"Unexpected error during validation: {e}")
@@ -1199,88 +1216,37 @@ def list_standards_command(
         Exit code: 0 for success, non-zero for error
     """
     try:
-        # Load configuration
-        config_manager = ConfigManager()
-        config = config_manager.get_active_config(config_path)
+        # First, always show bundled standards
+        from ..standards.loader import StandardsLoader
 
-        if config is None:
-            print("❌ Error: No ADRI configuration found")
-            print("💡 Run 'adri setup' to initialize ADRI in this project")
-            return 1
+        loader = StandardsLoader()
+        bundled_standards = loader.list_available_standards()
 
-        # Get environment configuration
-        try:
-            env_config = config_manager.get_environment_config(config, environment)
-        except ValueError as e:
-            print(f"❌ Error: {e}")
-            return 1
-
-        standards_dir = env_config["paths"]["standards"]
-
-        # Check if standards directory exists
-        if not os.path.exists(standards_dir):
-            print(f"📁 Standards directory not found: {standards_dir}")
-            print("💡 Run 'adri generate-standard <data-file>' to create standards")
-            return 0
-
-        # Find YAML standard files
-        standard_files = []
-        for file_path in Path(standards_dir).glob("*.yaml"):
-            if file_path.is_file():
-                standard_files.append(file_path)
-
-        # Also check for .yml files
-        for file_path in Path(standards_dir).glob("*.yml"):
-            if file_path.is_file():
-                standard_files.append(file_path)
-
-        if not standard_files:
-            env_name = environment or config["adri"].get(
-                "default_environment", "development"
-            )
-            print(f"📋 No standards found in {env_name} environment")
-            print(f"📁 Directory: {standards_dir}")
-            print("💡 Run 'adri generate-standard <data-file>' to create standards")
-            return 0
-
-        # Sort by modification time (newest first)
-        standard_files.sort(key=lambda x: x.stat().st_mtime, reverse=True)
-
-        # Display results
-        env_name = environment or config["adri"].get(
-            "default_environment", "development"
-        )
-        print(f"📋 ADRI Standards ({env_name} environment)")
-        print(f"📁 Directory: {standards_dir}")
-        print(f"📄 Found {len(standard_files)} standard(s)")
+        print("📋 ADRI Standards")
         print()
 
-        for i, file_path in enumerate(standard_files, 1):
-            file_stats = file_path.stat()
-            modified_time = datetime.fromtimestamp(file_stats.st_mtime)
-            file_size = file_stats.st_size
+        if bundled_standards:
+            print(f"📦 Bundled Standards ({len(bundled_standards)} available)")
+            print(f"📁 Location: {loader.standards_path}")
+            print()
 
-            print(f"{i:2d}. {file_path.name}")
-            print(f"    📅 Modified: {modified_time.strftime('%Y-%m-%d %H:%M:%S')}")
-            print(f"    📏 Size: {file_size:,} bytes")
+            for i, standard_name in enumerate(bundled_standards, 1):
+                print(f"{i:2d}. {standard_name}")
 
-            if verbose:
-                # Try to load standard details
-                try:
-                    with open(file_path, "r", encoding="utf-8") as f:
-                        yaml_content = yaml.safe_load(f)
-
-                    if "standards" in yaml_content:
-                        std_info = yaml_content["standards"]
-                        print(f"    🏷️  Name: {std_info.get('name', 'Unknown')}")
-                        print(f"    🆔 ID: {std_info.get('id', 'Unknown')}")
-                        print(f"    📦 Version: {std_info.get('version', 'Unknown')}")
+                if verbose:
+                    try:
+                        metadata = loader.get_standard_metadata(standard_name)
+                        print(f"    🏷️  Name: {metadata.get('name', 'Unknown')}")
+                        print(f"    🆔 ID: {metadata.get('id', 'Unknown')}")
+                        print(f"    📦 Version: {metadata.get('version', 'Unknown')}")
                         print(
-                            f"    🏛️  Authority: {std_info.get('authority', 'Unknown')}"
+                            f"    📄 Description: {metadata.get('description', 'No description')}"
                         )
 
-                        if "requirements" in yaml_content:
-                            req_info = yaml_content["requirements"]
+                        # Load full standard for requirements info
+                        standard_data = loader.load_standard(standard_name)
+                        if "requirements" in standard_data:
+                            req_info = standard_data["requirements"]
                             overall_min = req_info.get("overall_minimum", "Not set")
                             print(f"    📊 Min Score: {overall_min}")
 
@@ -1290,14 +1256,118 @@ def list_standards_command(
                                 f"    📋 Requirements: {field_count} fields, {dim_count} dimensions"
                             )
 
-                except Exception as e:
-                    print(f"    ⚠️  Could not read standard details: {e}")
+                    except Exception as e:
+                        print(f"    ⚠️  Could not read standard details: {e}")
 
-            print()
+                print()
+
+        # Then check for project-specific standards if config exists
+        config_manager = ConfigManager()
+        config = config_manager.get_active_config(config_path)
+
+        if config is not None:
+            try:
+                env_config = config_manager.get_environment_config(config, environment)
+                standards_dir = env_config["paths"]["standards"]
+
+                # Find YAML standard files in project directory
+                project_standards = []
+                if os.path.exists(standards_dir):
+                    for file_path in Path(standards_dir).glob("*.yaml"):
+                        if file_path.is_file():
+                            project_standards.append(file_path)
+
+                    # Also check for .yml files
+                    for file_path in Path(standards_dir).glob("*.yml"):
+                        if file_path.is_file():
+                            project_standards.append(file_path)
+
+                if project_standards:
+                    # Sort by modification time (newest first)
+                    project_standards.sort(
+                        key=lambda x: x.stat().st_mtime, reverse=True
+                    )
+
+                    env_name = environment or config["adri"].get(
+                        "default_environment", "development"
+                    )
+                    print(f"🏗️  Project Standards ({env_name} environment)")
+                    print(f"📁 Directory: {standards_dir}")
+                    print(f"📄 Found {len(project_standards)} standard(s)")
+                    print()
+
+                    for i, file_path in enumerate(project_standards, 1):
+                        file_stats = file_path.stat()
+                        modified_time = datetime.fromtimestamp(file_stats.st_mtime)
+                        file_size = file_stats.st_size
+
+                        print(f"{i:2d}. {file_path.name}")
+                        print(
+                            f"    📅 Modified: {modified_time.strftime('%Y-%m-%d %H:%M:%S')}"
+                        )
+                        print(f"    📏 Size: {file_size:,} bytes")
+
+                        if verbose:
+                            # Try to load standard details
+                            try:
+                                with open(file_path, "r", encoding="utf-8") as f:
+                                    yaml_content = yaml.safe_load(f)
+
+                                if "standards" in yaml_content:
+                                    std_info = yaml_content["standards"]
+                                    print(
+                                        f"    🏷️  Name: {std_info.get('name', 'Unknown')}"
+                                    )
+                                    print(f"    🆔 ID: {std_info.get('id', 'Unknown')}")
+                                    print(
+                                        f"    📦 Version: {std_info.get('version', 'Unknown')}"
+                                    )
+                                    print(
+                                        f"    🏛️  Authority: {std_info.get('authority', 'Unknown')}"
+                                    )
+
+                                    if "requirements" in yaml_content:
+                                        req_info = yaml_content["requirements"]
+                                        overall_min = req_info.get(
+                                            "overall_minimum", "Not set"
+                                        )
+                                        print(f"    📊 Min Score: {overall_min}")
+
+                                        field_count = len(
+                                            req_info.get("field_requirements", {})
+                                        )
+                                        dim_count = len(
+                                            req_info.get("dimension_requirements", {})
+                                        )
+                                        print(
+                                            f"    📋 Requirements: {field_count} fields, {dim_count} dimensions"
+                                        )
+
+                            except Exception as e:
+                                print(f"    ⚠️  Could not read standard details: {e}")
+
+                        print()
+
+                elif not bundled_standards:
+                    env_name = environment or config["adri"].get(
+                        "default_environment", "development"
+                    )
+                    print(f"📋 No project standards found in {env_name} environment")
+                    print(f"📁 Directory: {standards_dir}")
+
+            except ValueError:
+                # Environment config error - just show bundled standards
+                pass
+
+        elif not bundled_standards:
+            print("📁 No ADRI configuration found and no bundled standards available")
+            print("💡 Run 'adri setup' to initialize ADRI in this project")
+            return 1
 
         print("📋 Usage:")
         print("  • Validate: adri validate-standard <standard-name>")
         print("  • Assess: adri assess <data-file> --standard <standard-name>")
+        print("  • Generate new: adri generate-standard <data-file>")
 
         return 0
 
@@ -2483,7 +2553,7 @@ def main():
     import click
 
     @click.group()
-    @click.version_option(version="1.0.0", prog_name="adri")
+    @click.version_option(version=__version__, prog_name="adri")
     def cli():
         """ADRI - Stop Your AI Agents Breaking on Bad Data."""
         pass
@@ -2494,7 +2564,9 @@ def main():
     @click.option("--config-path", help="Custom config file location")
     def setup(force, project_name, config_path):
         """Initialize ADRI in a project."""
-        return setup_command(force, project_name, config_path)
+        exit_code = setup_command(force, project_name, config_path)
+        if exit_code != 0:
+            raise click.ClickException("Setup failed")
 
     @cli.command()
     @click.argument("data_path")
@@ -2509,9 +2581,11 @@ def main():
         data_path, standard_path, output_path, verbose, environment, config_path
     ):
         """Run data quality assessment."""
-        return assess_command(
+        exit_code = assess_command(
             data_path, standard_path, output_path, verbose, environment, config_path
         )
+        if exit_code != 0:
+            raise click.ClickException("Assessment failed")
 
     @cli.command("generate-standard")
     @click.argument("data_path")
@@ -2521,9 +2595,11 @@ def main():
     @click.option("--config", "config_path", help="Specific config file path")
     def generate_standard(data_path, force, verbose, environment, config_path):
         """Generate ADRI standard from data file analysis."""
-        return generate_adri_standard_command(
+        exit_code = generate_adri_standard_command(
             data_path, force, verbose, environment, config_path
         )
+        if exit_code != 0:
+            raise click.ClickException("Standard generation failed")
 
     @cli.command("validate-standard")
     @click.argument("standard_path")
@@ -2531,7 +2607,9 @@ def main():
     @click.option("--output", "output_path", help="Output path for validation report")
     def validate_standard(standard_path, verbose, output_path):
         """Validate YAML standard file."""
-        return validate_standard_command(standard_path, verbose, output_path)
+        exit_code = validate_standard_command(standard_path, verbose, output_path)
+        if exit_code != 0:
+            raise click.ClickException("Standard validation failed")
 
     @cli.command("list-standards")
     @click.option("--environment", help="Environment to list standards from")
@@ -2541,8 +2619,9 @@ def main():
         """List available YAML standards."""
         return list_standards_command(environment, verbose, config_path)
 
-    return cli
+    # Actually call the CLI group to execute commands
+    cli()
 
 
 if __name__ == "__main__":
-    main()()
+    main()

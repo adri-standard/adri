@@ -102,9 +102,34 @@ class YAMLStandards:
             return None
 
     def validate_standard(self, standard_data: Dict[str, Any]) -> bool:
-        """Validate a standard structure."""
-        required_fields = ["standard_id", "version", "description"]
-        return all(field in standard_data for field in required_fields)
+        """Validate a standard structure against expected ADRI schema."""
+        try:
+            if not isinstance(standard_data, dict):
+                return False
+
+            # Top-level sections
+            if "standards" not in standard_data or "requirements" not in standard_data:
+                return False
+
+            standards = standard_data["standards"]
+            requirements = standard_data["requirements"]
+
+            if not isinstance(standards, dict) or not isinstance(requirements, dict):
+                return False
+
+            # Required fields in standards
+            for field in ["id", "name", "version"]:
+                if field not in standards or not str(standards[field]).strip():
+                    return False
+
+            # Requirements must include overall_minimum
+            if "overall_minimum" not in requirements:
+                return False
+
+            # Optional sections are accepted (dimension_requirements, field_requirements)
+            return True
+        except Exception:
+            return False
 
     def check_compliance(self, report_data: Dict[str, Any]) -> Dict[str, Any]:
         """Check compliance of a report against this standard."""

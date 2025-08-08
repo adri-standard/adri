@@ -594,7 +594,8 @@ class TestCommandsMissingLinesCoverage(unittest.TestCase):
         mock_config_manager.return_value = mock_manager
 
         result = list_standards_command()
-        self.assertEqual(result, 1)
+        # Should return 0 because bundled standards are always available
+        self.assertEqual(result, 0)
 
     @patch("adri.cli.commands.ConfigManager")
     def test_list_standards_command_invalid_environment(self, mock_config_manager):
@@ -607,7 +608,8 @@ class TestCommandsMissingLinesCoverage(unittest.TestCase):
         mock_config_manager.return_value = mock_manager
 
         result = list_standards_command(environment="invalid")
-        self.assertEqual(result, 1)
+        # Should return 0 because bundled standards are still shown
+        self.assertEqual(result, 0)
 
     @patch("adri.cli.commands.ConfigManager")
     def test_list_standards_command_generic_exception(self, mock_config_manager):

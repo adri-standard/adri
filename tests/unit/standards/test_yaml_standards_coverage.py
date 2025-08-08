@@ -175,8 +175,13 @@ requirements:
 
         # Test with missing required fields
         incomplete_standard = {
-            "standard_id": "test",
-            # Missing "version" and "description"
+            "standards": {
+                "id": "test",
+                # Missing "name" and "version"
+            },
+            "requirements": {
+                "overall_minimum": 80.0,
+            },
         }
 
         result = yaml_standards.validate_standard(incomplete_standard)
@@ -184,9 +189,14 @@ requirements:
 
         # Test with all required fields
         complete_standard = {
-            "standard_id": "test",
-            "version": "1.0",
-            "description": "Test standard",
+            "standards": {
+                "id": "test",
+                "name": "Test Standard",
+                "version": "1.0.0",
+            },
+            "requirements": {
+                "overall_minimum": 80.0,
+            },
         }
 
         result = yaml_standards.validate_standard(complete_standard)

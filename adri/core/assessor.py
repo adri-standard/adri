@@ -434,16 +434,15 @@ class AssessmentEngine:
         from ..cli.commands import load_standard
 
         try:
-            yaml_standard = load_standard(standard_path)
+            yaml_dict = load_standard(standard_path)
+            standard = BundledStandardWrapper(yaml_dict)
         except Exception:
             # Fallback to basic assessment if standard can't be loaded
             return self._basic_assessment(data)
 
         # Perform assessment using the standard's requirements
-        validity_score = self._assess_validity_with_standard(data, yaml_standard)
-        completeness_score = self._assess_completeness_with_standard(
-            data, yaml_standard
-        )
+        validity_score = self._assess_validity_with_standard(data, standard)
+        completeness_score = self._assess_completeness_with_standard(data, standard)
         consistency_score = self._assess_consistency(data)  # Keep basic for now
         freshness_score = self._assess_freshness(data)  # Keep basic for now
         plausibility_score = self._assess_plausibility(data)  # Keep basic for now
@@ -461,11 +460,7 @@ class AssessmentEngine:
         overall_score = (total_score / 100.0) * 100.0  # Convert to percentage
 
         # Get minimum score from standard or use default
-        min_score = (
-            yaml_standard.get_overall_minimum()
-            if hasattr(yaml_standard, "get_overall_minimum")
-            else 75.0
-        )
+        min_score = standard.get_overall_minimum()
         passed = overall_score >= min_score
 
         return AssessmentResult(overall_score, passed, dimension_scores)

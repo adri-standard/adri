@@ -62,7 +62,8 @@ class TestListStandardsCommand(unittest.TestCase):
 
         result = list_standards_command()
 
-        self.assertEqual(result, 1)
+        # Should return 0 because bundled standards are always available
+        self.assertEqual(result, 0)
         mock_manager.get_active_config.assert_called_once()
 
     @patch("adri.cli.commands.ConfigManager")

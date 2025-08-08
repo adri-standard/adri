@@ -1,11 +1,12 @@
 """
 ADRI Standards Loader.
 
-This module provides offline-first loading of ADRI standards from the
-adri-standards submodule. No network requests are made, ensuring enterprise-friendly
+This module provides offline-first loading of ADRI standards from bundled
+standards. No network requests are made, ensuring enterprise-friendly
 operation and air-gap compatibility.
 """
 
+import os
 import threading
 from functools import lru_cache
 from pathlib import Path
@@ -22,7 +23,7 @@ from .exceptions import (
 
 class StandardsLoader:
     """
-    Loads ADRI standards from the adri-standards submodule.
+    Loads ADRI standards from bundled standards directory.
 
     This loader provides fast, offline access to all standards
     without any network dependencies. All standards are validated on
@@ -41,24 +42,24 @@ class StandardsLoader:
         return self._standards_path
 
     def _get_standards_path(self) -> Path:
-        """Get the path to the standards directory, preferring submodule over bundled over ADRI folder."""
-        # Get the package root directory (go up from adri/standards/ to package root)
-        module_dir = Path(__file__).parent.parent.parent
+        """Resolve standards directory path, using bundled standards or environment override."""
+        # Environment override first (for testing or custom standards)
+        env_path = os.getenv("ADRI_STANDARDS_PATH")
+        if env_path:
+            env_dir = Path(env_path)
+            if env_dir.exists() and env_dir.is_dir():
+                return env_dir.resolve()
 
-        # First try the submodule path
-        submodule_standards_path = (
-            module_dir / "external" / "adri-standards" / "standards" / "core"
-        )
-        if submodule_standards_path.exists() and submodule_standards_path.is_dir():
-            return submodule_standards_path.resolve()
-
-        # Second try bundled standards (for packaged installations)
+        # Use bundled standards (default for all installations)
         bundled_standards_path = Path(__file__).parent / "bundled"
         if bundled_standards_path.exists() and bundled_standards_path.is_dir():
             return bundled_standards_path.resolve()
 
-        # Fallback to ADRI folder
-        adri_standards_path = module_dir / ".." / "ADRI" / "adri" / "dev" / "standards"
+        # Get the package root directory for fallback
+        module_dir = Path(__file__).parent.parent.parent
+
+        # Fallback to ADRI/dev/standards in repo tree (development fallback)
+        adri_standards_path = module_dir / ".." / "ADRI" / "dev" / "standards"
         return adri_standards_path.resolve()
 
     def _validate_standards_directory(self):

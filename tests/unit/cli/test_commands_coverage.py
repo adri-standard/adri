@@ -588,7 +588,8 @@ class TestListCommandsCoverage:
             mock_manager.get_active_config.return_value = None
 
             result = list_standards_command()
-            assert result == 1
+            # Should return 0 because bundled standards are always available
+            assert result == 0
 
     def test_list_standards_invalid_environment(self):
         """Test list standards with invalid environment (lines 1822)."""
@@ -601,7 +602,8 @@ class TestListCommandsCoverage:
             )
 
             result = list_standards_command(environment="invalid")
-            assert result == 1
+            # Should return 0 because bundled standards are still shown
+            assert result == 0
 
     def test_list_standards_directory_not_found(self):
         """Test list standards with directory not found (lines 1825-1826)."""

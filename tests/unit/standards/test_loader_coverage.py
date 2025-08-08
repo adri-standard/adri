@@ -26,9 +26,9 @@ class TestStandardsLoaderCoverage:
     """Tests targeting specific uncovered lines in StandardsLoader."""
 
     def test_fallback_to_adri_folder_path(self):
-        """Test fallback to ADRI folder when submodule doesn't exist (lines 54-55)."""
+        """Test fallback to ADRI folder when bundled standards don't exist."""
         # This test ensures the fallback logic is executed by testing the code path
-        # We'll create a scenario where the submodule path check fails
+        # We'll create a scenario where the bundled path check fails
 
         def mock_get_standards_path(self):
             # Simulate the logic from the actual method
@@ -36,9 +36,7 @@ class TestStandardsLoaderCoverage:
 
             # Since we can't easily mock the path existence, we'll just ensure
             # the fallback path is created and returned
-            adri_standards_path = (
-                module_dir / ".." / "ADRI" / "adri" / "dev" / "standards"
-            )
+            adri_standards_path = module_dir / ".." / "ADRI" / "dev" / "standards"
             return adri_standards_path.resolve()
 
         # Test that the method can handle the fallback scenario

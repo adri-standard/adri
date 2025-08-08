@@ -765,11 +765,27 @@ class TestMainFunctionCoverage:
     """Test main function and CLI setup."""
 
     def test_main_function_returns_cli(self):
-        """Test main function returns a CLI object."""
-        # Just test that main() returns something (the click CLI)
-        # We can't easily test the click setup without importing click
-        cli = main()
-        assert cli is not None
+        """Test main function creates CLI structure."""
+        # Test that main() can be imported and contains the CLI setup
+        # We'll test this by checking that the function exists and can be called
+        # without actually executing the CLI
+
+        from adri.cli.commands import main
+
+        # Test that main function exists and is callable
+        assert callable(main)
+
+        # Test that we can patch the click execution to prevent actual CLI run
+        with patch("click.Group.main") as mock_click_main:
+            # This will prevent the actual CLI from running
+            mock_click_main.return_value = None
+
+            # Call main() - it should create the CLI structure
+            # The function doesn't return anything, it just sets up and calls the CLI
+            result = main()
+
+            # main() doesn't return anything, it just calls the CLI
+            assert result is None
 
 
 class TestDataLoadingMissingCoverage:

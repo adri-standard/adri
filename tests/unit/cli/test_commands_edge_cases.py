@@ -436,7 +436,8 @@ class TestListCommandsEdgeCases:
 
         result = list_standards_command()
 
-        assert result == 1
+        # Should return 0 because bundled standards are always available
+        assert result == 0
 
     @patch("adri.cli.commands.ConfigManager")
     @patch("adri.cli.commands.os.path.exists")

@@ -178,7 +178,7 @@ class TestEndToEndWorkflow:
                 ), f"Validate standard failed: {result.stderr}"
                 assert "✅ Standard validation PASSED" in result.stdout
                 assert "Valid YAML syntax" in result.stdout
-                assert "YAMLStandards instantiation successful" in result.stdout
+                assert "Metadata extraction successful" in result.stdout
 
                 # Step 4: Run assessment with generated standard
                 result = subprocess.run(
@@ -618,6 +618,132 @@ class TestEndToEndWorkflow:
                 for dimension, score in dimension_scores.items():
                     assert score >= 15.0, f"{dimension} score too low: {score}"
                     assert score <= 20.0, f"{dimension} score too high: {score}"
+
+            finally:
+                os.chdir(original_cwd)
+
+    def test_cli_exit_codes(self):
+        """Test that CLI commands return proper exit codes."""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            original_cwd = os.getcwd()
+            os.chdir(temp_dir)
+
+            try:
+                cli_script = Path(original_cwd) / "scripts" / "cli.py"
+
+                # Test successful setup (exit code 0)
+                result = subprocess.run(
+                    [sys.executable, str(cli_script), "setup"],
+                    capture_output=True,
+                    text=True,
+                )
+                assert result.returncode == 0, "Setup should return exit code 0"
+
+                # Test error case: generate standard from non-existent file (exit code 1)
+                result = subprocess.run(
+                    [
+                        sys.executable,
+                        str(cli_script),
+                        "generate-standard",
+                        "nonexistent.csv",
+                    ],
+                    capture_output=True,
+                    text=True,
+                )
+                assert (
+                    result.returncode == 1
+                ), "Non-existent file should return exit code 1"
+
+                # Test error case: validate non-existent standard (exit code 1)
+                result = subprocess.run(
+                    [
+                        sys.executable,
+                        str(cli_script),
+                        "validate-standard",
+                        "nonexistent.yaml",
+                    ],
+                    capture_output=True,
+                    text=True,
+                )
+                assert (
+                    result.returncode == 1
+                ), "Non-existent standard should return exit code 1"
+
+                # Test error case: assess without standard (exit code 1)
+                result = subprocess.run(
+                    [
+                        sys.executable,
+                        str(cli_script),
+                        "assess",
+                        "data.csv",
+                        "--standard",
+                        "nonexistent.yaml",
+                    ],
+                    capture_output=True,
+                    text=True,
+                )
+                assert (
+                    result.returncode == 1
+                ), "Missing standard should return exit code 1"
+
+                # Test successful workflow with proper exit codes
+                # Create test data
+                test_data = [{"id": 1, "name": "test"}]
+                import csv
+
+                csv_file = Path("ADRI/dev/training-data/test.csv")
+                csv_file.parent.mkdir(parents=True, exist_ok=True)
+                with open(csv_file, "w", newline="") as f:
+                    writer = csv.DictWriter(f, fieldnames=test_data[0].keys())
+                    writer.writeheader()
+                    writer.writerows(test_data)
+
+                # Generate standard (should return 0)
+                result = subprocess.run(
+                    [
+                        sys.executable,
+                        str(cli_script),
+                        "generate-standard",
+                        "test.csv",
+                    ],
+                    capture_output=True,
+                    text=True,
+                )
+                assert (
+                    result.returncode == 0
+                ), "Generate standard should return exit code 0"
+
+                # Validate standard (should return 0)
+                # The standard file is in ADRI/dev/standards/
+                standard_file = Path("ADRI/dev/standards/test_ADRI_standard.yaml")
+                result = subprocess.run(
+                    [
+                        sys.executable,
+                        str(cli_script),
+                        "validate-standard",
+                        str(standard_file),
+                    ],
+                    capture_output=True,
+                    text=True,
+                )
+                assert (
+                    result.returncode == 0
+                ), "Validate standard should return exit code 0"
+
+                # Assess data (should return 0)
+                result = subprocess.run(
+                    [
+                        sys.executable,
+                        str(cli_script),
+                        "assess",
+                        "test.csv",
+                        "--standard",
+                        "test_ADRI_standard.yaml",
+                    ],
+                    capture_output=True,
+                    text=True,
+                )
+                assert result.returncode == 0, "Assess should return exit code 0"
 
             finally:
                 os.chdir(original_cwd)

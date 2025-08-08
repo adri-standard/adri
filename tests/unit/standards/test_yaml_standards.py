@@ -237,9 +237,14 @@ class TestValidateStandard:
         """Test validating a valid standard."""
         standards = YAMLStandards()
         valid_standard = {
-            "standard_id": "test",
-            "version": "1.0.0",
-            "description": "Test standard",
+            "standards": {
+                "id": "test",
+                "name": "Test Standard",
+                "version": "1.0.0",
+            },
+            "requirements": {
+                "overall_minimum": 80.0,
+            },
         }
 
         result = standards.validate_standard(valid_standard)

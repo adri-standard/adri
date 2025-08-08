@@ -109,7 +109,7 @@ requirements:
             "Root dictionary structure",
             "Required section 'standards' present",
             "Required section 'requirements' present",
-            "YAMLStandards instantiation successful",
+            "Metadata extraction successful",
         ]
 
         for check in expected_checks:
