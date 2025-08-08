@@ -312,7 +312,7 @@ class TestValidateYamlStandardCoverage:
             assert result["standard_name"] == "test"
             assert result["standard_version"] == "1.0.0"
             assert result["authority"] == "test"
-            assert result["is_valid"] == True
+            assert result["is_valid"] is True
             assert len(result["errors"]) == 0
         finally:
             os.unlink(temp_file)
