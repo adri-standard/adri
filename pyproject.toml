@@ -35,7 +35,6 @@ dependencies = [
     "pyyaml>=6.0",
     "click>=8.0",
     "pyarrow>=14.0.0",  # For parquet support
-    # "adri-standards>=0.1.0",  # Temporarily commented for testing
 ]
 
 [project.optional-dependencies]

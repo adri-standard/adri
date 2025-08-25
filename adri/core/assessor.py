@@ -4,9 +4,14 @@ Basic assessment engine for ADRI V2.
 This is a simplified stub implementation for testing the configuration integration.
 """
 
+import os
+import time
 from typing import Any, Dict, List, Optional
 
 import pandas as pd
+
+from .audit_logger_csv import CSVAuditLogger
+from .verodat_logger import VerodatLogger
 
 
 class BundledStandardWrapper:
@@ -391,13 +396,35 @@ class RuleExecutionResult:
 
 
 class DataQualityAssessor:
-    """Data quality assessor for ADRI validation."""
+    """Data quality assessor for ADRI validation with integrated audit logging."""
 
-    def __init__(self):
+    def __init__(self, config: Optional[Dict[str, Any]] = None):
+        """
+        Initialize the assessor with optional configuration.
+
+        Args:
+            config: Configuration dictionary with audit and verodat settings
+        """
         self.engine = AssessmentEngine()
+        self.config = config or {}
+
+        # Initialize audit logger if configured
+        self.audit_logger = None
+        if self.config.get("audit", {}).get("enabled", False):
+            self.audit_logger = CSVAuditLogger(self.config.get("audit", {}))
+
+            # Initialize Verodat logger if configured
+            verodat_config = self.config.get("verodat", {})
+            if verodat_config.get("enabled", False):
+                # Attach Verodat logger to audit logger
+                self.audit_logger.verodat_logger = VerodatLogger(verodat_config)
 
     def assess(self, data, standard_path=None):
-        """Assess data quality using optional standard."""
+        """Assess data quality using optional standard with audit logging."""
+        # Start timing
+        start_time = time.time()
+
+        # Handle different data formats
         if hasattr(data, "to_frame"):
             # Handle pandas Series
             data = data.to_frame()
@@ -410,10 +437,74 @@ class DataQualityAssessor:
             else:
                 data = pd.DataFrame(data)
 
+        # Run assessment
         if standard_path:
-            return self.engine.assess(data, standard_path)
+            result = self.engine.assess(data, standard_path)
+            result.standard_id = os.path.basename(standard_path).replace(".yaml", "")
         else:
-            return self.engine._basic_assessment(data)
+            result = self.engine._basic_assessment(data)
+
+        # Calculate execution time
+        duration_ms = int((time.time() - start_time) * 1000)
+
+        # Log assessment if audit logger is configured
+        if self.audit_logger:
+            # Prepare execution context
+            execution_context = {
+                "function_name": "assess",
+                "module_path": "adri.core.assessor",
+                "environment": os.environ.get("ADRI_ENV", "PRODUCTION"),
+            }
+
+            # Prepare data info
+            data_info = {
+                "row_count": len(data),
+                "column_count": len(data.columns),
+                "columns": list(data.columns),
+            }
+
+            # Prepare performance metrics
+            performance_metrics = {
+                "duration_ms": duration_ms,
+                "rows_per_second": len(data) / (duration_ms / 1000.0)
+                if duration_ms > 0
+                else 0,
+            }
+
+            # Prepare failed checks (extract from dimension scores)
+            failed_checks = []
+            for dim_name, dim_score in result.dimension_scores.items():
+                if hasattr(dim_score, "score") and dim_score.score < 15:
+                    failed_checks.append(
+                        {
+                            "dimension": dim_name,
+                            "issue": f"Low score: {dim_score.score:.1f}/20",
+                            "affected_percentage": ((20 - dim_score.score) / 20) * 100,
+                        }
+                    )
+
+            # Log the assessment
+            audit_record = self.audit_logger.log_assessment(
+                assessment_result=result,
+                execution_context=execution_context,
+                data_info=data_info,
+                performance_metrics=performance_metrics,
+                failed_checks=failed_checks if failed_checks else None,
+            )
+
+            # Send to Verodat if configured
+            if (
+                hasattr(self.audit_logger, "verodat_logger")
+                and self.audit_logger.verodat_logger
+            ):
+                # Add the audit record to the batch
+                self.audit_logger.verodat_logger.add_to_batch(audit_record)
+
+                # The VerodatLogger will handle batching and auto-flush at the configured batch size
+                # For immediate upload (useful for testing), we could call flush_all() here
+                # but it's better to let it batch for performance
+
+        return result
 
 
 class AssessmentEngine:

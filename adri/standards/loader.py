@@ -55,12 +55,10 @@ class StandardsLoader:
         if bundled_standards_path.exists() and bundled_standards_path.is_dir():
             return bundled_standards_path.resolve()
 
-        # Get the package root directory for fallback
-        module_dir = Path(__file__).parent.parent.parent
-
-        # Fallback to ADRI/dev/standards in repo tree (development fallback)
-        adri_standards_path = module_dir / ".." / "ADRI" / "dev" / "standards"
-        return adri_standards_path.resolve()
+        # No fallback - bundled standards are required for standalone operation
+        raise StandardsDirectoryNotFoundError(
+            f"Bundled standards directory not found at {bundled_standards_path}"
+        )
 
     def _validate_standards_directory(self):
         """Validate that the standards directory exists."""

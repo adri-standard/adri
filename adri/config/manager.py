@@ -509,3 +509,68 @@ class ConfigManager:
             return os.path.join(f"./ADRI/{environment[:3]}/standards", standard_name)
 
         return self.resolve_standard_path(standard_name, config, environment)
+
+    def get_audit_config(self, environment: Optional[str] = None) -> Dict[str, Any]:
+        """
+        Get audit configuration with environment-specific overrides.
+
+        Args:
+            environment: Environment name, or None for current environment
+
+        Returns:
+            Audit configuration dictionary
+        """
+        config = self.get_active_config()
+        if not config:
+            # Return default audit config if no config file found
+            return {
+                "enabled": True,
+                "log_location": "./logs/adri_audit.jsonl",
+                "log_level": "INFO",
+                "include_data_samples": False,
+                "max_log_size_mb": 100,
+                "batch_mode": False,
+                "batch_size": 100,
+                "privacy_settings": {
+                    "exclude_pii": True,
+                    "hash_sensitive_fields": True,
+                },
+            }
+
+        adri_config = config.get("adri", {})
+
+        # Start with global audit config
+        audit_config_raw = adri_config.get("audit", {})
+        if isinstance(audit_config_raw, dict):
+            audit_config = audit_config_raw.copy()
+        else:
+            audit_config = {}
+
+        # Add default values if not present
+        defaults = {
+            "enabled": True,
+            "log_location": "./logs/adri_audit.jsonl",
+            "log_level": "INFO",
+            "include_data_samples": False,
+            "max_log_size_mb": 100,
+            "batch_mode": False,
+            "batch_size": 100,
+            "privacy_settings": {"exclude_pii": True, "hash_sensitive_fields": True},
+        }
+
+        for key, value in defaults.items():
+            if key not in audit_config:
+                audit_config[key] = value
+
+        # Override with environment-specific settings
+        if environment is None:
+            environment = adri_config.get("default_environment", "development")
+
+        if "environments" in adri_config and environment in adri_config["environments"]:
+            env_config = adri_config["environments"][environment]
+            if "audit" in env_config:
+                env_audit = env_config["audit"]
+                if isinstance(env_audit, dict):
+                    audit_config.update(env_audit)
+
+        return audit_config

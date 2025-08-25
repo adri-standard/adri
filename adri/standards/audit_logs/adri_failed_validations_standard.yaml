@@ -1,0 +1,225 @@
+metadata:
+  standard_id: "adri_failed_validations_standard"
+  version: "1.0.0"
+  name: "ADRI Failed Validations Standard"
+  description: "Standard for ADRI audit trail failed validation records"
+  created_date: "2025-01-11"
+  created_by: "ADRI System"
+  last_modified: "2025-01-11"
+  last_modified_by: "ADRI System"
+  tags:
+    - "audit"
+    - "compliance"
+    - "verodat"
+    - "validations"
+    - "failures"
+  category: "audit_trail"
+  domain: "data_quality"
+
+fields:
+  - name: "assessment_id"
+    type: "string"
+    required: true
+    description: "Links to parent assessment"
+    validation:
+      max_length: 255
+    foreign_key:
+      table: "adri_assessment_logs"
+      field: "assessment_id"
+
+  - name: "validation_id"
+    type: "string"
+    required: true
+    description: "Unique identifier for this validation failure"
+    validation:
+      pattern: "^val_\\d{3}$"
+      max_length: 10
+    key_component: true
+
+  - name: "dimension"
+    type: "string"
+    required: true
+    description: "Quality dimension where failure occurred"
+    validation:
+      allowed_values:
+        - "validity"
+        - "completeness"
+        - "consistency"
+        - "timeliness"
+        - "uniqueness"
+        - "unknown"
+      max_length: 50
+
+  - name: "field_name"
+    type: "string"
+    required: false
+    description: "Field name where validation failed"
+    validation:
+      max_length: 255
+
+  - name: "issue_type"
+    type: "string"
+    required: true
+    description: "Type of validation issue"
+    validation:
+      max_length: 100
+      allowed_values:
+        - "missing_value"
+        - "invalid_format"
+        - "out_of_range"
+        - "invalid_type"
+        - "duplicate_value"
+        - "referential_integrity"
+        - "business_rule_violation"
+        - "consistency_error"
+        - "unknown"
+
+  - name: "affected_rows"
+    type: "integer"
+    required: true
+    description: "Number of rows affected by this validation failure"
+    validation:
+      min_value: 0
+
+  - name: "affected_percentage"
+    type: "float"
+    required: true
+    description: "Percentage of rows affected (0-100)"
+    validation:
+      min_value: 0
+      max_value: 100
+
+  - name: "sample_failures"
+    type: "string"
+    required: false
+    description: "JSON array of sample failure cases"
+    validation:
+      max_length: 10000
+
+  - name: "remediation"
+    type: "string"
+    required: false
+    description: "Suggested remediation for this issue"
+    validation:
+      max_length: 1000
+
+  - name: "G360_VERSION_KEY"
+    type: "string"
+    required: true
+    description: "Compound key from assessment_id:validation_id"
+    validation:
+      max_length: 4000000
+    key_component: true
+    compound: true
+    compound_fields:
+      - "assessment_id"
+      - "validation_id"
+    delimiter: ":"
+
+data_rules:
+  - name: "assessment_id_exists"
+    type: "referential_integrity"
+    description: "Assessment ID must exist in parent table"
+    expression: "assessment_id in adri_assessment_logs.assessment_id"
+
+  - name: "unique_validation_per_assessment"
+    type: "uniqueness"
+    description: "Each validation_id should be unique within an assessment"
+    expression: "unique(assessment_id, validation_id)"
+
+  - name: "percentage_consistency"
+    type: "consistency"
+    description: "Affected percentage should be consistent with affected rows"
+    expression: "affected_percentage >= 0 and affected_percentage <= 100"
+
+  - name: "dimension_consistency"
+    type: "consistency"
+    description: "Dimension should match those in dimension_scores"
+    expression: "dimension in ['validity', 'completeness', 'consistency', 'timeliness', 'uniqueness', 'unknown']"
+
+quality_dimensions:
+  validity:
+    weight: 0.3
+    checks:
+      - type: "format"
+        field: "assessment_id"
+        severity: "critical"
+      - type: "format"
+        field: "validation_id"
+        severity: "critical"
+      - type: "allowed_values"
+        field: "dimension"
+        severity: "high"
+      - type: "allowed_values"
+        field: "issue_type"
+        severity: "high"
+
+  completeness:
+    weight: 0.3
+    checks:
+      - type: "not_null"
+        field: "assessment_id"
+        severity: "critical"
+      - type: "not_null"
+        field: "validation_id"
+        severity: "critical"
+      - type: "not_null"
+        field: "dimension"
+        severity: "critical"
+      - type: "not_null"
+        field: "issue_type"
+        severity: "critical"
+
+  consistency:
+    weight: 0.2
+    checks:
+      - type: "custom"
+        name: "assessment_id_exists"
+        severity: "critical"
+      - type: "custom"
+        name: "percentage_consistency"
+        severity: "medium"
+
+  uniqueness:
+    weight: 0.2
+    checks:
+      - type: "custom"
+        name: "unique_validation_per_assessment"
+        severity: "critical"
+
+performance:
+  expected_row_count: ">1000"
+  expected_update_frequency: "continuous"
+  processing_priority: "high"
+
+relationships:
+  - type: "child"
+    parent_table: "adri_assessment_logs"
+    join_key: "assessment_id"
+    cardinality: "many-to-one"
+    description: "Each assessment can have multiple validation failures"
+
+aggregations:
+  - name: "failures_by_dimension"
+    field: "dimension"
+    function: "COUNT"
+    group_by: "dimension"
+    description: "Count of failures per dimension"
+
+  - name: "failures_by_issue_type"
+    field: "issue_type"
+    function: "COUNT"
+    group_by: "issue_type"
+    description: "Count of failures per issue type"
+
+  - name: "average_affected_percentage"
+    field: "affected_percentage"
+    function: "AVG"
+    group_by: "dimension"
+    description: "Average percentage of rows affected per dimension"
+
+  - name: "total_affected_rows"
+    field: "affected_rows"
+    function: "SUM"
+    group_by: "assessment_id"
+    description: "Total rows affected per assessment"

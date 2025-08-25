@@ -16,6 +16,7 @@ import pandas as pd
 from ..analysis.standard_generator import StandardGenerator
 from ..config.manager import ConfigManager
 from ..core.assessor import AssessmentEngine
+from ..core.audit_logger import AuditLogger
 from ..standards import StandardNotFoundError, StandardsLoader
 
 logger = logging.getLogger(__name__)
@@ -44,6 +45,10 @@ class DataProtectionEngine:
         self.protection_config = self.config_manager.get_protection_config()
         self._assessment_cache = {}
         self.standards_loader = StandardsLoader()
+
+        # Initialize audit logger with audit configuration
+        audit_config = self.config_manager.get_audit_config()
+        self.audit_logger = AuditLogger(config=audit_config)
 
         logger.debug("DataProtectionEngine initialized")
 
@@ -471,27 +476,107 @@ class DataProtectionEngine:
         # Ensure standard exists
         self.ensure_standard_exists(standard, data)
 
+        # Track assessment start time for performance metrics
+        start_time = time.time()
+
         # Assess data quality
         assessment_result = self.assess_data_quality(data, standard)
+        assessment_duration = time.time() - start_time
 
         if verbose:
             logger.info(
                 f"Assessment score: {assessment_result.overall_score}/{min_score}"
             )
 
-        # Check overall score
-        if assessment_result.overall_score < min_score:
-            # Pass standard path only if standard is a string (file path)
-            standard_path = standard if isinstance(standard, str) else None
-            self.handle_quality_failure(
-                assessment_result, on_failure, min_score, standard_path
+        # Prepare audit log context
+        standard_info = {}
+        if isinstance(standard, dict):
+            standard_info = {
+                "type": "bundled",
+                "id": standard.get("standards", {}).get("id", "unknown"),
+                "name": standard.get("standards", {}).get("name", "unknown"),
+                "version": standard.get("standards", {}).get("version", "1.0.0"),
+            }
+        else:
+            standard_info = {
+                "type": "file",
+                "path": standard,
+                "name": Path(standard).stem.replace("_standard", ""),
+            }
+
+        # Check if assessment passed
+        assessment_passed = assessment_result.overall_score >= min_score
+
+        # Check dimension requirements if specified
+        dimension_failures = []
+        if dimensions and assessment_passed:
+            for dim_name, required_score in dimensions.items():
+                if dim_name in assessment_result.dimension_scores:
+                    dim_score_obj = assessment_result.dimension_scores[dim_name]
+                    actual_score = (
+                        dim_score_obj.score if hasattr(dim_score_obj, "score") else 0
+                    )
+                    if actual_score < required_score:
+                        assessment_passed = False
+                        dimension_failures.append(
+                            {
+                                "dimension": dim_name,
+                                "actual": actual_score,
+                                "required": required_score,
+                            }
+                        )
+
+        # Log the assessment to audit trail
+        try:
+            # Prepare execution context for audit logging
+            execution_context = {
+                "function_name": function_name,
+                "data_param": data_param,
+                "min_score": min_score,
+                "on_failure": on_failure,
+                "standard_info": standard_info,
+                "dimension_requirements": dimensions,
+                "dimension_failures": dimension_failures,
+                "assessment_duration": assessment_duration,
+                "assessment_passed": assessment_passed,
+            }
+
+            # Prepare data info
+            data_info = {
+                "data_shape": data.shape if isinstance(data, pd.DataFrame) else None,
+                "data_type": type(data).__name__,
+            }
+
+            if isinstance(data, pd.DataFrame):
+                data_info["row_count"] = len(data)
+                data_info["column_count"] = len(data.columns)
+                data_info["columns"] = list(data.columns)
+
+            # Log the assessment using the single log_assessment method
+            self.audit_logger.log_assessment(
+                assessment_result=assessment_result,
+                execution_context=execution_context,
+                data_info=data_info,
             )
 
-        # Check dimension-specific requirements
-        if dimensions:
-            self._check_dimension_requirements(
-                assessment_result, dimensions, on_failure
-            )
+        except Exception as e:
+            logger.warning(f"Failed to create audit log: {e}")
+            # Continue execution even if audit logging fails
+
+        # Handle failures if assessment didn't pass
+        if not assessment_passed:
+            if assessment_result.overall_score < min_score:
+                # Pass standard path only if standard is a string (file path)
+                standard_path = standard if isinstance(standard, str) else None
+                self.handle_quality_failure(
+                    assessment_result, on_failure, min_score, standard_path
+                )
+
+            # Check dimension-specific requirements
+            if dimensions:
+                self._check_dimension_requirements(
+                    assessment_result, dimensions, on_failure
+                )
 
         # Quality checks passed, execute the function
         success_message = self._format_quality_success(

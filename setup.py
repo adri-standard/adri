@@ -40,7 +40,6 @@ setup(
     ],
     python_requires=">=3.8",
     install_requires=[
-        "adri-standards>=1.0.0",
         "pandas>=1.5.0",
         "numpy>=1.20.0",
         "pyyaml>=6.0",

@@ -1,0 +1,295 @@
+metadata:
+  standard_id: "adri_assessment_logs_standard"
+  version: "1.0.0"
+  name: "ADRI Assessment Logs Standard"
+  description: "Standard for ADRI audit trail main assessment records"
+  created_date: "2025-01-11"
+  created_by: "ADRI System"
+  last_modified: "2025-01-11"
+  last_modified_by: "ADRI System"
+  tags:
+    - "audit"
+    - "compliance"
+    - "verodat"
+    - "assessment"
+  category: "audit_trail"
+  domain: "data_quality"
+
+fields:
+  - name: "assessment_id"
+    type: "string"
+    required: true
+    description: "Unique assessment identifier"
+    validation:
+      max_length: 255
+    key_component: true
+
+  - name: "log_timestamp"
+    type: "date"
+    required: true
+    description: "ISO 8601 timestamp of assessment"
+    validation:
+      format: "ISO8601"
+
+  - name: "adri_version"
+    type: "string"
+    required: true
+    description: "Version of ADRI framework used"
+    validation:
+      pattern: "^\\d+\\.\\d+\\.\\d+$"
+
+  - name: "assessment_type"
+    type: "string"
+    required: true
+    description: "Type of assessment performed"
+    validation:
+      allowed_values:
+        - "QUALITY_CHECK"
+        - "COMPLIANCE_CHECK"
+        - "DATA_VALIDATION"
+
+  - name: "function_name"
+    type: "string"
+    required: true
+    description: "Name of function being assessed"
+    validation:
+      max_length: 255
+
+  - name: "module_path"
+    type: "string"
+    required: true
+    description: "Module path of assessed function"
+    validation:
+      max_length: 500
+
+  - name: "environment"
+    type: "string"
+    required: true
+    description: "Execution environment"
+    validation:
+      allowed_values:
+        - "PRODUCTION"
+        - "STAGING"
+        - "DEVELOPMENT"
+        - "TESTING"
+        - "UNKNOWN"
+
+  - name: "hostname"
+    type: "string"
+    required: true
+    description: "Hostname where assessment was executed"
+    validation:
+      max_length: 255
+
+  - name: "process_id"
+    type: "integer"
+    required: true
+    description: "Process ID of assessment execution"
+    validation:
+      min_value: 0
+
+  - name: "standard_id"
+    type: "string"
+    required: true
+    description: "ID of ADRI standard applied"
+    validation:
+      max_length: 100
+
+  - name: "standard_version"
+    type: "string"
+    required: true
+    description: "Version of ADRI standard applied"
+    validation:
+      pattern: "^\\d+\\.\\d+\\.\\d+$|^unknown$"
+
+  - name: "standard_checksum"
+    type: "string"
+    required: false
+    description: "SHA256 checksum of standard file"
+    validation:
+      max_length: 64
+
+  - name: "data_row_count"
+    type: "integer"
+    required: true
+    description: "Number of rows in assessed dataset"
+    validation:
+      min_value: 0
+
+  - name: "data_column_count"
+    type: "integer"
+    required: true
+    description: "Number of columns in assessed dataset"
+    validation:
+      min_value: 0
+
+  - name: "data_columns"
+    type: "string"
+    required: false
+    description: "JSON array of column names"
+    validation:
+      max_length: 5000
+
+  - name: "data_checksum"
+    type: "string"
+    required: false
+    description: "Checksum of assessed data"
+    validation:
+      max_length: 64
+
+  - name: "overall_score"
+    type: "float"
+    required: true
+    description: "Overall assessment score (0-100)"
+    validation:
+      min_value: 0
+      max_value: 100
+
+  - name: "required_score"
+    type: "float"
+    required: true
+    description: "Minimum required score for passing"
+    validation:
+      min_value: 0
+      max_value: 100
+
+  - name: "passed"
+    type: "string"
+    required: true
+    description: "Whether assessment passed"
+    validation:
+      allowed_values:
+        - "TRUE"
+        - "FALSE"
+
+  - name: "execution_decision"
+    type: "string"
+    required: true
+    description: "Decision on function execution"
+    validation:
+      allowed_values:
+        - "ALLOWED"
+        - "BLOCKED"
+
+  - name: "failure_mode"
+    type: "string"
+    required: true
+    description: "Action taken on failure"
+    validation:
+      allowed_values:
+        - "raise"
+        - "warn"
+        - "log"
+
+  - name: "function_executed"
+    type: "string"
+    required: true
+    description: "Whether function was executed"
+    validation:
+      allowed_values:
+        - "TRUE"
+        - "FALSE"
+
+  - name: "assessment_duration_ms"
+    type: "integer"
+    required: true
+    description: "Assessment duration in milliseconds"
+    validation:
+      min_value: 0
+
+  - name: "rows_per_second"
+    type: "float"
+    required: false
+    description: "Processing throughput"
+    validation:
+      min_value: 0
+
+  - name: "cache_used"
+    type: "string"
+    required: true
+    description: "Whether cache was used"
+    validation:
+      allowed_values:
+        - "TRUE"
+        - "FALSE"
+
+data_rules:
+  - name: "score_consistency"
+    type: "consistency"
+    description: "If passed is TRUE, overall_score must be >= required_score"
+    expression: "if(passed == 'TRUE', overall_score >= required_score, True)"
+
+  - name: "execution_consistency"
+    type: "consistency"
+    description: "If passed is TRUE, execution_decision must be ALLOWED"
+    expression: "if(passed == 'TRUE', execution_decision == 'ALLOWED', execution_decision == 'BLOCKED')"
+
+  - name: "function_execution_consistency"
+    type: "consistency"
+    description: "If passed is TRUE, function_executed must be TRUE"
+    expression: "if(passed == 'TRUE', function_executed == 'TRUE', True)"
+
+quality_dimensions:
+  validity:
+    weight: 0.3
+    checks:
+      - type: "format"
+        field: "assessment_id"
+        severity: "critical"
+      - type: "format"
+        field: "timestamp"
+        severity: "critical"
+      - type: "allowed_values"
+        field: "environment"
+        severity: "high"
+
+  completeness:
+    weight: 0.3
+    checks:
+      - type: "not_null"
+        field: "assessment_id"
+        severity: "critical"
+      - type: "not_null"
+        field: "timestamp"
+        severity: "critical"
+      - type: "not_null"
+        field: "overall_score"
+        severity: "critical"
+
+  consistency:
+    weight: 0.2
+    checks:
+      - type: "custom"
+        name: "score_consistency"
+        severity: "high"
+      - type: "custom"
+        name: "execution_consistency"
+        severity: "high"
+
+  timeliness:
+    weight: 0.1
+    checks:
+      - type: "recency"
+        field: "timestamp"
+        max_age_hours: 168
+        severity: "low"
+
+  uniqueness:
+    weight: 0.1
+    checks:
+      - type: "unique"
+        field: "assessment_id"
+        severity: "critical"
+
+performance:
+  expected_row_count: ">100"
+  expected_update_frequency: "continuous"
+  processing_priority: "high"
+
+relationships:
+  - type: "parent"
+    description: "Parent table for dimension scores and failed validations"
+    child_tables:
+      - "adri_dimension_scores"
+      - "adri_failed_validations"
+    join_key: "assessment_id"

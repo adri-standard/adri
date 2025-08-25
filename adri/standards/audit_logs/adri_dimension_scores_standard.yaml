@@ -1,0 +1,171 @@
+metadata:
+  standard_id: "adri_dimension_scores_standard"
+  version: "1.0.0"
+  name: "ADRI Dimension Scores Standard"
+  description: "Standard for ADRI audit trail dimension score records"
+  created_date: "2025-01-11"
+  created_by: "ADRI System"
+  last_modified: "2025-01-11"
+  last_modified_by: "ADRI System"
+  tags:
+    - "audit"
+    - "compliance"
+    - "verodat"
+    - "dimensions"
+  category: "audit_trail"
+  domain: "data_quality"
+
+fields:
+  - name: "assessment_id"
+    type: "string"
+    required: true
+    description: "Links to parent assessment"
+    validation:
+      max_length: 255
+    foreign_key:
+      table: "adri_assessment_logs"
+      field: "assessment_id"
+
+  - name: "dimension_name"
+    type: "string"
+    required: true
+    description: "Name of quality dimension"
+    validation:
+      allowed_values:
+        - "validity"
+        - "completeness"
+        - "consistency"
+        - "timeliness"
+        - "uniqueness"
+      max_length: 50
+    key_component: true
+
+  - name: "dimension_score"
+    type: "float"
+    required: true
+    description: "Score for this dimension (0-20)"
+    validation:
+      min_value: 0
+      max_value: 20
+
+  - name: "dimension_passed"
+    type: "string"
+    required: true
+    description: "Whether dimension passed (score > 15)"
+    validation:
+      allowed_values:
+        - "TRUE"
+        - "FALSE"
+
+  - name: "issues_found"
+    type: "integer"
+    required: true
+    description: "Number of issues found in this dimension"
+    validation:
+      min_value: 0
+
+  - name: "details"
+    type: "string"
+    required: false
+    description: "JSON object with additional dimension details"
+    validation:
+      max_length: 5000
+
+  - name: "G360_VERSION_KEY"
+    type: "string"
+    required: true
+    description: "Compound key from assessment_id:dimension_name"
+    validation:
+      max_length: 4000000
+    key_component: true
+    compound: true
+    compound_fields:
+      - "assessment_id"
+      - "dimension_name"
+    delimiter: ":"
+
+data_rules:
+  - name: "dimension_pass_consistency"
+    type: "consistency"
+    description: "If dimension_passed is TRUE, dimension_score must be > 15"
+    expression: "if(dimension_passed == 'TRUE', dimension_score > 15, dimension_score <= 15)"
+
+  - name: "assessment_id_exists"
+    type: "referential_integrity"
+    description: "Assessment ID must exist in parent table"
+    expression: "assessment_id in adri_assessment_logs.assessment_id"
+
+  - name: "unique_dimension_per_assessment"
+    type: "uniqueness"
+    description: "Each dimension should appear once per assessment"
+    expression: "unique(assessment_id, dimension_name)"
+
+quality_dimensions:
+  validity:
+    weight: 0.3
+    checks:
+      - type: "format"
+        field: "assessment_id"
+        severity: "critical"
+      - type: "allowed_values"
+        field: "dimension_name"
+        severity: "critical"
+      - type: "range"
+        field: "dimension_score"
+        severity: "critical"
+
+  completeness:
+    weight: 0.3
+    checks:
+      - type: "not_null"
+        field: "assessment_id"
+        severity: "critical"
+      - type: "not_null"
+        field: "dimension_name"
+        severity: "critical"
+      - type: "not_null"
+        field: "dimension_score"
+        severity: "critical"
+
+  consistency:
+    weight: 0.2
+    checks:
+      - type: "custom"
+        name: "dimension_pass_consistency"
+        severity: "high"
+      - type: "custom"
+        name: "assessment_id_exists"
+        severity: "critical"
+
+  uniqueness:
+    weight: 0.2
+    checks:
+      - type: "custom"
+        name: "unique_dimension_per_assessment"
+        severity: "critical"
+
+performance:
+  expected_row_count: ">500"
+  expected_update_frequency: "continuous"
+  processing_priority: "high"
+
+relationships:
+  - type: "child"
+    parent_table: "adri_assessment_logs"
+    join_key: "assessment_id"
+    cardinality: "many-to-one"
+    description: "Each assessment has multiple dimension scores"
+
+aggregations:
+  - name: "average_dimension_score"
+    field: "dimension_score"
+    function: "AVG"
+    group_by: "dimension_name"
+    description: "Average score per dimension across all assessments"
+
+  - name: "dimension_pass_rate"
+    field: "dimension_passed"
+    function: "COUNT_IF"
+    condition: "dimension_passed == 'TRUE'"
+    group_by: "dimension_name"
+    description: "Pass rate per dimension"
