@@ -1,0 +1,296 @@
+name: Standalone Operation Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+  schedule:
+    # Run daily at 2 AM UTC to catch any dependency issues
+    - cron: '0 2 * * *'
+
+jobs:
+  verify-standalone:
+    name: Verify Standalone Operation
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ['3.10', '3.11', '3.12']
+        
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+    
+    - name: Cache pip packages
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt', '**/pyproject.toml') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+    
+    - name: Install package in standalone mode
+      run: |
+        python -m pip install --upgrade pip
+        pip install .
+        pip install pytest pytest-cov
+    
+    - name: Verify no external dependencies
+      run: |
+        python -c "import pkg_resources; pkgs = {p.key for p in pkg_resources.working_set}; assert 'adri-standards' not in pkgs, 'External adri-standards detected!'"
+    
+    - name: Run standalone verification
+      run: |
+        python -m adri.utils.verification
+    
+    - name: List bundled standards
+      run: |
+        python -c "from adri.standards.loader import list_bundled_standards; standards = list_bundled_standards(); print(f'Found {len(standards)} bundled standards'); [print(f'  - {s}') for s in standards]"
+    
+    - name: Test standards loading
+      run: |
+        python -c "
+        from adri.standards.loader import StandardsLoader
+        loader = StandardsLoader()
+        standard = loader.load_standard('test_standard')
+        print('✅ Successfully loaded test_standard')
+        "
+    
+    - name: Run standalone tests
+      run: |
+        pytest tests/test_standalone_operation.py -v --tb=short
+    
+    - name: Test decorator functionality
+      run: |
+        python -c "
+        import pandas as pd
+        from adri.decorators import adri_protected
+        
+        @adri_protected(standard='test_standard', min_score=50.0)
+        def test_func(df):
+            return df
+        
+        df = pd.DataFrame({'id': [1,2,3], 'value': [10,20,30]})
+        result = test_func(df)
+        print('✅ Decorator test passed')
+        "
+    
+    - name: Test in air-gapped simulation
+      run: |
+        python -c "
+        import os
+        # Simulate no network
+        os.environ['NO_NETWORK'] = '1'
+        
+        from adri.standards.loader import StandardsLoader
+        loader = StandardsLoader()
+        standards = loader.list_available_standards()
+        assert len(standards) > 0, 'No standards in air-gapped mode'
+        print(f'✅ Air-gapped test passed with {len(standards)} standards')
+        "
+
+  test-deployment-scenarios:
+    name: Test Deployment Scenarios
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Test pip installation
+      run: |
+        python -m venv test_env
+        source test_env/bin/activate || test_env\Scripts\activate
+        pip install .
+        python -m adri.utils.verification
+        deactivate
+    
+    - name: Test wheel build
+      run: |
+        pip install build
+        python -m build --wheel
+        ls -la dist/
+    
+    - name: Test wheel installation
+      run: |
+        python -m venv wheel_env
+        source wheel_env/bin/activate || wheel_env\Scripts\activate
+        pip install dist/*.whl
+        python -c "from adri.decorators import adri_protected; print('✅ Wheel installation successful')"
+        deactivate
+
+  test-docker-deployment:
+    name: Test Docker Deployment
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Create Dockerfile
+      run: |
+        cat > Dockerfile.test << EOF
+        FROM python:3.11-slim
+        WORKDIR /app
+        COPY . .
+        RUN pip install --no-cache-dir .
+        RUN python -m adri.utils.verification
+        CMD ["python", "-c", "from adri.standards.loader import list_bundled_standards; print(list_bundled_standards())"]
+        EOF
+    
+    - name: Build Docker image
+      run: |
+        docker build -f Dockerfile.test -t adri-validator:test .
+    
+    - name: Run Docker container
+      run: |
+        docker run --rm adri-validator:test
+
+  integration-tests:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install with test dependencies
+      run: |
+        pip install -e .[test]
+    
+    - name: Run all integration tests
+      run: |
+        pytest tests/ -v --cov=adri --cov-report=xml --cov-report=term
+    
+    - name: Upload coverage reports
+      uses: codecov/codecov-action@v3
+      if: always()
+      with:
+        file: ./coverage.xml
+        flags: integration
+        name: codecov-umbrella
+
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install security tools
+      run: |
+        pip install bandit safety pip-audit
+    
+    - name: Run Bandit security scan
+      run: |
+        bandit -r adri/ -f json -o bandit-report.json || true
+        cat bandit-report.json
+    
+    - name: Check for vulnerable dependencies
+      run: |
+        pip install .
+        safety check --json || true
+        pip-audit || true
+
+  performance-benchmark:
+    name: Performance Benchmark
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install package
+      run: |
+        pip install .[test]
+    
+    - name: Run performance benchmarks
+      run: |
+        python -c "
+        import time
+        import pandas as pd
+        from adri.standards.loader import StandardsLoader
+        
+        # Benchmark standards loading
+        loader = StandardsLoader()
+        start = time.time()
+        for _ in range(100):
+            loader.load_standard('test_standard')
+        elapsed = time.time() - start
+        print(f'Loaded standard 100 times in {elapsed:.2f}s')
+        
+        # Benchmark validation
+        from adri.decorators import adri_protected
+        
+        @adri_protected(standard='test_standard', min_score=50.0)
+        def validate(df):
+            return df
+        
+        df = pd.DataFrame({'id': range(1000), 'value': range(1000)})
+        start = time.time()
+        result = validate(df)
+        elapsed = time.time() - start
+        print(f'Validated 1000 rows in {elapsed:.2f}s')
+        "
+
+  publish-check:
+    name: Publish Readiness Check
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install build tools
+      run: |
+        pip install build twine
+    
+    - name: Build distribution
+      run: |
+        python -m build
+    
+    - name: Check distribution
+      run: |
+        twine check dist/*
+    
+    - name: Test installation from dist
+      run: |
+        python -m venv test_dist
+        source test_dist/bin/activate || test_dist\Scripts\activate
+        pip install dist/*.whl
+        python -m adri.utils.verification
+        deactivate
+    
+    - name: Archive distribution
+      uses: actions/upload-artifact@v3
+      with:
+        name: distribution
+        path: dist/

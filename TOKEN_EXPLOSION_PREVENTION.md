@@ -6,7 +6,7 @@ This document describes the measures implemented to prevent token explosion in t
 ## Problem Statement
 Performance and stress tests were causing token explosion issues due to:
 - Large dataset outputs in test failures
-- Verbose test output from hundreds/thousands of test iterations  
+- Verbose test output from hundreds/thousands of test iterations
 - Full DataFrame representations in assertion failures
 - Extensive logging during performance tests
 
@@ -21,7 +21,7 @@ Created comprehensive utilities for managing test output:
   - Configurable output limits via environment variables
   - Special handling for DataFrames, arrays, lists, and dictionaries
   - Context-aware truncation messages
-  
+
 **Environment Variables**:
 - `ADRI_TEST_MAX_OUTPUT`: Maximum characters for general output (default: 1000)
 - `ADRI_TEST_MAX_DF_ROWS`: Maximum DataFrame rows to display (default: 10)
@@ -92,7 +92,7 @@ pytest
 # Run with performance tests
 pytest --performance
 
-# Run with stress tests  
+# Run with stress tests
 pytest --stress
 
 # Run all tests
@@ -121,7 +121,7 @@ def test_with_controlled_output():
         cols=10,
         test_type='performance'
     )
-    
+
     # Use safe assertions
     try:
         assert len(data) == expected_len
@@ -129,7 +129,7 @@ def test_with_controlled_output():
         # Output will be automatically truncated
         print(OutputLimiter.truncate(data, "actual data"))
         raise
-    
+
 def test_skip_in_ci():
     skip_if_ci()  # Skip this test in CI
     # Memory-intensive test code here

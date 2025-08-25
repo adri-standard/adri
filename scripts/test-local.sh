@@ -40,11 +40,11 @@ run_check() {
     local check_name="$1"
     shift
     local command="$@"
-    
+
     echo ""
     echo "Running: $check_name"
     echo "Command: $command"
-    
+
     if eval $command; then
         print_status "$check_name passed"
     else
@@ -102,7 +102,7 @@ print_header "Test Coverage Analysis"
 if run_check "Coverage report" "pytest tests/ --cov=adri --cov-report=term-missing --cov-report=html" || true; then
     coverage_percent=$(coverage report | grep TOTAL | awk '{print $4}')
     echo "Overall coverage: $coverage_percent"
-    
+
     # Check if coverage meets minimum threshold
     coverage_value=$(echo $coverage_percent | sed 's/%//')
     if (( $(echo "$coverage_value < 80" | bc -l) )); then
@@ -126,7 +126,7 @@ missing_docstrings = []
 for root, dirs, files in os.walk('adri'):
     # Skip __pycache__ directories
     dirs[:] = [d for d in dirs if d != '__pycache__']
-    
+
     for file in files:
         if file.endswith('.py'):
             filepath = os.path.join(root, file)

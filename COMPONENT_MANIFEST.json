@@ -1,0 +1,411 @@
+{
+  "component": {
+    "name": "adri-validator",
+    "version": "3.0.1",
+    "type": "standalone",
+    "description": "AI Data Reliability Intelligence - Comprehensive data quality assessment and validation framework",
+    "repository": "https://github.com/ThinkEvolveSolve/adri-validator",
+    "license": "MIT",
+    "author": {
+      "name": "ThinkEvolveSolve",
+      "email": "info@thinkevolvesolve.com"
+    },
+    "created": "2024-05-01",
+    "updated": "2024-08-25"
+  },
+  "capabilities": {
+    "core": {
+      "data_validation": {
+        "description": "Validates data quality against YAML standards",
+        "features": [
+          "Five-dimensional assessment (validity, completeness, freshness, consistency, plausibility)",
+          "Configurable quality thresholds",
+          "Detailed failure reporting",
+          "Performance metrics tracking"
+        ]
+      },
+      "decorator_protection": {
+        "description": "Protects functions with data quality gates",
+        "features": [
+          "@adri_protected decorator",
+          "Automatic data validation before function execution",
+          "Configurable failure modes (raise, warn, log)",
+          "Result caching"
+        ]
+      },
+      "standards_management": {
+        "description": "Manages YAML validation standards",
+        "features": [
+          "15 bundled standards included",
+          "Thread-safe standard loading",
+          "Standards caching",
+          "Custom standards support via environment variable"
+        ]
+      },
+      "audit_logging": {
+        "description": "Comprehensive audit trail for assessments",
+        "features": [
+          "Structured audit records",
+          "Multiple output formats (JSON, CSV, Verodat)",
+          "Configurable log rotation",
+          "Optional external sink support"
+        ]
+      }
+    },
+    "bundled_standards": [
+      {
+        "name": "agent_input_standard",
+        "version": "1.0.0",
+        "purpose": "AI agent input validation"
+      },
+      {
+        "name": "agent_output_standard",
+        "version": "1.0.0",
+        "purpose": "AI agent output validation"
+      },
+      {
+        "name": "customer_data_standard",
+        "version": "1.0.0",
+        "purpose": "Customer data quality"
+      },
+      {
+        "name": "financial_data_standard",
+        "version": "1.0.0",
+        "purpose": "Financial data validation"
+      },
+      {
+        "name": "healthcare_data_standard",
+        "version": "1.0.0",
+        "purpose": "Healthcare data compliance"
+      },
+      {
+        "name": "inventory_data_standard",
+        "version": "1.0.0",
+        "purpose": "Inventory management"
+      },
+      {
+        "name": "marketing_analytics_standard",
+        "version": "1.0.0",
+        "purpose": "Marketing data quality"
+      },
+      {
+        "name": "product_catalog_standard",
+        "version": "1.0.0",
+        "purpose": "Product catalog validation"
+      },
+      {
+        "name": "sales_data_standard",
+        "version": "1.0.0",
+        "purpose": "Sales data validation"
+      },
+      {
+        "name": "sensor_data_standard",
+        "version": "1.0.0",
+        "purpose": "IoT sensor data"
+      },
+      {
+        "name": "supply_chain_standard",
+        "version": "1.0.0",
+        "purpose": "Supply chain data"
+      },
+      {
+        "name": "test_standard",
+        "version": "1.0.0",
+        "purpose": "Testing and development"
+      },
+      {
+        "name": "transaction_data_standard",
+        "version": "1.0.0",
+        "purpose": "Transaction validation"
+      },
+      {
+        "name": "user_activity_standard",
+        "version": "1.0.0",
+        "purpose": "User activity tracking"
+      },
+      {
+        "name": "data_validation_standard",
+        "version": "1.0.0",
+        "purpose": "General data validation"
+      }
+    ],
+    "integrations": {
+      "optional": [
+        {
+          "name": "verodat",
+          "type": "audit_sink",
+          "description": "Verodat data warehouse integration for audit logs",
+          "required_config": ["api_url", "api_key", "workspace_id", "account_id"]
+        }
+      ],
+      "protocols": [
+        {
+          "name": "ExternalIntegration",
+          "type": "abstract",
+          "methods": ["initialize", "send_data", "receive_data", "health_check", "shutdown"]
+        },
+        {
+          "name": "DataProvider",
+          "type": "protocol",
+          "methods": ["get_data", "get_metadata", "validate_schema"]
+        },
+        {
+          "name": "AuditSink",
+          "type": "protocol",
+          "methods": ["write_record", "flush", "close"]
+        }
+      ]
+    }
+  },
+  "requirements": {
+    "python": {
+      "minimum": "3.10",
+      "recommended": "3.11",
+      "tested": ["3.10", "3.11", "3.12"]
+    },
+    "dependencies": {
+      "required": {
+        "pandas": ">=1.5.0",
+        "pyyaml": ">=6.0",
+        "click": ">=8.0",
+        "pyarrow": ">=14.0.0"
+      },
+      "optional": {
+        "requests": "For Verodat integration",
+        "pytest": ">=7.0 (for testing)",
+        "black": ">=23.0 (for development)",
+        "flake8": ">=6.0 (for development)",
+        "mypy": ">=1.0 (for development)"
+      }
+    },
+    "system": {
+      "memory": {
+        "minimum": "512MB",
+        "recommended": "2GB"
+      },
+      "disk": {
+        "minimum": "100MB",
+        "recommended": "500MB"
+      },
+      "network": {
+        "required": false,
+        "note": "Works completely offline with bundled standards"
+      }
+    }
+  },
+  "configuration": {
+    "files": [
+      {
+        "name": "adri-config.yaml",
+        "location": "./",
+        "required": false,
+        "description": "Main configuration file"
+      }
+    ],
+    "environment_variables": [
+      {
+        "name": "ADRI_STANDARDS_PATH",
+        "required": false,
+        "description": "Custom standards directory path"
+      },
+      {
+        "name": "ADRI_CONFIG_PATH",
+        "required": false,
+        "description": "Custom configuration file path"
+      },
+      {
+        "name": "ADRI_ENV",
+        "required": false,
+        "default": "PRODUCTION",
+        "description": "Environment name"
+      },
+      {
+        "name": "ADRI_AUDIT_ENABLED",
+        "required": false,
+        "default": "false",
+        "description": "Enable audit logging"
+      },
+      {
+        "name": "ADRI_LOG_LEVEL",
+        "required": false,
+        "default": "INFO",
+        "description": "Logging level"
+      },
+      {
+        "name": "ADRI_CACHE_ENABLED",
+        "required": false,
+        "default": "true",
+        "description": "Enable caching"
+      }
+    ],
+    "defaults": {
+      "protection": {
+        "min_score": 75.0,
+        "failure_mode": "raise",
+        "cache_duration": 300,
+        "cache_enabled": true
+      },
+      "audit": {
+        "enabled": false,
+        "log_location": "./logs/adri_audit.jsonl",
+        "log_level": "INFO",
+        "include_data_samples": false,
+        "max_log_size_mb": 100
+      }
+    }
+  },
+  "api": {
+    "decorators": [
+      {
+        "name": "@adri_protected",
+        "module": "adri.decorators",
+        "parameters": ["standard", "data_arg", "min_score", "failure_mode", "cache_duration", "audit_enabled"]
+      }
+    ],
+    "classes": [
+      {
+        "name": "AssessmentEngine",
+        "module": "adri.core.assessor",
+        "public_methods": ["assess", "validate_schema"]
+      },
+      {
+        "name": "StandardsLoader",
+        "module": "adri.standards.loader",
+        "public_methods": ["load_standard", "list_available_standards", "get_standard_metadata", "standard_exists", "clear_cache"]
+      },
+      {
+        "name": "DataProtectionEngine",
+        "module": "adri.core.protection",
+        "public_methods": ["protect_function_call", "assess_data_quality"]
+      },
+      {
+        "name": "ConfigManager",
+        "module": "adri.config.manager",
+        "public_methods": ["get_config", "get_protection_config", "get_audit_config", "update_config"]
+      },
+      {
+        "name": "ComponentBoundary",
+        "module": "adri.core.boundary",
+        "public_methods": ["register_integration", "register_data_provider", "register_audit_sink", "health_check", "shutdown_all"]
+      }
+    ],
+    "utilities": [
+      {
+        "name": "verify_standalone_installation",
+        "module": "adri.utils.verification",
+        "returns": "Tuple[bool, List[str]]"
+      },
+      {
+        "name": "list_bundled_standards",
+        "module": "adri.utils.verification",
+        "returns": "List[Dict[str, str]]"
+      },
+      {
+        "name": "check_system_compatibility",
+        "module": "adri.utils.verification",
+        "returns": "Dict[str, Any]"
+      },
+      {
+        "name": "run_full_verification",
+        "module": "adri.utils.verification",
+        "returns": "bool"
+      }
+    ],
+    "cli_commands": [
+      {
+        "command": "adri validate",
+        "description": "Validate data file against a standard"
+      },
+      {
+        "command": "adri list-standards",
+        "description": "List all available standards"
+      },
+      {
+        "command": "adri show-standard",
+        "description": "Display details of a specific standard"
+      },
+      {
+        "command": "adri verify",
+        "description": "Verify standalone installation"
+      },
+      {
+        "command": "adri config",
+        "description": "Display current configuration"
+      }
+    ]
+  },
+  "deployment": {
+    "supported_platforms": ["Linux", "macOS", "Windows"],
+    "installation_methods": ["pip", "source", "docker", "air-gapped"],
+    "package_formats": ["wheel", "sdist"],
+    "container": {
+      "base_image": "python:3.11-slim",
+      "size_estimate": "150MB"
+    }
+  },
+  "testing": {
+    "test_coverage": {
+      "target": 90,
+      "current": null
+    },
+    "test_suites": [
+      "unit",
+      "integration",
+      "performance",
+      "standalone",
+      "security"
+    ],
+    "ci_cd": {
+      "provider": "GitHub Actions",
+      "workflows": ["standalone-test.yml"],
+      "matrix": {
+        "os": ["ubuntu-latest", "windows-latest", "macos-latest"],
+        "python": ["3.10", "3.11", "3.12"]
+      }
+    }
+  },
+  "documentation": {
+    "files": [
+      {
+        "name": "README.md",
+        "description": "Project overview and quick start"
+      },
+      {
+        "name": "docs/STANDALONE_ARCHITECTURE.md",
+        "description": "Architectural design and decisions"
+      },
+      {
+        "name": "docs/API_REFERENCE.md",
+        "description": "Complete API documentation"
+      },
+      {
+        "name": "docs/DEPLOYMENT_GUIDE.md",
+        "description": "Installation and deployment instructions"
+      },
+      {
+        "name": "CHANGELOG.md",
+        "description": "Version history and changes"
+      }
+    ]
+  },
+  "support": {
+    "repository": "https://github.com/ThinkEvolveSolve/adri-validator",
+    "issues": "https://github.com/ThinkEvolveSolve/adri-validator/issues",
+    "documentation": "https://github.com/ThinkEvolveSolve/adri-validator/blob/main/docs",
+    "contact": "info@thinkevolvesolve.com"
+  },
+  "compliance": {
+    "standalone": true,
+    "offline_capable": true,
+    "air_gap_compatible": true,
+    "no_external_dependencies": true,
+    "no_network_calls": true,
+    "audit_trail": true
+  },
+  "metadata": {
+    "manifest_version": "1.0.0",
+    "generated": "2024-08-25T16:00:00Z",
+    "generator": "manual",
+    "checksum": null
+  }
+}
