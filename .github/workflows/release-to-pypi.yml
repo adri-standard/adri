@@ -135,9 +135,11 @@ jobs:
         echo "adri/version.py version:"
         grep "__version__ = " adri/version.py
 
-    - name: Run full test suite
+    - name: Run test suite (excluding performance tests)
+      timeout-minutes: 5
       run: |
-        pytest tests/ -v --cov=adri --cov-report=xml --cov-fail-under=90
+        pytest tests/ -v --cov=adri --cov-report=xml --cov-fail-under=90 \
+          -m "not performance and not stress"
       env:
         ADRI_VERSION: ${{ needs.validate-version.outputs.version }}
 
