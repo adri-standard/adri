@@ -19,8 +19,8 @@ class TestEndToEndWorkflow:
     """Test complete ADRI workflow from data to assessment."""
 
     def test_complete_workflow_with_cli(self):
-        """
-        Test the complete workflow using CLI commands:
+        """Test the complete workflow using CLI commands.
+
         1. Setup project
         2. Generate standard from data
         3. Validate generated standard
@@ -85,8 +85,9 @@ class TestEndToEndWorkflow:
                     writer.writeheader()
                     writer.writerows(sample_data)
 
-                # Get path to CLI script
-                cli_script = Path(original_cwd) / "scripts" / "cli.py"
+                # Get path to CLI script relative to the test file
+                test_dir = Path(__file__).parent.parent.parent
+                cli_script = test_dir / "scripts" / "cli.py"
 
                 # Step 1: Setup ADRI project
                 result = subprocess.run(
@@ -261,7 +262,9 @@ class TestEndToEndWorkflow:
                 csv_content = "id,name,value\n1,test,100\n2,test2,200"
                 Path("test_data.csv").write_text(csv_content)
 
-                cli_script = Path(original_cwd) / "scripts" / "cli.py"
+                # Get path to CLI script relative to the test file
+                test_dir = Path(__file__).parent.parent.parent
+                cli_script = test_dir / "scripts" / "cli.py"
 
                 # Setup project
                 result = subprocess.run(
@@ -327,7 +330,9 @@ class TestEndToEndWorkflow:
             os.chdir(temp_dir)
 
             try:
-                cli_script = Path(original_cwd) / "scripts" / "cli.py"
+                # Get path to CLI script relative to the test file
+                test_dir = Path(__file__).parent.parent.parent
+                cli_script = test_dir / "scripts" / "cli.py"
 
                 # Setup project
                 result = subprocess.run(
@@ -408,7 +413,9 @@ class TestEndToEndWorkflow:
                     writer.writeheader()
                     writer.writerows(sample_data)
 
-                cli_script = Path(original_cwd) / "scripts" / "cli.py"
+                # Get path to CLI script relative to the test file
+                test_dir = Path(__file__).parent.parent.parent
+                cli_script = test_dir / "scripts" / "cli.py"
 
                 # Setup and generate
                 subprocess.run(
@@ -541,7 +548,9 @@ class TestEndToEndWorkflow:
                     writer.writeheader()
                     writer.writerows(high_quality_data)
 
-                cli_script = Path(original_cwd) / "scripts" / "cli.py"
+                # Get path to CLI script relative to the test file
+                test_dir = Path(__file__).parent.parent.parent
+                cli_script = test_dir / "scripts" / "cli.py"
 
                 # Setup, generate, and assess
                 subprocess.run(
@@ -629,7 +638,9 @@ class TestEndToEndWorkflow:
             os.chdir(temp_dir)
 
             try:
-                cli_script = Path(original_cwd) / "scripts" / "cli.py"
+                # Get path to CLI script relative to the test file
+                test_dir = Path(__file__).parent.parent.parent
+                cli_script = test_dir / "scripts" / "cli.py"
 
                 # Test successful setup (exit code 0)
                 result = subprocess.run(

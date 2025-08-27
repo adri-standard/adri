@@ -1,5 +1,5 @@
-"""
-Tests specifically targeting missing coverage lines in core/protection.py.
+"""Tests specifically targeting missing coverage lines in core/protection.py.
+
 Focuses on covering the uncovered lines identified in coverage analysis.
 """
 
@@ -670,7 +670,7 @@ class TestProtectFunctionCallMissingCoverage:
             }
 
     def test_protect_function_call_with_dimension_requirements(self):
-        """Test function protection with dimension-specific requirements."""
+        """Test function protection with dimension-specific requirements that fail."""
 
         def test_func(data):
             return "success"
@@ -679,7 +679,7 @@ class TestProtectFunctionCallMissingCoverage:
         mock_result = MagicMock()
         mock_result.overall_score = 85.0
         mock_result.dimension_scores = {
-            "validity": MagicMock(score=18.0),
+            "validity": MagicMock(score=12.0),  # Failing score
             "completeness": MagicMock(score=16.0),
         }
 
@@ -700,6 +700,7 @@ class TestProtectFunctionCallMissingCoverage:
             patch.object(
                 self.engine, "_format_quality_success", return_value="Success message"
             ),
+            patch.object(self.engine.audit_logger, "log_assessment"),
         ):
             result = self.engine.protect_function_call(
                 test_func,

@@ -68,7 +68,9 @@ class TestStandardsLoaderCoverage:
             with pytest.raises(StandardsDirectoryNotFoundError) as exc_info:
                 StandardsLoader()
 
-            assert "not a directory" in str(exc_info.value)
+            # When is_dir returns False in _get_standards_path, it raises
+            # "Bundled standards directory not found at..."
+            assert "Bundled standards directory not found" in str(exc_info.value)
 
     def test_load_standard_general_exception_handling(self):
         """Test general exception handling in load_standard (lines 102-103)."""

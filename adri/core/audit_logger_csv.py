@@ -13,7 +13,7 @@ import socket
 import threading
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional
 
 from adri.version import __version__
 
@@ -516,3 +516,7 @@ class CSVAuditLogger:
 
             # Reinitialize with headers
             self._initialize_csv_files()
+
+
+# Add alias for backward compatibility
+AuditLoggerCSV = CSVAuditLogger
