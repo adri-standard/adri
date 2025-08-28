@@ -9,10 +9,68 @@ import os
 import subprocess
 import sys
 import tempfile
+from functools import lru_cache
 from pathlib import Path
 
 import pytest
 import yaml
+
+
+@lru_cache(maxsize=1)
+def get_cli_script_path() -> Path:
+    """Get the path to the CLI script with robust discovery.
+
+    This function tries multiple methods to find the CLI script:
+    1. Look for project root markers and navigate from there
+    2. Use environment variables if set
+    3. Try relative paths from the test file
+
+    Returns:
+        Path to the CLI script
+
+    Raises:
+        FileNotFoundError: If the CLI script cannot be found
+    """
+    # Method 1: Find project root by looking for marker files
+    current = Path(__file__).resolve()
+
+    # Walk up the directory tree looking for project markers
+    for parent in current.parents:
+        # Check for pyproject.toml or setup.py as project root markers
+        if (parent / "pyproject.toml").exists() or (parent / "setup.py").exists():
+            cli_script = parent / "scripts" / "cli.py"
+            if cli_script.exists():
+                return cli_script
+
+    # Method 2: Check if there's an environment variable pointing to the project
+    if "ADRI_VALIDATOR_ROOT" in os.environ:
+        root = Path(os.environ["ADRI_VALIDATOR_ROOT"])
+        cli_script = root / "scripts" / "cli.py"
+        if cli_script.exists():
+            return cli_script
+
+    # Method 3: Try the original relative path (for backwards compatibility)
+    test_dir = Path(__file__).parent.parent.parent
+    cli_script = test_dir / "scripts" / "cli.py"
+    if cli_script.exists():
+        return cli_script
+
+    # Method 4: Try to find it relative to the current working directory
+    cwd = Path.cwd()
+    for possible_root in [cwd, cwd / "adri-validator"]:
+        cli_script = possible_root / "scripts" / "cli.py"
+        if cli_script.exists():
+            return cli_script
+
+    # If we get here, we couldn't find the script
+    raise FileNotFoundError(
+        f"Could not find cli.py script. Searched in:\n"
+        f"  - Project root (found by markers)\n"
+        f"  - $ADRI_VALIDATOR_ROOT environment variable\n"
+        f"  - Relative to test file: {test_dir}\n"
+        f"  - Current working directory: {cwd}\n"
+        f"Please ensure you're running tests from the project root or set ADRI_VALIDATOR_ROOT."
+    )
 
 
 class TestEndToEndWorkflow:
@@ -85,9 +143,8 @@ class TestEndToEndWorkflow:
                     writer.writeheader()
                     writer.writerows(sample_data)
 
-                # Get path to CLI script relative to the test file
-                test_dir = Path(__file__).parent.parent.parent
-                cli_script = test_dir / "scripts" / "cli.py"
+                # Get path to CLI script using robust discovery
+                cli_script = get_cli_script_path()
 
                 # Step 1: Setup ADRI project
                 result = subprocess.run(
@@ -262,9 +319,8 @@ class TestEndToEndWorkflow:
                 csv_content = "id,name,value\n1,test,100\n2,test2,200"
                 Path("test_data.csv").write_text(csv_content)
 
-                # Get path to CLI script relative to the test file
-                test_dir = Path(__file__).parent.parent.parent
-                cli_script = test_dir / "scripts" / "cli.py"
+                # Get path to CLI script using robust discovery
+                cli_script = get_cli_script_path()
 
                 # Setup project
                 result = subprocess.run(
@@ -330,9 +386,8 @@ class TestEndToEndWorkflow:
             os.chdir(temp_dir)
 
             try:
-                # Get path to CLI script relative to the test file
-                test_dir = Path(__file__).parent.parent.parent
-                cli_script = test_dir / "scripts" / "cli.py"
+                # Get path to CLI script using robust discovery
+                cli_script = get_cli_script_path()
 
                 # Setup project
                 result = subprocess.run(
@@ -413,9 +468,8 @@ class TestEndToEndWorkflow:
                     writer.writeheader()
                     writer.writerows(sample_data)
 
-                # Get path to CLI script relative to the test file
-                test_dir = Path(__file__).parent.parent.parent
-                cli_script = test_dir / "scripts" / "cli.py"
+                # Get path to CLI script using robust discovery
+                cli_script = get_cli_script_path()
 
                 # Setup and generate
                 subprocess.run(
@@ -548,9 +602,8 @@ class TestEndToEndWorkflow:
                     writer.writeheader()
                     writer.writerows(high_quality_data)
 
-                # Get path to CLI script relative to the test file
-                test_dir = Path(__file__).parent.parent.parent
-                cli_script = test_dir / "scripts" / "cli.py"
+                # Get path to CLI script using robust discovery
+                cli_script = get_cli_script_path()
 
                 # Setup, generate, and assess
                 subprocess.run(
@@ -638,9 +691,8 @@ class TestEndToEndWorkflow:
             os.chdir(temp_dir)
 
             try:
-                # Get path to CLI script relative to the test file
-                test_dir = Path(__file__).parent.parent.parent
-                cli_script = test_dir / "scripts" / "cli.py"
+                # Get path to CLI script using robust discovery
+                cli_script = get_cli_script_path()
 
                 # Test successful setup (exit code 0)
                 result = subprocess.run(

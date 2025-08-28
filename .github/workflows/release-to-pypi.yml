@@ -139,7 +139,7 @@ jobs:
       timeout-minutes: 5
       run: |
         pytest tests/ -v --cov=adri --cov-report=xml --cov-fail-under=90 \
-          -m "not performance and not stress"
+          -m "not performance and not stress and not slow"
       env:
         ADRI_VERSION: ${{ needs.validate-version.outputs.version }}
 

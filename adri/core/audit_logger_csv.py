@@ -30,9 +30,9 @@ class AuditRecord:
         # Initialize all required sections
         self.assessment_metadata = {
             "assessment_id": assessment_id,
-            "timestamp": timestamp.isoformat()
-            if timestamp
-            else datetime.now().isoformat(),
+            "timestamp": (
+                timestamp.isoformat() if timestamp else datetime.now().isoformat()
+            ),
             "adri_version": adri_version,
             "assessment_type": "QUALITY_CHECK",
         }
@@ -129,9 +129,9 @@ class AuditRecord:
             "passed": "TRUE" if self.assessment_results["passed"] else "FALSE",
             "execution_decision": self.assessment_results["execution_decision"],
             "failure_mode": self.action_taken["failure_mode"],
-            "function_executed": "TRUE"
-            if self.action_taken["function_executed"]
-            else "FALSE",
+            "function_executed": (
+                "TRUE" if self.action_taken["function_executed"] else "FALSE"
+            ),
             "assessment_duration_ms": self.performance_metrics[
                 "assessment_duration_ms"
             ],
@@ -514,8 +514,29 @@ class CSVAuditLogger:
                 if file_path.exists():
                     file_path.unlink()
 
-            # Reinitialize with headers
-            self._initialize_csv_files()
+            # Reinitialize with headers (without re-acquiring lock)
+            # Ensure log directory exists
+            self.log_dir.mkdir(parents=True, exist_ok=True)
+
+            # Initialize assessment log file
+            if not self.assessment_log_path.exists():
+                with open(self.assessment_log_path, "w", newline="") as f:
+                    writer = csv.DictWriter(f, fieldnames=self.ASSESSMENT_LOG_HEADERS)
+                    writer.writeheader()
+
+            # Initialize dimension score file
+            if not self.dimension_score_path.exists():
+                with open(self.dimension_score_path, "w", newline="") as f:
+                    writer = csv.DictWriter(f, fieldnames=self.DIMENSION_SCORE_HEADERS)
+                    writer.writeheader()
+
+            # Initialize failed validation file
+            if not self.failed_validation_path.exists():
+                with open(self.failed_validation_path, "w", newline="") as f:
+                    writer = csv.DictWriter(
+                        f, fieldnames=self.FAILED_VALIDATION_HEADERS
+                    )
+                    writer.writeheader()
 
 
 # Add alias for backward compatibility

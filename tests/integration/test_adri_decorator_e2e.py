@@ -589,7 +589,7 @@ class TestADRIDecoratorE2E:
                     kwargs={},
                     data_param="data",
                     function_name="process_data",
-                    min_score=80.0
+                    min_score=80.0,
                     # Note: no dimensions parameter
                 )
 
@@ -1026,7 +1026,7 @@ class TestADRIDecoratorE2E:
                             args=(excellent_data,),
                             kwargs={},
                             data_param="data",
-                            function_name="process_data"
+                            function_name="process_data",
                             # Note: no min_score or on_failure specified
                         )
 

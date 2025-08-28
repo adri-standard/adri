@@ -326,13 +326,14 @@ class TestAuditSelfValidation(unittest.TestCase):
 
     def test_log_rotation(self):
         """Test that log files rotate when they exceed max size."""
-        # Set a very small max size to trigger rotation
+        # Set a small max size to trigger rotation (0.01 MB = 10KB)
+        # This is reasonable for testing without causing excessive I/O
         small_logger = CSVAuditLogger(
             config={
                 "enabled": True,
                 "log_dir": self.test_dir,
                 "log_prefix": "rotate_test",
-                "max_log_size_mb": 0.0001,  # Very small to trigger rotation
+                "max_log_size_mb": 0.01,  # 10KB - reasonable for testing
             }
         )
 

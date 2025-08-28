@@ -29,9 +29,9 @@ class AuditRecord:
         # Initialize all required sections
         self.assessment_metadata = {
             "assessment_id": assessment_id,
-            "timestamp": timestamp.isoformat()
-            if timestamp
-            else datetime.now().isoformat(),
+            "timestamp": (
+                timestamp.isoformat() if timestamp else datetime.now().isoformat()
+            ),
             "adri_version": adri_version,
             "assessment_type": "QUALITY_CHECK",
         }
@@ -128,9 +128,9 @@ class AuditRecord:
             "passed": "TRUE" if self.assessment_results["passed"] else "FALSE",
             "execution_decision": self.assessment_results["execution_decision"],
             "failure_mode": self.action_taken["failure_mode"],
-            "function_executed": "TRUE"
-            if self.action_taken["function_executed"]
-            else "FALSE",
+            "function_executed": (
+                "TRUE" if self.action_taken["function_executed"] else "FALSE"
+            ),
             "assessment_duration_ms": self.performance_metrics[
                 "assessment_duration_ms"
             ],

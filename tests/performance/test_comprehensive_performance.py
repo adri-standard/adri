@@ -115,11 +115,13 @@ class TestPerformanceMetrics:
                     "avg_execution_time": self.get_average_execution_time(),
                     "cache_hit_rate": self.get_cache_hit_rate(),
                     "total_operations": len(self.metrics["execution_times"]),
-                    "peak_memory_mb": max(
-                        self.metrics["memory_usage"], key=lambda x: x["memory_mb"]
-                    )["memory_mb"]
-                    if self.metrics["memory_usage"]
-                    else 0,
+                    "peak_memory_mb": (
+                        max(self.metrics["memory_usage"], key=lambda x: x["memory_mb"])[
+                            "memory_mb"
+                        ]
+                        if self.metrics["memory_usage"]
+                        else 0
+                    ),
                     "concurrent_operations": self.metrics["concurrent_operations"],
                 }
 

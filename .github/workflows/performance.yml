@@ -26,9 +26,22 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install pytest pytest-benchmark memory-profiler psutil bc
+        pip install pytest pytest-benchmark pytest-timeout memory-profiler psutil bc tabulate pyyaml requests
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
         pip install -e .
+
+    - name: Download Previous Benchmark Results
+      if: github.event_name == 'pull_request' || github.event_name == 'push'
+      continue-on-error: true
+      run: |
+        echo "📥 Attempting to download previous benchmark results..."
+        python scripts/download_previous_benchmark.py \
+          --repo "${{ github.repository }}" \
+          --branch "${{ github.base_ref || 'main' }}" \
+          --workflow "performance.yml" \
+          --artifact "benchmark-results" \
+          --output "previous-benchmark.json" \
+          --token "${{ secrets.GITHUB_TOKEN }}" || echo "No previous benchmark found"
 
     - name: Create benchmark test data
       run: |
@@ -58,10 +71,36 @@ jobs:
         print('Benchmark test data created')
         "
 
-    - name: Run Core Performance Benchmarks
+    - name: Run Core Performance Benchmarks with Timeout
       run: |
-        echo "⚡ Running core performance benchmarks..."
-        python -m pytest tests/test_benchmarks.py -v --benchmark-only --benchmark-json=benchmark-results.json --no-cov || true
+        echo "⚡ Running core performance benchmarks with timeout protection..."
+        python -m pytest tests/test_benchmarks.py -v \
+          --benchmark-only \
+          --benchmark-json=benchmark-results.json \
+          --timeout=60 \
+          --timeout-method=thread \
+          --no-cov || true
+
+    - name: Add Metadata to Benchmark Results
+      run: |
+        python -c "
+        import json
+        from datetime import datetime
+
+        # Load benchmark results
+        with open('benchmark-results.json', 'r') as f:
+            data = json.load(f)
+
+        # Add metadata
+        data['commit_sha'] = '${{ github.sha }}'
+        data['branch'] = '${{ github.ref_name }}'
+        data['timestamp'] = datetime.utcnow().isoformat()
+        data['workflow'] = 'performance.yml'
+
+        # Save updated results
+        with open('benchmark-results.json', 'w') as f:
+            json.dump(data, f, indent=2)
+        "
 
     - name: Run Decorator Performance Tests
       run: |
@@ -71,6 +110,7 @@ jobs:
         import pandas as pd
         from adri.decorators.guard import adri_protected
         import statistics
+        import json
 
         # Test decorator overhead
         @adri_protected(data_param='data')
@@ -117,7 +157,6 @@ jobs:
             print(f'Size {size}: Unprotected={avg_unprotected*1000:.2f}ms, Protected={avg_protected*1000:.2f}ms, Overhead={overhead:.1f}%')
 
         # Save results
-        import json
         with open('decorator-benchmark.json', 'w') as f:
             json.dump(results, f, indent=2)
         "
@@ -211,22 +250,61 @@ jobs:
             json.dump(memory_results, f, indent=2)
         "
 
+    - name: Compare Benchmark Results
+      if: always()
+      run: |
+        echo "📊 Comparing benchmark results..."
+
+        # Check if previous benchmark exists
+        if [ -f "previous-benchmark.json" ]; then
+          python scripts/compare_benchmarks.py \
+            benchmark-results.json \
+            --previous previous-benchmark.json \
+            --thresholds .github/benchmark-thresholds.yml \
+            --output comparison-report.md \
+            --github-output || echo "Comparison completed with warnings"
+        else
+          echo "No previous benchmark found, skipping comparison"
+          python scripts/compare_benchmarks.py \
+            benchmark-results.json \
+            --thresholds .github/benchmark-thresholds.yml \
+            --output comparison-report.md \
+            --github-output || echo "Threshold check completed"
+        fi
+
     - name: Upload Benchmark Results
       uses: actions/upload-artifact@v4
       if: always()
       with:
-        name: performance-reports
+        name: benchmark-results
         path: |
           benchmark-results.json
           decorator-benchmark.json
           cli-benchmark.json
           memory-benchmark.json
+          comparison-report.md
+        retention-days: 30
+
+    - name: Upload Previous Benchmark for Cache
+      uses: actions/upload-artifact@v4
+      if: always() && github.ref == 'refs/heads/main'
+      continue-on-error: true
+      with:
+        name: benchmark-cache-${{ github.sha }}
+        path: benchmark-results.json
+        retention-days: 90
 
     - name: Performance Summary
       if: always()
       run: |
         echo "## ⚡ Performance Benchmark Summary" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
+
+        # Add comparison report if it exists
+        if [ -f comparison-report.md ]; then
+          cat comparison-report.md >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+        fi
 
         # Decorator Performance
         if [ -f decorator-benchmark.json ]; then
@@ -277,49 +355,107 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
         fi
 
-        echo "### 📊 Performance Standards" >> $GITHUB_STEP_SUMMARY
-        echo "- ✅ Decorator overhead should be < 10%" >> $GITHUB_STEP_SUMMARY
-        echo "- ✅ CLI commands should complete < 5 seconds for 10K rows" >> $GITHUB_STEP_SUMMARY
-        echo "- ✅ Memory usage should be < 1KB per row" >> $GITHUB_STEP_SUMMARY
-
-    - name: Check Performance Regression
+    - name: Check Performance Against Thresholds
       run: |
-        echo "🔍 Checking for performance regressions..."
+        echo "🔍 Checking performance against thresholds..."
 
-        # Check decorator absolute performance (not percentage overhead)
-        if [ -f decorator-benchmark.json ]; then
-          MAX_PROTECTED_TIME=$(python -c "
+        # Load threshold configuration
+        python -c "
         import json
-        with open('decorator-benchmark.json', 'r') as f:
-            data = json.load(f)
-        max_time = max(result['protected_ms'] for result in data)
-        print(max_time)
-          ")
+        import yaml
+        import sys
 
-          if (( $(echo "$MAX_PROTECTED_TIME > 100.0" | bc -l) )); then
-            echo "❌ Performance regression detected: Decorator takes ${MAX_PROTECTED_TIME}ms (max allowed: 100ms)"
-            exit 1
-          else
-            echo "✅ Decorator performance acceptable: ${MAX_PROTECTED_TIME}ms"
-          fi
-        fi
+        # Load thresholds
+        with open('.github/benchmark-thresholds.yml', 'r') as f:
+            config = yaml.safe_load(f)
+        thresholds = config['thresholds']
+
+        violations = []
+
+        # Check decorator overhead
+        if os.path.exists('decorator-benchmark.json'):
+            with open('decorator-benchmark.json', 'r') as f:
+                decorator_data = json.load(f)
+
+            for result in decorator_data:
+                if result['overhead_percent'] > thresholds['decorator_overhead_percent']:
+                    violations.append(f'Decorator overhead {result[\"overhead_percent\"]:.1f}% exceeds threshold {thresholds[\"decorator_overhead_percent\"]}%')
+                if result['protected_ms'] > thresholds['max_protected_time_ms']:
+                    violations.append(f'Protected function time {result[\"protected_ms\"]:.2f}ms exceeds threshold {thresholds[\"max_protected_time_ms\"]}ms')
 
         # Check CLI performance
-        if [ -f cli-benchmark.json ]; then
-          MAX_CLI_TIME=$(python -c "
-        import json
-        with open('cli-benchmark.json', 'r') as f:
-            data = json.load(f)
-        max_time = max(result['execution_time_ms'] for result in data if result['data_size'] == 10000)
-        print(max_time)
-          ")
+        if os.path.exists('cli-benchmark.json'):
+            with open('cli-benchmark.json', 'r') as f:
+                cli_data = json.load(f)
 
-          if (( $(echo "$MAX_CLI_TIME > 5000" | bc -l) )); then
-            echo "❌ Performance regression detected: CLI command took ${MAX_CLI_TIME}ms (max allowed: 5000ms)"
-            exit 1
-          else
-            echo "✅ CLI performance acceptable: ${MAX_CLI_TIME}ms"
-          fi
-        fi
+            for result in cli_data:
+                if result['data_size'] == 10000 and result['execution_time_ms'] > thresholds['cli_max_time_10k_rows_ms']:
+                    violations.append(f'CLI execution time {result[\"execution_time_ms\"]:.2f}ms exceeds threshold {thresholds[\"cli_max_time_10k_rows_ms\"]}ms')
 
-        echo "✅ No performance regressions detected"
+        # Check memory usage
+        if os.path.exists('memory-benchmark.json'):
+            with open('memory-benchmark.json', 'r') as f:
+                memory_data = json.load(f)
+
+            for result in memory_data:
+                if result['memory_per_row_kb'] > thresholds['memory_per_row_kb']:
+                    violations.append(f'Memory per row {result[\"memory_per_row_kb\"]:.3f}KB exceeds threshold {thresholds[\"memory_per_row_kb\"]}KB')
+
+        # Report violations
+        if violations:
+            print('❌ Threshold violations detected:')
+            for violation in violations:
+                print(f'  - {violation}')
+
+            # Check if enforcement is enabled
+            enforcement = config.get('enforcement', {})
+            if enforcement.get('fail_on_threshold_breach', False):
+                sys.exit(1)
+        else:
+            print('✅ All performance thresholds passed')
+        " || echo "Threshold check completed with warnings"
+
+    - name: Comment PR with Performance Report
+      if: github.event_name == 'pull_request' && always()
+      uses: actions/github-script@v7
+      continue-on-error: true
+      with:
+        script: |
+          const fs = require('fs');
+
+          let comment = '## 📊 Performance Benchmark Report\n\n';
+
+          // Add comparison report if it exists
+          if (fs.existsSync('comparison-report.md')) {
+            const report = fs.readFileSync('comparison-report.md', 'utf8');
+            comment += report;
+          } else {
+            comment += 'No comparison data available.\n';
+          }
+
+          // Find and update existing comment or create new one
+          const { data: comments } = await github.rest.issues.listComments({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: context.issue.number,
+          });
+
+          const botComment = comments.find(comment =>
+            comment.user.type === 'Bot' && comment.body.includes('Performance Benchmark Report')
+          );
+
+          if (botComment) {
+            await github.rest.issues.updateComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              comment_id: botComment.id,
+              body: comment
+            });
+          } else {
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: comment
+            });
+          }

@@ -1,9 +1,9 @@
 {
-  "current_release": "3.0.1",
+  "current_release": "3.2.0",
   "current_testpypi": "3.0.0",
   "next_allowed": {
-    "patch": "3.0.2",
-    "minor": "3.1.0",
+    "patch": "3.2.1",
+    "minor": "3.3.0",
     "major": "4.0.0"
   },
   "validation_rules": {
@@ -33,10 +33,17 @@
       "date": "2025-01-08",
       "type": "production",
       "notes": "Patch release - removed git submodule, improved StandardsLoader, fixed code quality issues"
+    },
+    {
+      "version": "3.2.0",
+      "tag": "Release.Minor.v3.2.0",
+      "date": "2025-01-28",
+      "type": "production",
+      "notes": "Minor release - comprehensive performance enhancements including timeout protection, benchmark comparison capabilities, and standardized performance thresholds"
     }
   ],
   "metadata": {
-    "last_updated": "2025-01-08T17:22:00Z",
+    "last_updated": "2025-01-28T17:25:00Z",
     "schema_version": "1.0",
     "description": "ADRI Validator version tracking and validation system"
   }

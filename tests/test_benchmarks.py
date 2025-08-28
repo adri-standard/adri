@@ -9,6 +9,7 @@ from adri.analysis.standard_generator import StandardGenerator
 from adri.core.assessor import AssessmentEngine
 
 
+@pytest.mark.performance
 class TestPerformanceBenchmarks:
     """Performance benchmark tests for core ADRI functionality."""
 
@@ -64,6 +65,7 @@ class TestPerformanceBenchmarks:
         """Create a standard generator instance."""
         return StandardGenerator()
 
+    @pytest.mark.timeout(60)
     def test_benchmark_data_loading(self, benchmark, large_dataset, tmp_path):
         """Benchmark data loading performance."""
         # Save dataset to CSV
@@ -75,6 +77,7 @@ class TestPerformanceBenchmarks:
         assert result is not None
         assert len(result) == len(large_dataset)
 
+    @pytest.mark.timeout(60)
     def test_benchmark_data_profiling(self, benchmark, data_profiler, large_dataset):
         """Benchmark data profiling performance."""
         result = benchmark(data_profiler.profile_data, large_dataset)
@@ -82,6 +85,7 @@ class TestPerformanceBenchmarks:
         assert "summary" in result
         assert "fields" in result
 
+    @pytest.mark.timeout(60)
     def test_benchmark_standard_generation(
         self, benchmark, standard_generator, data_profiler, medium_dataset
     ):
@@ -109,6 +113,7 @@ class TestPerformanceBenchmarks:
         assert "metadata" in result
         assert "standards" in result
 
+    @pytest.mark.timeout(60)
     def test_benchmark_assessment_simple(
         self, benchmark, assessment_engine, medium_dataset
     ):
@@ -123,6 +128,7 @@ class TestPerformanceBenchmarks:
         assert result is not None
         assert hasattr(result, "overall_score")
 
+    @pytest.mark.timeout(60)
     def test_benchmark_assessment_complex(
         self, benchmark, assessment_engine, large_dataset
     ):
@@ -164,6 +170,7 @@ class TestPerformanceBenchmarks:
         assert hasattr(result, "overall_score")
         assert hasattr(result, "dimension_scores")
 
+    @pytest.mark.timeout(60)
     def test_benchmark_batch_assessment(self, benchmark, assessment_engine):
         """Benchmark batch assessment of multiple datasets."""
         # Create multiple small datasets
@@ -194,6 +201,7 @@ class TestPerformanceBenchmarks:
         assert len(results) == 10
         assert all(hasattr(r, "overall_score") for r in results)
 
+    @pytest.mark.timeout(60)
     def test_benchmark_memory_usage(self, benchmark, assessment_engine, large_dataset):
         """Benchmark memory usage during assessment."""
         standard = {
@@ -205,6 +213,7 @@ class TestPerformanceBenchmarks:
         result = benchmark(assessment_engine.assess, large_dataset, standard)
         assert result is not None
 
+    @pytest.mark.timeout(60)
     @pytest.mark.parametrize("size", [100, 1000, 5000])
     def test_benchmark_scaling(self, benchmark, assessment_engine, size):
         """Benchmark assessment performance with different dataset sizes."""

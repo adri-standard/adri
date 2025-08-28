@@ -5,6 +5,31 @@ All notable changes to ADRI Validator will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.2.0] - 2025-01-28
+
+### Added
+- **Performance Testing Infrastructure** - Timeout protection with pytest-timeout
+- **Benchmark Comparison System** - Automated performance regression detection
+- **Performance Thresholds** - Configurable boundaries with enforcement rules
+- **Comparison Scripts** - compare_benchmarks.py for detailed analysis
+- **Historical Tracking** - download_previous_benchmark.py for artifact retrieval
+- **GitHub Actions Integration** - Automated performance checks in CI/CD
+- **Performance Documentation** - Comprehensive PERFORMANCE_TESTING.md guide
+
+### Enhanced
+- **test.yml workflow** - Added benchmark comparison on PRs
+- **performance.yml workflow** - Enhanced with threshold enforcement
+- **Benchmark Tests** - All tests now have timeout protection (30s default)
+- **Test Coverage** - Added tests for comparison and timeout functionality
+
+### Fixed
+- Benchmark test timeout handling
+- Benchmark comparison edge cases
+- Threshold enforcement logic
+
+### Dependencies
+- Added pytest-timeout>=2.1.0 for test timeout support
+
 ## [3.0.1] - 2025-01-08
 
 ### Fixed

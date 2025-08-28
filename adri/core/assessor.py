@@ -466,9 +466,9 @@ class DataQualityAssessor:
             # Prepare performance metrics
             performance_metrics = {
                 "duration_ms": duration_ms,
-                "rows_per_second": len(data) / (duration_ms / 1000.0)
-                if duration_ms > 0
-                else 0,
+                "rows_per_second": (
+                    len(data) / (duration_ms / 1000.0) if duration_ms > 0 else 0
+                ),
             }
 
             # Prepare failed checks (extract from dimension scores)

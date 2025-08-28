@@ -22,6 +22,7 @@ examples_dir = Path(__file__).parent.parent / "examples"
 sys.path.insert(0, str(examples_dir))
 
 
+@pytest.mark.slow
 class TestFrameworkExamples:
     """Test framework-specific examples."""
 

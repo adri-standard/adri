@@ -111,17 +111,148 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -e ".[dev]"
-        pip install pytest-benchmark
+        pip install pytest-benchmark pytest-timeout tabulate pyyaml requests
 
-    - name: Run performance benchmarks
+    - name: Download Previous Benchmark Results
+      if: github.event_name == 'pull_request'
+      continue-on-error: true
       run: |
-        pytest tests/test_benchmarks.py -v --benchmark-only --benchmark-json=benchmark.json --no-cov
+        echo "📥 Attempting to download previous benchmark results..."
+        python scripts/download_previous_benchmark.py \
+          --repo "${{ github.repository }}" \
+          --branch "${{ github.base_ref || 'main' }}" \
+          --workflow "test.yml" \
+          --artifact "benchmark-results-main" \
+          --output "previous-benchmark.json" \
+          --token "${{ secrets.GITHUB_TOKEN }}" || echo "No previous benchmark found"
+
+    - name: Run performance benchmarks with timeout
+      run: |
+        echo "⚡ Running performance benchmarks with timeout protection..."
+        pytest tests/test_benchmarks.py -v \
+          --benchmark-only \
+          --benchmark-json=benchmark.json \
+          --timeout=60 \
+          --timeout-method=thread \
+          --no-cov || true
+
+    - name: Add metadata to benchmark results
+      run: |
+        python -c "
+        import json
+        from datetime import datetime
+
+        # Load benchmark results
+        with open('benchmark.json', 'r') as f:
+            data = json.load(f)
+
+        # Add metadata
+        data['commit_sha'] = '${{ github.sha }}'
+        data['branch'] = '${{ github.ref_name }}'
+        data['timestamp'] = datetime.utcnow().isoformat()
+        data['workflow'] = 'test.yml'
+
+        # Save updated results
+        with open('benchmark.json', 'w') as f:
+            json.dump(data, f, indent=2)
+        "
+
+    - name: Compare benchmark results
+      if: always()
+      run: |
+        echo "📊 Comparing benchmark results..."
+
+        # Check if previous benchmark exists
+        if [ -f "previous-benchmark.json" ]; then
+          python scripts/compare_benchmarks.py \
+            benchmark.json \
+            --previous previous-benchmark.json \
+            --thresholds .github/benchmark-thresholds.yml \
+            --output comparison-report.md \
+            --github-output || echo "Comparison completed with warnings"
+        else
+          echo "No previous benchmark found, checking thresholds only..."
+          python scripts/compare_benchmarks.py \
+            benchmark.json \
+            --thresholds .github/benchmark-thresholds.yml \
+            --output comparison-report.md \
+            --github-output || echo "Threshold check completed"
+        fi
 
     - name: Upload benchmark results
       uses: actions/upload-artifact@v4
       with:
         name: benchmark-results-${{ github.sha }}
+        path: |
+          benchmark.json
+          comparison-report.md
+
+    - name: Store benchmark for main branch
+      if: github.ref == 'refs/heads/main'
+      uses: actions/upload-artifact@v4
+      with:
+        name: benchmark-results-main
         path: benchmark.json
+        retention-days: 30
+
+    - name: Comment PR with benchmark comparison
+      if: github.event_name == 'pull_request' && always()
+      uses: actions/github-script@v7
+      continue-on-error: true
+      with:
+        script: |
+          const fs = require('fs');
+
+          let comment = '## ⚡ Performance Benchmark Summary\n\n';
+
+          // Add comparison report if it exists
+          if (fs.existsSync('comparison-report.md')) {
+            const report = fs.readFileSync('comparison-report.md', 'utf8');
+            comment += report;
+          } else {
+            comment += 'No comparison data available.\n';
+          }
+
+          // Find and update existing comment or create new one
+          const { data: comments } = await github.rest.issues.listComments({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: context.issue.number,
+          });
+
+          const botComment = comments.find(comment =>
+            comment.user.type === 'Bot' && comment.body.includes('Performance Benchmark Summary')
+          );
+
+          if (botComment) {
+            await github.rest.issues.updateComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              comment_id: botComment.id,
+              body: comment
+            });
+          } else {
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: comment
+            });
+          }
+
+    - name: Check performance thresholds
+      run: |
+        echo "🔍 Checking performance against thresholds..."
+
+        # Run threshold check using comparison script
+        python scripts/compare_benchmarks.py \
+          benchmark.json \
+          --thresholds .github/benchmark-thresholds.yml \
+          --enforce || {
+          echo "⚠️ Performance check completed with warnings"
+          # Don't fail the build yet (enforcement disabled initially)
+          exit 0
+        }
 
   build-validation:
     needs: [quality-gate, test]

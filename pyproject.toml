@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "adri"
-version = "3.1.0"
+version = "3.2.0"
 description = "AI Data Reliability Intelligence - Comprehensive data quality assessment and validation framework"
 readme = "README.md"
 license = {file = "LICENSE"}
@@ -42,6 +42,7 @@ dev = [
     "pytest>=7.0",
     "pytest-cov>=4.0",
     "pytest-benchmark>=4.0",
+    "pytest-timeout>=2.1.0",  # For test timeout support
     "black>=23.0",
     "isort>=5.12",
     "flake8>=6.0",
@@ -55,6 +56,7 @@ test = [
     "pytest>=7.0",
     "pytest-cov>=4.0",
     "pytest-benchmark>=4.0",
+    "pytest-timeout>=2.1.0",  # For test timeout support
     "pyarrow>=14.0.0",  # For parquet support in tests
 ]
 security = [
@@ -177,6 +179,8 @@ addopts = [
     "--cov-report=html",
     "--cov-report=json",
     "--cov-fail-under=90",
+    "--tb=short",  # Shorter traceback format for CI readability
+    "-v",  # Verbose output
 ]
 testpaths = ["tests"]
 markers = [
@@ -184,12 +188,17 @@ markers = [
     "integration: marks tests as integration tests",
     "unit: marks tests as unit tests",
     "benchmark: marks tests as performance benchmarks",
+    "timeout: marks tests with custom timeout values",
+    "ci_skip: marks tests to skip in CI environment",
 ]
 filterwarnings = [
     "error",
     "ignore::UserWarning",
     "ignore::DeprecationWarning",
 ]
+# Timeout settings for CI (in seconds)
+timeout = 30  # Default timeout for all tests
+timeout_method = "thread"  # Use thread-based timeout
 
 # coverage configuration
 [tool.coverage.run]
