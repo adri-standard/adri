@@ -1,11 +1,11 @@
-# Release Notes - ADRI Validator v3.2.0
+# Release Notes - ADRI Validator v3.1.0
 
 ## 🚀 Performance Enhancements Release
 
 **Release Date:** January 28, 2025
-**Version:** 3.2.0
+**Version:** 3.1.0
 **Type:** Minor Release
-**Tag:** Release.Minor.v3.2.0
+**Tag:** Release.Minor.v3.1.0
 
 ## ✨ Key Features
 
@@ -93,15 +93,15 @@ thresholds:
 ```
 
 ## 🔄 Migration Guide
-No migration required. Simply update to v3.2.0 to benefit from performance enhancements:
+No migration required. Simply update to v3.1.0 to benefit from performance enhancements:
 
 ```bash
-pip install --upgrade adri==3.2.0
+pip install --upgrade adri==3.1.0
 ```
 
 ## 📊 Performance Comparison
 
-| Feature | v3.0.1 | v3.2.0 | Improvement |
+| Feature | v3.0.1 | v3.1.0 | Improvement |
 |---------|--------|--------|-------------|
 | Benchmark Test Safety | None | Timeout Protection | ✅ No hangs |
 | Performance Tracking | Manual | Automated | ✅ CI/CD integrated |
@@ -122,7 +122,7 @@ pip install --upgrade adri==3.2.0
 - [Performance Testing Documentation](docs/PERFORMANCE_TESTING.md)
 - [Benchmark Thresholds Configuration](.github/benchmark-thresholds.yml)
 - [GitHub Actions Workflows](.github/workflows/)
-- [PyPI Package](https://pypi.org/project/adri/3.2.0/)
+- [PyPI Package](https://pypi.org/project/adri/3.1.0/)
 
 ## ⚠️ Important Notes
 - Performance thresholds are configurable per environment
