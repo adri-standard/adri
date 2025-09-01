@@ -1,5 +1,6 @@
 """
 YAML Standards module for ADRI.
+
 Simple wrapper for standards functionality.
 """
 
