@@ -47,7 +47,9 @@ def verify_standalone_installation() -> Tuple[bool, List[str]]:
         loader = StandardsLoader()
         available_standards = loader.list_available_standards()
         if len(available_standards) > 0:
-            messages.append(f"✅ {len(available_standards)} bundled standards available")
+            messages.append(
+                f"✅ {len(available_standards)} bundled standards available"
+            )
         else:
             success = False
             messages.append("❌ No bundled standards found")
@@ -267,7 +269,9 @@ def run_full_verification(verbose: bool = True) -> bool:
     if verbose:
         print(f"   Python: {sys_info['python_version_tuple']}")
         print(f"   Platform: {sys_info['platform']}")
-        print(f"   Python Compatible: {'✅' if sys_info['python_compatible'] else '❌'}")
+        print(
+            f"   Python Compatible: {'✅' if sys_info['python_compatible'] else '❌'}"
+        )
         print(
             f"   Packages Compatible: {'✅' if sys_info['packages_compatible'] else '❌'}"
         )
