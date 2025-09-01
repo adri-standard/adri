@@ -7,8 +7,7 @@ in standalone mode without external dependencies.
 
 import os
 import sys
-from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Tuple
 
 from adri.standards.loader import StandardsLoader
 from adri.version import __version__
@@ -179,7 +178,7 @@ def verify_audit_logging(enabled: bool = False) -> Tuple[bool, List[str]]:
         from adri.core.audit_logger import AuditLogger
 
         # Test basic instantiation
-        logger = AuditLogger({"enabled": enabled})
+        AuditLogger({"enabled": enabled})
         messages.append(f"✅ AuditLogger instantiated (enabled={enabled})")
 
         # Test audit record creation
@@ -211,7 +210,7 @@ def verify_audit_logging(enabled: bool = False) -> Tuple[bool, List[str]]:
 
     # Verify optional Verodat logger
     try:
-        from adri.core.verodat_logger import VerodatLogger
+        from adri.core.verodat_logger import VerodatLogger  # noqa: F401
 
         messages.append("✅ VerodatLogger module available (optional)")
     except ImportError:
@@ -219,7 +218,7 @@ def verify_audit_logging(enabled: bool = False) -> Tuple[bool, List[str]]:
 
     # Verify CSV logger
     try:
-        from adri.core.audit_logger_csv import AuditLoggerCSV
+        from adri.core.audit_logger_csv import AuditLoggerCSV  # noqa: F401
 
         messages.append("✅ AuditLoggerCSV module available")
     except ImportError:

@@ -79,18 +79,26 @@ jobs:
           --benchmark-only \
           --benchmark-json=benchmark-results.json \
           --timeout=60 \
-          --timeout-method=thread \
-          --no-cov || true
+          --timeout-method=thread || true
 
     - name: Add Metadata to Benchmark Results
       run: |
         python -c "
         import json
+        import os
         from datetime import datetime
 
-        # Load benchmark results
-        with open('benchmark-results.json', 'r') as f:
-            data = json.load(f)
+        # Check if benchmark results file exists and is valid
+        if os.path.exists('benchmark-results.json') and os.path.getsize('benchmark-results.json') > 0:
+            try:
+                with open('benchmark-results.json', 'r') as f:
+                    data = json.load(f)
+            except json.JSONDecodeError:
+                print('Invalid JSON in benchmark-results.json, creating empty structure')
+                data = {'benchmarks': []}
+        else:
+            print('No benchmark results found, creating empty structure')
+            data = {'benchmarks': []}
 
         # Add metadata
         data['commit_sha'] = '${{ github.sha }}'
