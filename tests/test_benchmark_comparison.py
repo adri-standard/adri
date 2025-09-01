@@ -7,11 +7,10 @@ import tempfile
 from pathlib import Path
 from unittest.mock import MagicMock, mock_open, patch
 
-import pytest
-
 # Add scripts directory to path for imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "scripts"))
 
+import pytest
 from compare_benchmarks import BenchmarkComparison
 
 
