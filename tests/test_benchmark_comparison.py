@@ -6,13 +6,13 @@ import sys
 # Add scripts directory to path for imports - must be before other imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "scripts"))
 
-import json
-import tempfile
-from pathlib import Path
-from unittest.mock import MagicMock, mock_open, patch
+import json  # noqa: E402
+import tempfile  # noqa: E402
+from pathlib import Path  # noqa: E402
+from unittest.mock import MagicMock, mock_open, patch  # noqa: E402
 
-import pytest
-from compare_benchmarks import BenchmarkComparison
+import pytest  # noqa: E402
+from compare_benchmarks import BenchmarkComparison  # noqa: E402
 
 
 class TestBenchmarkComparison:
