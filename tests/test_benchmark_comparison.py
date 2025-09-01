@@ -1,14 +1,15 @@
 """Tests for benchmark comparison functionality."""
 
-import json
 import os
 import sys
+
+# Add scripts directory to path for imports - must be before other imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "scripts"))
+
+import json
 import tempfile
 from pathlib import Path
 from unittest.mock import MagicMock, mock_open, patch
-
-# Add scripts directory to path for imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "scripts"))
 
 import pytest
 from compare_benchmarks import BenchmarkComparison
