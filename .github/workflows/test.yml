@@ -130,6 +130,7 @@ jobs:
       run: |
         echo "⚡ Running performance benchmarks with timeout protection..."
         pytest tests/test_benchmarks.py -v \
+          --performance \
           --benchmark-only \
           --benchmark-json=benchmark.json \
           --timeout=60 \

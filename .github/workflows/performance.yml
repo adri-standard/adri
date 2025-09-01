@@ -75,6 +75,7 @@ jobs:
       run: |
         echo "⚡ Running core performance benchmarks with timeout protection..."
         python -m pytest tests/test_benchmarks.py -v \
+          --performance \
           --benchmark-only \
           --benchmark-json=benchmark-results.json \
           --timeout=60 \
@@ -229,7 +230,7 @@ jobs:
             # Run assessment
             assessor = DataQualityAssessor()
             try:
-                result = assessor.assess_data_quality(test_data, {})
+                result = assessor.assess(test_data)
                 memory_after = get_memory_usage()
 
                 memory_used = memory_after - memory_before
@@ -364,6 +365,7 @@ jobs:
         import json
         import yaml
         import sys
+        import os
 
         # Load thresholds
         with open('.github/benchmark-thresholds.yml', 'r') as f:
