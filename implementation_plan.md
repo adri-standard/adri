@@ -10,7 +10,7 @@ Fix benchmark test execution and dependency management.
 
 **Key type definitions and configurations:**
 - Benchmark test markers and configuration in pytest.ini
-- Performance test data structures and fixtures  
+- Performance test data structures and fixtures
 - Missing import dependencies in test modules
 - Package dependency version constraints in pyproject.toml
 - Environment variable configurations for CI/CD
@@ -21,7 +21,7 @@ Modify existing files to resolve import and configuration issues.
 **Specific file modifications:**
 - `tests/test_benchmarks.py`: Fix import issues and test configuration
 - `pyproject.toml`: Add missing performance testing dependencies
-- `pytest.ini`: Update test markers and timeout configuration  
+- `pytest.ini`: Update test markers and timeout configuration
 - `adri/analysis/data_profiler.py`: Create missing DataProfiler class
 - `adri/analysis/standard_generator.py`: Create missing StandardGenerator class
 - `.github/workflows/test.yml`: Update workflow dependencies
@@ -37,7 +37,7 @@ Create missing classes and fix existing import functionality.
 - Benchmark fixture functions for test data generation
 - Performance measurement utility functions
 
-**Modified functions:**  
+**Modified functions:**
 - Update import statements in benchmark tests
 - Fix package dependency resolution in workflows
 - Update script error handling for missing dependencies
@@ -47,7 +47,7 @@ Create missing classes referenced in benchmark tests.
 
 **New classes:**
 - `DataProfiler`: Analyze data structure and generate profiles
-- `StandardGenerator`: Generate ADRI standards from data profiles  
+- `StandardGenerator`: Generate ADRI standards from data profiles
 
 **Modified classes:**
 - `AssessmentEngine`: Already exists, ensure proper integration
@@ -59,7 +59,7 @@ Add missing performance testing dependencies and resolve version conflicts.
 **New dependencies:**
 ```toml
 memory-profiler>=0.60.0  # For memory usage benchmarks
-psutil>=5.9.0           # For system resource monitoring  
+psutil>=5.9.0           # For system resource monitoring
 numpy>=1.24.0           # For test data generation (already present)
 ```
 
@@ -87,7 +87,7 @@ Sequential implementation to minimize conflicts and ensure successful integratio
 **Step-by-step implementation:**
 
 1. **Create missing analysis classes** (`DataProfiler`, `StandardGenerator`)
-2. **Fix benchmark test imports** and remove skipping conditions  
+2. **Fix benchmark test imports** and remove skipping conditions
 3. **Update dependencies** in pyproject.toml for performance testing
 4. **Fix pytest configuration** for proper benchmark test execution
 5. **Update GitHub Actions workflows** to handle missing artifacts gracefully

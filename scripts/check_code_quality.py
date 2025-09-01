@@ -32,7 +32,9 @@ def run_command(cmd: List[str], fix_mode: bool = False) -> Tuple[bool, str]:
         Tuple of (success, output)
     """
     try:
-        result = subprocess.run(cmd, capture_output=True, text=True, check=False)  # nosec B603
+        result = subprocess.run(
+            cmd, capture_output=True, text=True, check=False
+        )  # nosec B603
 
         # In fix mode, formatters return non-zero when they make changes
         # This is not considered an error
@@ -188,7 +190,7 @@ def check_imports() -> bool:
 
 
 def main():
-    """Main function to run all checks."""
+    """Execute all code quality checks."""
     parser = argparse.ArgumentParser(
         description="Run code quality checks for ADRI Validator"
     )
