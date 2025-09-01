@@ -172,7 +172,7 @@ def safe_assert_equal(actual: Any, expected: Any, message: str = ""):
             np.testing.assert_array_equal(actual, expected)
         else:
             assert actual == expected, message
-    except AssertionError as e:
+    except AssertionError:
         # Truncate the error message
         actual_str = OutputLimiter.truncate(actual, "actual")
         expected_str = OutputLimiter.truncate(expected, "expected")

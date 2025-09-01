@@ -1,5 +1,5 @@
 """
-Data Loading Module for ADRI Validator
+Data Loading Module for ADRI Validator.
 
 Provides unified interface for loading data from various sources:
 - CSV files

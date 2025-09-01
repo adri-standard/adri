@@ -1,5 +1,5 @@
 """
-ADRI Guard Decorator
+ADRI Guard Decorator.
 
 Provides the @adri_protected decorator for protecting agent workflows from dirty data.
 """
@@ -26,7 +26,7 @@ def adri_protected(
     verbose: Optional[bool] = None,
 ):
     """
-    Decorator to protect agent functions with ADRI data quality checks.
+    Protect agent functions with ADRI data quality checks.
 
     This decorator automatically:
     1. Generates data quality standards (if they don't exist)
@@ -157,7 +157,7 @@ def adri_protected(
 # Convenience aliases for common use cases
 def adri_strict(data_param: str = "data", **kwargs):
     """
-    Strict data protection with high quality requirements.
+    Protect data strictly with high quality requirements.
 
     Equivalent to @adri_protected with min_score=90 and on_failure="raise".
     """
@@ -171,7 +171,7 @@ def adri_strict(data_param: str = "data", **kwargs):
 
 def adri_permissive(data_param: str = "data", **kwargs):
     """
-    Permissive data protection for development and testing.
+    Provide permissive data protection for development and testing.
 
     Equivalent to @adri_protected with min_score=70 and on_failure="warn".
     """
@@ -186,7 +186,7 @@ def adri_permissive(data_param: str = "data", **kwargs):
 
 def adri_financial(data_param: str = "data", **kwargs):
     """
-    Financial-grade data protection with strict requirements.
+    Apply financial-grade data protection with strict requirements.
 
     Equivalent to @adri_protected with high standards for financial data.
     """

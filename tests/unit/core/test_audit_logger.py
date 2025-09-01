@@ -364,7 +364,7 @@ class TestAuditLogger:
 
         # Assert - Check for rotated log file
         log_dir = Path(temp_log_file).parent
-        rotated_files = list(log_dir.glob(f"{Path(temp_log_file).stem}.*"))
+        list(log_dir.glob(f"{Path(temp_log_file).stem}.*"))
         # Note: Rotation implementation will determine actual behavior
         # This test defines expected behavior
 

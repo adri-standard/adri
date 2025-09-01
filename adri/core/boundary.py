@@ -369,7 +369,6 @@ def validate_standalone_operation() -> bool:
         # Test that we can enter standalone mode
         with StandaloneMode():
             # Try to import and use core functionality
-            from adri.decorators.adri import adri_protected
             from adri.standards.loader import StandardsLoader
 
             # Verify standards can be loaded

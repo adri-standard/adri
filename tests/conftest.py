@@ -1,6 +1,4 @@
-"""
-Shared pytest configuration and fixtures for ADRI Validator tests.
-"""
+"""Shared pytest configuration and fixtures for ADRI Validator tests."""
 
 import os
 import sys
@@ -10,11 +8,11 @@ from typing import Generator
 
 import pytest
 
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
 # Import test utilities
 from tests.test_utils import OutputLimiter, TestDataGenerator
+
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
 
 # Register custom markers

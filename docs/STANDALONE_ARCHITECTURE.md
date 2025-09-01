@@ -213,12 +213,12 @@ adri:
     min_score: 75.0
     failure_mode: "raise"  # raise | warn | log
     cache_duration: 300
-    
+
   audit:
     enabled: false
     log_location: "./logs/adri_audit.jsonl"
     include_data_samples: false
-    
+
   standards:
     path: null  # Uses bundled by default
     cache_enabled: true

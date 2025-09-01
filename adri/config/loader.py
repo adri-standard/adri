@@ -14,6 +14,7 @@ class ConfigLoader:
     """Loads and validates ADRI configuration files."""
 
     def __init__(self):
+        """Initialize the configuration loader with default search paths."""
         self.default_config_paths = [
             "adri-config.yaml",
             "ADRI/adri-config.yaml",

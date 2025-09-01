@@ -330,7 +330,7 @@ class TestVerodatLogger:
 
         # Check request details
         call_args = mock_post.call_args
-        assert call_args[1]["headers"]["X-API-KEY"] == "test_api_key_123"
+        assert call_args[1]["headers"]["Authorization"] == "ApiKey test_api_key_123"
         assert "verodat.io" in call_args[0][0]
 
     @patch("requests.post")

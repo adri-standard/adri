@@ -1,5 +1,5 @@
 """
-ADRI Core Module
+ADRI Core Module.
 
 Core functionality for data quality protection and assessment.
 """

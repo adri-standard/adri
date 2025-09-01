@@ -89,7 +89,7 @@ requirements:
             def test_function(data):
                 return data
 
-            result = engine.protect_function_call(
+            engine.protect_function_call(
                 func=test_function,
                 args=(sample_data,),
                 kwargs={},
@@ -125,7 +125,7 @@ requirements:
                 return f"Processed {len(data)} records"
 
             # Execute the protected function
-            result = engine.protect_function_call(
+            engine.protect_function_call(
                 func=process_data,
                 args=(sample_data,),
                 kwargs={},
@@ -183,7 +183,7 @@ requirements:
             # Even if the assessment gives a score, it should fail the min_score check
             exception_raised = False
             try:
-                result = engine.protect_function_call(
+                engine.protect_function_call(
                     func=process_data,
                     args=(bad_data,),
                     kwargs={},
@@ -193,7 +193,7 @@ requirements:
                     min_score=99.0,  # Extremely high score requirement
                     on_failure="raise",
                 )
-            except Exception as e:
+            except Exception:
                 exception_raised = True
                 # Exception was raised as expected
 
@@ -234,15 +234,13 @@ requirements:
             # Act - Run assessment with timing
             import time
 
-            start_time = time.time()
-
             # Create a function that takes some time
             def slow_process(data):
                 time.sleep(0.01)  # Small delay
                 return data
 
             # Run with auto-generated standard
-            result = engine.protect_function_call(
+            engine.protect_function_call(
                 func=slow_process,
                 args=(sample_data,),
                 kwargs={},
@@ -251,8 +249,6 @@ requirements:
                 min_score=70.0,
                 auto_generate=True,
             )
-
-            end_time = time.time()
 
             # Assert - Check performance metrics in log
             if os.path.exists(temp_audit_log):

@@ -174,7 +174,7 @@ def process_data(df):
     return df.describe()
 
 result = engine.protect_function_call(
-    process_data, 
+    process_data,
     df,
     standard="test_standard"
 )
@@ -291,7 +291,7 @@ adri:
     failure_mode: "raise"        # raise | warn | log
     cache_duration: 300          # Seconds to cache results
     cache_enabled: true
-    
+
   audit:
     enabled: false               # Enable audit logging
     log_location: "./logs/adri_audit.jsonl"
@@ -300,11 +300,11 @@ adri:
     max_log_size_mb: 100        # Rotate after size
     batch_mode: false           # Batch audit records
     batch_size: 100
-    
+
   standards:
     path: null                  # Custom standards path
     cache_enabled: true         # Cache loaded standards
-    
+
   verodat:                     # Optional Verodat integration
     enabled: false
     api_url: "https://api.verodat.com"
@@ -638,10 +638,10 @@ class CustomAuditSink:
         # Custom implementation
         send_to_siem(record)
         return True
-    
+
     def flush(self):
         return True
-    
+
     def close(self):
         return True
 

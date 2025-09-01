@@ -254,14 +254,14 @@ adri:
     failure_mode: "raise"  # raise | warn | log
     cache_duration: 300
     cache_enabled: true
-    
+
   audit:
     enabled: true
     log_location: "./logs/adri_audit.jsonl"
     log_level: "INFO"
     include_data_samples: false
     max_log_size_mb: 100
-    
+
   standards:
     path: null  # Uses bundled standards
     cache_enabled: true

@@ -31,7 +31,10 @@ try:
 except ImportError:
     # Fallback if test_utils not available
     TestDataGenerator = None
-    skip_if_ci = lambda: None
+
+    def skip_if_ci():
+        """Fallback skip_if_ci function."""
+        pass
 
 
 @pytest.mark.stress
@@ -129,7 +132,7 @@ class TestStressPerformance:
 
         with ThreadPoolExecutor(max_workers=num_threads) as executor:
             futures = [executor.submit(run_assessment, data) for data in datasets]
-            results = [f.result(timeout=10) for f in futures]
+            [f.result(timeout=10) for f in futures]
 
         duration = time.time() - start_time
 
@@ -150,7 +153,6 @@ class TestStressPerformance:
 
         # Get baseline memory
         gc.collect()
-        baseline_memory = process.memory_info().rss / 1024 / 1024  # MB
 
         # Run many iterations
         iterations = 100
@@ -336,7 +338,7 @@ class TestStressPerformance:
         datasets = [generate_extreme_dataset(1000) for _ in range(10)]
 
         def assess_in_process(data_dict):
-            """Function to run in separate process."""
+            """Run in separate process."""
             # Recreate DataFrame from dict (for pickling)
             data = pd.DataFrame(data_dict)
             engine = DataProtectionEngine()
@@ -415,7 +417,7 @@ class TestStressPerformance:
                         def process_data(data):
                             return len(data)
 
-                        result = engine.protect_function_call(
+                        engine.protect_function_call(
                             func=process_data,
                             args=(data,),
                             kwargs={},

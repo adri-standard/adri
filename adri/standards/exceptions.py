@@ -1,5 +1,5 @@
 """
-ADRI Standards Exceptions
+ADRI Standards Exceptions.
 
 Custom exceptions for the ADRI standards loading system.
 """
@@ -16,6 +16,7 @@ class StandardNotFoundError(Exception):
     """
 
     def __init__(self, standard_name: str):
+        """Initialize with the name of the missing standard."""
         self.standard_name = standard_name
         super().__init__(f"Standard '{standard_name}' not found in bundled standards")
 
@@ -29,6 +30,7 @@ class InvalidStandardError(Exception):
     """
 
     def __init__(self, message: str, standard_name: Optional[str] = None):
+        """Initialize with error message and optional standard name."""
         self.standard_name = standard_name
         if standard_name:
             super().__init__(f"Invalid standard '{standard_name}': {message}")
@@ -45,5 +47,6 @@ class StandardsDirectoryNotFoundError(Exception):
     """
 
     def __init__(self, directory_path: str):
+        """Initialize with the path of the missing directory."""
         self.directory_path = directory_path
         super().__init__(f"Bundled standards directory not found: {directory_path}")

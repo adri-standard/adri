@@ -78,7 +78,11 @@ class TestStandardsLoader:
         assert standard is not None
         assert "standards" in standard
         assert "requirements" in standard
-        assert "schema" in standard
+        # Standard uses "field_requirements" instead of "schema"
+        assert (
+            "requirements" in standard
+            and "field_requirements" in standard["requirements"]
+        )
 
     def test_list_all_bundled_standards(self):
         """Test listing all bundled standards."""
@@ -128,7 +132,12 @@ class TestDataValidation:
     def test_decorator_with_bundled_standard(self):
         """Test @adri_protected decorator with bundled standard."""
 
-        @adri_protected("customer_data_standard", min_score=50.0, failure_mode="warn")
+        @adri_protected(
+            data_param="df",
+            standard_name="customer_data_standard",
+            min_score=50.0,
+            on_failure="warn",
+        )
         def process_data(df):
             return df
 
@@ -155,7 +164,7 @@ class TestDataValidation:
     def test_validation_without_network(self):
         """Test validation works without network access."""
 
-        @adri_protected(standard="customer_data_standard")
+        @adri_protected(standard_name="customer_data_standard")
         def validate_customer(df):
             return df
 
@@ -251,7 +260,7 @@ class TestAuditLogging:
 
         # Create logger (disabled by default)
         logger = AuditLogger({"enabled": False})
-        assert logger._enabled is False  # Use logger variable
+        assert logger.enabled is False  # Use logger variable
 
         # Create audit record
         record = AuditRecord(
@@ -277,7 +286,7 @@ class TestAuditLogging:
 
             # Logger should initialize without errors
             assert logger is not None
-            assert hasattr(logger, "_enabled")  # Use logger to satisfy flake8
+            assert hasattr(logger, "enabled")  # Use logger to satisfy flake8
 
 
 class TestDeploymentScenarios:
@@ -368,7 +377,12 @@ class TestIntegrationScenarios:
     def test_end_to_end_validation(self):
         """Test end-to-end validation workflow."""
 
-        @adri_protected("customer_data_standard", min_score=60.0, failure_mode="warn")
+        @adri_protected(
+            data_param="df",
+            standard_name="customer_data_standard",
+            min_score=60.0,
+            on_failure="warn",
+        )
         def process_transactions(df):
             return df
 

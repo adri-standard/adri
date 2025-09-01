@@ -1,5 +1,5 @@
 """
-ADRI Data Protection Engine
+ADRI Data Protection Engine.
 
 Core functionality for protecting agent workflows from dirty data.
 Handles standard generation, data assessment, and quality enforcement.

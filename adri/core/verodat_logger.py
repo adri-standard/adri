@@ -10,8 +10,7 @@ import os
 import threading
 import time
 from datetime import datetime
-from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List
 
 import requests
 import yaml
@@ -182,6 +181,166 @@ class VerodatLogger:
 
         return value
 
+    def _get_core_metadata_field(self, field_name: str, record: AuditRecord) -> Any:
+        """Get core metadata field values."""
+        if field_name == "assessment_id":
+            return record.assessment_id
+        elif field_name == "log_timestamp":
+            return record.timestamp
+        elif field_name == "adri_version":
+            return record.adri_version
+        elif field_name == "assessment_type":
+            return "QUALITY_CHECK"
+        return None
+
+    def _get_execution_context_field(self, field_name: str, record: AuditRecord) -> Any:
+        """Get execution context field values."""
+        import os
+
+        if field_name == "function_name":
+            return record.execution_context.get("function_name", "unknown")
+        elif field_name == "module_path":
+            return record.execution_context.get("module_path", "adri.core")
+        elif field_name == "environment":
+            return record.execution_context.get("environment", "PRODUCTION")
+        elif field_name == "hostname":
+            return record.execution_context.get("hostname") or os.uname().nodename
+        elif field_name == "process_id":
+            return record.execution_context.get("process_id") or os.getpid()
+        elif field_name == "failure_mode":
+            return record.execution_context.get("failure_mode", "log")
+        return None
+
+    def _get_standard_metadata_field(self, field_name: str, record: AuditRecord) -> Any:
+        """Get standard metadata field values."""
+        if field_name == "standard_id":
+            return record.standard_applied.get("standard_id", "unknown")
+        elif field_name == "standard_version":
+            return record.standard_applied.get("standard_version", "unknown")
+        elif field_name == "standard_checksum":
+            return record.standard_applied.get("standard_checksum")
+        return None
+
+    def _get_data_fingerprint_field(self, field_name: str, record: AuditRecord) -> Any:
+        """Get data fingerprint field values."""
+        import json
+
+        if field_name == "data_row_count":
+            return record.data_fingerprint.get("row_count", 0)
+        elif field_name == "data_column_count":
+            return record.data_fingerprint.get("column_count", 0)
+        elif field_name == "data_columns":
+            columns = record.data_fingerprint.get("columns", [])
+            return json.dumps(columns) if columns else "[]"
+        elif field_name == "data_checksum":
+            return record.data_fingerprint.get("checksum")
+        return None
+
+    def _get_assessment_result_field(self, field_name: str, record: AuditRecord) -> Any:
+        """Get assessment result field values."""
+        if field_name == "overall_score":
+            return record.assessment_results.get("overall_score", 0.0)
+        elif field_name == "required_score":
+            return record.assessment_results.get("required_score", 70.0)
+        elif field_name == "passed":
+            return record.assessment_results.get("passed", False)
+        elif field_name == "execution_decision":
+            passed = record.assessment_results.get("passed", False)
+            return "ALLOWED" if passed else "BLOCKED"
+        elif field_name == "function_executed":
+            return record.assessment_results.get("function_executed", True)
+        return None
+
+    def _get_performance_metrics_field(
+        self, field_name: str, record: AuditRecord
+    ) -> Any:
+        """Get performance metrics field values."""
+        if field_name == "assessment_duration_ms":
+            duration = record.performance_metrics.get("assessment_duration_ms")
+            return int(duration) if duration else 0
+        elif field_name == "rows_per_second":
+            return record.performance_metrics.get("rows_per_second")
+        elif field_name == "cache_used":
+            return (
+                record.cache_info.get("cache_used", False)
+                if hasattr(record, "cache_info")
+                else False
+            )
+        return None
+
+    def _get_field_value_from_record(
+        self, field_name: str, record: AuditRecord, main_record: Dict[str, Any]
+    ) -> Any:
+        """
+        Get field value from audit record based on field name.
+
+        Args:
+            field_name: Name of the field to extract
+            record: Audit record
+            main_record: Main record dict from to_verodat_format()
+
+        Returns:
+            Field value
+        """
+        # Try each category of fields
+        value = self._get_core_metadata_field(field_name, record)
+        if value is not None:
+            return value
+
+        value = self._get_execution_context_field(field_name, record)
+        if value is not None:
+            return value
+
+        value = self._get_standard_metadata_field(field_name, record)
+        if value is not None:
+            return value
+
+        value = self._get_data_fingerprint_field(field_name, record)
+        if value is not None:
+            return value
+
+        value = self._get_assessment_result_field(field_name, record)
+        if value is not None:
+            return value
+
+        value = self._get_performance_metrics_field(field_name, record)
+        if value is not None:
+            return value
+
+        # Fallback to main_record dict
+        return main_record.get(field_name)
+
+    def _get_dict_format_field_value(
+        self, field_name: str, record: AuditRecord, main_record: Dict[str, Any]
+    ) -> Any:
+        """
+        Get field value for dict format fields (testing compatibility).
+
+        Args:
+            field_name: Name of the field to extract
+            record: Audit record
+            main_record: Main record dict
+
+        Returns:
+            Field value
+        """
+        if field_name == "assessment_id":
+            return record.assessment_id
+        elif field_name == "timestamp":
+            return record.timestamp
+        elif field_name == "adri_version":
+            return record.adri_version
+        elif field_name == "function_name":
+            return record.execution_context.get("function_name", "")
+        elif field_name == "overall_score":
+            return record.assessment_results.get("overall_score", 0.0)
+        elif field_name == "passed":
+            return record.assessment_results.get("passed", False)
+        elif field_name == "row_count":
+            return record.data_fingerprint.get("row_count", 0)
+        else:
+            return main_record.get(field_name)
+
     def _format_record_to_row(
         self, record: AuditRecord, standard: Dict[str, Any], dataset_type: str
     ) -> List[Any]:
@@ -196,10 +355,6 @@ class VerodatLogger:
         Returns:
             List of values in order defined by standard
         """
-        import json
-        import os
-        from datetime import datetime
-
         row = []
         fields = standard.get("fields", [])
 
@@ -214,67 +369,10 @@ class VerodatLogger:
                 field_name = field_spec.get("name")
                 field_type = field_spec.get("type", "string")
 
-                # Map field names to record attributes - EXACT Verodat mapping
-                if field_name == "assessment_id":
-                    value = record.assessment_id
-                elif field_name == "log_timestamp":
-                    value = record.timestamp
-                elif field_name == "adri_version":
-                    value = record.adri_version
-                elif field_name == "assessment_type":
-                    value = "QUALITY_CHECK"  # Default assessment type
-                elif field_name == "function_name":
-                    value = record.execution_context.get("function_name", "unknown")
-                elif field_name == "module_path":
-                    value = record.execution_context.get("module_path", "adri.core")
-                elif field_name == "environment":
-                    value = record.environment or "PRODUCTION"
-                elif field_name == "hostname":
-                    value = record.hostname or os.uname().nodename
-                elif field_name == "process_id":
-                    value = record.process_id or os.getpid()
-                elif field_name == "standard_id":
-                    value = record.standard_metadata.get("standard_id", "unknown")
-                elif field_name == "standard_version":
-                    value = record.standard_metadata.get("version", "unknown")
-                elif field_name == "standard_checksum":
-                    value = record.standard_metadata.get("checksum")
-                elif field_name == "data_row_count":
-                    value = record.data_fingerprint.get("row_count", 0)
-                elif field_name == "data_column_count":
-                    value = record.data_fingerprint.get("column_count", 0)
-                elif field_name == "data_columns":
-                    columns = record.data_fingerprint.get("columns", [])
-                    value = json.dumps(columns) if columns else "[]"
-                elif field_name == "data_checksum":
-                    value = record.data_fingerprint.get("checksum")
-                elif field_name == "overall_score":
-                    value = record.assessment_results.get("overall_score", 0.0)
-                elif field_name == "required_score":
-                    value = record.assessment_results.get("required_score", 70.0)
-                elif field_name == "passed":
-                    value = record.assessment_results.get("passed", False)
-                elif field_name == "execution_decision":
-                    passed = record.assessment_results.get("passed", False)
-                    value = "ALLOWED" if passed else "BLOCKED"
-                elif field_name == "failure_mode":
-                    value = record.execution_context.get("failure_mode", "log")
-                elif field_name == "function_executed":
-                    value = record.assessment_results.get("function_executed", True)
-                elif field_name == "assessment_duration_ms":
-                    duration = record.performance_metrics.get("assessment_duration_ms")
-                    value = int(duration) if duration else 0
-                elif field_name == "rows_per_second":
-                    value = record.performance_metrics.get("rows_per_second")
-                elif field_name == "cache_used":
-                    value = (
-                        record.cache_info.get("cache_used", False)
-                        if hasattr(record, "cache_info")
-                        else False
-                    )
-                else:
-                    # Try to get from main_record dict
-                    value = main_record.get(field_name)
+                # Get value using helper method
+                value = self._get_field_value_from_record(
+                    field_name, record, main_record
+                )
 
                 # Format the value
                 formatted_value = self._format_value(value, field_type)
@@ -284,24 +382,10 @@ class VerodatLogger:
             for field_name, field_spec in fields.items():
                 field_type = field_spec.get("type", "string")
 
-                # Map field names to record attributes
-                if field_name == "assessment_id":
-                    value = record.assessment_id
-                elif field_name == "timestamp":
-                    value = record.timestamp
-                elif field_name == "adri_version":
-                    value = record.adri_version
-                elif field_name == "function_name":
-                    value = record.execution_context.get("function_name", "")
-                elif field_name == "overall_score":
-                    value = record.assessment_results.get("overall_score", 0.0)
-                elif field_name == "passed":
-                    value = record.assessment_results.get("passed", False)
-                elif field_name == "row_count":
-                    value = record.data_fingerprint.get("row_count", 0)
-                else:
-                    # Try to get from main_record dict
-                    value = main_record.get(field_name)
+                # Get value using helper method
+                value = self._get_dict_format_field_value(
+                    field_name, record, main_record
+                )
 
                 # Format the value
                 formatted_value = self._format_value(value, field_type)

@@ -1,5 +1,5 @@
 """
-ADRI - Stop Your AI Agents Breaking on Bad Data
+ADRI - Stop Your AI Agents Breaking on Bad Data.
 
 A data quality assessment framework that protects AI agents from unreliable data.
 Simple decorator-based API with comprehensive CLI tools for data teams.

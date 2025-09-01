@@ -1,5 +1,5 @@
 """
-ADRI Standards Module
+ADRI Standards Module.
 
 This module provides standards loading functionality for the ADRI validator.
 Standards are loaded from the adri-standards submodule to ensure offline-first
@@ -17,7 +17,7 @@ default_loader = StandardsLoader()
 
 def load_standard(standard_name: str):
     """
-    Convenience function to load a standard using the default loader.
+    Load a standard using the default loader.
 
     Args:
         standard_name: Name of the standard to load
@@ -34,7 +34,7 @@ def load_standard(standard_name: str):
 
 def list_available_standards():
     """
-    Convenience function to list available standards.
+    List available standards.
 
     Returns:
         list: List of available standard names
@@ -44,7 +44,7 @@ def list_available_standards():
 
 def standard_exists(standard_name: str) -> bool:
     """
-    Convenience function to check if a standard exists.
+    Check if a standard exists.
 
     Args:
         standard_name: Name of the standard to check

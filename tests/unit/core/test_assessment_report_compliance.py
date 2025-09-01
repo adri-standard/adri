@@ -336,7 +336,7 @@ class TestAssessmentReportCompliance:
         # Load the v0.1.0 standard
         try:
             standard = YAMLStandards(
-                "ADRI Catalogue/Open Source/adri_assessment_report_standard.yaml"
+                "adri-catalogue/Open Source/adri_assessment_report_standard.yaml"
             )
 
             # Generate a report

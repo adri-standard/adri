@@ -1,5 +1,5 @@
 """
-ADRI Decorators Module
+ADRI Decorators Module.
 
 Provides decorators for data quality protection in agent workflows.
 """

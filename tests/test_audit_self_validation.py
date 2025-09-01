@@ -198,11 +198,6 @@ class TestAuditSelfValidation(unittest.TestCase):
         # Now validate the audit logs using ADRI standards
         log_files = self.logger.get_log_files()
 
-        # Load the audit log standards
-        standards_dir = (
-            Path(__file__).parent.parent / "adri" / "standards" / "audit_logs"
-        )
-
         # Create a mock validator for demonstration
         # In production, this would use the actual ADRIValidator
         validation_results = {

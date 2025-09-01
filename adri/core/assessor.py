@@ -18,6 +18,7 @@ class BundledStandardWrapper:
     """Wrapper class to make bundled standards compatible with YAML standard interface."""
 
     def __init__(self, standard_dict: Dict[str, Any]):
+        """Initialize wrapper with bundled standard dictionary."""
         self.standard_dict = standard_dict
 
     def get_field_requirements(self) -> Dict[str, Any]:
@@ -53,6 +54,7 @@ class AssessmentResult:
         assessment_date=None,
         metadata: Optional[Dict[str, Any]] = None,
     ):
+        """Initialize assessment result with scores and metadata."""
         self.overall_score = overall_score
         self.passed = bool(passed)  # Ensure it's a Python bool, not numpy bool
         self.dimension_scores = dimension_scores
@@ -229,6 +231,7 @@ class DimensionScore:
         issues: Optional[List[Any]] = None,
         details: Optional[Dict[str, Any]] = None,
     ):
+        """Initialize dimension score with value and metadata."""
         self.score = score
         self.max_score = max_score
         self.issues = issues or []
@@ -254,6 +257,7 @@ class FieldAnalysis:
         ml_readiness: Optional[str] = None,
         recommended_actions: Optional[List[Any]] = None,
     ):
+        """Initialize field analysis with statistics and recommendations."""
         self.field_name = field_name
         self.data_type = data_type
         self.null_count = null_count
@@ -317,6 +321,7 @@ class RuleExecutionResult:
         score: Optional[float] = None,
         message: str = "",
     ):
+        """Initialize rule execution result with performance and failure data."""
         # Support both old and new signatures
         if rule_name is not None:
             # Old signature compatibility
