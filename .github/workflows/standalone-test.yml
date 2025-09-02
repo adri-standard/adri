@@ -60,12 +60,15 @@ jobs:
         python -c "from adri.standards.loader import list_bundled_standards; standards = list_bundled_standards(); print(f'Found {len(standards)} bundled standards'); [print(f'  - {s}') for s in standards]"
 
     - name: Test standards loading
+      env:
+        PYTHONIOENCODING: utf-8
+        PYTHONUTF8: 1
       run: |
         python -c "
         from adri.standards.loader import StandardsLoader
         loader = StandardsLoader()
         standard = loader.load_standard('test_func_data_standard')
-        print('✅ Successfully loaded test_func_data_standard')
+        print('Successfully loaded test_func_data_standard')
         "
 
     - name: Run standalone tests
@@ -73,21 +76,27 @@ jobs:
         pytest tests/test_standalone_operation.py -v --tb=short
 
     - name: Test decorator functionality
+      env:
+        PYTHONIOENCODING: utf-8
+        PYTHONUTF8: 1
       run: |
         python -c "
         import pandas as pd
         from adri.decorators import adri_protected
 
-        @adri_protected(standard='test_func_data_standard', min_score=50.0)
+        @adri_protected(standard_name='test_func_data_standard', min_score=50.0)
         def test_func(df):
             return df
 
         df = pd.DataFrame({'id': [1,2,3], 'value': [10,20,30]})
         result = test_func(df)
-        print('✅ Decorator test passed')
+        print('Decorator test passed')
         "
 
     - name: Test in air-gapped simulation
+      env:
+        PYTHONIOENCODING: utf-8
+        PYTHONUTF8: 1
       run: |
         python -c "
         import os
@@ -98,7 +107,7 @@ jobs:
         loader = StandardsLoader()
         standards = loader.list_available_standards()
         assert len(standards) > 0, 'No standards in air-gapped mode'
-        print(f'✅ Air-gapped test passed with {len(standards)} standards')
+        print(f'Air-gapped test passed with {len(standards)} standards')
         "
 
   test-deployment-scenarios:
@@ -136,7 +145,7 @@ jobs:
         python -m venv wheel_env
         source wheel_env/bin/activate || wheel_env\Scripts\activate
         pip install dist/*.whl
-        python -c "from adri.decorators import adri_protected; print('✅ Wheel installation successful')"
+        python -c "from adri.decorators import adri_protected; print('Wheel installation successful')"
         deactivate
 
   test-docker-deployment:
@@ -258,7 +267,7 @@ jobs:
         # Benchmark validation
         from adri.decorators import adri_protected
 
-        @adri_protected(standard='test_func_data_standard', min_score=50.0)
+        @adri_protected(standard_name='test_func_data_standard', min_score=50.0)
         def validate(df):
             return df
 
