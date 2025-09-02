@@ -84,7 +84,7 @@ jobs:
         import pandas as pd
         from adri.decorators import adri_protected
 
-        @adri_protected(standard_name='test_func_data_standard', min_score=50.0)
+        @adri_protected(data_param='df', standard_name='test_func_data_standard', min_score=50.0)
         def test_func(df):
             return df
 
@@ -267,7 +267,7 @@ jobs:
         # Benchmark validation
         from adri.decorators import adri_protected
 
-        @adri_protected(standard_name='test_func_data_standard', min_score=50.0)
+        @adri_protected(data_param='df', standard_name='test_func_data_standard', min_score=50.0)
         def validate(df):
             return df
 
