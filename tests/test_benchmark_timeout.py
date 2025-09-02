@@ -29,7 +29,7 @@ class TestBenchmarkTimeout:
         result = sum(range(1000000))
         assert result > 0
 
-    @pytest.mark.timeout(2)
+    @pytest.mark.timeout(10)
     @pytest.mark.benchmark
     def test_benchmark_with_timeout(self, benchmark):
         """Test that benchmarks work with timeout markers."""

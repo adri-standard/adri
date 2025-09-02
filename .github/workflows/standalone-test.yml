@@ -14,6 +14,7 @@ jobs:
   verify-standalone:
     name: Verify Standalone Operation
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:
@@ -99,6 +100,7 @@ jobs:
   test-deployment-scenarios:
     name: Test Deployment Scenarios
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
     - uses: actions/checkout@v3
@@ -133,6 +135,7 @@ jobs:
   test-docker-deployment:
     name: Test Docker Deployment
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
     - uses: actions/checkout@v3
@@ -159,6 +162,7 @@ jobs:
   integration-tests:
     name: Integration Tests
     runs-on: ubuntu-latest
+    timeout-minutes: 20
 
     steps:
     - uses: actions/checkout@v3
@@ -187,6 +191,7 @@ jobs:
   security-scan:
     name: Security Scan
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
     - uses: actions/checkout@v3
@@ -214,6 +219,7 @@ jobs:
   performance-benchmark:
     name: Performance Benchmark
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
     - uses: actions/checkout@v3
@@ -259,6 +265,7 @@ jobs:
   publish-check:
     name: Publish Readiness Check
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     steps:
