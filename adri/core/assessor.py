@@ -498,12 +498,11 @@ class DataQualityAssessor:
             )
 
             # Send to Verodat if configured
-            if (
-                hasattr(self.audit_logger, "verodat_logger")
-                and self.audit_logger.verodat_logger
-            ):
-                # Add the audit record to the batch
-                self.audit_logger.verodat_logger.add_to_batch(audit_record)
+            if hasattr(self.audit_logger, "verodat_logger"):
+                verodat_logger = getattr(self.audit_logger, "verodat_logger", None)
+                if verodat_logger:
+                    # Add the audit record to the batch
+                    verodat_logger.add_to_batch(audit_record)
 
                 # The VerodatLogger will handle batching and auto-flush at the configured batch size
                 # For immediate upload (useful for testing), we could call flush_all() here

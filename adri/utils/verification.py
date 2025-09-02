@@ -7,7 +7,7 @@ in standalone mode without external dependencies.
 
 import os
 import sys
-from typing import Dict, List, Tuple
+from typing import Any, Dict, List, Tuple
 
 from adri.standards.loader import StandardsLoader
 from adri.version import __version__
@@ -127,7 +127,7 @@ def list_bundled_standards() -> List[Dict[str, str]]:
     return standards
 
 
-def check_system_compatibility() -> Dict[str, any]:
+def check_system_compatibility() -> Dict[str, Any]:
     """
     Check system compatibility for ADRI Validator.
 
@@ -136,7 +136,7 @@ def check_system_compatibility() -> Dict[str, any]:
     """
     import platform
 
-    info = {
+    info: Dict[str, Any] = {
         "python_version": sys.version,
         "python_version_tuple": sys.version_info[:3],
         "platform": platform.platform(),

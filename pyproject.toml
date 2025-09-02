@@ -53,6 +53,7 @@ dev = [
     "bandit[toml]>=1.7",
     "safety>=2.3",
     "pip-audit>=2.6",
+    "types-requests>=2.28.0",  # Type stubs for requests library
 ]
 test = [
     "pytest>=7.0",

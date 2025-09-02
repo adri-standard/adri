@@ -49,13 +49,13 @@ class VerodatLogger:
         self.verify_ssl = connection_settings.get("verify_ssl", True)
 
         # Initialize batches
-        self._assessment_logs_batch = []
-        self._dimension_scores_batch = []
-        self._failed_validations_batch = []
+        self._assessment_logs_batch: List[AuditRecord] = []
+        self._dimension_scores_batch: List[AuditRecord] = []
+        self._failed_validations_batch: List[AuditRecord] = []
         self._batch_lock = threading.Lock()
 
         # Load standards cache
-        self._standards_cache = {}
+        self._standards_cache: Dict[str, Dict[str, Any]] = {}
 
     def _resolve_env_var(self, value: str) -> str:
         """Resolve environment variable references like ${VAR_NAME}."""
@@ -87,7 +87,7 @@ class VerodatLogger:
         for path in standard_paths:
             if os.path.exists(path):
                 with open(path, "r") as f:
-                    standard = yaml.safe_load(f)
+                    standard = yaml.safe_load(f) or {}
                     self._standards_cache[standard_name] = standard
                     return standard
 
@@ -257,7 +257,7 @@ class VerodatLogger:
         """Get performance metrics field values."""
         if field_name == "assessment_duration_ms":
             duration = record.performance_metrics.get("assessment_duration_ms")
-            return int(duration) if duration else 0
+            return int(duration) if duration is not None else 0
         elif field_name == "rows_per_second":
             return record.performance_metrics.get("rows_per_second")
         elif field_name == "cache_used":
@@ -409,61 +409,65 @@ class VerodatLogger:
         rows = []
         dimension_scores = record.assessment_results.get("dimension_scores", {})
 
-        for dim_name, dim_score in dimension_scores.items():
-            row = []
-            fields = standard.get("fields", [])
+        # Ensure dimension_scores is a dict
+        if isinstance(dimension_scores, dict):
+            for dim_name, dim_score in dimension_scores.items():
+                row = []
+                fields = standard.get("fields", [])
 
-            # Handle both list and dict formats
-            if isinstance(fields, list):
-                # List format (actual ADRI standard structure)
-                for field_spec in fields:
-                    field_name = field_spec.get("name")
-                    field_type = field_spec.get("type", "string")
+                # Handle both list and dict formats
+                if isinstance(fields, list):
+                    # List format (actual ADRI standard structure)
+                    for field_spec in fields:
+                        field_name = field_spec.get("name")
+                        field_type = field_spec.get("type", "string")
 
-                    if field_name == "assessment_id":
-                        value = record.assessment_id
-                    elif field_name == "dimension_name":
-                        value = dim_name
-                    elif field_name == "dimension_score":
-                        value = dim_score
-                    elif field_name == "dimension_passed":
-                        # Consider dimension passed if score > 15 (based on ADRI spec)
-                        value = "TRUE" if dim_score > 15 else "FALSE"
-                    elif field_name == "issues_found":
-                        # Calculate issues found for this dimension
-                        value = 0  # Default, would need more info from assessment
-                    elif field_name == "details":
-                        # Additional details as JSON
-                        value = json.dumps({"score": dim_score, "dimension": dim_name})
-                    elif field_name == "G360_VERSION_KEY":
-                        # Compound key from assessment_id:dimension_name
-                        value = f"{record.assessment_id}:{dim_name}"
-                    else:
-                        value = None
+                        if field_name == "assessment_id":
+                            value = record.assessment_id
+                        elif field_name == "dimension_name":
+                            value = dim_name
+                        elif field_name == "dimension_score":
+                            value = dim_score
+                        elif field_name == "dimension_passed":
+                            # Consider dimension passed if score > 15 (based on ADRI spec)
+                            value = "TRUE" if dim_score > 15 else "FALSE"
+                        elif field_name == "issues_found":
+                            # Calculate issues found for this dimension
+                            value = "0"  # Default, would need more info from assessment
+                        elif field_name == "details":
+                            # Additional details as JSON
+                            value = json.dumps(
+                                {"score": dim_score, "dimension": dim_name}
+                            )
+                        elif field_name == "G360_VERSION_KEY":
+                            # Compound key from assessment_id:dimension_name
+                            value = f"{record.assessment_id}:{dim_name}"
+                        else:
+                            value = None
 
-                    formatted_value = self._format_value(value, field_type)
-                    row.append(formatted_value)
-            else:
-                # Dict format (for testing compatibility)
-                for field_name, field_spec in fields.items():
-                    field_type = field_spec.get("type", "string")
+                        formatted_value = self._format_value(value, field_type)
+                        row.append(formatted_value)
+                else:
+                    # Dict format (for testing compatibility)
+                    for field_name, field_spec in fields.items():
+                        field_type = field_spec.get("type", "string")
 
-                    if field_name == "assessment_id":
-                        value = record.assessment_id
-                    elif field_name == "dimension_name":
-                        value = dim_name
-                    elif field_name == "dimension_score":
-                        value = dim_score
-                    elif field_name == "dimension_passed":
-                        # Consider dimension passed if score > 15 (based on original code)
-                        value = dim_score > 15
-                    else:
-                        value = None
+                        if field_name == "assessment_id":
+                            value = record.assessment_id
+                        elif field_name == "dimension_name":
+                            value = dim_name
+                        elif field_name == "dimension_score":
+                            value = dim_score
+                        elif field_name == "dimension_passed":
+                            # Consider dimension passed if score > 15 (based on original code)
+                            value = dim_score > 15
+                        else:
+                            value = None
 
-                    formatted_value = self._format_value(value, field_type)
-                    row.append(formatted_value)
+                        formatted_value = self._format_value(value, field_type)
+                        row.append(formatted_value)
 
-            rows.append(row)
+                rows.append(row)
 
         return rows
 
@@ -480,10 +484,16 @@ class VerodatLogger:
         Returns:
             List of rows, one per failed validation
         """
-        rows = []
-        failed_checks = record.assessment_results.get("failed_checks", [])
+        rows: List[List[Any]] = []
+        failed_checks_list = record.assessment_results.get("failed_checks", [])
 
-        for idx, check in enumerate(failed_checks):
+        # Ensure failed_checks_list is a list
+        if not isinstance(failed_checks_list, list):
+            return rows
+
+        for idx, check in enumerate(failed_checks_list):
+            if not isinstance(check, dict):
+                continue
             row = []
             fields = standard.get("fields", [])
 
@@ -502,7 +512,7 @@ class VerodatLogger:
                     elif field_name == "dimension":
                         value = check.get("dimension", "unknown")
                     elif field_name == "field_name":
-                        value = check.get("field_name")
+                        value = check.get("field_name") or ""
                     elif field_name == "issue_type":
                         value = check.get("issue_type", "unknown")
                     elif field_name == "affected_rows":
@@ -511,9 +521,9 @@ class VerodatLogger:
                         value = check.get("affected_percentage", 0.0)
                     elif field_name == "sample_failures":
                         samples = check.get("sample_failures", [])
-                        value = json.dumps(samples) if samples else None
+                        value = json.dumps(samples) if samples else ""
                     elif field_name == "remediation":
-                        value = check.get("remediation")
+                        value = check.get("remediation") or ""
                     elif field_name == "G360_VERSION_KEY":
                         # Compound key from assessment_id:validation_id
                         value = f"{record.assessment_id}:{validation_id}"

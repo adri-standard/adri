@@ -32,7 +32,7 @@ def _get_version_from_metadata() -> str:
             pyproject_path = ospath.join(current_dir, "pyproject.toml")
             if ospath.exists(pyproject_path):
                 try:
-                    import tomllib  # Python 3.11+
+                    import tomllib  # type: ignore  # Python 3.11+
                 except ImportError:
                     try:
                         import tomli as tomllib  # Python < 3.11

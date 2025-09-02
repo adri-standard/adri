@@ -140,34 +140,41 @@ class AuditRecord:
 
         # Dimension records for adri_dimension_scores
         dimension_records = []
-        for dim_name, dim_score in self.assessment_results["dimension_scores"].items():
-            dimension_records.append(
-                {
-                    "assessment_id": self.assessment_id,
-                    "dimension_name": dim_name,
-                    "dimension_score": dim_score,
-                    "dimension_passed": "TRUE" if dim_score > 15 else "FALSE",
-                    "issues_found": 0,  # Will be populated from failed_checks
-                    "details": "{}",
-                }
-            )
+        dimension_scores_dict = self.assessment_results.get("dimension_scores", {})
+        if isinstance(dimension_scores_dict, dict):
+            for dim_name, dim_score in dimension_scores_dict.items():
+                dimension_records.append(
+                    {
+                        "assessment_id": self.assessment_id,
+                        "dimension_name": dim_name,
+                        "dimension_score": dim_score,
+                        "dimension_passed": "TRUE" if dim_score > 15 else "FALSE",
+                        "issues_found": 0,  # Will be populated from failed_checks
+                        "details": "{}",
+                    }
+                )
 
         # Failed validation records for adri_failed_validations
         failed_validation_records = []
-        for idx, check in enumerate(self.assessment_results.get("failed_checks", [])):
-            failed_validation_records.append(
-                {
-                    "assessment_id": self.assessment_id,
-                    "validation_id": f"val_{idx:03d}",
-                    "dimension": check.get("dimension", "unknown"),
-                    "field_name": check.get("field", ""),
-                    "issue_type": check.get("issue", "unknown"),
-                    "affected_rows": check.get("affected_rows", 0),
-                    "affected_percentage": check.get("affected_percentage", 0.0),
-                    "sample_failures": json.dumps(check.get("samples", [])),
-                    "remediation": check.get("remediation", ""),
-                }
-            )
+        failed_checks_list = self.assessment_results.get("failed_checks", [])
+        if isinstance(failed_checks_list, list):
+            for idx, check in enumerate(failed_checks_list):
+                if isinstance(check, dict):
+                    failed_validation_records.append(
+                        {
+                            "assessment_id": self.assessment_id,
+                            "validation_id": f"val_{idx:03d}",
+                            "dimension": check.get("dimension", "unknown"),
+                            "field_name": check.get("field", ""),
+                            "issue_type": check.get("issue", "unknown"),
+                            "affected_rows": check.get("affected_rows", 0),
+                            "affected_percentage": check.get(
+                                "affected_percentage", 0.0
+                            ),
+                            "sample_failures": json.dumps(check.get("samples", [])),
+                            "remediation": check.get("remediation", ""),
+                        }
+                    )
 
         return {
             "main_record": main_record,
@@ -205,7 +212,7 @@ class AuditLogger:
 
         # Thread safety
         self._lock = threading.Lock()
-        self._batch = []
+        self._batch: List[AuditRecord] = []
 
     def log_assessment(
         self,

@@ -13,7 +13,10 @@ import socket
 import threading
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .verodat_logger import VerodatLogger
 
 from adri.version import __version__
 
@@ -93,6 +96,18 @@ class AuditRecord:
             "action_taken": self.action_taken,
         }
 
+    def _count_dimension_issues(self, dim_name: str) -> int:
+        """Count issues for a specific dimension."""
+        failed_checks = self.assessment_results.get("failed_checks")
+        if not isinstance(failed_checks, list):
+            return 0
+
+        count = 0
+        for check in failed_checks:
+            if isinstance(check, dict) and check.get("dimension") == dim_name:
+                count += 1
+        return count
+
     def to_json(self) -> str:
         """Convert audit record to JSON string."""
         return json.dumps(self.to_dict(), default=str)
@@ -141,46 +156,44 @@ class AuditRecord:
 
         # Dimension records for adri_dimension_scores
         dimension_records = []
-        for dim_name, dim_score in self.assessment_results["dimension_scores"].items():
-            dimension_records.append(
-                {
-                    "assessment_id": self.assessment_id,
-                    "dimension_name": dim_name,
-                    "dimension_score": dim_score,
-                    "dimension_passed": "TRUE" if dim_score > 15 else "FALSE",
-                    "issues_found": len(
-                        [
-                            c
-                            for c in self.assessment_results.get("failed_checks", [])
-                            if c.get("dimension") == dim_name
-                        ]
-                    ),
-                    "details": json.dumps(
-                        {
-                            "score": dim_score,
-                            "max_score": 20,
-                            "percentage": (dim_score / 20) * 100,
-                        }
-                    ),
-                }
-            )
+        dimension_scores_dict = self.assessment_results.get("dimension_scores", {})
+        if isinstance(dimension_scores_dict, dict):
+            for dim_name, dim_score in dimension_scores_dict.items():
+                dimension_records.append(
+                    {
+                        "assessment_id": self.assessment_id,
+                        "dimension_name": dim_name,
+                        "dimension_score": dim_score,
+                        "dimension_passed": "TRUE" if dim_score > 15 else "FALSE",
+                        "issues_found": self._count_dimension_issues(dim_name),
+                        "details": json.dumps(
+                            {
+                                "score": dim_score,
+                                "max_score": 20,
+                                "percentage": (dim_score / 20) * 100,
+                            }
+                        ),
+                    }
+                )
 
         # Failed validation records for adri_failed_validations
         failed_validation_records = []
-        for idx, check in enumerate(self.assessment_results.get("failed_checks", [])):
-            failed_validation_records.append(
-                {
-                    "assessment_id": self.assessment_id,
-                    "validation_id": f"val_{idx:03d}",
-                    "dimension": check.get("dimension", "unknown"),
-                    "field_name": check.get("field", ""),
-                    "issue_type": check.get("issue", "unknown"),
-                    "affected_rows": check.get("affected_rows", 0),
-                    "affected_percentage": check.get("affected_percentage", 0.0),
-                    "sample_failures": json.dumps(check.get("samples", [])),
-                    "remediation": check.get("remediation", ""),
-                }
-            )
+        failed_checks_list = self.assessment_results.get("failed_checks", [])
+        if isinstance(failed_checks_list, list):
+            for idx, check in enumerate(failed_checks_list):
+                failed_validation_records.append(
+                    {
+                        "assessment_id": self.assessment_id,
+                        "validation_id": f"val_{idx:03d}",
+                        "dimension": check.get("dimension", "unknown"),
+                        "field_name": check.get("field", ""),
+                        "issue_type": check.get("issue", "unknown"),
+                        "affected_rows": check.get("affected_rows", 0),
+                        "affected_percentage": check.get("affected_percentage", 0.0),
+                        "sample_failures": json.dumps(check.get("samples", [])),
+                        "remediation": check.get("remediation", ""),
+                    }
+                )
 
         return {
             "main_record": main_record,
@@ -277,6 +290,9 @@ class CSVAuditLogger:
 
         # Thread safety
         self._lock = threading.Lock()
+
+        # Optional Verodat logger for external integration
+        self.verodat_logger: Optional["VerodatLogger"] = None
 
         # Initialize CSV files if enabled
         if self.enabled:
