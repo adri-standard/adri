@@ -24,7 +24,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install black isort flake8 mypy pylint
-        pip install types-PyYAML types-click types-setuptools
+        pip install types-PyYAML types-click types-setuptools types-requests
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
         pip install -e .
 
