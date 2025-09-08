@@ -1,0 +1,40 @@
+title: ADRI - Agent Data Reliability Intelligence
+description: Stop AI Agents Breaking on Bad Data - Open source data quality validation framework
+url: "https://adri-standard.github.io"
+baseurl: "/adri"
+
+# Theme
+theme: minima
+plugins:
+  - jekyll-feed
+  - jekyll-sitemap
+
+# Navigation
+header_pages:
+  - index.md
+  - quick-start.md
+  - frameworks.md
+
+# Settings
+markdown: kramdown
+highlighter: rouge
+permalink: pretty
+
+# SEO
+author: ADRI Standard
+twitter:
+  username: adri_standard
+  card: summary
+
+github:
+  repository_url: "https://github.com/adri-standard/adri"
+
+# Exclude from processing
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor/bundle/
+  - vendor/cache/
+  - vendor/gems/
+  - vendor/ruby/

@@ -72,7 +72,7 @@ def llamaindex_rag_query(query_data):
     return engine.query(query_data)
 ```
 
-[See all framework examples →](examples/)
+**Need more examples?** Check our [complete framework guide](https://adri-standard.github.io/adri/frameworks) with copy-paste ready code.
 
 ## What You Get
 
@@ -175,13 +175,13 @@ cd adri && pip install -e .
 
 Complete working examples for every major AI framework:
 
-- **[LangChain Integration](examples/langchain_basic.py)** - Chains, prompts, conversations
-- **[CrewAI Integration](examples/crewai_basic.py)** - Multi-agent crews and tasks
-- **[AutoGen Integration](examples/autogen_basic.py)** - Agent conversations and coordination
-- **[LlamaIndex Integration](examples/llamaindex_basic.py)** - RAG queries and document processing
-- **[Haystack Integration](examples/haystack_basic.py)** - Search pipelines and retrievers
-- **[LangGraph Integration](examples/langgraph_basic.py)** - Graph workflows and state management
-- **[Semantic Kernel Integration](examples/semantic_kernel_basic.py)** - Kernel functions and AI services
+- **[LangChain Integration](https://adri-standard.github.io/adri/frameworks#langchain)** - Chains, prompts, conversations
+- **[CrewAI Integration](https://adri-standard.github.io/adri/frameworks#crewai)** - Multi-agent crews and tasks
+- **[AutoGen Integration](https://adri-standard.github.io/adri/frameworks#autogen)** - Agent conversations and coordination
+- **[LlamaIndex Integration](https://adri-standard.github.io/adri/frameworks#llamaindex)** - RAG queries and document processing
+- **[Haystack Integration](https://adri-standard.github.io/adri/frameworks#haystack)** - Search pipelines and retrievers
+- **[LangGraph Integration](https://adri-standard.github.io/adri/frameworks#langgraph)** - Graph workflows and state management
+- **[Semantic Kernel Integration](https://adri-standard.github.io/adri/frameworks#semantic-kernel)** - Kernel functions and AI services
 
 ## Documentation
 
