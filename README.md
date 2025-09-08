@@ -15,7 +15,7 @@ def analyze_customer(data):
 ```
 
 ```python
-# With ADRI - Agent protected automatically  
+# With ADRI - Agent protected automatically
 @adri_protected
 def analyze_customer(data):
     return risky_analysis(data)  # ✅ Bad data blocked automatically
@@ -48,7 +48,7 @@ def langchain_customer_service(customer_data):
     return chain.invoke(customer_data)
 ```
 
-### CrewAI  
+### CrewAI
 ```python
 @adri_protected
 def crewai_market_analysis(market_data):
@@ -76,11 +76,11 @@ def llamaindex_rag_query(query_data):
 
 ## What You Get
 
-✅ **Zero Configuration** - Works immediately with 15 built-in standards  
-✅ **Sub-millisecond Validation** - Intelligent caching for performance  
-✅ **Framework Agnostic** - Drop into any Python AI workflow  
-✅ **Offline First** - No external dependencies or network calls  
-✅ **Automatic Standards** - Generates data quality rules from your function names  
+✅ **Zero Configuration** - Works immediately with 15 built-in standards
+✅ **Sub-millisecond Validation** - Intelligent caching for performance
+✅ **Framework Agnostic** - Drop into any Python AI workflow
+✅ **Offline First** - No external dependencies or network calls
+✅ **Automatic Standards** - Generates data quality rules from your function names
 
 ## When ADRI Protects Your Agent
 
@@ -150,7 +150,7 @@ adri profile data.csv
 ADRI includes 15 production-ready standards:
 
 - **Customer Data** - Profiles, service records, analytics
-- **Financial Data** - Risk analysis, transactions, compliance  
+- **Financial Data** - Risk analysis, transactions, compliance
 - **Agent Communication** - Multi-agent conversation data
 - **RAG Documents** - Knowledge base and retrieval data
 - **Time Series** - Analytics and forecasting data
@@ -176,7 +176,7 @@ cd adri && pip install -e .
 Complete working examples for every major AI framework:
 
 - **[LangChain Integration](examples/langchain_basic.py)** - Chains, prompts, conversations
-- **[CrewAI Integration](examples/crewai_basic.py)** - Multi-agent crews and tasks  
+- **[CrewAI Integration](examples/crewai_basic.py)** - Multi-agent crews and tasks
 - **[AutoGen Integration](examples/autogen_basic.py)** - Agent conversations and coordination
 - **[LlamaIndex Integration](examples/llamaindex_basic.py)** - RAG queries and document processing
 - **[Haystack Integration](examples/haystack_basic.py)** - Search pipelines and retrievers

@@ -2,7 +2,7 @@
 """
 Release preparation script for ADRI Validator with PyPI-first version management.
 
-This script uses PyPI as the single source of truth for current versions and 
+This script uses PyPI as the single source of truth for current versions and
 automatically creates draft releases based on change types rather than manual version numbers.
 
 Features:
@@ -25,7 +25,8 @@ from typing import Dict, List, Optional, Tuple
 
 # Import our PyPI manager for live version checking
 try:
-    from pypi_manager import PyPIManager, PyPIError
+    from pypi_manager import PyPIError, PyPIManager
+
     PYPI_INTEGRATION_AVAILABLE = True
 except ImportError:
     PYPI_INTEGRATION_AVAILABLE = False
@@ -39,7 +40,7 @@ class ReleasePreparator:
         """Initialize the release preparator with PyPI integration."""
         self.check_gh_cli()
         self.templates_dir = Path("templates/release-notes")
-        
+
         # Initialize PyPI manager if available
         self.pypi_manager = None
         self.use_pypi = use_pypi and PYPI_INTEGRATION_AVAILABLE
@@ -50,7 +51,7 @@ class ReleasePreparator:
             except Exception as e:
                 print(f"Warning: Could not initialize PyPI manager: {e}")
                 self.use_pypi = False
-        
+
         if not self.use_pypi:
             print("⚠️ Using pyproject.toml version instead of PyPI")
 
@@ -84,22 +85,22 @@ class ReleasePreparator:
         """Get current version from PyPI (primary source of truth)."""
         if not self.use_pypi or not self.pypi_manager:
             return None
-        
+
         try:
             # Get production version first, fallback to TestPyPI
             current_version = self.pypi_manager.get_current_production_version()
             if current_version:
                 print(f"📦 Current production version from PyPI: {current_version}")
                 return current_version
-            
+
             current_version = self.pypi_manager.get_current_testpypi_version()
             if current_version:
                 print(f"🧪 Current version from TestPyPI: {current_version}")
                 return current_version
-                
+
             print("⚠️ No versions found on PyPI/TestPyPI")
             return None
-            
+
         except Exception as e:
             print(f"Warning: Could not get version from PyPI: {e}")
             return None
@@ -137,7 +138,7 @@ class ReleasePreparator:
         pypi_version = self.get_current_version_from_pypi()
         if pypi_version:
             return pypi_version
-        
+
         # Fallback to pyproject.toml
         print("📋 Using pyproject.toml version as fallback")
         return self.get_current_version_from_pyproject()
@@ -146,11 +147,11 @@ class ReleasePreparator:
         """Synchronize VERSION.json with PyPI reality."""
         if not self.use_pypi or not self.pypi_manager:
             return False
-        
+
         try:
             print("🔄 Synchronizing VERSION.json with PyPI...")
             updates = self.pypi_manager.sync_version_json_with_pypi(dry_run=False)
-            
+
             if updates:
                 print("✅ VERSION.json synchronized with PyPI:")
                 for field, change in updates.items():
@@ -159,7 +160,7 @@ class ReleasePreparator:
             else:
                 print("✅ VERSION.json already synchronized")
                 return True
-                
+
         except Exception as e:
             print(f"Warning: Could not sync VERSION.json: {e}")
             return False
@@ -440,31 +441,35 @@ Deployment Status: 🟡 Pending (will be updated automatically during release)
         except Exception as e:
             print(f"Warning: Could not create/update draft {title}: {e}")
 
-    def prepare_release_by_type(self, change_type: str, beta: bool = False, sync_version: bool = True):
+    def prepare_release_by_type(
+        self, change_type: str, beta: bool = False, sync_version: bool = True
+    ):
         """Prepare a single release based on change type - PyPI-first approach."""
         print(f"🚀 Preparing ADRI Validator {change_type} release...")
-        
+
         # Sync VERSION.json first if enabled
         if sync_version:
             self.sync_version_json()
-        
+
         # Get current version using PyPI-first approach
         current_version = self.get_current_version()
         next_versions = self.calculate_next_versions(current_version)
-        
+
         # Validate change type
         if change_type not in next_versions:
-            raise ValueError(f"Invalid change type: {change_type}. Must be one of: {list(next_versions.keys())}")
-        
+            raise ValueError(
+                f"Invalid change type: {change_type}. Must be one of: {list(next_versions.keys())}"
+            )
+
         commits = self.get_commits_since_last_release(current_version)
-        
+
         print(f"📋 Current version: {current_version}")
         print(f"📝 Found {len(commits)} commits since last release")
         print(f"🎯 Creating {change_type} release candidate...")
-        
+
         # Clean up old drafts first
         self.cleanup_old_drafts()
-        
+
         # Determine release type and version
         if beta:
             release_type = f"beta-{change_type}"
@@ -480,13 +485,15 @@ Deployment Status: 🟡 Pending (will be updated automatically during release)
             emoji = {"patch": "🔧", "minor": "🚀", "major": "💥"}
             title = f"{emoji.get(change_type, '📦')} ADRI v{version} - {change_type.title()} Release (DRAFT)"
             is_prerelease = False
-        
+
         # Generate release notes
-        body = self.generate_release_notes(version, release_type, current_version, commits)
-        
+        body = self.generate_release_notes(
+            version, release_type, current_version, commits
+        )
+
         # Create the draft release
         self.create_or_update_draft(tag_name, title, body, is_prerelease)
-        
+
         print("✅ Release preparation completed!")
         print(f"📦 Created draft: {title}")
         print(f"🏷️ Tag: {tag_name}")
@@ -496,19 +503,19 @@ Deployment Status: 🟡 Pending (will be updated automatically during release)
         print("   1. Go to GitHub Releases")
         print("   2. Review and edit the draft release notes")
         print("   3. Publish the release to trigger deployment")
-        
+
         return {
             "version": version,
             "tag_name": tag_name,
             "title": title,
             "release_type": release_type,
-            "is_prerelease": is_prerelease
+            "is_prerelease": is_prerelease,
         }
 
     def prepare_all_releases(self, sync_version: bool = True):
         """Prepare all release drafts - legacy interface."""
         print("🚀 Preparing ADRI Validator release drafts...")
-        
+
         # Sync VERSION.json first if enabled
         if sync_version:
             self.sync_version_json()
@@ -564,40 +571,48 @@ Deployment Status: 🟡 Pending (will be updated automatically during release)
         """Show current version status across platforms."""
         if self.use_pypi and self.pypi_manager:
             status = self.pypi_manager.get_version_status_report()
-            
+
             print("📊 ADRI Version Status Report:")
             print("=" * 50)
             print(f"Production PyPI: {status['current_versions']['production_pypi']}")
             print(f"TestPyPI: {status['current_versions']['test_pypi']}")
-            print(f"VERSION.json Production: {status['current_versions']['version_json_production']}")
-            print(f"VERSION.json TestPyPI: {status['current_versions']['version_json_testpypi']}")
+            print(
+                f"VERSION.json Production: {status['current_versions']['version_json_production']}"
+            )
+            print(
+                f"VERSION.json TestPyPI: {status['current_versions']['version_json_testpypi']}"
+            )
             print()
-            
-            if status['sync_status']['needs_sync']:
+
+            if status["sync_status"]["needs_sync"]:
                 print("⚠️ Synchronization Issues Found:")
-                if not status['sync_status']['production_synced']:
-                    print(f"  • Production: VERSION.json has {status['current_versions']['version_json_production']}, PyPI has {status['current_versions']['production_pypi']}")
-                if not status['sync_status']['testpypi_synced']:
-                    print(f"  • TestPyPI: VERSION.json has {status['current_versions']['version_json_testpypi']}, PyPI has {status['current_versions']['test_pypi']}")
+                if not status["sync_status"]["production_synced"]:
+                    print(
+                        f"  • Production: VERSION.json has {status['current_versions']['version_json_production']}, PyPI has {status['current_versions']['production_pypi']}"
+                    )
+                if not status["sync_status"]["testpypi_synced"]:
+                    print(
+                        f"  • TestPyPI: VERSION.json has {status['current_versions']['version_json_testpypi']}, PyPI has {status['current_versions']['test_pypi']}"
+                    )
                 print()
             else:
                 print("✅ All versions synchronized")
                 print()
-            
-            if status['next_versions']:
+
+            if status["next_versions"]:
                 print("📈 Next Available Versions:")
-                for change_type, version in status['next_versions'].items():
+                for change_type, version in status["next_versions"].items():
                     print(f"  • {change_type.title()}: {version}")
                 print()
-            
+
             print("💡 Recommendations:")
-            for rec in status['recommendations']:
+            for rec in status["recommendations"]:
                 print(f"  • {rec}")
         else:
             # Fallback for when PyPI integration is not available
             current_version = self.get_current_version_from_pyproject()
             next_versions = self.calculate_next_versions(current_version)
-            
+
             print("📊 ADRI Version Status (pyproject.toml only):")
             print("=" * 50)
             print(f"Current Version: {current_version}")
@@ -610,7 +625,7 @@ Deployment Status: 🟡 Pending (will be updated automatically during release)
 def main():
     """Serve as main entry point with enhanced CLI interface."""
     import argparse
-    
+
     parser = argparse.ArgumentParser(
         description="ADRI Validator Release Preparation with PyPI-first version management",
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -621,88 +636,80 @@ Examples:
   python prepare_releases.py --type patch --beta  # Prepare beta patch release
   python prepare_releases.py --status          # Show version status
   python prepare_releases.py --sync            # Sync VERSION.json with PyPI
-  
+
 Change Types:
   patch     - Bug fixes and minor improvements (x.y.Z+1)
-  minor     - New features, backward compatible (x.Y+1.0)  
+  minor     - New features, backward compatible (x.Y+1.0)
   major     - Breaking changes (X+1.0.0)
-        """
+        """,
     )
-    
+
     parser.add_argument(
-        "--type", 
+        "--type",
         choices=["patch", "minor", "major"],
-        help="Create release for specific change type"
+        help="Create release for specific change type",
     )
-    
+
     parser.add_argument(
-        "--beta", 
-        action="store_true",
-        help="Create beta/pre-release version"
+        "--beta", action="store_true", help="Create beta/pre-release version"
     )
-    
+
     parser.add_argument(
-        "--status", 
+        "--status",
         action="store_true",
-        help="Show current version status across platforms"
+        help="Show current version status across platforms",
     )
-    
+
     parser.add_argument(
-        "--sync", 
-        action="store_true",
-        help="Synchronize VERSION.json with PyPI"
+        "--sync", action="store_true", help="Synchronize VERSION.json with PyPI"
     )
-    
+
     parser.add_argument(
-        "--no-sync", 
-        action="store_true",
-        help="Skip VERSION.json synchronization"
+        "--no-sync", action="store_true", help="Skip VERSION.json synchronization"
     )
-    
+
     parser.add_argument(
-        "--no-pypi", 
+        "--no-pypi",
         action="store_true",
-        help="Disable PyPI integration (use pyproject.toml only)"
+        help="Disable PyPI integration (use pyproject.toml only)",
     )
-    
+
     args = parser.parse_args()
-    
+
     try:
         # Initialize preparator
         use_pypi = not args.no_pypi
         preparator = ReleasePreparator(use_pypi=use_pypi)
-        
+
         # Handle different command modes
         if args.status:
             preparator.show_version_status()
-            
+
         elif args.sync:
             if preparator.sync_version_json():
                 print("✅ VERSION.json synchronization completed")
             else:
                 print("⚠️ VERSION.json synchronization not available or failed")
-                
+
         elif args.type:
             # Change-type-based release preparation
             sync_version = not args.no_sync
             result = preparator.prepare_release_by_type(
-                change_type=args.type,
-                beta=args.beta,
-                sync_version=sync_version
+                change_type=args.type, beta=args.beta, sync_version=sync_version
             )
-            
+
             # Output structured result for potential GitHub Actions usage
             print(f"\n# Release preparation result:")
             print(f"VERSION={result['version']}")
             print(f"TAG_NAME={result['tag_name']}")
             print(f"IS_PRERELEASE={str(result['is_prerelease']).lower()}")
             print(f"RELEASE_TYPE={result['release_type']}")
-            
+
         else:
             # Default: prepare all releases (legacy mode)
             sync_version = not args.no_sync
             preparator.prepare_all_releases(sync_version=sync_version)
-            
+
     except KeyboardInterrupt:
         print("\n🛑 Operation cancelled by user")
         sys.exit(1)
@@ -710,6 +717,7 @@ Change Types:
         print(f"❌ Error: {e}")
         if "--debug" in sys.argv:
             import traceback
+
             traceback.print_exc()
         sys.exit(1)
 

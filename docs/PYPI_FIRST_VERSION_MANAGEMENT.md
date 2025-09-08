@@ -6,18 +6,18 @@ The ADRI Validator now uses a **PyPI-first version management system** that elim
 
 ## Key Benefits
 
-✅ **Eliminates Version Drift**: No more out-of-sync VERSION.json files  
-✅ **Automated Version Calculation**: Change type selection instead of manual version numbers  
-✅ **PyPI Reality**: Always based on current PyPI deployment status  
-✅ **Error Prevention**: Prevents duplicate versions and synchronization issues  
-✅ **Audit Trail**: VERSION.json becomes an audit log rather than source of truth  
+✅ **Eliminates Version Drift**: No more out-of-sync VERSION.json files
+✅ **Automated Version Calculation**: Change type selection instead of manual version numbers
+✅ **PyPI Reality**: Always based on current PyPI deployment status
+✅ **Error Prevention**: Prevents duplicate versions and synchronization issues
+✅ **Audit Trail**: VERSION.json becomes an audit log rather than source of truth
 
 ## System Components
 
 ### 1. PyPI Manager (`scripts/pypi_manager.py`)
 Core module that handles PyPI API integration:
 - **Status Checking**: Retrieves current PyPI versions
-- **Synchronization**: Aligns VERSION.json with PyPI reality  
+- **Synchronization**: Aligns VERSION.json with PyPI reality
 - **Version Calculation**: Computes next versions based on change types
 
 ```bash
@@ -47,7 +47,7 @@ Transformed for change-type-based workflow:
 # Prepare minor production release
 python scripts/prepare_releases.py --type minor
 
-# Prepare beta minor release  
+# Prepare beta minor release
 python scripts/prepare_releases.py --type minor --beta
 
 # Check status and sync before preparation
@@ -100,7 +100,7 @@ python scripts/prepare_releases.py Release.Minor.v3.1.0
 git tag Release.Minor.v3.1.0
 ```
 
-### New Workflow  
+### New Workflow
 ```bash
 # Automated PyPI-first approach
 python scripts/prepare_releases.py --type minor
@@ -134,7 +134,7 @@ The system calculates next versions based on current PyPI state:
 2. Review draft release
 3. Publish release (triggers deployment)
 
-# Command line approach  
+# Command line approach
 python scripts/prepare_releases.py --type minor
 ```
 
@@ -168,21 +168,21 @@ python scripts/pypi_manager.py --sync
 ## Error Handling
 
 ### Version Conflicts
-**Problem**: Attempting to create version that already exists  
+**Problem**: Attempting to create version that already exists
 **Solution**: System automatically detects and suggests next available version
 
-### PyPI Sync Issues  
-**Problem**: VERSION.json out of sync with PyPI reality  
+### PyPI Sync Issues
+**Problem**: VERSION.json out of sync with PyPI reality
 **Solution**: Run `python scripts/pypi_manager.py --sync`
 
 ### Network Issues
-**Problem**: Cannot reach PyPI API  
+**Problem**: Cannot reach PyPI API
 **Solution**: System falls back to VERSION.json with warnings
 
 ## Validation Rules
 
 1. **PyPI Priority**: Live PyPI data takes precedence over local tracking
-2. **Semantic Versioning**: Enforces proper semantic version increments  
+2. **Semantic Versioning**: Enforces proper semantic version increments
 3. **No Duplicates**: Prevents creating versions that already exist
 4. **Beta Sequences**: Ensures proper beta version sequences
 
@@ -193,7 +193,7 @@ python scripts/pypi_manager.py --sync
 # ✅ Good - descriptive and automated
 python scripts/prepare_releases.py --type minor
 
-# ❌ Avoid - manual and error-prone  
+# ❌ Avoid - manual and error-prone
 python scripts/prepare_releases.py Release.Minor.v3.1.0
 ```
 

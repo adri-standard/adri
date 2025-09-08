@@ -40,23 +40,23 @@ jobs:
       run: |
         echo "🔍 Checking PyPI version status..."
         cd scripts
-        
+
         # Check current PyPI versions and sync status
         PYPI_STATUS=$(python pypi_manager.py --status --no-pypi 2>/dev/null || echo "fallback")
-        
+
         if [[ "$PYPI_STATUS" != "fallback" ]]; then
           echo "✅ PyPI integration available"
           echo "pypi_available=true" >> $GITHUB_OUTPUT
-          
+
           # Extract current versions
           PYPI_VERSION=$(echo "$PYPI_STATUS" | grep -o '"production_pypi": "[^"]*"' | cut -d'"' -f4)
           JSON_VERSION=$(echo "$PYPI_STATUS" | grep -o '"version_json_production": "[^"]*"' | cut -d'"' -f4)
           NEEDS_SYNC=$(echo "$PYPI_STATUS" | grep -o '"needs_sync": [^,}]*' | cut -d':' -f2 | tr -d ' ')
-          
+
           echo "📦 PyPI version: $PYPI_VERSION"
           echo "📋 VERSION.json: $JSON_VERSION"
           echo "🔄 Needs sync: $NEEDS_SYNC"
-          
+
           echo "pypi_version=$PYPI_VERSION" >> $GITHUB_OUTPUT
           echo "json_version=$JSON_VERSION" >> $GITHUB_OUTPUT
           echo "needs_sync=$NEEDS_SYNC" >> $GITHUB_OUTPUT

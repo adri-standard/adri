@@ -21,7 +21,8 @@ from typing import Dict, Optional, Tuple
 
 # Import our PyPI manager for live version checking
 try:
-    from pypi_manager import PyPIManager, PyPIError
+    from pypi_manager import PyPIError, PyPIManager
+
     PYPI_INTEGRATION_AVAILABLE = True
 except ImportError:
     PYPI_INTEGRATION_AVAILABLE = False
@@ -44,7 +45,7 @@ class VersionValidator:
             version_file = "../VERSION.json"
         self.version_file = Path(version_file)
         self.version_data = self._load_version_data()
-        
+
         # Initialize PyPI manager if available
         self.pypi_manager = None
         self.use_pypi = use_pypi and PYPI_INTEGRATION_AVAILABLE
@@ -240,7 +241,7 @@ class VersionValidator:
         # Determine current version to compare against - PyPI first, then fallback
         current_version = None
         pypi_source = "VERSION.json"
-        
+
         if self.use_pypi and self.pypi_manager:
             try:
                 if release_type == "Release":
@@ -249,18 +250,22 @@ class VersionValidator:
                     pypi_source = "PyPI"
                     if not current_version:
                         # Fallback to TestPyPI if no production version
-                        current_version = self.pypi_manager.get_current_testpypi_version()
+                        current_version = (
+                            self.pypi_manager.get_current_testpypi_version()
+                        )
                         pypi_source = "TestPyPI"
                 else:  # Pre-release
                     # For pre-releases, also use production version as base
                     current_version = self.pypi_manager.get_current_production_version()
                     pypi_source = "PyPI"
                     if not current_version:
-                        current_version = self.pypi_manager.get_current_testpypi_version()
+                        current_version = (
+                            self.pypi_manager.get_current_testpypi_version()
+                        )
                         pypi_source = "TestPyPI"
             except Exception as e:
                 print(f"Warning: PyPI query failed, using VERSION.json fallback: {e}")
-        
+
         # Fallback to VERSION.json if PyPI lookup failed or is disabled
         if not current_version:
             pypi_source = "VERSION.json"

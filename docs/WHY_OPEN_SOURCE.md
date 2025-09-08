@@ -13,7 +13,7 @@ We get asked this question a lot: "Why did Verodat open source ADRI?" Here's our
 When your AI agent is making financial decisions, medical recommendations, or any business-critical choices, you cannot afford black boxes in your data pipeline. You need to understand:
 
 - What quality checks are being applied
-- How scores are calculated  
+- How scores are calculated
 - Why data was accepted or rejected
 - What standards are being enforced
 
@@ -40,7 +40,7 @@ Now imagine you have 20 AI agents. Or 50. Each one generating its own:
 After using ADRI across multiple AI agents, you'll face three critical needs:
 
 1. **Centralized Compliance Logging** - Unified audit trails across all AI agents for enterprise governance
-2. **Data Supply Communication** - Standardized way for AI teams to communicate data requirements to data engineering teams  
+2. **Data Supply Communication** - Standardized way for AI teams to communicate data requirements to data engineering teams
 3. **Controlled Data Access** - Tunable, deterministic AI query endpoints to your data warehouse
 
 You have two choices:
@@ -55,7 +55,7 @@ Both are valid choices. We're not here to lock you in or hide the complexity.
 
 This is the competitive pressure we've chosen. We can't rely on:
 - Vendor lock-in
-- Hidden complexity  
+- Hidden complexity
 - Proprietary data formats
 - Black box algorithms
 
@@ -83,7 +83,7 @@ But it's the **right kind of risk** - the kind that forces excellence.
 
 We believe the future of AI data management should be:
 - **Transparent** - You see exactly how your data is processed
-- **Standards-based** - Open formats that don't lock you in  
+- **Standards-based** - Open formats that don't lock you in
 - **Community-driven** - Improved by the collective intelligence of AI engineers
 - **Economically honest** - We earn revenue by delivering value, not by creating dependency
 

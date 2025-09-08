@@ -231,7 +231,7 @@ coverage.json
 .benchmarks/
 *.egg-info/
 
-# Development artifacts and temporary files  
+# Development artifacts and temporary files
 *_COMPLETE.md
 *_SUMMARY.md
 *_FIXES*.md

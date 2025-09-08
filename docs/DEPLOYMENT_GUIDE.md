@@ -1,6 +1,6 @@
 # ADRI - Deployment Guide
 
-**Stop AI Agents Breaking on Bad Data**  
+**Stop AI Agents Breaking on Bad Data**
 One line of code. Any framework. Bulletproof agents.
 
 ## Table of Contents
@@ -32,7 +32,7 @@ from adri.decorators.guard import adri_protected
 def your_agent(data):
     return process_data(data)  # 💥 Breaks
 
-# After: Agent protected by ADRI  
+# After: Agent protected by ADRI
 @adri_protected(data_param="data")
 def your_agent(data):
     return process_data(data)  # ✅ Reliable
@@ -50,7 +50,7 @@ def langchain_agent(customer_data):
 
 **CrewAI**:
 ```python
-@adri_protected(data_param="market_data") 
+@adri_protected(data_param="market_data")
 def crewai_analysis(market_data):
     crew = Crew(agents=[analyst], tasks=[task])
     return crew.kickoff()
@@ -74,7 +74,7 @@ def llamaindex_rag(documents):
 # Install from PyPI
 pip install adri
 
-# Install from GitHub  
+# Install from GitHub
 pip install git+https://github.com/adri-standard/adri.git
 
 # Install specific version

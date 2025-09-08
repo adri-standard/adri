@@ -1,6 +1,6 @@
 # ADRI - Architecture Guide
 
-**Stop AI Agents Breaking on Bad Data**  
+**Stop AI Agents Breaking on Bad Data**
 One line of code. Any framework. Bulletproof agents.
 
 ## Overview
