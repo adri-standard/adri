@@ -35,6 +35,44 @@ jobs:
       with:
         python-version: ${{ env.PYTHON_VERSION }}
 
+    - name: Check PyPI version status
+      id: pypi-check
+      run: |
+        echo "🔍 Checking PyPI version status..."
+        cd scripts
+        
+        # Check current PyPI versions and sync status
+        PYPI_STATUS=$(python pypi_manager.py --status --no-pypi 2>/dev/null || echo "fallback")
+        
+        if [[ "$PYPI_STATUS" != "fallback" ]]; then
+          echo "✅ PyPI integration available"
+          echo "pypi_available=true" >> $GITHUB_OUTPUT
+          
+          # Extract current versions
+          PYPI_VERSION=$(echo "$PYPI_STATUS" | grep -o '"production_pypi": "[^"]*"' | cut -d'"' -f4)
+          JSON_VERSION=$(echo "$PYPI_STATUS" | grep -o '"version_json_production": "[^"]*"' | cut -d'"' -f4)
+          NEEDS_SYNC=$(echo "$PYPI_STATUS" | grep -o '"needs_sync": [^,}]*' | cut -d':' -f2 | tr -d ' ')
+          
+          echo "📦 PyPI version: $PYPI_VERSION"
+          echo "📋 VERSION.json: $JSON_VERSION"
+          echo "🔄 Needs sync: $NEEDS_SYNC"
+          
+          echo "pypi_version=$PYPI_VERSION" >> $GITHUB_OUTPUT
+          echo "json_version=$JSON_VERSION" >> $GITHUB_OUTPUT
+          echo "needs_sync=$NEEDS_SYNC" >> $GITHUB_OUTPUT
+        else
+          echo "⚠️ PyPI integration not available - using fallback mode"
+          echo "pypi_available=false" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Sync VERSION.json with PyPI
+      if: steps.pypi-check.outputs.pypi_available == 'true' && steps.pypi-check.outputs.needs_sync == 'true'
+      run: |
+        echo "🔄 Synchronizing VERSION.json with PyPI..."
+        cd scripts
+        python pypi_manager.py --sync
+        echo "✅ VERSION.json synchronized with PyPI reality"
+
     - name: Validate release tag and version
       id: validate
       run: |
@@ -73,7 +111,7 @@ jobs:
 
         echo "🔍 Validating release tag: $TAG_NAME"
 
-        # Run version validation script and capture outputs
+        # Run PyPI-enhanced version validation script and capture outputs
         cd scripts
         VALIDATION_OUTPUT=$(python validate_version.py "$TAG_NAME" 2>&1)
         VALIDATION_EXIT_CODE=$?
@@ -96,7 +134,7 @@ jobs:
         echo "is_prerelease=$IS_PRERELEASE" >> $GITHUB_OUTPUT
         echo "release_type=$RELEASE_TYPE" >> $GITHUB_OUTPUT
 
-        echo "✅ Version validation successful!"
+        echo "✅ Version validation successful with PyPI-first approach!"
         echo "🏷️ Tag: $TAG_NAME"
         echo "📦 Version: $VERSION"
         echo "🧪 Pre-release: $IS_PRERELEASE"

@@ -1,16 +1,27 @@
 {
-  "current_release": "3.0.1",
-  "current_testpypi": "3.0.0",
+  "current_release": "4.0.0",
+  "current_testpypi": "4.0.0",
   "next_allowed": {
-    "patch": "3.0.2",
-    "minor": "3.1.0",
-    "major": "4.0.0"
+    "patch": "4.0.1",
+    "minor": "4.1.0",
+    "major": "5.0.0"
   },
   "validation_rules": {
     "tag_format": "<Release Type>.<Change Type>.v<Version>",
-    "release_types": ["Release", "Pre-release"],
-    "change_types": ["Patch", "Minor", "Major"],
-    "prerelease_suffixes": ["alpha", "beta", "rc"]
+    "release_types": [
+      "Release",
+      "Pre-release"
+    ],
+    "change_types": [
+      "Patch",
+      "Minor",
+      "Major"
+    ],
+    "prerelease_suffixes": [
+      "alpha",
+      "beta",
+      "rc"
+    ]
   },
   "release_history": [
     {
@@ -36,8 +47,9 @@
     }
   ],
   "metadata": {
-    "last_updated": "2025-01-28T16:45:00Z",
+    "last_updated": "2025-09-02T14:34:43.970463Z",
     "schema_version": "1.0",
-    "description": "ADRI Validator version tracking and validation system"
+    "description": "ADRI Validator version tracking and validation system",
+    "sync_source": "PyPI API"
   }
 }

@@ -19,6 +19,14 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, Optional, Tuple
 
+# Import our PyPI manager for live version checking
+try:
+    from pypi_manager import PyPIManager, PyPIError
+    PYPI_INTEGRATION_AVAILABLE = True
+except ImportError:
+    PYPI_INTEGRATION_AVAILABLE = False
+    print("Warning: PyPI integration not available - falling back to VERSION.json only")
+
 
 class VersionValidationError(Exception):
     """Custom exception for version validation errors."""
@@ -29,13 +37,23 @@ class VersionValidationError(Exception):
 class VersionValidator:
     """Validates and manages ADRI Validator version releases."""
 
-    def __init__(self, version_file: str = "VERSION.json"):
-        """Initialize validator with version tracking file."""
+    def __init__(self, version_file: str = "VERSION.json", use_pypi: bool = True):
+        """Initialize validator with version tracking file and PyPI integration."""
         # If running from scripts directory, look in parent directory
         if not Path(version_file).exists() and Path("../VERSION.json").exists():
             version_file = "../VERSION.json"
         self.version_file = Path(version_file)
         self.version_data = self._load_version_data()
+        
+        # Initialize PyPI manager if available
+        self.pypi_manager = None
+        self.use_pypi = use_pypi and PYPI_INTEGRATION_AVAILABLE
+        if self.use_pypi:
+            try:
+                self.pypi_manager = PyPIManager()
+            except Exception as e:
+                print(f"Warning: Could not initialize PyPI manager: {e}")
+                self.use_pypi = False
 
     def _load_version_data(self) -> Dict:
         """Load version data from JSON file."""
@@ -219,16 +237,41 @@ class VersionValidator:
         # Parse version components
         major, minor, patch, prerelease = self.parse_version(version)
 
-        # Determine current version to compare against
+        # Determine current version to compare against - PyPI first, then fallback
         current_version = None
-        if release_type == "Release":
-            current_version = self.version_data.get("current_release")
-            if not current_version:
-                current_version = self.version_data.get("current_testpypi")
-        else:  # Pre-release
-            current_version = self.version_data.get("current_release")
-            if not current_version:
-                current_version = self.version_data.get("current_testpypi")
+        pypi_source = "VERSION.json"
+        
+        if self.use_pypi and self.pypi_manager:
+            try:
+                if release_type == "Release":
+                    # For production releases, use current production version
+                    current_version = self.pypi_manager.get_current_production_version()
+                    pypi_source = "PyPI"
+                    if not current_version:
+                        # Fallback to TestPyPI if no production version
+                        current_version = self.pypi_manager.get_current_testpypi_version()
+                        pypi_source = "TestPyPI"
+                else:  # Pre-release
+                    # For pre-releases, also use production version as base
+                    current_version = self.pypi_manager.get_current_production_version()
+                    pypi_source = "PyPI"
+                    if not current_version:
+                        current_version = self.pypi_manager.get_current_testpypi_version()
+                        pypi_source = "TestPyPI"
+            except Exception as e:
+                print(f"Warning: PyPI query failed, using VERSION.json fallback: {e}")
+        
+        # Fallback to VERSION.json if PyPI lookup failed or is disabled
+        if not current_version:
+            pypi_source = "VERSION.json"
+            if release_type == "Release":
+                current_version = self.version_data.get("current_release")
+                if not current_version:
+                    current_version = self.version_data.get("current_testpypi")
+            else:  # Pre-release
+                current_version = self.version_data.get("current_release")
+                if not current_version:
+                    current_version = self.version_data.get("current_testpypi")
 
         # Validate version increment
         self.validate_version_increment(current_version, version, change_type)

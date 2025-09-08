@@ -1,0 +1,428 @@
+name: Prepare Release (PyPI-First Version Management)
+
+on:
+  workflow_dispatch:
+    inputs:
+      change_type:
+        description: 'Type of change for version calculation'
+        required: true
+        type: choice
+        options:
+          - 'patch'
+          - 'minor'
+          - 'major'
+        default: 'minor'
+      is_beta:
+        description: 'Create beta pre-release'
+        required: false
+        type: boolean
+        default: false
+      force_sync:
+        description: 'Force sync VERSION.json with PyPI before preparation'
+        required: false
+        type: boolean
+        default: true
+      target_branch:
+        description: 'Target branch for release (default: main)'
+        required: false
+        type: string
+        default: 'main'
+
+env:
+  PYTHON_VERSION: "3.11"
+
+jobs:
+  prepare-release:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.prepare.outputs.version }}
+      tag_name: ${{ steps.prepare.outputs.tag_name }}
+      is_beta: ${{ steps.prepare.outputs.is_beta }}
+      change_type: ${{ steps.prepare.outputs.change_type }}
+      pypi_status: ${{ steps.prepare.outputs.pypi_status }}
+      draft_url: ${{ steps.prepare.outputs.draft_url }}
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        ref: ${{ github.event.inputs.target_branch }}
+        fetch-depth: 0
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e ".[dev]"
+        cd scripts
+        pip install requests packaging
+
+    - name: PyPI Status Check and Sync
+      id: pypi-check
+      run: |
+        echo "🔍 Checking PyPI version status..."
+        cd scripts
+        
+        # Get comprehensive PyPI status
+        echo "📊 Current PyPI status:"
+        python pypi_manager.py --status --no-pypi || {
+          echo "⚠️ PyPI integration not available - using fallback mode"
+          echo "pypi_available=false" >> $GITHUB_OUTPUT
+          exit 0
+        }
+        
+        echo "pypi_available=true" >> $GITHUB_OUTPUT
+        
+        # Check if sync is needed or forced
+        SYNC_NEEDED=$(python pypi_manager.py --status --no-pypi | jq -r '.needs_sync // false')
+        
+        if [[ "${{ github.event.inputs.force_sync }}" == "true" || "$SYNC_NEEDED" == "true" ]]; then
+          echo "🔄 Synchronizing VERSION.json with PyPI..."
+          python pypi_manager.py --sync
+          echo "✅ VERSION.json synchronized with PyPI"
+          echo "sync_performed=true" >> $GITHUB_OUTPUT
+        else
+          echo "✅ VERSION.json already synchronized with PyPI"
+          echo "sync_performed=false" >> $GITHUB_OUTPUT
+        fi
+        
+        # Output final status
+        python pypi_manager.py --status --no-pypi | tee pypi_status.json
+        echo "pypi_status<<EOF" >> $GITHUB_OUTPUT
+        cat pypi_status.json >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
+
+    - name: Prepare Release with PyPI-First Approach
+      id: prepare
+      run: |
+        echo "🚀 Preparing release with PyPI-first version management..."
+        
+        CHANGE_TYPE="${{ github.event.inputs.change_type }}"
+        IS_BETA="${{ github.event.inputs.is_beta }}"
+        
+        cd scripts
+        
+        # Prepare release using new PyPI-first system
+        if [[ "$IS_BETA" == "true" ]]; then
+          echo "🧪 Preparing beta release..."
+          PREP_OUTPUT=$(python prepare_releases.py --type "$CHANGE_TYPE" --beta 2>&1)
+        else
+          echo "📦 Preparing production release..."
+          PREP_OUTPUT=$(python prepare_releases.py --type "$CHANGE_TYPE" 2>&1)
+        fi
+        
+        PREP_EXIT_CODE=$?
+        
+        echo "📋 Preparation output:"
+        echo "$PREP_OUTPUT"
+        
+        if [ $PREP_EXIT_CODE -ne 0 ]; then
+          echo "❌ Release preparation failed!"
+          exit $PREP_EXIT_CODE
+        fi
+        
+        # Extract outputs from preparation script
+        VERSION=$(echo "$PREP_OUTPUT" | grep "^Calculated version:" | sed 's/^Calculated version: //')
+        TAG_NAME=$(echo "$PREP_OUTPUT" | grep "^Tag name:" | sed 's/^Tag name: //')
+        
+        if [[ -z "$VERSION" || -z "$TAG_NAME" ]]; then
+          echo "❌ Failed to extract version or tag from preparation output"
+          echo "Expected format: 'Calculated version: X.Y.Z' and 'Tag name: Release.Type.vX.Y.Z'"
+          exit 1
+        fi
+        
+        # Set outputs
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+        echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
+        echo "is_beta=$IS_BETA" >> $GITHUB_OUTPUT
+        echo "change_type=$CHANGE_TYPE" >> $GITHUB_OUTPUT
+        
+        echo "✅ Release preparation successful!"
+        echo "🏷️ Tag: $TAG_NAME"
+        echo "📦 Version: $VERSION"
+        echo "🧪 Beta: $IS_BETA"
+        echo "🔄 Change Type: $CHANGE_TYPE"
+
+    - name: Update pyproject.toml with new version
+      run: |
+        VERSION="${{ steps.prepare.outputs.version }}"
+        echo "📝 Updating pyproject.toml with version: $VERSION"
+        
+        # Update pyproject.toml
+        sed -i "s/^version = .*/version = \"$VERSION\"/" pyproject.toml
+        
+        # Update adri/version.py
+        sed -i "s/__version__ = .*/__version__ = \"$VERSION\"/" adri/version.py
+        
+        # Verify updates
+        echo "✅ Updated files:"
+        echo "pyproject.toml version: $(grep "^version = " pyproject.toml)"
+        echo "adri/version.py version: $(grep "__version__ = " adri/version.py)"
+
+    - name: Run quick validation tests
+      timeout-minutes: 3
+      run: |
+        echo "🔍 Running quick validation tests for new version..."
+        
+        # Install in development mode with new version
+        pip install -e .
+        
+        # Run basic import and version checks
+        python -c "
+        import adri
+        print(f'✅ Package imports successfully')
+        print(f'✅ Version: {adri.__version__}')
+        assert adri.__version__ == '${{ steps.prepare.outputs.version }}', f'Version mismatch: {adri.__version__} != ${{ steps.prepare.outputs.version }}'
+        "
+        
+        # Run fast subset of tests (no performance, integration, or slow tests)
+        pytest tests/unit/ -v --tb=short -x \
+          -m "not performance and not stress and not slow and not integration" \
+          --maxfail=3 || {
+          echo "❌ Quick validation tests failed"
+          echo "🔍 This indicates potential issues with the new version"
+          exit 1
+        }
+        
+        echo "✅ Quick validation tests passed"
+
+    - name: Create draft release
+      id: create-draft
+      run: |
+        VERSION="${{ steps.prepare.outputs.version }}"
+        TAG_NAME="${{ steps.prepare.outputs.tag_name }}"
+        IS_BETA="${{ steps.prepare.outputs.is_beta }}"
+        CHANGE_TYPE="${{ steps.prepare.outputs.change_type }}"
+        
+        echo "📝 Creating draft release..."
+        
+        # Determine release title and notes template
+        if [[ "$IS_BETA" == "true" ]]; then
+          RELEASE_TITLE="🧪 Beta Release $TAG_NAME"
+          RELEASE_TYPE="beta"
+        else
+          RELEASE_TITLE="🚀 Release $TAG_NAME"
+          RELEASE_TYPE="production"
+        fi
+        
+        # Create simple release notes
+        RELEASE_NOTES="$RELEASE_TITLE - Version $VERSION ($CHANGE_TYPE release) prepared using PyPI-first version management. This draft is ready for review and publishing to trigger automated deployment pipeline."
+
+        # Create the draft release
+        DRAFT_RESPONSE=$(gh release create "$TAG_NAME" \
+          --draft \
+          --title "$RELEASE_TITLE" \
+          --notes "$RELEASE_NOTES" \
+          --target "${{ github.event.inputs.target_branch }}" \
+          --generate-notes=false \
+          2>/dev/null) || {
+          
+          echo "⚠️ Release tag might already exist, checking..."
+          
+          # Check if release already exists
+          if gh release view "$TAG_NAME" >/dev/null 2>&1; then
+            echo "⚠️ Release $TAG_NAME already exists"
+            
+            # Update existing draft
+            gh release edit "$TAG_NAME" \
+              --draft \
+              --title "$RELEASE_TITLE" \
+              --notes "$RELEASE_NOTES"
+            
+            echo "✅ Updated existing draft release"
+          else
+            echo "❌ Failed to create release for unknown reason"
+            exit 1
+          fi
+        }
+        
+        # Get draft URL
+        DRAFT_URL=$(gh release view "$TAG_NAME" --json url --jq '.url')
+        echo "draft_url=$DRAFT_URL" >> $GITHUB_OUTPUT
+        
+        echo "✅ Draft release created successfully!"
+        echo "🔗 Draft URL: $DRAFT_URL"
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Generate comprehensive summary
+      run: |
+        VERSION="${{ steps.prepare.outputs.version }}"
+        TAG_NAME="${{ steps.prepare.outputs.tag_name }}"
+        IS_BETA="${{ steps.prepare.outputs.is_beta }}"
+        CHANGE_TYPE="${{ steps.prepare.outputs.change_type }}"
+        DRAFT_URL="${{ steps.create-draft.outputs.draft_url }}"
+        SYNC_PERFORMED="${{ steps.pypi-check.outputs.sync_performed }}"
+        
+        echo "🎉 **Release Preparation Complete!**"
+        echo ""
+        echo "## 📋 **Summary**"
+        echo "- **Version**: $VERSION"
+        echo "- **Tag**: $TAG_NAME"
+        echo "- **Type**: $CHANGE_TYPE $(if [[ \"$IS_BETA\" == \"true\" ]]; then echo \"(Beta)\"; else echo \"(Production)\"; fi)"
+        echo "- **Branch**: ${{ github.event.inputs.target_branch }}"
+        echo "- **PyPI Sync**: $(if [[ \"$SYNC_PERFORMED\" == \"true\" ]]; then echo \"✅ Performed\"; else echo \"✅ Already synced\"; fi)"
+        echo ""
+        echo "## 🎯 **Next Steps**"
+        echo "1. **Review the draft release**: $DRAFT_URL"
+        echo "2. **Complete pre-release checklist** in the draft release notes"
+        echo "3. **Update CHANGELOG.md** if needed"
+        echo "4. **Run full test suite** locally if desired"
+        echo "5. **Publish the release** to trigger automated deployment"
+        echo ""
+        echo "## 🚀 **Publishing**"
+        echo "When ready to deploy:"
+        echo "- Visit: $DRAFT_URL"
+        echo "- Complete any pending checklist items"
+        echo "- Click **'Publish release'** to trigger deployment pipeline"
+        echo ""
+        echo "## 🔄 **PyPI-First Management Active**"
+        echo "This release uses the new PyPI-first version management:"
+        echo "- ✅ Automatic version calculation from PyPI + change type"
+        echo "- ✅ VERSION.json synchronized with PyPI reality"
+        echo "- ✅ Enhanced validation with live PyPI data"
+        echo "- ✅ Consistent versioning across all components"
+
+  # Success notification job
+  notify-success:
+    needs: prepare-release
+    runs-on: ubuntu-latest
+    if: success()
+    steps:
+    - name: Send success notification
+      run: |
+        VERSION="${{ needs.prepare-release.outputs.version }}"
+        TAG_NAME="${{ needs.prepare-release.outputs.tag_name }}"
+        CHANGE_TYPE="${{ needs.prepare-release.outputs.change_type }}"
+        IS_BETA="${{ needs.prepare-release.outputs.is_beta }}"
+        DRAFT_URL="${{ needs.prepare-release.outputs.draft_url }}"
+        
+        echo "🎉 Release preparation completed successfully!"
+        echo "📦 Version: $VERSION"
+        echo "🏷️ Tag: $TAG_NAME"
+        echo "🔗 Draft: $DRAFT_URL"
+        
+        # Send Slack notification if configured
+        if [[ -n "${{ secrets.SLACK_WEBHOOK_URL }}" ]]; then
+          echo "📢 Sending Slack notification..."
+          
+          BETA_STATUS=""
+          if [[ "$IS_BETA" == "true" ]]; then
+            BETA_STATUS=" (Beta)"
+            COLOR="warning"
+          else
+            COLOR="good"
+          fi
+          
+          curl -X POST -H 'Content-type: application/json' \
+            --data "{
+              \"attachments\": [{
+                \"color\": \"$COLOR\",
+                \"title\": \"✅ ADRI Release $TAG_NAME Prepared$BETA_STATUS\",
+                \"fields\": [
+                  {\"title\": \"Version\", \"value\": \"$VERSION\", \"short\": true},
+                  {\"title\": \"Change Type\", \"value\": \"$CHANGE_TYPE\", \"short\": true},
+                  {\"title\": \"Status\", \"value\": \"Draft ready for review\", \"short\": false},
+                  {\"title\": \"Next Step\", \"value\": \"Review and publish draft release\", \"short\": false}
+                ],
+                \"actions\": [
+                  {
+                    \"type\": \"button\",
+                    \"text\": \"Review Draft\",
+                    \"url\": \"$DRAFT_URL\"
+                  },
+                  {
+                    \"type\": \"button\",
+                    \"text\": \"View Workflow\",
+                    \"url\": \"https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\"
+                  }
+                ],
+                \"footer\": \"ADRI Release System\",
+                \"ts\": $(date +%s)
+              }]
+            }" \
+            "${{ secrets.SLACK_WEBHOOK_URL }}" || echo "⚠️ Failed to send Slack notification"
+        else
+          echo "⚠️ SLACK_WEBHOOK_URL not configured - skipping notification"
+        fi
+
+  # Failure cleanup job
+  cleanup-on-failure:
+    if: failure()
+    needs: prepare-release
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Cleanup failed preparation
+      run: |
+        echo "🧹 Cleaning up failed release preparation..."
+        
+        # Try to get tag name if available
+        TAG_NAME="${{ needs.prepare-release.outputs.tag_name }}"
+        
+        if [[ -n "$TAG_NAME" ]]; then
+          echo "🔍 Checking for draft release to clean up..."
+          
+          # Check if draft release was created
+          if gh release view "$TAG_NAME" >/dev/null 2>&1; then
+            echo "🗑️ Removing failed draft release..."
+            gh release delete "$TAG_NAME" --yes --cleanup-tag 2>/dev/null || echo "⚠️ Could not remove draft (may not exist)"
+          fi
+          
+          # Check for git tag and remove if it exists
+          if git tag -l | grep -q "^$TAG_NAME$"; then
+            echo "🗑️ Removing git tag..."
+            git tag -d "$TAG_NAME" 2>/dev/null || echo "⚠️ Could not remove git tag locally"
+            git push origin ":refs/tags/$TAG_NAME" 2>/dev/null || echo "⚠️ Could not remove git tag from remote"
+          fi
+        fi
+        
+        echo "✅ Cleanup completed"
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Send failure notification
+      run: |
+        CHANGE_TYPE="${{ github.event.inputs.change_type }}"
+        IS_BETA="${{ github.event.inputs.is_beta }}"
+        
+        echo "🚨 Release preparation failed!"
+        echo "🔄 Change Type: $CHANGE_TYPE"
+        echo "🧪 Beta: $IS_BETA"
+        echo "🔗 Workflow: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+        
+        # Send Slack failure notification
+        if [[ -n "${{ secrets.SLACK_WEBHOOK_URL }}" ]]; then
+          echo "📢 Sending Slack failure notification..."
+          
+          BETA_STATUS=""
+          if [[ "$IS_BETA" == "true" ]]; then
+            BETA_STATUS=" (Beta)"
+          fi
+          
+          curl -X POST -H 'Content-type: application/json' \
+            --data "{
+              \"attachments\": [{
+                \"color\": \"danger\",
+                \"title\": \"❌ ADRI Release Preparation Failed$BETA_STATUS\",
+                \"fields\": [
+                  {\"title\": \"Change Type\", \"value\": \"$CHANGE_TYPE\", \"short\": true},
+                  {\"title\": \"Status\", \"value\": \"Preparation failed - cleanup completed\", \"short\": true},
+                  {\"title\": \"Next Steps\", \"value\": \"Review workflow logs and retry\", \"short\": false}
+                ],
+                \"actions\": [{
+                  \"type\": \"button\",
+                  \"text\": \"View Workflow\",
+                  \"url\": \"https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\"
+                }],
+                \"footer\": \"ADRI Release System\",
+                \"ts\": $(date +%s)
+              }]
+            }" \
+            "${{ secrets.SLACK_WEBHOOK_URL }}" || echo "⚠️ Failed to send Slack notification"
+        else
+          echo "⚠️ SLACK_WEBHOOK_URL not configured - skipping notification"
+        fi

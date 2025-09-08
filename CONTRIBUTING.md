@@ -1,6 +1,10 @@
-# Contributing to ADRI Validator
+# Contributing to ADRI
 
-Thank you for your interest in contributing to the ADRI Validator project! We welcome contributions from the community to help make AI agent workflows more robust and reliable through better data quality protection.
+**Stop AI Agents Breaking on Bad Data**
+
+Thank you for your interest in contributing to ADRI! We welcome contributions from the AI framework community to help protect agents from bad data with one line of code.
+
+**Join the Movement**: Help make AI agents bulletproof across LangChain, CrewAI, AutoGen, LlamaIndex, Haystack, LangGraph, and Semantic Kernel.
 
 ## Table of Contents
 
@@ -24,12 +28,12 @@ Please read and follow our [Code of Conduct](CODE_OF_CONDUCT.md) to ensure a wel
 1. Fork the repository on GitHub
 2. Clone your fork locally:
    ```bash
-   git clone https://github.com/YOUR_USERNAME/adri-validator.git
-   cd adri-validator
+   git clone https://github.com/YOUR_USERNAME/adri.git
+   cd adri
    ```
 3. Add the upstream repository as a remote:
    ```bash
-   git remote add upstream https://github.com/ORIGINAL_OWNER/adri-validator.git
+   git remote add upstream https://github.com/adri-standard/adri.git
    ```
 
 ## Development Setup
@@ -79,7 +83,7 @@ We welcome various types of contributions:
 
 ### Finding Issues to Work On
 
-- Check our [issue tracker](https://github.com/OWNER/adri-validator/issues) for open issues
+- Check our [issue tracker](https://github.com/adri-standard/adri/issues) for open issues
 - Look for issues labeled `good first issue` if you're new to the project
 - Issues labeled `help wanted` are particularly important to the project
 
@@ -88,7 +92,7 @@ We welcome various types of contributions:
 ### Before Reporting
 
 1. Check if the issue has already been reported
-2. Ensure you're using the latest version of ADRI Validator
+2. Ensure you're using the latest version of ADRI
 3. Verify the issue is reproducible
 
 ### How to Report
@@ -329,7 +333,7 @@ Contributors who make significant contributions will be:
 
 ## License
 
-By contributing to ADRI Validator, you agree that your contributions will be licensed under the same license as the project (Apache 2.0).
+By contributing to ADRI, you agree that your contributions will be licensed under the same license as the project (Apache 2.0).
 
 ## Questions?
 
@@ -338,4 +342,4 @@ If you have questions about contributing, feel free to:
 - Contact the maintainers
 - Check our FAQ section
 
-Thank you for helping make ADRI Validator better for everyone! 🎉
+Thank you for helping make ADRI better for everyone! 🎉

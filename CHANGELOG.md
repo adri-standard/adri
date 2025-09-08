@@ -172,7 +172,3 @@ def your_function(data):
 - Integration with enterprise platforms
 - Advanced caching strategies
 - Multi-threaded validation processing
-
----
-
-**Internal Use Only** - This package contains proprietary validation algorithms and is not for public distribution.

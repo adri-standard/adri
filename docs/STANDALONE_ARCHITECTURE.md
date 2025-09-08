@@ -1,8 +1,17 @@
-# ADRI Validator - Standalone Architecture
+# ADRI - Architecture Guide
+
+**Stop AI Agents Breaking on Bad Data**  
+One line of code. Any framework. Bulletproof agents.
 
 ## Overview
 
-The ADRI Validator is designed as a **fully standalone component** that operates independently without external dependencies. This document describes the architectural decisions, boundaries, and interfaces that ensure the validator's independence while maintaining extensibility.
+ADRI is designed as a **zero-dependency data quality framework** that protects AI agents from bad data. This guide explains how ADRI works under the hood and why it's built for reliability.
+
+**Key Benefits**:
+- ✅ **Zero Dependencies**: Works offline, no network calls
+- ✅ **Framework Agnostic**: Protects any Python function
+- ✅ **Production Ready**: Built for enterprise reliability
+- ✅ **Developer Friendly**: One decorator, instant protection
 
 ## Core Principles
 

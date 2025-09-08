@@ -1,33 +1,47 @@
-# ADRI Validator - API Reference
+# ADRI API Reference
+
+**Stop AI Agents Breaking on Bad Data**  
+One line of code. Any framework. Bulletproof agents.
+
+## Quick Reference
+
+```python
+# Basic protection (most common)
+@adri_protected(data_param="your_data")
+def your_agent(your_data):
+    return process_data(your_data)
+
+# Custom requirements
+@adri_protected(data_param="data", min_score=90)
+def strict_agent(data):
+    return analyze_data(data)
+```
 
 ## Table of Contents
-1. [Decorators](#decorators)
-2. [Core Classes](#core-classes)
-3. [Standards Management](#standards-management)
-4. [Configuration](#configuration)
-5. [Audit Logging](#audit-logging)
-6. [Utilities](#utilities)
-7. [CLI Commands](#cli-commands)
-8. [Exceptions](#exceptions)
+1. [Essential Decorator](#essential-decorator) ⭐ **Start Here**
+2. [Framework Examples](#framework-examples)
+3. [Configuration](#configuration)
+4. [CLI Commands](#cli-commands)
+5. [Advanced Usage](#advanced-usage)
+6. [Core Classes](#core-classes)
+7. [Utilities](#utilities)
 
 ---
 
-## Decorators
+## Essential Decorator
 
-### `@adri_protected`
+### `@adri_protected` ⭐
 
-The main decorator for protecting functions with ADRI data quality validation.
+The one decorator you need to protect any AI agent.
 
 ```python
-from adri.decorators import adri_protected
+from adri.decorators.guard import adri_protected
 
 @adri_protected(
-    standard: str,
-    data_arg: str = None,
-    min_score: float = None,
-    failure_mode: str = None,
-    cache_duration: int = None,
-    audit_enabled: bool = None
+    data_param: str,           # Which parameter contains your data
+    min_score: float = 80.0,   # Quality threshold (0-100)
+    on_failure: str = "raise", # What to do if data is bad
+    verbose: bool = False      # Show protection messages
 )
 ```
 

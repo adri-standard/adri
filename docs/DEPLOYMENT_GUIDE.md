@@ -1,14 +1,68 @@
-# ADRI Validator - Deployment Guide
+# ADRI - Deployment Guide
+
+**Stop AI Agents Breaking on Bad Data**  
+One line of code. Any framework. Bulletproof agents.
 
 ## Table of Contents
-1. [Installation Methods](#installation-methods)
-2. [System Requirements](#system-requirements)
-3. [Quick Start](#quick-start)
-4. [Advanced Installation](#advanced-installation)
-5. [Configuration](#configuration)
-6. [Verification](#verification)
-7. [Troubleshooting](#troubleshooting)
-8. [Updates and Maintenance](#updates-and-maintenance)
+1. [Quick Start](#quick-start)
+2. [Installation Methods](#installation-methods)
+3. [Framework Integration](#framework-integration)
+4. [Configuration](#configuration)
+5. [Verification](#verification)
+6. [Troubleshooting](#troubleshooting)
+7. [Advanced Setup](#advanced-setup)
+
+---
+
+## Quick Start
+
+### 30-Second Setup
+
+```bash
+# 1. Install ADRI
+pip install adri
+
+# 2. Protect your agent (any framework)
+```
+
+```python
+from adri.decorators.guard import adri_protected
+
+# Before: Agent breaks on bad data
+def your_agent(data):
+    return process_data(data)  # 💥 Breaks
+
+# After: Agent protected by ADRI  
+@adri_protected(data_param="data")
+def your_agent(data):
+    return process_data(data)  # ✅ Reliable
+```
+
+### Framework Examples
+
+**LangChain**:
+```python
+@adri_protected(data_param="customer_data")
+def langchain_agent(customer_data):
+    chain = LLMChain(llm=llm, prompt=prompt)
+    return chain.run(customer_data)
+```
+
+**CrewAI**:
+```python
+@adri_protected(data_param="market_data") 
+def crewai_analysis(market_data):
+    crew = Crew(agents=[analyst], tasks=[task])
+    return crew.kickoff()
+```
+
+**LlamaIndex**:
+```python
+@adri_protected(data_param="documents")
+def llamaindex_rag(documents):
+    index = VectorStoreIndex.from_documents(documents)
+    return index.as_query_engine()
+```
 
 ---
 
@@ -17,22 +71,22 @@
 ### Method 1: pip Install (Recommended)
 
 ```bash
-# Install from PyPI (when published)
-pip install adri-validator
+# Install from PyPI
+pip install adri
 
-# Install from GitHub
-pip install git+https://github.com/ThinkEvolveSolve/adri-validator.git
+# Install from GitHub  
+pip install git+https://github.com/adri-standard/adri.git
 
 # Install specific version
-pip install adri-validator==3.0.1
+pip install adri==4.0.0
 ```
 
 ### Method 2: Install from Source
 
 ```bash
 # Clone repository
-git clone https://github.com/ThinkEvolveSolve/adri-validator.git
-cd adri-validator
+git clone https://github.com/adri-standard/adri.git
+cd adri
 
 # Install in development mode
 pip install -e .
@@ -175,8 +229,8 @@ pip install adri-validator
 
 ```bash
 # Clone repository
-git clone https://github.com/ThinkEvolveSolve/adri-validator.git
-cd adri-validator
+git clone https://github.com/adri-standard/adri.git
+cd adri
 
 # Create virtual environment
 python -m venv venv
@@ -475,7 +529,7 @@ python -c "from adri.core.boundary import validate_standalone_operation; print(v
 ```
 
 3. **Report issues:**
-   - GitHub Issues: https://github.com/ThinkEvolveSolve/adri-validator/issues
+   - GitHub Issues: https://github.com/adri-standard/adri/issues
 
 ---
 

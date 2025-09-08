@@ -32,16 +32,6 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-pip-
 
-    - name: Debug submodule status
-      run: |
-        echo "=== Git submodule status ==="
-        git submodule status
-        echo "=== External directory contents ==="
-        ls -la external/ || echo "No external directory"
-        echo "=== Adri-standards directory contents ==="
-        ls -la external/adri-standards/ || echo "No adri-standards directory"
-        echo "=== Standards core directory contents ==="
-        ls -la external/adri-standards/standards/core/ || echo "No standards/core directory"
 
     - name: Install dependencies
       run: |

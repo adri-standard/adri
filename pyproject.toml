@@ -4,15 +4,15 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "adri"
-version = "3.1.0"
+version = "4.0.0"
 description = "AI Data Reliability Intelligence - Comprehensive data quality assessment and validation framework"
 readme = "README.md"
 license = {file = "LICENSE"}
 authors = [
-    {name = "ThinkEvolveSolve", email = "info@thinkevolvesolve.com"}
+    {name = "Thomas Russell", email = "adri@verodat.com"}
 ]
 maintainers = [
-    {name = "ThinkEvolveSolve", email = "info@thinkevolvesolve.com"}
+    {name = "Thomas Russell", email = "adri@verodat.com"}
 ]
 keywords = ["data-quality", "ai", "validation", "assessment", "reliability"]
 classifiers = [
@@ -70,11 +70,11 @@ security = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/ThinkEvolveSolve/adri-validator"
-Documentation = "https://github.com/ThinkEvolveSolve/adri-validator/blob/main/README.md"
-Repository = "https://github.com/ThinkEvolveSolve/adri-validator"
-Issues = "https://github.com/ThinkEvolveSolve/adri-validator/issues"
-Changelog = "https://github.com/ThinkEvolveSolve/adri-validator/blob/main/CHANGELOG.md"
+Homepage = "https://github.com/adri-standard/adri"
+Documentation = "https://github.com/adri-standard/adri/blob/main/README.md"
+Repository = "https://github.com/adri-standard/adri"
+Issues = "https://github.com/adri-standard/adri/issues"
+Changelog = "https://github.com/adri-standard/adri/blob/main/CHANGELOG.md"
 
 [project.scripts]
 adri = "adri.cli.commands:main"

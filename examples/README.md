@@ -1,6 +1,21 @@
-# ADRI Framework Examples
+# ADRI Examples - Stop Your AI Agents Breaking on Bad Data
 
-This directory contains working examples demonstrating how to use ADRI to protect your AI agents from bad data.
+One line of code. Any framework. Bulletproof agents.
+
+```python
+# Before: Agents break on bad data
+def financial_agent(portfolio_data):
+    return analyze_risk(portfolio_data)  # 💥 Breaks on missing/invalid data
+
+# After: Agents protected by ADRI
+@adri_protected(data_param="portfolio_data")
+def financial_agent(portfolio_data):
+    return analyze_risk(portfolio_data)  # ✅ Validated data, reliable results
+```
+
+**Supported Frameworks**: LangChain • CrewAI • AutoGen • LlamaIndex • Haystack • LangGraph • Semantic Kernel
+
+This directory contains working examples for protecting AI agents across all major frameworks.
 
 ## Available Examples
 

@@ -1,7 +1,7 @@
 """
-ADRI Validator - Internal Python Implementation.
+ADRI - Agent Data Readiness Index.
 
-The proprietary validation engine for ADRI Standards.
+Open source data quality standard for AI agents.
 """
 
 from setuptools import find_packages, setup
@@ -16,12 +16,12 @@ version = "1.0.0"
 setup(
     name="adri-validator",
     version=version,
-    author="ThinkVeolvesolve",
-    author_email="dev@thinkveolvesolve.com",
-    description="ADRI Validator - Internal Python implementation for ADRI Standards",
+    author="Thomas Russell",
+    author_email="adri@verodat.com",
+    description="AI Data Reliability Intelligence - Comprehensive data quality assessment and validation framework",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/thinkveolvesolve/adri-validator",
+    url="https://github.com/adri-standard/adri",
     packages=find_packages(),
     classifiers=[
         "Development Status :: 4 - Beta",
@@ -36,7 +36,6 @@ setup(
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
         "Operating System :: OS Independent",
-        "Private :: Do Not Upload",
     ],
     python_requires=">=3.8",
     install_requires=[
@@ -90,13 +89,10 @@ setup(
         "data-quality",
         "validation",
         "protection",
-        "internal",
-        "proprietary",
         "adri",
     ],
     license="MIT",
     zip_safe=False,
-    # Private package - do not upload to public PyPI
     options={
         "bdist_wheel": {
             "universal": False,
