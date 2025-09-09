@@ -56,3 +56,6 @@ Paste the ADRI assessment output here
 
 **Additional Context**
 Add any other context about the problem here, including data characteristics that might be relevant.
+
+---
+**Linking Instructions**: Once this issue is created, reference it in your branch name using the format: `fix/issue-{number}-brief-description` (e.g., `fix/issue-123-validity-dimension-bug`) when creating a PR to fix this bug.

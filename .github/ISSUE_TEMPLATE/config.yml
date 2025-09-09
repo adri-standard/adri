@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 🚀 ADRI Community Discussions
+    url: https://github.com/adri-standard/adri/discussions
+    about: Join broader community discussions about ADRI's future and architecture
+  - name: 📚 Documentation
+    url: https://docs.adri-standard.org
+    about: Check the documentation for guides and API reference
+  - name: 💬 Ask a Question
+    url: https://github.com/adri-standard/adri/discussions/categories/q-a
+    about: Ask questions about using ADRI in your projects

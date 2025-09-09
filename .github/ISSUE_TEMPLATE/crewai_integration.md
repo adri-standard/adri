@@ -46,3 +46,6 @@ Paste any error messages here
 
 **Additional Context**
 Add any other context about the problem here.
+
+---
+**Linking Instructions**: Once this issue is created, reference it in your branch name using the format: `fix/issue-{number}-brief-description` or `feat/issue-{number}-brief-description` (e.g., `fix/issue-321-crewai-agent-bug` or `feat/issue-654-crewai-task-enhancement`) when creating a PR to address this issue.
