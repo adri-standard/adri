@@ -351,7 +351,7 @@ def semantic_kernel_analysis(business_data):
     analyze_function = kernel.create_function_from_prompt(
         function_name="analyze_data",
         plugin_name="business_analytics",
-        prompt="Analyze this business data and provide insights: {{$data}}"
+        prompt="Analyze this business data and provide insights: {% raw %}{{$data}}{% endraw %}"
     )
 
     # Execute with validated data
