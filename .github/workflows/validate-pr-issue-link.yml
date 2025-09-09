@@ -4,6 +4,11 @@ on:
   pull_request:
     types: [opened, edited, synchronize]
 
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
 jobs:
   validate-issue-link:
     runs-on: ubuntu-latest
@@ -28,7 +33,7 @@ jobs:
         with:
           script: |
             const changedFiles = `${{ steps.changed-files.outputs.all_changed_files }}`.split(' ').filter(f => f.length > 0);
-            
+
             // High-risk paths requiring full enforcement
             const highRiskPaths = [
               'adri/core/',
@@ -37,7 +42,7 @@ jobs:
               'setup.py',
               'pyproject.toml'
             ];
-            
+
             // Medium-risk paths with guided enforcement
             const mediumRiskPaths = [
               'adri/cli/',
@@ -45,24 +50,24 @@ jobs:
               'adri/analysis/',
               'tests/'
             ];
-            
+
             // Check if any high-risk files changed
-            const hasHighRisk = changedFiles.some(file => 
+            const hasHighRisk = changedFiles.some(file =>
               highRiskPaths.some(path => file.startsWith(path))
             );
-            
+
             // Check if any medium-risk files changed
-            const hasMediumRisk = changedFiles.some(file => 
+            const hasMediumRisk = changedFiles.some(file =>
               mediumRiskPaths.some(path => file.startsWith(path))
             );
-            
+
             let enforcementLevel = 'low';
             if (hasHighRisk) {
               enforcementLevel = 'high';
             } else if (hasMediumRisk) {
               enforcementLevel = 'medium';
             }
-            
+
             core.setOutput('level', enforcementLevel);
             core.setOutput('changed_files', changedFiles.join(', '));
             console.log(`🎯 Enforcement level: ${enforcementLevel}`);
@@ -77,7 +82,7 @@ jobs:
             const prTitle = pr.title || '';
             const enforcementLevel = '${{ steps.enforcement.outputs.level }}';
             const changedFiles = '${{ steps.enforcement.outputs.changed_files }}';
-            
+
             // Patterns to match issue references
             const closesPatterms = [
               /closes\s+#(\d+)/gi,
@@ -85,10 +90,10 @@ jobs:
               /resolves\s+#(\d+)/gi,
               /related\s+to\s+#(\d+)/gi
             ];
-            
+
             let hasIssueReference = false;
             let issueNumbers = [];
-            
+
             // Check PR body for issue references
             for (const pattern of closesPatterms) {
               const matches = prBody.matchAll(pattern);
@@ -97,7 +102,7 @@ jobs:
                 issueNumbers.push(match[1]);
               }
             }
-            
+
             // Also check if PR title contains issue number
             const titleIssuePattern = /#(\d+)/g;
             const titleMatches = prTitle.matchAll(titleIssuePattern);
@@ -105,45 +110,45 @@ jobs:
               hasIssueReference = true;
               issueNumbers.push(match[1]);
             }
-            
+
             // Different enforcement based on risk level
             if (!hasIssueReference) {
               if (enforcementLevel === 'high') {
-                core.setFailed(`❌ **High-risk changes detected!** 
-                
+                core.setFailed(`❌ **High-risk changes detected!**
+
                 Core ADRI functionality changes require a linked GitHub issue for quality assurance.
-                
+
                 **Changed files**: ${changedFiles}
-                
+
                 **Required**: Link an issue using "Closes #123", "Fixes #123", "Resolves #123", or "Related to #123" in the description.
-                
+
                 **Why?** Changes to core modules need community discussion and proper tracking to maintain ADRI's reliability.`);
                 return;
               } else if (enforcementLevel === 'medium') {
                 console.log(`⚠️ **Guided quality check**: This PR would benefit from a linked issue.
-                
+
                 **Changed files**: ${changedFiles}
-                
+
                 **Recommended**: Create an issue to track this improvement and enable community input.
-                
+
                 **Why?** Issues help maintain project transparency and enable better collaboration.`);
                 // Don't fail for medium risk, just warn
               } else {
                 console.log(`💡 **Optional improvement**: Consider linking an issue for better project tracking.
-                
+
                 **Changed files**: ${changedFiles}
-                
-                Documentation and example updates are welcome contributions! 
+
+                Documentation and example updates are welcome contributions!
                 For future PRs, consider creating issues to enable community discussion.`);
                 // Don't fail for low risk
               }
             }
-            
+
             // If we have issue references, validate them
             if (hasIssueReference) {
               const { owner, repo } = context.repo;
               const uniqueIssueNumbers = [...new Set(issueNumbers)];
-              
+
               for (const issueNumber of uniqueIssueNumbers) {
                 try {
                   const { data: issue } = await github.rest.issues.get({
@@ -151,7 +156,7 @@ jobs:
                     repo,
                     issue_number: parseInt(issueNumber)
                   });
-                  
+
                   if (issue.state === 'closed') {
                     if (enforcementLevel === 'high') {
                       core.setFailed(`❌ Referenced issue #${issueNumber} is closed. High-risk changes require open issues for tracking.`);
@@ -171,12 +176,12 @@ jobs:
                   }
                 }
               }
-              
+
               if (hasIssueReference && enforcementLevel !== 'low') {
                 console.log(`✅ PR properly references ${uniqueIssueNumbers.length} issue(s): #${uniqueIssueNumbers.join(', #')}`);
               }
             }
-            
+
             // Always pass for medium and low risk to enable adoption
             if (enforcementLevel !== 'high') {
               console.log(`✅ Quality check completed. Enforcement level: ${enforcementLevel}`);
@@ -189,19 +194,19 @@ jobs:
           script: |
             const { owner, repo } = context.repo;
             const pr_number = context.payload.pull_request.number;
-            
+
             // Check if we already commented
             const { data: comments } = await github.rest.issues.listComments({
               owner,
               repo,
               issue_number: pr_number
             });
-            
-            const botComment = comments.find(comment => 
-              comment.user.login === 'github-actions[bot]' && 
+
+            const botComment = comments.find(comment =>
+              comment.user.login === 'github-actions[bot]' &&
               comment.body.includes('✅ Issue link validation passed')
             );
-            
+
             if (!botComment) {
               await github.rest.issues.createComment({
                 owner,

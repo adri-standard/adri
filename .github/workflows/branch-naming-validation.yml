@@ -4,6 +4,11 @@ on:
   pull_request:
     types: [opened, edited, synchronize]
 
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
 jobs:
   validate-branch-name:
     runs-on: ubuntu-latest
@@ -28,7 +33,7 @@ jobs:
         with:
           script: |
             const changedFiles = `${{ steps.changed-files.outputs.all_changed_files }}`.split(' ').filter(f => f.length > 0);
-            
+
             // High-risk paths requiring full enforcement
             const highRiskPaths = [
               'adri/core/',
@@ -37,7 +42,7 @@ jobs:
               'setup.py',
               'pyproject.toml'
             ];
-            
+
             // Medium-risk paths with guided enforcement
             const mediumRiskPaths = [
               'adri/cli/',
@@ -45,24 +50,24 @@ jobs:
               'adri/analysis/',
               'tests/'
             ];
-            
+
             // Check if any high-risk files changed
-            const hasHighRisk = changedFiles.some(file => 
+            const hasHighRisk = changedFiles.some(file =>
               highRiskPaths.some(path => file.startsWith(path))
             );
-            
+
             // Check if any medium-risk files changed
-            const hasMediumRisk = changedFiles.some(file => 
+            const hasMediumRisk = changedFiles.some(file =>
               mediumRiskPaths.some(path => file.startsWith(path))
             );
-            
+
             let enforcementLevel = 'low';
             if (hasHighRisk) {
               enforcementLevel = 'high';
             } else if (hasMediumRisk) {
               enforcementLevel = 'medium';
             }
-            
+
             core.setOutput('level', enforcementLevel);
             core.setOutput('changed_files', changedFiles.join(', '));
             console.log(`🎯 Enforcement level: ${enforcementLevel}`);
@@ -76,7 +81,7 @@ jobs:
             const branchName = pr.head.ref;
             const enforcementLevel = '${{ steps.enforcement.outputs.level }}';
             const changedFiles = '${{ steps.enforcement.outputs.changed_files }}';
-            
+
             // Valid branch name patterns
             const validPatterns = [
               /^feat\/issue-\d+-[\w-]+$/,
@@ -90,65 +95,65 @@ jobs:
               /^enhance\/issue-\d+-[\w-]+$/,
               /^hotfix\/issue-\d+-[\w-]+$/
             ];
-            
+
             // Special exceptions for main development branches
             const exceptions = ['main', 'master', 'develop', 'dev'];
-            
+
             if (exceptions.includes(branchName)) {
               console.log(`✅ Branch '${branchName}' is a main development branch, skipping validation.`);
               return;
             }
-            
+
             // Check if branch name matches any valid pattern
             const isValid = validPatterns.some(pattern => pattern.test(branchName));
-            
+
             if (!isValid) {
               const exampleMessage = `
             **Required format:** \`type/issue-{number}-brief-description\`
-            
+
             **Valid types:** feat, fix, docs, chore, refactor, test, style, perf, enhance, hotfix
-            
+
             **Examples:**
             - \`feat/issue-123-user-authentication\`
             - \`fix/issue-456-memory-leak\`
             - \`docs/issue-789-api-documentation\`
             - \`enhance/issue-321-performance-improvement\`
-            
+
             **To fix this:**
             1. Rename your branch using: \`git branch -m new-branch-name\`
             2. Push the renamed branch: \`git push origin new-branch-name\`
             3. Update this PR to use the new branch
               `;
-              
+
               if (enforcementLevel === 'high') {
                 core.setFailed(`❌ **High-risk changes require proper branch naming!**
-                
+
                 **Current branch:** \`${branchName}\`
                 **Changed files:** ${changedFiles}
-                
+
                 Core ADRI functionality changes must follow our naming convention for proper tracking and quality assurance.
-                
+
                 ${exampleMessage}
-                
+
                 **Why?** Standardized branch names help maintain project organization and enable automated workflows.`);
                 return;
               } else if (enforcementLevel === 'medium') {
                 console.log(`⚠️ **Branch naming suggestion**: Consider using our standard naming convention.
-                
+
                 **Current branch:** \`${branchName}\`
                 **Changed files:** ${changedFiles}
-                
+
                 ${exampleMessage}
-                
+
                 **Why?** Standard branch names improve project organization and enable better collaboration.`);
                 // Don't fail for medium risk, just suggest
               } else {
                 console.log(`💡 **Branch naming tip**: For future PRs, consider our naming convention for better organization.
-                
+
                 **Current branch:** \`${branchName}\`
                 **Changed files:** ${changedFiles}
-                
-                Documentation and example updates are welcome with any branch name! 
+
+                Documentation and example updates are welcome with any branch name!
                 For larger contributions, our naming convention helps with project tracking.`);
                 // Don't fail for low risk
               }
@@ -159,7 +164,7 @@ jobs:
                 const issueNumber = issueMatch[1];
                 console.log(`✅ Branch name follows convention: ${branchName}`);
                 console.log(`📋 Extracted issue number: #${issueNumber}`);
-                
+
                 // Verify the issue exists (only fail for high-risk)
                 const { owner, repo } = context.repo;
                 try {
@@ -178,7 +183,7 @@ jobs:
                   }
                 }
               }
-              
+
               console.log(`✅ Branch naming validation completed. Enforcement level: ${enforcementLevel}`);
             }
 
@@ -190,19 +195,19 @@ jobs:
             const { owner, repo } = context.repo;
             const pr_number = context.payload.pull_request.number;
             const branchName = context.payload.pull_request.head.ref;
-            
+
             // Check if we already commented
             const { data: comments } = await github.rest.issues.listComments({
               owner,
               repo,
               issue_number: pr_number
             });
-            
-            const botComment = comments.find(comment => 
-              comment.user.login === 'github-actions[bot]' && 
+
+            const botComment = comments.find(comment =>
+              comment.user.login === 'github-actions[bot]' &&
               comment.body.includes('✅ Branch naming validation passed')
             );
-            
+
             if (!botComment) {
               await github.rest.issues.createComment({
                 owner,

@@ -9,7 +9,7 @@
 
 # Core ADRI modules - Critical for data protection functionality
 /adri/core/ @adri-standard/maintainers
-/adri/decorators/ @adri-standard/maintainers  
+/adri/decorators/ @adri-standard/maintainers
 /adri/standards/ @adri-standard/maintainers
 
 # Package configuration - Affects distribution and dependencies

@@ -13,7 +13,7 @@ Thank you for your interest in contributing to ADRI! We welcome contributions fr
 **Want to jump right in?** Check out our **[Quick Contribution Guide](docs/CONTRIBUTOR_DOCS/QUICK_CONTRIBUTION_GUIDE.md)** for the fastest path to contributing!
 
 - 🌟 **First time?** → [Browse good first issues](https://github.com/adri-standard/adri/labels/good%20first%20issue)
-- 🔧 **Have an idea?** → [Create an issue](https://github.com/adri-standard/adri/issues/new/choose) 
+- 🔧 **Have an idea?** → [Create an issue](https://github.com/adri-standard/adri/issues/new/choose)
 - 📚 **See a typo?** → Just fix it and create a PR!
 
 **Our smart automation adapts to your changes** - documentation updates are super easy, core functionality gets extra quality attention.

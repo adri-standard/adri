@@ -18,7 +18,7 @@ ADRI follows an **issue-driven development workflow** to ensure complete feature
 **Before writing any code**, create an issue using the appropriate template:
 
 - **🚀 Feature Request**: For completely new functionality
-- **⚡ Enhancement**: For improvements to existing features  
+- **⚡ Enhancement**: For improvements to existing features
 - **🐛 Bug Reports**: For data quality, framework integration, or general bugs
 - **💬 Discussion**: For architectural decisions or community input
 
@@ -146,7 +146,7 @@ Issues and PRs are automatically labeled based on:
 ### PR Template Sections
 
 - **Linked Issue** (Required)
-- **Description** 
+- **Description**
 - **Type of Change**
 - **Framework Compatibility**
 - **Testing Performed**
@@ -163,7 +163,7 @@ Issues and PRs are automatically labeled based on:
    Title: [Feature] Add support for custom data quality rules
    ```
 
-2. **Create Branch**: 
+2. **Create Branch**:
    ```bash
    git checkout -b feat/issue-123-custom-quality-rules
    ```

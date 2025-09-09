@@ -29,9 +29,9 @@ assignees: ''
 
 ## Acceptance Criteria
 <!-- List specific criteria that must be met for this feature to be considered complete -->
-- [ ] 
-- [ ] 
-- [ ] 
+- [ ]
+- [ ]
+- [ ]
 
 ## Additional Context
 <!-- Add any other context, screenshots, or examples about the feature request -->
