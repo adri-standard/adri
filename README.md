@@ -187,9 +187,17 @@ Complete working examples for every major AI framework:
 
 ## Documentation
 
-- **[API Reference](docs/API_REFERENCE.md)** - Complete decorator and CLI documentation
-- **[Framework Integration Guide](examples/README.md)** - Detailed setup for each framework
-- **[Custom Standards Guide](docs/STANDALONE_ARCHITECTURE.md)** - Create your own data quality rules
+### 👤 For Users
+- **[AI Engineer Onboarding](https://adri-standard.github.io/adri/ai-engineer-onboarding)** - Complete 60-minute journey from production failures to bulletproof agents
+- **[Quick Start Guide](https://adri-standard.github.io/adri/quick-start)** - Get running in 5 minutes
+- **[Framework Integration Guide](https://adri-standard.github.io/adri/frameworks)** - Copy-paste ready code for all major frameworks
+- **[API Reference](https://adri-standard.github.io/adri/API_REFERENCE)** - Complete decorator and CLI documentation
+
+### 🔧 For Contributors
+- **[Architecture Guide](https://adri-standard.github.io/adri/CONTRIBUTOR_DOCS/STANDALONE_ARCHITECTURE)** - Create custom standards and understand internals
+- **[Performance Testing](https://adri-standard.github.io/adri/CONTRIBUTOR_DOCS/PERFORMANCE_TESTING)** - Benchmarking and optimization guidelines
+- **[Deployment Guide](https://adri-standard.github.io/adri/CONTRIBUTOR_DOCS/DEPLOYMENT_GUIDE)** - Production deployment best practices
+- **[PyPI Management](https://adri-standard.github.io/adri/CONTRIBUTOR_DOCS/PYPI_FIRST_VERSION_MANAGEMENT)** - Release and version management
 
 ## Support
 

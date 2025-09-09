@@ -50,9 +50,17 @@ pip install adri
 
 ## Documentation
 
+### 👤 For Users
+- [AI Engineer Onboarding](ai-engineer-onboarding) - Complete 60-minute journey from production failures to bulletproof agents
 - [Quick Start Guide](quick-start) - Get running in 5 minutes
-- [Framework Examples](frameworks) - Copy-paste ready code
-- [API Reference](https://github.com/adri-standard/adri/blob/main/docs/API_REFERENCE.md)
+- [Framework Integration](frameworks) - Copy-paste ready code for all major frameworks
+- [API Reference](API_REFERENCE) - Complete decorator and CLI documentation
+
+### 🔧 For Contributors
+- [Architecture Guide](CONTRIBUTOR_DOCS/STANDALONE_ARCHITECTURE) - Create custom standards and understand internals
+- [Performance Testing](CONTRIBUTOR_DOCS/PERFORMANCE_TESTING) - Benchmarking and optimization guidelines
+- [Deployment Guide](CONTRIBUTOR_DOCS/DEPLOYMENT_GUIDE) - Production deployment best practices
+- [PyPI Management](CONTRIBUTOR_DOCS/PYPI_FIRST_VERSION_MANAGEMENT) - Release and version management
 
 ## Community
 

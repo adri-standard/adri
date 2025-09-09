@@ -38,27 +38,27 @@ def get_cli_script_path() -> Path:
     for parent in current.parents:
         # Check for pyproject.toml or setup.py as project root markers
         if (parent / "pyproject.toml").exists() or (parent / "setup.py").exists():
-            cli_script = parent / "scripts" / "cli.py"
+            cli_script = parent / "scripts" / "core" / "cli.py"
             if cli_script.exists():
                 return cli_script
 
     # Method 2: Check if there's an environment variable pointing to the project
     if "ADRI_VALIDATOR_ROOT" in os.environ:
         root = Path(os.environ["ADRI_VALIDATOR_ROOT"])
-        cli_script = root / "scripts" / "cli.py"
+        cli_script = root / "scripts" / "core" / "cli.py"
         if cli_script.exists():
             return cli_script
 
     # Method 3: Try the original relative path (for backwards compatibility)
     test_dir = Path(__file__).parent.parent.parent
-    cli_script = test_dir / "scripts" / "cli.py"
+    cli_script = test_dir / "scripts" / "core" / "cli.py"
     if cli_script.exists():
         return cli_script
 
     # Method 4: Try to find it relative to the current working directory
     cwd = Path.cwd()
     for possible_root in [cwd, cwd / "adri-validator"]:
-        cli_script = possible_root / "scripts" / "cli.py"
+        cli_script = possible_root / "scripts" / "core" / "cli.py"
         if cli_script.exists():
             return cli_script
 

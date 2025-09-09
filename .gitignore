@@ -277,6 +277,9 @@ htmlcov/
 .coverage
 coverage.xml
 
+# AI Development Documentation (local only)
+AI-Development-docs/
+
 # Temporary directories
 MagicMock/
 external/
