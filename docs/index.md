@@ -20,6 +20,8 @@ def my_agent_function(data):
     return processed_data
 ```
 
+**New to ADRI?** → [**AI Engineer Onboarding Guide**](ai-engineer-onboarding) - Complete 60-minute journey from production failures to bulletproof agents.
+
 ## Framework Support
 
 ADRI works seamlessly with:

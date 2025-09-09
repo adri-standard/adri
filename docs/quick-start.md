@@ -7,6 +7,8 @@ title: Quick Start - ADRI
 
 Get ADRI protecting your AI agents in under 5 minutes.
 
+**Want the full story?** → [**AI Engineer Onboarding Guide**](ai-engineer-onboarding) - Complete journey from production failures to bulletproof agents (60 minutes).
+
 ## Installation
 
 ```bash

@@ -38,6 +38,8 @@ def your_agent_function(data):
 
 **That's it.** Your agent is now protected from bad data.
 
+**New to ADRI?** → [**Complete AI Engineer Onboarding Guide**](https://adri-standard.github.io/adri/ai-engineer-onboarding) - From production failures to bulletproof agents in 60 minutes.
+
 ## Framework Examples
 
 ### LangChain
