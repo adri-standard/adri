@@ -6,6 +6,20 @@ Thank you for your interest in contributing to ADRI! We welcome contributions fr
 
 **Join the Movement**: Help make AI agents bulletproof across LangChain, CrewAI, AutoGen, LlamaIndex, Haystack, LangGraph, and Semantic Kernel.
 
+---
+
+## 🚀 **Quick Start - New Contributors**
+
+**Want to jump right in?** Check out our **[Quick Contribution Guide](docs/CONTRIBUTOR_DOCS/QUICK_CONTRIBUTION_GUIDE.md)** for the fastest path to contributing!
+
+- 🌟 **First time?** → [Browse good first issues](https://github.com/adri-standard/adri/labels/good%20first%20issue)
+- 🔧 **Have an idea?** → [Create an issue](https://github.com/adri-standard/adri/issues/new/choose) 
+- 📚 **See a typo?** → Just fix it and create a PR!
+
+**Our smart automation adapts to your changes** - documentation updates are super easy, core functionality gets extra quality attention.
+
+---
+
 ## Table of Contents
 
 - [Code of Conduct](#code-of-conduct)
@@ -69,6 +83,37 @@ Please read and follow our [Code of Conduct](CODE_OF_CONDUCT.md) to ensure a wel
 
 ## How to Contribute
 
+### Issue-First Workflow
+
+**All contributions must start with a GitHub issue.** This ensures transparency, enables community discussion, and provides proper tracking from feature request to implementation.
+
+📚 **Complete Guide**: See our detailed [Issue-Driven Development Workflow](docs/CONTRIBUTOR_DOCS/ISSUE_DRIVEN_WORKFLOW.md) for comprehensive instructions and examples.
+
+#### Before You Code
+
+1. **Check existing issues** - Your idea might already be discussed
+2. **Create an issue** - Use our issue templates for consistency:
+   - **🚀 Feature Request**: For completely new functionality
+   - **⚡ Enhancement**: For improvements to existing features
+   - **🐛 Bug Reports**: For data quality, framework integration, or general bugs
+   - **💬 Discussion**: For architectural decisions or community input
+3. **Get feedback** - Allow time for community input before implementation
+4. **Issue assignment** - Comment on the issue to request assignment
+
+#### Branch Naming Convention
+
+Create branches that reference the issue number using our standardized format:
+
+```bash
+# Format: type/issue-{number}-brief-description
+feat/issue-123-user-authentication
+fix/issue-456-memory-leak
+docs/issue-789-api-documentation
+enhance/issue-321-performance-improvement
+```
+
+**Valid types**: `feat`, `fix`, `docs`, `chore`, `refactor`, `test`, `style`, `perf`, `enhance`, `hotfix`
+
 ### Types of Contributions
 
 We welcome various types of contributions:
@@ -86,6 +131,7 @@ We welcome various types of contributions:
 - Check our [issue tracker](https://github.com/adri-standard/adri/issues) for open issues
 - Look for issues labeled `good first issue` if you're new to the project
 - Issues labeled `help wanted` are particularly important to the project
+- **No issue for your idea?** Create one using our templates!
 
 ## Reporting Issues
 
@@ -118,28 +164,52 @@ When creating an issue, please include:
 
 ### Pull Request Process
 
-1. Create a new branch from `main`:
+1. **Ensure you have a linked issue** - All PRs must reference a GitHub issue
+
+2. Create a new branch following our naming convention:
    ```bash
-   git checkout -b feature/your-feature-name
+   git checkout -b feat/issue-123-your-feature-name
    ```
 
-2. Make your changes and commit them with descriptive messages:
+3. Make your changes and commit them with descriptive messages:
    ```bash
-   git commit -m "feat: add new validation for data completeness"
+   git commit -m "feat: add new validation for data completeness (fixes #123)"
    ```
 
-3. Push your branch to your fork:
+4. Push your branch to your fork:
    ```bash
-   git push origin feature/your-feature-name
+   git push origin feat/issue-123-your-feature-name
    ```
 
-4. Open a Pull Request on GitHub with:
-   - A clear title and description
-   - Reference to any related issues
-   - A summary of the changes made
+5. Open a Pull Request on GitHub using the PR template:
+   - **Required**: Link to the GitHub issue (e.g., "Fixes #123")
+   - Clear title and description
+   - Completed testing checklist
+   - Documentation updates (if applicable)
    - Screenshots or examples if applicable
 
-5. Address any feedback from reviewers promptly
+6. **Automated checks**: Our GitHub Actions will verify:
+   - Issue is properly linked
+   - Branch naming follows convention
+   - All tests pass
+   - Code quality standards are met
+
+7. Address any feedback from reviewers promptly
+
+#### PR Requirements
+
+✅ **Must Have:**
+- Linked GitHub issue
+- Proper branch naming
+- Passing automated tests
+- Updated documentation (if needed)
+- Conventional commit messages
+
+❌ **Will Block Merge:**
+- No linked issue
+- Failing tests
+- Code quality issues
+- Missing documentation for new features
 
 ### Commit Message Format
 
