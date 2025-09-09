@@ -401,15 +401,13 @@ class RuleExecutionResult:
 
 
 class DataQualityAssessor:
-    """Data quality assessor for ADRI validation with integrated audit logging."""
+    """Data quality assessor for ADRI validation with integrated audit logging.
+
+    # TEST COMMENT: Testing adaptive issue-driven workflow validation for high-risk core changes
+    """
 
     def __init__(self, config: Optional[Dict[str, Any]] = None):
-        """
-        Initialize the assessor with optional configuration.
-
-        Args:
-            config: Configuration dictionary with audit and verodat settings
-        """
+        """Initialize the DataQualityAssessor with optional configuration."""
         self.engine = AssessmentEngine()
         self.config = config or {}
 
