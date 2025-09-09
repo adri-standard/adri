@@ -17,7 +17,7 @@ assignees: ''
 - Improved performance
 - Better user experience
 - Enhanced functionality
-- Other: 
+- Other:
 
 ## Implementation Approach
 <!-- Describe how you think this could be implemented -->

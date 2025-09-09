@@ -20,7 +20,7 @@ def my_langchain_customer_agent(customer_data):
     chain = prompt | model | parser
     return chain.invoke(customer_data)  # 💥 Breaks on bad data
 
-# Production reality: Missing emails, invalid dates, null values, 
+# Production reality: Missing emails, invalid dates, null values,
 # inconsistent formats = broken agents and angry stakeholders
 ```
 
@@ -68,7 +68,7 @@ This creates your project structure:
 ADRI/
 ├── dev/
 │   ├── standards/          # Development data standards
-│   ├── assessments/        # Quality reports  
+│   ├── assessments/        # Quality reports
 │   └── training-data/      # Sample data for testing
 └── prod/
     ├── standards/          # Production data standards
@@ -97,7 +97,7 @@ def process_customers(customer_data):
     # Your existing agent code
     return results
 
-# After: Protected automatically  
+# After: Protected automatically
 @adri_protected(data_param="customer_data")
 def process_customers(customer_data):
     # Exact same code - ADRI handles quality checking
@@ -113,7 +113,7 @@ import pandas as pd
 
 # Good data - agent runs normally
 good_data = pd.DataFrame({
-    'customer_id': ['C001', 'C002'], 
+    'customer_id': ['C001', 'C002'],
     'email': ['john@example.com', 'jane@example.com'],
     'age': [25, 30]
 })
@@ -122,7 +122,7 @@ result = process_customers(good_data)  # ✅ Works fine
 
 # Bad data - ADRI blocks execution
 bad_data = pd.DataFrame({
-    'customer_id': [None, ''], 
+    'customer_id': [None, ''],
     'email': ['invalid-email', None],
     'age': [-5, 999]
 })
@@ -148,7 +148,7 @@ When ADRI blocks bad data, you get detailed feedback:
 
 🔧 Fix This Now:
 1. adri export-report --latest
-2. adri show-standard customer_data_standard  
+2. adri show-standard customer_data_standard
 3. adri assess <fixed-data> --standard customer_data_standard
 
 💬 Message for Your Data Team:
@@ -178,7 +178,7 @@ def langchain_customer_service(customer_data):
     return chain.run(customer_data=str(customer_data))
 ```
 
-### CrewAI Example  
+### CrewAI Example
 ```python
 from crewai import Agent, Task, Crew
 from adri import adri_protected
@@ -190,12 +190,12 @@ def crewai_market_analysis(market_data):
         goal='Analyze market trends',
         backstory='Expert in market data analysis'
     )
-    
+
     task = Task(
         description=f'Analyze this market data: {market_data}',
         agent=analyst
     )
-    
+
     crew = Crew(agents=[analyst], tasks=[task])
     return crew.kickoff()
 ```
@@ -211,14 +211,14 @@ def autogen_research_team(research_data):
         name="researcher",
         llm_config={"model": "gpt-4"}
     )
-    
+
     user_proxy = autogen.UserProxyAgent(
         name="user_proxy",
         human_input_mode="NEVER"
     )
-    
+
     user_proxy.initiate_chat(
-        assistant, 
+        assistant,
         message=f"Research this data: {research_data}"
     )
     return {"analysis_complete": True}
@@ -355,12 +355,12 @@ Subject: Data Quality Issues - Customer Agent Blocked
 
 Hi Data Team,
 
-Our customer service AI agent is currently blocked due to data quality issues. 
+Our customer service AI agent is currently blocked due to data quality issues.
 ADRI assessment shows a score of 45.2/100 (minimum required: 80.0/100).
 
 Issues found:
 • Invalid email formats (23 records)
-• Missing customer IDs (15 records)  
+• Missing customer IDs (15 records)
 • Unrealistic age values (8 records)
 
 Please see the attached ADRI report for specific details and fix recommendations.
@@ -396,7 +396,7 @@ adri assess production_data.csv --environment production
 ```python
 # Add monitoring to your production agents
 @adri_protected(
-    data_param="live_data", 
+    data_param="live_data",
     min_score=90,
     on_failure="raise",
     verbose=True  # Logs detailed protection info
@@ -420,20 +420,20 @@ grep "BLOCKED" ADRI/prod/assessments/*.json
 
 ## What You Get as an AI Agent Engineer
 
-✅ **Reliable Agents**: Your agents only run on quality data  
-✅ **Clear Communication**: Data teams get specific, actionable feedback  
-✅ **Framework Freedom**: Works with any Python AI framework  
-✅ **Zero Refactoring**: Add one decorator, keep existing code  
-✅ **Professional Reports**: Generate data quality reports for stakeholders  
-✅ **Fast Development**: Catch data issues early, not in production  
-✅ **Production Ready**: Built-in audit trails and monitoring  
+✅ **Reliable Agents**: Your agents only run on quality data
+✅ **Clear Communication**: Data teams get specific, actionable feedback
+✅ **Framework Freedom**: Works with any Python AI framework
+✅ **Zero Refactoring**: Add one decorator, keep existing code
+✅ **Professional Reports**: Generate data quality reports for stakeholders
+✅ **Fast Development**: Catch data issues early, not in production
+✅ **Production Ready**: Built-in audit trails and monitoring
 
 ## Real-World Success Stories
 
 ### Before ADRI
 ```
 ❌ Agent fails randomly in production
-❌ Data team gets vague "fix the data" requests  
+❌ Data team gets vague "fix the data" requests
 ❌ Debugging takes hours per incident
 ❌ Stakeholders lose confidence in AI systems
 ❌ Engineers spend time on data issues, not AI logic
@@ -443,7 +443,7 @@ grep "BLOCKED" ADRI/prod/assessments/*.json
 ```
 ✅ Agents are predictably reliable
 ✅ Data team gets specific fix instructions
-✅ Issues caught before production deployment  
+✅ Issues caught before production deployment
 ✅ Stakeholders see professional data quality reports
 ✅ Engineers focus on AI innovation, not data debugging
 ```
@@ -529,7 +529,7 @@ def lenient_agent(data):
 2. **Set up CLI workflows** for your team
 3. **Create standards** for your main data sources
 
-### This Month  
+### This Month
 1. **Deploy to production** with monitoring
 2. **Train your data team** on ADRI reports
 3. **Establish data quality processes** using ADRI assessments
@@ -550,7 +550,7 @@ def lenient_agent(data):
 
 ### If ADRI Solved Your Production Issues
 - **⭐ Star the repo** on [GitHub](https://github.com/adri-standard/adri) - It helps other AI engineers discover ADRI
-- **🍴 Fork and contribute** - We welcome PRs for new frameworks, standards, and improvements  
+- **🍴 Fork and contribute** - We welcome PRs for new frameworks, standards, and improvements
 - **💬 Share your success story** in [GitHub Discussions](https://github.com/adri-standard/adri/discussions)
 - **📢 Tell your team** - Help your colleagues build reliable AI systems
 
