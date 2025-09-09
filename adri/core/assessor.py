@@ -402,7 +402,7 @@ class RuleExecutionResult:
 
 class DataQualityAssessor:
     """Data quality assessor for ADRI validation with integrated audit logging.
-    
+
     # TEST COMMENT: Testing adaptive issue-driven workflow validation for high-risk core changes
     """
 
