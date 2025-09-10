@@ -110,6 +110,8 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+*_test_env/
+adri_test_env/
 
 # Spyder project settings
 .spyderproject
@@ -223,6 +225,7 @@ yarn-error.log*
 dev/
 local/
 scratch/
+development/framework-research/
 
 # Build and test artifacts
 bandit-report.json
