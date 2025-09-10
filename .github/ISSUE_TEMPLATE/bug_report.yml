@@ -1,0 +1,112 @@
+name: Bug Report
+description: Report a bug or issue with ADRI
+title: "[BUG] "
+labels: ["bug", "needs-triage"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug! Please fill out this form to help us resolve the issue quickly.
+
+  - type: input
+    id: version
+    attributes:
+      label: ADRI Version
+      description: What version of ADRI are you using?
+      placeholder: "e.g., 4.0.0"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: environment
+    attributes:
+      label: Environment
+      description: What environment are you running ADRI in?
+      options:
+        - Local development
+        - Production
+        - CI/CD pipeline
+        - Docker container
+        - Virtual environment
+        - Other (please specify in description)
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: A clear and concise description of what the bug is.
+      placeholder: Describe what happened and what you expected to happen
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      description: List the steps to reproduce the behavior
+      placeholder: |
+        1. Import ADRI with '...'
+        2. Run assessment on '...'
+        3. Call method '...'
+        4. See error
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What did you expect to happen?
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Behavior
+      description: What actually happened?
+    validations:
+      required: true
+
+  - type: textarea
+    id: error
+    attributes:
+      label: Error Messages/Logs
+      description: If applicable, add error messages, stack traces, or log output
+      render: shell
+
+  - type: textarea
+    id: code
+    attributes:
+      label: Code Sample
+      description: If applicable, provide a minimal code example that reproduces the issue
+      render: python
+
+  - type: textarea
+    id: config
+    attributes:
+      label: Configuration
+      description: Relevant ADRI configuration (YAML files, settings, etc.)
+      render: yaml
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Add any other context about the problem here (screenshots, related issues, etc.)
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Pre-submission Checklist
+      options:
+        - label: I have searched existing issues to ensure this bug hasn't been reported
+          required: true
+        - label: I have provided all the requested information
+          required: true
+        - label: I am using a supported version of ADRI (3.x.x or 4.x.x)
+          required: true
