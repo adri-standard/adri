@@ -96,8 +96,9 @@ jobs:
             exit 1
           fi
           
-          if [ ! -f "_site/quick-start.html" ]; then
-            echo "❌ quick-start.html not generated"
+          # With permalink: pretty, quick-start.md becomes quick-start/index.html
+          if [ ! -f "_site/quick-start/index.html" ]; then
+            echo "❌ quick-start page not generated"
             exit 1
           fi
           
