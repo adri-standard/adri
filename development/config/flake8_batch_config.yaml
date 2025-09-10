@@ -1,0 +1,163 @@
+# Flake8 Batch Processing Configuration
+# 
+# Configuration for the batched error processing system that prevents
+# Cline interface overload when fixing multiple flake8 errors.
+
+# Batch processing settings
+batch_processing:
+  # Global settings
+  max_total_errors: 50          # Maximum errors to process in one session
+  default_batch_size: 10        # Default batch size if not specified by category
+  inter_batch_delay: 2          # Seconds to wait between batches
+  max_concurrent_files: 5       # Maximum files to modify in one batch
+  
+  # Progress reporting
+  progress_reporting:
+    enabled: true
+    show_detailed_progress: true
+    log_to_file: true
+    log_file_path: "logs/flake8_batch_progress.log"
+  
+  # Error retry settings
+  retry_settings:
+    max_retries: 3
+    retry_delay: 1              # Seconds between retries
+    retry_on_failure: true
+
+# Category-specific batch sizes (override defaults)
+category_batch_sizes:
+  syntax: 1                     # Syntax errors: one at a time
+  undefined_vars: 3             # Undefined variables: small batches
+  imports: 5                    # Import issues: medium batches
+  formatting: 15                # Formatting: large batches (simple fixes)
+  style: 10                     # Style issues: medium-large batches
+  docstrings: 5                 # Docstring issues: medium batches
+  complexity: 2                 # Complexity: small batches (complex)
+
+# Priority order for processing categories
+processing_priority:
+  - syntax                      # Fix syntax errors first
+  - undefined_vars              # Then undefined variables
+  - imports                     # Then import issues
+  - complexity                  # Then complexity issues
+  - docstrings                  # Then missing docstrings
+  - style                       # Then style issues
+  - formatting                  # Finally formatting (safest)
+
+# File filtering settings
+file_filtering:
+  # Include patterns (relative to project root)
+  include_patterns:
+    - "*.py"
+    - "adri/**/*.py"
+    - "tests/**/*.py" 
+    - "tools/**/*.py"
+    - "examples/**/*.py"
+    
+  # Exclude patterns (to avoid system files)
+  exclude_patterns:
+    - "adri_test_env/**"
+    - "**/__pycache__/**"
+    - "**/.pytest_cache/**"
+    - "**/htmlcov/**"
+    - "build/**"
+    - "dist/**"
+    - ".git/**"
+
+# Automatic fixing settings
+auto_fix:
+  # Categories that can be fixed automatically
+  safe_categories:
+    - formatting                # Safe: whitespace fixes
+    - imports                   # Safe: remove unused imports
+    
+  # Categories requiring manual review
+  manual_categories:
+    - syntax                    # Manual: syntax errors
+    - undefined_vars            # Manual: undefined variables
+    - complexity                # Manual: code restructuring needed
+    
+  # Enable dry-run mode for testing
+  dry_run_mode: false
+  
+  # Backup settings
+  create_backups: true
+  backup_directory: "logs/file_backups"
+
+# Error reporting settings
+reporting:
+  # Summary report format
+  summary_format: "detailed"    # Options: brief, detailed, json
+  
+  # Progress display settings
+  show_progress_bar: true
+  show_file_counts: true
+  show_error_codes: true
+  
+  # Output destinations
+  console_output: true
+  file_output: true
+  output_file: "logs/flake8_batch_summary.txt"
+
+# Integration settings
+integration:
+  # Pre-commit hook integration
+  pre_commit:
+    enabled: false              # Set to true to integrate with pre-commit
+    run_after_batch: false     # Run pre-commit hooks after each batch
+    
+  # CI integration
+  ci_mode:
+    enabled: false              # Set to true for CI environments
+    fail_on_remaining_errors: true
+    max_ci_batch_size: 5        # Smaller batches for CI
+    
+  # Editor integration
+  editor:
+    vscode_integration: true    # Generate .vscode/settings.json updates
+    format_on_save: true        # Enable format on save after fixes
+
+# Cline-specific settings
+cline_compatibility:
+  # Prevent interface overload
+  max_output_lines: 100         # Limit output per batch
+  chunk_large_outputs: true    # Split large outputs into chunks
+  
+  # Progress pacing
+  pause_between_batches: true   # Pause for user confirmation
+  interactive_mode: true       # Allow user intervention
+  
+  # Error handling
+  stop_on_critical_error: true # Stop processing on syntax errors
+  continue_on_minor_error: true # Continue on formatting errors
+  
+  # Memory management
+  clear_output_buffer: true    # Clear output between batches
+  limit_concurrent_operations: true # Limit simultaneous file operations
+
+# Logging configuration
+logging:
+  level: "INFO"                 # DEBUG, INFO, WARNING, ERROR
+  format: "%(asctime)s - %(levelname)s - %(message)s"
+  
+  # Log files
+  main_log: "logs/flake8_batch.log"
+  error_log: "logs/flake8_batch_errors.log" 
+  
+  # Log rotation
+  max_log_size: "10MB"
+  backup_count: 5
+
+# Development and testing settings
+development:
+  # Testing mode
+  test_mode: false              # Enable for unit testing
+  mock_file_operations: false  # Mock file changes for testing
+  
+  # Debug settings
+  verbose_output: false         # Extra verbose logging
+  debug_categorization: false  # Debug error categorization
+  
+  # Performance monitoring
+  monitor_performance: true     # Track batch processing times
+  profile_memory_usage: false  # Monitor memory consumption

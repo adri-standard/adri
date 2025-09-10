@@ -7,7 +7,7 @@
 ## 🚨 The Real Problem: Documented GitHub Issues Breaking Production Agents
 
 **AutoGen** - 54+ validation issues causing collaboration failures:
-- Issue #6819: "Conversational flow is not working as expected" 
+- Issue #6819: "Conversational flow is not working as expected"
 - Issue #5736: "Function Arguments as Pydantic Models fail in tool calls"
 - Issue #6123: "Internal Message Handling corruption"
 
@@ -27,7 +27,7 @@
 def research_collaboration(data):
     return autogen_conversation(data)  # 💥 Issue #6819: Flow breaks
 
-# With ADRI - GitHub issues prevented automatically  
+# With ADRI - GitHub issues prevented automatically
 @adri_protected
 def research_collaboration(data):
     return autogen_conversation(data)  # ✅ Issue #6819: Blocked before breaking
@@ -64,7 +64,7 @@ python examples/autogen-research-collaboration.py  # See real GitHub issues prev
 @adri_protected
 def start_conversation(conversation_data):
     # Prevents GitHub #6819: "Conversational flow breaks"
-    # Prevents GitHub #5736: "Function Arguments fail" 
+    # Prevents GitHub #5736: "Function Arguments fail"
     # Prevents GitHub #6123: "Message Handling corruption"
 ```
 **Setup:** `python tools/adri-setup.py --framework autogen`
@@ -90,7 +90,7 @@ def coordinate_market_crew(crew_data):
 **Setup:** `python tools/adri-setup.py --framework crewai`
 
 ### 🦙 LlamaIndex → [`examples/llamaindex-document-processing.py`](examples/llamaindex-document-processing.py)
-### 🌾 Haystack → [`examples/haystack-knowledge-management.py`](examples/haystack-knowledge-management.py) 
+### 🌾 Haystack → [`examples/haystack-knowledge-management.py`](examples/haystack-knowledge-management.py)
 ### 🌐 LangGraph → [`examples/langgraph-workflow-automation.py`](examples/langgraph-workflow-automation.py)
 ### 🧠 Semantic Kernel → [`examples/semantic-kernel-ai-orchestration.py`](examples/semantic-kernel-ai-orchestration.py)
 

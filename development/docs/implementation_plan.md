@@ -12,7 +12,7 @@ Define new directory structure and file organization patterns for simplified AI 
 ```
 Root Level (AI Engineer Focused):
 - README.md (streamlined 30-second start)
-- langchain_example.py 
+- langchain_example.py
 - crewai_example.py
 - autogen_example.py
 - llamaindex_example.py
@@ -53,7 +53,7 @@ Restructure project to prioritize AI engineer experience with framework examples
 
 **New Files to Create:**
 - `langchain_example.py` - Complete LangChain agent protection example
-- `crewai_example.py` - CrewAI multi-agent protection example  
+- `crewai_example.py` - CrewAI multi-agent protection example
 - `autogen_example.py` - AutoGen conversation protection example
 - `llamaindex_example.py` - LlamaIndex RAG protection example
 - `haystack_example.py` - Haystack search pipeline protection example
@@ -83,7 +83,7 @@ Restructure project to prioritize AI engineer experience with framework examples
 
 **Files to Keep at Root:**
 - `README.md` (updated)
-- `LICENSE` 
+- `LICENSE`
 - `pyproject.toml` (updated)
 - `setup.py`
 - `VERSION.json`
@@ -100,7 +100,7 @@ Create framework-specific example functions that demonstrate ADRI protection pat
   - Signature: `@adri_protected def langchain_customer_service(customer_data: dict) -> dict`
 
 - `crewai_market_analysis()` in `crewai_example.py`
-  - File: `crewai_example.py` 
+  - File: `crewai_example.py`
   - Purpose: Show CrewAI crew protection
   - Signature: `@adri_protected def crewai_market_analysis(market_data: dict) -> dict`
 
@@ -128,7 +128,7 @@ from adri.decorators.guard import adri_protected
 def framework_function(data):
     """
     Example of protecting [Framework] agents with ADRI.
-    
+
     This function demonstrates:
     - Automatic data quality validation
     - Framework-specific integration patterns
@@ -150,7 +150,7 @@ Simplify class exposure and create example classes for common AI agent patterns.
 
 - `MarketAnalysisCrew` in `crewai_example.py`
   - File: `crewai_example.py`
-  - Purpose: Complete CrewAI market analysis crew example  
+  - Purpose: Complete CrewAI market analysis crew example
   - Key methods: `analyze_market()`, `generate_insights()`
   - Inheritance: Uses CrewAI Crew class
 
@@ -185,7 +185,7 @@ Maintain current lightweight dependency model while organizing development depen
 dev = [
     # All current dev dependencies moved here
     "pytest>=7.0",
-    "black>=23.0", 
+    "black>=23.0",
     # ... existing dev deps
 ]
 
@@ -216,7 +216,7 @@ Reorganize testing infrastructure into development directory while maintaining c
 ```
 development/testing/
 ├── unit/           # Existing unit tests (moved)
-├── integration/    # Existing integration tests (moved)  
+├── integration/    # Existing integration tests (moved)
 ├── performance/    # Existing performance tests (moved)
 ├── examples/       # New: Test all root examples work
 ├── enterprise/     # Existing enterprise tests (moved)

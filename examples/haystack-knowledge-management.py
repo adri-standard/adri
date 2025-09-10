@@ -253,7 +253,7 @@ class DocumentSearchSystem:
             "prompt_builder",
             PromptBuilder(
                 template="""Given the following context documents, answer the question accurately and concisely.
-            
+
 Context:
 {% for doc in documents %}
 - {{ doc.content }}

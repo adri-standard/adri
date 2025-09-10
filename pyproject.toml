@@ -83,8 +83,8 @@ adri = "adri.cli.commands:main"
 [tool.setuptools.packages.find]
 include = ["adri*"]
 exclude = [
-    "development*", 
-    "*_example.py", 
+    "development*",
+    "*_example.py",
     "basic_example.py",
     "test_standalone*",
     "tests*",

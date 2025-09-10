@@ -95,11 +95,11 @@ jobs:
             echo "❌ index.html not generated"
             exit 1
           fi
-          
+
           # With permalink: pretty, quick-start.md becomes quick-start/index.html
           if [ ! -f "_site/quick-start/index.html" ]; then
             echo "❌ quick-start page not generated"
             exit 1
           fi
-          
+
           echo "✅ Jekyll build successful - key documentation files generated"

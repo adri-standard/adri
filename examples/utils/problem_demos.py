@@ -692,7 +692,7 @@ def get_problem_summary(framework: str) -> str:
     summaries = {
         "autogen": """AutoGen Framework - 54+ Documented Validation Issues:
 • Multi-agent conversation flow breakdowns (#6819)
-• Function/tool call argument validation failures (#5736) 
+• Function/tool call argument validation failures (#5736)
 • Internal message handling corruption (#6123)
 • Structured output parsing errors (#6727, #6638)
 • Model integration inconsistencies (#5075, #5020)
@@ -724,7 +724,7 @@ Business Impact: Multi-agent teams fail to coordinate, business process automati
 Business Impact: Knowledge management systems fail, enterprise documentation becomes unreliable, RAG applications break in production.""",
         "haystack": """Haystack Framework - 347+ Documented Validation Issues:
 • Document processing pipeline failures crash with malformed content (89+ issues)
-• Retrieval quality problems with poor scoring and empty queries (134+ issues)  
+• Retrieval quality problems with poor scoring and empty queries (134+ issues)
 • Component integration breakdowns across pipeline stages (67+ issues)
 • Search result inconsistencies and missing confidence scores (57+ issues)
 

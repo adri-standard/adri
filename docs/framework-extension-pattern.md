@@ -15,7 +15,7 @@ tools/
   adri-setup.py                    # Universal setup tool
 examples/
   utils/
-    problem_demos.py               # Reusable GitHub issue scenarios  
+    problem_demos.py               # Reusable GitHub issue scenarios
   {framework}-{use-case}.py        # Streamlined 100-line examples
 docs/
   setup-tool-guide.md             # Setup tool documentation
@@ -38,7 +38,7 @@ docs/
 ```
 54+ documented validation issues:
 • Issue #6819: "Conversational flow is not working as expected"
-• Issue #5736: "Function Arguments as Pydantic Models fail"  
+• Issue #5736: "Function Arguments as Pydantic Models fail"
 • Issue #6123: "Internal Message Handling corruption"
 Business Impact: Research collaboration workflows break
 ```
@@ -77,7 +77,7 @@ FRAMEWORKS = {
 ```python
 class {Framework}Problems:
     """Framework-specific problem scenarios based on documented GitHub issues."""
-    
+
     # Issue #{number}: "{Description}"
     {SCENARIO}_GOOD = {
         # Valid data that should work normally
@@ -85,7 +85,7 @@ class {Framework}Problems:
         "field2": ["valid", "list"],
         "field3": 42
     }
-    
+
     {SCENARIO}_BAD = {
         # Bad data that causes the documented GitHub issue
         "field1": "",  # Empty value breaks processing
@@ -122,7 +122,7 @@ def get_framework_problems(framework: str) -> Dict[str, Any]:
 
 🚨 THE PROBLEM: {Framework} has {X}+ documented validation issues
    • Issue #{number}: "{Description}"
-   • Issue #{number}: "{Description}" 
+   • Issue #{number}: "{Description}"
    • Issue #{number}: "{Description}"
    • {Business impact description}
 
@@ -173,7 +173,7 @@ problems = get_framework_problems('{framework}')
 
 class {UseCase}Agent:
     """Production {Framework} agent with ADRI protection."""
-    
+
     def __init__(self):
         """Initialize real {Framework} components."""
         # Real framework initialization here
@@ -183,77 +183,77 @@ class {UseCase}Agent:
     def {primary_function}(self, data):
         """
         {Function description} with ADRI protection.
-        
+
         Prevents GitHub Issue #{number}: "{Description}"
         ADRI validates data before {Framework} processing.
         """
         print(f"🎯 Processing: {data.get('key_field', 'N/A')}")
-        
+
         # Real framework processing here
         return {
             "result": "success",
             "processed": True
         }
 
-    @adri_protected  
+    @adri_protected
     def {secondary_function}(self, data):
         """
         {Function description} with ADRI protection.
-        
+
         Prevents GitHub Issue #{number}: "{Description}"
         """
         print(f"🔧 Executing: {data.get('action', 'N/A')}")
-        
+
         # Real framework processing here
         return {"status": "completed"}
 
 
 def main():
     """Demonstrate ADRI preventing real {Framework} GitHub issues."""
-    
+
     print("🛡️  ADRI + {Framework}: Real GitHub Issue Prevention")
     print("=" * 55)
     print(f"🎯 Demonstrating protection against {X}+ documented {Framework} issues")
     print("   📋 Based on real GitHub issues from {Framework} repository")
     print("   ✅ ADRI blocks bad data before it breaks your agents")
     print()
-    
+
     agent = {UseCase}Agent()
-    
+
     # Test scenarios for each GitHub issue
     for scenario_name, scenario_data in problems.items():
         print(f"📊 Test: {scenario_name} (GitHub {scenario_data['github_issue']})")
-        
+
         # Test good data
         try:
             result = getattr(agent, scenario_name.replace('_', ''))(scenario_data['good'])
             print("✅ Good data: Processing successful")
         except Exception as e:
             print(f"❌ Unexpected error: {e}")
-        
-        # Test bad data  
+
+        # Test bad data
         try:
             result = getattr(agent, scenario_name.replace('_', ''))(scenario_data['bad'])
             print("⚠️  Bad data allowed through (shouldn't happen)")
         except Exception:
             print(f"✅ ADRI blocked bad data - preventing GitHub {scenario_data['github_issue']}")
-        
+
         print()
-    
+
     print("=" * 55)
     print("🎉 ADRI Protection Complete!")
     print()
     print("📋 What ADRI Protected Against:")
     for scenario_name, scenario_data in problems.items():
         print(f"• Issue {scenario_data['github_issue']}: {scenario_data['business_impact']}")
-    
+
     print()
     print(f"🚀 Next Steps for {Framework} Engineers:")
     print("• Add @adri_protected to your key functions")
     print(f"• Protect {Framework} initialization and data processing")
     print("• Customize data standards for your domain")
     print("• Enable audit logging for compliance")
-    
+
     print()
     print("📖 Learn More:")
     print("• Setup tool: python tools/adri-setup.py --list")
@@ -300,7 +300,7 @@ Before releasing a new framework integration:
 - [ ] Business impact clearly explained for target audience
 - [ ] Data scenarios realistic for the framework's typical usage
 
-### ✅ Example Implementation  
+### ✅ Example Implementation
 - [ ] ~100 lines focused on value demonstration
 - [ ] Real framework integration (not just mocks)
 - [ ] Clear problem/solution narrative in docstring
@@ -338,7 +338,7 @@ GitHub Repository: {URL}
 Search Terms: ["validation", "data quality", "input error", "parsing", "format"]
 Issues Found: {Number}
 Key Patterns:
-• {Pattern 1}: {Description} 
+• {Pattern 1}: {Description}
 • {Pattern 2}: {Description}
 Business Impact: {Impact for AI Agent Engineers}
 ```

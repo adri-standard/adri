@@ -255,7 +255,7 @@ curl -I https://api.openai.com/v1/models
    ```bash
    # Check if main branch is affected
    gh run list --branch main --limit 5
-   
+
    # Check if specific to current PR
    gh run list --branch $(git branch --show-current) --limit 5
    ```
@@ -265,7 +265,7 @@ curl -I https://api.openai.com/v1/models
    # Option A: Revert problematic commit
    git revert <commit-hash>
    git push origin <branch>
-   
+
    # Option B: Skip CI temporarily (emergency only)
    git commit --allow-empty -m "ci: skip CI [skip ci]"
    ```
@@ -275,7 +275,7 @@ curl -I https://api.openai.com/v1/models
    # Restore previous working workflows
    cp .github/workflows/archived/test.yml .github/workflows/
    cp .github/workflows/archived/pre-commit.yml .github/workflows/
-   
+
    git add .github/workflows/
    git commit -m "emergency: restore previous CI workflows"
    git push origin main
@@ -287,7 +287,7 @@ curl -I https://api.openai.com/v1/models
    ```bash
    # Check security alerts
    gh security-advisory list
-   
+
    # Review specific vulnerability
    safety check --json | jq '.vulnerabilities'
    ```
@@ -296,7 +296,7 @@ curl -I https://api.openai.com/v1/models
    ```bash
    # Update vulnerable dependency
    pip install --upgrade <vulnerable-package>
-   
+
    # If update not available, add exception
    echo "<vulnerable-package>==<version>" >> .safety-project.ini
    ```

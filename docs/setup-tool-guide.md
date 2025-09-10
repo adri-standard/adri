@@ -7,7 +7,7 @@ The ADRI Universal Setup Tool (`tools/adri-setup.py`) handles dependency install
 **Problem:** Previous examples were 700-900 lines each, with setup code obscuring ADRI's value proposition.
 
 **Solution:** Separate setup concerns from value demonstration:
-- **Setup Tool:** Handles all dependency management and environment validation  
+- **Setup Tool:** Handles all dependency management and environment validation
 - **Examples:** Focus on showing real GitHub issues prevented by ADRI
 - **Clear Path:** Setup → Run → See Value → Adopt
 
@@ -43,7 +43,7 @@ python examples/autogen-research-collaboration.py
 
 ### Environment Validation
 - ✅ Python version compatibility check
-- ✅ Virtual environment detection and recommendations  
+- ✅ Virtual environment detection and recommendations
 - ✅ pip availability and version validation
 - ✅ Platform-specific installation guidance (macOS, Linux, Windows)
 
@@ -85,7 +85,7 @@ Install autogen packages? [y/N]: y
 
 🔍 Testing autogen imports...
 ✅ adri
-✅ autogen  
+✅ autogen
 ✅ openai
 
 🔑 Checking API keys for autogen...
@@ -104,7 +104,7 @@ Install autogen packages? [y/N]: y
 export OPENAI_API_KEY="your-key-here"
 ```
 
-### 3. Run Example  
+### 3. Run Example
 ```bash
 python examples/autogen-research-collaboration.py
 ```
@@ -159,7 +159,7 @@ python examples/autogen-research-collaboration.py
 
 ### For AI Agent Engineers
 - **Immediate Value:** See specific GitHub issues prevented in 30 seconds
-- **No Setup Friction:** One command handles all dependencies  
+- **No Setup Friction:** One command handles all dependencies
 - **Clear Next Steps:** Specific guidance for their framework
 - **Real Problems:** Based on 1,998+ documented GitHub issues
 

@@ -231,9 +231,9 @@ class ProductionAIPlugin:
         try:
             prompt = f"""
             Summarize this text in {style} style, keeping it under {max_length} words:
-            
+
             {text}
-            
+
             Summary:
             """
 
@@ -262,9 +262,9 @@ class ProductionAIPlugin:
             1. Sentiment: positive/negative/neutral
             2. Confidence: 0.0-1.0
             3. Key emotional indicators
-            
+
             Text: {text}
-            
+
             Response format: sentiment|confidence|indicators
             """
 
@@ -289,9 +289,9 @@ class ProductionAIPlugin:
         try:
             prompt = f"""
             Translate this text to {target_language}:
-            
+
             {text}
-            
+
             Translation:
             """
 
@@ -468,15 +468,15 @@ async def semantic_kernel_planning_function(planning_data):
         planning_prompt = f"""
         Create a detailed execution plan for this goal:
         Goal: {goal}
-        
+
         Constraints: {', '.join(constraints)}
-        
+
         Generate a step-by-step plan with:
         1. Action name
         2. Function to execute
         3. Expected duration
         4. Dependencies
-        
+
         Format as JSON list of steps.
         """
 

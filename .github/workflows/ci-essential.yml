@@ -20,7 +20,7 @@ jobs:
     name: Quality Gate - Essential Checks
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -54,30 +54,30 @@ jobs:
       - name: Code quality checks
         run: |
           echo "📊 Running code quality analysis..."
-          
+
           # Security scanning with bandit
           echo "🔒 Security scan..."
           bandit -r adri/ -f json -o bandit-report.json || true
-          
+
           # Type checking with mypy (non-blocking for now)
           echo "🔍 Type checking..."
           mypy adri/ --ignore-missing-imports || echo "⚠️ Type checking found issues (non-blocking)"
-          
+
           echo "✅ Code quality checks completed"
 
       - name: Fast test suite
         run: |
           echo "🧪 Running core test suite..."
-          
+
           # Run smoke tests first (fastest)
           pytest tests/examples/smoke_tests/ -v --tb=short
-          
+
           # Run demo validation tests
           pytest tests/demo_validation/ -v --tb=short
-          
+
           # Run unit tests (excluding slow integration tests)
           pytest tests/ -v --tb=short -m "not slow" --maxfail=5
-          
+
           echo "✅ Fast test suite completed"
 
       - name: Build verification
@@ -85,13 +85,13 @@ jobs:
           echo "📦 Verifying package build..."
           python -m pip install build
           python -m build
-          
+
           # Verify the built package can be installed
           pip install dist/*.whl
-          
+
           # Basic import test
           python -c "import adri; print(f'✅ ADRI v{adri.__version__} imported successfully')"
-          
+
           echo "✅ Build verification completed"
 
   # Parallel job for documentation
@@ -99,7 +99,7 @@ jobs:
     name: Documentation Check
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -116,13 +116,13 @@ jobs:
           cd docs
           echo "🏗️ Testing Jekyll documentation build..."
           bundle exec jekyll build --baseurl "/adri" --destination _site_test
-          
+
           # Verify key files exist
           if [ ! -f "_site_test/index.html" ]; then
             echo "❌ index.html not generated"
             exit 1
           fi
-          
+
           echo "✅ Documentation builds successfully"
           rm -rf _site_test
 
@@ -131,7 +131,7 @@ jobs:
     name: Security Basics
     runs-on: ubuntu-latest
     timeout-minutes: 8
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -149,13 +149,13 @@ jobs:
       - name: Dependency security scan
         run: |
           echo "🔒 Scanning dependencies for vulnerabilities..."
-          
+
           # Check for known vulnerabilities
           safety check --json --output safety-report.json || true
-          
+
           # Audit pip packages
           pip-audit --format=json --output=audit-report.json || true
-          
+
           echo "✅ Security scan completed (reports generated)"
 
       - name: Upload security reports
@@ -176,7 +176,7 @@ jobs:
     needs: [quality-gate, docs-check, security-basics]
     runs-on: ubuntu-latest
     timeout-minutes: 2
-    
+
     steps:
       - name: Check all jobs status
         run: |
@@ -184,14 +184,14 @@ jobs:
           echo "Quality Gate: ${{ needs.quality-gate.result }}"
           echo "Docs Check: ${{ needs.docs-check.result }}"
           echo "Security Basics: ${{ needs.security-basics.result }}"
-          
-          if [[ "${{ needs.quality-gate.result }}" != "success" || 
-                "${{ needs.docs-check.result }}" != "success" || 
+
+          if [[ "${{ needs.quality-gate.result }}" != "success" ||
+                "${{ needs.docs-check.result }}" != "success" ||
                 "${{ needs.security-basics.result }}" != "success" ]]; then
             echo "❌ CI Essential pipeline failed"
             exit 1
           fi
-          
+
           echo "✅ All essential checks passed!"
 
       - name: Post results comment (PR only)
@@ -204,24 +204,24 @@ jobs:
               repo: context.repo.repo,
               issue_number: context.issue.number,
             });
-            
-            const botComment = comments.find(comment => 
-              comment.user.type === 'Bot' && 
+
+            const botComment = comments.find(comment =>
+              comment.user.type === 'Bot' &&
               comment.body.includes('🚀 CI Essential Pipeline')
             );
-            
+
             const body = `🚀 **CI Essential Pipeline Complete**
-            
+
             ✅ Quality Gate: Code formatting, linting, and core tests passed
             ✅ Documentation: Jekyll build successful
             ✅ Security: Basic vulnerability scanning completed
-            
+
             **Next Steps:**
             - Comprehensive testing will run on merge to main
             - Performance benchmarks available in separate workflow
-            
+
             *This fast feedback loop completed in under 15 minutes*`;
-            
+
             if (botComment) {
               await github.rest.issues.updateComment({
                 owner: context.repo.owner,

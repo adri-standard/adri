@@ -7,8 +7,8 @@ The ADRI repository uses a streamlined CI architecture designed for **fast feedb
 ## CI Architecture
 
 ### Fast Feedback Pipeline (ci-essential.yml)
-**Trigger**: Pull Requests  
-**Duration**: < 15 minutes  
+**Trigger**: Pull Requests
+**Duration**: < 15 minutes
 **Purpose**: Quick validation for development velocity
 
 **Jobs:**
@@ -17,8 +17,8 @@ The ADRI repository uses a streamlined CI architecture designed for **fast feedb
 - **Security Basics** (5 min): Dependency scanning and basic security checks
 
 ### Comprehensive Testing (ci-comprehensive.yml)
-**Trigger**: Main branch merges, manual dispatch  
-**Duration**: < 45 minutes  
+**Trigger**: Main branch merges, manual dispatch
+**Duration**: < 45 minutes
 **Purpose**: Full validation before deployment
 
 **Jobs:**
@@ -182,7 +182,7 @@ addopts = "--cov=adri --cov-report=html --cov-report=term-missing --cov-fail-und
 
 ### Issue: Pre-commit Hook Failures
 **Symptoms**: CI fails with `InvalidConfigError`
-**Solution**: 
+**Solution**:
 ```bash
 # Verify .pre-commit-config.yaml exists in repository root
 ls -la .pre-commit-config.yaml
@@ -287,5 +287,5 @@ git push origin main
 
 ---
 
-**Last Updated**: Phase 4 of CI Optimization (January 2025)  
+**Last Updated**: Phase 4 of CI Optimization (January 2025)
 **Version**: v1.0 - Streamlined CI Architecture
