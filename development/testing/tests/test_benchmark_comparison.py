@@ -4,7 +4,7 @@ import os
 import sys
 
 # Add scripts/testing directory to path for imports - must be before other imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "scripts", "testing"))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "tools", "scripts", "testing"))
 
 import json  # noqa: E402
 import tempfile  # noqa: E402
