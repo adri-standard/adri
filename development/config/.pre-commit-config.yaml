@@ -47,6 +47,39 @@ repos:
         exclude: ^(tests/|examples/|scripts/)
         additional_dependencies: [pbr]
 
+  # Documentation validation hooks
+  - repo: local
+    hooks:
+      - id: jekyll-build-check
+        name: jekyll-build-check
+        entry: bash
+        language: system
+        files: ^docs/
+        pass_filenames: false
+        args:
+          - -c
+          - |
+            if [ -d "docs" ] && [ -f "docs/Gemfile" ]; then
+              echo "🔍 Validating Jekyll documentation build..."
+              cd docs
+              if ! bundle check > /dev/null 2>&1; then
+                echo "📦 Installing Jekyll dependencies..."
+                bundle install --quiet
+              fi
+              echo "🏗️ Testing Jekyll build..."
+              bundle exec jekyll build --baseurl "/adri" --destination _site_test
+              if [ $? -eq 0 ]; then
+                echo "✅ Jekyll documentation builds successfully"
+                rm -rf _site_test
+              else
+                echo "❌ Jekyll documentation build failed"
+                rm -rf _site_test
+                exit 1
+              fi
+            else
+              echo "⚠️ No Jekyll documentation found, skipping build check"
+            fi
+
   # Optional local hooks - these won't block commits but will show warnings
   # - repo: local
   #   hooks:

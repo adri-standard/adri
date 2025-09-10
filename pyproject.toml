@@ -81,7 +81,19 @@ adri = "adri.cli.commands:main"
 
 [tool.setuptools.packages.find]
 include = ["adri*"]
-exclude = ["tests*", "docs*", "examples*"]
+exclude = [
+    "development*", 
+    "*_example.py", 
+    "basic_example.py",
+    "test_standalone*",
+    "tests*",
+    "examples*",
+    "docs*",
+    "tools*",
+    "htmlcov*",
+    "logs*",
+    "*_test_env*"
+]
 
 [tool.setuptools.package-data]
 adri = [
@@ -169,7 +181,7 @@ max-statements = 60
 
 # bandit configuration
 [tool.bandit]
-exclude_dirs = ["tests", "docs", "examples"]
+exclude_dirs = ["development"]
 skips = ["B101", "B601"]  # Skip assert_used and shell_injection_process_args
 
 # pytest configuration

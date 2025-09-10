@@ -287,3 +287,15 @@ subdir/
 scratch/
 dev/
 local/
+
+# Virtual environments and test environments
+adri_test_env/
+*_test_env/
+venv/
+env/
+
+# Framework research directory (excluded from Git tracking)
+development/framework-research/
+
+# NOTE: development/ directory is tracked in git but excluded from package builds via pyproject.toml
+# This directory contains tests/, docs/, scripts/, and other development artifacts
