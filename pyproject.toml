@@ -45,8 +45,8 @@ dev = [
     "pytest-cov>=4.0",
     "pytest-benchmark>=4.0",
     "pytest-timeout>=2.1.0",  # For test timeout support
-    "black>=23.0",
-    "isort>=5.12",
+    "black==25.1.0",
+    "isort==5.12.0",
     "flake8>=6.0",
     "mypy>=1.0",
     "pylint>=2.17",
