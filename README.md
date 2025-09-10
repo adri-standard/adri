@@ -1,100 +1,80 @@
 # ADRI - Stop AI Agents Breaking on Bad Data
 
-🛡️ **Based on analysis of 1,998+ documented GitHub issues across AI frameworks**
+🛡️ **One decorator. Any framework. Reliable agents.**
 
-**Prevents 80% of production agent failures with one decorator**
+Works with **LangChain**, **CrewAI**, **AutoGen**, **LlamaIndex**, **Haystack**, **LangGraph**, **Semantic Kernel**
 
-## 🚨 The Real Problem: Documented GitHub Issues Breaking Production Agents
+## The Problem
 
-**AutoGen** - 54+ validation issues causing collaboration failures:
-- Issue #6819: "Conversational flow is not working as expected" 
-- Issue #5736: "Function Arguments as Pydantic Models fail in tool calls"
-- Issue #6123: "Internal Message Handling corruption"
-
-**LangChain** - 525+ validation issues breaking customer workflows:
-- Chain input validation failures break customer service
-- Memory context corruption loses conversation state
-- Tool integration failures from malformed data
-
-**CrewAI** - Multiple coordination issues stopping business automation:
-- Crew coordination failures from malformed task data
-- Agent role mismatches break collaborative workflows
-
-## ✨ The Solution: One Decorator Prevents Real GitHub Issues
+Your AI agents work perfectly in testing, then break in production when they get bad data.
 
 ```python
-# Without ADRI - Your agents break on documented GitHub issues
-def research_collaboration(data):
-    return autogen_conversation(data)  # 💥 Issue #6819: Flow breaks
-
-# With ADRI - GitHub issues prevented automatically  
-@adri_protected
-def research_collaboration(data):
-    return autogen_conversation(data)  # ✅ Issue #6819: Blocked before breaking
+# Without ADRI - Agent breaks randomly
+def analyze_customer(data):
+    return risky_analysis(data)  # 💥 Bad data = broken agent
 ```
 
-## 🚀 30-Second Setup - ADRI Works Completely Offline
+```python
+# With ADRI - Agent protected automatically
+@adri_protected
+def analyze_customer(data):
+    return risky_analysis(data)  # ✅ Bad data blocked automatically
+```
 
-**ADRI Core: Zero external dependencies, no API keys, works offline**
+## 30-Second Quick Start
+
+```bash
+pip install adri
+```
+
 ```python
 from adri.decorators.guard import adri_protected
 
 @adri_protected
 def your_agent_function(data):
     # Your existing agent code - unchanged!
-    # ADRI validates data quality completely offline
     return your_result
 ```
 
-**Optional: Framework demos use AI services (your choice)**
-```bash
-python tools/adri-setup.py --framework autogen    # Framework demo dependencies
-export OPENAI_API_KEY="your-key"                  # For framework demos only
-python examples/autogen-research-collaboration.py  # See real GitHub issues prevented
-```
+**That's it.** Your agent is now protected from bad data.
 
-**Note:** ADRI protection works with ANY data - framework demos just show specific GitHub issues
+**New to ADRI?** → [**Complete AI Engineer Onboarding Guide**](https://adri-standard.github.io/adri/ai-engineer-onboarding) - From production failures to bulletproof agents in 60 minutes.
 
-## 📋 Framework Examples - Real GitHub Issue Prevention
+## Framework Examples
 
-**Run any example to see ADRI prevent documented GitHub issues**
-
-### 🤖 AutoGen → [`examples/autogen-research-collaboration.py`](examples/autogen-research-collaboration.py)
+### LangChain
 ```python
 @adri_protected
-def start_conversation(conversation_data):
-    # Prevents GitHub #6819: "Conversational flow breaks"
-    # Prevents GitHub #5736: "Function Arguments fail" 
-    # Prevents GitHub #6123: "Message Handling corruption"
+def langchain_customer_service(customer_data):
+    chain = prompt | model | parser
+    return chain.invoke(customer_data)
 ```
-**Setup:** `python tools/adri-setup.py --framework autogen`
 
-### 🦜 LangChain → [`examples/langchain-customer-service.py`](examples/langchain-customer-service.py)
+### CrewAI
 ```python
 @adri_protected
-def process_customer_query(customer_data):
-    # Prevents chain input validation failures
-    # Prevents memory context corruption
-    # Prevents tool integration breakdowns
+def crewai_market_analysis(market_data):
+    crew = Crew(agents=[analyst, researcher])
+    return crew.kickoff(inputs=market_data)
 ```
-**Setup:** `python tools/adri-setup.py --framework langchain`
 
-### 🤝 CrewAI → [`examples/crewai-business-analysis.py`](examples/crewai-business-analysis.py)
+### AutoGen
 ```python
 @adri_protected
-def coordinate_market_crew(crew_data):
-    # Prevents crew coordination failures
-    # Prevents agent role mismatches
-    # Prevents task distribution errors
+def autogen_research_team(research_data):
+    assistant.initiate_chat(user_proxy, message=research_data)
+    return conversation_result
 ```
-**Setup:** `python tools/adri-setup.py --framework crewai`
 
-### 🦙 LlamaIndex → [`examples/llamaindex-document-processing.py`](examples/llamaindex-document-processing.py)
-### 🌾 Haystack → [`examples/haystack-knowledge-management.py`](examples/haystack-knowledge-management.py) 
-### 🌐 LangGraph → [`examples/langgraph-workflow-automation.py`](examples/langgraph-workflow-automation.py)
-### 🧠 Semantic Kernel → [`examples/semantic-kernel-ai-orchestration.py`](examples/semantic-kernel-ai-orchestration.py)
+### LlamaIndex
+```python
+@adri_protected
+def llamaindex_rag_query(query_data):
+    engine = index.as_query_engine()
+    return engine.query(query_data)
+```
 
-**New to AI agents?** → [`basic_example.py`](basic_example.py) - Generic Python function protection
+**Need more examples?** Check our [complete framework guide](https://adri-standard.github.io/adri/frameworks) with copy-paste ready code.
 
 ## What You Get
 

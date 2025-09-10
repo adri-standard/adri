@@ -1,0 +1,503 @@
+# ADRI Assessment Report Standard v0.1.0
+# Defines the structure and requirements for ADRI assessment report outputs
+
+standard_metadata:
+  id: "adri-assessment-report-standard-v0.1.0"
+  version: "0.1.0"
+  name: "ADRI Assessment Report Standard v0.1.0"
+  description: "Initial release defining structure, requirements, and validation rules for ADRI assessment report outputs focusing on rule execution facts"
+  domain: "data_quality_reporting"
+  created_date: "2025-07-03"
+  created_by: "ADRI Standards Committee"
+  purpose: "Standardize assessment report format for logging, analysis, and compliance verification"
+
+schema_requirements:
+  root_object: "adri_assessment_report"
+  format: "json"
+  encoding: "utf-8"
+  file_extension: ".json"
+
+field_requirements:
+  # Root object
+  adri_assessment_report:
+    type: "object"
+    nullable: false
+    description: "Root container for ADRI assessment report"
+    required_fields:
+      - metadata
+      - summary
+      - rule_execution_log
+      - field_analysis
+
+  # ===== METADATA SECTION =====
+  metadata:
+    type: "object"
+    nullable: false
+    description: "Assessment execution metadata"
+    required_fields:
+      - assessment_id
+      - timestamp
+      - adri_version
+      - standard_applied
+      - dataset
+      - execution
+
+  metadata.assessment_id:
+    type: "string"
+    nullable: false
+    pattern: "^adri_[0-9]{8}_[0-9]{6}_[a-zA-Z0-9]{6}$"
+    description: "Unique assessment identifier in format: adri_YYYYMMDD_HHMMSS_RANDOM"
+    example: "adri_20250703_173015_abc123"
+
+  metadata.timestamp:
+    type: "string"
+    nullable: false
+    pattern: "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"
+    description: "ISO 8601 UTC timestamp when assessment was completed"
+    example: "2025-07-03T17:30:15Z"
+
+  metadata.adri_version:
+    type: "string"
+    nullable: false
+    pattern: "^0\\.[0-9]+\\.[0-9]+$"
+    description: "ADRI framework version used for assessment"
+    example: "0.1.0"
+
+  metadata.standard_applied:
+    type: "object"
+    nullable: false
+    description: "Information about the data quality standard used"
+    required_fields:
+      - id
+      - version
+      - domain
+
+  metadata.standard_applied.id:
+    type: "string"
+    nullable: false
+    description: "Unique identifier of the applied standard"
+    example: "customer-data-quality-v1"
+
+  metadata.standard_applied.version:
+    type: "string"
+    nullable: false
+    pattern: "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    description: "Version of the applied standard"
+    example: "1.0.0"
+
+  metadata.standard_applied.domain:
+    type: "string"
+    nullable: false
+    description: "Domain category of the standard"
+    example: "customer_analytics"
+
+  metadata.dataset:
+    type: "object"
+    nullable: false
+    description: "Information about the assessed dataset"
+    required_fields:
+      - name
+      - total_records
+      - total_fields
+
+  metadata.dataset.name:
+    type: "string"
+    nullable: false
+    description: "Name or identifier of the assessed dataset"
+    example: "customer_data.csv"
+
+  metadata.dataset.total_records:
+    type: "integer"
+    nullable: false
+    min_value: 0
+    description: "Total number of records in the dataset"
+
+  metadata.dataset.total_fields:
+    type: "integer"
+    nullable: false
+    min_value: 1
+    description: "Total number of fields/columns in the dataset"
+
+  metadata.dataset.size_mb:
+    type: "number"
+    nullable: true
+    min_value: 0
+    description: "Dataset size in megabytes (optional)"
+
+  metadata.execution:
+    type: "object"
+    nullable: false
+    description: "Assessment execution statistics"
+    required_fields:
+      - duration_ms
+      - rules_executed
+      - total_validations
+
+  metadata.execution.duration_ms:
+    type: "integer"
+    nullable: false
+    min_value: 0
+    description: "Total assessment execution time in milliseconds"
+
+  metadata.execution.rules_executed:
+    type: "integer"
+    nullable: false
+    min_value: 1
+    description: "Total number of rules executed during assessment"
+
+  metadata.execution.total_validations:
+    type: "integer"
+    nullable: false
+    min_value: 0
+    description: "Total number of individual validations performed"
+
+  # ===== SUMMARY SECTION =====
+  summary:
+    type: "object"
+    nullable: false
+    description: "High-level assessment results summary"
+    required_fields:
+      - overall_score
+      - dimension_scores
+      - pass_fail_status
+
+  summary.overall_score:
+    type: "number"
+    nullable: false
+    min_value: 0.0
+    max_value: 100.0
+    description: "Overall assessment score (sum of dimension scores)"
+
+  summary.dimension_scores:
+    type: "object"
+    nullable: false
+    description: "Scores for each of the five ADRI dimensions"
+    required_fields:
+      - validity
+      - completeness
+      - consistency
+      - freshness
+      - plausibility
+
+  summary.dimension_scores.validity:
+    type: "number"
+    nullable: false
+    min_value: 0.0
+    max_value: 20.0
+    description: "Validity dimension score (0-20)"
+
+  summary.dimension_scores.completeness:
+    type: "number"
+    nullable: false
+    min_value: 0.0
+    max_value: 20.0
+    description: "Completeness dimension score (0-20)"
+
+  summary.dimension_scores.consistency:
+    type: "number"
+    nullable: false
+    min_value: 0.0
+    max_value: 20.0
+    description: "Consistency dimension score (0-20)"
+
+  summary.dimension_scores.freshness:
+    type: "number"
+    nullable: false
+    min_value: 0.0
+    max_value: 20.0
+    description: "Freshness dimension score (0-20)"
+
+  summary.dimension_scores.plausibility:
+    type: "number"
+    nullable: false
+    min_value: 0.0
+    max_value: 20.0
+    description: "Plausibility dimension score (0-20)"
+
+  summary.pass_fail_status:
+    type: "object"
+    nullable: false
+    description: "Pass/fail status information"
+    required_fields:
+      - overall_passed
+      - failed_dimensions
+      - critical_issues
+      - total_failures
+
+  summary.pass_fail_status.overall_passed:
+    type: "boolean"
+    nullable: false
+    description: "Whether the overall assessment passed the standard requirements"
+
+  summary.pass_fail_status.failed_dimensions:
+    type: "array"
+    nullable: false
+    item_type: "string"
+    description: "List of dimensions that failed minimum requirements"
+    allowed_item_values: ["validity", "completeness", "consistency", "freshness", "plausibility"]
+
+  summary.pass_fail_status.critical_issues:
+    type: "integer"
+    nullable: false
+    min_value: 0
+    description: "Number of critical issues found"
+
+  summary.pass_fail_status.total_failures:
+    type: "integer"
+    nullable: false
+    min_value: 0
+    description: "Total number of rule failures across all dimensions"
+
+  # ===== RULE EXECUTION LOG =====
+  rule_execution_log:
+    type: "array"
+    nullable: false
+    min_items: 1
+    item_type: "object"
+    description: "Detailed log of each rule execution with results"
+
+  rule_execution_log[].rule_id:
+    type: "string"
+    nullable: false
+    pattern: "^[a-z][a-z0-9_]*[a-z0-9]$"
+    description: "Unique rule identifier (snake_case)"
+    example: "email_format_validation"
+
+  rule_execution_log[].dimension:
+    type: "string"
+    nullable: false
+    allowed_values: ["validity", "completeness", "consistency", "freshness", "plausibility"]
+    description: "ADRI dimension this rule belongs to"
+
+  rule_execution_log[].field:
+    type: "string"
+    nullable: false
+    description: "Field/column name this rule was applied to"
+
+  rule_execution_log[].rule_definition:
+    type: "string"
+    nullable: false
+    description: "Human-readable definition of the rule logic"
+    example: "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+
+  rule_execution_log[].execution:
+    type: "object"
+    nullable: false
+    description: "Rule execution results and statistics"
+    required_fields:
+      - total_records
+      - passed
+      - failed
+      - rule_score
+      - rule_weight
+
+  rule_execution_log[].execution.total_records:
+    type: "integer"
+    nullable: false
+    min_value: 0
+    description: "Total records processed by this rule"
+
+  rule_execution_log[].execution.passed:
+    type: "integer"
+    nullable: false
+    min_value: 0
+    description: "Number of records that passed this rule"
+
+  rule_execution_log[].execution.failed:
+    type: "integer"
+    nullable: false
+    min_value: 0
+    description: "Number of records that failed this rule"
+
+  rule_execution_log[].execution.rule_score:
+    type: "number"
+    nullable: false
+    min_value: 0.0
+    max_value: 20.0
+    description: "Score contributed by this rule to its dimension"
+
+  rule_execution_log[].execution.rule_weight:
+    type: "number"
+    nullable: false
+    min_value: 0.0
+    max_value: 1.0
+    description: "Weight of this rule within its dimension (0.0-1.0)"
+
+  rule_execution_log[].execution.execution_time_ms:
+    type: "integer"
+    nullable: true
+    min_value: 0
+    description: "Time taken to execute this rule in milliseconds (optional)"
+
+  rule_execution_log[].failures:
+    type: "object"
+    nullable: true
+    description: "Details about rule failures (optional but recommended)"
+
+  rule_execution_log[].failures.sample_failures:
+    type: "array"
+    nullable: true
+    item_type: "string"
+    max_items: 10
+    description: "Sample of failed values (up to 10 examples)"
+
+  rule_execution_log[].failures.failure_patterns:
+    type: "object"
+    nullable: true
+    description: "Categorized failure patterns with counts"
+
+  # ===== FIELD ANALYSIS =====
+  field_analysis:
+    type: "object"
+    nullable: false
+    description: "Per-field analysis aggregating results from all rules applied to each field"
+
+  field_analysis.*:
+    type: "object"
+    description: "Analysis for a specific field (dynamic field names)"
+    required_fields:
+      - rules_applied
+      - overall_field_score
+      - total_failures
+
+  field_analysis.*.rules_applied:
+    type: "array"
+    nullable: false
+    item_type: "string"
+    min_items: 1
+    description: "List of rule IDs applied to this field"
+
+  field_analysis.*.overall_field_score:
+    type: "number"
+    nullable: false
+    min_value: 0.0
+    max_value: 20.0
+    description: "Aggregated quality score for this field"
+
+  field_analysis.*.total_failures:
+    type: "integer"
+    nullable: false
+    min_value: 0
+    description: "Total number of failures across all rules for this field"
+
+  field_analysis.*.ml_readiness:
+    type: "string"
+    nullable: true
+    allowed_values: ["ready", "needs_cleanup", "not_ready", "unknown"]
+    description: "ML readiness assessment based on quality scores"
+
+  field_analysis.*.recommended_actions:
+    type: "array"
+    nullable: true
+    item_type: "string"
+    description: "Recommended actions to improve field quality"
+
+# ===== BUSINESS RULES =====
+business_rules:
+  mathematical_consistency:
+    - name: "passed_plus_failed_equals_total"
+      description: "For each rule execution: passed + failed must equal total_records"
+      validation: "rule.execution.passed + rule.execution.failed == rule.execution.total_records"
+      severity: "critical"
+
+    - name: "dimension_score_calculation"
+      description: "Dimension score must equal weighted sum of its rule scores"
+      validation: "dimension_score == sum(rule_score * rule_weight) for rules in dimension"
+      severity: "critical"
+
+    - name: "overall_score_calculation"
+      description: "Overall score must equal sum of all dimension scores"
+      validation: "overall_score == validity + completeness + consistency + freshness + plausibility"
+      severity: "critical"
+
+  data_integrity:
+    - name: "no_negative_scores"
+      description: "All scores must be non-negative"
+      validation: "all scores >= 0"
+      severity: "critical"
+
+    - name: "score_ranges_valid"
+      description: "Scores must be within valid ranges"
+      validation: "dimension_scores <= 20.0 AND overall_score <= 100.0"
+      severity: "critical"
+
+    - name: "rule_weights_sum_to_one"
+      description: "Rule weights within each dimension should sum to 1.0"
+      validation: "sum(rule_weights) == 1.0 for each dimension"
+      severity: "warning"
+
+  temporal_consistency:
+    - name: "timestamp_format_valid"
+      description: "Timestamp must be valid ISO 8601 format"
+      validation: "timestamp matches ISO 8601 UTC format"
+      severity: "critical"
+
+    - name: "assessment_id_format_valid"
+      description: "Assessment ID must follow required format"
+      validation: "assessment_id matches pattern adri_YYYYMMDD_HHMMSS_RANDOM"
+      severity: "critical"
+
+# ===== QUALITY GATES =====
+# These are the requirements for the assessment report itself
+dimension_requirements:
+  validity:
+    minimum_score: 20.0
+    weight: 0.3
+    description: "Report structure must be 100% valid according to schema"
+
+  completeness:
+    minimum_score: 20.0
+    weight: 0.3
+    description: "All required fields must be present and non-null"
+
+  consistency:
+    minimum_score: 20.0
+    weight: 0.2
+    description: "Mathematical consistency rules must all pass"
+
+  freshness:
+    minimum_score: 18.0
+    weight: 0.1
+    description: "Timestamps must be recent and properly formatted"
+
+  plausibility:
+    minimum_score: 18.0
+    weight: 0.1
+    description: "All values must be within reasonable ranges"
+
+overall_minimum: 98.0  # Very high standard for assessment report quality
+
+# ===== USAGE GUIDELINES =====
+usage_guidelines:
+  file_naming: "adri_YYYYMMDD_HHMMSS_dataset-name_RANDOM.json"
+  storage_recommendations:
+    - "Store in date-partitioned directories for efficient querying"
+    - "Compress older reports to save storage space"
+    - "Index by assessment_id, timestamp, and standard_id for fast retrieval"
+
+  integration_notes:
+    - "This format is designed for log aggregation systems"
+    - "All timestamps are in UTC for consistency"
+    - "Rule execution details enable precise debugging"
+    - "Field analysis supports ML pipeline integration"
+
+  validation_requirements:
+    - "Reports must pass all critical business rules"
+    - "Mathematical consistency is mandatory"
+    - "Schema compliance is required for interoperability"
+
+# ===== VERSION HISTORY =====
+version_history:
+  "0.1.0":
+    date: "2025-07-03"
+    changes:
+      - "Initial release aligned with ADRI Validator v0.1.0"
+      - "Complete redesign focusing on rule execution facts"
+      - "Added detailed rule execution logging"
+      - "Enhanced mathematical consistency requirements"
+      - "Improved field-level analysis structure"
+      - "Added ML readiness indicators"
+    breaking_changes:
+      - "New standard format for ADRI ecosystem"
+      - "Required fields in metadata section"
+      - "New score calculation methodology"
