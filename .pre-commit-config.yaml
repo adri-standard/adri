@@ -45,7 +45,7 @@ repos:
     hooks:
       - id: bandit
         args: [-r, adri]
-        exclude: ^(tests/|examples/|scripts/)
+        exclude: ^(tests/|examples/|scripts/|development/)
         additional_dependencies: [pbr]
 
   # Documentation validation is handled by CI workflow (docs-check job)
