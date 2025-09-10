@@ -2,6 +2,7 @@ title: ADRI - Agent Data Reliability Intelligence
 description: Stop AI Agents Breaking on Bad Data - Open source data quality validation framework
 url: "https://adri-standard.github.io"
 baseurl: "/adri"
+repository: adri-standard/adri
 
 # Theme
 theme: minima
