@@ -1,0 +1,115 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+      - id: check-merge-conflict
+      - id: check-toml
+      - id: debug-statements
+      - id: mixed-line-ending
+
+  - repo: https://github.com/psf/black
+    rev: 25.1.0
+    hooks:
+      - id: black
+        language_version: python3
+        args: [--line-length=88]
+
+  - repo: https://github.com/pycqa/isort
+    rev: 5.12.0
+    hooks:
+      - id: isort
+        args: [--profile=black, --line-length=88]
+
+  - repo: https://github.com/pycqa/flake8
+    rev: 6.0.0
+    hooks:
+      - id: flake8
+        additional_dependencies: [flake8-docstrings]
+        exclude: ^(tests/|examples/|scripts/)
+
+  # Temporarily disabled due to type checking issues
+  # - repo: https://github.com/pre-commit/mirrors-mypy
+  #   rev: v1.5.1
+  #   hooks:
+  #     - id: mypy
+  #       additional_dependencies: [types-PyYAML, types-click, types-setuptools]
+  #       args: [--ignore-missing-imports]
+
+  - repo: https://github.com/pycqa/bandit
+    rev: 1.7.5
+    hooks:
+      - id: bandit
+        args: [-r, adri]
+        exclude: ^(tests/|examples/|scripts/)
+        additional_dependencies: [pbr]
+
+  # Documentation validation hooks
+  - repo: local
+    hooks:
+      - id: jekyll-build-check
+        name: jekyll-build-check
+        entry: bash
+        language: system
+        files: ^docs/
+        pass_filenames: false
+        args:
+          - -c
+          - |
+            if [ -d "docs" ] && [ -f "docs/Gemfile" ]; then
+              echo "🔍 Validating Jekyll documentation build..."
+              cd docs
+              if ! bundle check > /dev/null 2>&1; then
+                echo "📦 Installing Jekyll dependencies..."
+                bundle install --quiet
+              fi
+              echo "🏗️ Testing Jekyll build..."
+              bundle exec jekyll build --baseurl "/adri" --destination _site_test
+              if [ $? -eq 0 ]; then
+                echo "✅ Jekyll documentation builds successfully"
+                rm -rf _site_test
+              else
+                echo "❌ Jekyll documentation build failed"
+                rm -rf _site_test
+                exit 1
+              fi
+            else
+              echo "⚠️ No Jekyll documentation found, skipping build check"
+            fi
+
+  # Optional local hooks - these won't block commits but will show warnings
+  # - repo: local
+  #   hooks:
+  #     - id: pytest-check
+  #       name: pytest-check
+  #       entry: pytest
+  #       language: system
+  #       pass_filenames: false
+  #       always_run: true
+  #       args: [tests/unit/, -v, --tb=short]
+
+  #     - id: safety-check
+  #       name: safety-check
+  #       entry: safety
+  #       language: system
+  #       args: [check, --output, json]
+  #       pass_filenames: false
+  #       always_run: true
+
+default_language_version:
+  python: python3.11
+
+ci:
+  autofix_commit_msg: |
+    [pre-commit.ci] auto fixes from pre-commit.com hooks
+
+    for more information, see https://pre-commit.ci
+  autofix_prs: true
+  autoupdate_branch: ''
+  autoupdate_commit_msg: '[pre-commit.ci] pre-commit autoupdate'
+  autoupdate_schedule: weekly
+  skip: []
+  submodules: false

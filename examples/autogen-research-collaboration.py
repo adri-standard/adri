@@ -37,7 +37,7 @@ What you'll see:
     📊 Comprehensive quality reports for research validation
 
 🎯 Perfect for AI Agent Engineers building production research workflows!
-   
+
 📖 New to ADRI? Start here: docs/ai-engineer-onboarding.md
 """
 
@@ -55,14 +55,17 @@ from examples.utils.problem_demos import get_framework_problems
 # Import AutoGen with graceful fallback
 try:
     import autogen
-    from autogen import AssistantAgent, UserProxyAgent, GroupChat, GroupChatManager
+    from autogen import AssistantAgent, GroupChat, GroupChatManager, UserProxyAgent
+
     AUTOGEN_AVAILABLE = True
 except ImportError:
-    print("❌ AutoGen not installed. Run: python tools/adri-setup.py --framework autogen")
+    print(
+        "❌ AutoGen not installed. Run: python tools/adri-setup.py --framework autogen"
+    )
     AUTOGEN_AVAILABLE = False
 
 # Validate setup
-if not os.getenv('OPENAI_API_KEY'):
+if not os.getenv("OPENAI_API_KEY"):
     print("❌ OpenAI API key required. Run setup tool for guidance:")
     print("   python tools/adri-setup.py --framework autogen")
     exit(1)
@@ -71,125 +74,132 @@ if not AUTOGEN_AVAILABLE:
     exit(1)
 
 # Get real problem scenarios from GitHub issues
-problems = get_framework_problems('autogen')
+problems = get_framework_problems("autogen")
 
 
 class ResearchTeam:
     """Production AutoGen research team with ADRI protection."""
-    
+
     def __init__(self):
         """Initialize real AutoGen agents with OpenAI."""
         llm_config = {
             "model": "gpt-3.5-turbo",
-            "api_key": os.getenv('OPENAI_API_KEY'),
-            "temperature": 0.1
+            "api_key": os.getenv("OPENAI_API_KEY"),
+            "temperature": 0.1,
         }
-        
+
         self.researcher = AssistantAgent(
             name="Researcher",
             system_message="Senior research specialist. Gather comprehensive information, validate sources, provide evidence-based findings.",
-            llm_config=llm_config
+            llm_config=llm_config,
         )
-        
+
         self.analyst = AssistantAgent(
-            name="Analyst", 
+            name="Analyst",
             system_message="Expert data analyst. Process findings, identify patterns, provide statistical insights with confidence intervals.",
-            llm_config=llm_config
+            llm_config=llm_config,
         )
-        
+
         self.writer = AssistantAgent(
             name="Writer",
             system_message="Technical writer. Create comprehensive reports with executive summaries and actionable recommendations.",
-            llm_config=llm_config
+            llm_config=llm_config,
         )
-        
+
         self.user_proxy = UserProxyAgent(
             name="UserProxy",
             human_input_mode="NEVER",
             max_consecutive_auto_reply=2,
-            is_termination_msg=lambda x: x.get("content", "").rstrip().endswith("TERMINATE")
+            is_termination_msg=lambda x: x.get("content", "")
+            .rstrip()
+            .endswith("TERMINATE"),
         )
 
     @adri_protected
     def start_conversation(self, conversation_data):
         """
         Start research conversation with ADRI protection.
-        
+
         Prevents GitHub Issue #6819: "Conversational flow is not working as expected"
         ADRI validates conversation setup before AutoGen processing.
         """
         print(f"🔬 Starting: {conversation_data['research_topic']}")
         print(f"   👥 Participants: {', '.join(conversation_data['participants'])}")
         print(f"   🎯 Expected rounds: {conversation_data['expected_rounds']}")
-        
+
         # Real AutoGen group chat
         group_chat = GroupChat(
             agents=[self.researcher, self.analyst, self.writer],
             messages=[],
-            max_round=conversation_data['expected_rounds']
+            max_round=conversation_data["expected_rounds"],
         )
-        
+
         manager = GroupChatManager(
             groupchat=group_chat,
-            llm_config={"model": "gpt-3.5-turbo", "api_key": os.getenv('OPENAI_API_KEY')}
+            llm_config={
+                "model": "gpt-3.5-turbo",
+                "api_key": os.getenv("OPENAI_API_KEY"),
+            },
         )
-        
+
         # Execute real conversation
         result = self.user_proxy.initiate_chat(
             manager,
-            message=conversation_data['initial_message'],
-            max_turns=conversation_data['expected_rounds']
+            message=conversation_data["initial_message"],
+            max_turns=conversation_data["expected_rounds"],
         )
-        
+
         return {
-            "conversation_id": conversation_data['conversation_id'],
-            "topic": conversation_data['research_topic'],
+            "conversation_id": conversation_data["conversation_id"],
+            "topic": conversation_data["research_topic"],
             "messages": len(group_chat.messages),
-            "status": "completed"
+            "status": "completed",
         }
 
-    @adri_protected  
+    @adri_protected
     def call_research_function(self, function_data):
         """
         Call research function with ADRI protection.
-        
+
         Prevents GitHub Issue #5736: "Function Arguments as Pydantic Models fail"
         ADRI validates function arguments before AutoGen tool calls.
         """
         print(f"🔧 Calling: {function_data['function_name']}")
         print(f"   📊 Analysis: {function_data['arguments']['analysis_type']}")
         print(f"   📝 Sample size: {function_data['arguments']['sample_size']}")
-        
+
         # Simulate research function execution
         return {
-            "function": function_data['function_name'],
-            "caller": function_data['caller_agent'],
+            "function": function_data["function_name"],
+            "caller": function_data["caller_agent"],
             "result": "Analysis completed successfully",
-            "confidence": 0.94
+            "confidence": 0.94,
         }
 
     @adri_protected
     def process_message(self, message_data):
         """
         Process agent message with ADRI protection.
-        
+
         Prevents GitHub Issue #6123: "Internal Message Handling corruption"
         ADRI validates message format before agent processing.
         """
-        print(f"📨 Message from {message_data['sender']} to {message_data['recipient']}")
+        print(
+            f"📨 Message from {message_data['sender']} to {message_data['recipient']}"
+        )
         print(f"   📋 Type: {message_data['message_type']}")
         print(f"   📎 Attachments: {len(message_data['attachments'])}")
-        
+
         return {
-            "message_id": message_data['message_id'],
+            "message_id": message_data["message_id"],
             "processed": True,
-            "routing": "successful"
+            "routing": "successful",
         }
 
 
 def main():
     """Demonstrate ADRI preventing real AutoGen GitHub issues."""
-    
+
     print("🛡️  ADRI + AutoGen: Real GitHub Issue Prevention")
     print("=" * 55)
     print("🎯 Demonstrating protection against 54+ documented AutoGen issues")
@@ -197,72 +207,72 @@ def main():
     print("   ✅ ADRI blocks bad data before it breaks your agents")
     print("   📊 Complete audit trails for research compliance")
     print()
-    
+
     team = ResearchTeam()
-    
+
     # Test 1: Conversation Flow Protection (GitHub #6819)
     print("📊 Test 1: Conversation Flow Protection (GitHub #6819)")
     try:
-        result = team.start_conversation(problems['conversation_flow']['good'])
+        result = team.start_conversation(problems["conversation_flow"]["good"])
         print("✅ Good conversation data: Research collaboration started successfully")
     except Exception as e:
         print(f"❌ Unexpected error: {e}")
-    
+
     try:
-        result = team.start_conversation(problems['conversation_flow']['bad'])
+        result = team.start_conversation(problems["conversation_flow"]["bad"])
         print("⚠️  Bad data allowed through (shouldn't happen)")
     except Exception:
         print("✅ ADRI blocked bad conversation data - preventing GitHub #6819")
-    
+
     print()
-    
-    # Test 2: Function Call Protection (GitHub #5736)  
+
+    # Test 2: Function Call Protection (GitHub #5736)
     print("📊 Test 2: Function Call Protection (GitHub #5736)")
     try:
-        result = team.call_research_function(problems['function_calls']['good'])
+        result = team.call_research_function(problems["function_calls"]["good"])
         print("✅ Good function data: Research tool executed successfully")
     except Exception as e:
         print(f"❌ Unexpected error: {e}")
-        
+
     try:
-        result = team.call_research_function(problems['function_calls']['bad'])
+        result = team.call_research_function(problems["function_calls"]["bad"])
         print("⚠️  Bad data allowed through (shouldn't happen)")
     except Exception:
         print("✅ ADRI blocked bad function data - preventing GitHub #5736")
-    
+
     print()
-    
+
     # Test 3: Message Handling Protection (GitHub #6123)
     print("📊 Test 3: Message Handling Protection (GitHub #6123)")
     try:
-        result = team.process_message(problems['message_handling']['good']) 
+        result = team.process_message(problems["message_handling"]["good"])
         print("✅ Good message data: Agent communication successful")
     except Exception as e:
         print(f"❌ Unexpected error: {e}")
-        
+
     try:
-        result = team.process_message(problems['message_handling']['bad'])
+        result = team.process_message(problems["message_handling"]["bad"])
         print("⚠️  Bad data allowed through (shouldn't happen)")
     except Exception:
         print("✅ ADRI blocked bad message data - preventing GitHub #6123")
-    
+
     print()
     print("=" * 55)
     print("🎉 ADRI Protection Complete!")
     print()
     print("📋 What ADRI Protected Against:")
     print("• Issue #6819: Conversation flow breakdowns")
-    print("• Issue #5736: Function argument validation failures")  
+    print("• Issue #5736: Function argument validation failures")
     print("• Issue #6123: Message handling corruption")
     print("• Plus 51+ other documented AutoGen validation issues")
-    
+
     print()
     print("🚀 Next Steps for AutoGen Engineers:")
     print("• Add @adri_protected to your conversation functions")
     print("• Protect group chat initialization and agent messaging")
     print("• Customize data standards for your research domain")
     print("• Enable audit logging for research compliance")
-    
+
     print()
     print("📖 Learn More:")
     print("• Setup tool: python tools/adri-setup.py --list")

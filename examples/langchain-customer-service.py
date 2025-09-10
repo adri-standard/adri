@@ -37,7 +37,7 @@ What you'll see:
     📊 Comprehensive quality reports for customer service validation
 
 🎯 Perfect for AI Agent Engineers building production customer service workflows!
-   
+
 📖 New to ADRI? Start here: docs/ai-engineer-onboarding.md
 """
 
@@ -54,18 +54,20 @@ from examples.utils.problem_demos import get_framework_problems
 
 # Import LangChain with graceful fallback
 try:
-    from langchain.prompts import PromptTemplate
-    from langchain.chains import LLMChain
+    from langchain.chains import ConversationChain, LLMChain
     from langchain.llms import OpenAI
     from langchain.memory import ConversationBufferMemory
-    from langchain.chains import ConversationChain
+    from langchain.prompts import PromptTemplate
+
     LANGCHAIN_AVAILABLE = True
 except ImportError:
-    print("❌ LangChain not installed. Run: python tools/adri-setup.py --framework langchain")
+    print(
+        "❌ LangChain not installed. Run: python tools/adri-setup.py --framework langchain"
+    )
     LANGCHAIN_AVAILABLE = False
 
 # Validate setup
-if not os.getenv('OPENAI_API_KEY'):
+if not os.getenv("OPENAI_API_KEY"):
     print("❌ OpenAI API key required. Run setup tool for guidance:")
     print("   python tools/adri-setup.py --framework langchain")
     exit(1)
@@ -74,20 +76,18 @@ if not LANGCHAIN_AVAILABLE:
     exit(1)
 
 # Get real problem scenarios from GitHub issues
-problems = get_framework_problems('langchain')
+problems = get_framework_problems("langchain")
 
 
 class CustomerServiceAgent:
     """Production LangChain customer service agent with ADRI protection."""
-    
+
     def __init__(self):
         """Initialize real LangChain components with OpenAI."""
         self.llm = OpenAI(
-            temperature=0.7,
-            model_name="text-davinci-003",
-            max_tokens=300
+            temperature=0.7, model_name="text-davinci-003", max_tokens=300
         )
-        
+
         self.prompt_template = PromptTemplate(
             input_variables=["customer_query", "customer_id", "interaction_type"],
             template="""You are a professional customer service agent.
@@ -96,9 +96,9 @@ Customer ID: {customer_id}
 Interaction Type: {interaction_type}
 Query: {customer_query}
 
-Provide a helpful, professional response:"""
+Provide a helpful, professional response:""",
         )
-        
+
         self.chain = LLMChain(llm=self.llm, prompt=self.prompt_template)
         print("🤖 CustomerServiceAgent initialized with real LangChain + OpenAI")
 
@@ -106,78 +106,80 @@ Provide a helpful, professional response:"""
     def process_customer_request(self, customer_data):
         """
         Process customer service requests with ADRI protection.
-        
+
         Prevents GitHub Issue #32687: "structured output issue using llm.with_structured_output"
         ADRI validates customer data before LangChain processing.
         """
         print(f"🔄 Processing request from {customer_data['customer_query'][:50]}...")
         print(f"   💳 Customer ID: {customer_data['customer_id']}")
         print(f"   🎯 Type: {customer_data['interaction_type']}")
-        
+
         # Real LangChain chain execution
         response = self.chain.run(
             customer_query=customer_data["customer_query"],
             customer_id=customer_data["customer_id"],
-            interaction_type=customer_data["interaction_type"]
+            interaction_type=customer_data["interaction_type"],
         )
-        
+
         return {
             "customer_id": customer_data["customer_id"],
             "response": response.strip(),
             "status": "completed",
-            "processing_time": "1.2s"
+            "processing_time": "1.2s",
         }
 
     @adri_protected
     def handle_conversation(self, conversation_data):
         """
         Handle conversation with memory and ADRI protection.
-        
+
         Prevents GitHub Issue #31800: "Message dict must contain 'role' and 'content' keys"
         ADRI validates conversation format before LangChain processing.
         """
         print(f"💬 Handling conversation: {conversation_data['conversation_id']}")
-        print(f"   📊 Messages in context: {len(conversation_data['customer_history'])}")
-        
+        print(
+            f"   📊 Messages in context: {len(conversation_data['customer_history'])}"
+        )
+
         # Real LangChain conversation with memory
         memory = ConversationBufferMemory()
         conversation = ConversationChain(llm=self.llm, memory=memory)
-        
+
         response = conversation.predict(
             input=f"Customer history: {len(conversation_data['customer_history'])} interactions. "
-                  f"Current session: {conversation_data['current_session']['messages']} messages."
+            f"Current session: {conversation_data['current_session']['messages']} messages."
         )
-        
+
         return {
             "conversation_id": conversation_data["conversation_id"],
             "response": response.strip(),
             "context_maintained": True,
-            "memory_tokens": len(memory.buffer)
+            "memory_tokens": len(memory.buffer),
         }
 
     @adri_protected
     def execute_tool_call(self, tool_data):
         """
         Execute tool call with ADRI protection.
-        
+
         Prevents GitHub Issue #31536: "Model Returns None Causing 400 Validation Error"
         ADRI validates tool input format before LangChain tool execution.
         """
         print(f"🔧 Executing tool: {tool_data['tool_name']}")
         print(f"   📝 Input type: {tool_data['tool_input']['search_type']}")
-        
+
         # Simulate LangChain tool execution
         return {
-            "tool_name": tool_data['tool_name'],
-            "caller": tool_data['caller'],
+            "tool_name": tool_data["tool_name"],
+            "caller": tool_data["caller"],
             "result": "Tool executed successfully",
-            "output_type": tool_data['expected_output']
+            "output_type": tool_data["expected_output"],
         }
 
 
 def main():
     """Demonstrate ADRI preventing real LangChain GitHub issues."""
-    
+
     print("🛡️  ADRI + LangChain: Real GitHub Issue Prevention")
     print("=" * 55)
     print("🎯 Demonstrating protection against 525+ documented LangChain issues")
@@ -185,55 +187,55 @@ def main():
     print("   ✅ ADRI blocks bad data before it breaks your chains")
     print("   📊 Complete audit trails for customer service compliance")
     print()
-    
+
     agent = CustomerServiceAgent()
-    
+
     # Test 1: Structured Output Protection (GitHub #32687)
     print("📊 Test 1: Structured Output Protection (GitHub #32687)")
     try:
-        result = agent.process_customer_request(problems['structured_output']['good'])
+        result = agent.process_customer_request(problems["structured_output"]["good"])
         print("✅ Good customer data: Service request processed successfully")
     except Exception as e:
         print(f"❌ Unexpected error: {e}")
-    
+
     try:
-        result = agent.process_customer_request(problems['structured_output']['bad'])
+        result = agent.process_customer_request(problems["structured_output"]["bad"])
         print("⚠️  Bad data allowed through (shouldn't happen)")
     except Exception:
         print("✅ ADRI blocked bad customer data - preventing GitHub #32687")
-    
+
     print()
-    
+
     # Test 2: Message Format Protection (GitHub #31800)
     print("📊 Test 2: Message Format Protection (GitHub #31800)")
     try:
-        result = agent.handle_conversation(problems['message_format']['good'])
+        result = agent.handle_conversation(problems["message_format"]["good"])
         print("✅ Good conversation data: Memory context maintained successfully")
     except Exception as e:
         print(f"❌ Unexpected error: {e}")
-        
+
     try:
-        result = agent.handle_conversation(problems['message_format']['bad'])
+        result = agent.handle_conversation(problems["message_format"]["bad"])
         print("⚠️  Bad data allowed through (shouldn't happen)")
     except Exception:
         print("✅ ADRI blocked bad conversation data - preventing GitHub #31800")
-    
+
     print()
-    
+
     # Test 3: Tool Validation Protection (GitHub #31536)
     print("📊 Test 3: Tool Validation Protection (GitHub #31536)")
     try:
-        result = agent.execute_tool_call(problems['tool_validation']['good'])
+        result = agent.execute_tool_call(problems["tool_validation"]["good"])
         print("✅ Good tool data: Tool execution completed successfully")
     except Exception as e:
         print(f"❌ Unexpected error: {e}")
-        
+
     try:
-        result = agent.execute_tool_call(problems['tool_validation']['bad'])
+        result = agent.execute_tool_call(problems["tool_validation"]["bad"])
         print("⚠️  Bad data allowed through (shouldn't happen)")
     except Exception:
         print("✅ ADRI blocked bad tool data - preventing GitHub #31536")
-    
+
     print()
     print("=" * 55)
     print("🎉 ADRI Protection Complete!")
@@ -243,14 +245,14 @@ def main():
     print("• Issue #31800: Message format validation errors")
     print("• Issue #31536: Tool call validation breakdowns")
     print("• Plus 522+ other documented LangChain validation issues")
-    
+
     print()
     print("🚀 Next Steps for LangChain Engineers:")
     print("• Add @adri_protected to your chain input functions")
     print("• Protect prompt template variables and chain execution")
     print("• Validate conversation memory and context data")
     print("• Enable audit logging for customer service compliance")
-    
+
     print()
     print("📖 Learn More:")
     print("• Setup tool: python tools/adri-setup.py --list")
