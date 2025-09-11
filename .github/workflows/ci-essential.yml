@@ -72,7 +72,8 @@ jobs:
           # Run core unit tests first (excluding slow integration tests)
           pytest tests/ -v --tb=short -m "not slow" --maxfail=5 \
             --ignore=tests/examples/smoke_tests/test_decorators.py \
-            --ignore=tests/examples/integration_tests/
+            --ignore=tests/examples/integration_tests/ \
+            --ignore=tests/demo_validation/
 
           # Run basic example validation (imports only - lightweight)
           pytest tests/examples/smoke_tests/test_imports.py -v --tb=short
