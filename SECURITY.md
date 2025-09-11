@@ -1,8 +1,12 @@
 # Security Policy
 
+## Disclaimer
+
+This security policy is provided for informational purposes only and does not create any legal obligations, warranties, or guarantees. This open source software is provided "AS IS" without warranty of any kind. Please refer to the LICENSE file for complete terms and liability limitations.
+
 ## Supported Versions
 
-We release patches for security vulnerabilities. Which versions are eligible for receiving such patches depends on the CVSS v3.0 Rating:
+We make best efforts to release patches for security vulnerabilities when resources permit. Which versions may receive patches depends on the CVSS v3.0 Rating and maintainer availability:
 
 | Version | Supported          |
 | ------- | ------------------ |
@@ -12,18 +16,18 @@ We release patches for security vulnerabilities. Which versions are eligible for
 
 ## Reporting a Vulnerability
 
-The ADRI team and community take security bugs seriously. We appreciate your efforts to responsibly disclose your findings, and will make every effort to acknowledge your contributions.
+The ADRI community appreciates security research conducted responsibly. This is volunteer-maintained open source software with no service level agreements or guaranteed response times.
 
 ### How to Report a Security Vulnerability
 
 **Please do not report security vulnerabilities through public GitHub issues.**
 
-Instead, please report them via email to: **security@adri-standard.org**
-
-If you prefer, you can also report vulnerabilities through GitHub's security advisory feature:
+Instead, please report them through GitHub's security advisory feature:
 1. Go to the [Security tab](https://github.com/adri-standard/adri/security) of this repository
 2. Click "Report a vulnerability" 
 3. Fill out the advisory form
+
+You can also email the maintainers directly using the contact information in the repository, but GitHub Security Advisories is our preferred method for coordinated disclosure.
 
 ### What to Include
 
@@ -39,11 +43,15 @@ Please include the following information in your report:
 
 ### Response Timeline
 
-You can expect the following response timeline:
+**IMPORTANT: These are aspirational timelines, not contractual commitments.**
 
-- **Initial Response**: Within 48 hours of receiving your report
-- **Status Update**: Within 7 days with our assessment and next steps
-- **Resolution**: We aim to resolve critical vulnerabilities within 30 days
+We will make reasonable efforts to respond when maintainer time permits:
+
+- **Initial Response**: Typically 5-7 business days, may vary significantly
+- **Status Update**: Approximately 2 weeks, subject to maintainer availability
+- **Resolution**: Best effort basis, complexity and volunteer availability dependent
+
+**No SLA or guaranteed response times are provided. This is volunteer-maintained software.**
 
 ### What to Expect
 
@@ -54,16 +62,16 @@ After submitting a report, you will receive:
 3. **Timeline** for fixes and releases
 4. **Credit** in our security advisories (if desired)
 
-### Safe Harbor
+### Responsible Disclosure Appreciation
 
-We support safe harbor for security researchers who:
+We appreciate security researchers who conduct responsible research within these guidelines:
 
-- Make a good faith effort to avoid privacy violations, destruction of data, and interruption or degradation of our services
-- Only interact with accounts you own or with explicit permission of the account holder
-- Do not access a system beyond what is necessary to demonstrate a vulnerability
-- Report vulnerabilities to us according to this policy
+- Make a good faith effort to avoid privacy violations, destruction of data, and interruption or degradation of services
+- Only interact with systems they own or have explicit permission to test
+- Do not access systems beyond what is necessary to demonstrate a vulnerability
+- Report vulnerabilities according to this policy
 
-We will not pursue legal action against researchers who follow this policy.
+**Disclaimer**: This policy does not create any legal obligations, safe harbor protections, or immunity from prosecution. Researchers should consult their own legal counsel regarding applicable laws. We will make reasonable efforts to work constructively with researchers who follow responsible disclosure practices, subject to applicable law and available resources.
 
 ### Security Best Practices for Users
 
@@ -94,10 +102,20 @@ We regularly monitor our dependencies for security vulnerabilities using:
 
 ### Contact
 
-For questions about this security policy, please contact:
-- Email: security@adri-standard.org
-- GitHub: [@adri-standard](https://github.com/adri-standard)
+For questions about this security policy, please:
+- Open a GitHub discussion in this repository
+- Contact the maintainers through GitHub
+- Use GitHub Security Advisories for vulnerability reports
 
 ---
 
-This security policy is effective as of the date of the latest commit to this file and will be updated as needed.
+## Legal Notice
+
+- This security policy creates no contractual obligations or guarantees
+- No warranties are provided regarding security, fitness for purpose, or merchantability
+- All software is provided under the terms of the LICENSE file
+- Maintainers disclaim liability for security vulnerabilities or their consequences
+- This is volunteer-maintained open source software with no service commitments
+- Policy may be updated or discontinued at any time without notice
+
+This security policy is effective as of the date of the latest commit to this file and may be updated as needed.
