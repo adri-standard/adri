@@ -70,15 +70,13 @@ jobs:
           echo "🧪 Running core test suite..."
 
           # Run core unit tests first (excluding slow integration tests)
+          # No coverage requirement for fast feedback - coverage is checked in comprehensive workflow
           pytest tests/ -v --tb=short -m "not slow" --maxfail=5 \
-            --ignore=tests/examples/smoke_tests/test_decorators.py \
             --ignore=tests/examples/integration_tests/ \
             --ignore=tests/examples/dependency_tests/ \
             --ignore=tests/examples/error_handling_tests/ \
-            --ignore=tests/demo_validation/
-
-          # Note: Skipping example import tests temporarily due to module path issues in CI
-          echo "⚠️ Example import validation skipped (CI environment issue)"
+            --ignore=tests/demo_validation/ \
+            --no-cov
 
           echo "✅ Fast test suite completed"
 
