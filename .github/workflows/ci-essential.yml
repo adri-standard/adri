@@ -70,7 +70,8 @@ jobs:
           echo "🧪 Running core test suite..."
           
           # Run core unit tests (excluding slow integration tests)
-          pytest development/testing/tests/unit/ -v --tb=short -m "not slow" --maxfail=5
+          # No coverage failure for fast feedback - coverage enforced in comprehensive CI
+          pytest development/testing/tests/unit/ -v --tb=short -m "not slow" --maxfail=5 --no-cov
           
           echo "✅ Fast test suite completed"
 
