@@ -111,7 +111,7 @@ class TestADRIDecorators:
         # Check for actual decorated functions in the code
         expected_functions = [
             "coordinate_market_analysis",
-            "process_structured_output", 
+            "process_structured_output",
             "execute_agent_tools",
         ]
         found_protected = [

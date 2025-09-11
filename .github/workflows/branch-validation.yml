@@ -14,10 +14,10 @@ jobs:
       - name: Validate branch naming convention
         run: |
           BRANCH="${{ github.ref_name }}"
-          
+
           echo "🔍 Validating branch name: $BRANCH"
           echo "Required format: type/issue-{number}-description"
-          
+
           # Required format: type/issue-{number}-description
           if [[ ! "$BRANCH" =~ ^(feat|fix|docs|chore|enhance|hotfix|refactor|test|style|perf)/issue-[0-9]+-.*$ ]]; then
             echo ""
@@ -54,10 +54,10 @@ jobs:
             echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
             exit 1
           fi
-          
+
           # Extract issue number for validation
           ISSUE_NUM=$(echo "$BRANCH" | grep -o 'issue-[0-9]\+' | grep -o '[0-9]\+')
-          
+
           echo "✅ Branch name follows issue-first convention"
           echo "📋 Linked to issue #$ISSUE_NUM"
           echo "🎯 Branch type: $(echo "$BRANCH" | cut -d'/' -f1)"
@@ -68,7 +68,7 @@ jobs:
           script: |
             const branch = context.ref.replace('refs/heads/', '');
             const issueNum = branch.match(/issue-(\d+)/)?.[1];
-            
+
             if (issueNum) {
               console.log(`✅ Branch ${branch} correctly links to issue #${issueNum}`);
               console.log('🚀 Issue-first development validated - proceeding with CI pipeline');
@@ -87,7 +87,7 @@ jobs:
         run: |
           echo "📊 Branch Validation Results:"
           echo "Branch Naming: ${{ needs.validate-branch.result }}"
-          
+
           if [[ "${{ needs.validate-branch.result }}" != "success" ]]; then
             echo ""
             echo "❌ Issue-first development validation failed"
@@ -97,7 +97,7 @@ jobs:
             echo "   Example: git branch -m feat/issue-123-your-feature"
             exit 1
           fi
-          
+
           echo ""
           echo "✅ Issue-first development validated!"
           echo "🚀 Proceeding with standard CI pipeline"

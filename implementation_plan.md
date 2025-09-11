@@ -37,7 +37,7 @@ of the core ADRI package.
 """
 ```
 
-#### 1.2 Updated CI Essential Pipeline Scope  
+#### 1.2 Updated CI Essential Pipeline Scope
 **File**: `.github/workflows/ci-essential.yml`
 **Status**: ✅ COMPLETED
 
@@ -55,7 +55,7 @@ of the core ADRI package.
       --ignore=tests/examples/smoke_tests/test_decorators.py \
       --ignore=tests/examples/integration_tests/
 
-    # Run basic example validation (imports only - lightweight)  
+    # Run basic example validation (imports only - lightweight)
     pytest tests/examples/smoke_tests/test_imports.py -v --tb=short
 ```
 
@@ -72,7 +72,7 @@ source = ["adri"]
 omit = [
     "*/tests/*",
     "*/test_*",
-    "*/__main__.py", 
+    "*/__main__.py",
     "*/setup.py",
     "examples/*",           # EXCLUDE examples from coverage
     "development/*",        # EXCLUDE development tools
@@ -83,7 +83,7 @@ omit = [
 **Result**: 90% coverage requirement now applies ONLY to core `adri/` package
 
 #### 2.2 Updated CI Comprehensive Pipeline
-**File**: `.github/workflows/ci-comprehensive.yml`  
+**File**: `.github/workflows/ci-comprehensive.yml`
 **Status**: ✅ COMPLETED
 
 **Key Changes**:
@@ -109,7 +109,7 @@ pytest tests/ \
 - **Evidence**: `from examples.utils.problem_demos import get_framework_problems` now works
 - **Impact**: Eliminates `ModuleNotFoundError` that was blocking PRs
 
-### Coverage Scope Correction ✅  
+### Coverage Scope Correction ✅
 - **Status**: RESOLVED
 - **Evidence**: Coverage calculation excludes examples/, development/, tools/
 - **Impact**: 90% coverage threshold now applies only to core `adri/` package
@@ -140,7 +140,7 @@ pytest tests/ \
 - **Documentation Standards**: Applied to example code for clarity and functionality
 - **Tool Standards**: Applied to development utilities as appropriate
 
-### 3. Maintainable CI/CD Pipeline  
+### 3. Maintainable CI/CD Pipeline
 - **Fast Feedback**: CI Essential provides quick validation for core changes
 - **Comprehensive Validation**: CI Comprehensive provides thorough testing for releases
 - **Scoped Testing**: Each pipeline tests appropriate code with appropriate standards
@@ -189,9 +189,9 @@ Each change is isolated and can be reverted independently without affecting othe
 
 This implementation successfully resolves the CI/CD pipeline blocking issues by:
 
-✅ **Fixing immediate technical issues** (missing imports, test failures)  
-✅ **Establishing proper scope boundaries** (core vs. examples vs. development)  
-✅ **Maintaining high standards** for production code while enabling appropriate flexibility for demonstration code  
-✅ **Creating sustainable processes** that prevent recurrence of scope confusion  
+✅ **Fixing immediate technical issues** (missing imports, test failures)
+✅ **Establishing proper scope boundaries** (core vs. examples vs. development)
+✅ **Maintaining high standards** for production code while enabling appropriate flexibility for demonstration code
+✅ **Creating sustainable processes** that prevent recurrence of scope confusion
 
 The solution ensures code quality checks run on core code only, not on test and development code, exactly as requested. PRs should now pass CI when core package changes meet appropriate quality standards, without being blocked by unrelated example or development code issues.

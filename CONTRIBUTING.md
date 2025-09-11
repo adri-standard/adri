@@ -124,7 +124,7 @@ Required format: type/issue-{number}-description
 
 To fix this:
 1. Create a GitHub issue for your work
-2. Rename your branch: git branch -m type/issue-{number}-description  
+2. Rename your branch: git branch -m type/issue-{number}-description
 3. Push again: git push -u origin HEAD
 ```
 
