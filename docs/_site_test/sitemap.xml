@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<url>
+<loc>https://adri-standard.github.io/adri/ai-engineer-onboarding/</loc>
+</url>
+<url>
+<loc>https://adri-standard.github.io/adri/frameworks/</loc>
+</url>
+<url>
+<loc>https://adri-standard.github.io/adri/</loc>
+</url>
+<url>
+<loc>https://adri-standard.github.io/adri/quick-start/</loc>
+</url>
+<url>
+<loc>https://adri-standard.github.io/adri/API_REFERENCE/</loc>
+</url>
+<url>
+<loc>https://adri-standard.github.io/adri/WHY_OPEN_SOURCE/</loc>
+</url>
+<url>
+<loc>https://adri-standard.github.io/adri/ci-pipeline-guide/</loc>
+</url>
+<url>
+<loc>https://adri-standard.github.io/adri/ci-troubleshooting/</loc>
+</url>
+<url>
+<loc>https://adri-standard.github.io/adri/framework-extension-pattern/</loc>
+</url>
+<url>
+<loc>https://adri-standard.github.io/adri/setup-tool-guide/</loc>
+</url>
+</urlset>

@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Framework Examples - ADRI | ADRI - Agent Data Reliability Intelligence</title>
+<meta name="generator" content="Jekyll v3.9.5" />
+<meta property="og:title" content="Framework Examples - ADRI" />
+<meta name="author" content="ADRI Standard" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Stop AI Agents Breaking on Bad Data - Open source data quality validation framework" />
+<meta property="og:description" content="Stop AI Agents Breaking on Bad Data - Open source data quality validation framework" />
+<link rel="canonical" href="https://adri-standard.github.io/adri/frameworks/" />
+<meta property="og:url" content="https://adri-standard.github.io/adri/frameworks/" />
+<meta property="og:site_name" content="ADRI - Agent Data Reliability Intelligence" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Framework Examples - ADRI" />
+<meta name="twitter:site" content="@adri_standard" />
+<meta name="twitter:creator" content="@ADRI Standard" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","author":{"@type":"Person","name":"ADRI Standard"},"description":"Stop AI Agents Breaking on Bad Data - Open source data quality validation framework","headline":"Framework Examples - ADRI","url":"https://adri-standard.github.io/adri/frameworks/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/adri/assets/main.css"><link type="application/atom+xml" rel="alternate" href="https://adri-standard.github.io/adri/feed.xml" title="ADRI - Agent Data Reliability Intelligence" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/adri/">ADRI - Agent Data Reliability Intelligence</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/adri/">ADRI - Agent Data Reliability Intelligence</a><a class="page-link" href="/adri/quick-start/">Quick Start - ADRI</a><a class="page-link" href="/adri/frameworks/">Framework Examples - ADRI</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <h1 id="framework-integration-examples">Framework Integration Examples</h1>
+
+<p>Copy-paste ready code for protecting your AI agents across all major frameworks.</p>
+
+<h2 id="langchain">LangChain</h2>
+
+<h3 id="protect-langchain-chains">Protect LangChain Chains</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">langchain.llms</span> <span class="kn">import</span> <span class="n">OpenAI</span>
+<span class="kn">from</span> <span class="nn">langchain.chains</span> <span class="kn">import</span> <span class="n">LLMChain</span>
+<span class="kn">from</span> <span class="nn">langchain.prompts</span> <span class="kn">import</span> <span class="n">PromptTemplate</span>
+<span class="kn">from</span> <span class="nn">adri</span> <span class="kn">import</span> <span class="n">adri_protected</span>
+
+<span class="o">@</span><span class="n">adri_protected</span>
+<span class="k">def</span> <span class="nf">langchain_analysis</span><span class="p">(</span><span class="n">customer_data</span><span class="p">):</span>
+    <span class="s">"""Analyze customer data with LangChain"""</span>
+
+    <span class="n">llm</span> <span class="o">=</span> <span class="n">OpenAI</span><span class="p">(</span><span class="n">temperature</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
+    <span class="n">prompt</span> <span class="o">=</span> <span class="n">PromptTemplate</span><span class="p">(</span>
+        <span class="n">input_variables</span><span class="o">=</span><span class="p">[</span><span class="s">"data"</span><span class="p">],</span>
+        <span class="n">template</span><span class="o">=</span><span class="s">"Analyze this customer data and provide insights: {data}"</span>
+    <span class="p">)</span>
+
+    <span class="n">chain</span> <span class="o">=</span> <span class="n">LLMChain</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span> <span class="n">prompt</span><span class="o">=</span><span class="n">prompt</span><span class="p">)</span>
+
+    <span class="c1"># ADRI validates customer_data before processing
+</span>    <span class="n">result</span> <span class="o">=</span> <span class="n">chain</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">customer_data</span><span class="p">))</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s">"analysis"</span><span class="p">:</span> <span class="n">result</span><span class="p">,</span> <span class="s">"data_quality"</span><span class="p">:</span> <span class="s">"validated"</span><span class="p">}</span>
+
+<span class="c1"># Usage
+</span><span class="n">customer_records</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">{</span><span class="s">"name"</span><span class="p">:</span> <span class="s">"John Doe"</span><span class="p">,</span> <span class="s">"age"</span><span class="p">:</span> <span class="mi">30</span><span class="p">,</span> <span class="s">"email"</span><span class="p">:</span> <span class="s">"john@example.com"</span><span class="p">},</span>
+    <span class="p">{</span><span class="s">"name"</span><span class="p">:</span> <span class="s">"Jane Smith"</span><span class="p">,</span> <span class="s">"age"</span><span class="p">:</span> <span class="mi">25</span><span class="p">,</span> <span class="s">"email"</span><span class="p">:</span> <span class="s">"jane@example.com"</span><span class="p">}</span>
+<span class="p">]</span>
+
+<span class="n">analysis</span> <span class="o">=</span> <span class="n">langchain_analysis</span><span class="p">(</span><span class="n">customer_records</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h3 id="protect-langchain-agents">Protect LangChain Agents</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">langchain.agents</span> <span class="kn">import</span> <span class="n">create_pandas_dataframe_agent</span>
+<span class="kn">from</span> <span class="nn">langchain.llms</span> <span class="kn">import</span> <span class="n">OpenAI</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="n">pd</span>
+<span class="kn">from</span> <span class="nn">adri</span> <span class="kn">import</span> <span class="n">adri_protected</span>
+
+<span class="o">@</span><span class="n">adri_protected</span>
+<span class="k">def</span> <span class="nf">langchain_agent_query</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">query</span><span class="p">):</span>
+    <span class="s">"""Query data using LangChain pandas agent"""</span>
+
+    <span class="c1"># Convert to DataFrame (ADRI validates before conversion)
+</span>    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+    <span class="n">llm</span> <span class="o">=</span> <span class="n">OpenAI</span><span class="p">(</span><span class="n">temperature</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">agent</span> <span class="o">=</span> <span class="n">create_pandas_dataframe_agent</span><span class="p">(</span><span class="n">llm</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="n">agent</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s">"query"</span><span class="p">:</span> <span class="n">query</span><span class="p">,</span> <span class="s">"result"</span><span class="p">:</span> <span class="n">result</span><span class="p">}</span>
+
+<span class="c1"># Usage
+</span><span class="n">result</span> <span class="o">=</span> <span class="n">langchain_agent_query</span><span class="p">(</span>
+    <span class="n">data</span><span class="o">=</span><span class="p">[{</span><span class="s">"sales"</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span> <span class="s">"region"</span><span class="p">:</span> <span class="s">"US"</span><span class="p">},</span> <span class="p">{</span><span class="s">"sales"</span><span class="p">:</span> <span class="mi">1500</span><span class="p">,</span> <span class="s">"region"</span><span class="p">:</span> <span class="s">"EU"</span><span class="p">}],</span>
+    <span class="n">query</span><span class="o">=</span><span class="s">"What is the total sales by region?"</span>
+<span class="p">)</span>
+</code></pre></div></div>
+
+<h2 id="crewai">CrewAI</h2>
+
+<h3 id="protect-crewai-tasks">Protect CrewAI Tasks</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">crewai</span> <span class="kn">import</span> <span class="n">Agent</span><span class="p">,</span> <span class="n">Task</span><span class="p">,</span> <span class="n">Crew</span>
+<span class="kn">from</span> <span class="nn">adri</span> <span class="kn">import</span> <span class="n">adri_protected</span>
+
+<span class="o">@</span><span class="n">adri_protected</span>
+<span class="k">def</span> <span class="nf">crewai_data_analysis</span><span class="p">(</span><span class="n">market_data</span><span class="p">):</span>
+    <span class="s">"""Analyze market data with CrewAI crew"""</span>
+
+    <span class="c1"># Define analyst agent
+</span>    <span class="n">analyst</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span>
+        <span class="n">role</span><span class="o">=</span><span class="s">'Data Analyst'</span><span class="p">,</span>
+        <span class="n">goal</span><span class="o">=</span><span class="s">'Analyze market trends and provide insights'</span><span class="p">,</span>
+        <span class="n">backstory</span><span class="o">=</span><span class="s">'Expert in market data analysis'</span><span class="p">,</span>
+        <span class="n">verbose</span><span class="o">=</span><span class="bp">True</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Create analysis task with validated data
+</span>    <span class="n">analysis_task</span> <span class="o">=</span> <span class="n">Task</span><span class="p">(</span>
+        <span class="n">description</span><span class="o">=</span><span class="sa">f</span><span class="s">'Analyze this market data: </span><span class="si">{</span><span class="n">market_data</span><span class="si">}</span><span class="s">'</span><span class="p">,</span>
+        <span class="n">agent</span><span class="o">=</span><span class="n">analyst</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Create crew and execute
+</span>    <span class="n">crew</span> <span class="o">=</span> <span class="n">Crew</span><span class="p">(</span>
+        <span class="n">agents</span><span class="o">=</span><span class="p">[</span><span class="n">analyst</span><span class="p">],</span>
+        <span class="n">tasks</span><span class="o">=</span><span class="p">[</span><span class="n">analysis_task</span><span class="p">],</span>
+        <span class="n">verbose</span><span class="o">=</span><span class="mi">2</span>
+    <span class="p">)</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="n">crew</span><span class="p">.</span><span class="n">kickoff</span><span class="p">()</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s">"crew_analysis"</span><span class="p">:</span> <span class="n">result</span><span class="p">,</span> <span class="s">"data_validated"</span><span class="p">:</span> <span class="bp">True</span><span class="p">}</span>
+
+<span class="c1"># Usage
+</span><span class="n">market_data</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">{</span><span class="s">"stock"</span><span class="p">:</span> <span class="s">"AAPL"</span><span class="p">,</span> <span class="s">"price"</span><span class="p">:</span> <span class="mf">150.0</span><span class="p">,</span> <span class="s">"volume"</span><span class="p">:</span> <span class="mi">1000000</span><span class="p">},</span>
+    <span class="p">{</span><span class="s">"stock"</span><span class="p">:</span> <span class="s">"GOOGL"</span><span class="p">,</span> <span class="s">"price"</span><span class="p">:</span> <span class="mf">2500.0</span><span class="p">,</span> <span class="s">"volume"</span><span class="p">:</span> <span class="mi">500000</span><span class="p">}</span>
+<span class="p">]</span>
+
+<span class="n">analysis</span> <span class="o">=</span> <span class="n">crewai_data_analysis</span><span class="p">(</span><span class="n">market_data</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h2 id="autogen">AutoGen</h2>
+
+<h3 id="protect-autogen-conversations">Protect AutoGen Conversations</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">autogen</span>
+<span class="kn">from</span> <span class="nn">adri</span> <span class="kn">import</span> <span class="n">adri_protected</span>
+
+<span class="o">@</span><span class="n">adri_protected</span>
+<span class="k">def</span> <span class="nf">autogen_multi_agent_analysis</span><span class="p">(</span><span class="n">financial_data</span><span class="p">):</span>
+    <span class="s">"""Multi-agent financial analysis with AutoGen"""</span>
+
+    <span class="n">config_list</span> <span class="o">=</span> <span class="p">[{</span><span class="s">"model"</span><span class="p">:</span> <span class="s">"gpt-4"</span><span class="p">,</span> <span class="s">"api_key"</span><span class="p">:</span> <span class="s">"your-api-key"</span><span class="p">}]</span>
+
+    <span class="c1"># Create assistant agent
+</span>    <span class="n">assistant</span> <span class="o">=</span> <span class="n">autogen</span><span class="p">.</span><span class="n">AssistantAgent</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="s">"financial_analyst"</span><span class="p">,</span>
+        <span class="n">llm_config</span><span class="o">=</span><span class="p">{</span><span class="s">"config_list"</span><span class="p">:</span> <span class="n">config_list</span><span class="p">},</span>
+        <span class="n">system_message</span><span class="o">=</span><span class="s">"You are a financial analyst. Analyze the provided data."</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Create user proxy
+</span>    <span class="n">user_proxy</span> <span class="o">=</span> <span class="n">autogen</span><span class="p">.</span><span class="n">UserProxyAgent</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="s">"user_proxy"</span><span class="p">,</span>
+        <span class="n">human_input_mode</span><span class="o">=</span><span class="s">"NEVER"</span><span class="p">,</span>
+        <span class="n">max_consecutive_auto_reply</span><span class="o">=</span><span class="mi">1</span>
+    <span class="p">)</span>
+
+    <span class="c1"># ADRI validates financial_data before starting conversation
+</span>    <span class="n">message</span> <span class="o">=</span> <span class="sa">f</span><span class="s">"Please analyze this financial data: </span><span class="si">{</span><span class="n">financial_data</span><span class="si">}</span><span class="s">"</span>
+
+    <span class="n">user_proxy</span><span class="p">.</span><span class="n">initiate_chat</span><span class="p">(</span><span class="n">assistant</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="n">message</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">{</span><span class="s">"analysis_complete"</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span> <span class="s">"data_quality"</span><span class="p">:</span> <span class="s">"validated"</span><span class="p">}</span>
+
+<span class="c1"># Usage
+</span><span class="n">financial_data</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">{</span><span class="s">"company"</span><span class="p">:</span> <span class="s">"AAPL"</span><span class="p">,</span> <span class="s">"revenue"</span><span class="p">:</span> <span class="mf">365.8</span><span class="p">,</span> <span class="s">"profit"</span><span class="p">:</span> <span class="mf">94.7</span><span class="p">},</span>
+    <span class="p">{</span><span class="s">"company"</span><span class="p">:</span> <span class="s">"MSFT"</span><span class="p">,</span> <span class="s">"revenue"</span><span class="p">:</span> <span class="mf">198.3</span><span class="p">,</span> <span class="s">"profit"</span><span class="p">:</span> <span class="mf">61.3</span><span class="p">}</span>
+<span class="p">]</span>
+
+<span class="n">result</span> <span class="o">=</span> <span class="n">autogen_multi_agent_analysis</span><span class="p">(</span><span class="n">financial_data</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h2 id="llamaindex">LlamaIndex</h2>
+
+<h3 id="protect-llamaindex-query-engines">Protect LlamaIndex Query Engines</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">llama_index.core</span> <span class="kn">import</span> <span class="n">VectorStoreIndex</span><span class="p">,</span> <span class="n">Document</span>
+<span class="kn">from</span> <span class="nn">llama_index.core.query_engine</span> <span class="kn">import</span> <span class="n">PandasQueryEngine</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="n">pd</span>
+<span class="kn">from</span> <span class="nn">adri</span> <span class="kn">import</span> <span class="n">adri_protected</span>
+
+<span class="o">@</span><span class="n">adri_protected</span>
+<span class="k">def</span> <span class="nf">llamaindex_query_analysis</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">query</span><span class="p">):</span>
+    <span class="s">"""Query analysis using LlamaIndex"""</span>
+
+    <span class="c1"># Convert validated data to DataFrame
+</span>    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
+
+    <span class="c1"># Create query engine with validated data
+</span>    <span class="n">query_engine</span> <span class="o">=</span> <span class="n">PandasQueryEngine</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+    <span class="c1"># Execute query
+</span>    <span class="n">response</span> <span class="o">=</span> <span class="n">query_engine</span><span class="p">.</span><span class="n">query</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s">"query"</span><span class="p">:</span> <span class="n">query</span><span class="p">,</span>
+        <span class="s">"response"</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">response</span><span class="p">),</span>
+        <span class="s">"data_rows"</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+    <span class="p">}</span>
+
+<span class="c1"># Usage
+</span><span class="n">sales_data</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">{</span><span class="s">"product"</span><span class="p">:</span> <span class="s">"Laptop"</span><span class="p">,</span> <span class="s">"sales"</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span> <span class="s">"region"</span><span class="p">:</span> <span class="s">"North"</span><span class="p">},</span>
+    <span class="p">{</span><span class="s">"product"</span><span class="p">:</span> <span class="s">"Mouse"</span><span class="p">,</span> <span class="s">"sales"</span><span class="p">:</span> <span class="mi">500</span><span class="p">,</span> <span class="s">"region"</span><span class="p">:</span> <span class="s">"South"</span><span class="p">}</span>
+<span class="p">]</span>
+
+<span class="n">result</span> <span class="o">=</span> <span class="n">llamaindex_query_analysis</span><span class="p">(</span>
+    <span class="n">dataset</span><span class="o">=</span><span class="n">sales_data</span><span class="p">,</span>
+    <span class="n">query</span><span class="o">=</span><span class="s">"What are the total sales by region?"</span>
+<span class="p">)</span>
+</code></pre></div></div>
+
+<h3 id="protect-document-processing">Protect Document Processing</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">llama_index.core</span> <span class="kn">import</span> <span class="n">VectorStoreIndex</span><span class="p">,</span> <span class="n">Document</span>
+<span class="kn">from</span> <span class="nn">adri</span> <span class="kn">import</span> <span class="n">adri_protected</span>
+
+<span class="o">@</span><span class="n">adri_protected</span>
+<span class="k">def</span> <span class="nf">llamaindex_document_processing</span><span class="p">(</span><span class="n">document_data</span><span class="p">):</span>
+    <span class="s">"""Process documents with LlamaIndex"""</span>
+
+    <span class="c1"># Create documents from validated data
+</span>    <span class="n">documents</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">Document</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="n">doc</span><span class="p">[</span><span class="s">"content"</span><span class="p">],</span> <span class="n">metadata</span><span class="o">=</span><span class="n">doc</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">"metadata"</span><span class="p">,</span> <span class="p">{}))</span>
+        <span class="k">for</span> <span class="n">doc</span> <span class="ow">in</span> <span class="n">document_data</span>
+    <span class="p">]</span>
+
+    <span class="c1"># Create index
+</span>    <span class="n">index</span> <span class="o">=</span> <span class="n">VectorStoreIndex</span><span class="p">.</span><span class="n">from_documents</span><span class="p">(</span><span class="n">documents</span><span class="p">)</span>
+
+    <span class="c1"># Create query engine
+</span>    <span class="n">query_engine</span> <span class="o">=</span> <span class="n">index</span><span class="p">.</span><span class="n">as_query_engine</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s">"index_created"</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+        <span class="s">"document_count"</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">documents</span><span class="p">),</span>
+        <span class="s">"query_engine"</span><span class="p">:</span> <span class="n">query_engine</span>
+    <span class="p">}</span>
+</code></pre></div></div>
+
+<h2 id="haystack">Haystack</h2>
+
+<h3 id="protect-haystack-pipelines">Protect Haystack Pipelines</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">haystack</span> <span class="kn">import</span> <span class="n">Pipeline</span>
+<span class="kn">from</span> <span class="nn">haystack.components.writers</span> <span class="kn">import</span> <span class="n">DocumentWriter</span>
+<span class="kn">from</span> <span class="nn">haystack.dataclasses</span> <span class="kn">import</span> <span class="n">Document</span>
+<span class="kn">from</span> <span class="nn">adri</span> <span class="kn">import</span> <span class="n">adri_protected</span>
+
+<span class="o">@</span><span class="n">adri_protected</span>
+<span class="k">def</span> <span class="nf">haystack_document_processing</span><span class="p">(</span><span class="n">raw_documents</span><span class="p">):</span>
+    <span class="s">"""Process documents through Haystack pipeline"""</span>
+
+    <span class="c1"># Convert validated data to Haystack documents
+</span>    <span class="n">documents</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">Document</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="n">doc</span><span class="p">[</span><span class="s">"text"</span><span class="p">],</span> <span class="n">meta</span><span class="o">=</span><span class="n">doc</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">"metadata"</span><span class="p">,</span> <span class="p">{}))</span>
+        <span class="k">for</span> <span class="n">doc</span> <span class="ow">in</span> <span class="n">raw_documents</span>
+    <span class="p">]</span>
+
+    <span class="c1"># Create pipeline
+</span>    <span class="n">pipeline</span> <span class="o">=</span> <span class="n">Pipeline</span><span class="p">()</span>
+    <span class="n">pipeline</span><span class="p">.</span><span class="n">add_component</span><span class="p">(</span><span class="s">"writer"</span><span class="p">,</span> <span class="n">DocumentWriter</span><span class="p">())</span>
+
+    <span class="c1"># Process documents
+</span>    <span class="n">result</span> <span class="o">=</span> <span class="n">pipeline</span><span class="p">.</span><span class="n">run</span><span class="p">({</span><span class="s">"writer"</span><span class="p">:</span> <span class="p">{</span><span class="s">"documents"</span><span class="p">:</span> <span class="n">documents</span><span class="p">}})</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s">"documents_processed"</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">documents</span><span class="p">),</span>
+        <span class="s">"pipeline_result"</span><span class="p">:</span> <span class="n">result</span>
+    <span class="p">}</span>
+
+<span class="c1"># Usage
+</span><span class="n">document_data</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">{</span><span class="s">"text"</span><span class="p">:</span> <span class="s">"Financial report Q1 2024"</span><span class="p">,</span> <span class="s">"metadata"</span><span class="p">:</span> <span class="p">{</span><span class="s">"type"</span><span class="p">:</span> <span class="s">"report"</span><span class="p">}},</span>
+    <span class="p">{</span><span class="s">"text"</span><span class="p">:</span> <span class="s">"Market analysis summary"</span><span class="p">,</span> <span class="s">"metadata"</span><span class="p">:</span> <span class="p">{</span><span class="s">"type"</span><span class="p">:</span> <span class="s">"analysis"</span><span class="p">}}</span>
+<span class="p">]</span>
+
+<span class="n">result</span> <span class="o">=</span> <span class="n">haystack_document_processing</span><span class="p">(</span><span class="n">document_data</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h2 id="langgraph">LangGraph</h2>
+
+<h3 id="protect-langgraph-nodes">Protect LangGraph Nodes</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">langgraph.graph</span> <span class="kn">import</span> <span class="n">StateGraph</span><span class="p">,</span> <span class="n">END</span>
+<span class="kn">from</span> <span class="nn">langgraph.checkpoint.memory</span> <span class="kn">import</span> <span class="n">MemorySaver</span>
+<span class="kn">from</span> <span class="nn">adri</span> <span class="kn">import</span> <span class="n">adri_protected</span>
+
+<span class="k">class</span> <span class="nc">AnalysisState</span><span class="p">:</span>
+    <span class="n">data</span><span class="p">:</span> <span class="nb">list</span>
+    <span class="n">analysis</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s">""</span>
+    <span class="n">completed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="bp">False</span>
+
+<span class="o">@</span><span class="n">adri_protected</span>
+<span class="k">def</span> <span class="nf">langgraph_analysis_node</span><span class="p">(</span><span class="n">state</span><span class="p">:</span> <span class="n">AnalysisState</span><span class="p">):</span>
+    <span class="s">"""Analysis node with ADRI protection"""</span>
+
+    <span class="c1"># Data is validated by ADRI before processing
+</span>    <span class="n">data</span> <span class="o">=</span> <span class="n">state</span><span class="p">[</span><span class="s">"data"</span><span class="p">]</span>
+
+    <span class="c1"># Perform analysis
+</span>    <span class="n">analysis</span> <span class="o">=</span> <span class="sa">f</span><span class="s">"Analyzed </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="si">}</span><span class="s"> records"</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s">"data"</span><span class="p">:</span> <span class="n">data</span><span class="p">,</span>
+        <span class="s">"analysis"</span><span class="p">:</span> <span class="n">analysis</span><span class="p">,</span>
+        <span class="s">"completed"</span><span class="p">:</span> <span class="bp">True</span>
+    <span class="p">}</span>
+
+<span class="k">def</span> <span class="nf">create_analysis_graph</span><span class="p">():</span>
+    <span class="s">"""Create LangGraph with protected nodes"""</span>
+
+    <span class="n">workflow</span> <span class="o">=</span> <span class="n">StateGraph</span><span class="p">(</span><span class="n">AnalysisState</span><span class="p">)</span>
+
+    <span class="c1"># Add protected analysis node
+</span>    <span class="n">workflow</span><span class="p">.</span><span class="n">add_node</span><span class="p">(</span><span class="s">"analyze"</span><span class="p">,</span> <span class="n">langgraph_analysis_node</span><span class="p">)</span>
+    <span class="n">workflow</span><span class="p">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s">"analyze"</span><span class="p">,</span> <span class="n">END</span><span class="p">)</span>
+    <span class="n">workflow</span><span class="p">.</span><span class="n">set_entry_point</span><span class="p">(</span><span class="s">"analyze"</span><span class="p">)</span>
+
+    <span class="c1"># Compile with checkpointer
+</span>    <span class="n">memory</span> <span class="o">=</span> <span class="n">MemorySaver</span><span class="p">()</span>
+    <span class="n">app</span> <span class="o">=</span> <span class="n">workflow</span><span class="p">.</span><span class="nb">compile</span><span class="p">(</span><span class="n">checkpointer</span><span class="o">=</span><span class="n">memory</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">app</span>
+
+<span class="c1"># Usage
+</span><span class="n">app</span> <span class="o">=</span> <span class="n">create_analysis_graph</span><span class="p">()</span>
+<span class="n">config</span> <span class="o">=</span> <span class="p">{</span><span class="s">"configurable"</span><span class="p">:</span> <span class="p">{</span><span class="s">"thread_id"</span><span class="p">:</span> <span class="s">"analysis-1"</span><span class="p">}}</span>
+
+<span class="n">result</span> <span class="o">=</span> <span class="n">app</span><span class="p">.</span><span class="n">invoke</span><span class="p">({</span>
+    <span class="s">"data"</span><span class="p">:</span> <span class="p">[{</span><span class="s">"value"</span><span class="p">:</span> <span class="mi">100</span><span class="p">},</span> <span class="p">{</span><span class="s">"value"</span><span class="p">:</span> <span class="mi">200</span><span class="p">}]</span>
+<span class="p">},</span> <span class="n">config</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h2 id="semantic-kernel">Semantic Kernel</h2>
+
+<h3 id="protect-semantic-kernel-functions">Protect Semantic Kernel Functions</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">semantic_kernel</span> <span class="k">as</span> <span class="n">sk</span>
+<span class="kn">from</span> <span class="nn">semantic_kernel.connectors.ai.open_ai</span> <span class="kn">import</span> <span class="n">OpenAIChatCompletion</span>
+<span class="kn">from</span> <span class="nn">adri</span> <span class="kn">import</span> <span class="n">adri_protected</span>
+
+<span class="o">@</span><span class="n">adri_protected</span>
+<span class="k">def</span> <span class="nf">semantic_kernel_analysis</span><span class="p">(</span><span class="n">business_data</span><span class="p">):</span>
+    <span class="s">"""Analyze business data with Semantic Kernel"""</span>
+
+    <span class="c1"># Initialize kernel
+</span>    <span class="n">kernel</span> <span class="o">=</span> <span class="n">sk</span><span class="p">.</span><span class="n">Kernel</span><span class="p">()</span>
+
+    <span class="c1"># Add AI service
+</span>    <span class="n">kernel</span><span class="p">.</span><span class="n">add_service</span><span class="p">(</span><span class="n">OpenAIChatCompletion</span><span class="p">(</span>
+        <span class="n">service_id</span><span class="o">=</span><span class="s">"chat-gpt"</span><span class="p">,</span>
+        <span class="n">ai_model_id</span><span class="o">=</span><span class="s">"gpt-3.5-turbo"</span>
+    <span class="p">))</span>
+
+    <span class="c1"># Create function from prompt
+</span>    <span class="n">analyze_function</span> <span class="o">=</span> <span class="n">kernel</span><span class="p">.</span><span class="n">create_function_from_prompt</span><span class="p">(</span>
+        <span class="n">function_name</span><span class="o">=</span><span class="s">"analyze_data"</span><span class="p">,</span>
+        <span class="n">plugin_name</span><span class="o">=</span><span class="s">"business_analytics"</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="s">"Analyze this business data and provide insights: {{$data}}"</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Execute with validated data
+</span>    <span class="n">result</span> <span class="o">=</span> <span class="n">kernel</span><span class="p">.</span><span class="n">invoke</span><span class="p">(</span>
+        <span class="n">analyze_function</span><span class="p">,</span>
+        <span class="n">data</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">business_data</span><span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s">"analysis"</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">result</span><span class="p">),</span>
+        <span class="s">"data_validated"</span><span class="p">:</span> <span class="bp">True</span>
+    <span class="p">}</span>
+
+<span class="c1"># Usage
+</span><span class="n">business_data</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">{</span><span class="s">"metric"</span><span class="p">:</span> <span class="s">"revenue"</span><span class="p">,</span> <span class="s">"value"</span><span class="p">:</span> <span class="mi">1000000</span><span class="p">,</span> <span class="s">"period"</span><span class="p">:</span> <span class="s">"Q1"</span><span class="p">},</span>
+    <span class="p">{</span><span class="s">"metric"</span><span class="p">:</span> <span class="s">"costs"</span><span class="p">,</span> <span class="s">"value"</span><span class="p">:</span> <span class="mi">750000</span><span class="p">,</span> <span class="s">"period"</span><span class="p">:</span> <span class="s">"Q1"</span><span class="p">}</span>
+<span class="p">]</span>
+
+<span class="n">analysis</span> <span class="o">=</span> <span class="n">semantic_kernel_analysis</span><span class="p">(</span><span class="n">business_data</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h2 id="configuration-for-all-frameworks">Configuration for All Frameworks</h2>
+
+<h3 id="universal-config-adri-configyaml">Universal Config (<code class="language-plaintext highlighter-rouge">adri-config.yaml</code>)</h3>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">validation</span><span class="pi">:</span>
+  <span class="na">completeness_threshold</span><span class="pi">:</span> <span class="m">0.9</span>
+  <span class="na">validity_checks</span><span class="pi">:</span> <span class="no">true</span>
+  <span class="na">consistency_checks</span><span class="pi">:</span> <span class="no">true</span>
+  <span class="na">plausibility_checks</span><span class="pi">:</span> <span class="no">true</span>
+
+<span class="na">reporting</span><span class="pi">:</span>
+  <span class="na">generate_html_report</span><span class="pi">:</span> <span class="no">true</span>
+  <span class="na">log_level</span><span class="pi">:</span> <span class="s2">"</span><span class="s">INFO"</span>
+
+<span class="na">audit</span><span class="pi">:</span>
+  <span class="na">enable_logging</span><span class="pi">:</span> <span class="no">true</span>
+  <span class="na">log_file</span><span class="pi">:</span> <span class="s2">"</span><span class="s">logs/adri_audit.jsonl"</span>
+
+<span class="c1"># Framework-specific settings</span>
+<span class="na">frameworks</span><span class="pi">:</span>
+  <span class="na">langchain</span><span class="pi">:</span>
+    <span class="na">validate_chain_inputs</span><span class="pi">:</span> <span class="no">true</span>
+  <span class="na">crewai</span><span class="pi">:</span>
+    <span class="na">validate_task_data</span><span class="pi">:</span> <span class="no">true</span>
+  <span class="na">autogen</span><span class="pi">:</span>
+    <span class="na">validate_conversation_data</span><span class="pi">:</span> <span class="no">true</span>
+</code></pre></div></div>
+
+<h2 id="common-patterns">Common Patterns</h2>
+
+<h3 id="error-handling">Error Handling</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">adri</span> <span class="kn">import</span> <span class="n">adri_protected</span><span class="p">,</span> <span class="n">ADRIValidationError</span>
+
+<span class="o">@</span><span class="n">adri_protected</span><span class="p">(</span><span class="n">fail_fast</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">protected_function</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># Your agent logic
+</span>        <span class="k">return</span> <span class="n">process_data</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">ADRIValidationError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="c1"># Handle validation failures
+</span>        <span class="k">return</span> <span class="p">{</span><span class="s">"error"</span><span class="p">:</span> <span class="sa">f</span><span class="s">"Data validation failed: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s">"</span><span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="custom-validation">Custom Validation</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">@</span><span class="n">adri_protected</span><span class="p">(</span>
+    <span class="n">completeness_threshold</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span>
+    <span class="n">custom_validators</span><span class="o">=</span><span class="p">[</span>
+        <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span>  <span class="c1"># Must have data
+</span>        <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">all</span><span class="p">(</span><span class="s">'id'</span> <span class="ow">in</span> <span class="n">item</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">x</span><span class="p">)</span>  <span class="c1"># All items need ID
+</span>    <span class="p">]</span>
+<span class="p">)</span>
+<span class="k">def</span> <span class="nf">custom_protected_function</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s">"processed"</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)}</span>
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="need-more-help">Need More Help?</h2>
+
+<ul>
+  <li><a href="quick-start">Quick Start Guide</a> - Get up and running</li>
+  <li><a href="https://github.com/adri-standard/adri/blob/main/docs/API_REFERENCE.md">API Reference</a> - Detailed documentation</li>
+  <li><a href="https://github.com/adri-standard/adri/issues">GitHub Issues</a> - Report problems or request features</li>
+  <li><a href="https://github.com/adri-standard/adri/discussions">GitHub Discussions</a> - Ask questions and share ideas</li>
+</ul>
+
+<p><strong>Ready to protect your agents?</strong> Pick your framework above and start with the copy-paste examples!</p>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/adri/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">ADRI - Agent Data Reliability Intelligence</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">ADRI Standard</li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Stop AI Agents Breaking on Bad Data - Open source data quality validation framework</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

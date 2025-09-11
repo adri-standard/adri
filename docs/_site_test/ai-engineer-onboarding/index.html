@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>AI Engineer Onboarding - ADRI | ADRI - Agent Data Reliability Intelligence</title>
+<meta name="generator" content="Jekyll v3.9.5" />
+<meta property="og:title" content="AI Engineer Onboarding - ADRI" />
+<meta name="author" content="ADRI Standard" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Stop AI Agents Breaking on Bad Data - Open source data quality validation framework" />
+<meta property="og:description" content="Stop AI Agents Breaking on Bad Data - Open source data quality validation framework" />
+<link rel="canonical" href="https://adri-standard.github.io/adri/ai-engineer-onboarding/" />
+<meta property="og:url" content="https://adri-standard.github.io/adri/ai-engineer-onboarding/" />
+<meta property="og:site_name" content="ADRI - Agent Data Reliability Intelligence" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="AI Engineer Onboarding - ADRI" />
+<meta name="twitter:site" content="@adri_standard" />
+<meta name="twitter:creator" content="@ADRI Standard" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","author":{"@type":"Person","name":"ADRI Standard"},"description":"Stop AI Agents Breaking on Bad Data - Open source data quality validation framework","headline":"AI Engineer Onboarding - ADRI","url":"https://adri-standard.github.io/adri/ai-engineer-onboarding/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/adri/assets/main.css"><link type="application/atom+xml" rel="alternate" href="https://adri-standard.github.io/adri/feed.xml" title="ADRI - Agent Data Reliability Intelligence" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/adri/">ADRI - Agent Data Reliability Intelligence</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/adri/">ADRI - Agent Data Reliability Intelligence</a><a class="page-link" href="/adri/quick-start/">Quick Start - ADRI</a><a class="page-link" href="/adri/frameworks/">Framework Examples - ADRI</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <h1 id="adri-for-ai-agent-engineers-the-complete-guide">ADRI for AI Agent Engineers: The Complete Guide</h1>
+
+<p><strong>From Production Failures to Bulletproof Agents in 60 Minutes</strong></p>
+
+<h2 id="what-adri-solves-for-you-as-an-ai-agent-engineer">What ADRI Solves for You as an AI Agent Engineer</h2>
+
+<p>You know the pain: Your AI agents work perfectly in development with clean test data, then crash and burn in production when they encounter real-world messy data. <strong>ADRI (AI Data Reliability Intelligence) is your safety net</strong> - it’s a data quality framework that automatically protects your agents from bad data before it causes problems.</p>
+
+<h3 id="the-problem-you-face-daily">The Problem You Face Daily</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># This is what happens without ADRI
+</span><span class="k">def</span> <span class="nf">my_langchain_customer_agent</span><span class="p">(</span><span class="n">customer_data</span><span class="p">):</span>
+    <span class="c1"># Your beautiful agent logic...
+</span>    <span class="n">chain</span> <span class="o">=</span> <span class="n">prompt</span> <span class="o">|</span> <span class="n">model</span> <span class="o">|</span> <span class="n">parser</span>
+    <span class="k">return</span> <span class="n">chain</span><span class="p">.</span><span class="n">invoke</span><span class="p">(</span><span class="n">customer_data</span><span class="p">)</span>  <span class="c1"># 💥 Breaks on bad data
+</span>
+<span class="c1"># Production reality: Missing emails, invalid dates, null values,
+# inconsistent formats = broken agents and angry stakeholders
+</span></code></pre></div></div>
+
+<h3 id="the-adri-solution">The ADRI Solution</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># With ADRI - One decorator protects everything
+</span><span class="o">@</span><span class="n">adri_protected</span><span class="p">(</span><span class="n">data_param</span><span class="o">=</span><span class="s">"customer_data"</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">my_langchain_customer_agent</span><span class="p">(</span><span class="n">customer_data</span><span class="p">):</span>
+    <span class="c1"># Exact same agent logic - zero changes needed!
+</span>    <span class="n">chain</span> <span class="o">=</span> <span class="n">prompt</span> <span class="o">|</span> <span class="n">model</span> <span class="o">|</span> <span class="n">parser</span>
+    <span class="k">return</span> <span class="n">chain</span><span class="p">.</span><span class="n">invoke</span><span class="p">(</span><span class="n">customer_data</span><span class="p">)</span>  <span class="c1"># ✅ Only good data gets through
+</span>
+<span class="c1"># ADRI automatically checks data quality first, blocks bad data,
+# and gives you actionable reports on what needs fixing
+</span></code></pre></div></div>
+
+<h2 id="why-you-need-this">Why You Need This</h2>
+
+<p>✅ <strong>Framework Agnostic</strong>: Works with LangChain, CrewAI, AutoGen, LlamaIndex, Haystack, LangGraph, Semantic Kernel - any Python AI framework.</p>
+
+<p>✅ <strong>Zero Code Changes</strong>: Just add one decorator to your existing functions.</p>
+
+<p>✅ <strong>Intelligent Protection</strong>: 5-dimension quality assessment (validity, completeness, freshness, consistency, plausibility) with smart thresholds.</p>
+
+<p>✅ <strong>Actionable Feedback</strong>: When data fails, you get detailed reports with CLI commands to fix issues and share with your data team.</p>
+
+<hr />
+
+<h1 id="your-adri-onboarding-journey">Your ADRI Onboarding Journey</h1>
+
+<h2 id="step-1-installation--quick-win-5-minutes">Step 1: Installation &amp; Quick Win (5 minutes)</h2>
+
+<h3 id="install-adri">Install ADRI</h3>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Install ADRI</span>
+pip <span class="nb">install </span>adri
+
+<span class="c"># Initialize in your project</span>
+adri setup
+</code></pre></div></div>
+
+<p>This creates your project structure:</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ADRI/
+├── dev/
+│   ├── standards/          # Development data standards
+│   ├── assessments/        # Quality reports
+│   └── training-data/      # Sample data for testing
+└── prod/
+    ├── standards/          # Production data standards
+    ├── assessments/        # Production quality reports
+    └── training-data/      # Production reference data
+</code></pre></div></div>
+
+<h3 id="see-what-got-created">See What Got Created</h3>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Check your new ADRI configuration</span>
+adri show-config
+
+<span class="c"># List available bundled standards (15 built-in standards ready to use)</span>
+adri list-standards
+</code></pre></div></div>
+
+<h2 id="step-2-protect-your-first-agent-2-minutes">Step 2: Protect Your First Agent (2 minutes)</h2>
+
+<p>Take any existing agent function and add the decorator:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">adri</span> <span class="kn">import</span> <span class="n">adri_protected</span>
+
+<span class="c1"># Before: Vulnerable to bad data
+</span><span class="k">def</span> <span class="nf">process_customers</span><span class="p">(</span><span class="n">customer_data</span><span class="p">):</span>
+    <span class="c1"># Your existing agent code
+</span>    <span class="k">return</span> <span class="n">results</span>
+
+<span class="c1"># After: Protected automatically
+</span><span class="o">@</span><span class="n">adri_protected</span><span class="p">(</span><span class="n">data_param</span><span class="o">=</span><span class="s">"customer_data"</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">process_customers</span><span class="p">(</span><span class="n">customer_data</span><span class="p">):</span>
+    <span class="c1"># Exact same code - ADRI handles quality checking
+</span>    <span class="k">return</span> <span class="n">results</span>
+</code></pre></div></div>
+
+<p><strong>That’s it!</strong> Your agent is now protected from bad data.</p>
+
+<h2 id="step-3-test-with-real-data-3-minutes">Step 3: Test with Real Data (3 minutes)</h2>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="n">pd</span>
+
+<span class="c1"># Good data - agent runs normally
+</span><span class="n">good_data</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">DataFrame</span><span class="p">({</span>
+    <span class="s">'customer_id'</span><span class="p">:</span> <span class="p">[</span><span class="s">'C001'</span><span class="p">,</span> <span class="s">'C002'</span><span class="p">],</span>
+    <span class="s">'email'</span><span class="p">:</span> <span class="p">[</span><span class="s">'john@example.com'</span><span class="p">,</span> <span class="s">'jane@example.com'</span><span class="p">],</span>
+    <span class="s">'age'</span><span class="p">:</span> <span class="p">[</span><span class="mi">25</span><span class="p">,</span> <span class="mi">30</span><span class="p">]</span>
+<span class="p">})</span>
+
+<span class="n">result</span> <span class="o">=</span> <span class="n">process_customers</span><span class="p">(</span><span class="n">good_data</span><span class="p">)</span>  <span class="c1"># ✅ Works fine
+</span>
+<span class="c1"># Bad data - ADRI blocks execution
+</span><span class="n">bad_data</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">DataFrame</span><span class="p">({</span>
+    <span class="s">'customer_id'</span><span class="p">:</span> <span class="p">[</span><span class="bp">None</span><span class="p">,</span> <span class="s">''</span><span class="p">],</span>
+    <span class="s">'email'</span><span class="p">:</span> <span class="p">[</span><span class="s">'invalid-email'</span><span class="p">,</span> <span class="bp">None</span><span class="p">],</span>
+    <span class="s">'age'</span><span class="p">:</span> <span class="p">[</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="mi">999</span><span class="p">]</span>
+<span class="p">})</span>
+
+<span class="n">result</span> <span class="o">=</span> <span class="n">process_customers</span><span class="p">(</span><span class="n">bad_data</span><span class="p">)</span>  <span class="c1"># 🛡️ ADRI blocks this
+</span></code></pre></div></div>
+
+<h2 id="step-4-understand-the-protection-5-minutes">Step 4: Understand the Protection (5 minutes)</h2>
+
+<p>When ADRI blocks bad data, you get detailed feedback:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>🛡️ ADRI Protection: BLOCKED ❌
+❌ Data quality too low for reliable agent execution
+📊 Quality Assessment: 45.2/100 (Required: 80.0/100)
+
+📋 Dimension Details:
+❌ Validity: 8.1/20     (Invalid emails, negative ages)
+❌ Completeness: 12.3/20 (Missing customer IDs)
+✅ Consistency: 18.4/20  (Formats are consistent)
+✅ Freshness: 19.1/20    (Data is recent)
+❌ Plausibility: 7.3/20  (Unrealistic age values)
+
+🔧 Fix This Now:
+1. adri export-report --latest
+2. adri show-standard customer_data_standard
+3. adri assess &lt;fixed-data&gt; --standard customer_data_standard
+
+💬 Message for Your Data Team:
+   "Our AI agent requires data meeting the attached ADRI standard. Current data fails
+   quality checks (invalid emails, missing customer IDs). Please review the
+   attached report and fix the identified issues."
+</code></pre></div></div>
+
+<h2 id="step-5-framework-specific-integration-10-minutes">Step 5: Framework-Specific Integration (10 minutes)</h2>
+
+<p>ADRI works with your favorite AI frameworks:</p>
+
+<h3 id="langchain-example">LangChain Example</h3>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">langchain.llms</span> <span class="kn">import</span> <span class="n">OpenAI</span>
+<span class="kn">from</span> <span class="nn">langchain.chains</span> <span class="kn">import</span> <span class="n">LLMChain</span>
+<span class="kn">from</span> <span class="nn">langchain.prompts</span> <span class="kn">import</span> <span class="n">PromptTemplate</span>
+<span class="kn">from</span> <span class="nn">adri</span> <span class="kn">import</span> <span class="n">adri_protected</span>
+
+<span class="o">@</span><span class="n">adri_protected</span><span class="p">(</span><span class="n">data_param</span><span class="o">=</span><span class="s">"customer_data"</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">langchain_customer_service</span><span class="p">(</span><span class="n">customer_data</span><span class="p">):</span>
+    <span class="n">llm</span> <span class="o">=</span> <span class="n">OpenAI</span><span class="p">(</span><span class="n">temperature</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
+    <span class="n">prompt</span> <span class="o">=</span> <span class="n">PromptTemplate</span><span class="p">.</span><span class="n">from_template</span><span class="p">(</span>
+        <span class="s">"Analyze this customer data: {customer_data}"</span>
+    <span class="p">)</span>
+    <span class="n">chain</span> <span class="o">=</span> <span class="n">LLMChain</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span> <span class="n">prompt</span><span class="o">=</span><span class="n">prompt</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">chain</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="n">customer_data</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">customer_data</span><span class="p">))</span>
+</code></pre></div></div>
+
+<h3 id="crewai-example">CrewAI Example</h3>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">crewai</span> <span class="kn">import</span> <span class="n">Agent</span><span class="p">,</span> <span class="n">Task</span><span class="p">,</span> <span class="n">Crew</span>
+<span class="kn">from</span> <span class="nn">adri</span> <span class="kn">import</span> <span class="n">adri_protected</span>
+
+<span class="o">@</span><span class="n">adri_protected</span><span class="p">(</span><span class="n">data_param</span><span class="o">=</span><span class="s">"market_data"</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">crewai_market_analysis</span><span class="p">(</span><span class="n">market_data</span><span class="p">):</span>
+    <span class="n">analyst</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span>
+        <span class="n">role</span><span class="o">=</span><span class="s">'Market Analyst'</span><span class="p">,</span>
+        <span class="n">goal</span><span class="o">=</span><span class="s">'Analyze market trends'</span><span class="p">,</span>
+        <span class="n">backstory</span><span class="o">=</span><span class="s">'Expert in market data analysis'</span>
+    <span class="p">)</span>
+
+    <span class="n">task</span> <span class="o">=</span> <span class="n">Task</span><span class="p">(</span>
+        <span class="n">description</span><span class="o">=</span><span class="sa">f</span><span class="s">'Analyze this market data: </span><span class="si">{</span><span class="n">market_data</span><span class="si">}</span><span class="s">'</span><span class="p">,</span>
+        <span class="n">agent</span><span class="o">=</span><span class="n">analyst</span>
+    <span class="p">)</span>
+
+    <span class="n">crew</span> <span class="o">=</span> <span class="n">Crew</span><span class="p">(</span><span class="n">agents</span><span class="o">=</span><span class="p">[</span><span class="n">analyst</span><span class="p">],</span> <span class="n">tasks</span><span class="o">=</span><span class="p">[</span><span class="n">task</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">crew</span><span class="p">.</span><span class="n">kickoff</span><span class="p">()</span>
+</code></pre></div></div>
+
+<h3 id="autogen-example">AutoGen Example</h3>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">autogen</span>
+<span class="kn">from</span> <span class="nn">adri</span> <span class="kn">import</span> <span class="n">adri_protected</span>
+
+<span class="o">@</span><span class="n">adri_protected</span><span class="p">(</span><span class="n">data_param</span><span class="o">=</span><span class="s">"research_data"</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">autogen_research_team</span><span class="p">(</span><span class="n">research_data</span><span class="p">):</span>
+    <span class="n">assistant</span> <span class="o">=</span> <span class="n">autogen</span><span class="p">.</span><span class="n">AssistantAgent</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="s">"researcher"</span><span class="p">,</span>
+        <span class="n">llm_config</span><span class="o">=</span><span class="p">{</span><span class="s">"model"</span><span class="p">:</span> <span class="s">"gpt-4"</span><span class="p">}</span>
+    <span class="p">)</span>
+
+    <span class="n">user_proxy</span> <span class="o">=</span> <span class="n">autogen</span><span class="p">.</span><span class="n">UserProxyAgent</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="s">"user_proxy"</span><span class="p">,</span>
+        <span class="n">human_input_mode</span><span class="o">=</span><span class="s">"NEVER"</span>
+    <span class="p">)</span>
+
+    <span class="n">user_proxy</span><span class="p">.</span><span class="n">initiate_chat</span><span class="p">(</span>
+        <span class="n">assistant</span><span class="p">,</span>
+        <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s">"Research this data: </span><span class="si">{</span><span class="n">research_data</span><span class="si">}</span><span class="s">"</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s">"analysis_complete"</span><span class="p">:</span> <span class="bp">True</span><span class="p">}</span>
+</code></pre></div></div>
+
+<p><strong>Want more frameworks?</strong> Check our <a href="frameworks">complete framework guide</a> with copy-paste ready code.</p>
+
+<h2 id="step-6-cli-mastery-10-minutes">Step 6: CLI Mastery (10 minutes)</h2>
+
+<p>ADRI’s CLI tools make you look like a data quality expert:</p>
+
+<h3 id="generate-custom-standards">Generate Custom Standards</h3>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Create a standard from your actual data</span>
+adri generate-standard customer_data.csv
+
+<span class="c"># This creates customer_data_ADRI_standard.yaml with:</span>
+<span class="c"># - Field requirements (types, formats, ranges)</span>
+<span class="c"># - Quality thresholds based on your data</span>
+<span class="c"># - Validation rules for each dimension</span>
+</code></pre></div></div>
+
+<h3 id="assess-data-quality">Assess Data Quality</h3>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Test any dataset against a standard</span>
+adri assess new_customer_data.csv <span class="nt">--standard</span> customer_data_standard
+
+<span class="c"># Get detailed output</span>
+adri assess new_customer_data.csv <span class="nt">--standard</span> customer_data_standard <span class="nt">--verbose</span>
+
+<span class="c"># Results show exactly what passes/fails and why</span>
+</code></pre></div></div>
+
+<h3 id="list-and-explore">List and Explore</h3>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># See all available standards (bundled + your custom ones)</span>
+adri list-standards <span class="nt">--verbose</span>
+
+<span class="c"># Understand what a standard checks</span>
+adri show-standard customer_data_standard <span class="nt">--verbose</span>
+
+<span class="c"># See your assessment history</span>
+adri list-assessments <span class="nt">--recent</span> 5 <span class="nt">--verbose</span>
+</code></pre></div></div>
+
+<h3 id="export-reports-for-teams">Export Reports for Teams</h3>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Create shareable reports for your data team</span>
+adri export-report <span class="nt">--latest</span> <span class="nt">--format</span> csv
+
+<span class="c"># Explain failures in detail</span>
+adri explain-failure <span class="nt">--latest</span>
+</code></pre></div></div>
+
+<h2 id="step-7-advanced-protection-15-minutes">Step 7: Advanced Protection (15 minutes)</h2>
+
+<h3 id="custom-quality-thresholds">Custom Quality Thresholds</h3>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Strict protection for critical workflows
+</span><span class="o">@</span><span class="n">adri_protected</span><span class="p">(</span><span class="n">data_param</span><span class="o">=</span><span class="s">"financial_data"</span><span class="p">,</span> <span class="n">min_score</span><span class="o">=</span><span class="mi">95</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">high_stakes_financial_agent</span><span class="p">(</span><span class="n">financial_data</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">critical_analysis</span><span class="p">(</span><span class="n">financial_data</span><span class="p">)</span>
+
+<span class="c1"># Permissive for development
+</span><span class="o">@</span><span class="n">adri_protected</span><span class="p">(</span><span class="n">data_param</span><span class="o">=</span><span class="s">"test_data"</span><span class="p">,</span> <span class="n">min_score</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">on_failure</span><span class="o">=</span><span class="s">"warn"</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">development_agent</span><span class="p">(</span><span class="n">test_data</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">experimental_analysis</span><span class="p">(</span><span class="n">test_data</span><span class="p">)</span>
+
+<span class="c1"># Custom failure handling
+</span><span class="o">@</span><span class="n">adri_protected</span><span class="p">(</span><span class="n">data_param</span><span class="o">=</span><span class="s">"user_data"</span><span class="p">,</span> <span class="n">on_failure</span><span class="o">=</span><span class="s">"continue"</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">resilient_agent</span><span class="p">(</span><span class="n">user_data</span><span class="p">):</span>
+    <span class="c1"># Agent continues even with quality warnings
+</span>    <span class="k">return</span> <span class="n">robust_analysis</span><span class="p">(</span><span class="n">user_data</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h3 id="dimension-specific-requirements">Dimension-Specific Requirements</h3>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">@</span><span class="n">adri_protected</span><span class="p">(</span>
+    <span class="n">data_param</span><span class="o">=</span><span class="s">"user_data"</span><span class="p">,</span>
+    <span class="n">dimensions</span><span class="o">=</span><span class="p">{</span>
+        <span class="s">"validity"</span><span class="p">:</span> <span class="mi">19</span><span class="p">,</span>      <span class="c1"># Almost perfect format compliance
+</span>        <span class="s">"completeness"</span><span class="p">:</span> <span class="mi">18</span><span class="p">,</span>  <span class="c1"># Very few missing values
+</span>        <span class="s">"consistency"</span><span class="p">:</span> <span class="mi">15</span>    <span class="c1"># Some format variations OK
+</span>    <span class="p">}</span>
+<span class="p">)</span>
+<span class="k">def</span> <span class="nf">precision_user_agent</span><span class="p">(</span><span class="n">user_data</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">precise_analysis</span><span class="p">(</span><span class="n">user_data</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h3 id="environment-specific-configuration">Environment-Specific Configuration</h3>
+<p>ADRI automatically adapts to your environment:</p>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># adri-config.yaml</span>
+<span class="na">adri</span><span class="pi">:</span>
+  <span class="na">environments</span><span class="pi">:</span>
+    <span class="na">development</span><span class="pi">:</span>
+      <span class="na">protection</span><span class="pi">:</span>
+        <span class="na">default_min_score</span><span class="pi">:</span> <span class="m">75</span>    <span class="c1"># More permissive for dev</span>
+        <span class="na">default_failure_mode</span><span class="pi">:</span> <span class="s2">"</span><span class="s">warn"</span>
+    <span class="na">production</span><span class="pi">:</span>
+      <span class="na">protection</span><span class="pi">:</span>
+        <span class="na">default_min_score</span><span class="pi">:</span> <span class="m">85</span>    <span class="c1"># Stricter for prod</span>
+        <span class="na">default_failure_mode</span><span class="pi">:</span> <span class="s2">"</span><span class="s">raise"</span>
+</code></pre></div></div>
+
+<h2 id="step-8-team-collaboration-10-minutes">Step 8: Team Collaboration (10 minutes)</h2>
+
+<h3 id="share-data-requirements-with-your-team">Share Data Requirements with Your Team</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Show exactly what your agents need</span>
+adri show-standard customer_data_standard <span class="nt">--verbose</span>
+
+<span class="c"># Export standards in various formats</span>
+adri export-report <span class="nt">--latest</span> <span class="nt">--format</span> csv
+</code></pre></div></div>
+
+<h3 id="when-data-fails-quality-checks">When Data Fails Quality Checks</h3>
+
+<p>ADRI gives you everything you need to communicate with your data team:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Get detailed failure explanation</span>
+adri explain-failure <span class="nt">--latest</span>
+
+<span class="c"># Export actionable report</span>
+adri export-report <span class="nt">--latest</span>
+</code></pre></div></div>
+
+<h3 id="message-template-for-data-team">Message Template for Data Team</h3>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Subject: Data Quality Issues - Customer Agent Blocked
+
+Hi Data Team,
+
+Our customer service AI agent is currently blocked due to data quality issues.
+ADRI assessment shows a score of 45.2/100 (minimum required: 80.0/100).
+
+Issues found:
+• Invalid email formats (23 records)
+• Missing customer IDs (15 records)
+• Unrealistic age values (8 records)
+
+Please see the attached ADRI report for specific details and fix recommendations.
+
+Once fixed, you can test the data with:
+adri assess &lt;your-fixed-data&gt; --standard customer_data_standard
+
+Thanks!
+</code></pre></div></div>
+
+<h3 id="validate-fixes">Validate Fixes</h3>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># After data team fixes issues</span>
+adri assess fixed_customer_data.csv <span class="nt">--standard</span> customer_data_standard <span class="nt">--verbose</span>
+
+<span class="c"># Should now show:</span>
+<span class="c"># ✅ ADRI Protection: ALLOWED</span>
+<span class="c"># 📊 Quality Score: 94.2/100 (Required: 80.0/100)</span>
+</code></pre></div></div>
+
+<h2 id="step-9-production-deployment-5-minutes">Step 9: Production Deployment (5 minutes)</h2>
+
+<h3 id="environment-configuration">Environment Configuration</h3>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Set production environment</span>
+<span class="nb">export </span><span class="nv">ADRI_ENVIRONMENT</span><span class="o">=</span>production
+
+<span class="c"># Or specify in your deployment config</span>
+adri assess production_data.csv <span class="nt">--environment</span> production
+</code></pre></div></div>
+
+<h3 id="monitoring-and-alerts">Monitoring and Alerts</h3>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Add monitoring to your production agents
+</span><span class="o">@</span><span class="n">adri_protected</span><span class="p">(</span>
+    <span class="n">data_param</span><span class="o">=</span><span class="s">"live_data"</span><span class="p">,</span>
+    <span class="n">min_score</span><span class="o">=</span><span class="mi">90</span><span class="p">,</span>
+    <span class="n">on_failure</span><span class="o">=</span><span class="s">"raise"</span><span class="p">,</span>
+    <span class="n">verbose</span><span class="o">=</span><span class="bp">True</span>  <span class="c1"># Logs detailed protection info
+</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">production_agent</span><span class="p">(</span><span class="n">live_data</span><span class="p">):</span>
+    <span class="c1"># Your production agent logic
+</span>    <span class="k">return</span> <span class="n">results</span>
+</code></pre></div></div>
+
+<h3 id="audit-trail">Audit Trail</h3>
+<p>ADRI automatically logs all protection events:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Review protection history</span>
+adri list-assessments <span class="nt">--environment</span> production <span class="nt">--recent</span> 50
+
+<span class="c"># Check for patterns</span>
+<span class="nb">grep</span> <span class="s2">"BLOCKED"</span> ADRI/prod/assessments/<span class="k">*</span>.json
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="what-you-get-as-an-ai-agent-engineer">What You Get as an AI Agent Engineer</h2>
+
+<p>✅ <strong>Reliable Agents</strong>: Your agents only run on quality data
+✅ <strong>Clear Communication</strong>: Data teams get specific, actionable feedback
+✅ <strong>Framework Freedom</strong>: Works with any Python AI framework
+✅ <strong>Zero Refactoring</strong>: Add one decorator, keep existing code
+✅ <strong>Professional Reports</strong>: Generate data quality reports for stakeholders
+✅ <strong>Fast Development</strong>: Catch data issues early, not in production
+✅ <strong>Production Ready</strong>: Built-in audit trails and monitoring</p>
+
+<h2 id="real-world-success-stories">Real-World Success Stories</h2>
+
+<h3 id="before-adri">Before ADRI</h3>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>❌ Agent fails randomly in production
+❌ Data team gets vague "fix the data" requests
+❌ Debugging takes hours per incident
+❌ Stakeholders lose confidence in AI systems
+❌ Engineers spend time on data issues, not AI logic
+</code></pre></div></div>
+
+<h3 id="after-adri">After ADRI</h3>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>✅ Agents are predictably reliable
+✅ Data team gets specific fix instructions
+✅ Issues caught before production deployment
+✅ Stakeholders see professional data quality reports
+✅ Engineers focus on AI innovation, not data debugging
+</code></pre></div></div>
+
+<h2 id="advanced-scenarios">Advanced Scenarios</h2>
+
+<h3 id="multi-dataset-agents">Multi-Dataset Agents</h3>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">@</span><span class="n">adri_protected</span><span class="p">(</span><span class="n">data_param</span><span class="o">=</span><span class="s">"customer_data"</span><span class="p">)</span>
+<span class="o">@</span><span class="n">adri_protected</span><span class="p">(</span><span class="n">data_param</span><span class="o">=</span><span class="s">"product_data"</span><span class="p">,</span> <span class="n">standard_file</span><span class="o">=</span><span class="s">"product_standard.yaml"</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">cross_dataset_agent</span><span class="p">(</span><span class="n">customer_data</span><span class="p">,</span> <span class="n">product_data</span><span class="p">):</span>
+    <span class="c1"># Both datasets are validated before processing
+</span>    <span class="k">return</span> <span class="n">complex_analysis</span><span class="p">(</span><span class="n">customer_data</span><span class="p">,</span> <span class="n">product_data</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h3 id="dynamic-standards">Dynamic Standards</h3>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">get_standard_for_source</span><span class="p">(</span><span class="n">data_source</span><span class="p">):</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s">"</span><span class="si">{</span><span class="n">data_source</span><span class="si">}</span><span class="s">_data_standard.yaml"</span>
+
+<span class="o">@</span><span class="n">adri_protected</span><span class="p">(</span>
+    <span class="n">data_param</span><span class="o">=</span><span class="s">"data"</span><span class="p">,</span>
+    <span class="n">standard_file</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">get_standard_for_source</span><span class="p">(</span><span class="n">current_source</span><span class="p">)</span>
+<span class="p">)</span>
+<span class="k">def</span> <span class="nf">adaptive_agent</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">source_specific_analysis</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h3 id="custom-validation-rules">Custom Validation Rules</h3>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Create custom standards with domain-specific rules
+</span><span class="n">adri</span> <span class="n">generate</span><span class="o">-</span><span class="n">standard</span> <span class="n">financial_data</span><span class="p">.</span><span class="n">csv</span> <span class="o">--</span><span class="n">output</span> <span class="n">financial_standard</span><span class="p">.</span><span class="n">yaml</span>
+
+<span class="c1"># Edit the YAML to add custom validation:
+# field_requirements:
+#   transaction_amount:
+#     type: "float"
+#     min_value: 0.01
+#     max_value: 1000000.0
+#     custom_rules:
+#       - "Must not exceed daily limit"
+</span></code></pre></div></div>
+
+<h3 id="scaling-considerations">Scaling Considerations</h3>
+<p>As you protect more agents across your organization, you may want to understand our philosophy on <a href="why-open-source">why ADRI is open source</a> and how we think about enterprise-scale AI data management.</p>
+
+<h2 id="troubleshooting-common-issues">Troubleshooting Common Issues</h2>
+
+<h3 id="standard-not-found">“Standard not found”</h3>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Check available standards</span>
+adri list-standards
+
+<span class="c"># Generate missing standard</span>
+adri generate-standard your_data.csv
+</code></pre></div></div>
+
+<h3 id="assessment-taking-too-long">“Assessment taking too long”</h3>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Use sampling for large datasets
+</span><span class="o">@</span><span class="n">adri_protected</span><span class="p">(</span><span class="n">data_param</span><span class="o">=</span><span class="s">"big_data"</span><span class="p">,</span> <span class="n">cache_assessments</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">big_data_agent</span><span class="p">(</span><span class="n">big_data</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">results</span>
+</code></pre></div></div>
+
+<h3 id="too-many-false-positives">“Too many false positives”</h3>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Adjust thresholds
+</span><span class="o">@</span><span class="n">adri_protected</span><span class="p">(</span><span class="n">data_param</span><span class="o">=</span><span class="s">"data"</span><span class="p">,</span> <span class="n">min_score</span><span class="o">=</span><span class="mi">70</span><span class="p">)</span>  <span class="c1"># More permissive
+</span><span class="k">def</span> <span class="nf">lenient_agent</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">results</span>
+</code></pre></div></div>
+
+<h2 id="next-steps">Next Steps</h2>
+
+<h3 id="immediate-actions-next-30-minutes">Immediate Actions (Next 30 minutes)</h3>
+<ol>
+  <li><strong>Install and test</strong> ADRI with your current agent</li>
+  <li><strong>Generate a standard</strong> from your production data</li>
+  <li><strong>Test with real data</strong> to see protection in action</li>
+</ol>
+
+<h3 id="this-week">This Week</h3>
+<ol>
+  <li><strong>Protect your critical agents</strong> with appropriate thresholds</li>
+  <li><strong>Set up CLI workflows</strong> for your team</li>
+  <li><strong>Create standards</strong> for your main data sources</li>
+</ol>
+
+<h3 id="this-month">This Month</h3>
+<ol>
+  <li><strong>Deploy to production</strong> with monitoring</li>
+  <li><strong>Train your data team</strong> on ADRI reports</li>
+  <li><strong>Establish data quality processes</strong> using ADRI assessments</li>
+</ol>
+
+<h2 id="resources">Resources</h2>
+
+<ul>
+  <li><strong><a href="quick-start">Quick Technical Reference</a></strong> - Fast setup without the story</li>
+  <li><strong><a href="frameworks">Framework Examples</a></strong> - Copy-paste code for your framework</li>
+  <li><strong><a href="https://github.com/adri-standard/adri/blob/main/docs/API_REFERENCE.md">API Documentation</a></strong> - Complete technical reference</li>
+  <li><strong><a href="https://github.com/adri-standard/adri/issues">GitHub Issues</a></strong> - Report bugs or request features</li>
+  <li><strong><a href="https://github.com/adri-standard/adri/discussions">GitHub Discussions</a></strong> - Ask questions and share ideas</li>
+</ul>
+
+<hr />
+
+<h2 id="join-the-adri-community">Join the ADRI Community</h2>
+
+<p>🌟 <strong>Help build the future of AI data reliability</strong></p>
+
+<h3 id="if-adri-solved-your-production-issues">If ADRI Solved Your Production Issues</h3>
+<ul>
+  <li><strong>⭐ Star the repo</strong> on <a href="https://github.com/adri-standard/adri">GitHub</a> - It helps other AI engineers discover ADRI</li>
+  <li><strong>🍴 Fork and contribute</strong> - We welcome PRs for new frameworks, standards, and improvements</li>
+  <li><strong>💬 Share your success story</strong> in <a href="https://github.com/adri-standard/adri/discussions">GitHub Discussions</a></li>
+  <li><strong>📢 Tell your team</strong> - Help your colleagues build reliable AI systems</li>
+</ul>
+
+<h3 id="ways-to-contribute">Ways to Contribute</h3>
+
+<p><strong>🔧 Code Contributions</strong></p>
+<ul>
+  <li><strong>New Framework Support</strong> - Add integrations for emerging AI frameworks (Anthropic, Cohere, etc.)</li>
+  <li><strong>Custom Standards</strong> - Contribute domain-specific validation standards (finance, healthcare, etc.)</li>
+  <li><strong>Performance</strong> - Optimize validation algorithms for large-scale data processing</li>
+  <li><strong>CLI Enhancements</strong> - Improve the developer experience with better commands and output</li>
+</ul>
+
+<p><strong>📚 Documentation &amp; Community</strong></p>
+<ul>
+  <li><strong>Guides &amp; Tutorials</strong> - Help other AI engineers with framework-specific guides</li>
+  <li><strong>Example Applications</strong> - Share real-world implementations and patterns</li>
+  <li><strong>Bug Reports</strong> - Help us make ADRI bulletproof by reporting edge cases</li>
+  <li><strong>Feature Ideas</strong> - Suggest improvements based on your production experience</li>
+</ul>
+
+<p><strong>🧪 Standards &amp; Testing</strong></p>
+<ul>
+  <li><strong>Industry Standards</strong> - Create validation rules for your domain (e-commerce, IoT, etc.)</li>
+  <li><strong>Test Cases</strong> - Add test coverage for complex data scenarios</li>
+  <li><strong>Benchmarks</strong> - Help us measure and improve ADRI’s performance</li>
+</ul>
+
+<h3 id="community-resources">Community Resources</h3>
+
+<ul>
+  <li><strong><a href="https://github.com/adri-standard/adri/issues">GitHub Issues</a></strong> - Report bugs and request features</li>
+  <li><strong><a href="https://github.com/adri-standard/adri/discussions">GitHub Discussions</a></strong> - Ask questions, share ideas, and get help</li>
+  <li><strong><a href="https://github.com/adri-standard/adri/blob/main/CONTRIBUTING.md">Contributing Guide</a></strong> - How to contribute code and documentation</li>
+  <li><strong><a href="https://github.com/adri-standard/adri/blob/main/CODE_OF_CONDUCT.md">Code of Conduct</a></strong> - Our commitment to an inclusive community</li>
+</ul>
+
+<h3 id="recognition">Recognition</h3>
+
+<p>Contributors get recognition through:</p>
+<ul>
+  <li><strong>Contributor Credits</strong> in release notes and documentation</li>
+  <li><strong>Community Highlights</strong> for significant contributions</li>
+  <li><strong>Direct Access</strong> to maintainers for complex technical discussions</li>
+  <li><strong>Early Access</strong> to new features and enterprise integrations</li>
+</ul>
+
+<hr />
+
+<h2 id="ready-to-build-bulletproof-ai-agents">Ready to Build Bulletproof AI Agents?</h2>
+
+<p>You now have everything you need to protect your AI agents from bad data. Start with the 5-minute quick win above, then work through the journey at your own pace.</p>
+
+<p><strong>Your future self (and your stakeholders) will thank you for making your AI systems reliable.</strong></p>
+
+<p><em>For organizations scaling ADRI across multiple teams and systems, <a href="https://verodat.com/adri-enterprise">Verodat Enterprise</a> provides centralized governance and advanced features. The open source version works perfectly standalone.</em></p>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/adri/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">ADRI - Agent Data Reliability Intelligence</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">ADRI Standard</li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Stop AI Agents Breaking on Bad Data - Open source data quality validation framework</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

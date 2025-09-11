@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Quick Start - ADRI | ADRI - Agent Data Reliability Intelligence</title>
+<meta name="generator" content="Jekyll v3.9.5" />
+<meta property="og:title" content="Quick Start - ADRI" />
+<meta name="author" content="ADRI Standard" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Stop AI Agents Breaking on Bad Data - Open source data quality validation framework" />
+<meta property="og:description" content="Stop AI Agents Breaking on Bad Data - Open source data quality validation framework" />
+<link rel="canonical" href="https://adri-standard.github.io/adri/quick-start/" />
+<meta property="og:url" content="https://adri-standard.github.io/adri/quick-start/" />
+<meta property="og:site_name" content="ADRI - Agent Data Reliability Intelligence" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Quick Start - ADRI" />
+<meta name="twitter:site" content="@adri_standard" />
+<meta name="twitter:creator" content="@ADRI Standard" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","author":{"@type":"Person","name":"ADRI Standard"},"description":"Stop AI Agents Breaking on Bad Data - Open source data quality validation framework","headline":"Quick Start - ADRI","url":"https://adri-standard.github.io/adri/quick-start/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/adri/assets/main.css"><link type="application/atom+xml" rel="alternate" href="https://adri-standard.github.io/adri/feed.xml" title="ADRI - Agent Data Reliability Intelligence" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/adri/">ADRI - Agent Data Reliability Intelligence</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/adri/">ADRI - Agent Data Reliability Intelligence</a><a class="page-link" href="/adri/quick-start/">Quick Start - ADRI</a><a class="page-link" href="/adri/frameworks/">Framework Examples - ADRI</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <h1 id="quick-start-guide">Quick Start Guide</h1>
+
+<p>Get ADRI protecting your AI agents in under 5 minutes.</p>
+
+<p><strong>Want the full story?</strong> → <a href="ai-engineer-onboarding"><strong>AI Engineer Onboarding Guide</strong></a> - Complete journey from production failures to bulletproof agents (60 minutes).</p>
+
+<h2 id="installation">Installation</h2>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pip <span class="nb">install </span>adri
+</code></pre></div></div>
+
+<h2 id="basic-usage">Basic Usage</h2>
+
+<h3 id="1-import-and-protect">1. Import and Protect</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">adri</span> <span class="kn">import</span> <span class="n">adri_protected</span>
+
+<span class="o">@</span><span class="n">adri_protected</span>
+<span class="k">def</span> <span class="nf">process_customer_data</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="c1"># Your agent logic here
+</span>    <span class="k">return</span> <span class="p">{</span><span class="s">"processed"</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span> <span class="s">"records"</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)}</span>
+
+<span class="c1"># Test with sample data
+</span><span class="n">result</span> <span class="o">=</span> <span class="n">process_customer_data</span><span class="p">([</span>
+    <span class="p">{</span><span class="s">"name"</span><span class="p">:</span> <span class="s">"John Doe"</span><span class="p">,</span> <span class="s">"email"</span><span class="p">:</span> <span class="s">"john@example.com"</span><span class="p">},</span>
+    <span class="p">{</span><span class="s">"name"</span><span class="p">:</span> <span class="s">"Jane Smith"</span><span class="p">,</span> <span class="s">"email"</span><span class="p">:</span> <span class="s">"jane@example.com"</span><span class="p">}</span>
+<span class="p">])</span>
+<span class="k">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>  <span class="c1"># {'processed': True, 'records': 2}
+</span></code></pre></div></div>
+
+<h3 id="2-see-validation-in-action">2. See Validation in Action</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># This will trigger validation warnings
+</span><span class="n">bad_data</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">{</span><span class="s">"name"</span><span class="p">:</span> <span class="s">""</span><span class="p">,</span> <span class="s">"email"</span><span class="p">:</span> <span class="s">"invalid-email"</span><span class="p">},</span>  <span class="c1"># Empty name, invalid email
+</span>    <span class="p">{</span><span class="s">"name"</span><span class="p">:</span> <span class="s">"Bob"</span><span class="p">,</span> <span class="s">"email"</span><span class="p">:</span> <span class="bp">None</span><span class="p">}</span>           <span class="c1"># Missing email
+</span><span class="p">]</span>
+
+<span class="n">result</span> <span class="o">=</span> <span class="n">process_customer_data</span><span class="p">(</span><span class="n">bad_data</span><span class="p">)</span>
+<span class="c1"># Check logs/adri_audit.jsonl for detailed validation results
+</span></code></pre></div></div>
+
+<h3 id="3-customize-validation-optional">3. Customize Validation (Optional)</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">adri</span> <span class="kn">import</span> <span class="n">adri_protected</span>
+
+<span class="o">@</span><span class="n">adri_protected</span><span class="p">(</span>
+    <span class="n">completeness_threshold</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span>  <span class="c1"># Allow 20% missing values
+</span>    <span class="n">validity_checks</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>         <span class="c1"># Enable format validation
+</span>    <span class="n">generate_report</span><span class="o">=</span><span class="bp">True</span>          <span class="c1"># Create HTML report
+</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">advanced_agent_function</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s">"status"</span><span class="p">:</span> <span class="s">"processed"</span><span class="p">}</span>
+</code></pre></div></div>
+
+<h2 id="configuration">Configuration</h2>
+
+<p>Create <code class="language-plaintext highlighter-rouge">adri-config.yaml</code> in your project root:</p>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">validation</span><span class="pi">:</span>
+  <span class="na">completeness_threshold</span><span class="pi">:</span> <span class="m">0.9</span>
+  <span class="na">validity_checks</span><span class="pi">:</span> <span class="no">true</span>
+  <span class="na">consistency_checks</span><span class="pi">:</span> <span class="no">true</span>
+  <span class="na">plausibility_checks</span><span class="pi">:</span> <span class="no">true</span>
+  <span class="na">freshness_checks</span><span class="pi">:</span> <span class="no">false</span>
+
+<span class="na">reporting</span><span class="pi">:</span>
+  <span class="na">generate_html_report</span><span class="pi">:</span> <span class="no">true</span>
+  <span class="na">log_level</span><span class="pi">:</span> <span class="s2">"</span><span class="s">INFO"</span>
+
+<span class="na">audit</span><span class="pi">:</span>
+  <span class="na">enable_logging</span><span class="pi">:</span> <span class="no">true</span>
+  <span class="na">log_file</span><span class="pi">:</span> <span class="s2">"</span><span class="s">logs/adri_audit.jsonl"</span>
+</code></pre></div></div>
+
+<h2 id="what-gets-validated">What Gets Validated</h2>
+
+<p>ADRI automatically checks your data for:</p>
+
+<ul>
+  <li><strong>Completeness</strong> - Missing values, empty fields</li>
+  <li><strong>Validity</strong> - Format validation (emails, dates, etc.)</li>
+  <li><strong>Consistency</strong> - Data type consistency across records</li>
+  <li><strong>Plausibility</strong> - Reasonable value ranges</li>
+  <li><strong>Freshness</strong> - Data age and relevance</li>
+</ul>
+
+<h2 id="output-and-reports">Output and Reports</h2>
+
+<h3 id="json-audit-logs">JSON Audit Logs</h3>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"timestamp"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-01-15T10:30:00Z"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"function_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"process_customer_data"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"validation_results"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"completeness_score"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.85</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"validity_score"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.92</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"overall_score"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.88</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nl">"issues_found"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="nl">"field"</span><span class="p">:</span><span class="w"> </span><span class="s2">"email"</span><span class="p">,</span><span class="w"> </span><span class="nl">"issue"</span><span class="p">:</span><span class="w"> </span><span class="s2">"invalid_format"</span><span class="p">,</span><span class="w"> </span><span class="nl">"count"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">}</span><span class="w">
+  </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<h3 id="html-reports">HTML Reports</h3>
+<p>When enabled, ADRI generates detailed HTML reports in <code class="language-plaintext highlighter-rouge">reports/</code> showing:</p>
+<ul>
+  <li>Data quality scores</li>
+  <li>Field-by-field analysis</li>
+  <li>Issue summaries</li>
+  <li>Recommendations</li>
+</ul>
+
+<h2 id="framework-integration">Framework Integration</h2>
+
+<p>Ready to protect specific frameworks? Check our <a href="frameworks">framework examples</a> for copy-paste ready code for:</p>
+
+<ul>
+  <li>LangChain chains and agents</li>
+  <li>CrewAI crew functions</li>
+  <li>AutoGen multi-agent conversations</li>
+  <li>LlamaIndex query engines</li>
+  <li>Haystack pipelines</li>
+  <li>LangGraph nodes</li>
+  <li>Semantic Kernel functions</li>
+</ul>
+
+<h2 id="troubleshooting">Troubleshooting</h2>
+
+<h3 id="common-issues">Common Issues</h3>
+
+<p><strong>Q: No validation logs appearing?</strong>
+A: Ensure the <code class="language-plaintext highlighter-rouge">logs/</code> directory exists or configure a custom path in <code class="language-plaintext highlighter-rouge">adri-config.yaml</code></p>
+
+<p><strong>Q: Too many validation warnings?</strong>
+A: Adjust thresholds in your config or decorator parameters</p>
+
+<p><strong>Q: Performance concerns?</strong>
+A: ADRI is optimized for production use. For large datasets, consider sampling with <code class="language-plaintext highlighter-rouge">sample_size</code> parameter</p>
+
+<h2 id="next-steps">Next Steps</h2>
+
+<ul>
+  <li><a href="frameworks">See framework-specific examples →</a></li>
+  <li><a href="https://github.com/adri-standard/adri/blob/main/docs/API_REFERENCE.md">Read the full API reference →</a></li>
+  <li><a href="https://github.com/adri-standard/adri/issues">Report issues or request features →</a></li>
+</ul>
+
+<hr />
+
+<p><strong>Need help?</strong> Join our <a href="https://github.com/adri-standard/adri/discussions">GitHub Discussions</a> or <a href="https://github.com/adri-standard/adri/issues">open an issue</a>.</p>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/adri/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">ADRI - Agent Data Reliability Intelligence</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">ADRI Standard</li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Stop AI Agents Breaking on Bad Data - Open source data quality validation framework</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

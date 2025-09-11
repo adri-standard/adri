@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Framework Extension Pattern - Streamlined ADRI Examples | ADRI - Agent Data Reliability Intelligence</title>
+<meta name="generator" content="Jekyll v3.9.5" />
+<meta property="og:title" content="Framework Extension Pattern - Streamlined ADRI Examples" />
+<meta name="author" content="ADRI Standard" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Stop AI Agents Breaking on Bad Data - Open source data quality validation framework" />
+<meta property="og:description" content="Stop AI Agents Breaking on Bad Data - Open source data quality validation framework" />
+<link rel="canonical" href="https://adri-standard.github.io/adri/framework-extension-pattern/" />
+<meta property="og:url" content="https://adri-standard.github.io/adri/framework-extension-pattern/" />
+<meta property="og:site_name" content="ADRI - Agent Data Reliability Intelligence" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Framework Extension Pattern - Streamlined ADRI Examples" />
+<meta name="twitter:site" content="@adri_standard" />
+<meta name="twitter:creator" content="@ADRI Standard" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","author":{"@type":"Person","name":"ADRI Standard"},"description":"Stop AI Agents Breaking on Bad Data - Open source data quality validation framework","headline":"Framework Extension Pattern - Streamlined ADRI Examples","url":"https://adri-standard.github.io/adri/framework-extension-pattern/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/adri/assets/main.css"><link type="application/atom+xml" rel="alternate" href="https://adri-standard.github.io/adri/feed.xml" title="ADRI - Agent Data Reliability Intelligence" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/adri/">ADRI - Agent Data Reliability Intelligence</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/adri/">ADRI - Agent Data Reliability Intelligence</a><a class="page-link" href="/adri/quick-start/">Quick Start - ADRI</a><a class="page-link" href="/adri/frameworks/">Framework Examples - ADRI</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <h1 id="framework-extension-pattern---streamlined-adri-examples">Framework Extension Pattern - Streamlined ADRI Examples</h1>
+
+<p>This document outlines the proven pattern for creating streamlined ADRI framework examples that focus on value demonstration rather than dependency management.</p>
+
+<h2 id="pattern-overview">Pattern Overview</h2>
+
+<p><strong>Transformation:</strong> 700-900 line bloated examples → 100-line focused demonstrations</p>
+
+<p><strong>Key Principle:</strong> Separate setup concerns from value demonstration</p>
+
+<h2 id="file-structure-pattern">File Structure Pattern</h2>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>tools/
+  adri-setup.py                    # Universal setup tool
+examples/
+  utils/
+    problem_demos.py               # Reusable GitHub issue scenarios
+  {framework}-{use-case}.py        # Streamlined 100-line examples
+docs/
+  setup-tool-guide.md             # Setup tool documentation
+  framework-extension-pattern.md  # This pattern guide
+</code></pre></div></div>
+
+<h2 id="implementation-steps">Implementation Steps</h2>
+
+<h3 id="step-1-research-framework-github-issues">Step 1: Research Framework GitHub Issues</h3>
+
+<p><strong>Goal:</strong> Identify specific validation problems ADRI solves</p>
+
+<p><strong>Process:</strong></p>
+<ol>
+  <li>Search framework GitHub repository for validation-related issues</li>
+  <li>Document specific issue numbers and descriptions</li>
+  <li>Categorize by impact type (conversation, function calls, data flow)</li>
+  <li>Quantify business impact for AI Agent Engineers</li>
+</ol>
+
+<p><strong>Example - AutoGen Research:</strong></p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>54+ documented validation issues:
+• Issue #6819: "Conversational flow is not working as expected"
+• Issue #5736: "Function Arguments as Pydantic Models fail"
+• Issue #6123: "Internal Message Handling corruption"
+Business Impact: Research collaboration workflows break
+</code></pre></div></div>
+
+<h3 id="step-2-add-framework-to-setup-tool">Step 2: Add Framework to Setup Tool</h3>
+
+<p><strong>File:</strong> <code class="language-plaintext highlighter-rouge">tools/adri-setup.py</code></p>
+
+<p><strong>Pattern:</strong></p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">FRAMEWORKS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">'{framework_name}'</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">'packages'</span><span class="p">:</span> <span class="p">[</span><span class="s">'adri'</span><span class="p">,</span> <span class="s">'{framework-package}'</span><span class="p">,</span> <span class="s">'openai'</span><span class="p">],</span>
+        <span class="s">'import_names'</span><span class="p">:</span> <span class="p">[</span><span class="s">'adri'</span><span class="p">,</span> <span class="s">'{framework_import}'</span><span class="p">,</span> <span class="s">'openai'</span><span class="p">],</span>
+        <span class="s">'api_keys'</span><span class="p">:</span> <span class="p">[</span><span class="s">'OPENAI_API_KEY'</span><span class="p">],</span>  <span class="c1"># or other required keys
+</span>        <span class="s">'description'</span><span class="p">:</span> <span class="s">'{Framework} description for AI engineers'</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p><strong>Example - AutoGen:</strong></p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="s">'autogen'</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s">'packages'</span><span class="p">:</span> <span class="p">[</span><span class="s">'adri'</span><span class="p">,</span> <span class="s">'pyautogen'</span><span class="p">,</span> <span class="s">'openai'</span><span class="p">],</span>
+    <span class="s">'import_names'</span><span class="p">:</span> <span class="p">[</span><span class="s">'adri'</span><span class="p">,</span> <span class="s">'autogen'</span><span class="p">,</span> <span class="s">'openai'</span><span class="p">],</span>
+    <span class="s">'api_keys'</span><span class="p">:</span> <span class="p">[</span><span class="s">'OPENAI_API_KEY'</span><span class="p">],</span>
+    <span class="s">'description'</span><span class="p">:</span> <span class="s">'Microsoft AutoGen multi-agent conversations'</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="step-3-create-problem-demonstration-data">Step 3: Create Problem Demonstration Data</h3>
+
+<p><strong>File:</strong> <code class="language-plaintext highlighter-rouge">examples/utils/problem_demos.py</code></p>
+
+<p><strong>Pattern:</strong></p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="err">{</span><span class="nc">Framework</span><span class="p">}</span><span class="n">Problems</span><span class="p">:</span>
+    <span class="s">"""Framework-specific problem scenarios based on documented GitHub issues."""</span>
+
+    <span class="c1"># Issue #{number}: "{Description}"
+</span>    <span class="p">{</span><span class="n">SCENARIO</span><span class="p">}</span><span class="n">_GOOD</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="c1"># Valid data that should work normally
+</span>        <span class="s">"field1"</span><span class="p">:</span> <span class="s">"valid_value"</span><span class="p">,</span>
+        <span class="s">"field2"</span><span class="p">:</span> <span class="p">[</span><span class="s">"valid"</span><span class="p">,</span> <span class="s">"list"</span><span class="p">],</span>
+        <span class="s">"field3"</span><span class="p">:</span> <span class="mi">42</span>
+    <span class="p">}</span>
+
+    <span class="p">{</span><span class="n">SCENARIO</span><span class="p">}</span><span class="n">_BAD</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="c1"># Bad data that causes the documented GitHub issue
+</span>        <span class="s">"field1"</span><span class="p">:</span> <span class="s">""</span><span class="p">,</span>  <span class="c1"># Empty value breaks processing
+</span>        <span class="s">"field2"</span><span class="p">:</span> <span class="s">"not_a_list"</span><span class="p">,</span>  <span class="c1"># Wrong type causes failures
+</span>        <span class="s">"field3"</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span>  <span class="c1"># Invalid value confuses framework
+</span>    <span class="p">}</span>
+</code></pre></div></div>
+
+<p><strong>Integration Pattern:</strong></p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">get_framework_problems</span><span class="p">(</span><span class="n">framework</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+    <span class="n">problems</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s">'{framework}'</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s">'{scenario_name}'</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s">'good'</span><span class="p">:</span> <span class="p">{</span><span class="n">Framework</span><span class="p">}</span><span class="n">Problems</span><span class="p">.{</span><span class="n">SCENARIO</span><span class="p">}</span><span class="n">_GOOD</span><span class="p">,</span>
+                <span class="s">'bad'</span><span class="p">:</span> <span class="p">{</span><span class="n">Framework</span><span class="p">}</span><span class="n">Problems</span><span class="p">.{</span><span class="n">SCENARIO</span><span class="p">}</span><span class="n">_BAD</span><span class="p">,</span>
+                <span class="s">'github_issue'</span><span class="p">:</span> <span class="s">'#{issue_number}'</span><span class="p">,</span>
+                <span class="s">'business_impact'</span><span class="p">:</span> <span class="s">'Specific impact description'</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">problems</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="n">framework</span><span class="p">,</span> <span class="p">{})</span>
+</code></pre></div></div>
+
+<h3 id="step-4-create-streamlined-example">Step 4: Create Streamlined Example</h3>
+
+<p><strong>File:</strong> <code class="language-plaintext highlighter-rouge">examples/{framework}-{use-case}.py</code></p>
+
+<p><strong>Template Structure (~100 lines):</strong></p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">#!/usr/bin/env python3
+</span><span class="s">"""
+{Framework} + ADRI: Stop {Use Case} Failures in 30 Seconds
+
+🚨 THE PROBLEM: {Framework} has {X}+ documented validation issues
+   • Issue #{number}: "{Description}"
+   • Issue #{number}: "{Description}"
+   • Issue #{number}: "{Description}"
+   • {Business impact description}
+
+✨ THE SOLUTION: ADRI prevents {X}% of {Framework} failures
+   • @adri_protected decorators validate data before processing
+   • Complete audit trails for compliance
+   • Works with any {Framework} workflow
+
+🚀 SETUP: Run setup tool first, then this example:
+   python tools/adri-setup.py --framework {framework}
+   export API_KEY="your-key-here"
+   python examples/{framework}-{use-case}.py
+
+💰 Cost: ~$X.XX for full demonstration
+"""</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+
+<span class="c1"># Add project root to Python path
+</span><span class="n">project_root</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">__file__</span><span class="p">).</span><span class="n">parent</span><span class="p">.</span><span class="n">parent</span>
+<span class="n">sys</span><span class="p">.</span><span class="n">path</span><span class="p">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">project_root</span><span class="p">))</span>
+
+<span class="kn">from</span> <span class="nn">adri.decorators.guard</span> <span class="kn">import</span> <span class="n">adri_protected</span>
+<span class="kn">from</span> <span class="nn">examples.utils.problem_demos</span> <span class="kn">import</span> <span class="n">get_framework_problems</span>
+
+<span class="c1"># Import framework with graceful fallback
+</span><span class="k">try</span><span class="p">:</span>
+    <span class="k">import</span> <span class="p">{</span><span class="n">framework</span><span class="p">}</span>
+    <span class="n">FRAMEWORK_AVAILABLE</span> <span class="o">=</span> <span class="bp">True</span>
+<span class="k">except</span> <span class="nb">ImportError</span><span class="p">:</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">"❌ {Framework} not installed. Run: python tools/adri-setup.py --framework {framework}"</span><span class="p">)</span>
+    <span class="n">FRAMEWORK_AVAILABLE</span> <span class="o">=</span> <span class="bp">False</span>
+
+<span class="c1"># Validate setup
+</span><span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="p">.</span><span class="n">getenv</span><span class="p">(</span><span class="s">'{API_KEY}'</span><span class="p">):</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">"❌ API key required. Run setup tool for guidance:"</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">"   python tools/adri-setup.py --framework {framework}"</span><span class="p">)</span>
+    <span class="nb">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="ow">not</span> <span class="n">FRAMEWORK_AVAILABLE</span><span class="p">:</span>
+    <span class="nb">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="c1"># Get real problem scenarios from GitHub issues
+</span><span class="n">problems</span> <span class="o">=</span> <span class="n">get_framework_problems</span><span class="p">(</span><span class="s">'{framework}'</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="err">{</span><span class="nc">UseCase</span><span class="p">}</span><span class="n">Agent</span><span class="p">:</span>
+    <span class="s">"""Production {Framework} agent with ADRI protection."""</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s">"""Initialize real {Framework} components."""</span>
+        <span class="c1"># Real framework initialization here
+</span>        <span class="k">pass</span>
+
+    <span class="o">@</span><span class="n">adri_protected</span>
+    <span class="k">def</span> <span class="err">{</span><span class="nf">primary_function</span><span class="p">}(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="s">"""
+        {Function description} with ADRI protection.
+
+        Prevents GitHub Issue #{number}: "{Description}"
+        ADRI validates data before {Framework} processing.
+        """</span>
+        <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"🎯 Processing: </span><span class="si">{</span><span class="n">data</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">'key_field'</span><span class="p">,</span> <span class="s">'N/A'</span><span class="p">)</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+
+        <span class="c1"># Real framework processing here
+</span>        <span class="k">return</span> <span class="p">{</span>
+            <span class="s">"result"</span><span class="p">:</span> <span class="s">"success"</span><span class="p">,</span>
+            <span class="s">"processed"</span><span class="p">:</span> <span class="bp">True</span>
+        <span class="p">}</span>
+
+    <span class="o">@</span><span class="n">adri_protected</span>
+    <span class="k">def</span> <span class="err">{</span><span class="nf">secondary_function</span><span class="p">}(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="s">"""
+        {Function description} with ADRI protection.
+
+        Prevents GitHub Issue #{number}: "{Description}"
+        """</span>
+        <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"🔧 Executing: </span><span class="si">{</span><span class="n">data</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">'action'</span><span class="p">,</span> <span class="s">'N/A'</span><span class="p">)</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+
+        <span class="c1"># Real framework processing here
+</span>        <span class="k">return</span> <span class="p">{</span><span class="s">"status"</span><span class="p">:</span> <span class="s">"completed"</span><span class="p">}</span>
+
+
+<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="s">"""Demonstrate ADRI preventing real {Framework} GitHub issues."""</span>
+
+    <span class="k">print</span><span class="p">(</span><span class="s">"🛡️  ADRI + {Framework}: Real GitHub Issue Prevention"</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">"="</span> <span class="o">*</span> <span class="mi">55</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"🎯 Demonstrating protection against </span><span class="si">{</span><span class="n">X</span><span class="si">}</span><span class="s">+ documented </span><span class="si">{</span><span class="n">Framework</span><span class="si">}</span><span class="s"> issues"</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">"   📋 Based on real GitHub issues from {Framework} repository"</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">"   ✅ ADRI blocks bad data before it breaks your agents"</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">()</span>
+
+    <span class="n">agent</span> <span class="o">=</span> <span class="p">{</span><span class="n">UseCase</span><span class="p">}</span><span class="n">Agent</span><span class="p">()</span>
+
+    <span class="c1"># Test scenarios for each GitHub issue
+</span>    <span class="k">for</span> <span class="n">scenario_name</span><span class="p">,</span> <span class="n">scenario_data</span> <span class="ow">in</span> <span class="n">problems</span><span class="p">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"📊 Test: </span><span class="si">{</span><span class="n">scenario_name</span><span class="si">}</span><span class="s"> (GitHub </span><span class="si">{</span><span class="n">scenario_data</span><span class="p">[</span><span class="s">'github_issue'</span><span class="p">]</span><span class="si">}</span><span class="s">)"</span><span class="p">)</span>
+
+        <span class="c1"># Test good data
+</span>        <span class="k">try</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">agent</span><span class="p">,</span> <span class="n">scenario_name</span><span class="p">.</span><span class="n">replace</span><span class="p">(</span><span class="s">'_'</span><span class="p">,</span> <span class="s">''</span><span class="p">))(</span><span class="n">scenario_data</span><span class="p">[</span><span class="s">'good'</span><span class="p">])</span>
+            <span class="k">print</span><span class="p">(</span><span class="s">"✅ Good data: Processing successful"</span><span class="p">)</span>
+        <span class="k">except</span> <span class="nb">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"❌ Unexpected error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+
+        <span class="c1"># Test bad data
+</span>        <span class="k">try</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">agent</span><span class="p">,</span> <span class="n">scenario_name</span><span class="p">.</span><span class="n">replace</span><span class="p">(</span><span class="s">'_'</span><span class="p">,</span> <span class="s">''</span><span class="p">))(</span><span class="n">scenario_data</span><span class="p">[</span><span class="s">'bad'</span><span class="p">])</span>
+            <span class="k">print</span><span class="p">(</span><span class="s">"⚠️  Bad data allowed through (shouldn't happen)"</span><span class="p">)</span>
+        <span class="k">except</span> <span class="nb">Exception</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"✅ ADRI blocked bad data - preventing GitHub </span><span class="si">{</span><span class="n">scenario_data</span><span class="p">[</span><span class="s">'github_issue'</span><span class="p">]</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+
+        <span class="k">print</span><span class="p">()</span>
+
+    <span class="k">print</span><span class="p">(</span><span class="s">"="</span> <span class="o">*</span> <span class="mi">55</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">"🎉 ADRI Protection Complete!"</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">()</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">"📋 What ADRI Protected Against:"</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">scenario_name</span><span class="p">,</span> <span class="n">scenario_data</span> <span class="ow">in</span> <span class="n">problems</span><span class="p">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"• Issue </span><span class="si">{</span><span class="n">scenario_data</span><span class="p">[</span><span class="s">'github_issue'</span><span class="p">]</span><span class="si">}</span><span class="s">: </span><span class="si">{</span><span class="n">scenario_data</span><span class="p">[</span><span class="s">'business_impact'</span><span class="p">]</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+
+    <span class="k">print</span><span class="p">()</span>
+    <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"🚀 Next Steps for </span><span class="si">{</span><span class="n">Framework</span><span class="si">}</span><span class="s"> Engineers:"</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">"• Add @adri_protected to your key functions"</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"• Protect </span><span class="si">{</span><span class="n">Framework</span><span class="si">}</span><span class="s"> initialization and data processing"</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">"• Customize data standards for your domain"</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">"• Enable audit logging for compliance"</span><span class="p">)</span>
+
+    <span class="k">print</span><span class="p">()</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">"📖 Learn More:"</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">"• Setup tool: python tools/adri-setup.py --list"</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">"• Other frameworks: examples/langchain-*.py, examples/crewai-*.py"</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">"• Full guide: docs/ai-engineer-onboarding.md"</span><span class="p">)</span>
+
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">"__main__"</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</code></pre></div></div>
+
+<h3 id="step-5-update-documentation">Step 5: Update Documentation</h3>
+
+<p><strong>Files to Update:</strong></p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">README.md</code> - Add framework to examples section</li>
+  <li><code class="language-plaintext highlighter-rouge">docs/setup-tool-guide.md</code> - Add to supported frameworks table</li>
+  <li>Framework-specific documentation as needed</li>
+</ul>
+
+<p><strong>README Pattern:</strong></p>
+<div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gu">### 🤖 {Framework} → [`examples/{framework}-{use-case}.py`](examples/{framework}-{use-case}.py)</span>
+<span class="p">```</span><span class="nl">python
+</span><span class="o">@</span><span class="n">adri_protected</span>
+<span class="k">def</span> <span class="err">{</span><span class="nf">primary_function</span><span class="p">}(</span><span class="n">data</span><span class="p">):</span>
+    <span class="c1"># Prevents GitHub #{issue}: "{Description}"
+</span>    <span class="c1"># Prevents GitHub #{issue}: "{Description}"
+</span></code></pre></div></div>
+<p><strong>Setup:</strong> <code class="language-plaintext highlighter-rouge">python tools/adri-setup.py --framework {framework}</code></p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+## Quality Checklist
+
+Before releasing a new framework integration:
+
+### ✅ Setup Tool Integration
+- [ ] Framework added to `FRAMEWORKS` dict with correct packages
+- [ ] Import names match actual Python imports
+- [ ] API keys correctly specified
+- [ ] Description is clear for AI Agent Engineers
+
+### ✅ Problem Demonstration
+- [ ] At least 3 real GitHub issues documented with specific numbers
+- [ ] Good/bad data scenarios clearly show the problems
+- [ ] Business impact clearly explained for target audience
+- [ ] Data scenarios realistic for the framework's typical usage
+
+### ✅ Example Implementation
+- [ ] ~100 lines focused on value demonstration
+- [ ] Real framework integration (not just mocks)
+- [ ] Clear problem/solution narrative in docstring
+- [ ] Graceful fallback when framework not installed
+- [ ] Proper imports and path handling
+
+### ✅ Value Proposition
+- [ ] Specific GitHub issues cited in output
+- [ ] Clear before/after demonstration
+- [ ] Business impact clearly communicated
+- [ ] Next steps actionable for framework engineers
+- [ ] Cost estimate provided if applicable
+
+### ✅ Documentation
+- [ ] README updated with framework entry
+- [ ] Setup tool guide updated
+- [ ] Example tested end-to-end
+- [ ] Clear setup and run instructions
+
+## Success Metrics
+
+A successful framework integration should achieve:
+
+1. **30-Second Value:** AI Agent Engineer sees specific problems solved in 30 seconds
+2. **Zero Friction:** One setup command handles all dependencies
+3. **Real Problems:** Based on documented GitHub issues, not hypothetical scenarios
+4. **Clear Next Steps:** Specific guidance for adopting ADRI in their framework
+
+## Reusable Components
+
+### Problem Research Template
+</code></pre></div></div>
+<p>Framework: {Framework Name}
+GitHub Repository: {URL}
+Search Terms: [“validation”, “data quality”, “input error”, “parsing”, “format”]
+Issues Found: {Number}
+Key Patterns:
+• {Pattern 1}: {Description}
+• {Pattern 2}: {Description}
+Business Impact: {Impact for AI Agent Engineers}</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+### Testing Script Template
+```bash
+#!/bin/bash
+# Test framework integration end-to-end
+
+echo "Testing {framework} integration..."
+
+# Test setup tool
+python tools/adri-setup.py --framework {framework} --auto-install
+
+# Test example without dependencies
+python examples/{framework}-{use-case}.py
+
+# Verify value proposition visible
+if grep -q "GitHub Issue" examples/{framework}-{use-case}.py; then
+    echo "✅ GitHub issues referenced"
+else
+    echo "❌ No GitHub issues found"
+fi
+
+echo "{Framework} integration test complete"
+</code></pre></div></div>
+
+<p>This pattern ensures consistent, high-quality framework integrations that immediately demonstrate ADRI’s value to AI Agent Engineers from any framework background.</p>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/adri/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">ADRI - Agent Data Reliability Intelligence</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">ADRI Standard</li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Stop AI Agents Breaking on Bad Data - Open source data quality validation framework</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

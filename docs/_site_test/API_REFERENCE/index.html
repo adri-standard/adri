@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>ADRI API Reference | ADRI - Agent Data Reliability Intelligence</title>
+<meta name="generator" content="Jekyll v3.9.5" />
+<meta property="og:title" content="ADRI API Reference" />
+<meta name="author" content="ADRI Standard" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Stop AI Agents Breaking on Bad Data - Open source data quality validation framework" />
+<meta property="og:description" content="Stop AI Agents Breaking on Bad Data - Open source data quality validation framework" />
+<link rel="canonical" href="https://adri-standard.github.io/adri/API_REFERENCE/" />
+<meta property="og:url" content="https://adri-standard.github.io/adri/API_REFERENCE/" />
+<meta property="og:site_name" content="ADRI - Agent Data Reliability Intelligence" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="ADRI API Reference" />
+<meta name="twitter:site" content="@adri_standard" />
+<meta name="twitter:creator" content="@ADRI Standard" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","author":{"@type":"Person","name":"ADRI Standard"},"description":"Stop AI Agents Breaking on Bad Data - Open source data quality validation framework","headline":"ADRI API Reference","url":"https://adri-standard.github.io/adri/API_REFERENCE/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/adri/assets/main.css"><link type="application/atom+xml" rel="alternate" href="https://adri-standard.github.io/adri/feed.xml" title="ADRI - Agent Data Reliability Intelligence" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/adri/">ADRI - Agent Data Reliability Intelligence</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/adri/">ADRI - Agent Data Reliability Intelligence</a><a class="page-link" href="/adri/quick-start/">Quick Start - ADRI</a><a class="page-link" href="/adri/frameworks/">Framework Examples - ADRI</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <h1 id="adri-api-reference">ADRI API Reference</h1>
+
+<p><strong>Stop AI Agents Breaking on Bad Data</strong>
+One line of code. Any framework. Bulletproof agents.</p>
+
+<h2 id="quick-reference">Quick Reference</h2>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Basic protection (most common)
+</span><span class="o">@</span><span class="n">adri_protected</span><span class="p">(</span><span class="n">data_param</span><span class="o">=</span><span class="s">"your_data"</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">your_agent</span><span class="p">(</span><span class="n">your_data</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">process_data</span><span class="p">(</span><span class="n">your_data</span><span class="p">)</span>
+
+<span class="c1"># Custom requirements
+</span><span class="o">@</span><span class="n">adri_protected</span><span class="p">(</span><span class="n">data_param</span><span class="o">=</span><span class="s">"data"</span><span class="p">,</span> <span class="n">min_score</span><span class="o">=</span><span class="mi">90</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">strict_agent</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">analyze_data</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h2 id="table-of-contents">Table of Contents</h2>
+<ol>
+  <li><a href="#essential-decorator">Essential Decorator</a> ⭐ <strong>Start Here</strong></li>
+  <li><a href="#framework-examples">Framework Examples</a></li>
+  <li><a href="#configuration">Configuration</a></li>
+  <li><a href="#cli-commands">CLI Commands</a></li>
+  <li><a href="#advanced-usage">Advanced Usage</a></li>
+  <li><a href="#core-classes">Core Classes</a></li>
+  <li><a href="#utilities">Utilities</a></li>
+</ol>
+
+<hr />
+
+<h2 id="essential-decorator">Essential Decorator</h2>
+
+<h3 id="adri_protected-"><code class="language-plaintext highlighter-rouge">@adri_protected</code> ⭐</h3>
+
+<p>The one decorator you need to protect any AI agent.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">adri.decorators.guard</span> <span class="kn">import</span> <span class="n">adri_protected</span>
+
+<span class="o">@</span><span class="n">adri_protected</span><span class="p">(</span>
+    <span class="n">data_param</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>           <span class="c1"># Which parameter contains your data
+</span>    <span class="n">min_score</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">80.0</span><span class="p">,</span>   <span class="c1"># Quality threshold (0-100)
+</span>    <span class="n">on_failure</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s">"raise"</span><span class="p">,</span> <span class="c1"># What to do if data is bad
+</span>    <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="bp">False</span>      <span class="c1"># Show protection messages
+</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h4 id="parameters">Parameters</h4>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Type</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">standard</code></td>
+      <td><code class="language-plaintext highlighter-rouge">str</code></td>
+      <td>Required</td>
+      <td>Name of the YAML standard to use for validation</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">data_arg</code></td>
+      <td><code class="language-plaintext highlighter-rouge">str</code></td>
+      <td>Auto-detect</td>
+      <td>Name of the argument containing data to validate</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">min_score</code></td>
+      <td><code class="language-plaintext highlighter-rouge">float</code></td>
+      <td>75.0</td>
+      <td>Minimum quality score required (0-100)</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">failure_mode</code></td>
+      <td><code class="language-plaintext highlighter-rouge">str</code></td>
+      <td>“raise”</td>
+      <td>Action on failure: “raise”, “warn”, or “log”</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">cache_duration</code></td>
+      <td><code class="language-plaintext highlighter-rouge">int</code></td>
+      <td>300</td>
+      <td>Cache duration in seconds</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">audit_enabled</code></td>
+      <td><code class="language-plaintext highlighter-rouge">bool</code></td>
+      <td>False</td>
+      <td>Enable audit logging for this function</td>
+    </tr>
+  </tbody>
+</table>
+
+<h4 id="example">Example</h4>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="n">pd</span>
+<span class="kn">from</span> <span class="nn">adri.decorators</span> <span class="kn">import</span> <span class="n">adri_protected</span>
+
+<span class="o">@</span><span class="n">adri_protected</span><span class="p">(</span>
+    <span class="n">standard</span><span class="o">=</span><span class="s">"customer_data_standard"</span><span class="p">,</span>
+    <span class="n">min_score</span><span class="o">=</span><span class="mf">80.0</span><span class="p">,</span>
+    <span class="n">failure_mode</span><span class="o">=</span><span class="s">"raise"</span><span class="p">,</span>
+    <span class="n">audit_enabled</span><span class="o">=</span><span class="bp">True</span>
+<span class="p">)</span>
+<span class="k">def</span> <span class="nf">process_customer_data</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="p">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="p">.</span><span class="n">DataFrame</span><span class="p">:</span>
+    <span class="c1"># Your data processing logic
+</span>    <span class="k">return</span> <span class="n">df</span>
+
+<span class="c1"># Usage
+</span><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">DataFrame</span><span class="p">({</span>
+    <span class="s">'customer_id'</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+    <span class="s">'email'</span><span class="p">:</span> <span class="p">[</span><span class="s">'user1@example.com'</span><span class="p">,</span> <span class="s">'user2@example.com'</span><span class="p">,</span> <span class="s">'user3@example.com'</span><span class="p">],</span>
+    <span class="s">'age'</span><span class="p">:</span> <span class="p">[</span><span class="mi">25</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">35</span><span class="p">]</span>
+<span class="p">})</span>
+
+<span class="n">result</span> <span class="o">=</span> <span class="n">process_customer_data</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>  <span class="c1"># Validates before processing
+</span></code></pre></div></div>
+
+<hr />
+
+<h2 id="core-classes">Core Classes</h2>
+
+<h3 id="assessmentengine">AssessmentEngine</h3>
+
+<p>Performs data quality assessments against ADRI standards.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">adri.core.assessor</span> <span class="kn">import</span> <span class="n">AssessmentEngine</span>
+</code></pre></div></div>
+
+<h4 id="methods">Methods</h4>
+
+<h5 id="__init__config-optionaldictstr-any--none"><code class="language-plaintext highlighter-rouge">__init__(config: Optional[Dict[str, Any]] = None)</code></h5>
+
+<p>Initialize the assessment engine with optional configuration.</p>
+
+<h5 id="assessdata-pddataframe-standard-dictstr-any---assessmentresult"><code class="language-plaintext highlighter-rouge">assess(data: pd.DataFrame, standard: Dict[str, Any]) -&gt; AssessmentResult</code></h5>
+
+<p>Perform a comprehensive data quality assessment.</p>
+
+<p><strong>Parameters:</strong></p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">data</code>: DataFrame to assess</li>
+  <li><code class="language-plaintext highlighter-rouge">standard</code>: ADRI standard dictionary</li>
+</ul>
+
+<p><strong>Returns:</strong> <code class="language-plaintext highlighter-rouge">AssessmentResult</code> object with scores and details</p>
+
+<p><strong>Example:</strong></p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">adri.core.assessor</span> <span class="kn">import</span> <span class="n">AssessmentEngine</span>
+<span class="kn">from</span> <span class="nn">adri.standards.loader</span> <span class="kn">import</span> <span class="n">StandardsLoader</span>
+
+<span class="n">engine</span> <span class="o">=</span> <span class="n">AssessmentEngine</span><span class="p">()</span>
+<span class="n">loader</span> <span class="o">=</span> <span class="n">StandardsLoader</span><span class="p">()</span>
+
+<span class="n">standard</span> <span class="o">=</span> <span class="n">loader</span><span class="p">.</span><span class="n">load_standard</span><span class="p">(</span><span class="s">"customer_data_standard"</span><span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">engine</span><span class="p">.</span><span class="n">assess</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">standard</span><span class="p">)</span>
+
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"Overall Score: </span><span class="si">{</span><span class="n">result</span><span class="p">.</span><span class="n">overall_score</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"Passed: </span><span class="si">{</span><span class="n">result</span><span class="p">.</span><span class="n">passed</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h3 id="assessmentresult">AssessmentResult</h3>
+
+<p>Result object from data quality assessment.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">adri.core.assessor</span> <span class="kn">import</span> <span class="n">AssessmentResult</span>
+</code></pre></div></div>
+
+<h4 id="attributes">Attributes</h4>
+
+<table>
+  <thead>
+    <tr>
+      <th>Attribute</th>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">overall_score</code></td>
+      <td><code class="language-plaintext highlighter-rouge">float</code></td>
+      <td>Overall quality score (0-100)</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">dimension_scores</code></td>
+      <td><code class="language-plaintext highlighter-rouge">Dict[str, DimensionScore]</code></td>
+      <td>Scores for each dimension</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">passed</code></td>
+      <td><code class="language-plaintext highlighter-rouge">bool</code></td>
+      <td>Whether assessment passed minimum threshold</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">timestamp</code></td>
+      <td><code class="language-plaintext highlighter-rouge">datetime</code></td>
+      <td>When assessment was performed</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">standard_id</code></td>
+      <td><code class="language-plaintext highlighter-rouge">str</code></td>
+      <td>ID of standard used</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">metadata</code></td>
+      <td><code class="language-plaintext highlighter-rouge">Dict[str, Any]</code></td>
+      <td>Additional assessment metadata</td>
+    </tr>
+  </tbody>
+</table>
+
+<h4 id="methods-1">Methods</h4>
+
+<h5 id="to_dict---dictstr-any"><code class="language-plaintext highlighter-rouge">to_dict() -&gt; Dict[str, Any]</code></h5>
+<p>Convert result to dictionary format.</p>
+
+<h5 id="to_json---str"><code class="language-plaintext highlighter-rouge">to_json() -&gt; str</code></h5>
+<p>Convert result to JSON string.</p>
+
+<h3 id="dataprotectionengine">DataProtectionEngine</h3>
+
+<p>Enforces data quality gates on function calls.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">adri.core.protection</span> <span class="kn">import</span> <span class="n">DataProtectionEngine</span>
+</code></pre></div></div>
+
+<h4 id="methods-2">Methods</h4>
+
+<h5 id="__init__config-optionaldictstr-any--none-1"><code class="language-plaintext highlighter-rouge">__init__(config: Optional[Dict[str, Any]] = None)</code></h5>
+<p>Initialize the protection engine.</p>
+
+<h5 id="protect_function_callfunc-callable-args-kwargs---any"><code class="language-plaintext highlighter-rouge">protect_function_call(func: Callable, *args, **kwargs) -&gt; Any</code></h5>
+<p>Protect a function call with data quality validation.</p>
+
+<p><strong>Parameters:</strong></p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">func</code>: Function to protect</li>
+  <li><code class="language-plaintext highlighter-rouge">*args</code>: Positional arguments for the function</li>
+  <li><code class="language-plaintext highlighter-rouge">**kwargs</code>: Keyword arguments for the function</li>
+</ul>
+
+<p><strong>Returns:</strong> Function result if validation passes</p>
+
+<p><strong>Example:</strong></p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">adri.core.protection</span> <span class="kn">import</span> <span class="n">DataProtectionEngine</span>
+
+<span class="n">engine</span> <span class="o">=</span> <span class="n">DataProtectionEngine</span><span class="p">({</span>
+    <span class="s">"min_score"</span><span class="p">:</span> <span class="mf">75.0</span><span class="p">,</span>
+    <span class="s">"failure_mode"</span><span class="p">:</span> <span class="s">"raise"</span>
+<span class="p">})</span>
+
+<span class="k">def</span> <span class="nf">process_data</span><span class="p">(</span><span class="n">df</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">df</span><span class="p">.</span><span class="n">describe</span><span class="p">()</span>
+
+<span class="n">result</span> <span class="o">=</span> <span class="n">engine</span><span class="p">.</span><span class="n">protect_function_call</span><span class="p">(</span>
+    <span class="n">process_data</span><span class="p">,</span>
+    <span class="n">df</span><span class="p">,</span>
+    <span class="n">standard</span><span class="o">=</span><span class="s">"test_standard"</span>
+<span class="p">)</span>
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="standards-management">Standards Management</h2>
+
+<h3 id="standardsloader">StandardsLoader</h3>
+
+<p>Manages loading and caching of YAML standards.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">adri.standards.loader</span> <span class="kn">import</span> <span class="n">StandardsLoader</span>
+</code></pre></div></div>
+
+<h4 id="methods-3">Methods</h4>
+
+<h5 id="__init__"><code class="language-plaintext highlighter-rouge">__init__()</code></h5>
+<p>Initialize the standards loader.</p>
+
+<h5 id="load_standardstandard_name-str---dictstr-any"><code class="language-plaintext highlighter-rouge">load_standard(standard_name: str) -&gt; Dict[str, Any]</code></h5>
+<p>Load a standard by name.</p>
+
+<p><strong>Parameters:</strong></p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">standard_name</code>: Name of the standard (without .yaml extension)</li>
+</ul>
+
+<p><strong>Returns:</strong> Dictionary containing the standard definition</p>
+
+<p><strong>Raises:</strong> <code class="language-plaintext highlighter-rouge">StandardNotFoundError</code> if standard doesn’t exist</p>
+
+<h5 id="list_available_standards---liststr"><code class="language-plaintext highlighter-rouge">list_available_standards() -&gt; List[str]</code></h5>
+<p>Get list of all available standards.</p>
+
+<p><strong>Returns:</strong> List of standard names</p>
+
+<h5 id="get_standard_metadatastandard_name-str---dictstr-any"><code class="language-plaintext highlighter-rouge">get_standard_metadata(standard_name: str) -&gt; Dict[str, Any]</code></h5>
+<p>Get metadata for a standard without loading full content.</p>
+
+<p><strong>Returns:</strong> Dictionary with name, version, description, file_path</p>
+
+<h5 id="standard_existsstandard_name-str---bool"><code class="language-plaintext highlighter-rouge">standard_exists(standard_name: str) -&gt; bool</code></h5>
+<p>Check if a standard exists.</p>
+
+<h5 id="clear_cache"><code class="language-plaintext highlighter-rouge">clear_cache()</code></h5>
+<p>Clear the internal cache of loaded standards.</p>
+
+<h4 id="example-1">Example</h4>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">adri.standards.loader</span> <span class="kn">import</span> <span class="n">StandardsLoader</span>
+
+<span class="n">loader</span> <span class="o">=</span> <span class="n">StandardsLoader</span><span class="p">()</span>
+
+<span class="c1"># List available standards
+</span><span class="n">standards</span> <span class="o">=</span> <span class="n">loader</span><span class="p">.</span><span class="n">list_available_standards</span><span class="p">()</span>
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"Available standards: </span><span class="si">{</span><span class="n">standards</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+
+<span class="c1"># Load a specific standard
+</span><span class="n">standard</span> <span class="o">=</span> <span class="n">loader</span><span class="p">.</span><span class="n">load_standard</span><span class="p">(</span><span class="s">"customer_data_standard"</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"Standard version: </span><span class="si">{</span><span class="n">standard</span><span class="p">[</span><span class="s">'standards'</span><span class="p">][</span><span class="s">'version'</span><span class="p">]</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+
+<span class="c1"># Get metadata only
+</span><span class="n">metadata</span> <span class="o">=</span> <span class="n">loader</span><span class="p">.</span><span class="n">get_standard_metadata</span><span class="p">(</span><span class="s">"customer_data_standard"</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"Description: </span><span class="si">{</span><span class="n">metadata</span><span class="p">[</span><span class="s">'description'</span><span class="p">]</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h3 id="convenience-functions">Convenience Functions</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">adri.standards.loader</span> <span class="kn">import</span> <span class="n">load_bundled_standard</span><span class="p">,</span> <span class="n">list_bundled_standards</span>
+
+<span class="c1"># Quick access to standards
+</span><span class="n">standard</span> <span class="o">=</span> <span class="n">load_bundled_standard</span><span class="p">(</span><span class="s">"test_standard"</span><span class="p">)</span>
+<span class="n">all_standards</span> <span class="o">=</span> <span class="n">list_bundled_standards</span><span class="p">()</span>
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="configuration">Configuration</h2>
+
+<h3 id="configmanager">ConfigManager</h3>
+
+<p>Manages configuration with hierarchy: defaults → file → environment → runtime.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">adri.config.manager</span> <span class="kn">import</span> <span class="n">ConfigManager</span>
+</code></pre></div></div>
+
+<h4 id="methods-4">Methods</h4>
+
+<h5 id="__init__config_path-optionalstr--none"><code class="language-plaintext highlighter-rouge">__init__(config_path: Optional[str] = None)</code></h5>
+<p>Initialize with optional config file path.</p>
+
+<h5 id="get_configsection-optionalstr--none---dictstr-any"><code class="language-plaintext highlighter-rouge">get_config(section: Optional[str] = None) -&gt; Dict[str, Any]</code></h5>
+<p>Get configuration for a section or all config.</p>
+
+<h5 id="get_protection_config---dictstr-any"><code class="language-plaintext highlighter-rouge">get_protection_config() -&gt; Dict[str, Any]</code></h5>
+<p>Get data protection configuration.</p>
+
+<h5 id="get_audit_config---dictstr-any"><code class="language-plaintext highlighter-rouge">get_audit_config() -&gt; Dict[str, Any]</code></h5>
+<p>Get audit logging configuration.</p>
+
+<h5 id="update_configupdates-dictstr-any-section-optionalstr--none"><code class="language-plaintext highlighter-rouge">update_config(updates: Dict[str, Any], section: Optional[str] = None)</code></h5>
+<p>Update configuration at runtime.</p>
+
+<h4 id="configuration-structure">Configuration Structure</h4>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">adri</span><span class="pi">:</span>
+  <span class="na">protection</span><span class="pi">:</span>
+    <span class="na">min_score</span><span class="pi">:</span> <span class="m">75.0</span>              <span class="c1"># Minimum quality score (0-100)</span>
+    <span class="na">failure_mode</span><span class="pi">:</span> <span class="s2">"</span><span class="s">raise"</span>        <span class="c1"># raise | warn | log</span>
+    <span class="na">cache_duration</span><span class="pi">:</span> <span class="m">300</span>          <span class="c1"># Seconds to cache results</span>
+    <span class="na">cache_enabled</span><span class="pi">:</span> <span class="no">true</span>
+
+  <span class="na">audit</span><span class="pi">:</span>
+    <span class="na">enabled</span><span class="pi">:</span> <span class="no">false</span>               <span class="c1"># Enable audit logging</span>
+    <span class="na">log_location</span><span class="pi">:</span> <span class="s2">"</span><span class="s">./logs/adri_audit.jsonl"</span>
+    <span class="na">log_level</span><span class="pi">:</span> <span class="s2">"</span><span class="s">INFO"</span>           <span class="c1"># INFO | DEBUG | ERROR</span>
+    <span class="na">include_data_samples</span><span class="pi">:</span> <span class="no">false</span>  <span class="c1"># Include data in logs</span>
+    <span class="na">max_log_size_mb</span><span class="pi">:</span> <span class="m">100</span>        <span class="c1"># Rotate after size</span>
+    <span class="na">batch_mode</span><span class="pi">:</span> <span class="no">false</span>           <span class="c1"># Batch audit records</span>
+    <span class="na">batch_size</span><span class="pi">:</span> <span class="m">100</span>
+
+  <span class="na">standards</span><span class="pi">:</span>
+    <span class="na">path</span><span class="pi">:</span> <span class="no">null</span>                  <span class="c1"># Custom standards path</span>
+    <span class="na">cache_enabled</span><span class="pi">:</span> <span class="no">true</span>         <span class="c1"># Cache loaded standards</span>
+
+  <span class="na">verodat</span><span class="pi">:</span>                     <span class="c1"># Optional Verodat integration</span>
+    <span class="na">enabled</span><span class="pi">:</span> <span class="no">false</span>
+    <span class="na">api_url</span><span class="pi">:</span> <span class="s2">"</span><span class="s">https://api.verodat.com"</span>
+    <span class="na">api_key</span><span class="pi">:</span> <span class="no">null</span>
+    <span class="na">workspace_id</span><span class="pi">:</span> <span class="no">null</span>
+    <span class="na">account_id</span><span class="pi">:</span> <span class="no">null</span>
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="audit-logging">Audit Logging</h2>
+
+<h3 id="auditlogger">AuditLogger</h3>
+
+<p>Records comprehensive audit trail for assessments.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">adri.core.audit_logger</span> <span class="kn">import</span> <span class="n">AuditLogger</span>
+</code></pre></div></div>
+
+<h4 id="methods-5">Methods</h4>
+
+<h5 id="__init__config-optionaldictstr-any--none-2"><code class="language-plaintext highlighter-rouge">__init__(config: Optional[Dict[str, Any]] = None)</code></h5>
+<p>Initialize audit logger with configuration.</p>
+
+<h5 id="log_assessment---optionalauditrecord"><code class="language-plaintext highlighter-rouge">log_assessment(...) -&gt; Optional[AuditRecord]</code></h5>
+<p>Log an assessment to audit trail.</p>
+
+<p><strong>Parameters:</strong></p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">assessment_result</code>: Assessment result object</li>
+  <li><code class="language-plaintext highlighter-rouge">execution_context</code>: Context about function execution</li>
+  <li><code class="language-plaintext highlighter-rouge">data_info</code>: Information about assessed data</li>
+  <li><code class="language-plaintext highlighter-rouge">performance_metrics</code>: Performance metrics</li>
+  <li><code class="language-plaintext highlighter-rouge">failed_checks</code>: List of failed validation checks</li>
+</ul>
+
+<p><strong>Returns:</strong> <code class="language-plaintext highlighter-rouge">AuditRecord</code> if logging enabled, None otherwise</p>
+
+<h3 id="auditrecord">AuditRecord</h3>
+
+<p>Structured audit record for assessments.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">adri.core.audit_logger</span> <span class="kn">import</span> <span class="n">AuditRecord</span>
+</code></pre></div></div>
+
+<h4 id="methods-6">Methods</h4>
+
+<h5 id="to_dict---dictstr-any-1"><code class="language-plaintext highlighter-rouge">to_dict() -&gt; Dict[str, Any]</code></h5>
+<p>Convert to dictionary format.</p>
+
+<h5 id="to_json---str-1"><code class="language-plaintext highlighter-rouge">to_json() -&gt; str</code></h5>
+<p>Convert to JSON string.</p>
+
+<h5 id="to_verodat_format---dictstr-any"><code class="language-plaintext highlighter-rouge">to_verodat_format() -&gt; Dict[str, Any]</code></h5>
+<p>Convert to Verodat-compatible format.</p>
+
+<h3 id="auditloggercsv">AuditLoggerCSV</h3>
+
+<p>CSV-based audit logger for file output.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">adri.core.audit_logger_csv</span> <span class="kn">import</span> <span class="n">AuditLoggerCSV</span>
+</code></pre></div></div>
+
+<h4 id="example-2">Example</h4>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">adri.core.audit_logger_csv</span> <span class="kn">import</span> <span class="n">AuditLoggerCSV</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">AuditLoggerCSV</span><span class="p">({</span>
+    <span class="s">"enabled"</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+    <span class="s">"output_path"</span><span class="p">:</span> <span class="s">"./audit_logs"</span><span class="p">,</span>
+    <span class="s">"rotation"</span><span class="p">:</span> <span class="s">"daily"</span>
+<span class="p">})</span>
+
+<span class="c1"># Logger automatically used by @adri_protected when configured
+</span></code></pre></div></div>
+
+<hr />
+
+<h2 id="utilities">Utilities</h2>
+
+<h3 id="verification-utilities">Verification Utilities</h3>
+
+<p>Verify standalone installation and operation.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">adri.utils.verification</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">verify_standalone_installation</span><span class="p">,</span>
+    <span class="n">list_bundled_standards</span><span class="p">,</span>
+    <span class="n">check_system_compatibility</span><span class="p">,</span>
+    <span class="n">verify_audit_logging</span><span class="p">,</span>
+    <span class="n">run_full_verification</span>
+<span class="p">)</span>
+</code></pre></div></div>
+
+<h4 id="functions">Functions</h4>
+
+<h5 id="verify_standalone_installation---tuplebool-liststr"><code class="language-plaintext highlighter-rouge">verify_standalone_installation() -&gt; Tuple[bool, List[str]]</code></h5>
+<p>Verify standalone installation.</p>
+
+<p><strong>Returns:</strong> (success: bool, messages: List[str])</p>
+
+<h5 id="list_bundled_standards---listdictstr-str"><code class="language-plaintext highlighter-rouge">list_bundled_standards() -&gt; List[Dict[str, str]]</code></h5>
+<p>List all bundled standards with metadata.</p>
+
+<h5 id="check_system_compatibility---dictstr-any"><code class="language-plaintext highlighter-rouge">check_system_compatibility() -&gt; Dict[str, Any]</code></h5>
+<p>Check system compatibility.</p>
+
+<h5 id="verify_audit_loggingenabled-bool--false---tuplebool-liststr"><code class="language-plaintext highlighter-rouge">verify_audit_logging(enabled: bool = False) -&gt; Tuple[bool, List[str]]</code></h5>
+<p>Verify audit logging functionality.</p>
+
+<h5 id="run_full_verificationverbose-bool--true---bool"><code class="language-plaintext highlighter-rouge">run_full_verification(verbose: bool = True) -&gt; bool</code></h5>
+<p>Run complete verification suite.</p>
+
+<h4 id="example-3">Example</h4>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">adri.utils.verification</span> <span class="kn">import</span> <span class="n">run_full_verification</span>
+
+<span class="c1"># Run full verification
+</span><span class="k">if</span> <span class="n">run_full_verification</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">"✅ All verifications passed"</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">"❌ Some verifications failed"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h3 id="component-boundary">Component Boundary</h3>
+
+<p>Manage boundaries with external systems.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">adri.core.boundary</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">ComponentBoundary</span><span class="p">,</span>
+    <span class="n">StandaloneMode</span><span class="p">,</span>
+    <span class="n">get_boundary_manager</span><span class="p">,</span>
+    <span class="n">validate_standalone_operation</span>
+<span class="p">)</span>
+</code></pre></div></div>
+
+<h4 id="standalonemode-context-manager">StandaloneMode Context Manager</h4>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">adri.core.boundary</span> <span class="kn">import</span> <span class="n">StandaloneMode</span>
+
+<span class="c1"># Force standalone operation
+</span><span class="k">with</span> <span class="n">StandaloneMode</span><span class="p">():</span>
+    <span class="c1"># All external integrations disabled
+</span>    <span class="n">result</span> <span class="o">=</span> <span class="n">process_data</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h4 id="componentboundary-methods">ComponentBoundary Methods</h4>
+
+<h5 id="register_integrationname-str-integration-externalintegration-config-integrationconfig---bool"><code class="language-plaintext highlighter-rouge">register_integration(name: str, integration: ExternalIntegration, config: IntegrationConfig) -&gt; bool</code></h5>
+<p>Register an external integration.</p>
+
+<h5 id="register_data_providername-str-provider-dataprovider---bool"><code class="language-plaintext highlighter-rouge">register_data_provider(name: str, provider: DataProvider) -&gt; bool</code></h5>
+<p>Register a data provider.</p>
+
+<h5 id="register_audit_sinkname-str-sink-auditsink---bool"><code class="language-plaintext highlighter-rouge">register_audit_sink(name: str, sink: AuditSink) -&gt; bool</code></h5>
+<p>Register an audit sink.</p>
+
+<h5 id="health_check---dictstr-bool"><code class="language-plaintext highlighter-rouge">health_check() -&gt; Dict[str, bool]</code></h5>
+<p>Check health of all integrations.</p>
+
+<h5 id="shutdown_all---bool"><code class="language-plaintext highlighter-rouge">shutdown_all() -&gt; bool</code></h5>
+<p>Shutdown all integrations.</p>
+
+<hr />
+
+<h2 id="cli-commands">CLI Commands</h2>
+
+<h3 id="main-command">Main Command</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>adri <span class="o">[</span>OPTIONS] COMMAND <span class="o">[</span>ARGS]...
+</code></pre></div></div>
+
+<h3 id="commands">Commands</h3>
+
+<h4 id="validate"><code class="language-plaintext highlighter-rouge">validate</code></h4>
+<p>Validate data file against a standard.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>adri validate <span class="nt">--data</span> data.csv <span class="nt">--standard</span> customer_data_standard
+</code></pre></div></div>
+
+<p><strong>Options:</strong></p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">--data PATH</code>: Path to data file (CSV/Parquet)</li>
+  <li><code class="language-plaintext highlighter-rouge">--standard TEXT</code>: Standard name</li>
+  <li><code class="language-plaintext highlighter-rouge">--min-score FLOAT</code>: Minimum score (default: 75.0)</li>
+  <li><code class="language-plaintext highlighter-rouge">--output PATH</code>: Output report path</li>
+</ul>
+
+<h4 id="list-standards"><code class="language-plaintext highlighter-rouge">list-standards</code></h4>
+<p>List all available standards.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>adri list-standards
+</code></pre></div></div>
+
+<h4 id="show-standard"><code class="language-plaintext highlighter-rouge">show-standard</code></h4>
+<p>Display details of a specific standard.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>adri show-standard customer_data_standard
+</code></pre></div></div>
+
+<h4 id="verify"><code class="language-plaintext highlighter-rouge">verify</code></h4>
+<p>Verify standalone installation.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>adri verify
+</code></pre></div></div>
+
+<h4 id="config"><code class="language-plaintext highlighter-rouge">config</code></h4>
+<p>Display current configuration.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>adri config <span class="o">[</span><span class="nt">--section</span> SECTION]
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="exceptions">Exceptions</h2>
+
+<h3 id="standard-exceptions">Standard Exceptions</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">adri.standards.exceptions</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">StandardNotFoundError</span><span class="p">,</span>
+    <span class="n">InvalidStandardError</span><span class="p">,</span>
+    <span class="n">StandardsDirectoryNotFoundError</span>
+<span class="p">)</span>
+</code></pre></div></div>
+
+<h4 id="standardnotfounderror">StandardNotFoundError</h4>
+<p>Raised when a requested standard doesn’t exist.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">try</span><span class="p">:</span>
+    <span class="n">standard</span> <span class="o">=</span> <span class="n">loader</span><span class="p">.</span><span class="n">load_standard</span><span class="p">(</span><span class="s">"nonexistent"</span><span class="p">)</span>
+<span class="k">except</span> <span class="n">StandardNotFoundError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"Standard not found: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h4 id="invalidstandarderror">InvalidStandardError</h4>
+<p>Raised when a standard has invalid structure.</p>
+
+<h4 id="standardsdirectorynotfounderror">StandardsDirectoryNotFoundError</h4>
+<p>Raised when standards directory is missing.</p>
+
+<h3 id="assessment-exceptions">Assessment Exceptions</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">adri.core.exceptions</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">AssessmentError</span><span class="p">,</span>
+    <span class="n">DataQualityError</span><span class="p">,</span>
+    <span class="n">ConfigurationError</span>
+<span class="p">)</span>
+</code></pre></div></div>
+
+<h4 id="assessmenterror">AssessmentError</h4>
+<p>Base exception for assessment failures.</p>
+
+<h4 id="dataqualityerror">DataQualityError</h4>
+<p>Raised when data fails quality checks.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">try</span><span class="p">:</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">engine</span><span class="p">.</span><span class="n">assess</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">standard</span><span class="p">)</span>
+<span class="k">except</span> <span class="n">DataQualityError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"Quality check failed: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h4 id="configurationerror">ConfigurationError</h4>
+<p>Raised for configuration issues.</p>
+
+<hr />
+
+<h2 id="advanced-usage">Advanced Usage</h2>
+
+<h3 id="custom-standards-path">Custom Standards Path</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">os</span>
+<span class="n">os</span><span class="p">.</span><span class="n">environ</span><span class="p">[</span><span class="s">'ADRI_STANDARDS_PATH'</span><span class="p">]</span> <span class="o">=</span> <span class="s">'/path/to/custom/standards'</span>
+
+<span class="kn">from</span> <span class="nn">adri.standards.loader</span> <span class="kn">import</span> <span class="n">StandardsLoader</span>
+<span class="n">loader</span> <span class="o">=</span> <span class="n">StandardsLoader</span><span class="p">()</span>  <span class="c1"># Will use custom path
+</span></code></pre></div></div>
+
+<h3 id="programmatic-configuration">Programmatic Configuration</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">adri.config.manager</span> <span class="kn">import</span> <span class="n">ConfigManager</span>
+
+<span class="n">config</span> <span class="o">=</span> <span class="n">ConfigManager</span><span class="p">()</span>
+<span class="n">config</span><span class="p">.</span><span class="n">update_config</span><span class="p">({</span>
+    <span class="s">"min_score"</span><span class="p">:</span> <span class="mf">90.0</span><span class="p">,</span>
+    <span class="s">"failure_mode"</span><span class="p">:</span> <span class="s">"warn"</span>
+<span class="p">},</span> <span class="n">section</span><span class="o">=</span><span class="s">"protection"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h3 id="batch-processing">Batch Processing</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="n">pd</span>
+<span class="kn">from</span> <span class="nn">adri.decorators</span> <span class="kn">import</span> <span class="n">adri_protected</span>
+
+<span class="o">@</span><span class="n">adri_protected</span><span class="p">(</span>
+    <span class="n">standard</span><span class="o">=</span><span class="s">"transaction_data_standard"</span><span class="p">,</span>
+    <span class="n">cache_duration</span><span class="o">=</span><span class="mi">3600</span>  <span class="c1"># Cache for 1 hour
+</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">process_batch</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="p">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="p">.</span><span class="n">DataFrame</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">df</span>
+
+<span class="c1"># Process multiple batches
+</span><span class="k">for</span> <span class="n">batch_file</span> <span class="ow">in</span> <span class="n">batch_files</span><span class="p">:</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">batch_file</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">process_batch</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+    <span class="n">save_result</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h3 id="custom-audit-sink">Custom Audit Sink</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">adri.core.boundary</span> <span class="kn">import</span> <span class="n">get_boundary_manager</span>
+
+<span class="k">class</span> <span class="nc">CustomAuditSink</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">write_record</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">record</span><span class="p">):</span>
+        <span class="c1"># Custom implementation
+</span>        <span class="n">send_to_siem</span><span class="p">(</span><span class="n">record</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">True</span>
+
+    <span class="k">def</span> <span class="nf">flush</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">True</span>
+
+    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">True</span>
+
+<span class="n">boundary</span> <span class="o">=</span> <span class="n">get_boundary_manager</span><span class="p">()</span>
+<span class="n">boundary</span><span class="p">.</span><span class="n">register_audit_sink</span><span class="p">(</span><span class="s">"siem"</span><span class="p">,</span> <span class="n">CustomAuditSink</span><span class="p">())</span>
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="environment-variables">Environment Variables</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Variable</th>
+      <th>Description</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">ADRI_STANDARDS_PATH</code></td>
+      <td>Custom standards directory</td>
+      <td>Bundled standards</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">ADRI_CONFIG_PATH</code></td>
+      <td>Configuration file path</td>
+      <td><code class="language-plaintext highlighter-rouge">./adri-config.yaml</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">ADRI_ENV</code></td>
+      <td>Environment name</td>
+      <td><code class="language-plaintext highlighter-rouge">PRODUCTION</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">ADRI_LOG_LEVEL</code></td>
+      <td>Logging level</td>
+      <td><code class="language-plaintext highlighter-rouge">INFO</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">ADRI_AUDIT_ENABLED</code></td>
+      <td>Enable audit logging</td>
+      <td><code class="language-plaintext highlighter-rouge">false</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">ADRI_CACHE_ENABLED</code></td>
+      <td>Enable caching</td>
+      <td><code class="language-plaintext highlighter-rouge">true</code></td>
+    </tr>
+  </tbody>
+</table>
+
+<hr />
+
+<h2 id="performance-tips">Performance Tips</h2>
+
+<ol>
+  <li><strong>Enable Caching</strong>: Use <code class="language-plaintext highlighter-rouge">cache_duration</code> parameter for repeated validations</li>
+  <li><strong>Batch Processing</strong>: Process data in batches for large datasets</li>
+  <li><strong>Selective Validation</strong>: Use <code class="language-plaintext highlighter-rouge">data_arg</code> to validate specific columns</li>
+  <li><strong>Async Processing</strong>: Use thread pools for parallel validation</li>
+  <li><strong>Memory Management</strong>: Clear cache periodically with <code class="language-plaintext highlighter-rouge">loader.clear_cache()</code></li>
+</ol>
+
+<hr />
+
+<h2 id="migration-from-v2x">Migration from v2.x</h2>
+
+<h3 id="breaking-changes">Breaking Changes</h3>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">adri-standards</code> package no longer required</li>
+  <li>Standards now bundled with validator</li>
+  <li>New audit logging system</li>
+  <li>Component boundary management</li>
+</ul>
+
+<h3 id="migration-steps">Migration Steps</h3>
+
+<ol>
+  <li>Remove <code class="language-plaintext highlighter-rouge">adri-standards</code> dependency</li>
+  <li>Update standard names (add <code class="language-plaintext highlighter-rouge">_standard</code> suffix)</li>
+  <li>Update configuration format</li>
+  <li>Add audit configuration if needed</li>
+  <li>Test with <code class="language-plaintext highlighter-rouge">adri verify</code></li>
+</ol>
+
+<hr />
+
+<p><em>API Reference for ADRI Validator v3.0.1</em></p>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/adri/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">ADRI - Agent Data Reliability Intelligence</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">ADRI Standard</li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Stop AI Agents Breaking on Bad Data - Open source data quality validation framework</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

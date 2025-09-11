@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>CI Pipeline Guide | ADRI - Agent Data Reliability Intelligence</title>
+<meta name="generator" content="Jekyll v3.9.5" />
+<meta property="og:title" content="CI Pipeline Guide" />
+<meta name="author" content="ADRI Standard" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Stop AI Agents Breaking on Bad Data - Open source data quality validation framework" />
+<meta property="og:description" content="Stop AI Agents Breaking on Bad Data - Open source data quality validation framework" />
+<link rel="canonical" href="https://adri-standard.github.io/adri/ci-pipeline-guide/" />
+<meta property="og:url" content="https://adri-standard.github.io/adri/ci-pipeline-guide/" />
+<meta property="og:site_name" content="ADRI - Agent Data Reliability Intelligence" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="CI Pipeline Guide" />
+<meta name="twitter:site" content="@adri_standard" />
+<meta name="twitter:creator" content="@ADRI Standard" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","author":{"@type":"Person","name":"ADRI Standard"},"description":"Stop AI Agents Breaking on Bad Data - Open source data quality validation framework","headline":"CI Pipeline Guide","url":"https://adri-standard.github.io/adri/ci-pipeline-guide/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/adri/assets/main.css"><link type="application/atom+xml" rel="alternate" href="https://adri-standard.github.io/adri/feed.xml" title="ADRI - Agent Data Reliability Intelligence" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/adri/">ADRI - Agent Data Reliability Intelligence</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/adri/">ADRI - Agent Data Reliability Intelligence</a><a class="page-link" href="/adri/quick-start/">Quick Start - ADRI</a><a class="page-link" href="/adri/frameworks/">Framework Examples - ADRI</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <h1 id="ci-pipeline-guide">CI Pipeline Guide</h1>
+
+<h2 id="overview">Overview</h2>
+
+<p>The ADRI repository uses a streamlined CI architecture designed for <strong>fast feedback</strong> and <strong>comprehensive validation</strong> while maintaining <strong>high quality standards</strong>.</p>
+
+<h2 id="ci-architecture">CI Architecture</h2>
+
+<h3 id="fast-feedback-pipeline-ci-essentialyml">Fast Feedback Pipeline (ci-essential.yml)</h3>
+<p><strong>Trigger</strong>: Pull Requests
+<strong>Duration</strong>: &lt; 15 minutes
+<strong>Purpose</strong>: Quick validation for development velocity</p>
+
+<p><strong>Jobs:</strong></p>
+<ul>
+  <li><strong>Quality Gate</strong> (5 min): Pre-commit hooks, code formatting, fast tests</li>
+  <li><strong>Documentation Check</strong> (3 min): Jekyll validation and build</li>
+  <li><strong>Security Basics</strong> (5 min): Dependency scanning and basic security checks</li>
+</ul>
+
+<h3 id="comprehensive-testing-ci-comprehensiveyml">Comprehensive Testing (ci-comprehensive.yml)</h3>
+<p><strong>Trigger</strong>: Main branch merges, manual dispatch
+<strong>Duration</strong>: &lt; 45 minutes
+<strong>Purpose</strong>: Full validation before deployment</p>
+
+<p><strong>Jobs:</strong></p>
+<ul>
+  <li><strong>Test Matrix</strong>: Python 3.10, 3.11, 3.12 across multiple environments</li>
+  <li><strong>Integration Tests</strong>: Complete framework dependency validation</li>
+  <li><strong>Performance Benchmarks</strong>: Timeout management and performance validation</li>
+  <li><strong>Security Scanning</strong>: Comprehensive security audit with bandit, safety, pip-audit</li>
+  <li><strong>Build Validation</strong>: Package building and installation verification</li>
+</ul>
+
+<h2 id="workflow-optimization-features">Workflow Optimization Features</h2>
+
+<h3 id="intelligent-caching">Intelligent Caching</h3>
+<ul>
+  <li><strong>Dependencies</strong>: Automatic caching of pip dependencies with cache key versioning</li>
+  <li><strong>Build Artifacts</strong>: Caching of build outputs and test results</li>
+  <li><strong>Pre-commit</strong>: Caching of pre-commit environments</li>
+</ul>
+
+<h3 id="parallel-execution">Parallel Execution</h3>
+<ul>
+  <li><strong>Matrix Strategy</strong>: Parallel testing across Python versions</li>
+  <li><strong>Job Parallelization</strong>: Independent jobs run concurrently</li>
+  <li><strong>Conditional Execution</strong>: Smart path-based triggering</li>
+</ul>
+
+<h3 id="timeout-management">Timeout Management</h3>
+<ul>
+  <li><strong>Quality Gate</strong>: 15 minutes maximum</li>
+  <li><strong>Individual Tests</strong>: 10 minutes per test suite</li>
+  <li><strong>Overall Pipeline</strong>: 45 minutes hard limit</li>
+</ul>
+
+<h2 id="developer-workflow">Developer Workflow</h2>
+
+<h3 id="pull-request-process">Pull Request Process</h3>
+<ol>
+  <li><strong>Create PR</strong> → Triggers <code class="language-plaintext highlighter-rouge">ci-essential.yml</code></li>
+  <li><strong>Quick Feedback</strong> → Results in &lt; 15 minutes</li>
+  <li><strong>Address Issues</strong> → Fix any failing quality gates</li>
+  <li><strong>PR Approval</strong> → Merge triggers <code class="language-plaintext highlighter-rouge">ci-comprehensive.yml</code></li>
+  <li><strong>Full Validation</strong> → Complete testing suite</li>
+</ol>
+
+<h3 id="local-development">Local Development</h3>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Run pre-commit hooks locally</span>
+pre-commit run <span class="nt">--all-files</span>
+
+<span class="c"># Run quick tests</span>
+pytest tests/examples/smoke_tests/ <span class="nt">-v</span>
+
+<span class="c"># Run specific framework tests</span>
+pytest tests/examples/integration_tests/test_langchain_live.py <span class="nt">-v</span>
+</code></pre></div></div>
+
+<h3 id="debugging-ci-failures">Debugging CI Failures</h3>
+
+<h4 id="quality-gate-failures">Quality Gate Failures</h4>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Fix formatting issues</span>
+black <span class="nb">.</span> <span class="nt">--check</span>
+isort <span class="nb">.</span> <span class="nt">--check-only</span>
+
+<span class="c"># Run flake8 locally</span>
+flake8 <span class="nb">.</span>
+
+<span class="c"># Test pre-commit hooks</span>
+pre-commit run <span class="nt">--all-files</span>
+</code></pre></div></div>
+
+<h4 id="dependency-issues">Dependency Issues</h4>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Check dependency conflicts</span>
+pip check
+
+<span class="c"># Validate requirements</span>
+pip-audit
+
+<span class="c"># Test virtual environment</span>
+python <span class="nt">-m</span> venv test_env
+<span class="nb">source </span>test_env/bin/activate  <span class="c"># or test_env\Scripts\activate on Windows</span>
+pip <span class="nb">install</span> <span class="nt">-e</span> <span class="nb">.</span>
+</code></pre></div></div>
+
+<h4 id="framework-integration-issues">Framework Integration Issues</h4>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Test specific framework</span>
+python examples/langchain-customer-service.py
+
+<span class="c"># Run dependency validation</span>
+python tests/examples/dependency_tests/test_dependency_validation.py
+</code></pre></div></div>
+
+<h2 id="security-scanning">Security Scanning</h2>
+
+<h3 id="automated-security-checks">Automated Security Checks</h3>
+<ul>
+  <li><strong>Bandit</strong>: Python code security analysis</li>
+  <li><strong>Safety</strong>: Known vulnerability scanning</li>
+  <li><strong>pip-audit</strong>: Package vulnerability assessment</li>
+  <li><strong>Dependency Review</strong>: GitHub native dependency scanning</li>
+</ul>
+
+<h3 id="security-thresholds">Security Thresholds</h3>
+<ul>
+  <li><strong>Critical vulnerabilities</strong>: Block PR merge</li>
+  <li><strong>High vulnerabilities</strong>: Require review and mitigation plan</li>
+  <li><strong>Medium/Low vulnerabilities</strong>: Warning with tracking</li>
+</ul>
+
+<h2 id="performance-monitoring">Performance Monitoring</h2>
+
+<h3 id="benchmarking">Benchmarking</h3>
+<ul>
+  <li><strong>Execution Time</strong>: Framework initialization and execution timing</li>
+  <li><strong>Memory Usage</strong>: Peak memory consumption tracking</li>
+  <li><strong>Dependency Load Time</strong>: Import and dependency resolution timing</li>
+</ul>
+
+<h3 id="performance-thresholds">Performance Thresholds</h3>
+<ul>
+  <li><strong>Fast Tests</strong>: &lt; 30 seconds per test file</li>
+  <li><strong>Integration Tests</strong>: &lt; 5 minutes per framework</li>
+  <li><strong>Overall Suite</strong>: &lt; 45 minutes total</li>
+</ul>
+
+<h2 id="configuration-files">Configuration Files</h2>
+
+<h3 id="pre-commit-configuration-pre-commit-configyaml">Pre-commit Configuration (<code class="language-plaintext highlighter-rouge">.pre-commit-config.yaml</code>)</h3>
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">repos</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="na">repo</span><span class="pi">:</span> <span class="s">https://github.com/pre-commit/pre-commit-hooks</span>
+    <span class="na">rev</span><span class="pi">:</span> <span class="s">v4.4.0</span>
+    <span class="na">hooks</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="na">id</span><span class="pi">:</span> <span class="s">trailing-whitespace</span>
+      <span class="pi">-</span> <span class="na">id</span><span class="pi">:</span> <span class="s">end-of-file-fixer</span>
+
+  <span class="pi">-</span> <span class="na">repo</span><span class="pi">:</span> <span class="s">https://github.com/psf/black</span>
+    <span class="na">rev</span><span class="pi">:</span> <span class="s">25.1.0</span>
+    <span class="na">hooks</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="na">id</span><span class="pi">:</span> <span class="s">black</span>
+
+  <span class="pi">-</span> <span class="na">repo</span><span class="pi">:</span> <span class="s">https://github.com/pycqa/isort</span>
+    <span class="na">rev</span><span class="pi">:</span> <span class="s">5.12.0</span>
+    <span class="na">hooks</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="na">id</span><span class="pi">:</span> <span class="s">isort</span>
+
+  <span class="pi">-</span> <span class="na">repo</span><span class="pi">:</span> <span class="s">https://github.com/pycqa/flake8</span>
+    <span class="na">rev</span><span class="pi">:</span> <span class="s">6.0.0</span>
+    <span class="na">hooks</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="na">id</span><span class="pi">:</span> <span class="s">flake8</span>
+
+  <span class="pi">-</span> <span class="na">repo</span><span class="pi">:</span> <span class="s">https://github.com/pycqa/bandit</span>
+    <span class="na">rev</span><span class="pi">:</span> <span class="s">1.7.5</span>
+    <span class="na">hooks</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="na">id</span><span class="pi">:</span> <span class="s">bandit</span>
+        <span class="na">args</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">-c"</span><span class="pi">,</span> <span class="s2">"</span><span class="s">pyproject.toml"</span><span class="pi">]</span>
+</code></pre></div></div>
+
+<h3 id="project-configuration-pyprojecttoml">Project Configuration (<code class="language-plaintext highlighter-rouge">pyproject.toml</code>)</h3>
+<p>Key CI-related configurations:</p>
+<div class="language-toml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nn">[tool.black]</span>
+<span class="py">line-length</span> <span class="p">=</span> <span class="mi">88</span>
+<span class="py">target-version</span> <span class="p">=</span> <span class="nn">['py310']</span>
+
+<span class="nn">[tool.isort]</span>
+<span class="py">profile</span> <span class="p">=</span> <span class="s">"black"</span>
+<span class="py">line_length</span> <span class="p">=</span> <span class="mi">88</span>
+
+<span class="nn">[tool.pytest.ini_options]</span>
+<span class="py">timeout</span> <span class="p">=</span> <span class="mi">300</span>
+<span class="py">addopts</span> <span class="p">=</span> <span class="py">"--cov</span><span class="p">=</span><span class="err">adri</span> <span class="py">--cov-report</span><span class="p">=</span><span class="err">html</span> <span class="py">--cov-report</span><span class="p">=</span><span class="err">term-missing</span> <span class="py">--cov-fail-under</span><span class="p">=</span><span class="mi">90</span><span class="s">"</span><span class="err">
+</span></code></pre></div></div>
+
+<h2 id="troubleshooting-common-issues">Troubleshooting Common Issues</h2>
+
+<h3 id="issue-pre-commit-hook-failures">Issue: Pre-commit Hook Failures</h3>
+<p><strong>Symptoms</strong>: CI fails with <code class="language-plaintext highlighter-rouge">InvalidConfigError</code>
+<strong>Solution</strong>:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Verify .pre-commit-config.yaml exists in repository root</span>
+<span class="nb">ls</span> <span class="nt">-la</span> .pre-commit-config.yaml
+
+<span class="c"># Reinstall pre-commit hooks</span>
+pre-commit clean
+pre-commit <span class="nb">install
+</span>pre-commit run <span class="nt">--all-files</span>
+</code></pre></div></div>
+
+<h3 id="issue-version-inconsistencies">Issue: Version Inconsistencies</h3>
+<p><strong>Symptoms</strong>: Different tool versions between pyproject.toml and pre-commit
+<strong>Solution</strong>: Ensure version alignment:</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">black==25.1.0</code> in both files</li>
+  <li><code class="language-plaintext highlighter-rouge">isort==5.12.0</code> in both files</li>
+  <li><code class="language-plaintext highlighter-rouge">flake8</code> consistent across configurations</li>
+</ul>
+
+<h3 id="issue-test-timeouts">Issue: Test Timeouts</h3>
+<p><strong>Symptoms</strong>: Tests fail with timeout errors
+<strong>Solution</strong>:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Run tests with verbose output</span>
+pytest <span class="nt">-v</span> <span class="nt">--tb</span><span class="o">=</span>short
+
+<span class="c"># Increase timeout for specific tests</span>
+pytest <span class="nt">--timeout</span><span class="o">=</span>600 tests/examples/integration_tests/
+</code></pre></div></div>
+
+<h3 id="issue-dependency-conflicts">Issue: Dependency Conflicts</h3>
+<p><strong>Symptoms</strong>: Import errors or dependency resolution failures
+<strong>Solution</strong>:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Check for conflicts</span>
+pip check
+
+<span class="c"># Create clean environment</span>
+python <span class="nt">-m</span> venv clean_env
+<span class="nb">source </span>clean_env/bin/activate
+pip <span class="nb">install</span> <span class="nt">-e</span> <span class="nb">.</span>
+</code></pre></div></div>
+
+<h2 id="monitoring-and-metrics">Monitoring and Metrics</h2>
+
+<h3 id="ci-health-metrics">CI Health Metrics</h3>
+<ul>
+  <li><strong>Success Rate</strong>: Target &gt; 95% for essential pipeline</li>
+  <li><strong>Duration</strong>: Essential &lt; 15min, Comprehensive &lt; 45min</li>
+  <li><strong>Queue Time</strong>: Target &lt; 2 minutes wait time</li>
+  <li><strong>Failure Rate by Category</strong>: Track quality vs infrastructure failures</li>
+</ul>
+
+<h3 id="performance-tracking">Performance Tracking</h3>
+<ul>
+  <li><strong>Build Times</strong>: Monitor trends and optimization opportunities</li>
+  <li><strong>Resource Usage</strong>: CPU and memory consumption patterns</li>
+  <li><strong>Cache Hit Rates</strong>: Optimize caching strategies</li>
+</ul>
+
+<h2 id="emergency-procedures">Emergency Procedures</h2>
+
+<h3 id="critical-ci-failure">Critical CI Failure</h3>
+<ol>
+  <li><strong>Assess Impact</strong>: Is it blocking all development?</li>
+  <li><strong>Quick Fix</strong>: Apply immediate hotfix if possible</li>
+  <li><strong>Rollback Option</strong>: Restore previous working workflows from archived/</li>
+  <li><strong>Communication</strong>: Notify team of CI status and expected resolution</li>
+</ol>
+
+<h3 id="rollback-procedure">Rollback Procedure</h3>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Restore archived workflows if needed</span>
+<span class="nb">cp</span> .github/workflows/archived/test.yml .github/workflows/
+<span class="nb">cp</span> .github/workflows/archived/pre-commit.yml .github/workflows/
+
+<span class="c"># Commit and push emergency restore</span>
+git add .github/workflows/
+git commit <span class="nt">-m</span> <span class="s2">"emergency: restore previous CI workflows"</span>
+git push origin main
+</code></pre></div></div>
+
+<h2 id="best-practices">Best Practices</h2>
+
+<h3 id="for-developers">For Developers</h3>
+<ul>
+  <li><strong>Run pre-commit locally</strong> before pushing</li>
+  <li><strong>Keep PRs focused</strong> to minimize CI complexity</li>
+  <li><strong>Monitor CI results</strong> and address failures quickly</li>
+  <li><strong>Use draft PRs</strong> for experimental work</li>
+</ul>
+
+<h3 id="for-maintainers">For Maintainers</h3>
+<ul>
+  <li><strong>Review CI logs</strong> regularly for optimization opportunities</li>
+  <li><strong>Monitor security reports</strong> and address vulnerabilities promptly</li>
+  <li><strong>Update dependencies</strong> systematically</li>
+  <li><strong>Optimize workflow performance</strong> based on metrics</li>
+</ul>
+
+<h2 id="support-and-escalation">Support and Escalation</h2>
+
+<h3 id="getting-help">Getting Help</h3>
+<ol>
+  <li><strong>Check this guide</strong> for common solutions</li>
+  <li><strong>Review CI logs</strong> for specific error messages</li>
+  <li><strong>Consult team members</strong> for complex issues</li>
+  <li><strong>Create issue</strong> for persistent problems</li>
+</ol>
+
+<h3 id="escalation-path">Escalation Path</h3>
+<ol>
+  <li><strong>Developer</strong> → Fix obvious issues locally</li>
+  <li><strong>Team Lead</strong> → Review complex CI problems</li>
+  <li><strong>DevOps/Admin</strong> → Infrastructure and workflow changes</li>
+  <li><strong>Security Team</strong> → Security-related CI failures</li>
+</ol>
+
+<hr />
+
+<p><strong>Last Updated</strong>: Phase 4 of CI Optimization (January 2025)
+<strong>Version</strong>: v1.0 - Streamlined CI Architecture</p>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/adri/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">ADRI - Agent Data Reliability Intelligence</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">ADRI Standard</li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Stop AI Agents Breaking on Bad Data - Open source data quality validation framework</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
