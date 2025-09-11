@@ -83,9 +83,9 @@ Please read and follow our [Code of Conduct](CODE_OF_CONDUCT.md) to ensure a wel
 
 ## How to Contribute
 
-### Issue-First Workflow
+### Issue-First Workflow ⚠️ ENFORCED
 
-**All contributions must start with a GitHub issue.** This ensures transparency, enables community discussion, and provides proper tracking from feature request to implementation.
+**All contributions MUST start with a GitHub issue.** This is automatically enforced by our CI pipeline - branches that don't follow the issue-first convention will be rejected.
 
 📚 **Complete Guide**: See our detailed [Issue-Driven Development Workflow](docs/CONTRIBUTOR_DOCS/ISSUE_DRIVEN_WORKFLOW.md) for comprehensive instructions and examples.
 
@@ -100,7 +100,7 @@ Please read and follow our [Code of Conduct](CODE_OF_CONDUCT.md) to ensure a wel
 3. **Get feedback** - Allow time for community input before implementation
 4. **Issue assignment** - Comment on the issue to request assignment
 
-#### Branch Naming Convention
+#### Branch Naming Convention ⚠️ AUTOMATICALLY ENFORCED
 
 Create branches that reference the issue number using our standardized format:
 
@@ -113,6 +113,20 @@ enhance/issue-321-performance-improvement
 ```
 
 **Valid types**: `feat`, `fix`, `docs`, `chore`, `refactor`, `test`, `style`, `perf`, `enhance`, `hotfix`
+
+🚨 **IMPORTANT**: Our branch validation workflow will automatically reject branches that don't follow this convention. You'll get immediate feedback with helpful guidance on how to fix the branch name.
+
+#### What Happens If You Don't Follow Convention:
+
+```bash
+❌ BRANCH REJECTED: Invalid naming convention
+Required format: type/issue-{number}-description
+
+To fix this:
+1. Create a GitHub issue for your work
+2. Rename your branch: git branch -m type/issue-{number}-description  
+3. Push again: git push -u origin HEAD
+```
 
 ### Types of Contributions
 

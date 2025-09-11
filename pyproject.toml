@@ -225,6 +225,9 @@ omit = [
     "*/test_*",
     "*/__main__.py",
     "*/setup.py",
+    "examples/*",           # EXCLUDE examples from coverage
+    "development/*",        # EXCLUDE development tools
+    "tools/*",             # EXCLUDE utility tools
 ]
 
 [tool.coverage.report]

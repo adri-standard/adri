@@ -85,18 +85,18 @@ class TestADRIDecorators:
             len(visitor.adri_protected_functions) > 0
         ), "Should have @adri_protected functions"
 
-        # Check for specific expected functions
+        # Check for actual decorated functions in the code
         expected_functions = [
-            "customer_service_agent",
-            "langchain_qa_pipeline",
-            "langchain_conversation_chain",
+            "process_customer_request",
+            "handle_conversation",
+            "execute_tool_call",
         ]
         found_protected = [
             f for f in expected_functions if f in visitor.adri_protected_functions
         ]
         assert (
             len(found_protected) > 0
-        ), f"Should have protected functions from: {expected_functions}"
+        ), f"Should have protected functions from: {expected_functions}. Found: {visitor.adri_protected_functions}"
 
     def test_crewai_example_has_decorators(self):
         """Test CrewAI example uses @adri_protected."""
@@ -108,17 +108,18 @@ class TestADRIDecorators:
             len(visitor.adri_protected_functions) > 0
         ), "Should have @adri_protected functions"
 
+        # Check for actual decorated functions in the code
         expected_functions = [
-            "analyze_market_segment",
-            "crewai_customer_support_crew",
-            "crewai_content_creation_crew",
+            "coordinate_market_analysis",
+            "process_structured_output", 
+            "execute_agent_tools",
         ]
         found_protected = [
             f for f in expected_functions if f in visitor.adri_protected_functions
         ]
         assert (
             len(found_protected) > 0
-        ), f"Should have protected functions from: {expected_functions}"
+        ), f"Should have protected functions from: {expected_functions}. Found: {visitor.adri_protected_functions}"
 
     def test_autogen_example_has_decorators(self):
         """Test AutoGen example uses @adri_protected."""
@@ -130,17 +131,18 @@ class TestADRIDecorators:
             len(visitor.adri_protected_functions) > 0
         ), "Should have @adri_protected functions"
 
+        # Check for actual decorated functions in the code
         expected_functions = [
-            "conduct_research_project",
-            "autogen_coding_collaboration",
-            "autogen_problem_solving_team",
+            "start_conversation",
+            "call_research_function",
+            "process_message",
         ]
         found_protected = [
             f for f in expected_functions if f in visitor.adri_protected_functions
         ]
         assert (
             len(found_protected) > 0
-        ), f"Should have protected functions from: {expected_functions}"
+        ), f"Should have protected functions from: {expected_functions}. Found: {visitor.adri_protected_functions}"
 
     def test_haystack_example_has_decorators(self):
         """Test Haystack example uses @adri_protected."""
@@ -152,17 +154,17 @@ class TestADRIDecorators:
             len(visitor.adri_protected_functions) > 0
         ), "Should have @adri_protected functions"
 
+        # Check for actual decorated functions in the code
         expected_functions = [
-            "document_search_pipeline",
-            "haystack_qa_pipeline",
-            "haystack_summarization",
+            "search_documents",
+            "haystack_document_indexing",
         ]
         found_protected = [
             f for f in expected_functions if f in visitor.adri_protected_functions
         ]
         assert (
             len(found_protected) > 0
-        ), f"Should have protected functions from: {expected_functions}"
+        ), f"Should have protected functions from: {expected_functions}. Found: {visitor.adri_protected_functions}"
 
     def test_llamaindex_example_has_decorators(self):
         """Test LlamaIndex example uses @adri_protected."""
@@ -174,17 +176,17 @@ class TestADRIDecorators:
             len(visitor.adri_protected_functions) > 0
         ), "Should have @adri_protected functions"
 
+        # Check for actual decorated functions in the code
         expected_functions = [
-            "process_rag_query",
-            "llamaindex_document_ingestion",
-            "llamaindex_semantic_search",
+            "process_document_batch",
+            "query_knowledge_base",
         ]
         found_protected = [
             f for f in expected_functions if f in visitor.adri_protected_functions
         ]
         assert (
             len(found_protected) > 0
-        ), f"Should have protected functions from: {expected_functions}"
+        ), f"Should have protected functions from: {expected_functions}. Found: {visitor.adri_protected_functions}"
 
     def test_langgraph_example_has_decorators(self):
         """Test LangGraph example uses @adri_protected."""
@@ -196,6 +198,7 @@ class TestADRIDecorators:
             len(visitor.adri_protected_functions) > 0
         ), "Should have @adri_protected functions"
 
+        # Check for actual decorated functions in the code
         expected_functions = [
             "execute_analysis_workflow",
             "langgraph_chatbot_workflow",
@@ -206,7 +209,7 @@ class TestADRIDecorators:
         ]
         assert (
             len(found_protected) > 0
-        ), f"Should have protected functions from: {expected_functions}"
+        ), f"Should have protected functions from: {expected_functions}. Found: {visitor.adri_protected_functions}"
 
     def test_semantic_kernel_example_has_decorators(self):
         """Test Semantic Kernel example uses @adri_protected."""
@@ -218,17 +221,17 @@ class TestADRIDecorators:
             len(visitor.adri_protected_functions) > 0
         ), "Should have @adri_protected functions"
 
+        # Check for actual decorated functions in the code
         expected_functions = [
             "execute_ai_function",
             "semantic_kernel_planning_function",
-            "semantic_kernel_memory_function",
         ]
         found_protected = [
             f for f in expected_functions if f in visitor.adri_protected_functions
         ]
         assert (
             len(found_protected) > 0
-        ), f"Should have protected functions from: {expected_functions}"
+        ), f"Should have protected functions from: {expected_functions}. Found: {visitor.adri_protected_functions}"
 
 
 class TestADRIImports:

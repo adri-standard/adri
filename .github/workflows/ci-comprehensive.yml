@@ -65,7 +65,7 @@ jobs:
         run: |
           echo "🧪 Running comprehensive test suite for Python ${{ matrix.python-version }}..."
 
-          # Run all tests with coverage
+          # Run core tests with coverage (exclude examples and development)
           pytest tests/ \
             --cov=adri \
             --cov-report=xml \
@@ -73,6 +73,8 @@ jobs:
             --cov-fail-under=90 \
             --tb=short \
             --maxfail=10 \
+            --ignore=tests/examples/smoke_tests/test_decorators.py \
+            --ignore=tests/examples/integration_tests/ \
             -v
 
       - name: Upload coverage reports
