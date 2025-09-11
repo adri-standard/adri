@@ -68,18 +68,10 @@ jobs:
       - name: Fast test suite
         run: |
           echo "🧪 Running core test suite..."
-
-          # Run core unit tests first (excluding slow integration tests)
-          # No coverage requirement for fast feedback - coverage is checked in comprehensive workflow
-          # Allow success even if no tests are found (fast feedback focus)
-          pytest tests/ -v --tb=short -m "not slow" --maxfail=5 \
-            --ignore=tests/examples/integration_tests/ \
-            --ignore=tests/examples/dependency_tests/ \
-            --ignore=tests/examples/error_handling_tests/ \
-            --ignore=tests/examples/smoke_tests/ \
-            --ignore=tests/demo_validation/ \
-            --no-cov || [[ $? == 5 ]]
-
+          
+          # Run core unit tests (excluding slow integration tests)
+          pytest development/testing/tests/unit/ -v --tb=short -m "not slow" --maxfail=5
+          
           echo "✅ Fast test suite completed"
 
       - name: Build verification
@@ -198,6 +190,7 @@ jobs:
 
       - name: Post results comment (PR only)
         if: github.event_name == 'pull_request'
+        continue-on-error: true
         uses: actions/github-script@v7
         with:
           script: |
