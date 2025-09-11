@@ -199,7 +199,7 @@ addopts = [
     "--tb=short",  # Shorter traceback format for CI readability
     "-v",  # Verbose output
 ]
-testpaths = ["tests"]
+testpaths = ["development/testing/tests"]
 markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
     "integration: marks tests as integration tests",

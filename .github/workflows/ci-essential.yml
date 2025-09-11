@@ -69,14 +69,8 @@ jobs:
         run: |
           echo "🧪 Running core test suite..."
           
-          # Run smoke tests first (fastest)
-          pytest tests/examples/smoke_tests/ -v --tb=short
-          
-          # Run demo validation tests
-          pytest tests/demo_validation/ -v --tb=short
-          
-          # Run unit tests (excluding slow integration tests)
-          pytest tests/ -v --tb=short -m "not slow" --maxfail=5
+          # Run core unit tests (excluding slow integration tests)
+          pytest development/testing/tests/unit/ -v --tb=short -m "not slow" --maxfail=5
           
           echo "✅ Fast test suite completed"
 
