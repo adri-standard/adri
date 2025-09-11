@@ -84,7 +84,8 @@ class TestAssessmentReportCompliance:
 
             # Load ADRI Assessment Report Standard
             adri_standard_path = (
-                Path(__file__).parent.parent.parent.parent
+                Path(__file__).parent.parent.parent.parent.parent
+                / "catalogue"
                 / "adri-catalogue"
                 / "Open Source"
                 / "adri_assessment_report_standard.yaml"
@@ -565,7 +566,8 @@ def adri_assessment_standard():
     """Fixture providing ADRI Assessment Report Standard."""
     if YAMLStandards:
         standard_path = (
-            Path(__file__).parent.parent.parent.parent
+            Path(__file__).parent.parent.parent.parent.parent
+            / "catalogue"
             / "adri-catalogue"
             / "Open Source"
             / "adri_assessment_report_standard.yaml"
