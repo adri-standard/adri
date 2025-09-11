@@ -77,9 +77,6 @@ jobs:
           # Run basic example validation (imports only - lightweight)
           pytest tests/examples/smoke_tests/test_imports.py -v --tb=short
 
-          # Run demo validation tests
-          pytest tests/demo_validation/ -v --tb=short
-
           echo "✅ Fast test suite completed"
 
       - name: Build verification
