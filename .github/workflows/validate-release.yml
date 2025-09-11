@@ -10,8 +10,7 @@ on:
   pull_request:
     branches: [ main ]
     paths:
-      - '.github/workflows/promote-to-production.yml'
-      - 'scripts/update_version_tracking.py'
+      - 'development/tools/scripts/release/update_version_tracking.py'
       - 'pyproject.toml'
 
 jobs:
@@ -20,17 +19,10 @@ jobs:
     permissions:
       contents: read
     steps:
-    - name: Checkout adri-validator
+    - name: Checkout ADRI repository
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
-
-    - name: Checkout adri-standards repository
-      uses: actions/checkout@v4
-      with:
-        repository: ThinkEvolveSolve/adri-standards
-        path: ../adri-standards
-        token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Set up Python
       uses: actions/setup-python@v4
@@ -50,25 +42,26 @@ jobs:
         # Check required files exist
         required_files=(
           "pyproject.toml"
-          "scripts/update_version_tracking.py"
-          ".github/workflows/promote-to-production.yml"
+          "development/tools/scripts/release/update_version_tracking.py"
+          "adri/standards/bundled"
         )
 
         for file in "${required_files[@]}"; do
-          if [ ! -f "$file" ]; then
-            echo "❌ Missing required file: $file"
+          if [ ! -e "$file" ]; then
+            echo "❌ Missing required file/directory: $file"
             exit 1
           else
             echo "✅ Found: $file"
           fi
         done
 
-        # Check adri-standards repo was checked out
-        if [ ! -d "../adri-standards" ]; then
-          echo "❌ adri-standards repository not found"
-          exit 1
+        # Check bundled standards are present
+        bundled_count=$(find adri/standards/bundled -name "*.yaml" | wc -l)
+        if [ "$bundled_count" -gt 0 ]; then
+          echo "✅ Found $bundled_count bundled standards files"
         else
-          echo "✅ adri-standards repository found"
+          echo "❌ No bundled standards found"
+          exit 1
         fi
 
     - name: Test version tracking script (dry run)
@@ -81,10 +74,13 @@ jobs:
           sed -i 's/version = "[^"]*"/version = "${{ github.event.inputs.version }}"/' pyproject.toml
         fi
 
-        # Run the script to test it works
-        python scripts/update_version_tracking.py \
+        # Create temporary directory for local tracking test
+        mkdir -p /tmp/release-tracking
+
+        # Run the script to test it works (with local tracking)
+        python development/tools/scripts/release/update_version_tracking.py \
           --validator-repo . \
-          --standards-repo ../adri-standards \
+          --output-dir /tmp/release-tracking \
           --release-type "Test" \
           --description "Validation test run" "Testing release process"
 
@@ -94,19 +90,19 @@ jobs:
       run: |
         echo "📋 Validating generated files..."
 
-        # Check JSON file was created/updated
-        if [ -f "../adri-standards/ADRI_VALIDATOR_RELEASES.json" ]; then
+        # Check JSON file was created/updated in temp directory
+        if [ -f "/tmp/release-tracking/ADRI_VALIDATOR_RELEASES.json" ]; then
           echo "✅ JSON tracking file exists"
           # Validate JSON format
-          python -c "import json; json.load(open('../adri-standards/ADRI_VALIDATOR_RELEASES.json'))"
+          python -c "import json; json.load(open('/tmp/release-tracking/ADRI_VALIDATOR_RELEASES.json'))"
           echo "✅ JSON file is valid"
         else
           echo "❌ JSON tracking file not found"
           exit 1
         fi
 
-        # Check Markdown file was created/updated
-        if [ -f "../adri-standards/ADRI-Validator-Releases.md" ]; then
+        # Check Markdown file was created/updated in temp directory
+        if [ -f "/tmp/release-tracking/ADRI-Validator-Releases.md" ]; then
           echo "✅ Markdown tracking file exists"
         else
           echo "❌ Markdown tracking file not found"
@@ -147,7 +143,6 @@ jobs:
         import sys
 
         workflows = [
-          '.github/workflows/promote-to-production.yml',
           '.github/workflows/validate-release.yml'
         ]
 
@@ -166,6 +161,7 @@ jobs:
         echo "🎉 Release validation completed successfully!"
         echo ""
         echo "✅ Repository structure validated"
+        echo "✅ Self-contained standards validated"
         echo "✅ Version tracking script tested"
         echo "✅ Generated files validated"
         echo "✅ Tag existence check tested"

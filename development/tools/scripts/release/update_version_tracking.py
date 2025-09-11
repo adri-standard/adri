@@ -17,39 +17,38 @@ from typing import Any, Dict, List
 class VersionTracker:
     """Manages version tracking for ADRI Validator releases."""
 
-    def __init__(self, validator_repo_path: str, standards_repo_path: str):
-        """Initialize the version tracker with repository paths."""
+    def __init__(self, validator_repo_path: str, output_dir: str = None):
+        """Initialize the version tracker with repository path and output directory."""
         self.validator_repo = Path(validator_repo_path)
-        self.standards_repo = Path(standards_repo_path)
+        self.output_dir = Path(output_dir) if output_dir else self.validator_repo / "release-tracking"
 
         # File paths
-        self.json_file = self.standards_repo / "ADRI_VALIDATOR_RELEASES.json"
-        self.md_file = self.standards_repo / "ADRI-Validator-Releases.md"
+        self.json_file = self.output_dir / "ADRI_VALIDATOR_RELEASES.json"
+        self.md_file = self.output_dir / "ADRI-Validator-Releases.md"
         self.pyproject_file = self.validator_repo / "pyproject.toml"
 
         # Validate and create directories if needed
         self._validate_and_setup()
 
     def _validate_and_setup(self) -> None:
-        """Validate repository paths and create necessary directories."""
+        """Validate repository path and create necessary directories."""
         # Check validator repo exists
         if not self.validator_repo.exists():
             raise FileNotFoundError(
                 f"Validator repository not found: {self.validator_repo}"
             )
 
-        # Check standards repo exists, create if missing
-        if not self.standards_repo.exists():
-            print(f"⚠️  Standards repository not found at {self.standards_repo}")
-            print("🔧 Creating standards repository directory...")
-            self.standards_repo.mkdir(parents=True, exist_ok=True)
+        # Create output directory if missing
+        if not self.output_dir.exists():
+            print(f"🔧 Creating output directory: {self.output_dir}")
+            self.output_dir.mkdir(parents=True, exist_ok=True)
 
         # Check pyproject.toml exists
         if not self.pyproject_file.exists():
             raise FileNotFoundError(f"pyproject.toml not found: {self.pyproject_file}")
 
         print(f"✅ Validator repo: {self.validator_repo}")
-        print(f"✅ Standards repo: {self.standards_repo}")
+        print(f"✅ Output directory: {self.output_dir}")
 
     def get_current_version(self) -> str:
         """Extract current version from pyproject.toml."""
@@ -75,7 +74,7 @@ class VersionTracker:
                 "metadata": {
                     "last_updated": datetime.utcnow().isoformat() + "Z",
                     "format_version": "1.0.0",
-                    "description": "ADRI Validator release tracking for cross-repository coordination",
+                    "description": "ADRI Validator release tracking for self-contained deployment",
                 },
                 "current_release": {},
                 "releases": [],
@@ -112,7 +111,6 @@ class VersionTracker:
             "description": description,
             "breaking_changes": breaking_changes or [],
             "dependencies": {
-                "adri-standards": ">=0.1.0",
                 "pandas": ">=1.5.0",
                 "pyyaml": ">=6.0",
                 "click": ">=8.0",
@@ -135,7 +133,7 @@ class VersionTracker:
             "release_date": new_release["release_date"],
             "is_latest": True,
             "pypi_url": "https://pypi.org/project/adri/",
-            "github_url": "https://github.com/ThinkEvolveSolve/adri-validator",
+            "github_url": "https://github.com/adri-standard/adri",
             "installation": f"pip install adri=={version}",
         }
 
@@ -146,6 +144,7 @@ class VersionTracker:
 
         # Update installation guide
         data["installation_guide"]["specific_version"] = f"pip install adri=={version}"
+        data["installation_guide"]["with_standards"] = "pip install adri"  # Self-contained now
 
         # Save JSON file
         self.json_file.write_text(json.dumps(data, indent=2))
@@ -225,9 +224,9 @@ pip install adri==VERSION
 pip install adri
 ```
 
-### With Standards Dependency
+### With Bundled Standards (Self-contained)
 ```bash
-pip install adri-standards adri
+pip install adri
 ```
 
 ### Development Version
@@ -248,9 +247,9 @@ def process_customers(customer_data):
 
 ## Documentation
 
-- **[ADRI Validator README](https://github.com/thinkveolvesolve/adri-validator/blob/main/README.md)** - Complete package documentation
-- **[ADRI Standards](https://github.com/thinkveolvesolve/adri-standards)** - Standards library and examples
-- **[Getting Started Guide](https://adri.verodat.com/getting-started)** - Quick setup tutorial
+- **[ADRI README](https://github.com/adri-standard/adri/blob/main/README.md)** - Complete package documentation
+- **[Bundled Standards](https://github.com/adri-standard/adri/tree/main/adri/standards/bundled)** - Self-contained standards library
+- **[Getting Started Guide](https://github.com/adri-standard/adri/blob/main/QUICK_START.md)** - Quick setup tutorial
 
 ---
 
@@ -269,7 +268,7 @@ def main():
         "--validator-repo", default=".", help="Path to ADRI Validator repository"
     )
     parser.add_argument(
-        "--standards-repo", required=True, help="Path to ADRI Standards repository"
+        "--output-dir", help="Output directory for tracking files (default: ./release-tracking)"
     )
     parser.add_argument(
         "--release-type", default="Beta", help="Release type (Beta, Stable, RC, etc.)"
@@ -281,7 +280,7 @@ def main():
 
     args = parser.parse_args()
 
-    tracker = VersionTracker(args.validator_repo, args.standards_repo)
+    tracker = VersionTracker(args.validator_repo, args.output_dir)
 
     # Get current version from pyproject.toml
     try:
