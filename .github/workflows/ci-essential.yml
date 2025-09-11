@@ -75,6 +75,7 @@ jobs:
             --ignore=tests/examples/integration_tests/ \
             --ignore=tests/examples/dependency_tests/ \
             --ignore=tests/examples/error_handling_tests/ \
+            --ignore=tests/examples/smoke_tests/ \
             --ignore=tests/demo_validation/ \
             --no-cov
 
