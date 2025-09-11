@@ -206,7 +206,7 @@ markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
     "quick: marks tests as quick/fast (deselect with '-m \"not quick\"')",
     "integration: marks tests as integration tests",
-    "unit: marks tests as unit tests", 
+    "unit: marks tests as unit tests",
     "benchmark: marks tests as performance benchmarks",
     "performance: marks tests with large datasets (deselect with '-m \"not performance\"')",
     "stress: marks tests with extreme conditions (deselect with '-m \"not stress\"')",
