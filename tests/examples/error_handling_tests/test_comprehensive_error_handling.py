@@ -39,7 +39,7 @@ from tests.examples.error_handling_tests import (
     FRAMEWORK_ERROR_PATTERNS,
 )
 from tests.examples.utils.api_key_manager import APIKeyManager
-from tests.examples.utils.cost_controls import CostTracker
+from tests.examples.utils.cost_controls import CostController
 
 
 class TestComprehensiveErrorHandling:
@@ -49,8 +49,8 @@ class TestComprehensiveErrorHandling:
     def setup_class(cls):
         """Setup test environment for error handling validation."""
         cls.api_manager = APIKeyManager()
-        cls.cost_tracker = CostTracker(
-            max_cost_dollars=0.25
+        cls.cost_tracker = CostController(
+            max_estimated_cost=0.25
         )  # Lower cost for error tests
 
         # Track error handling metrics
@@ -59,13 +59,13 @@ class TestComprehensiveErrorHandling:
         cls.protection_success_rate = 0.0
 
         print(f"\n🛡️ Starting Comprehensive Error Handling Tests")
-        print(f"💰 Cost limit: ${cls.cost_tracker.max_cost}")
+        print(f"💰 Cost limit: ${cls.cost_tracker.max_estimated_cost}")
         print(f"📊 Testing {len(FRAMEWORK_ERROR_PATTERNS)} frameworks")
         print(f"🔍 Error categories: {len(ERROR_TEST_CATEGORIES)}")
 
     def setup_method(self):
         """Reset tracking for each test method."""
-        self.cost_tracker.reset_for_test()
+        pass  # CostController doesn't have reset_for_test method
 
     def test_data_validation_errors_all_frameworks(self):
         """Test data validation error handling across all frameworks."""
@@ -589,8 +589,8 @@ class TestComprehensiveErrorHandling:
     def test_cost_controls_under_error_conditions(self):
         """Verify cost controls work correctly under error conditions."""
 
-        current_cost = self.cost_tracker.get_current_cost()
-        max_cost = self.cost_tracker.max_cost
+        current_cost = sum(r.estimated_cost for r in self.cost_tracker.call_records)
+        max_cost = self.cost_tracker.max_estimated_cost
 
         print(f"\n💰 Cost Control Validation Under Error Conditions:")
         print(f"   Current session cost: ${current_cost:.4f}")
@@ -612,7 +612,7 @@ class TestComprehensiveErrorHandling:
     def teardown_class(cls):
         """Generate comprehensive error handling report."""
 
-        final_cost = cls.cost_tracker.get_current_cost()
+        final_cost = sum(r.estimated_cost for r in cls.cost_tracker.call_records)
 
         print(f"\n🏁 COMPREHENSIVE ERROR HANDLING TEST RESULTS")
         print(f"=" * 70)
