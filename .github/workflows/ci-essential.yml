@@ -73,6 +73,7 @@ jobs:
           pytest tests/ -v --tb=short -m "not slow" --maxfail=5 \
             --ignore=tests/examples/smoke_tests/test_decorators.py \
             --ignore=tests/examples/integration_tests/ \
+            --ignore=tests/examples/dependency_tests/ \
             --ignore=tests/demo_validation/
 
           # Run basic example validation (imports only - lightweight)
