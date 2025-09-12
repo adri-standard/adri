@@ -30,7 +30,6 @@ sys.path.insert(0, str(project_root))
 
 from adri.decorators.guard import adri_protected
 from tests.examples.utils.api_key_manager import APIKeyManager
-from tests.examples.utils.cost_controls import CostTracker
 
 
 class TestHaystackLiveIntegration:
@@ -38,24 +37,16 @@ class TestHaystackLiveIntegration:
 
     @classmethod
     def setup_class(cls):
-        """Setup test environment with API key validation and cost controls."""
+        """Setup test environment for mock-based testing."""
         cls.api_manager = APIKeyManager()
-        cls.cost_tracker = CostTracker(max_cost_dollars=0.50)
 
-        # Validate API key availability
-        if not cls.api_manager.has_valid_openai_key():
-            pytest.skip("OpenAI API key not available for live testing")
-
-        # Set environment variable for the test session
-        os.environ["OPENAI_API_KEY"] = cls.api_manager.get_openai_key()
-
-        print(f"\n🚀 Starting Haystack Live Integration Tests")
-        print(f"💰 Cost limit: ${cls.cost_tracker.max_cost}")
+        print(f"\n🚀 Starting Haystack Integration Tests (Mock Mode)")
+        print(f"🎯 Focus: ADRI protection validation without API costs")
         print(f"📊 Business Impact: Testing prevention of 300+ validation issues")
 
     def setup_method(self):
-        """Reset cost tracking for each test method."""
-        self.cost_tracker.reset_for_test()
+        """Setup for each test method."""
+        pass
 
     def test_knowledge_management_pipeline_with_good_data(self):
         """Test knowledge management pipeline with valid data - should succeed with real API calls."""
@@ -79,10 +70,10 @@ class TestHaystackLiveIntegration:
 
         query = "What is machine learning?"
 
-        # Track API call cost
-        with self.cost_tracker.track_api_call(
-            "haystack_knowledge_search", estimated_cost=0.05
-        ):
+        # Test with mock mode (no API costs in CI)
+        with patch('openai.OpenAI') as mock_openai:
+            # Mock successful API response
+            mock_openai.return_value.embeddings.create.return_value.data = [{"embedding": [0.1, 0.2, 0.3]}]
             result = knowledge_search_pipeline(good_documents, query)
 
         # Validate successful processing
@@ -146,10 +137,9 @@ class TestHaystackLiveIntegration:
             },
         ]
 
-        # Track embedding generation cost
-        with self.cost_tracker.track_api_call(
-            "haystack_embeddings", estimated_cost=0.03
-        ):
+        # Test with mocks (no API costs in CI)
+        with patch('openai.OpenAI') as mock_openai:
+            mock_openai.return_value.embeddings.create.return_value.data = [{"embedding": [0.1, 0.2]}]
             indexed_docs = process_documents_for_indexing(documents)
 
         # Validate indexing results
@@ -185,10 +175,9 @@ class TestHaystackLiveIntegration:
 
         search_query = "How do neural networks work in AI?"
 
-        # Track semantic search cost
-        with self.cost_tracker.track_api_call(
-            "haystack_semantic_search", estimated_cost=0.04
-        ):
+        # Test with mocks (no API costs in CI)
+        with patch('openai.OpenAI') as mock_openai:
+            mock_openai.return_value.embeddings.create.return_value.data = [{"embedding": [0.1, 0.2]}]
             search_results = semantic_search_query(knowledge_base, search_query)
 
         # Validate search functionality
@@ -224,10 +213,11 @@ class TestHaystackLiveIntegration:
 
         question = "What are the benefits of cloud computing for businesses?"
 
-        # Track complete RAG pipeline cost
-        with self.cost_tracker.track_api_call(
-            "haystack_rag_pipeline", estimated_cost=0.08
-        ):
+        # Test with mocks (no API costs in CI)
+        with patch('openai.OpenAI') as mock_openai:
+            mock_openai.return_value.chat.completions.create.return_value.choices = [
+                MagicMock(message=MagicMock(content="Cloud computing provides scalable, cost-effective business solutions."))
+            ]
             answer = rag_question_answering(documents, question)
 
         # Validate RAG results
@@ -270,10 +260,11 @@ class TestHaystackLiveIntegration:
             "How do microservices, containers, and API gateways work together?"
         )
 
-        # Track knowledge synthesis cost
-        with self.cost_tracker.track_api_call(
-            "haystack_knowledge_synthesis", estimated_cost=0.06
-        ):
+        # Test with mocks (no API costs in CI)  
+        with patch('openai.OpenAI') as mock_openai:
+            mock_openai.return_value.chat.completions.create.return_value.choices = [
+                MagicMock(message=MagicMock(content="Microservices, containers, and API gateways create scalable distributed architectures."))
+            ]
             synthesized_knowledge = synthesize_knowledge_from_documents(
                 related_docs, synthesis_query
             )
@@ -315,10 +306,9 @@ class TestHaystackLiveIntegration:
             },
         ]
 
-        # Should handle errors gracefully and process valid documents
-        with self.cost_tracker.track_api_call(
-            "haystack_error_handling", estimated_cost=0.03
-        ):
+        # Test error handling with mocks (no API costs in CI)
+        with patch('openai.OpenAI') as mock_openai:
+            mock_openai.return_value.embeddings.create.return_value.data = [{"embedding": [0.1, 0.2]}]
             processed_results = robust_document_processing(mixed_documents)
 
         # Validate error handling
@@ -330,32 +320,10 @@ class TestHaystackLiveIntegration:
         print(f"🛡️ Risk Mitigation: Prevented system crashes in production")
         print(f"💪 Reliability: 99.2% uptime maintained with error handling")
 
-    def test_cost_controls_and_limits(self):
-        """Verify cost tracking and limits are working properly."""
-        # Check current cost tracking
-        current_cost = self.cost_tracker.get_current_cost()
-        max_cost = self.cost_tracker.max_cost
-
-        print(f"💰 Cost Tracking Summary:")
-        print(f"   Current session cost: ${current_cost:.4f}")
-        print(f"   Maximum allowed cost: ${max_cost:.2f}")
-        print(f"   Remaining budget: ${max_cost - current_cost:.4f}")
-
-        # Verify we haven't exceeded limits
-        assert (
-            current_cost <= max_cost
-        ), f"Cost limit exceeded: ${current_cost} > ${max_cost}"
-
-        # Business cost control value
-        print(f"🎯 Cost Control Success: 100% adherence to budget limits")
-        print(f"📊 ROI: Every $1 in API costs saves $35 in prevented failures")
-
     @classmethod
     def teardown_class(cls):
         """Clean up after all tests complete."""
-        final_cost = cls.cost_tracker.get_current_cost()
-        print(f"\n🏁 Haystack Live Integration Tests Complete")
-        print(f"💰 Total API costs: ${final_cost:.4f}")
+        print(f"\n🏁 Haystack Integration Tests Complete")
         print(f"🎯 Business Value Delivered:")
         print(f"   • 300+ validation issues prevented")
         print(f"   • $15,750 in debugging costs saved")
