@@ -16,61 +16,23 @@ import pytest
 import yaml
 
 
-@lru_cache(maxsize=1)
-def get_cli_script_path() -> Path:
-    """Get the path to the CLI script with robust discovery.
+def get_cli_command() -> list:
+    """Get the CLI command to execute ADRI commands.
 
-    This function tries multiple methods to find the CLI script:
-    1. Look for project root markers and navigate from there
-    2. Use environment variables if set
-    3. Try relative paths from the test file
+    The ADRI CLI is implemented as a Python module entry point,
+    not as a standalone script. This function returns the appropriate
+    command to invoke the CLI.
 
     Returns:
-        Path to the CLI script
-
-    Raises:
-        FileNotFoundError: If the CLI script cannot be found
+        List containing the command to execute ADRI CLI
     """
-    # Method 1: Find project root by looking for marker files
-    current = Path(__file__).resolve()
-
-    # Walk up the directory tree looking for project markers
-    for parent in current.parents:
-        # Check for pyproject.toml or setup.py as project root markers
-        if (parent / "pyproject.toml").exists() or (parent / "setup.py").exists():
-            cli_script = parent / "scripts" / "core" / "cli.py"
-            if cli_script.exists():
-                return cli_script
-
-    # Method 2: Check if there's an environment variable pointing to the project
-    if "ADRI_VALIDATOR_ROOT" in os.environ:
-        root = Path(os.environ["ADRI_VALIDATOR_ROOT"])
-        cli_script = root / "scripts" / "core" / "cli.py"
-        if cli_script.exists():
-            return cli_script
-
-    # Method 3: Try the original relative path (for backwards compatibility)
-    test_dir = Path(__file__).parent.parent.parent
-    cli_script = test_dir / "scripts" / "core" / "cli.py"
-    if cli_script.exists():
-        return cli_script
-
-    # Method 4: Try to find it relative to the current working directory
-    cwd = Path.cwd()
-    for possible_root in [cwd, cwd / "adri-validator"]:
-        cli_script = possible_root / "scripts" / "core" / "cli.py"
-        if cli_script.exists():
-            return cli_script
-
-    # If we get here, we couldn't find the script
-    raise FileNotFoundError(
-        f"Could not find cli.py script. Searched in:\n"
-        f"  - Project root (found by markers)\n"
-        f"  - $ADRI_VALIDATOR_ROOT environment variable\n"
-        f"  - Relative to test file: {test_dir}\n"
-        f"  - Current working directory: {cwd}\n"
-        f"Please ensure you're running tests from the project root or set ADRI_VALIDATOR_ROOT."
-    )
+    # Try to use the installed 'adri' command first
+    import shutil
+    if shutil.which("adri"):
+        return ["adri"]
+    
+    # Fall back to module execution
+    return [sys.executable, "-m", "adri.cli.commands"]
 
 
 class TestEndToEndWorkflow:
@@ -143,18 +105,12 @@ class TestEndToEndWorkflow:
                     writer.writeheader()
                     writer.writerows(sample_data)
 
-                # Get path to CLI script using robust discovery
-                cli_script = get_cli_script_path()
+                # Get CLI command for ADRI
+                cli_cmd = get_cli_command()
 
                 # Step 1: Setup ADRI project
                 result = subprocess.run(
-                    [
-                        sys.executable,
-                        str(cli_script),
-                        "setup",
-                        "--project-name",
-                        "test-project",
-                    ],
+                    cli_cmd + ["setup", "--project-name", "test-project"],
                     capture_output=True,
                     text=True,
                 )
@@ -180,13 +136,7 @@ class TestEndToEndWorkflow:
 
                 # Step 2: Generate standard from data
                 result = subprocess.run(
-                    [
-                        sys.executable,
-                        str(cli_script),
-                        "generate-standard",
-                        "sample_data.csv",
-                        "--verbose",
-                    ],
+                    cli_cmd + ["generate-standard", "sample_data.csv", "--verbose"],
                     capture_output=True,
                     text=True,
                 )
@@ -220,13 +170,7 @@ class TestEndToEndWorkflow:
 
                 # Step 3: Validate generated standard
                 result = subprocess.run(
-                    [
-                        sys.executable,
-                        str(cli_script),
-                        "validate-standard",
-                        str(standard_file),
-                        "--verbose",
-                    ],
+                    cli_cmd + ["validate-standard", str(standard_file), "--verbose"],
                     capture_output=True,
                     text=True,
                 )
@@ -240,15 +184,7 @@ class TestEndToEndWorkflow:
 
                 # Step 4: Run assessment with generated standard
                 result = subprocess.run(
-                    [
-                        sys.executable,
-                        str(cli_script),
-                        "assess",
-                        "sample_data.csv",
-                        "--standard",
-                        "sample_data_ADRI_standard.yaml",
-                        "--verbose",
-                    ],
+                    cli_cmd + ["assess", "sample_data.csv", "--standard", "sample_data_ADRI_standard.yaml", "--verbose"],
                     capture_output=True,
                     text=True,
                 )
@@ -319,12 +255,12 @@ class TestEndToEndWorkflow:
                 csv_content = "id,name,value\n1,test,100\n2,test2,200"
                 Path("test_data.csv").write_text(csv_content)
 
-                # Get path to CLI script using robust discovery
-                cli_script = get_cli_script_path()
+                # Get CLI command for ADRI
+                cli_cmd = get_cli_command()
 
                 # Setup project
                 result = subprocess.run(
-                    [sys.executable, str(cli_script), "setup"],
+                    cli_cmd + ["setup"],
                     capture_output=True,
                     text=True,
                 )
@@ -337,12 +273,7 @@ class TestEndToEndWorkflow:
 
                 # Generate standard first time
                 result = subprocess.run(
-                    [
-                        sys.executable,
-                        str(cli_script),
-                        "generate-standard",
-                        "test_data.csv",
-                    ],
+                    cli_cmd + ["generate-standard", "test_data.csv"],
                     capture_output=True,
                     text=True,
                 )
@@ -350,12 +281,7 @@ class TestEndToEndWorkflow:
 
                 # Try to generate again without force (should fail)
                 result = subprocess.run(
-                    [
-                        sys.executable,
-                        str(cli_script),
-                        "generate-standard",
-                        "test_data.csv",
-                    ],
+                    cli_cmd + ["generate-standard", "test_data.csv"],
                     capture_output=True,
                     text=True,
                 )
@@ -364,13 +290,7 @@ class TestEndToEndWorkflow:
 
                 # Generate again with force (should succeed)
                 result = subprocess.run(
-                    [
-                        sys.executable,
-                        str(cli_script),
-                        "generate-standard",
-                        "test_data.csv",
-                        "--force",
-                    ],
+                    cli_cmd + ["generate-standard", "test_data.csv", "--force"],
                     capture_output=True,
                     text=True,
                 )
@@ -386,12 +306,12 @@ class TestEndToEndWorkflow:
             os.chdir(temp_dir)
 
             try:
-                # Get path to CLI script using robust discovery
-                cli_script = get_cli_script_path()
+                # Get CLI command for ADRI
+                cli_cmd = get_cli_command()
 
                 # Setup project
                 result = subprocess.run(
-                    [sys.executable, str(cli_script), "setup"],
+                    cli_cmd + ["setup"],
                     capture_output=True,
                     text=True,
                 )
@@ -399,12 +319,7 @@ class TestEndToEndWorkflow:
 
                 # Try to generate standard from non-existent file
                 result = subprocess.run(
-                    [
-                        sys.executable,
-                        str(cli_script),
-                        "generate-standard",
-                        "nonexistent.csv",
-                    ],
+                    cli_cmd + ["generate-standard", "nonexistent.csv"],
                     capture_output=True,
                     text=True,
                 )
@@ -416,7 +331,7 @@ class TestEndToEndWorkflow:
 
                 # Try to generate standard from empty file
                 result = subprocess.run(
-                    [sys.executable, str(cli_script), "generate-standard", "empty.csv"],
+                    cli_cmd + ["generate-standard", "empty.csv"],
                     capture_output=True,
                     text=True,
                 )
@@ -468,12 +383,12 @@ class TestEndToEndWorkflow:
                     writer.writeheader()
                     writer.writerows(sample_data)
 
-                # Get path to CLI script using robust discovery
-                cli_script = get_cli_script_path()
+                # Get CLI command for ADRI
+                cli_cmd = get_cli_command()
 
                 # Setup and generate
                 subprocess.run(
-                    [sys.executable, str(cli_script), "setup"], capture_output=True
+                    cli_cmd + ["setup"], capture_output=True
                 )
                 import shutil
 
@@ -482,12 +397,7 @@ class TestEndToEndWorkflow:
                 )
 
                 result = subprocess.run(
-                    [
-                        sys.executable,
-                        str(cli_script),
-                        "generate-standard",
-                        "comprehensive_data.csv",
-                    ],
+                    cli_cmd + ["generate-standard", "comprehensive_data.csv"],
                     capture_output=True,
                     text=True,
                 )
@@ -602,12 +512,12 @@ class TestEndToEndWorkflow:
                     writer.writeheader()
                     writer.writerows(high_quality_data)
 
-                # Get path to CLI script using robust discovery
-                cli_script = get_cli_script_path()
+                # Get CLI command for ADRI
+                cli_cmd = get_cli_command()
 
                 # Setup, generate, and assess
                 subprocess.run(
-                    [sys.executable, str(cli_script), "setup"], capture_output=True
+                    cli_cmd + ["setup"], capture_output=True
                 )
                 import shutil
 
@@ -616,25 +526,12 @@ class TestEndToEndWorkflow:
                 )
 
                 subprocess.run(
-                    [
-                        sys.executable,
-                        str(cli_script),
-                        "generate-standard",
-                        "high_quality_data.csv",
-                    ],
+                    cli_cmd + ["generate-standard", "high_quality_data.csv"],
                     capture_output=True,
                 )
 
                 result = subprocess.run(
-                    [
-                        sys.executable,
-                        str(cli_script),
-                        "assess",
-                        "high_quality_data.csv",
-                        "--standard",
-                        "high_quality_data_ADRI_standard.yaml",
-                        "--verbose",
-                    ],
+                    cli_cmd + ["assess", "high_quality_data.csv", "--standard", "high_quality_data_ADRI_standard.yaml", "--verbose"],
                     capture_output=True,
                     text=True,
                 )
@@ -691,12 +588,12 @@ class TestEndToEndWorkflow:
             os.chdir(temp_dir)
 
             try:
-                # Get path to CLI script using robust discovery
-                cli_script = get_cli_script_path()
+                # Get CLI command for ADRI
+                cli_cmd = get_cli_command()
 
                 # Test successful setup (exit code 0)
                 result = subprocess.run(
-                    [sys.executable, str(cli_script), "setup"],
+                    cli_cmd + ["setup"],
                     capture_output=True,
                     text=True,
                 )
@@ -704,12 +601,7 @@ class TestEndToEndWorkflow:
 
                 # Test error case: generate standard from non-existent file (exit code 1)
                 result = subprocess.run(
-                    [
-                        sys.executable,
-                        str(cli_script),
-                        "generate-standard",
-                        "nonexistent.csv",
-                    ],
+                    cli_cmd + ["generate-standard", "nonexistent.csv"],
                     capture_output=True,
                     text=True,
                 )
@@ -719,12 +611,7 @@ class TestEndToEndWorkflow:
 
                 # Test error case: validate non-existent standard (exit code 1)
                 result = subprocess.run(
-                    [
-                        sys.executable,
-                        str(cli_script),
-                        "validate-standard",
-                        "nonexistent.yaml",
-                    ],
+                    cli_cmd + ["validate-standard", "nonexistent.yaml"],
                     capture_output=True,
                     text=True,
                 )
@@ -734,14 +621,7 @@ class TestEndToEndWorkflow:
 
                 # Test error case: assess without standard (exit code 1)
                 result = subprocess.run(
-                    [
-                        sys.executable,
-                        str(cli_script),
-                        "assess",
-                        "data.csv",
-                        "--standard",
-                        "nonexistent.yaml",
-                    ],
+                    cli_cmd + ["assess", "data.csv", "--standard", "nonexistent.yaml"],
                     capture_output=True,
                     text=True,
                 )
@@ -763,12 +643,7 @@ class TestEndToEndWorkflow:
 
                 # Generate standard (should return 0)
                 result = subprocess.run(
-                    [
-                        sys.executable,
-                        str(cli_script),
-                        "generate-standard",
-                        "test.csv",
-                    ],
+                    cli_cmd + ["generate-standard", "test.csv"],
                     capture_output=True,
                     text=True,
                 )
@@ -780,12 +655,7 @@ class TestEndToEndWorkflow:
                 # The standard file is in ADRI/dev/standards/
                 standard_file = Path("ADRI/dev/standards/test_ADRI_standard.yaml")
                 result = subprocess.run(
-                    [
-                        sys.executable,
-                        str(cli_script),
-                        "validate-standard",
-                        str(standard_file),
-                    ],
+                    cli_cmd + ["validate-standard", str(standard_file)],
                     capture_output=True,
                     text=True,
                 )
@@ -795,14 +665,7 @@ class TestEndToEndWorkflow:
 
                 # Assess data (should return 0)
                 result = subprocess.run(
-                    [
-                        sys.executable,
-                        str(cli_script),
-                        "assess",
-                        "test.csv",
-                        "--standard",
-                        "test_ADRI_standard.yaml",
-                    ],
+                    cli_cmd + ["assess", "test.csv", "--standard", "test_ADRI_standard.yaml"],
                     capture_output=True,
                     text=True,
                 )

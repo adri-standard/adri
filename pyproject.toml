@@ -185,7 +185,7 @@ max-statements = 60
 exclude_dirs = ["development"]
 skips = ["B101", "B601"]  # Skip assert_used and shell_injection_process_args
 
-# pytest configuration
+# pytest configuration - Default settings for mixed core/non-core testing
 [tool.pytest.ini_options]
 minversion = "7.0"
 addopts = [
@@ -195,26 +195,45 @@ addopts = [
     "--cov-report=term-missing",
     "--cov-report=html",
     "--cov-report=json",
-    "--cov-fail-under=85",  # Realistic coverage target
+    "--cov-fail-under=75",  # Balanced coverage target for mixed testing
     "--tb=short",  # Shorter traceback format for CI readability
-    "--maxfail=3",  # Stop after 3 failures to prevent long CI runs
+    "--maxfail=5",  # Allow more failures for mixed core/non-core
     "-q",  # Quiet output to prevent token explosion in CI
 ]
-testpaths = ["tests"]
+testpaths = [
+    "tests",
+    "development/testing/tests"
+]
 console_output_style = "progress"  # Progress style output for better CI readability
 markers = [
+    # Core test markers - BLOCKING
+    "unit: Core unit tests - must pass",
+    "integration: Core integration tests - must pass", 
+    "performance: Core performance tests - must pass",
+    "e2e: End-to-end core workflow tests - must pass",
+    "core_blocking: Core tests that block merges on failure",
+    
+    # Non-core test markers - NON-BLOCKING
+    "examples: Example framework integration tests",
+    "demo_validation: Demo credibility and quality tests",
+    "dependency_tests: Dependency error handling tests",
+    "integration_tests: Framework integration tests (non-core)",
+    "smoke_tests: Basic import and functionality smoke tests", 
+    "error_handling: Error handling pattern tests",
+    "non_core_quality: Non-core quality feedback tests",
+    "non_blocking: Tests that provide feedback only",
+    
+    # General markers
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
     "quick: marks tests as quick/fast (deselect with '-m \"not quick\"')",
-    "integration: marks tests as integration tests",
-    "unit: marks tests as unit tests",
     "benchmark: marks tests as performance benchmarks",
-    "performance: marks tests with large datasets (deselect with '-m \"not performance\"')",
     "stress: marks tests with extreme conditions (deselect with '-m \"not stress\"')",
     "timeout: marks tests with custom timeout values",
     "ci_skip: marks tests to skip in CI environment",
     "ci_only: marks tests that should only run in CI environments",
     "audit: marks tests for audit logging functionality",
     "csv_output: marks tests for CSV output functionality",
+    "requires_api_key: Tests requiring external API access",
 ]
 filterwarnings = [
     "error",
@@ -226,6 +245,10 @@ filterwarnings = [
 # Timeout settings for CI (in seconds)
 timeout = 30  # Default timeout for all tests
 timeout_method = "thread"  # Use thread-based timeout
+
+# NOTE: For specific core or non-core testing, use:
+# Core testing: pytest -c pytest-core.ini (85% coverage, strict requirements)
+# Non-core testing: pytest -c pytest-non-core.ini (70% coverage, relaxed requirements)
 
 # coverage configuration
 [tool.coverage.run]

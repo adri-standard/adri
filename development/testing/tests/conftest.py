@@ -30,10 +30,11 @@ def pytest_configure(config):
     config.addinivalue_line("markers", "csv_output: Tests for CSV output functionality")
 
 
-# Configure output limiting for all tests
-@pytest.fixture(autouse=True)
+# Note: Removed auto-fixture that was causing environment pollution
+# Configure output limiting only when explicitly requested
+@pytest.fixture
 def limit_test_output(monkeypatch):
-    """Automatically limit output for all tests to prevent token explosion."""
+    """Limit output for specific tests that request it."""
     # Set conservative defaults if not already set
     if "ADRI_TEST_MAX_OUTPUT" not in os.environ:
         monkeypatch.setenv("ADRI_TEST_MAX_OUTPUT", "1000")

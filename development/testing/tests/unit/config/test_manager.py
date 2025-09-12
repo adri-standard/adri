@@ -15,6 +15,11 @@ from adri.config.manager import ConfigManager
 
 class TestConfigManagerInit:
     """Test ConfigManager initialization."""
+    
+    def teardown_method(self):
+        """Clean up after each test to prevent mock pollution."""
+        from unittest.mock import patch
+        patch.stopall()
 
     def test_init(self):
         """Test ConfigManager initialization."""
@@ -440,6 +445,11 @@ class TestGetActiveConfig:
     def setup_method(self):
         """Set up test fixtures."""
         self.manager = ConfigManager()
+        
+    def teardown_method(self):
+        """Clean up after each test to prevent mock pollution."""
+        from unittest.mock import patch
+        patch.stopall()
 
     def test_get_active_config_with_path(self):
         """Test getting active config with specific path."""
@@ -719,6 +729,11 @@ class TestGetProtectionConfig:
     def setup_method(self):
         """Set up test fixtures."""
         self.manager = ConfigManager()
+        
+    def teardown_method(self):
+        """Clean up after each test to prevent mock pollution."""
+        from unittest.mock import patch
+        patch.stopall()
 
     def test_get_protection_config_no_active_config(self):
         """Test getting protection config when no active config exists."""
