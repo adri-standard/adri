@@ -701,7 +701,16 @@ class AssessmentEngine:
 
                 if not nullable:  # Field is required
                     total_required_fields += len(data)
-                    missing_required_values += data[column].isnull().sum()
+                    # Fix pandas compatibility issue with _NoValueType
+                    try:
+                        null_sum = data[column].isnull().sum()
+                        if hasattr(null_sum, 'item'):
+                            missing_required_values += int(null_sum.item())
+                        else:
+                            missing_required_values += int(null_sum) if null_sum is not None else 0
+                    except (TypeError, ValueError):
+                        # Fallback: count nulls manually for this column
+                        missing_required_values += int(data[column].isnull().sum())
 
         if total_required_fields == 0:
             # No required fields defined, use basic completeness
