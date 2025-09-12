@@ -58,7 +58,8 @@ jobs:
           pytest development/testing/tests/unit/core/ \
                  development/testing/tests/unit/utils/ \
                  development/testing/tests/unit/standards/ \
-                 development/testing/tests/unit/config/test_manager_coverage.py \
+                 development/testing/tests/unit/config/ \
+                 development/testing/tests/unit/analysis/ \
                  development/testing/tests/unit/test_init.py \
                  development/testing/tests/unit/test_version.py \
                  development/testing/tests/enterprise/ \
@@ -68,6 +69,7 @@ jobs:
             --cov=adri.decorators \
             --cov=adri.standards \
             --cov=adri.config \
+            --cov=adri.analysis \
             --cov=adri.__init__ \
             --cov=adri.version \
             --cov-report=xml \
