@@ -367,5 +367,278 @@ class TestConfigManagerExceptionHandling:
                 assert result is None
 
 
+class TestConfigManagerAdditionalMethods:
+    """Test additional methods and edge cases in ConfigManager."""
+
+    def setup_method(self):
+        """Set up test fixtures."""
+        self.manager = ConfigManager()
+
+    def test_get_environment_config_invalid_environment(self):
+        """Test get_environment_config with invalid environment."""
+        config = {
+            "adri": {
+                "environments": {
+                    "dev": {"paths": {"standards": "/path1", "assessments": "/path2", "training_data": "/path3"}}
+                },
+                "default_environment": "dev"
+            }
+        }
+        
+        # Test with non-existent environment
+        with pytest.raises(ValueError, match="Environment 'nonexistent' not found"):
+            self.manager.get_environment_config(config, "nonexistent")
+
+    def test_get_environment_config_invalid_config_type(self):
+        """Test get_environment_config with invalid config type."""
+        config = {
+            "adri": {
+                "environments": {
+                    "dev": "invalid_string_instead_of_dict"  # Invalid type
+                },
+                "default_environment": "dev"
+            }
+        }
+        
+        with pytest.raises(ValueError, match="Invalid environment configuration"):
+            self.manager.get_environment_config(config, "dev")
+
+    def test_resolve_standard_path(self):
+        """Test resolve_standard_path method."""
+        config = {
+            "adri": {
+                "environments": {
+                    "dev": {"paths": {"standards": "/test/standards", "assessments": "/test/assessments", "training_data": "/test/training"}}
+                },
+                "default_environment": "dev"
+            }
+        }
+        
+        # Test with .yaml extension
+        result = self.manager.resolve_standard_path("test_standard.yaml", config, "dev")
+        assert result == os.path.join("/test/standards", "test_standard.yaml")
+        
+        # Test without extension (should add .yaml)
+        result = self.manager.resolve_standard_path("test_standard", config, "dev")
+        assert result == os.path.join("/test/standards", "test_standard.yaml")
+
+    def test_get_assessments_dir(self):
+        """Test get_assessments_dir method."""
+        config = {
+            "adri": {
+                "environments": {
+                    "dev": {"paths": {"standards": "/test/standards", "assessments": "/test/assessments", "training_data": "/test/training"}}
+                },
+                "default_environment": "dev"
+            }
+        }
+        
+        result = self.manager.get_assessments_dir(config, "dev")
+        assert result == "/test/assessments"
+
+    def test_get_assessments_dir_invalid_type(self):
+        """Test get_assessments_dir with invalid assessments path type."""
+        config = {
+            "adri": {
+                "environments": {
+                    "dev": {"paths": {"standards": "/test/standards", "assessments": 123, "training_data": "/test/training"}}  # Invalid type
+                },
+                "default_environment": "dev"
+            }
+        }
+        
+        with pytest.raises(ValueError, match="Invalid assessments path configuration"):
+            self.manager.get_assessments_dir(config, "dev")
+
+    def test_get_training_data_dir(self):
+        """Test get_training_data_dir method."""
+        config = {
+            "adri": {
+                "environments": {
+                    "dev": {"paths": {"standards": "/test/standards", "assessments": "/test/assessments", "training_data": "/test/training"}}
+                },
+                "default_environment": "dev"
+            }
+        }
+        
+        result = self.manager.get_training_data_dir(config, "dev")
+        assert result == "/test/training"
+
+    def test_get_training_data_dir_invalid_type(self):
+        """Test get_training_data_dir with invalid training data path type."""
+        config = {
+            "adri": {
+                "environments": {
+                    "dev": {"paths": {"standards": "/test/standards", "assessments": "/test/assessments", "training_data": ["invalid", "list"]}}  # Invalid type
+                },
+                "default_environment": "dev"
+            }
+        }
+        
+        with pytest.raises(ValueError, match="Invalid training data path configuration"):
+            self.manager.get_training_data_dir(config, "dev")
+
+    def test_get_protection_config_with_no_active_config(self):
+        """Test get_protection_config when no active config is found."""
+        with patch.object(self.manager, 'get_active_config', return_value=None):
+            result = self.manager.get_protection_config()
+            
+            # Should return default protection config
+            assert result["default_failure_mode"] == "raise"
+            assert result["default_min_score"] == 80
+            assert result["cache_duration_hours"] == 1
+
+    def test_get_protection_config_with_environment_override(self):
+        """Test get_protection_config with environment-specific overrides."""
+        mock_config = {
+            "adri": {
+                "protection": {
+                    "default_failure_mode": "warn",
+                    "default_min_score": 70,
+                },
+                "environments": {
+                    "prod": {
+                        "protection": {
+                            "default_failure_mode": "raise",
+                            "default_min_score": 90,
+                        }
+                    }
+                },
+                "default_environment": "dev"
+            }
+        }
+        
+        with patch.object(self.manager, 'get_active_config', return_value=mock_config):
+            result = self.manager.get_protection_config("prod")
+            
+            # Should have environment overrides
+            assert result["default_failure_mode"] == "raise"
+            assert result["default_min_score"] == 90
+
+    def test_get_protection_config_invalid_types(self):
+        """Test get_protection_config with invalid config types."""
+        mock_config = {
+            "adri": {
+                "protection": "invalid_string",  # Should be dict
+                "environments": {
+                    "dev": {
+                        "protection": ["invalid", "list"]  # Should be dict
+                    }
+                },
+                "default_environment": "dev"
+            }
+        }
+        
+        with patch.object(self.manager, 'get_active_config', return_value=mock_config):
+            result = self.manager.get_protection_config("dev")
+            
+            # Should handle invalid types gracefully and return empty dict + env override
+            assert isinstance(result, dict)
+
+    def test_resolve_standard_path_simple_no_config(self):
+        """Test resolve_standard_path_simple when no config is available."""
+        with patch.object(self.manager, 'get_active_config', return_value=None):
+            result = self.manager.resolve_standard_path_simple("test_standard")
+            
+            # Should use fallback path structure
+            expected = os.path.join("./ADRI/dev/standards", "test_standard.yaml")
+            assert result == expected
+
+    def test_resolve_standard_path_simple_with_config(self):
+        """Test resolve_standard_path_simple with active config."""
+        mock_config = {
+            "adri": {
+                "environments": {
+                    "dev": {"paths": {"standards": "/custom/standards", "assessments": "/custom/assessments", "training_data": "/custom/training"}}
+                },
+                "default_environment": "dev"
+            }
+        }
+        
+        with patch.object(self.manager, 'get_active_config', return_value=mock_config):
+            with patch.object(self.manager, 'resolve_standard_path', return_value="/custom/standards/test.yaml") as mock_resolve:
+                result = self.manager.resolve_standard_path_simple("test_standard")
+                
+                assert result == "/custom/standards/test.yaml"
+                mock_resolve.assert_called_once()
+
+    def test_get_audit_config_no_active_config(self):
+        """Test get_audit_config when no active config is found."""
+        with patch.object(self.manager, 'get_active_config', return_value=None):
+            result = self.manager.get_audit_config()
+            
+            # Should return default audit config
+            assert result["enabled"] is True
+            assert result["log_location"] == "./logs/adri_audit.jsonl"
+            assert result["log_level"] == "INFO"
+
+    def test_get_audit_config_with_environment_override(self):
+        """Test get_audit_config with environment-specific overrides."""
+        mock_config = {
+            "adri": {
+                "audit": {
+                    "enabled": True,
+                    "log_level": "DEBUG",
+                },
+                "environments": {
+                    "prod": {
+                        "audit": {
+                            "log_level": "ERROR",
+                            "batch_mode": True,
+                        }
+                    }
+                },
+                "default_environment": "dev"
+            }
+        }
+        
+        with patch.object(self.manager, 'get_active_config', return_value=mock_config):
+            result = self.manager.get_audit_config("prod")
+            
+            # Should have environment overrides
+            assert result["log_level"] == "ERROR"
+            assert result["batch_mode"] is True
+            assert result["enabled"] is True  # From base config
+
+    def test_get_audit_config_invalid_types(self):
+        """Test get_audit_config with invalid config types."""
+        mock_config = {
+            "adri": {
+                "audit": "invalid_string",  # Should be dict
+                "environments": {
+                    "dev": {
+                        "audit": 123  # Should be dict
+                    }
+                },
+                "default_environment": "dev"
+            }
+        }
+        
+        with patch.object(self.manager, 'get_active_config', return_value=mock_config):
+            result = self.manager.get_audit_config("dev")
+            
+            # Should handle invalid types gracefully and use defaults
+            assert result["enabled"] is True
+            assert result["log_level"] == "INFO"
+
+    def test_load_config_non_dict_yaml_content(self):
+        """Test load_config when YAML contains non-dict content."""
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
+            yaml.dump(["list", "instead", "of", "dict"], f)
+            temp_path = f.name
+
+        try:
+            result = self.manager.load_config(temp_path)
+            assert result is None  # Should return None for non-dict content
+        finally:
+            os.unlink(temp_path)
+
+    def test_load_config_io_error(self):
+        """Test load_config with IOError."""
+        with patch("builtins.open", side_effect=IOError("File read error")):
+            result = self.manager.load_config("any_path.yaml")
+            assert result is None  # Should handle IOError gracefully
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

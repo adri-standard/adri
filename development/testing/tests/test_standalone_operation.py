@@ -30,7 +30,7 @@ class TestStandaloneInstallation:
 
     def test_no_external_dependencies(self):
         """Verify no external adri-standards dependency."""
-        with patch("pkg_resources.working_set", []):
+        with patch("importlib.metadata.distributions", return_value=[]):
             success, messages = verify_standalone_installation()
             assert any("No external adri-standards" in msg for msg in messages)
 

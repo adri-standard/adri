@@ -105,3 +105,18 @@ class TestExceptionsCoverage:
         error4 = StandardsDirectoryNotFoundError("/test/path")
         assert hasattr(error4, "directory_path")
         assert error4.directory_path == "/test/path"
+
+    def test_standards_directory_not_found_error_message(self):
+        """Test StandardsDirectoryNotFoundError message formatting."""
+        directory_path = "/path/to/missing/standards"
+        error = StandardsDirectoryNotFoundError(directory_path)
+        
+        expected_message = f"Bundled standards directory not found: {directory_path}"
+        assert str(error) == expected_message
+        assert error.directory_path == directory_path
+        
+        # Test with different path to ensure initialization works properly
+        another_path = "/another/missing/directory"
+        another_error = StandardsDirectoryNotFoundError(another_path)
+        assert str(another_error) == f"Bundled standards directory not found: {another_path}"
+        assert another_error.directory_path == another_path

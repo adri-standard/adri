@@ -27,9 +27,9 @@ def verify_standalone_installation() -> Tuple[bool, List[str]]:
 
     # Check 1: Verify no adri-standards dependency
     try:
-        import pkg_resources
+        import importlib.metadata
 
-        installed_packages = {pkg.key for pkg in pkg_resources.working_set}
+        installed_packages = {dist.metadata['name'].lower() for dist in importlib.metadata.distributions()}
         if "adri-standards" in installed_packages:
             success = False
             messages.append(
@@ -39,7 +39,7 @@ def verify_standalone_installation() -> Tuple[bool, List[str]]:
             messages.append("✅ No external adri-standards dependency found")
     except ImportError:
         messages.append(
-            "⚠️  Could not verify package dependencies (pkg_resources not available)"
+            "⚠️  Could not verify package dependencies (importlib.metadata not available)"
         )
 
     # Check 2: Verify bundled standards exist

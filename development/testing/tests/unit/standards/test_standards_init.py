@@ -263,6 +263,49 @@ class TestStandardsDocumentation:
         assert "offline-first" in adri.standards.__doc__
         assert "network dependencies" in adri.standards.__doc__
 
+    def test_convenience_functions_return_values(self):
+        """Test that convenience functions return values from default loader (lines 32, 42, 55)."""
+        # Test load_standard return (line 32)
+        with patch.object(default_loader, 'load_standard', return_value={'test': 'data'}) as mock_load:
+            result = load_standard("test_standard")
+            assert result == {'test': 'data'}
+            mock_load.assert_called_once_with("test_standard")
+
+        # Test list_available_standards return (line 42)  
+        with patch.object(default_loader, 'list_available_standards', return_value=['std1', 'std2']) as mock_list:
+            result = list_available_standards()
+            assert result == ['std1', 'std2']
+            mock_list.assert_called_once()
+
+        # Test standard_exists return (line 55)
+        with patch.object(default_loader, 'standard_exists', return_value=True) as mock_exists:
+            result = standard_exists("test_standard")
+            assert result is True
+            mock_exists.assert_called_once_with("test_standard")
+
+    def test_convenience_functions_direct_calls(self):
+        """Test direct calls to convenience functions to ensure line coverage."""
+        # These tests ensure the actual return statements are executed
+        
+        # Mock the default_loader to control return values
+        with patch.object(default_loader, 'load_standard') as mock_load:
+            mock_load.return_value = {"name": "test_standard", "version": "1.0"}
+            # Call the function - this should execute line 32
+            result = load_standard("sample_standard")
+            assert result == {"name": "test_standard", "version": "1.0"}
+            
+        with patch.object(default_loader, 'list_available_standards') as mock_list:
+            mock_list.return_value = ["standard1", "standard2", "standard3"]
+            # Call the function - this should execute line 42
+            result = list_available_standards()
+            assert result == ["standard1", "standard2", "standard3"]
+            
+        with patch.object(default_loader, 'standard_exists') as mock_exists:
+            mock_exists.return_value = False
+            # Call the function - this should execute line 55
+            result = standard_exists("nonexistent_standard")
+            assert result is False
+
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

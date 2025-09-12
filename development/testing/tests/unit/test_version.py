@@ -1,6 +1,8 @@
 """Tests for the version module."""
 
+import os
 import pytest
+from unittest.mock import patch, mock_open, MagicMock
 
 from adri import version
 
@@ -241,6 +243,103 @@ class TestVersionIntegration:
         message = version.get_score_compatibility_message(current)
         assert "fully compatible" in message
         assert current in message
+
+
+class TestGetVersionFromMetadata:
+    """Test the internal _get_version_from_metadata function."""
+
+    def test_version_function_exists(self):
+        """Test that _get_version_from_metadata function exists."""
+        assert hasattr(version, '_get_version_from_metadata')
+        assert callable(version._get_version_from_metadata)
+
+    def test_version_function_returns_string(self):
+        """Test that _get_version_from_metadata returns a string."""
+        result = version._get_version_from_metadata()
+        assert isinstance(result, str)
+        assert len(result) > 0
+
+    def test_version_function_returns_valid_format(self):
+        """Test that _get_version_from_metadata returns valid version format."""
+        result = version._get_version_from_metadata()
+        # Should be semantic version or fallback
+        import re
+        assert re.match(r"^\d+\.\d+\.\d+", result) or result == "0.2.0"
+
+    def test_version_metadata_function_callable(self):
+        """Test that _get_version_from_metadata is callable and returns reasonable result."""
+        result = version._get_version_from_metadata()
+        assert isinstance(result, str)
+        assert len(result) > 0
+        # Should be semantic version format
+        import re
+        assert re.match(r"^\d+\.\d+\.\d+", result)
+
+    def test_version_metadata_consistent(self):
+        """Test that _get_version_from_metadata returns consistent results."""
+        result1 = version._get_version_from_metadata()
+        result2 = version._get_version_from_metadata()
+        assert result1 == result2
+
+    def test_version_metadata_matches_public_version(self):
+        """Test that _get_version_from_metadata matches the public __version__."""
+        internal_version = version._get_version_from_metadata()
+        public_version = version.__version__
+        assert internal_version == public_version
+
+
+class TestCompatibleVersions:
+    """Test the _get_compatible_versions function and _CompatibleVersions class."""
+
+    @patch.dict(os.environ, {'ADRI_COMPATIBLE_VERSIONS': '1.0.0,1.1.0,1.2.0'})
+    def test_compatible_versions_from_environment(self):
+        """Test getting compatible versions from environment variable."""
+        result = version._get_compatible_versions()
+        assert result == ['1.0.0', '1.1.0', '1.2.0']
+
+    @patch.dict(os.environ, {}, clear=True)
+    def test_compatible_versions_auto_generated(self):
+        """Test auto-generation of compatible versions."""
+        result = version._get_compatible_versions()
+        
+        # Should include known versions and current version
+        assert "0.1.0" in result
+        assert version.__version__ in result
+        assert isinstance(result, list)
+        assert len(result) > 0
+
+    @patch.dict(os.environ, {}, clear=True)
+    @patch.object(version, '__version__', 'invalid-version')
+    def test_compatible_versions_fallback_on_error(self):
+        """Test fallback when version parsing fails."""
+        result = version._get_compatible_versions()
+        
+        # Should include fallback versions and invalid version
+        assert "0.1.0" in result
+        assert "invalid-version" in result
+
+    def test_compatible_versions_class_methods(self):
+        """Test _CompatibleVersions class methods."""
+        cv = version.__score_compatible_versions__
+        
+        # Test iteration
+        versions_list = list(cv)
+        assert len(versions_list) > 0
+        
+        # Test membership
+        assert "0.1.0" in cv
+        
+        # Test indexing
+        first_version = cv[0]
+        assert isinstance(first_version, str)
+        
+        # Test length
+        assert len(cv) > 0
+        
+        # Test repr
+        repr_str = repr(cv)
+        assert isinstance(repr_str, str)
+        assert "0.1.0" in repr_str
 
 
 class TestVersionDocumentation:
