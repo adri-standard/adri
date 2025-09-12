@@ -92,11 +92,38 @@ Please read and follow our [Code of Conduct](CODE_OF_CONDUCT.md) to ensure a wel
 #### Before You Code
 
 1. **Check existing issues** - Your idea might already be discussed
-2. **Create an issue** - Use our issue templates for consistency:
-   - **🚀 Feature Request**: For completely new functionality
-   - **⚡ Enhancement**: For improvements to existing features
-   - **🐛 Bug Reports**: For data quality, framework integration, or general bugs
-   - **💬 Discussion**: For architectural decisions or community input
+2. **Create an issue** - Use our comprehensive issue templates for consistency:
+
+### Available Issue Templates
+
+We provide specialized templates to streamline different types of contributions:
+
+**General Templates:**
+- **🚀 Feature Request** - For completely new functionality
+- **⚡ Enhancement** - For improvements to existing features  
+- **🐛 Bug Report** - For general bugs or unexpected behavior
+- **🐛 Data Quality Bug Report** - For issues specific to data quality assessment or validation
+- **💬 Discussion** - For architectural decisions or community input
+
+**Framework-Specific Templates:**
+- **AutoGen Integration** - Issues with Microsoft AutoGen framework
+- **CrewAI Integration** - Issues with CrewAI framework  
+- **LangChain Integration** - Issues with LangChain framework
+
+**Template Features:**
+- Pre-filled labels and assignees
+- Structured sections for consistent reporting
+- Framework compatibility checkboxes
+- Integration with our issue-driven workflow
+- Automatic branch naming guidance
+
+**Choosing the Right Template:**
+- Use **Bug Report** for general issues
+- Use **Data Quality Bug Report** for validation/assessment problems
+- Use framework-specific templates when the issue is framework-related
+- Use **Feature Request** for new capabilities
+- Use **Enhancement** for improving existing features
+- Use **Discussion** for broader topics requiring community input
 3. **Get feedback** - Allow time for community input before implementation
 4. **Issue assignment** - Comment on the issue to request assignment
 
