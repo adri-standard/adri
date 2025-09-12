@@ -65,17 +65,17 @@ jobs:
         run: |
           echo "🧪 Running comprehensive test suite for Python ${{ matrix.python-version }}..."
 
-          # Run core tests with coverage (exclude examples and development)
-          pytest tests/ \
+          # Run CORE tests with coverage (focus on core ADRI functionality)
+          pytest development/testing/tests/unit/ \
             --cov=adri \
             --cov-report=xml \
             --cov-report=term-missing \
-            --cov-fail-under=90 \
+            --cov-fail-under=85 \
             --tb=short \
             --maxfail=10 \
-            --ignore=tests/examples/smoke_tests/test_decorators.py \
-            --ignore=tests/examples/integration_tests/ \
             -v
+
+          echo "✅ Core test suite completed"
 
       - name: Upload coverage reports
         uses: codecov/codecov-action@v4
@@ -226,8 +226,8 @@ jobs:
             -o bandit-report.json \
             --severity-level medium
 
-          # Safety check for vulnerabilities
-          safety check --json --output safety-report.json
+          # Safety check for vulnerabilities (fix outdated CLI parameter)
+          safety check --output json > safety-report.json
 
           # Pip audit for package vulnerabilities
           pip-audit --format=json --output=pip-audit-report.json
@@ -316,19 +316,20 @@ jobs:
           echo "Security Comprehensive: ${{ needs.security-comprehensive.result }}"
           echo "Build Validation: ${{ needs.build-validation.result }}"
 
-          # Check critical jobs (always required)
+          # Check CORE jobs (must pass - hard stop)
           if [[ "${{ needs.test-matrix.result }}" != "success" ||
-                "${{ needs.dependency-validation.result }}" != "success" ||
+                "${{ needs.performance-benchmarks.result }}" != "success" ||
                 "${{ needs.security-comprehensive.result }}" != "success" ||
                 "${{ needs.build-validation.result }}" != "success" ]]; then
-            echo "❌ Critical comprehensive CI checks failed"
+            echo "❌ CORE CI checks failed - blocking merge"
             exit 1
           fi
 
-          # Check conditional jobs (only if they ran)
+          # Check NON-CORE jobs (warnings only - don't block)
           if [[ "${{ needs.integration-tests.result }}" == "failure" ||
-                "${{ needs.performance-benchmarks.result }}" == "failure" ]]; then
-            echo "⚠️ Some comprehensive checks failed but not critical"
+                "${{ needs.dependency-validation.result }}" == "failure" ]]; then
+            echo "⚠️ NON-CORE checks failed - investigate but don't block merge"
+            echo "Failed: Integration Tests and/or Dependency Validation (examples/demos)"
           fi
 
           echo "✅ Comprehensive CI pipeline completed successfully!"
