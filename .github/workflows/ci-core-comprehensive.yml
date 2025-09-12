@@ -230,7 +230,7 @@ jobs:
 
   # Final summary job - CORE ONLY (must pass)
   core-success:
-    name: ✅ Core CI Complete
+    name: Core CI Complete
     if: always()
     needs: [core-test-matrix, core-performance-benchmarks, core-security-scan, core-build-validation]
     runs-on: ubuntu-latest
