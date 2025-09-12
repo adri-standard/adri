@@ -54,12 +54,15 @@ jobs:
         run: |
           echo "🧪 Running CORE ADRI functionality tests for Python ${{ matrix.python-version }}..."
 
-          # Run ONLY core tests with coverage (development/testing/tests/unit/core/)
+          # Run core unit tests PLUS enterprise and standalone tests for comprehensive coverage
           pytest development/testing/tests/unit/core/ \
+                 development/testing/tests/enterprise/ \
+                 development/testing/tests/test_standalone_operation.py \
             --cov=adri.core \
             --cov=adri.decorators \
             --cov=adri.standards \
             --cov=adri.config \
+            --cov=adri.utils \
             --cov-report=xml \
             --cov-report=term-missing \
             --cov-fail-under=80 \
@@ -67,7 +70,7 @@ jobs:
             --maxfail=5 \
             -v
 
-          echo "✅ Core functionality tests completed"
+          echo "✅ Core functionality tests completed (including enterprise & standalone coverage)"
 
       - name: Upload coverage reports
         uses: codecov/codecov-action@v4
