@@ -54,15 +54,22 @@ jobs:
         run: |
           echo "🧪 Running CORE ADRI functionality tests for Python ${{ matrix.python-version }}..."
 
-          # Run core unit tests PLUS enterprise and standalone tests for comprehensive coverage
+          # Run comprehensive unit tests PLUS enterprise and standalone tests for comprehensive coverage
           pytest development/testing/tests/unit/core/ \
+                 development/testing/tests/unit/utils/ \
+                 development/testing/tests/unit/standards/ \
+                 development/testing/tests/unit/config/test_manager_coverage.py \
+                 development/testing/tests/unit/test_init.py \
+                 development/testing/tests/unit/test_version.py \
                  development/testing/tests/enterprise/ \
                  development/testing/tests/test_standalone_operation.py \
             --cov=adri.core \
+            --cov=adri.utils \
             --cov=adri.decorators \
             --cov=adri.standards \
             --cov=adri.config \
-            --cov=adri.utils \
+            --cov=adri.__init__ \
+            --cov=adri.version \
             --cov-report=xml \
             --cov-report=term-missing \
             --cov-fail-under=80 \
