@@ -17,7 +17,7 @@ concurrency:
 
 jobs:
   quality-gate:
-    name: Quality Gate - Essential Checks
+    name: CI Essential - Fast Feedback Pipeline
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
