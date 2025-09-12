@@ -512,30 +512,38 @@ class DataQualityAssessor:
 class AssessmentEngine:
     """Basic assessment engine for data quality evaluation."""
 
-    def assess(self, data: pd.DataFrame, standard_path: str) -> AssessmentResult:
+    def assess(self, data: pd.DataFrame, standard_path) -> AssessmentResult:
         """
         Run assessment on data using the provided standard.
 
         Args:
             data: DataFrame containing the data to assess
-            standard_path: Path to YAML standard file
+            standard_path: Path to YAML standard file OR YAMLStandards object
 
         Returns:
             AssessmentResult object
         """
-        # Load the YAML standard
-        from ..cli.commands import load_standard
-
+        # Handle both string paths and YAMLStandards objects
         try:
-            yaml_dict = load_standard(standard_path)
-            standard = BundledStandardWrapper(yaml_dict)
+            if hasattr(standard_path, 'check_compliance'):
+                # It's a YAMLStandards object - use its standard_data directly
+                yaml_standards_obj = standard_path
+                if yaml_standards_obj.standard_data:
+                    standard_wrapper = BundledStandardWrapper(yaml_standards_obj.standard_data)
+                else:
+                    return self._basic_assessment(data)
+            else:
+                # It's a string path - load from file
+                from ..cli.commands import load_standard
+                yaml_dict = load_standard(standard_path)
+                standard_wrapper = BundledStandardWrapper(yaml_dict)
         except Exception:
             # Fallback to basic assessment if standard can't be loaded
             return self._basic_assessment(data)
 
         # Perform assessment using the standard's requirements
-        validity_score = self._assess_validity_with_standard(data, standard)
-        completeness_score = self._assess_completeness_with_standard(data, standard)
+        validity_score = self._assess_validity_with_standard(data, standard_wrapper)
+        completeness_score = self._assess_completeness_with_standard(data, standard_wrapper)
         consistency_score = self._assess_consistency(data)  # Keep basic for now
         freshness_score = self._assess_freshness(data)  # Keep basic for now
         plausibility_score = self._assess_plausibility(data)  # Keep basic for now
@@ -553,7 +561,7 @@ class AssessmentEngine:
         overall_score = (total_score / 100.0) * 100.0  # Convert to percentage
 
         # Get minimum score from standard or use default
-        min_score = standard.get_overall_minimum()
+        min_score = standard_wrapper.get_overall_minimum()
         passed = overall_score >= min_score
 
         return AssessmentResult(overall_score, passed, dimension_scores)
@@ -807,7 +815,22 @@ class AssessmentEngine:
             return 0.0
 
         total_cells = int(data.size)
-        missing_cells = int(data.isnull().sum().sum())
+        
+        # Fix pandas compatibility issue with _NoValueType
+        try:
+            null_sum = data.isnull().sum().sum()
+            # Handle pandas _NoValueType by converting to int safely
+            if hasattr(null_sum, 'item'):
+                missing_cells = int(null_sum.item())
+            else:
+                missing_cells = int(null_sum) if null_sum is not None else 0
+        except (TypeError, ValueError):
+            # Fallback: count nulls manually
+            missing_cells = 0
+            for column in data.columns:
+                missing_cells += data[column].isnull().sum()
+            missing_cells = int(missing_cells)
+        
         completeness_rate = (total_cells - missing_cells) / total_cells
 
         return float(completeness_rate * 20.0)
