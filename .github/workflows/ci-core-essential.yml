@@ -1,4 +1,4 @@
-name: CI Essential - Fast Feedback Pipeline
+name: CI Core - Essential Fast Feedback
 
 on:
   push:
@@ -17,7 +17,7 @@ concurrency:
 
 jobs:
   quality-gate:
-    name: CI Essential - Fast Feedback Pipeline
+    name: CI Core - Essential Fast Feedback
     runs-on: ubuntu-latest
     timeout-minutes: 15
 

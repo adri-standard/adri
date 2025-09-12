@@ -1,0 +1,272 @@
+name: CI Core - Comprehensive Core Testing
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  PYTHON_VERSION: '3.11'
+  CACHE_KEY_PREFIX: v2
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false  # Let core tests complete
+
+jobs:
+  core-test-matrix:
+    name: Core Tests - Python ${{ matrix.python-version }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.10', '3.11', '3.12']
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ env.CACHE_KEY_PREFIX }}-pip-${{ runner.os }}-py${{ matrix.python-version }}-${{ hashFiles('**/pyproject.toml') }}
+          restore-keys: |
+            ${{ env.CACHE_KEY_PREFIX }}-pip-${{ runner.os }}-py${{ matrix.python-version }}-
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev,test,security]"
+
+      - name: Core ADRI functionality tests
+        run: |
+          echo "🧪 Running CORE ADRI functionality tests for Python ${{ matrix.python-version }}..."
+
+          # Run ONLY core tests with coverage (development/testing/tests/unit/core/)
+          pytest development/testing/tests/unit/core/ \
+            --cov=adri.core \
+            --cov=adri.decorators \
+            --cov=adri.standards \
+            --cov=adri.config \
+            --cov-report=xml \
+            --cov-report=term-missing \
+            --cov-fail-under=80 \
+            --tb=short \
+            --maxfail=5 \
+            -v
+
+          echo "✅ Core functionality tests completed"
+
+      - name: Upload coverage reports
+        uses: codecov/codecov-action@v4
+        if: matrix.python-version == '3.11'
+        with:
+          file: ./coverage.xml
+          flags: core-tests
+          name: codecov-core
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+  core-performance-benchmarks:
+    name: Core Performance Benchmarks
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev,test]"
+
+      - name: Load benchmark thresholds
+        run: |
+          echo "📊 Loading performance thresholds..."
+          if [ -f ".github/benchmark-thresholds.yml" ]; then
+            cat .github/benchmark-thresholds.yml
+          else
+            echo "⚠️ No benchmark thresholds file found"
+          fi
+
+      - name: Run core performance benchmarks
+        run: |
+          echo "⚡ Running CORE performance benchmarks..."
+
+          # Run benchmark tests for core functionality only
+          pytest development/testing/tests/test_benchmarks.py \
+            --benchmark-only \
+            --benchmark-json=benchmark_results.json \
+            -v
+
+          echo "✅ Core performance benchmarks completed"
+
+      - name: Upload benchmark results
+        uses: actions/upload-artifact@v4
+        with:
+          name: core-benchmark-results
+          path: benchmark_results.json
+          retention-days: 30
+
+  core-security-scan:
+    name: Core Security Scanning
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev,test,security]"
+
+      - name: Core security scanning
+        run: |
+          echo "🔒 Running CORE security analysis..."
+
+          # Bandit security analysis (core package only)
+          bandit -r adri/ \
+            -f json \
+            -o bandit-report.json \
+            --severity-level medium
+
+          # Safety check for vulnerabilities (fixed CLI parameter)
+          safety check --output json > safety-report.json
+
+          # Pip audit for package vulnerabilities
+          pip-audit --format=json --output=pip-audit-report.json
+
+          echo "✅ Core security scanning completed"
+
+      - name: Upload security reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: core-security-reports
+          path: |
+            bandit-report.json
+            safety-report.json
+            pip-audit-report.json
+          retention-days: 90
+
+  core-build-validation:
+    name: Core Build & Distribution
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install build tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install build twine
+
+      - name: Build core package
+        run: |
+          echo "📦 Building CORE distribution packages..."
+          python -m build
+
+      - name: Validate core distribution
+        run: |
+          echo "✅ Validating CORE built packages..."
+
+          # Check package metadata
+          twine check dist/*
+
+          # Test wheel installation
+          pip install dist/*.whl
+
+          # Verify core functionality
+          python -c "
+          import adri
+          print(f'✅ ADRI v{adri.__version__} imported successfully')
+
+          # Test core functionality
+          from adri.core.assessor import DataQualityAssessor
+          from adri.decorators.guard import adri_protected
+          
+          assessor = DataQualityAssessor()
+          print('✅ Core classes instantiated successfully')
+          print('✅ Core decorators available')
+          "
+
+      - name: Upload distribution artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: core-distribution-packages
+          path: dist/
+          retention-days: 30
+
+  # Final summary job - CORE ONLY (must pass)
+  core-success:
+    name: ✅ Core CI Complete
+    if: always()
+    needs: [core-test-matrix, core-performance-benchmarks, core-security-scan, core-build-validation]
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+
+    steps:
+      - name: Check core jobs status
+        run: |
+          echo "📊 CORE CI Pipeline Results:"
+          echo "Core Test Matrix: ${{ needs.core-test-matrix.result }}"
+          echo "Core Performance: ${{ needs.core-performance-benchmarks.result }}"
+          echo "Core Security: ${{ needs.core-security-scan.result }}"
+          echo "Core Build: ${{ needs.core-build-validation.result }}"
+
+          # ALL core jobs must pass - no exceptions
+          if [[ "${{ needs.core-test-matrix.result }}" != "success" ||
+                "${{ needs.core-performance-benchmarks.result }}" != "success" ||
+                "${{ needs.core-security-scan.result }}" != "success" ||
+                "${{ needs.core-build-validation.result }}" != "success" ]]; then
+            echo "❌ CORE CI checks failed - BLOCKING merge to main"
+            echo "🚫 No compromises on core code quality"
+            exit 1
+          fi
+
+          echo "✅ ALL CORE checks passed - highest standards maintained!"
+
+      - name: Generate core summary report
+        run: |
+          echo "📋 **CORE CI Summary**" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Core Component | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|----------------|---------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Multi-Python Core Testing | ${{ needs.core-test-matrix.result == 'success' && '✅' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Core Performance Benchmarks | ${{ needs.core-performance-benchmarks.result == 'success' && '✅' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Core Security Analysis | ${{ needs.core-security-scan.result == 'success' && '✅' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Core Build Validation | ${{ needs.core-build-validation.result == 'success' && '✅' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**🔴 CORE testing completed - highest standards enforced**" >> $GITHUB_STEP_SUMMARY
+          echo "*Core CI completed at $(date)*" >> $GITHUB_STEP_SUMMARY
