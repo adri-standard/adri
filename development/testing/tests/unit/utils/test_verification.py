@@ -32,14 +32,14 @@ class TestVerificationUtilities(unittest.TestCase):
         self.mock_standards_data = [
             {
                 "name": "customer_data_standard",
-                "id": "CUST_001", 
+                "id": "CUST_001",
                 "version": "1.0.0",
                 "description": "Customer data validation standard"
             },
             {
                 "name": "financial_data_standard",
                 "id": "FIN_001",
-                "version": "2.1.0", 
+                "version": "2.1.0",
                 "description": "Financial data validation standard"
             }
         ]
@@ -51,25 +51,25 @@ class TestVerificationUtilities(unittest.TestCase):
             mock_dist = Mock()
             mock_dist.metadata = {'name': 'adri-standards'}
             mock_distributions.return_value = [mock_dist]
-            
+
             success, messages = verify_standalone_installation()
-            
+
             self.assertFalse(success)
             self.assertIn("External adri-standards package detected", " ".join(messages))
 
     def test_verify_standalone_installation_pkg_resources_missing(self):
         """Test standalone verification when pkg_resources is not available."""
         with patch('adri.standards.loader.StandardsLoader') as mock_loader_class:
-            
+
             # Mock standards loader
             mock_loader = Mock()
             mock_loader.list_available_standards.return_value = ["standard1"]
             mock_loader.standards_path = "/path/to/bundled"
             mock_loader_class.return_value = mock_loader
-            
+
             # Test should pass regardless of pkg_resources availability
             success, messages = verify_standalone_installation()
-            
+
             # Should succeed when standards are available
             self.assertTrue(success)
 
@@ -77,14 +77,14 @@ class TestVerificationUtilities(unittest.TestCase):
         """Test standalone verification with ADRI_STANDARDS_PATH set."""
         with patch('adri.standards.loader.StandardsLoader') as mock_loader_class, \
              patch.dict(os.environ, {"ADRI_STANDARDS_PATH": "/custom/path"}):
-            
+
             mock_loader = Mock()
             mock_loader.list_available_standards.return_value = ["standard1"]
             mock_loader.standards_path = "/custom/path"
             mock_loader_class.return_value = mock_loader
-            
+
             success, messages = verify_standalone_installation()
-            
+
             self.assertTrue(success)
             self.assertIn("Using correct standards path", " ".join(messages))
 
@@ -93,7 +93,7 @@ class TestVerificationUtilities(unittest.TestCase):
         with patch('adri.utils.verification.StandardsLoader') as mock_loader_class:
             mock_loader = Mock()
             mock_loader.list_available_standards.return_value = ["standard1", "standard2"]
-            
+
             # Mock metadata for each standard
             def mock_get_metadata(name):
                 if name == "standard1":
@@ -101,12 +101,12 @@ class TestVerificationUtilities(unittest.TestCase):
                 elif name == "standard2":
                     return {"id": "STD2", "version": "2.0", "description": "Test standard 2"}
                 return {}
-            
+
             mock_loader.get_standard_metadata.side_effect = mock_get_metadata
             mock_loader_class.return_value = mock_loader
-            
+
             standards = list_bundled_standards()
-            
+
             self.assertEqual(len(standards), 2)
             self.assertEqual(standards[0]["name"], "standard1")
             self.assertEqual(standards[0]["id"], "STD1")
@@ -118,18 +118,18 @@ class TestVerificationUtilities(unittest.TestCase):
         with patch('adri.utils.verification.StandardsLoader') as mock_loader_class:
             mock_loader = Mock()
             mock_loader.list_available_standards.return_value = ["standard1", "error_standard"]
-            
+
             def mock_get_metadata(name):
                 if name == "standard1":
                     return {"id": "STD1", "version": "1.0", "description": "Working standard"}
                 else:
                     raise Exception("Metadata load failed")
-            
+
             mock_loader.get_standard_metadata.side_effect = mock_get_metadata
             mock_loader_class.return_value = mock_loader
-            
+
             standards = list_bundled_standards()
-            
+
             self.assertEqual(len(standards), 2)
             self.assertEqual(standards[0]["id"], "STD1")
             self.assertEqual(standards[1]["id"], "error")
@@ -139,12 +139,12 @@ class TestVerificationUtilities(unittest.TestCase):
         """Test successful system compatibility check with working imports."""
         with patch('sys.version_info', (3, 11, 0)), \
              patch('builtins.__import__') as mock_import:
-            
+
             # Mock all required packages are available
             mock_import.return_value = Mock()
-            
+
             info = check_system_compatibility()
-            
+
             self.assertTrue(info["python_compatible"])
             self.assertTrue(info["packages_compatible"])
             self.assertEqual(len(info["missing_packages"]), 0)
@@ -157,7 +157,7 @@ class TestVerificationUtilities(unittest.TestCase):
         """Test system compatibility with old Python version."""
         with patch('sys.version_info', (3, 9, 0)):
             info = check_system_compatibility()
-            
+
             self.assertFalse(info["python_compatible"])
             self.assertEqual(info["python_version_tuple"], (3, 9, 0))
 
@@ -165,16 +165,16 @@ class TestVerificationUtilities(unittest.TestCase):
         """Test system compatibility with missing packages."""
         with patch('sys.version_info', (3, 11, 0)), \
              patch('builtins.__import__') as mock_import:
-            
+
             def import_side_effect(name, *args, **kwargs):
                 if name in ["pandas", "yaml"]:
                     raise ImportError(f"No module named '{name}'")
                 return Mock()
-            
+
             mock_import.side_effect = import_side_effect
-            
+
             info = check_system_compatibility()
-            
+
             self.assertTrue(info["python_compatible"])
             self.assertFalse(info["packages_compatible"])
             self.assertIn("pandas", info["missing_packages"])
@@ -185,11 +185,11 @@ class TestVerificationUtilities(unittest.TestCase):
         with patch('adri.core.audit_logger.AuditLogger') as mock_logger_class, \
              patch('adri.core.verodat_logger.VerodatLogger'), \
              patch('adri.core.audit_logger_csv.AuditLoggerCSV'):
-            
+
             mock_logger_class.return_value = Mock()
-            
+
             success, messages = verify_audit_logging(enabled=False)
-            
+
             self.assertTrue(success)
             self.assertIn("AuditLogger instantiated (enabled=False)", " ".join(messages))
             mock_logger_class.assert_called_once_with({"enabled": False})
@@ -201,18 +201,18 @@ class TestVerificationUtilities(unittest.TestCase):
              patch('adri.core.verodat_logger.VerodatLogger'), \
              patch('adri.core.audit_logger_csv.AuditLoggerCSV'), \
              patch('adri.utils.verification.__version__', "1.0.0"):
-            
+
             mock_logger_class.return_value = Mock()
-            
+
             # Mock AuditRecord with all methods
             mock_record = Mock()
             mock_record.to_dict.return_value = {"test": "data"}
             mock_record.to_json.return_value = '{"test": "data"}'
             mock_record.to_verodat_format.return_value = {"verodat": "format"}
             mock_record_class.return_value = mock_record
-            
+
             success, messages = verify_audit_logging(enabled=True)
-            
+
             self.assertTrue(success)
             self.assertIn("AuditLogger instantiated (enabled=True)", " ".join(messages))
             self.assertIn("AuditRecord created successfully", " ".join(messages))
@@ -224,7 +224,7 @@ class TestVerificationUtilities(unittest.TestCase):
         """Test audit logging verification with import error."""
         with patch('adri.core.audit_logger.AuditLogger', side_effect=ImportError("Module not found")):
             success, messages = verify_audit_logging(enabled=False)
-            
+
             self.assertFalse(success)
             self.assertIn("Audit logging verification failed", " ".join(messages))
 
@@ -233,11 +233,11 @@ class TestVerificationUtilities(unittest.TestCase):
         with patch('adri.core.audit_logger.AuditLogger') as mock_logger_class, \
              patch('adri.core.audit_logger_csv.AuditLoggerCSV'), \
              patch('adri.core.verodat_logger.VerodatLogger', side_effect=ImportError()):
-            
+
             mock_logger_class.return_value = Mock()
-            
+
             success, messages = verify_audit_logging(enabled=False)
-            
+
             self.assertTrue(success)  # Should still succeed without Verodat
             # Check for the actual message format
             message_text = " ".join(messages)
@@ -248,11 +248,11 @@ class TestVerificationUtilities(unittest.TestCase):
         with patch('adri.core.audit_logger.AuditLogger') as mock_logger_class, \
              patch('adri.core.verodat_logger.VerodatLogger'), \
              patch('adri.core.audit_logger_csv.AuditLoggerCSV', side_effect=ImportError()):
-            
+
             mock_logger_class.return_value = Mock()
-            
+
             success, messages = verify_audit_logging(enabled=False)
-            
+
             # Check the actual behavior - may succeed if CSV is optional
             if success:
                 # CSV logger is treated as optional in some contexts
@@ -267,7 +267,7 @@ class TestVerificationUtilities(unittest.TestCase):
              patch('adri.utils.verification.list_bundled_standards') as mock_standards, \
              patch('adri.utils.verification.verify_audit_logging') as mock_audit, \
              patch('builtins.print') as mock_print:
-            
+
             # Mock successful responses
             mock_standalone.return_value = (True, ["✅ All checks passed"])
             mock_system.return_value = {
@@ -282,11 +282,11 @@ class TestVerificationUtilities(unittest.TestCase):
                 {"name": "standard2", "version": "2.0"}
             ]
             mock_audit.return_value = (True, ["✅ Audit logging works"])
-            
+
             result = run_full_verification(verbose=True)
-            
+
             self.assertTrue(result)
-            
+
             # Verify print calls for verbose output
             print_calls = [call[0][0] for call in mock_print.call_args_list if call[0]]
             self.assertTrue(any("STANDALONE VERIFICATION" in call for call in print_calls))
@@ -299,23 +299,23 @@ class TestVerificationUtilities(unittest.TestCase):
              patch('adri.utils.verification.list_bundled_standards') as mock_standards, \
              patch('adri.utils.verification.verify_audit_logging') as mock_audit, \
              patch('builtins.print') as mock_print:
-            
+
             # Mock failure responses
             mock_standalone.return_value = (False, ["❌ External dependency found"])
             mock_system.return_value = {
                 "python_version_tuple": (3, 9, 0),
-                "platform": "Linux-5.4.0", 
+                "platform": "Linux-5.4.0",
                 "python_compatible": False,
                 "packages_compatible": True,
                 "missing_packages": []
             }
             mock_standards.return_value = []
             mock_audit.return_value = (False, ["❌ Audit logging failed"])
-            
+
             result = run_full_verification(verbose=True)
-            
+
             self.assertFalse(result)
-            
+
             # Verify failure message in output
             print_calls = [call[0][0] for call in mock_print.call_args_list if call[0]]
             self.assertTrue(any("SOME VERIFICATIONS FAILED" in call for call in print_calls))
@@ -327,7 +327,7 @@ class TestVerificationUtilities(unittest.TestCase):
              patch('adri.utils.verification.list_bundled_standards') as mock_standards, \
              patch('adri.utils.verification.verify_audit_logging') as mock_audit, \
              patch('builtins.print') as mock_print:
-            
+
             mock_standalone.return_value = (True, ["✅ Success"])
             mock_system.return_value = {
                 "python_version_tuple": (3, 11, 0),
@@ -338,11 +338,11 @@ class TestVerificationUtilities(unittest.TestCase):
             }
             mock_standards.return_value = [{"name": "standard1", "version": "1.0"}]
             mock_audit.return_value = (True, ["✅ Success"])
-            
+
             result = run_full_verification(verbose=False)
-            
+
             self.assertTrue(result)
-            
+
             # Verify no print calls in quiet mode
             mock_print.assert_not_called()
 
@@ -353,7 +353,7 @@ class TestVerificationUtilities(unittest.TestCase):
              patch('adri.utils.verification.list_bundled_standards') as mock_standards, \
              patch('adri.utils.verification.verify_audit_logging') as mock_audit, \
              patch('builtins.print') as mock_print:
-            
+
             mock_standalone.return_value = (True, ["✅ Success"])
             mock_system.return_value = {
                 "python_version_tuple": (3, 11, 0),
@@ -364,11 +364,11 @@ class TestVerificationUtilities(unittest.TestCase):
             }
             mock_standards.return_value = [{"name": "standard1", "version": "1.0"}]
             mock_audit.return_value = (True, ["✅ Success"])
-            
+
             result = run_full_verification(verbose=True)
-            
+
             self.assertFalse(result)
-            
+
             # Check missing packages are reported
             print_calls = [call[0][0] for call in mock_print.call_args_list if call[0]]
             missing_packages_call = next((call for call in print_calls if "Missing Packages:" in call), None)
@@ -382,7 +382,7 @@ class TestVerificationUtilities(unittest.TestCase):
              patch('adri.utils.verification.list_bundled_standards') as mock_standards, \
              patch('adri.utils.verification.verify_audit_logging') as mock_audit, \
              patch('builtins.print') as mock_print:
-            
+
             mock_standalone.return_value = (True, ["✅ Success"])
             mock_system.return_value = {
                 "python_version_tuple": (3, 11, 0),
@@ -391,16 +391,16 @@ class TestVerificationUtilities(unittest.TestCase):
                 "packages_compatible": True,
                 "missing_packages": []
             }
-            
+
             # Mock 10 standards to test truncation
             many_standards = [{"name": f"standard{i}", "version": "1.0"} for i in range(10)]
             mock_standards.return_value = many_standards
             mock_audit.return_value = (True, ["✅ Success"])
-            
+
             result = run_full_verification(verbose=True)
-            
+
             self.assertTrue(result)
-            
+
             # Check that truncation message appears
             print_calls = [call[0][0] for call in mock_print.call_args_list if call[0]]
             truncation_call = next((call for call in print_calls if "and 5 more" in call), None)
@@ -416,10 +416,10 @@ class TestVerificationCommandLine(unittest.TestCase):
     def test_main_execution_success(self, mock_exit, mock_run_verification):
         """Test main execution with successful verification."""
         mock_run_verification.return_value = True
-        
+
         # Import and run the module's main block
         import adri.utils.verification
-        
+
         # Since we can't easily test the if __name__ == "__main__" block,
         # we'll test the function calls directly
         result = run_full_verification(verbose=True)
@@ -437,7 +437,7 @@ class TestVerificationErrorHandling(unittest.TestCase):
         """Test system compatibility with edge case import scenarios."""
         with patch('sys.version_info', (3, 11, 0)), \
              patch('builtins.__import__') as mock_import:
-            
+
             def import_side_effect(name, *args, **kwargs):
                 # Test specific import patterns
                 if name == "click":
@@ -445,11 +445,11 @@ class TestVerificationErrorHandling(unittest.TestCase):
                 elif name == "pyarrow":
                     raise ModuleNotFoundError("PyArrow not found")
                 return Mock()
-            
+
             mock_import.side_effect = import_side_effect
-            
+
             info = check_system_compatibility()
-            
+
             self.assertTrue(info["python_compatible"])
             self.assertFalse(info["packages_compatible"])
             self.assertIn("click", info["missing_packages"])
@@ -461,12 +461,12 @@ class TestVerificationErrorHandling(unittest.TestCase):
              patch('adri.core.audit_logger.AuditRecord') as mock_record_class, \
              patch('adri.core.verodat_logger.VerodatLogger'), \
              patch('adri.core.audit_logger_csv.AuditLoggerCSV'):
-            
+
             mock_logger_class.return_value = Mock()
             mock_record_class.side_effect = Exception("Record creation failed")
-            
+
             success, messages = verify_audit_logging(enabled=True)
-            
+
             self.assertFalse(success)
             self.assertIn("Audit logging verification failed", " ".join(messages))
 
@@ -477,18 +477,18 @@ class TestVerificationErrorHandling(unittest.TestCase):
              patch('adri.core.verodat_logger.VerodatLogger'), \
              patch('adri.core.audit_logger_csv.AuditLoggerCSV'), \
              patch('adri.utils.verification.__version__', "1.0.0"):
-            
+
             mock_logger_class.return_value = Mock()
-            
+
             # Mock AuditRecord with failing conversion methods
             mock_record = Mock()
             mock_record.to_dict.side_effect = Exception("Dict conversion failed")
             mock_record.to_json.return_value = '{"test": "data"}'
             mock_record.to_verodat_format.return_value = {"verodat": "format"}
             mock_record_class.return_value = mock_record
-            
+
             success, messages = verify_audit_logging(enabled=True)
-            
+
             # Should still succeed if record creation works, conversion errors are caught
             self.assertFalse(success)
             self.assertIn("Audit logging verification failed", " ".join(messages))

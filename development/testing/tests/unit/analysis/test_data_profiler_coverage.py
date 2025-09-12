@@ -66,17 +66,17 @@ class TestDataProfilerCoverage:
     def test_string_field_edge_cases_real_data(self):
         """Test string field with edge case data."""
         profiler = DataProfiler()
-        
+
         # Test with data that could cause string length calculation issues
         import warnings
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", RuntimeWarning)
             edge_case_series = pd.Series([None, "", np.nan, "test"])
             string_profile = profiler._profile_string_field(edge_case_series)
-            
+
             # Should handle edge cases gracefully
             assert "min_length" in string_profile
-            assert "max_length" in string_profile  
+            assert "max_length" in string_profile
             assert "avg_length" in string_profile
             assert isinstance(string_profile["min_length"], int)
             assert isinstance(string_profile["max_length"], int)
@@ -125,7 +125,7 @@ class TestDataProfilerCoverage:
             {
                 "emails": [
                     "test@example.com",
-                    "user.name@domain.org", 
+                    "user.name@domain.org",
                     "user+tag@example.co.uk",
                 ]
             }

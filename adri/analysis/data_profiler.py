@@ -379,7 +379,7 @@ class DataProfiler:
         """Profile date field characteristics."""
         try:
             non_null_series = series.dropna().astype(str)
-            
+
             # Skip if series is empty
             if len(non_null_series) == 0:
                 return {"date_format": "unknown"}
@@ -392,15 +392,17 @@ class DataProfiler:
                 # Additional safety check for min/max operations
                 min_date = valid_dates.min()
                 max_date = valid_dates.max()
-                
+
                 # Ensure the min/max are actually datetime objects, not _NoValueType
                 if pd.isna(min_date) or pd.isna(max_date):
                     return {"date_format": "unknown"}
-                    
+
                 return {
                     "min_date": min_date.strftime("%Y-%m-%d"),
                     "max_date": max_date.strftime("%Y-%m-%d"),
-                    "date_format": self._detect_date_format(str(non_null_series.iloc[0])),
+                    "date_format": self._detect_date_format(
+                        str(non_null_series.iloc[0])
+                    ),
                 }
         except Exception as e:
             # Suppress the _NoValueType warning that was causing test pollution

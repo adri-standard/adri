@@ -50,7 +50,7 @@ jobs:
         run: |
           echo "🔍 Running pre-commit hooks..."
           pre-commit run --all-files
-          
+
           # Verify no files were modified
           if [ -n "$(git status --porcelain)" ]; then
             echo "❌ Pre-commit made changes - please run pre-commit locally"
@@ -254,10 +254,10 @@ jobs:
           python -c "
           import adri
           print(f'✅ ADRI v{adri.__version__} imported successfully')
-          
+
           from adri.core.assessor import DataQualityAssessor
           from adri.decorators.guard import adri_protected
-          
+
           assessor = DataQualityAssessor()
           print('✅ Core classes instantiated successfully')
           print('✅ Core decorators available')

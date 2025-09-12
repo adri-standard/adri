@@ -30,7 +30,7 @@ def get_cli_command() -> list:
     import shutil
     if shutil.which("adri"):
         return ["adri"]
-    
+
     # Fall back to module execution
     return [sys.executable, "-m", "adri.cli.commands"]
 

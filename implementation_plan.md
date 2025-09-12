@@ -48,7 +48,7 @@ Validation through PR workflow execution and status check verification.
 
 **Testing Strategy:**
 - Create test PR to verify status checks appear correctly
-- Confirm blocking workflows prevent merge when failing  
+- Confirm blocking workflows prevent merge when failing
 - Verify non-blocking workflows provide feedback without blocking
 - Test branch protection enforcement with simulated failures
 - Validate status check names match workflow job names exactly

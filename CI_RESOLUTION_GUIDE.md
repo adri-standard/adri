@@ -131,9 +131,9 @@ exclude: ^(tests/|examples/|scripts/|development/)
 
 ### Issue: Outdated Required Status Checks
 - **Problem**: Branch protection rules referenced obsolete workflow jobs
-- **Old Status Checks**: 
+- **Old Status Checks**:
   - "CI Essential - Fast Feedback Pipeline"
-  - "Documentation Check" 
+  - "Documentation Check"
   - "Security Basics"
 - **Impact**: Status checks didn't match actual workflow structure
 
@@ -157,7 +157,7 @@ gh api repos/adri-standard/adri/branches/main/protection/required_status_checks 
   --method PATCH --input - <<< '{
   "contexts": [
     "Core CI Complete - BLOCKING",
-    "Validate branch naming convention", 
+    "Validate branch naming convention",
     "Conventional Commits",
     "Validate PR has linked issue"
   ],
@@ -174,7 +174,7 @@ gh api repos/adri-standard/adri/branches/main/protection/required_status_checks 
 ## Next Steps
 
 1. **Monitor PR Re-runs**: Verify all 5 PRs pass CI after fixes
-2. **Process Documentation**: Update CONTRIBUTING.md with CI guidance  
+2. **Process Documentation**: Update CONTRIBUTING.md with CI guidance
 3. **Prevention**: Add CI health checks to prevent similar issues
 4. **Team Training**: Share systematic debugging approach
 5. **✅ Status Check Validation**: Verify new required status checks function correctly

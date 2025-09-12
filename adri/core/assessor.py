@@ -525,16 +525,19 @@ class AssessmentEngine:
         """
         # Handle both string paths and YAMLStandards objects
         try:
-            if hasattr(standard_path, 'check_compliance'):
+            if hasattr(standard_path, "check_compliance"):
                 # It's a YAMLStandards object - use its standard_data directly
                 yaml_standards_obj = standard_path
                 if yaml_standards_obj.standard_data:
-                    standard_wrapper = BundledStandardWrapper(yaml_standards_obj.standard_data)
+                    standard_wrapper = BundledStandardWrapper(
+                        yaml_standards_obj.standard_data
+                    )
                 else:
                     return self._basic_assessment(data)
             else:
                 # It's a string path - load from file
                 from ..cli.commands import load_standard
+
                 yaml_dict = load_standard(standard_path)
                 standard_wrapper = BundledStandardWrapper(yaml_dict)
         except Exception:
@@ -543,7 +546,9 @@ class AssessmentEngine:
 
         # Perform assessment using the standard's requirements
         validity_score = self._assess_validity_with_standard(data, standard_wrapper)
-        completeness_score = self._assess_completeness_with_standard(data, standard_wrapper)
+        completeness_score = self._assess_completeness_with_standard(
+            data, standard_wrapper
+        )
         consistency_score = self._assess_consistency(data)  # Keep basic for now
         freshness_score = self._assess_freshness(data)  # Keep basic for now
         plausibility_score = self._assess_plausibility(data)  # Keep basic for now
@@ -704,10 +709,12 @@ class AssessmentEngine:
                     # Fix pandas compatibility issue with _NoValueType
                     try:
                         null_sum = data[column].isnull().sum()
-                        if hasattr(null_sum, 'item'):
+                        if hasattr(null_sum, "item"):
                             missing_required_values += int(null_sum.item())
                         else:
-                            missing_required_values += int(null_sum) if null_sum is not None else 0
+                            missing_required_values += (
+                                int(null_sum) if null_sum is not None else 0
+                            )
                     except (TypeError, ValueError):
                         # Fallback: count nulls manually for this column
                         missing_required_values += int(data[column].isnull().sum())
@@ -824,12 +831,12 @@ class AssessmentEngine:
             return 0.0
 
         total_cells = int(data.size)
-        
+
         # Fix pandas compatibility issue with _NoValueType
         try:
             null_sum = data.isnull().sum().sum()
             # Handle pandas _NoValueType by converting to int safely
-            if hasattr(null_sum, 'item'):
+            if hasattr(null_sum, "item"):
                 missing_cells = int(null_sum.item())
             else:
                 missing_cells = int(null_sum) if null_sum is not None else 0
@@ -839,7 +846,7 @@ class AssessmentEngine:
             for column in data.columns:
                 missing_cells += data[column].isnull().sum()
             missing_cells = int(missing_cells)
-        
+
         completeness_rate = (total_cells - missing_cells) / total_cells
 
         return float(completeness_rate * 20.0)

@@ -39,7 +39,7 @@ class TestVerodatLoggerInitialization(unittest.TestCase):
                     "standard": "adri_assessment_logs_standard"
                 },
                 "dimension_scores": {
-                    "schedule_request_id": 589, 
+                    "schedule_request_id": 589,
                     "standard": "adri_dimension_scores_standard"
                 },
                 "failed_validations": {
@@ -62,23 +62,23 @@ class TestVerodatLoggerInitialization(unittest.TestCase):
     def test_verodat_logger_initialization_complete_config(self):
         """Test VerodatLogger initialization with complete configuration."""
         logger = VerodatLogger(self.base_config)
-        
+
         self.assertEqual(logger.config, self.base_config)
         self.assertTrue(logger.enabled)
         self.assertEqual(logger.api_key, "test_api_key_123")
         self.assertEqual(logger.base_url, "https://verodat.io/api/v3")
         self.assertEqual(logger.workspace_id, 236)
-        
+
         # Test batch settings
         self.assertEqual(logger.batch_size, 100)
         self.assertEqual(logger.flush_interval, 60)
         self.assertEqual(logger.retry_attempts, 3)
         self.assertEqual(logger.retry_delay, 5)
-        
+
         # Test connection settings
         self.assertEqual(logger.timeout, 30)
         self.assertTrue(logger.verify_ssl)
-        
+
         # Test batch initialization
         self.assertIsInstance(logger._assessment_logs_batch, list)
         self.assertIsInstance(logger._dimension_scores_batch, list)
@@ -91,14 +91,14 @@ class TestVerodatLoggerInitialization(unittest.TestCase):
             "enabled": True,
             "api_key": "minimal_key"
         }
-        
+
         logger = VerodatLogger(minimal_config)
-        
+
         self.assertTrue(logger.enabled)
         self.assertEqual(logger.api_key, "minimal_key")
         self.assertEqual(logger.base_url, "https://verodat.io/api/v3")
         self.assertIsNone(logger.workspace_id)
-        
+
         # Test defaults
         self.assertEqual(logger.batch_size, 100)
         self.assertEqual(logger.flush_interval, 60)
@@ -111,7 +111,7 @@ class TestVerodatLoggerInitialization(unittest.TestCase):
         """Test VerodatLogger initialization when disabled."""
         config = {"enabled": False}
         logger = VerodatLogger(config)
-        
+
         self.assertFalse(logger.enabled)
         self.assertEqual(logger.api_key, "")
 
@@ -121,7 +121,7 @@ class TestVerodatLoggerInitialization(unittest.TestCase):
             "enabled": True,
             "api_key": "${VERODAT_API_KEY}"
         }
-        
+
         with patch.dict(os.environ, {"VERODAT_API_KEY": "env_test_key"}):
             logger = VerodatLogger(config)
             self.assertEqual(logger.api_key, "env_test_key")
@@ -132,7 +132,7 @@ class TestVerodatLoggerInitialization(unittest.TestCase):
             "enabled": True,
             "api_key": "${NONEXISTENT_VAR}"
         }
-        
+
         with patch.dict(os.environ, {}, clear=True):
             logger = VerodatLogger(config)
             self.assertEqual(logger.api_key, "${NONEXISTENT_VAR}")
@@ -143,7 +143,7 @@ class TestVerodatLoggerInitialization(unittest.TestCase):
             "enabled": True,
             "api_key": "regular_api_key"
         }
-        
+
         logger = VerodatLogger(config)
         self.assertEqual(logger.api_key, "regular_api_key")
 
@@ -164,64 +164,64 @@ class TestVerodatLoggerStandardsLoading(unittest.TestCase):
         # Pre-populate cache
         cached_standard = {"standard_name": "cached", "fields": {"test": {"type": "string"}}}
         self.logger._standards_cache["test_standard"] = cached_standard
-        
+
         result = self.logger._load_standard("test_standard")
         self.assertEqual(result, cached_standard)
 
     def test_load_standard_from_file_first_path(self):
         """Test loading standard from first file path."""
         mock_standard = {"standard_name": "loaded", "fields": {"field1": {"type": "string"}}}
-        
+
         with patch('os.path.exists') as mock_exists, \
              patch('builtins.open', create=True) as mock_open, \
              patch('yaml.safe_load') as mock_yaml:
-            
+
             # Mock first path exists
             mock_exists.side_effect = lambda path: "audit_logs" in path
             mock_yaml.return_value = mock_standard
-            
+
             result = self.logger._load_standard("test_standard")
-            
+
             self.assertEqual(result, mock_standard)
             self.assertIn("test_standard", self.logger._standards_cache)
 
     def test_load_standard_from_file_second_path(self):
         """Test loading standard from second file path."""
         mock_standard = {"standard_name": "loaded", "fields": {"field1": {"type": "string"}}}
-        
+
         with patch('os.path.exists') as mock_exists, \
              patch('builtins.open', create=True) as mock_open, \
              patch('yaml.safe_load') as mock_yaml:
-            
+
             # Mock second path exists
             mock_exists.side_effect = lambda path: path.endswith("adri/standards/test_standard.yaml")
             mock_yaml.return_value = mock_standard
-            
+
             result = self.logger._load_standard("test_standard")
-            
+
             self.assertEqual(result, mock_standard)
 
     def test_load_standard_from_file_third_path(self):
         """Test loading standard from third file path."""
         mock_standard = {"standard_name": "loaded", "fields": {"field1": {"type": "string"}}}
-        
+
         with patch('os.path.exists') as mock_exists, \
              patch('builtins.open', create=True) as mock_open, \
              patch('yaml.safe_load') as mock_yaml:
-            
+
             # Mock third path exists
             mock_exists.side_effect = lambda path: path == "test_standard.yaml"
             mock_yaml.return_value = mock_standard
-            
+
             result = self.logger._load_standard("test_standard")
-            
+
             self.assertEqual(result, mock_standard)
 
     def test_load_standard_file_not_found(self):
         """Test loading standard when no file exists."""
         with patch('os.path.exists', return_value=False):
             result = self.logger._load_standard("nonexistent_standard")
-            
+
             # Should return mock standard
             self.assertEqual(result["standard_name"], "nonexistent_standard")
             self.assertIn("fields", result)
@@ -231,9 +231,9 @@ class TestVerodatLoggerStandardsLoading(unittest.TestCase):
         with patch('os.path.exists', return_value=True), \
              patch('builtins.open', create=True), \
              patch('yaml.safe_load', return_value=None):
-            
+
             result = self.logger._load_standard("test_standard")
-            
+
             self.assertEqual(result, {})
 
 
@@ -289,9 +289,9 @@ class TestVerodatLoggerHeaderBuilding(unittest.TestCase):
                 {"name": "score", "type": "number"}
             ]
         }
-        
+
         header = self.logger._build_verodat_header(standard)
-        
+
         self.assertEqual(len(header), 3)
         self.assertEqual(header[0], {"name": "assessment_id", "type": "string"})
         self.assertEqual(header[1], {"name": "timestamp", "type": "date"})
@@ -306,11 +306,11 @@ class TestVerodatLoggerHeaderBuilding(unittest.TestCase):
                 "score": {"type": "number"}
             }
         }
-        
+
         header = self.logger._build_verodat_header(standard)
-        
+
         self.assertEqual(len(header), 3)
-        
+
         # Convert to dict for easier checking
         header_dict = {field["name"]: field["type"] for field in header}
         self.assertEqual(header_dict["assessment_id"], "string")
@@ -451,14 +451,14 @@ class TestVerodatLoggerFieldValueExtraction(unittest.TestCase):
         # Clear hostname and process_id to test fallbacks
         self.record.execution_context["hostname"] = None
         self.record.execution_context["process_id"] = None
-        
+
         with patch('os.uname') as mock_uname, \
              patch('os.getpid', return_value=99999):
             mock_uname.return_value.nodename = "fallback-host"
-            
+
             hostname = self.logger._get_execution_context_field("hostname", self.record)
             pid = self.logger._get_execution_context_field("process_id", self.record)
-            
+
             self.assertEqual(hostname, "fallback-host")
             self.assertEqual(pid, 99999)
 
@@ -469,7 +469,7 @@ class TestVerodatLoggerFieldValueExtraction(unittest.TestCase):
             "standard_version": "1.0.0",
             "standard_checksum": "abc123"
         })
-        
+
         self.assertEqual(
             self.logger._get_standard_metadata_field("standard_id", self.record),
             "test_standard"
@@ -491,7 +491,7 @@ class TestVerodatLoggerFieldValueExtraction(unittest.TestCase):
             "columns": ["col1", "col2", "col3"],
             "checksum": "data_hash"
         })
-        
+
         self.assertEqual(
             self.logger._get_data_fingerprint_field("data_row_count", self.record),
             1000
@@ -500,10 +500,10 @@ class TestVerodatLoggerFieldValueExtraction(unittest.TestCase):
             self.logger._get_data_fingerprint_field("data_column_count", self.record),
             5
         )
-        
+
         columns_json = self.logger._get_data_fingerprint_field("data_columns", self.record)
         self.assertEqual(columns_json, '["col1", "col2", "col3"]')
-        
+
         self.assertEqual(
             self.logger._get_data_fingerprint_field("data_checksum", self.record),
             "data_hash"
@@ -512,7 +512,7 @@ class TestVerodatLoggerFieldValueExtraction(unittest.TestCase):
     def test_get_data_fingerprint_fields_empty_columns(self):
         """Test data fingerprint fields with empty columns."""
         self.record.data_fingerprint["columns"] = []
-        
+
         columns_json = self.logger._get_data_fingerprint_field("data_columns", self.record)
         self.assertEqual(columns_json, "[]")
 
@@ -524,7 +524,7 @@ class TestVerodatLoggerFieldValueExtraction(unittest.TestCase):
             "passed": True,
             "function_executed": False
         })
-        
+
         self.assertEqual(
             self.logger._get_assessment_result_field("overall_score", self.record),
             85.5
@@ -544,7 +544,7 @@ class TestVerodatLoggerFieldValueExtraction(unittest.TestCase):
     def test_get_assessment_result_fields_failed(self):
         """Test assessment result fields for failed assessment."""
         self.record.assessment_results["passed"] = False
-        
+
         self.assertEqual(
             self.logger._get_assessment_result_field("execution_decision", self.record),
             "BLOCKED"
@@ -556,7 +556,7 @@ class TestVerodatLoggerFieldValueExtraction(unittest.TestCase):
             "assessment_duration_ms": 1500,
             "rows_per_second": 666.67
         })
-        
+
         self.assertEqual(
             self.logger._get_performance_metrics_field("assessment_duration_ms", self.record),
             1500
@@ -569,7 +569,7 @@ class TestVerodatLoggerFieldValueExtraction(unittest.TestCase):
     def test_get_performance_metrics_fields_with_cache_info(self):
         """Test performance metrics with cache info."""
         self.record.cache_info = {"cache_used": True}
-        
+
         self.assertTrue(
             self.logger._get_performance_metrics_field("cache_used", self.record)
         )
@@ -577,13 +577,13 @@ class TestVerodatLoggerFieldValueExtraction(unittest.TestCase):
     def test_get_field_value_from_record(self):
         """Test comprehensive field value extraction."""
         self.record.assessment_results["overall_score"] = 88.0
-        
+
         # Test successful field extraction
         value = self.logger._get_field_value_from_record(
             "overall_score", self.record, self.main_record
         )
         self.assertEqual(value, 88.0)
-        
+
         # Test fallback to main_record
         value = self.logger._get_field_value_from_record(
             "fallback_field", self.record, self.main_record
@@ -597,7 +597,7 @@ class TestVerodatLoggerFieldValueExtraction(unittest.TestCase):
             "passed": True
         })
         self.record.data_fingerprint["row_count"] = 2000
-        
+
         # Test various field extractions
         self.assertEqual(
             self.logger._get_dict_format_field_value("assessment_id", self.record, {}),
@@ -632,11 +632,11 @@ class TestVerodatLoggerRecordFormatting(unittest.TestCase):
                 {"name": "overall_score", "type": "number"}
             ]
         }
-        
+
         self.record.assessment_results["overall_score"] = 85.5
-        
+
         row = self.logger._format_record_to_row(self.record, standard, "assessment_logs")
-        
+
         self.assertEqual(len(row), 2)
         self.assertEqual(row[0], "test_001")
         self.assertEqual(row[1], 85.5)
@@ -649,11 +649,11 @@ class TestVerodatLoggerRecordFormatting(unittest.TestCase):
                 "overall_score": {"type": "number"}
             }
         }
-        
+
         self.record.assessment_results["overall_score"] = 75.0
-        
+
         row = self.logger._format_record_to_row(self.record, standard, "assessment_logs")
-        
+
         self.assertEqual(len(row), 2)
         self.assertEqual(row[0], "test_001")
         self.assertEqual(row[1], 75.0)
@@ -668,14 +668,14 @@ class TestVerodatLoggerRecordFormatting(unittest.TestCase):
                 {"name": "dimension_passed", "type": "boolean"}
             ]
         }
-        
+
         self.record.assessment_results["dimension_scores"] = {
             "validity": 18.5,
             "completeness": 16.0
         }
-        
+
         rows = self.logger._format_dimension_scores(self.record, standard)
-        
+
         self.assertEqual(len(rows), 2)
         self.assertEqual(rows[0][0], "test_001")
         self.assertIn(rows[0][1], ["validity", "completeness"])
@@ -692,14 +692,14 @@ class TestVerodatLoggerRecordFormatting(unittest.TestCase):
                 "dimension_passed": {"type": "boolean"}
             }
         }
-        
+
         self.record.assessment_results["dimension_scores"] = {
             "validity": 18.5,
             "completeness": 14.0
         }
-        
+
         rows = self.logger._format_dimension_scores(self.record, standard)
-        
+
         self.assertEqual(len(rows), 2)
         # Check that both dimensions are represented
         dimension_names = [row[1] for row in rows]
@@ -710,7 +710,7 @@ class TestVerodatLoggerRecordFormatting(unittest.TestCase):
         """Test formatting dimension scores when not a dict."""
         standard = {"fields": []}
         self.record.assessment_results["dimension_scores"] = "invalid"
-        
+
         rows = self.logger._format_dimension_scores(self.record, standard)
         self.assertEqual(len(rows), 0)
 
@@ -724,11 +724,11 @@ class TestVerodatLoggerRecordFormatting(unittest.TestCase):
                 {"name": "G360_VERSION_KEY", "type": "string"}
             ]
         }
-        
+
         self.record.assessment_results["dimension_scores"] = {"validity": 18.0}
-        
+
         rows = self.logger._format_dimension_scores(self.record, standard)
-        
+
         self.assertEqual(len(rows), 1)
         self.assertEqual(rows[0][3], "test_001:validity")
 
@@ -743,7 +743,7 @@ class TestVerodatLoggerRecordFormatting(unittest.TestCase):
                 {"name": "issue_type", "type": "string"}
             ]
         }
-        
+
         self.record.assessment_results["failed_checks"] = [
             {
                 "dimension": "validity",
@@ -761,9 +761,9 @@ class TestVerodatLoggerRecordFormatting(unittest.TestCase):
                 "affected_rows": 5
             }
         ]
-        
+
         rows = self.logger._format_failed_validations(self.record, standard)
-        
+
         self.assertEqual(len(rows), 2)
         self.assertEqual(rows[0][0], "test_001")  # assessment_id
         self.assertEqual(rows[0][1], "val_000")  # validation_id
@@ -774,7 +774,7 @@ class TestVerodatLoggerRecordFormatting(unittest.TestCase):
         """Test formatting failed validations when not a list."""
         standard = {"fields": []}
         self.record.assessment_results["failed_checks"] = "invalid"
-        
+
         rows = self.logger._format_failed_validations(self.record, standard)
         self.assertEqual(len(rows), 0)
 
@@ -782,7 +782,7 @@ class TestVerodatLoggerRecordFormatting(unittest.TestCase):
         """Test formatting failed validations with non-dict items."""
         standard = {"fields": []}
         self.record.assessment_results["failed_checks"] = ["invalid_item", {"dimension": "test"}]
-        
+
         rows = self.logger._format_failed_validations(self.record, standard)
         self.assertEqual(len(rows), 1)  # Only the dict item
 
@@ -806,10 +806,10 @@ class TestVerodatLoggerPayloadPreparation(unittest.TestCase):
         mock_standard = {
             "fields": [{"name": "assessment_id", "type": "string"}]
         }
-        
+
         with patch.object(self.logger, '_load_standard', return_value=mock_standard):
             payload = self.logger._prepare_payload([self.record], "assessment_logs")
-            
+
             self.assertEqual(len(payload), 2)
             self.assertIn("header", payload[0])
             self.assertIn("rows", payload[1])
@@ -819,12 +819,12 @@ class TestVerodatLoggerPayloadPreparation(unittest.TestCase):
         mock_standard = {
             "fields": [{"name": "assessment_id", "type": "string"}]
         }
-        
+
         self.record.assessment_results["dimension_scores"] = {"validity": 18.0}
-        
+
         with patch.object(self.logger, '_load_standard', return_value=mock_standard):
             payload = self.logger._prepare_payload([self.record], "dimension_scores")
-            
+
             self.assertEqual(len(payload), 2)
             self.assertIn("header", payload[0])
             self.assertIn("rows", payload[1])
@@ -834,14 +834,14 @@ class TestVerodatLoggerPayloadPreparation(unittest.TestCase):
         mock_standard = {
             "fields": [{"name": "assessment_id", "type": "string"}]
         }
-        
+
         self.record.assessment_results["failed_checks"] = [
             {"dimension": "validity", "field_name": "email"}
         ]
-        
+
         with patch.object(self.logger, '_load_standard', return_value=mock_standard):
             payload = self.logger._prepare_payload([self.record], "failed_validations")
-            
+
             self.assertEqual(len(payload), 2)
             self.assertIn("header", payload[0])
             self.assertIn("rows", payload[1])
@@ -876,7 +876,7 @@ class TestVerodatLoggerAPIOperations(unittest.TestCase):
         """Test upload when logger is disabled."""
         config = {"enabled": False}
         logger = VerodatLogger(config)
-        
+
         result = logger.upload([self.record], "assessment_logs")
         self.assertTrue(result)  # Should silently succeed
 
@@ -894,10 +894,10 @@ class TestVerodatLoggerAPIOperations(unittest.TestCase):
             }
         }
         logger = VerodatLogger(config)
-        
+
         with patch('builtins.print') as mock_print:
             result = logger.upload([self.record], "assessment_logs")
-            
+
             self.assertFalse(result)
             mock_print.assert_called()
 
@@ -907,13 +907,13 @@ class TestVerodatLoggerAPIOperations(unittest.TestCase):
         mock_response = Mock()
         mock_response.status_code = 200
         mock_post.return_value = mock_response
-        
+
         with patch.object(self.logger, '_prepare_payload', return_value=[]):
             result = self.logger.upload([self.record], "assessment_logs")
-            
+
             self.assertTrue(result)
             mock_post.assert_called_once()
-            
+
             # Verify request parameters
             call_args = mock_post.call_args
             self.assertIn("ApiKey test_key", call_args[1]["headers"]["Authorization"])
@@ -926,16 +926,16 @@ class TestVerodatLoggerAPIOperations(unittest.TestCase):
         mock_fail = Mock()
         mock_fail.status_code = 500
         mock_fail.text = "Server error"
-        
+
         mock_success = Mock()
         mock_success.status_code = 200
-        
+
         mock_post.side_effect = [mock_fail, mock_success]
-        
+
         with patch.object(self.logger, '_prepare_payload', return_value=[]), \
              patch('time.sleep'):  # Speed up test
             result = self.logger.upload([self.record], "assessment_logs")
-            
+
             self.assertTrue(result)
             self.assertEqual(mock_post.call_count, 2)
 
@@ -946,11 +946,11 @@ class TestVerodatLoggerAPIOperations(unittest.TestCase):
         mock_response.status_code = 400
         mock_response.text = "Bad request"
         mock_post.return_value = mock_response
-        
+
         with patch.object(self.logger, '_prepare_payload', return_value=[]), \
              patch('builtins.print'):
             result = self.logger.upload([self.record], "assessment_logs")
-            
+
             self.assertFalse(result)
             self.assertEqual(mock_post.call_count, 1)  # No retry for client errors
 
@@ -961,12 +961,12 @@ class TestVerodatLoggerAPIOperations(unittest.TestCase):
         mock_response.status_code = 500
         mock_response.text = "Server error"
         mock_post.return_value = mock_response
-        
+
         with patch.object(self.logger, '_prepare_payload', return_value=[]), \
              patch('time.sleep'), \
              patch('builtins.print'):
             result = self.logger.upload([self.record], "assessment_logs")
-            
+
             self.assertFalse(result)
             self.assertEqual(mock_post.call_count, 3)  # Initial + 2 retries
 
@@ -974,11 +974,11 @@ class TestVerodatLoggerAPIOperations(unittest.TestCase):
     def test_upload_exception_handling(self, mock_post):
         """Test upload with request exception."""
         mock_post.side_effect = requests.exceptions.ConnectionError("Connection failed")
-        
+
         with patch.object(self.logger, '_prepare_payload', return_value=[]), \
              patch('builtins.print'):
             result = self.logger.upload([self.record], "assessment_logs")
-            
+
             self.assertFalse(result)
 
     @patch('requests.post')
@@ -986,17 +986,17 @@ class TestVerodatLoggerAPIOperations(unittest.TestCase):
         """Test upload with exception followed by success."""
         mock_success = Mock()
         mock_success.status_code = 200
-        
+
         mock_post.side_effect = [
             requests.exceptions.ConnectionError("Connection failed"),
             mock_success
         ]
-        
+
         with patch.object(self.logger, '_prepare_payload', return_value=[]), \
              patch('time.sleep'), \
              patch('builtins.print'):
             result = self.logger.upload([self.record], "assessment_logs")
-            
+
             self.assertTrue(result)
             self.assertEqual(mock_post.call_count, 2)
 
@@ -1015,13 +1015,13 @@ class TestVerodatLoggerBatchOperations(unittest.TestCase):
     def test_add_to_batch(self):
         """Test adding records to batch."""
         record = AuditRecord("test_001", datetime.now(), "3.1.0")
-        
+
         # Add record with dimension scores and failed checks
         record.assessment_results["dimension_scores"] = {"validity": 18.0}
         record.assessment_results["failed_checks"] = [{"dimension": "test"}]
-        
+
         self.logger.add_to_batch(record)
-        
+
         self.assertEqual(len(self.logger._assessment_logs_batch), 1)
         self.assertEqual(len(self.logger._dimension_scores_batch), 1)
         self.assertEqual(len(self.logger._failed_validations_batch), 1)
@@ -1029,9 +1029,9 @@ class TestVerodatLoggerBatchOperations(unittest.TestCase):
     def test_add_to_batch_without_dimension_scores(self):
         """Test adding record without dimension scores."""
         record = AuditRecord("test_001", datetime.now(), "3.1.0")
-        
+
         self.logger.add_to_batch(record)
-        
+
         self.assertEqual(len(self.logger._assessment_logs_batch), 1)
         self.assertEqual(len(self.logger._dimension_scores_batch), 0)
         self.assertEqual(len(self.logger._failed_validations_batch), 0)
@@ -1042,9 +1042,9 @@ class TestVerodatLoggerBatchOperations(unittest.TestCase):
         for i in range(5):
             record = AuditRecord(f"test_{i:03d}", datetime.now(), "3.1.0")
             self.logger._assessment_logs_batch.append(record)
-        
+
         batches = self.logger._get_batches("assessment_logs")
-        
+
         self.assertEqual(len(batches), 3)  # 2 full batches + 1 partial
         self.assertEqual(len(batches[0]), 2)
         self.assertEqual(len(batches[1]), 2)
@@ -1056,9 +1056,9 @@ class TestVerodatLoggerBatchOperations(unittest.TestCase):
         for i in range(3):
             record = AuditRecord(f"test_{i:03d}", datetime.now(), "3.1.0")
             self.logger._dimension_scores_batch.append(record)
-        
+
         batches = self.logger._get_batches("dimension_scores")
-        
+
         self.assertEqual(len(batches), 2)  # 1 full batch + 1 partial
         self.assertEqual(len(batches[0]), 2)
         self.assertEqual(len(batches[1]), 1)
@@ -1069,9 +1069,9 @@ class TestVerodatLoggerBatchOperations(unittest.TestCase):
         for i in range(4):
             record = AuditRecord(f"test_{i:03d}", datetime.now(), "3.1.0")
             self.logger._failed_validations_batch.append(record)
-        
+
         batches = self.logger._get_batches("failed_validations")
-        
+
         self.assertEqual(len(batches), 2)  # 2 full batches
         self.assertEqual(len(batches[0]), 2)
         self.assertEqual(len(batches[1]), 2)
@@ -1087,16 +1087,16 @@ class TestVerodatLoggerBatchOperations(unittest.TestCase):
         record = AuditRecord("test_001", datetime.now(), "3.1.0")
         record.assessment_results["dimension_scores"] = {"validity": 18.0}
         record.assessment_results["failed_checks"] = [{"dimension": "test"}]
-        
+
         self.logger.add_to_batch(record)
         self.logger.add_to_batch(record)  # Add twice
-        
+
         with patch.object(self.logger, 'upload', return_value=True) as mock_upload:
             results = self.logger.flush_all()
-            
+
             # Should have called upload for all three dataset types
             self.assertEqual(mock_upload.call_count, 3)
-            
+
             # Check results
             self.assertTrue(results["assessment_logs"]["success"])
             self.assertEqual(results["assessment_logs"]["records_uploaded"], 2)
@@ -1104,7 +1104,7 @@ class TestVerodatLoggerBatchOperations(unittest.TestCase):
             self.assertEqual(results["dimension_scores"]["records_uploaded"], 2)
             self.assertTrue(results["failed_validations"]["success"])
             self.assertEqual(results["failed_validations"]["records_uploaded"], 2)
-            
+
             # Check that batches were cleared
             self.assertEqual(len(self.logger._assessment_logs_batch), 0)
             self.assertEqual(len(self.logger._dimension_scores_batch), 0)
@@ -1116,19 +1116,19 @@ class TestVerodatLoggerBatchOperations(unittest.TestCase):
         record = AuditRecord("test_001", datetime.now(), "3.1.0")
         record.assessment_results["dimension_scores"] = {"validity": 18.0}
         self.logger.add_to_batch(record)
-        
+
         def mock_upload_side_effect(records, dataset_type):
             # Fail for dimension_scores, succeed for others
             return dataset_type != "dimension_scores"
-        
+
         with patch.object(self.logger, 'upload', side_effect=mock_upload_side_effect):
             results = self.logger.flush_all()
-            
+
             # Check results
             self.assertTrue(results["assessment_logs"]["success"])
             self.assertFalse(results["dimension_scores"]["success"])
             self.assertEqual(results["dimension_scores"]["records_uploaded"], 0)
-            
+
             # Failed batch should not be cleared (dimension_scores batch should still have records)
             self.assertEqual(len(self.logger._dimension_scores_batch), 1)  # Should still have the failed record
 
@@ -1148,20 +1148,20 @@ class TestVerodatLoggerThreadSafety(unittest.TestCase):
                 record = AuditRecord(f"thread_{thread_id}_record_{i}", datetime.now(), "3.1.0")
                 record.assessment_results["dimension_scores"] = {"validity": 18.0}
                 self.logger.add_to_batch(record)
-        
+
         # Create multiple threads
         threads = []
         num_threads = 3
-        
+
         for i in range(num_threads):
             thread = threading.Thread(target=add_records, args=(i,))
             threads.append(thread)
             thread.start()
-        
+
         # Wait for all threads to complete
         for thread in threads:
             thread.join()
-        
+
         # Verify all records were added
         total_expected = num_threads * 10
         self.assertEqual(len(self.logger._assessment_logs_batch), total_expected)
@@ -1173,25 +1173,25 @@ class TestVerodatLoggerThreadSafety(unittest.TestCase):
         for i in range(20):
             record = AuditRecord(f"record_{i}", datetime.now(), "3.1.0")
             self.logger._assessment_logs_batch.append(record)
-        
+
         def get_batches():
             return self.logger._get_batches("assessment_logs")
-        
+
         def add_more_records():
             for i in range(10):
                 record = AuditRecord(f"new_record_{i}", datetime.now(), "3.1.0")
                 self.logger.add_to_batch(record)
-        
+
         # Run operations concurrently
         thread1 = threading.Thread(target=get_batches)
         thread2 = threading.Thread(target=add_more_records)
-        
+
         thread1.start()
         thread2.start()
-        
+
         thread1.join()
         thread2.join()
-        
+
         # Should not crash and final count should be consistent
         final_count = len(self.logger._assessment_logs_batch)
         self.assertGreaterEqual(final_count, 20)  # At least original records

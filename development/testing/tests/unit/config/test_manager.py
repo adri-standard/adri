@@ -15,7 +15,7 @@ from adri.config.manager import ConfigManager
 
 class TestConfigManagerInit:
     """Test ConfigManager initialization."""
-    
+
     def teardown_method(self):
         """Clean up after each test to prevent mock pollution."""
         from unittest.mock import patch
@@ -445,7 +445,7 @@ class TestGetActiveConfig:
     def setup_method(self):
         """Set up test fixtures."""
         self.manager = ConfigManager()
-        
+
     def teardown_method(self):
         """Clean up after each test to prevent mock pollution."""
         from unittest.mock import patch
@@ -729,7 +729,7 @@ class TestGetProtectionConfig:
     def setup_method(self):
         """Set up test fixtures."""
         self.manager = ConfigManager()
-        
+
     def teardown_method(self):
         """Clean up after each test to prevent mock pollution."""
         from unittest.mock import patch

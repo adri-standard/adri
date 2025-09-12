@@ -80,7 +80,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.x.x] - Legacy Versions
 
-For changes in version 2.x.x and earlier, please refer to the 
+For changes in version 2.x.x and earlier, please refer to the
 [legacy changelog](docs/legacy/CHANGELOG-v2.md).
 
 ---
@@ -97,7 +97,7 @@ This project follows semantic versioning and automated changelog generation:
 
 Changes are automatically generated from conventional commit messages:
 - `feat:` → **Added** section
-- `fix:` → **Fixed** section  
+- `fix:` → **Fixed** section
 - `docs:` → **Documentation** updates
 - `style:` → **Code style** improvements
 - `refactor:` → **Refactoring** changes
@@ -147,4 +147,3 @@ index 163e440..f17dc0c 100644
 @@ -69,14 +69,8 @@ jobs:
          run: |
            echo "🧪 Running core test suite..."
-           

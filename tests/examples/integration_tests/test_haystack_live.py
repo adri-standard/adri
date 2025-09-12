@@ -260,7 +260,7 @@ class TestHaystackLiveIntegration:
             "How do microservices, containers, and API gateways work together?"
         )
 
-        # Test with mocks (no API costs in CI)  
+        # Test with mocks (no API costs in CI)
         with patch('openai.OpenAI') as mock_openai:
             mock_openai.return_value.chat.completions.create.return_value.choices = [
                 MagicMock(message=MagicMock(content="Microservices, containers, and API gateways create scalable distributed architectures."))

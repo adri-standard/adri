@@ -21,7 +21,7 @@ class TestConfigLoader:
         # Clean any existing mock state before setup
         from unittest.mock import patch
         patch.stopall()
-        
+
         self.loader = ConfigLoader()
 
         # Sample valid config
@@ -43,7 +43,7 @@ class TestConfigLoader:
                 # Missing version and environments
             }
         }
-        
+
     def teardown_method(self):
         """Clean up after each test to prevent mock pollution."""
         # Critical: Stop all patches to prevent system-level mock pollution

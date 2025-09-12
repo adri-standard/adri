@@ -266,17 +266,17 @@ jobs:
 
           # Count quality issues for reporting (NON-BLOCKING)
           QUALITY_ISSUES=0
-          
+
           if [[ "${{ needs.examples-integration.result }}" == "failure" ]]; then
             echo "⚠️ Framework integration tests have quality issues"
             QUALITY_ISSUES=$((QUALITY_ISSUES + 1))
           fi
-          
+
           if [[ "${{ needs.examples-dependencies.result }}" == "failure" ]]; then
             echo "⚠️ Dependency validation tests have quality issues"
             QUALITY_ISSUES=$((QUALITY_ISSUES + 1))
           fi
-          
+
           if [[ "${{ needs.demo-validation.result }}" == "failure" ]]; then
             echo "⚠️ Demo validation tests have quality issues"
             QUALITY_ISSUES=$((QUALITY_ISSUES + 1))
@@ -359,7 +359,7 @@ jobs:
               '${{ needs.error-handling.result }}',
               '${{ needs.development-tools.result }}'
             ];
-            
+
             const successfulJobs = jobs.filter(result => result === 'success').length;
             const totalJobs = jobs.length;
             const qualityScore = Math.round((successfulJobs / totalJobs) * 100);

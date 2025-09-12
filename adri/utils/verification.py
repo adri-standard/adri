@@ -30,13 +30,21 @@ def verify_standalone_installation() -> Tuple[bool, List[str]]:
         # Use modern importlib.metadata (Python 3.8+)
         try:
             from importlib.metadata import distributions
-            installed_packages = {dist.metadata['name'].lower().replace('-', '_') for dist in distributions()}
+
+            installed_packages = {
+                dist.metadata["name"].lower().replace("-", "_")
+                for dist in distributions()
+            }
         except ImportError:
             # Fallback to pkg_resources for older Python versions
             import pkg_resources
+
             installed_packages = {pkg.key for pkg in pkg_resources.working_set}
 
-        if "adri_standards" in installed_packages or "adri-standards" in installed_packages:
+        if (
+            "adri_standards" in installed_packages
+            or "adri-standards" in installed_packages
+        ):
             success = False
             messages.append(
                 "❌ External adri-standards package detected - not standalone"

@@ -90,12 +90,12 @@ class TestIntegrationType(unittest.TestCase):
         """Test that all expected integration types are defined."""
         expected_types = [
             "AUDIT_LOGGER",
-            "DATA_SOURCE", 
+            "DATA_SOURCE",
             "NOTIFICATION",
             "MONITORING",
             "CUSTOM"
         ]
-        
+
         for type_name in expected_types:
             self.assertTrue(hasattr(IntegrationType, type_name))
 
@@ -114,7 +114,7 @@ class TestDataFormat(unittest.TestCase):
     def test_data_formats_defined(self):
         """Test that all expected data formats are defined."""
         expected_formats = ["JSON", "CSV", "PARQUET", "YAML", "DICT"]
-        
+
         for format_name in expected_formats:
             self.assertTrue(hasattr(DataFormat, format_name))
 
@@ -137,7 +137,7 @@ class TestIntegrationConfig(unittest.TestCase):
             enabled=True,
             config={"test": "value"}
         )
-        
+
         self.assertEqual(config.integration_type, IntegrationType.AUDIT_LOGGER)
         self.assertTrue(config.enabled)
         self.assertEqual(config.config, {"test": "value"})
@@ -157,7 +157,7 @@ class TestIntegrationConfig(unittest.TestCase):
             retry_count=5,
             batch_size=200
         )
-        
+
         self.assertEqual(config.integration_type, IntegrationType.MONITORING)
         self.assertFalse(config.enabled)
         self.assertEqual(config.data_format, DataFormat.CSV)
@@ -189,11 +189,11 @@ class TestComponentBoundary(unittest.TestCase):
             enabled=True,
             config={"test": "config"}
         )
-        
+
         result = self.boundary.register_integration(
             "test_integration", self.mock_integration, config
         )
-        
+
         self.assertTrue(result)
         self.assertTrue(self.mock_integration.initialized)
         self.assertIn("test_integration", self.boundary.list_integrations())
@@ -206,43 +206,43 @@ class TestComponentBoundary(unittest.TestCase):
             enabled=True,
             config={}
         )
-        
+
         result = self.boundary.register_integration(
             "failing_integration", failing_integration, config
         )
-        
+
         self.assertFalse(result)
         self.assertNotIn("failing_integration", self.boundary.list_integrations())
 
     def test_register_data_provider_success(self):
         """Test successful data provider registration."""
         result = self.boundary.register_data_provider("test_provider", self.mock_provider)
-        
+
         self.assertTrue(result)
         self.assertIn("test_provider", self.boundary.list_data_providers())
 
     def test_register_data_provider_invalid(self):
         """Test data provider registration with invalid provider."""
         invalid_provider = object()  # Doesn't implement protocol
-        
+
         result = self.boundary.register_data_provider("invalid_provider", invalid_provider)
-        
+
         self.assertFalse(result)
         self.assertNotIn("invalid_provider", self.boundary.list_data_providers())
 
     def test_register_audit_sink_success(self):
         """Test successful audit sink registration."""
         result = self.boundary.register_audit_sink("test_sink", self.mock_sink)
-        
+
         self.assertTrue(result)
         self.assertIn("test_sink", self.boundary.list_audit_sinks())
 
     def test_register_audit_sink_invalid(self):
         """Test audit sink registration with invalid sink."""
         invalid_sink = object()  # Doesn't implement protocol
-        
+
         result = self.boundary.register_audit_sink("invalid_sink", invalid_sink)
-        
+
         self.assertFalse(result)
         self.assertNotIn("invalid_sink", self.boundary.list_audit_sinks())
 
@@ -254,11 +254,11 @@ class TestComponentBoundary(unittest.TestCase):
             enabled=True,
             config={}
         )
-        
+
         self.boundary.register_integration("test_integration", self.mock_integration, config)
         self.boundary.register_data_provider("test_provider", self.mock_provider)
         self.boundary.register_audit_sink("test_sink", self.mock_sink)
-        
+
         # Test retrieval
         self.assertEqual(
             self.boundary.get_integration("test_integration"), self.mock_integration
@@ -283,22 +283,22 @@ class TestComponentBoundary(unittest.TestCase):
             enabled=True,
             config={}
         )
-        
+
         # Register healthy integration
         healthy_integration = MockIntegration(should_succeed=True)
         self.boundary.register_integration("healthy", healthy_integration, config)
-        
+
         # Create unhealthy integration manually for health check test
         unhealthy_integration = MockIntegration(should_succeed=True)
         # Register first (so it initializes), then make health check fail
         registration_result = self.boundary.register_integration("unhealthy", unhealthy_integration, config)
         self.assertTrue(registration_result)  # Should register successfully
-        
+
         # Now change the behavior to make health check fail
         unhealthy_integration.should_succeed = False
-        
+
         results = self.boundary.health_check()
-        
+
         self.assertTrue(results["healthy"])
         self.assertFalse(results["unhealthy"])
 
@@ -309,14 +309,14 @@ class TestComponentBoundary(unittest.TestCase):
             enabled=True,
             config={}
         )
-        
+
         # Create integration that throws on health check
         exception_integration = Mock(spec=ExternalIntegration)
         exception_integration.initialize.return_value = True
         exception_integration.health_check.side_effect = Exception("Test error")
-        
+
         self.boundary.register_integration("exception_integration", exception_integration, config)
-        
+
         results = self.boundary.health_check()
         self.assertFalse(results["exception_integration"])
 
@@ -327,18 +327,18 @@ class TestComponentBoundary(unittest.TestCase):
             enabled=True,
             config={}
         )
-        
+
         # Register components
         self.boundary.register_integration("test_integration", self.mock_integration, config)
         self.boundary.register_audit_sink("test_sink", self.mock_sink)
-        
+
         result = self.boundary.shutdown_all()
-        
+
         self.assertTrue(result)
         self.assertTrue(self.mock_integration.shutdown_called)
         self.assertTrue(self.mock_sink.flushed)
         self.assertTrue(self.mock_sink.closed)
-        
+
         # All registrations should be cleared
         self.assertEqual(len(self.boundary.list_integrations()), 0)
         self.assertEqual(len(self.boundary.list_data_providers()), 0)
@@ -351,15 +351,15 @@ class TestComponentBoundary(unittest.TestCase):
             enabled=True,
             config={}
         )
-        
+
         # Register integration that will fail on shutdown
         failing_integration = MockIntegration(should_succeed=True)
         # Initialize successfully but make shutdown fail
         self.boundary.register_integration("failing", failing_integration, config)
         failing_integration.should_succeed = False  # Make shutdown fail
-        
+
         result = self.boundary.shutdown_all()
-        
+
         # Should return False due to shutdown failure
         self.assertFalse(result)
         # But still clear registrations
@@ -384,15 +384,15 @@ class TestStandaloneMode(unittest.TestCase):
             enabled=True,
             config={}
         )
-        
+
         self.boundary.register_integration("test", integration, config)
         self.assertEqual(len(self.boundary.list_integrations()), 1)
-        
+
         # Enter standalone mode
         with StandaloneMode():
             # Integration should be temporarily removed
             self.assertEqual(len(self.boundary.list_integrations()), 0)
-        
+
         # Integration should be restored after exiting context
         self.assertEqual(len(self.boundary.list_integrations()), 1)
 
@@ -405,26 +405,26 @@ class TestStandaloneMode(unittest.TestCase):
             enabled=True,
             config={}
         )
-        
+
         self.boundary.register_integration("test", integration, config)
-        
+
         try:
             with StandaloneMode():
                 # Even if exception occurs, integrations should be restored
                 raise ValueError("Test exception")
         except ValueError:
             pass
-        
+
         # Integration should still be restored
         self.assertEqual(len(self.boundary.list_integrations()), 1)
 
     def test_standalone_mode_empty_boundary(self):
         """Test standalone mode with no registered integrations."""
         self.assertEqual(len(self.boundary.list_integrations()), 0)
-        
+
         with StandaloneMode():
             self.assertEqual(len(self.boundary.list_integrations()), 0)
-        
+
         self.assertEqual(len(self.boundary.list_integrations()), 0)
 
 
@@ -435,7 +435,7 @@ class TestGlobalBoundaryManager(unittest.TestCase):
         """Test that get_boundary_manager returns singleton."""
         manager1 = get_boundary_manager()
         manager2 = get_boundary_manager()
-        
+
         self.assertIs(manager1, manager2)
 
     def test_boundary_manager_is_component_boundary(self):
@@ -454,13 +454,13 @@ class TestValidateStandaloneOperation(unittest.TestCase):
         mock_loader = Mock()
         mock_loader.list_available_standards.return_value = ["standard1", "standard2"]
         mock_loader_class.return_value = mock_loader
-        
+
         # Clear any existing integrations
         boundary = get_boundary_manager()
         boundary.shutdown_all()
-        
+
         result = validate_standalone_operation()
-        
+
         self.assertTrue(result)
 
     @patch('adri.standards.loader.StandardsLoader')
@@ -470,9 +470,9 @@ class TestValidateStandaloneOperation(unittest.TestCase):
         mock_loader = Mock()
         mock_loader.list_available_standards.return_value = []
         mock_loader_class.return_value = mock_loader
-        
+
         result = validate_standalone_operation()
-        
+
         self.assertFalse(result)
 
     @patch('adri.standards.loader.StandardsLoader')
@@ -482,11 +482,11 @@ class TestValidateStandaloneOperation(unittest.TestCase):
         mock_loader = Mock()
         mock_loader.list_available_standards.return_value = ["standard1"]
         mock_loader_class.return_value = mock_loader
-        
+
         # Register an integration
         boundary = get_boundary_manager()
         boundary.shutdown_all()  # Clear first
-        
+
         integration = MockIntegration()
         config = IntegrationConfig(
             integration_type=IntegrationType.MONITORING,
@@ -494,7 +494,7 @@ class TestValidateStandaloneOperation(unittest.TestCase):
             config={}
         )
         boundary.register_integration("test", integration, config)
-        
+
         with StandaloneMode():
             result = validate_standalone_operation()
             # Should succeed in standalone mode
@@ -505,9 +505,9 @@ class TestValidateStandaloneOperation(unittest.TestCase):
         """Test standalone operation validation with exception."""
         # Make loader throw exception during import/instantiation
         mock_loader_class.side_effect = ImportError("Module not found")
-        
+
         result = validate_standalone_operation()
-        
+
         # Should fail gracefully when import fails
         self.assertFalse(result)
 
@@ -523,7 +523,7 @@ class TestExternalIntegrationProtocol(unittest.TestCase):
             enabled=True,
             config={}
         )
-        
+
         # All protocol methods should be callable
         self.assertTrue(integration.initialize(config))
         self.assertTrue(integration.send_data("test", DataFormat.JSON))
@@ -538,12 +538,12 @@ class TestDataProviderProtocol(unittest.TestCase):
     def test_mock_provider_implements_protocol(self):
         """Test that our mock provider implements the protocol."""
         provider = MockDataProvider()
-        
+
         # All protocol methods should be callable
         data = provider.get_data()
         metadata = provider.get_metadata()
         valid = provider.validate_schema()
-        
+
         self.assertIsNotNone(data)
         self.assertIsNotNone(metadata)
         self.assertTrue(valid)
@@ -555,12 +555,12 @@ class TestAuditSinkProtocol(unittest.TestCase):
     def test_mock_sink_implements_protocol(self):
         """Test that our mock sink implements the protocol."""
         sink = MockAuditSink()
-        
+
         # All protocol methods should be callable
         result1 = sink.write_record({"test": "record"})
         result2 = sink.flush()
         result3 = sink.close()
-        
+
         self.assertTrue(result1)
         self.assertTrue(result2)
         self.assertTrue(result3)
@@ -582,27 +582,27 @@ class TestBoundaryIntegration(unittest.TestCase):
         integration = MockIntegration()
         provider = MockDataProvider()
         sink = MockAuditSink()
-        
+
         config = IntegrationConfig(
             integration_type=IntegrationType.AUDIT_LOGGER,
             enabled=True,
             config={"test": "config"}
         )
-        
+
         # Register components
         self.assertTrue(self.boundary.register_integration("integration", integration, config))
         self.assertTrue(self.boundary.register_data_provider("provider", provider))
         self.assertTrue(self.boundary.register_audit_sink("sink", sink))
-        
+
         # Verify all registered
         self.assertEqual(len(self.boundary.list_integrations()), 1)
         self.assertEqual(len(self.boundary.list_data_providers()), 1)
         self.assertEqual(len(self.boundary.list_audit_sinks()), 1)
-        
+
         # Test health check
         health = self.boundary.health_check()
         self.assertTrue(health["integration"])
-        
+
         # Test shutdown
         result = self.boundary.shutdown_all()
         self.assertTrue(result)

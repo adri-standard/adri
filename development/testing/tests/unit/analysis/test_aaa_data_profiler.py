@@ -20,7 +20,7 @@ class TestDataProfiler(unittest.TestCase):
         # Clean any residual mock state before setup
         from unittest.mock import patch
         patch.stopall()
-        
+
         # Create test DataFrame with various data types
         self.test_data = pd.DataFrame(
             {
@@ -57,7 +57,7 @@ class TestDataProfiler(unittest.TestCase):
 
     def tearDown(self):
         """Clean up after each test."""
-        # Critical: Clean any mock state pollution 
+        # Critical: Clean any mock state pollution
         from unittest.mock import patch
         patch.stopall()
 

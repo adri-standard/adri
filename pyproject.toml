@@ -208,21 +208,21 @@ console_output_style = "progress"  # Progress style output for better CI readabi
 markers = [
     # Core test markers - BLOCKING
     "unit: Core unit tests - must pass",
-    "integration: Core integration tests - must pass", 
+    "integration: Core integration tests - must pass",
     "performance: Core performance tests - must pass",
     "e2e: End-to-end core workflow tests - must pass",
     "core_blocking: Core tests that block merges on failure",
-    
+
     # Non-core test markers - NON-BLOCKING
     "examples: Example framework integration tests",
     "demo_validation: Demo credibility and quality tests",
     "dependency_tests: Dependency error handling tests",
     "integration_tests: Framework integration tests (non-core)",
-    "smoke_tests: Basic import and functionality smoke tests", 
+    "smoke_tests: Basic import and functionality smoke tests",
     "error_handling: Error handling pattern tests",
     "non_core_quality: Non-core quality feedback tests",
     "non_blocking: Tests that provide feedback only",
-    
+
     # General markers
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
     "quick: marks tests as quick/fast (deselect with '-m \"not quick\"')",
