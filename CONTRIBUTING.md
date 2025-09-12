@@ -235,6 +235,28 @@ When creating an issue, please include:
    - All tests pass
    - Code quality standards are met
 
+#### Required Status Checks (Must Pass to Merge)
+
+Your PR must pass these **required status checks** before merge:
+
+✅ **Core CI Complete - BLOCKING** - Comprehensive core testing pipeline including:
+- Quality gate with pre-commit checks
+- Unit tests across Python 3.10, 3.11, 3.12
+- Integration and E2E tests
+- Performance benchmarks
+- Security scanning
+- Build validation
+
+✅ **Validate branch naming convention** - Enforces issue-first development workflow
+
+✅ **Conventional Commits** - Validates commit message format follows conventional commits standard
+
+✅ **Validate PR has linked issue** - Ensures PR references a GitHub issue
+
+**Quality Feedback (Non-Blocking):**
+- Non-Core CI provides quality feedback on examples and development tools
+- These tests provide valuable feedback but don't block PR merges
+
 7. Address any feedback from reviewers promptly
 
 #### PR Requirements

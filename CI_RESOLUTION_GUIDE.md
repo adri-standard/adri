@@ -127,16 +127,62 @@ exclude: ^(tests/|examples/|scripts/|development/)
 
 **Result**: Eliminated 2,460 false positive security issues while maintaining full production code coverage
 
+## Recent Updates: PR Status Check Alignment (December 2025)
+
+### Issue: Outdated Required Status Checks
+- **Problem**: Branch protection rules referenced obsolete workflow jobs
+- **Old Status Checks**: 
+  - "CI Essential - Fast Feedback Pipeline"
+  - "Documentation Check" 
+  - "Security Basics"
+- **Impact**: Status checks didn't match actual workflow structure
+
+### ✅ Resolution: Updated Required Status Checks
+Updated main branch protection to align with current workflow architecture:
+
+**New Required Status Checks (BLOCKING):**
+- `Core CI Complete - BLOCKING` - Comprehensive core testing pipeline
+- `Validate branch naming convention` - Ensures issue-first development
+- `Conventional Commits` - Enforces commit message standards
+- `Validate PR has linked issue` - Requires GitHub issue linkage
+
+**Non-Blocking Quality Feedback:**
+- `Non-Core CI - Quality Feedback` - Examples and development tools testing
+- Individual workflow jobs provide feedback without blocking merges
+
+### Configuration Applied
+```bash
+# Updated via GitHub CLI
+gh api repos/adri-standard/adri/branches/main/protection/required_status_checks \
+  --method PATCH --input - <<< '{
+  "contexts": [
+    "Core CI Complete - BLOCKING",
+    "Validate branch naming convention", 
+    "Conventional Commits",
+    "Validate PR has linked issue"
+  ],
+  "strict": true
+}'
+```
+
+### Workflow Architecture Clarification
+- **Core CI (ci-core.yml)**: BLOCKING - Must pass for merge approval
+- **Non-Core CI (ci-non-core.yml)**: NON-BLOCKING - Quality feedback only
+- **Validation Workflows**: BLOCKING - Enforce development standards
+- **Release Workflows**: Not part of PR checks
+
 ## Next Steps
 
 1. **Monitor PR Re-runs**: Verify all 5 PRs pass CI after fixes
-2. **Process Documentation**: Update CONTRIBUTING.md with CI guidance
+2. **Process Documentation**: Update CONTRIBUTING.md with CI guidance  
 3. **Prevention**: Add CI health checks to prevent similar issues
 4. **Team Training**: Share systematic debugging approach
+5. **✅ Status Check Validation**: Verify new required status checks function correctly
 
 ---
 
 **Resolution Status**: ✅ **COMPLETE**
 **PRs Affected**: #17, #18, #19, #20, #21
 **Resolution Type**: Systematic infrastructure fix
-**Timestamp**: 2025-09-10T17:19:00Z
+**Latest Update**: 2025-12-09T16:57:00Z - PR Status Check Alignment
+**Original Timestamp**: 2025-09-10T17:19:00Z

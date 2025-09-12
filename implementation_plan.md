@@ -1,69 +1,71 @@
 # Implementation Plan
 
 ## Overview
-Resolve CI pipeline issues and ensure code coverage is properly scoped to core code only, excluding development and test directories.
+Update GitHub repository branch protection rules and PR status checks to align with the current workflow structure, ensuring all critical jobs are properly configured as required status checks while maintaining the distinction between blocking and non-blocking workflows.
 
-Based on investigation, the code coverage configuration in pyproject.toml is already correctly set up to focus on core functionality (adri/) while excluding development/, tests/, examples/, and tools/ directories. The main issues are CI environment-specific pandas import conflicts and the need to sync with the latest main branch changes while preserving necessary CI fixes.
+This implementation addresses the gap between the evolved GitHub Actions workflow architecture and the repository's branch protection settings. The current workflows have been restructured with clear separation between core (blocking) and non-core (quality feedback) testing, but the PR status checks need to be updated to reflect this new structure and ensure proper enforcement of quality gates.
 
 ## Types
 No new type definitions required for this implementation.
 
-The existing coverage configuration uses standard pytest-cov types and excludes non-core directories as intended. All type annotations remain unchanged.
+This task involves configuration changes to GitHub repository settings rather than code modifications, so no new data structures, interfaces, or type definitions are needed.
 
 ## Files
-Files requiring modification and attention.
+Update GitHub repository branch protection configuration through GitHub web interface.
 
-**Existing files to be preserved:**
-- `.github/workflows/ci-essential.yml` - Contains necessary fixes for CI environment issues
-- `pyproject.toml` - Already has correct coverage configuration excluding non-core directories
+**Repository Settings to Modify:**
+- Branch protection rules for `main` branch
+- Required status checks configuration
+- Pull request merge requirements
 
-**Files to be synchronized:**
-- All files from main branch to ensure latest updates
+**Documentation Files to Update:**
+- `CI_RESOLUTION_GUIDE.md` - Update status check documentation
+- `CONTRIBUTING.md` - Update PR requirements documentation
+- `docs/ci-pipeline-guide.md` - Update CI pipeline documentation
 
-**Configuration validation:**
-- Coverage omit patterns in pyproject.toml correctly exclude examples/, development/, tools/, tests/
-- CI workflow ignores problematic test directories that cause environment-specific failures
+**No Files to Create or Delete:**
+- All existing workflow files remain unchanged
+- No new workflow files needed
+- Implementation is purely configurational
 
 ## Functions
 No function modifications required for this implementation.
 
-The coverage exclusion functionality is handled through pytest-cov configuration in pyproject.toml and pytest command-line arguments in CI workflows. All existing assessment and protection functions remain unchanged.
+This task involves GitHub repository configuration changes through the web interface rather than code changes, so no function creation, modification, or removal is necessary.
 
 ## Classes
 No class modifications required for this implementation.
 
-All existing ADRI classes (DataQualityAssessor, DataProtectionEngine, etc.) remain unchanged. The focus is on CI configuration and coverage scope, not core functionality.
+This task involves GitHub repository configuration changes rather than code modifications, so no class creation, modification, or removal is necessary.
 
 ## Dependencies
-Dependencies are already correctly configured.
+No dependency modifications required for this implementation.
 
-Current dependencies in pyproject.toml support the required coverage and testing functionality:
-- pytest-cov>=4.0 for coverage reporting
-- pytest>=7.0 for test execution
-- Coverage exclusions properly configured for non-core directories
+All required workflows and actions are already properly configured in the existing `.github/workflows/` files. No additional packages, versions, or integrations are needed.
 
 ## Testing
-Test configuration improvements and validation approach.
+Validation through PR workflow execution and status check verification.
 
-**Coverage scope verification:**
-- Confirm coverage reports only include adri/ core modules
-- Validate exclusion of examples/, development/, tools/, tests/ directories
-- Ensure 85% coverage target applies only to core functionality
+**Testing Strategy:**
+- Create test PR to verify status checks appear correctly
+- Confirm blocking workflows prevent merge when failing  
+- Verify non-blocking workflows provide feedback without blocking
+- Test branch protection enforcement with simulated failures
+- Validate status check names match workflow job names exactly
 
-**CI pipeline validation:**
-- Local validation shows pre-commit hooks pass
-- Type checking (mypy) passes on core code
-- Documentation builds successfully
-- Security scanning (bandit) passes
-- Example import tests skipped due to known CI environment pandas conflicts
+**Validation Approach:**
+- Monitor first few PRs after implementation for correct behavior
+- Document any discrepancies between expected and actual status checks
+- Verify enforcement levels match workflow design (blocking vs non-blocking)
 
 ## Implementation Order
-Logical sequence of implementation steps.
+Sequential configuration steps to ensure minimal disruption to development workflow.
 
-1. **Commit current CI fixes** - Preserve necessary changes to ci-essential.yml that exclude problematic tests
-2. **Sync with main branch** - Pull latest changes while preserving CI fixes through merge or rebase
-3. **Validate coverage configuration** - Confirm pyproject.toml settings exclude non-core directories
-4. **Test CI pipeline locally** - Run essential checks that mirror required status checks
-5. **Push changes and verify** - Ensure all required status checks pass in GitHub
-6. **Document coverage scope** - Update documentation to clarify core-only coverage policy
-7. **Monitor CI stability** - Verify consistent pipeline execution without environment conflicts
+1. **Audit Current Configuration** - Document existing branch protection rules and status checks
+2. **Identify Required Status Checks** - Map workflow jobs to required status check names
+3. **Configure Core Blocking Checks** - Set up required status checks for critical workflows
+4. **Configure Branch Protection Rules** - Update main branch protection with new requirements
+5. **Validate Configuration** - Create test PR to verify all status checks function correctly
+6. **Update Documentation** - Revise CI guides and contribution documentation
+7. **Monitor Initial PRs** - Watch first few PRs to ensure configuration works as expected
+8. **Adjust if Necessary** - Fine-tune configuration based on initial feedback

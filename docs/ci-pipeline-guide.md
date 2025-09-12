@@ -6,27 +6,37 @@ The ADRI repository uses a streamlined CI architecture designed for **fast feedb
 
 ## CI Architecture
 
-### Fast Feedback Pipeline (ci-essential.yml)
-**Trigger**: Pull Requests
-**Duration**: < 15 minutes
-**Purpose**: Quick validation for development velocity
-
-**Jobs:**
-- **Quality Gate** (5 min): Pre-commit hooks, code formatting, fast tests
-- **Documentation Check** (3 min): Jekyll validation and build
-- **Security Basics** (5 min): Dependency scanning and basic security checks
-
-### Comprehensive Testing (ci-comprehensive.yml)
-**Trigger**: Main branch merges, manual dispatch
+### Core CI Pipeline (ci-core.yml) - **BLOCKING**
+**Trigger**: Pull Requests and Push to main
 **Duration**: < 45 minutes
-**Purpose**: Full validation before deployment
+**Purpose**: Comprehensive validation required for merge approval
 
 **Jobs:**
-- **Test Matrix**: Python 3.10, 3.11, 3.12 across multiple environments
-- **Integration Tests**: Complete framework dependency validation
-- **Performance Benchmarks**: Timeout management and performance validation
-- **Security Scanning**: Comprehensive security audit with bandit, safety, pip-audit
-- **Build Validation**: Package building and installation verification
+- **Quality Gate** (15 min): Pre-commit hooks, code formatting, fast unit tests
+- **Core Test Matrix** (45 min): Python 3.10, 3.11, 3.12 with full test coverage
+- **Core Performance** (30 min): Performance benchmarks and stress testing
+- **Core Security** (15 min): Security scanning with bandit, safety, pip-audit
+- **Core Build** (15 min): Package building and distribution validation
+- **Core Success** (3 min): Final validation gate - ALL must pass to merge
+
+### Non-Core CI Pipeline (ci-non-core.yml) - **NON-BLOCKING**
+**Trigger**: Pull Requests, Push to main, Daily schedule
+**Duration**: < 30 minutes
+**Purpose**: Quality feedback without blocking development
+
+**Jobs:**
+- **Examples Integration** (30 min): Framework integration testing (mock mode)
+- **Examples Dependencies** (20 min): Dependency error handling validation
+- **Demo Validation** (25 min): Demo quality and credibility checks
+- **Examples Smoke Tests** (15 min): Basic import and functionality validation
+- **Error Handling** (20 min): Error handling pattern validation
+- **Development Tools** (15 min): Development scripts and utilities validation
+
+### Validation Workflows - **BLOCKING**
+**Required for PR merge:**
+- **Branch Naming Validation**: Enforces issue-first development workflow
+- **Conventional Commits**: Validates commit message format
+- **PR Issue Link Validation**: Ensures PRs reference GitHub issues
 
 ## Workflow Optimization Features
 
