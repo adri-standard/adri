@@ -1,0 +1,399 @@
+name: Non-Core CI - Quality Feedback (NON-BLOCKING)
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: '0 6 * * *'  # Daily at 6 AM UTC (after core tests complete)
+  workflow_dispatch:
+
+env:
+  PYTHON_VERSION: '3.11'
+  CACHE_KEY_PREFIX: v3-non-core
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true  # Can cancel non-core quality checks
+
+jobs:
+  # Examples framework integration tests
+  examples-integration:
+    name: Framework Examples Integration
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    continue-on-error: true  # NON-BLOCKING - Quality feedback only
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ env.CACHE_KEY_PREFIX }}-pip-${{ runner.os }}-${{ hashFiles('**/pyproject.toml') }}
+          restore-keys: |
+            ${{ env.CACHE_KEY_PREFIX }}-pip-${{ runner.os }}-
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev,test]"
+
+      - name: Framework integration tests (mock mode)
+        run: |
+          echo "🔗 Running framework integration tests (NON-BLOCKING quality feedback)..."
+          echo "⚠️ These tests provide warnings only - do not block main branch"
+
+          # Test framework examples with mocks (no API costs)
+          pytest -c pytest-non-core.ini \
+            tests/examples/integration_tests/ \
+            -m "not requires_api_key" \
+            --tb=short \
+            --maxfail=15 \
+            --continue-on-collection-errors
+
+          echo "✅ Framework integration tests completed (quality feedback)"
+
+      - name: Upload integration test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: examples-integration-results
+          path: htmlcov/non-core/
+          retention-days: 7
+
+  # Examples dependency validation
+  examples-dependencies:
+    name: Dependency Error Handling
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    continue-on-error: true  # NON-BLOCKING - Quality feedback only
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev,test]"
+
+      - name: Dependency validation quality checks
+        run: |
+          echo "📦 Running dependency validation quality checks (NON-BLOCKING)..."
+          echo "⚠️ These provide quality metrics - do not block main branch"
+
+          # Test dependency error handling patterns
+          pytest -c pytest-non-core.ini \
+            tests/examples/dependency_tests/ \
+            --tb=short \
+            --maxfail=15 \
+            --continue-on-collection-errors
+
+          echo "✅ Dependency validation quality checks completed"
+
+  # Demo credibility and quality validation
+  demo-validation:
+    name: Demo Quality & Credibility
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    continue-on-error: true  # NON-BLOCKING - Quality feedback only
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev,test]"
+
+      - name: Demo quality validation
+        run: |
+          echo "📋 Running demo quality and credibility checks (NON-BLOCKING)..."
+          echo "⚠️ These provide quality feedback - do not block main branch"
+
+          # Test demo credibility and first impression
+          pytest -c pytest-non-core.ini \
+            tests/demo_validation/ \
+            --tb=short \
+            --maxfail=15 \
+            --continue-on-collection-errors
+
+          echo "✅ Demo quality checks completed (feedback only)"
+
+  # Examples smoke tests
+  examples-smoke:
+    name: Examples Smoke Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    continue-on-error: true  # NON-BLOCKING - Quality feedback only
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev,test]"
+
+      - name: Examples smoke tests
+        run: |
+          echo "💨 Running examples smoke tests (NON-BLOCKING)..."
+          echo "⚠️ Basic import and functionality validation - quality feedback only"
+
+          # Test basic example imports and smoke tests
+          pytest -c pytest-non-core.ini \
+            tests/examples/smoke_tests/ \
+            --tb=short \
+            --maxfail=10 \
+            --continue-on-collection-errors
+
+          echo "✅ Examples smoke tests completed"
+
+  # Error handling pattern validation
+  error-handling:
+    name: Error Handling Patterns
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    continue-on-error: true  # NON-BLOCKING - Quality feedback only
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev,test]"
+
+      - name: Error handling tests
+        run: |
+          echo "🚨 Running error handling pattern tests (NON-BLOCKING)..."
+          echo "⚠️ Validation of error handling patterns - quality feedback only"
+
+          # Test error handling patterns
+          pytest -c pytest-non-core.ini \
+            tests/examples/error_handling_tests/ \
+            --tb=short \
+            --maxfail=15 \
+            --continue-on-collection-errors
+
+          echo "✅ Error handling pattern tests completed"
+
+  # Development tools validation
+  development-tools:
+    name: Development Tools Validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    continue-on-error: true  # NON-BLOCKING - Quality feedback only
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev,test]"
+
+      - name: Development tools tests
+        run: |
+          echo "🔧 Running development tools validation (NON-BLOCKING)..."
+          echo "⚠️ Development scripts and tools validation - quality feedback only"
+
+          # Test development testing utilities
+          pytest -c pytest-non-core.ini \
+            development/testing/tests/test_examples.py \
+            --tb=short \
+            --maxfail=10 \
+            --continue-on-collection-errors || echo "Some development tool tests may have issues"
+
+          echo "✅ Development tools validation completed"
+
+  # NON-BLOCKING Summary - Quality feedback only
+  non-core-quality-summary:
+    name: ⚠️ Non-Core Quality Summary (NON-BLOCKING)
+    if: always()
+    needs: [examples-integration, examples-dependencies, demo-validation, examples-smoke, error-handling, development-tools]
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+
+    steps:
+      - name: Check non-core quality status
+        run: |
+          echo "📊 NON-CORE QUALITY Pipeline Results (FEEDBACK ONLY):"
+          echo "Framework Integration: ${{ needs.examples-integration.result }}"
+          echo "Dependency Validation: ${{ needs.examples-dependencies.result }}"
+          echo "Demo Validation: ${{ needs.demo-validation.result }}"
+          echo "Examples Smoke Tests: ${{ needs.examples-smoke.result }}"
+          echo "Error Handling: ${{ needs.error-handling.result }}"
+          echo "Development Tools: ${{ needs.development-tools.result }}"
+
+          # Count quality issues for reporting (NON-BLOCKING)
+          QUALITY_ISSUES=0
+          
+          if [[ "${{ needs.examples-integration.result }}" == "failure" ]]; then
+            echo "⚠️ Framework integration tests have quality issues"
+            QUALITY_ISSUES=$((QUALITY_ISSUES + 1))
+          fi
+          
+          if [[ "${{ needs.examples-dependencies.result }}" == "failure" ]]; then
+            echo "⚠️ Dependency validation tests have quality issues"
+            QUALITY_ISSUES=$((QUALITY_ISSUES + 1))
+          fi
+          
+          if [[ "${{ needs.demo-validation.result }}" == "failure" ]]; then
+            echo "⚠️ Demo validation tests have quality issues"
+            QUALITY_ISSUES=$((QUALITY_ISSUES + 1))
+          fi
+
+          if [[ "${{ needs.examples-smoke.result }}" == "failure" ]]; then
+            echo "⚠️ Examples smoke tests have quality issues"
+            QUALITY_ISSUES=$((QUALITY_ISSUES + 1))
+          fi
+
+          if [[ "${{ needs.error-handling.result }}" == "failure" ]]; then
+            echo "⚠️ Error handling tests have quality issues"
+            QUALITY_ISSUES=$((QUALITY_ISSUES + 1))
+          fi
+
+          if [[ "${{ needs.development-tools.result }}" == "failure" ]]; then
+            echo "⚠️ Development tools have quality issues"
+            QUALITY_ISSUES=$((QUALITY_ISSUES + 1))
+          fi
+
+          echo ""
+          if [[ $QUALITY_ISSUES -eq 0 ]]; then
+            echo "✅ All non-core quality checks passed! 🎉"
+            echo "🟢 Examples and development tools are in excellent condition"
+          else
+            echo "⚠️ $QUALITY_ISSUES non-core quality issues found"
+            echo "📝 Review when convenient - these do not block development"
+            echo "🔄 Main branch development CONTINUES UNBLOCKED"
+          fi
+
+          echo "✅ Non-core quality pipeline completed (NON-BLOCKING)"
+
+      - name: Generate non-core quality report
+        run: |
+          echo "📋 **NON-CORE QUALITY Summary (FEEDBACK ONLY)**" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Quality Component | Status | Blocking |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------------------|---------|-----------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Framework Integration | ${{ needs.examples-integration.result == 'success' && '✅' || '⚠️' }} | ❌ NON-BLOCKING |" >> $GITHUB_STEP_SUMMARY
+          echo "| Dependency Validation | ${{ needs.examples-dependencies.result == 'success' && '✅' || '⚠️' }} | ❌ NON-BLOCKING |" >> $GITHUB_STEP_SUMMARY
+          echo "| Demo Validation | ${{ needs.demo-validation.result == 'success' && '✅' || '⚠️' }} | ❌ NON-BLOCKING |" >> $GITHUB_STEP_SUMMARY
+          echo "| Examples Smoke Tests | ${{ needs.examples-smoke.result == 'success' && '✅' || '⚠️' }} | ❌ NON-BLOCKING |" >> $GITHUB_STEP_SUMMARY
+          echo "| Error Handling | ${{ needs.error-handling.result == 'success' && '✅' || '⚠️' }} | ❌ NON-BLOCKING |" >> $GITHUB_STEP_SUMMARY
+          echo "| Development Tools | ${{ needs.development-tools.result == 'success' && '✅' || '⚠️' }} | ❌ NON-BLOCKING |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**🟡 NON-CORE TESTING: Quality feedback provided**" >> $GITHUB_STEP_SUMMARY
+          echo "- ⚠️ Examples: ~101 example tests with 70%+ coverage target" >> $GITHUB_STEP_SUMMARY
+          echo "- ⚠️ Demo Validation: Credibility and first impression tests" >> $GITHUB_STEP_SUMMARY
+          echo "- ⚠️ Development Tools: Script validation and utility checks" >> $GITHUB_STEP_SUMMARY
+          echo "- ⚠️ Dependency Handling: Error pattern validation" >> $GITHUB_STEP_SUMMARY
+          echo "- ⚠️ Framework Integration: Mock-based integration testing" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**🔄 IMPORTANT: These checks provide quality feedback only**" >> $GITHUB_STEP_SUMMARY
+          echo "*❌ Non-core issues DO NOT block main branch development*" >> $GITHUB_STEP_SUMMARY
+          echo "*Non-core CI completed at $(date)*" >> $GITHUB_STEP_SUMMARY
+
+      - name: Post quality feedback comment (PR only)
+        if: github.event_name == 'pull_request'
+        continue-on-error: true
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            const botComment = comments.find(comment =>
+              comment.user.type === 'Bot' &&
+              comment.body.includes('🟡 Non-Core Quality Feedback')
+            );
+
+            // Count successful jobs for quality metric
+            const jobs = [
+              '${{ needs.examples-integration.result }}',
+              '${{ needs.examples-dependencies.result }}',
+              '${{ needs.demo-validation.result }}',
+              '${{ needs.examples-smoke.result }}',
+              '${{ needs.error-handling.result }}',
+              '${{ needs.development-tools.result }}'
+            ];
+            
+            const successfulJobs = jobs.filter(result => result === 'success').length;
+            const totalJobs = jobs.length;
+            const qualityScore = Math.round((successfulJobs / totalJobs) * 100);
+
+            const body = `🟡 **Non-Core Quality Feedback** (NON-BLOCKING)
+
+            📊 **Quality Score: ${qualityScore}% (${successfulJobs}/${totalJobs} checks passing)**
+
+            | Component | Status |
+            |-----------|---------|
+            | Framework Integration | ${{ needs.examples-integration.result == 'success' && '✅' || '⚠️' }} |
+            | Dependency Validation | ${{ needs.examples-dependencies.result == 'success' && '✅' || '⚠️' }} |
+            | Demo Validation | ${{ needs.demo-validation.result == 'success' && '✅' || '⚠️' }} |
+            | Examples Smoke Tests | ${{ needs.examples-smoke.result == 'success' && '✅' || '⚠️' }} |
+            | Error Handling | ${{ needs.error-handling.result == 'success' && '✅' || '⚠️' }} |
+            | Development Tools | ${{ needs.development-tools.result == 'success' && '✅' || '⚠️' }} |
+
+            ❌ **These issues DO NOT block your PR merge**
+            ✅ **Core functionality tests must still pass for merge approval**
+
+            *Quality feedback provided for continuous improvement*`;
+
+            if (botComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: body
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: body
+              });
+            }
