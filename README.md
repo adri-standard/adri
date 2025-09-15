@@ -101,6 +101,94 @@ def my_function(data):
 - **Zero-Config**: Just add `@adri_protected` - ADRI handles everything automatically
 - **Explicit**: Specify exact standards when you need precise control over validation rules
 
+## How It Works - Step by Step
+
+Let me break down exactly what happens when you add `@adri_protected` to your functions:
+
+### Example 1: Customer Service Agent (Basic Protection)
+```python
+@adri_protected
+def process_customer_request(customer_data):
+    response = generate_support_response(customer_data)
+    return response
+```
+
+**What ADRI does automatically:**
+1. **📝 Function Name Analysis**: Sees "process_customer_request" → infers customer data handling
+2. **🎯 Standard Selection**: Automatically selects `customer_data_standard.yaml` (built-in)
+3. **🔍 Data Validation**: Before `generate_support_response()` runs, validates `customer_data`:
+   - ✅ Checks if customer_id is an integer
+   - ✅ Validates email format with regex patterns
+   - ✅ Ensures age is between 18-120
+   - ✅ Verifies required fields aren't missing
+4. **🛡️ Protection Decision**: 
+   - If data quality ≥ 75/100 → Function executes normally
+   - If data quality < 75/100 → Function blocked, detailed error raised
+
+### Example 2: Financial Analysis (Strict Protection)
+```python
+@adri_protected(min_score=95)  # Extra strict
+def analyze_loan_application(application_data):
+    risk_assessment = calculate_risk(application_data)
+    return risk_assessment
+```
+
+**What the strict protection does:**
+1. **📝 Function Name Analysis**: Sees "analyze_loan_application" → infers financial/loan data
+2. **🎯 Standard Selection**: Selects `financial_risk_analyzer_financial_data_standard.yaml`
+3. **🔍 Enhanced Validation**: Same validation process but with **min_score=95** (vs default 75)
+4. **🛡️ High-Stakes Protection**: 
+   - Only executes if data quality ≥ 95/100 (very strict)
+   - Perfect for financial functions where bad data = big problems
+
+### Example 3: Generic Function (Adaptive Protection)
+```python
+@adri_protected
+def my_function(data):
+    return process_data(data)
+```
+
+**How adaptive protection works:**
+1. **📝 Function Name Analysis**: "my_function" is generic → can't infer data type
+2. **🔍 Runtime Analysis**: Examines actual `data` structure when called:
+   - Analyzes field names, data types, patterns
+   - Checks data volume and structure
+3. **🎯 Dynamic Standard Generation**: Creates custom standard based on your data patterns
+4. **🛡️ Adaptive Protection**: Standard evolves based on actual data it sees
+
+### The Magic Behind the Scenes
+
+**❌ Before ADRI (Your function is vulnerable):**
+```python
+def process_customer_request(customer_data):
+    # ❌ What if customer_data is {"id": "abc", "age": -5}?
+    # ❌ Your expensive AI call fails with cryptic errors
+    # ❌ No logging, no protection, no guidance
+    response = generate_support_response(customer_data)
+    return response
+```
+
+**✅ With ADRI (Your function is protected):**
+```python
+@adri_protected
+def process_customer_request(customer_data):
+    # ✅ ADRI validates before this line ever runs
+    # ✅ Bad data is caught and blocked automatically  
+    # ✅ Clear error messages tell you exactly what's wrong
+    # ✅ Audit logs track every decision for compliance
+    response = generate_support_response(customer_data)
+    return response
+```
+
+**Key Benefits Demonstrated:**
+- **🚀 Zero Configuration**: Just add `@adri_protected` - no setup required
+- **🧠 Intelligent Inference**: ADRI figures out what kind of data you're using
+- **⚙️ Configurable Strictness**: Use `min_score` to set validation requirements
+- **🌐 Universal Protection**: Works on any Python function, any data type
+- **📋 Automatic Standards**: No need to write validation rules manually
+
+The decorator essentially wraps your function with a **"data quality gate"** that only allows high-quality data to reach your business logic.
+
 ## Enhanced Protection Examples
 
 ### 🛡️ Real Production Scenarios
