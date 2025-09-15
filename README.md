@@ -48,24 +48,58 @@ def your_agent_function(data):
 
 ## Real Examples
 
+### 🟢 Zero-Configuration (Auto-Generated Standards)
+
 ```python
-# Customer service agent
+# Customer service agent - ADRI automatically selects customer_data_standard
 @adri_protected
+def process_customer_request(customer_data):
+    # ADRI infers: customer data → customer_data_standard.yaml
+    response = generate_support_response(customer_data)
+    return response
+
+# Financial analysis - ADRI automatically selects financial standard  
+@adri_protected(min_score=95)  # Extra strict
+def analyze_loan_application(application_data):
+    # ADRI infers: loan/financial → financial_risk_analyzer_standard.yaml
+    risk_assessment = calculate_risk(application_data)
+    return risk_assessment
+
+# Any Python function - ADRI generates standard from data patterns
+@adri_protected
+def my_function(data):
+    # ADRI analyzes data structure at runtime → creates custom standard
+    return process_data(data)
+```
+
+### 🎯 Explicit Standard References
+
+```python
+# Use specific bundled standard
+@adri_protected(standard_file="customer_data_standard.yaml")
 def process_customer_request(customer_data):
     response = generate_support_response(customer_data)
     return response
 
-# Financial analysis
-@adri_protected(min_score=95)  # Extra strict
+# Use custom standard with strict requirements
+@adri_protected(
+    standard_file="my_loan_validation.yaml",
+    min_score=95,
+    auto_generate=False  # Don't auto-generate if standard missing
+)
 def analyze_loan_application(application_data):
     risk_assessment = calculate_risk(application_data)
     return risk_assessment
 
-# Any Python function
-@adri_protected
+# Reference by standard name instead of file
+@adri_protected(standard_name="high_quality_agent_data_standard")
 def my_function(data):
     return process_data(data)
 ```
+
+**Choose Your Approach:**
+- **Zero-Config**: Just add `@adri_protected` - ADRI handles everything automatically
+- **Explicit**: Specify exact standards when you need precise control over validation rules
 
 ## Enhanced Protection Examples
 
