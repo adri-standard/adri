@@ -155,7 +155,7 @@ class DataProfiler:
             unique_values = set(str(v).lower() for v in series.unique())
             boolean_values = {
                 "true",
-                "false",
+                "false", 
                 "1",
                 "0",
                 "yes",
@@ -165,7 +165,10 @@ class DataProfiler:
                 "y",
                 "n",
             }
-            return unique_values.issubset(boolean_values) and len(unique_values) <= 2
+            # Check if values are subset and we have at most 2 unique values
+            is_subset = unique_values.issubset(boolean_values)
+            has_valid_count = len(unique_values) <= 2 and len(unique_values) > 0
+            return is_subset and has_valid_count
         except Exception:
             return False
 
@@ -216,8 +219,9 @@ class DataProfiler:
 
     def _profile_integer_field(self, series: pd.Series) -> Dict[str, Any]:
         """Profile integer field characteristics."""
-        non_null_series = pd.to_numeric(series.dropna(), errors="coerce")
-
+        # Work with the original non-null series first
+        non_null_series = series.dropna()
+        
         # Handle empty series
         if len(non_null_series) == 0:
             return {
@@ -227,21 +231,25 @@ class DataProfiler:
             }
 
         try:
-            # Use pandas methods for compatibility with tests
-            # Suppress warnings for all-NaN operations
-            with warnings.catch_warnings():
-                warnings.simplefilter("ignore", RuntimeWarning)
-                min_val = non_null_series.min()
-                max_val = non_null_series.max()
-                mean_val = non_null_series.mean()
-
-            # Check for any remaining special values
-            if pd.isna(min_val) or pd.isna(max_val) or pd.isna(mean_val):
+            # Convert to numeric - but work with original values if they're already numeric
+            if pd.api.types.is_numeric_dtype(non_null_series):
+                numeric_series = non_null_series
+            else:
+                numeric_series = pd.to_numeric(non_null_series, errors="coerce")
+                # Remove any NaN values from conversion
+                numeric_series = numeric_series.dropna()
+            
+            if len(numeric_series) == 0:
                 return {
                     "min_value": 0,
                     "max_value": 0,
                     "avg_value": 0.0,
                 }
+
+            # Calculate statistics
+            min_val = numeric_series.min()
+            max_val = numeric_series.max()
+            mean_val = numeric_series.mean()
 
             return {
                 "min_value": int(min_val),
@@ -258,8 +266,9 @@ class DataProfiler:
 
     def _profile_float_field(self, series: pd.Series) -> Dict[str, Any]:
         """Profile float field characteristics."""
-        non_null_series = pd.to_numeric(series.dropna(), errors="coerce")
-
+        # Work with the original non-null series first
+        non_null_series = series.dropna()
+        
         # Handle empty series
         if len(non_null_series) == 0:
             return {
@@ -269,21 +278,25 @@ class DataProfiler:
             }
 
         try:
-            # Use pandas methods for compatibility with tests
-            # Suppress warnings for all-NaN operations
-            with warnings.catch_warnings():
-                warnings.simplefilter("ignore", RuntimeWarning)
-                min_val = non_null_series.min()
-                max_val = non_null_series.max()
-                mean_val = non_null_series.mean()
-
-            # Check for any remaining special values
-            if pd.isna(min_val) or pd.isna(max_val) or pd.isna(mean_val):
+            # Convert to numeric - but work with original values if they're already numeric
+            if pd.api.types.is_numeric_dtype(non_null_series):
+                numeric_series = non_null_series
+            else:
+                numeric_series = pd.to_numeric(non_null_series, errors="coerce")
+                # Remove any NaN values from conversion
+                numeric_series = numeric_series.dropna()
+            
+            if len(numeric_series) == 0:
                 return {
                     "min_value": 0.0,
                     "max_value": 0.0,
                     "avg_value": 0.0,
                 }
+
+            # Calculate statistics
+            min_val = numeric_series.min()
+            max_val = numeric_series.max()
+            mean_val = numeric_series.mean()
 
             return {
                 "min_value": float(min_val),
@@ -300,7 +313,8 @@ class DataProfiler:
 
     def _profile_string_field(self, series: pd.Series) -> Dict[str, Any]:
         """Profile string field characteristics."""
-        non_null_series = series.dropna().astype(str)
+        # Work with non-null values first
+        non_null_series = series.dropna()
 
         # Handle empty series
         if len(non_null_series) == 0:
@@ -311,19 +325,16 @@ class DataProfiler:
             }
 
         try:
-            # Calculate string lengths with error handling
-            lengths = non_null_series.str.len()
-
-            # Use pandas methods for compatibility with tests
-            # Suppress warnings for all-NaN operations
-            with warnings.catch_warnings():
-                warnings.simplefilter("ignore", RuntimeWarning)
-                min_len = lengths.min()
-                max_len = lengths.max()
-                mean_len = lengths.mean()
-
-            # Check for any remaining special values
-            if pd.isna(min_len) or pd.isna(max_len) or pd.isna(mean_len):
+            # Convert to string if not already
+            if not pd.api.types.is_string_dtype(non_null_series):
+                string_series = non_null_series.astype(str)
+            else:
+                string_series = non_null_series
+            
+            # Calculate string lengths
+            lengths = [len(str(val)) for val in string_series]
+            
+            if not lengths:  # Double check
                 return {
                     "min_length": 0,
                     "max_length": 0,
@@ -331,13 +342,13 @@ class DataProfiler:
                 }
 
             profile: Dict[str, Any] = {
-                "min_length": int(min_len),
-                "max_length": int(max_len),
-                "avg_length": float(mean_len),
+                "min_length": min(lengths),
+                "max_length": max(lengths),
+                "avg_length": sum(lengths) / len(lengths),
             }
 
             # Check for patterns
-            pattern = self._detect_string_pattern(non_null_series)
+            pattern = self._detect_string_pattern(string_series)
             if pattern:
                 profile["pattern"] = pattern
 
