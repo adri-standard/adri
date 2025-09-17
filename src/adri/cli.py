@@ -186,7 +186,8 @@ def generate_standard_command(data_path: str, force: bool = False) -> int:
             else:
                 field_type = "string"
             
-            nullable = data[column].isnull().any()
+            # Convert numpy boolean to native Python bool
+            nullable = bool(data[column].isnull().any())
             
             field_requirements[column] = {
                 "type": field_type,

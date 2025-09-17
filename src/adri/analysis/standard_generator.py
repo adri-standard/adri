@@ -108,8 +108,9 @@ class StandardGenerator:
         # Add constraints based on data patterns
         if requirement["type"] in ["integer", "float"]:
             if "min_value" in field_profile and "max_value" in field_profile:
-                requirement["min_value"] = field_profile["min_value"]
-                requirement["max_value"] = field_profile["max_value"]
+                # Ensure native Python types for YAML serialization
+                requirement["min_value"] = float(field_profile["min_value"])
+                requirement["max_value"] = float(field_profile["max_value"])
         
         elif requirement["type"] == "string":
             patterns = field_profile.get("common_patterns", [])
@@ -124,7 +125,7 @@ class StandardGenerator:
             if "max_length" in field_profile:
                 max_len = field_profile["max_length"]
                 if max_len < 1000:  # Only add if reasonable
-                    requirement["max_length"] = int(max_len * 1.2)  # Allow 20% buffer
+                    requirement["max_length"] = int(float(max_len) * 1.2)  # Allow 20% buffer
         
         return requirement
 

@@ -451,10 +451,15 @@ class TestDecoratorErrorScenarios(unittest.TestCase):
     def test_missing_standard_parameter(self):
         """Test that missing standard parameter raises appropriate error."""
         
-        with self.assertRaises(TypeError):
+        with self.assertRaises(ValueError) as context:
             @adri_protected()  # Missing required standard parameter
             def invalid_function(data):
                 return "should not work"
+        
+        # Verify the helpful error message is provided
+        error_msg = str(context.exception)
+        self.assertIn("Missing required 'standard' parameter", error_msg)
+        self.assertIn("@adri_protected(standard=", error_msg)
 
     def test_protection_engine_fallback(self):
         """Test decorator behavior when protection engine is unavailable."""

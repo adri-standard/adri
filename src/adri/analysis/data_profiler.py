@@ -48,11 +48,11 @@ class DataProfiler:
     def _get_summary_stats(self, data: pd.DataFrame) -> Dict[str, Any]:
         """Get basic summary statistics."""
         return {
-            "total_rows": len(data),
-            "total_columns": len(data.columns),
-            "data_types": data.dtypes.value_counts().to_dict(),
-            "memory_usage_mb": data.memory_usage(deep=True).sum() / 1024 / 1024,
-            "completeness_ratio": (data.size - data.isnull().sum().sum()) / data.size
+            "total_rows": int(len(data)),
+            "total_columns": int(len(data.columns)),
+            "data_types": {str(k): int(v) for k, v in data.dtypes.value_counts().to_dict().items()},
+            "memory_usage_mb": float(data.memory_usage(deep=True).sum() / 1024 / 1024),
+            "completeness_ratio": float((data.size - data.isnull().sum().sum()) / data.size)
         }
 
     def _profile_fields(self, data: pd.DataFrame) -> Dict[str, Any]:
@@ -69,10 +69,10 @@ class DataProfiler:
         profile = {
             "name": series.name,
             "dtype": str(series.dtype),
-            "null_count": series.isnull().sum(),
-            "null_percentage": (series.isnull().sum() / len(series)) * 100,
-            "unique_count": series.nunique(),
-            "unique_percentage": (series.nunique() / len(series)) * 100
+            "null_count": int(series.isnull().sum()),
+            "null_percentage": float((series.isnull().sum() / len(series)) * 100),
+            "unique_count": int(series.nunique()),
+            "unique_percentage": float((series.nunique() / len(series)) * 100)
         }
         
         # Add type-specific analysis
@@ -80,20 +80,20 @@ class DataProfiler:
             non_null_series = series.dropna()
             if len(non_null_series) > 0:
                 profile.update({
-                    "min_value": non_null_series.min(),
-                    "max_value": non_null_series.max(),
-                    "mean_value": non_null_series.mean(),
-                    "median_value": non_null_series.median(),
-                    "outlier_count": self._count_outliers(non_null_series)
+                    "min_value": float(non_null_series.min()),
+                    "max_value": float(non_null_series.max()),
+                    "mean_value": float(non_null_series.mean()),
+                    "median_value": float(non_null_series.median()),
+                    "outlier_count": int(self._count_outliers(non_null_series))
                 })
         
         elif pd.api.types.is_string_dtype(series) or series.dtype == 'object':
             non_null_series = series.dropna()
             if len(non_null_series) > 0:
                 profile.update({
-                    "avg_length": non_null_series.astype(str).str.len().mean(),
-                    "max_length": non_null_series.astype(str).str.len().max(),
-                    "min_length": non_null_series.astype(str).str.len().min(),
+                    "avg_length": float(non_null_series.astype(str).str.len().mean()),
+                    "max_length": int(non_null_series.astype(str).str.len().max()),
+                    "min_length": int(non_null_series.astype(str).str.len().min()),
                     "common_patterns": self._identify_patterns(non_null_series)
                 })
         
@@ -135,10 +135,10 @@ class DataProfiler:
     def _assess_quality_patterns(self, data: pd.DataFrame) -> Dict[str, Any]:
         """Assess overall quality patterns in the data."""
         return {
-            "overall_completeness": ((data.size - data.isnull().sum().sum()) / data.size) * 100,
-            "fields_with_nulls": data.isnull().any().sum(),
-            "completely_null_fields": (data.isnull().all()).sum(),
-            "duplicate_rows": data.duplicated().sum(),
+            "overall_completeness": float(((data.size - data.isnull().sum().sum()) / data.size) * 100),
+            "fields_with_nulls": int(data.isnull().any().sum()),
+            "completely_null_fields": int((data.isnull().all()).sum()),
+            "duplicate_rows": int(data.duplicated().sum()),
             "potential_issues": self._identify_potential_issues(data)
         }
 
