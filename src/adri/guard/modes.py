@@ -387,7 +387,10 @@ class DataProtectionEngine:
             self._generate_basic_standard(df, standard_path)
             
         except Exception as e:
-            raise ProtectionError(f"Failed to generate standard: {e}")
+            if "No such file or directory" in str(e):
+                raise ProtectionError("Standard file not found")
+            else:
+                raise ProtectionError(f"Failed to generate standard: {e}")
     
     def _generate_basic_standard(self, df: pd.DataFrame, standard_path: str) -> None:
         """Generate a basic YAML standard from DataFrame."""
