@@ -303,5 +303,45 @@ archive/
 # Generated version file (setuptools_scm)
 src/adri/_version.py
 
+# AI-generated files (prevent root directory bloat)
+*_plan.md
+*_implementation*.md
+*_status.md
+*_summary.md
+*_guide.md
+*_resolution*.md
+*_fixes*.md
+*_analysis.md
+*_notes.md
+*_TODO.md
+*_COMPLETE.md
+*_FINAL.md
+temp_*.py
+test_*.py
+demo_*.py
+scratch_*.py
+quick_*.py
+experiment_*.py
+
+# System files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+*.swp
+*.swo
+*~
+
+# Additional build artifacts
+*.report
+*.json.backup
+*.xml.backup
+build/
+*.egg-info/
+
 # NOTE: development/ directory is tracked in git but excluded from package builds via pyproject.toml
 # This directory contains tests/, docs/, scripts/, and other development artifacts
