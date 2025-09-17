@@ -42,14 +42,14 @@ class TestSetupCommand(unittest.TestCase):
     def test_setup_command_success(self):
         """Test successful setup command execution."""
         result = setup_command(project_name="test_project")
-        
+
         self.assertEqual(result, 0)
         self.assertTrue(os.path.exists("adri-config.yaml"))
-        
+
         # Check config content
         with open("adri-config.yaml", 'r') as f:
             config = yaml.safe_load(f)
-        
+
         self.assertEqual(config["adri"]["project_name"], "test_project")
         self.assertIn("environments", config["adri"])
 
@@ -58,15 +58,15 @@ class TestSetupCommand(unittest.TestCase):
         # Create existing config
         with open("adri-config.yaml", 'w') as f:
             f.write("existing: config")
-        
+
         result = setup_command(force=True, project_name="new_project")
-        
+
         self.assertEqual(result, 0)
-        
+
         # Check config was overwritten
         with open("adri-config.yaml", 'r') as f:
             config = yaml.safe_load(f)
-        
+
         self.assertEqual(config["adri"]["project_name"], "new_project")
 
     def test_setup_command_existing_config_no_force(self):
@@ -74,9 +74,9 @@ class TestSetupCommand(unittest.TestCase):
         # Create existing config
         with open("adri-config.yaml", 'w') as f:
             f.write("existing: config")
-        
+
         result = setup_command(project_name="test_project")
-        
+
         self.assertEqual(result, 1)  # Should fail
 
 
@@ -103,9 +103,9 @@ class TestAssessCommand(unittest.TestCase):
         mock_result.to_standard_dict.return_value = {"score": 85.0}
         mock_assessor.assess.return_value = mock_result
         mock_assessor_class.return_value = mock_assessor
-        
+
         result = assess_command("data.csv", "standard.yaml")
-        
+
         self.assertEqual(result, 0)
         mock_load_data.assert_called_once_with("data.csv")
         mock_assessor.assess.assert_called_once()
@@ -114,18 +114,18 @@ class TestAssessCommand(unittest.TestCase):
     def test_assess_command_file_not_found(self, mock_load_data):
         """Test assess command with file not found."""
         mock_load_data.side_effect = FileNotFoundError("File not found")
-        
+
         result = assess_command("missing.csv", "standard.yaml")
-        
+
         self.assertEqual(result, 1)  # Should fail
 
     @patch('adri.cli.load_data')
     def test_assess_command_no_data(self, mock_load_data):
         """Test assess command with no data loaded."""
         mock_load_data.return_value = []
-        
+
         result = assess_command("empty.csv", "standard.yaml")
-        
+
         self.assertEqual(result, 1)  # Should fail
 
 
@@ -137,7 +137,7 @@ class TestGenerateStandardCommand(unittest.TestCase):
         self.temp_dir = tempfile.mkdtemp()
         self.original_cwd = os.getcwd()
         os.chdir(self.temp_dir)
-        
+
         self.sample_data = [
             {"name": "Alice", "age": 25, "email": "alice@test.com"},
             {"name": "Bob", "age": 30, "email": "bob@test.com"}
@@ -153,16 +153,16 @@ class TestGenerateStandardCommand(unittest.TestCase):
     def test_generate_standard_success(self, mock_load_data):
         """Test successful standard generation."""
         mock_load_data.return_value = self.sample_data
-        
+
         result = generate_standard_command("data.csv")
-        
+
         self.assertEqual(result, 0)
         self.assertTrue(os.path.exists("data_ADRI_standard.yaml"))
-        
+
         # Check generated standard
         with open("data_ADRI_standard.yaml", 'r') as f:
             standard = yaml.safe_load(f)
-        
+
         self.assertIn("standards", standard)
         self.assertIn("requirements", standard)
 
@@ -170,32 +170,32 @@ class TestGenerateStandardCommand(unittest.TestCase):
     def test_generate_standard_existing_file_no_force(self, mock_load_data):
         """Test generate command fails when file exists and no force."""
         mock_load_data.return_value = self.sample_data
-        
+
         # Create existing standard
         with open("data_ADRI_standard.yaml", 'w') as f:
             f.write("existing: standard")
-        
+
         result = generate_standard_command("data.csv")
-        
+
         self.assertEqual(result, 1)  # Should fail
 
     @patch('adri.cli.load_data')
     def test_generate_standard_force_overwrite(self, mock_load_data):
         """Test generate command with force overwrite."""
         mock_load_data.return_value = self.sample_data
-        
+
         # Create existing standard
         with open("data_ADRI_standard.yaml", 'w') as f:
             f.write("existing: standard")
-        
+
         result = generate_standard_command("data.csv", force=True)
-        
+
         self.assertEqual(result, 0)
-        
+
         # Check standard was overwritten
         with open("data_ADRI_standard.yaml", 'r') as f:
             standard = yaml.safe_load(f)
-        
+
         self.assertIn("standards", standard)
         self.assertIn("requirements", standard)
 
@@ -229,9 +229,9 @@ class TestValidateStandardCommand(unittest.TestCase):
                 "overall_minimum": 75.0
             }
         }
-        
+
         result = validate_standard_command("test_standard.yaml")
-        
+
         self.assertEqual(result, 0)
 
     @patch('adri.cli.load_standard')
@@ -245,18 +245,18 @@ class TestValidateStandardCommand(unittest.TestCase):
             }
             # Missing requirements section
         }
-        
+
         result = validate_standard_command("test_standard.yaml")
-        
+
         self.assertEqual(result, 1)  # Should fail
 
     @patch('adri.cli.load_standard')
     def test_validate_standard_file_error(self, mock_load_standard):
         """Test standard validation with file loading error."""
         mock_load_standard.side_effect = FileNotFoundError("File not found")
-        
+
         result = validate_standard_command("missing_standard.yaml")
-        
+
         self.assertEqual(result, 1)  # Should fail
 
 
@@ -281,9 +281,9 @@ class TestListStandardsCommand(unittest.TestCase):
         mock_parser = Mock()
         mock_parser.list_available_standards.return_value = ["standard1", "standard2"]
         mock_parser_class.return_value = mock_parser
-        
+
         result = list_standards_command()
-        
+
         self.assertEqual(result, 0)
         mock_parser.list_available_standards.assert_called_once()
 
@@ -292,12 +292,12 @@ class TestListStandardsCommand(unittest.TestCase):
         # Create project standards directory and files
         standards_dir = Path("ADRI/dev/standards")
         standards_dir.mkdir(parents=True)
-        
+
         (standards_dir / "project_standard1.yaml").touch()
         (standards_dir / "project_standard2.yaml").touch()
-        
+
         result = list_standards_command()
-        
+
         self.assertEqual(result, 0)
 
     @patch('adri.cli.StandardsParser')
@@ -306,9 +306,9 @@ class TestListStandardsCommand(unittest.TestCase):
         mock_parser = Mock()
         mock_parser.list_available_standards.return_value = []
         mock_parser_class.return_value = mock_parser
-        
+
         result = list_standards_command()
-        
+
         self.assertEqual(result, 0)  # Should still succeed but show message
 
 
@@ -325,7 +325,7 @@ class TestCLIUtilities(unittest.TestCase):
         """Test that all required imports are available."""
         # This test ensures the CLI can import all its dependencies
         import adri.cli as cli_module
-        
+
         # Check that key functions exist
         self.assertTrue(hasattr(cli_module, 'setup_command'))
         self.assertTrue(hasattr(cli_module, 'assess_command'))

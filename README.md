@@ -42,16 +42,16 @@ def process_customers(data):
 
 ## Documentation
 
-📖 **[FAQ](docs/faq.md)** - Complete guide covering everything you need to know  
-🏗️ **[Architecture](ARCHITECTURE.md)** - How ADRI works  
-📋 **[Examples](examples/)** - Ready-to-run use cases and standards  
+📖 **[FAQ](docs/faq.md)** - Complete guide covering everything you need to know
+🏗️ **[Architecture](ARCHITECTURE.md)** - How ADRI works
+📋 **[Examples](examples/)** - Ready-to-run use cases and standards
 🤝 **[Contributing](CONTRIBUTING.md)** - Join the community
 
 ## Framework Support
 
 ADRI works seamlessly with all major AI frameworks:
 - **LangChain** - Protect chains and agents
-- **CrewAI** - Validate crew inputs  
+- **CrewAI** - Validate crew inputs
 - **AutoGen** - Secure multi-agent conversations
 - **LlamaIndex** - Guard query engines
 - **Any Python Function** - Universal protection

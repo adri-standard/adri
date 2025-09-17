@@ -32,7 +32,7 @@ class TestProtectionModesRealScenarios(unittest.TestCase):
     def setUp(self):
         """Set up test environment."""
         self.test_dir = tempfile.mkdtemp()
-        
+
         # High quality financial data
         self.financial_data = pd.DataFrame({
             "account_id": ["ACC001", "ACC002", "ACC003", "ACC004", "ACC005"],
@@ -42,7 +42,7 @@ class TestProtectionModesRealScenarios(unittest.TestCase):
             "credit_score": [720, 810, 650, 780, 695],
             "account_type": ["checking", "savings", "investment", "premium", "business"]
         })
-        
+
         # Poor quality e-commerce data
         self.ecommerce_data = pd.DataFrame({
             "product_id": ["PROD001", None, "PROD003", "", "PROD005"],  # Missing/empty IDs
@@ -65,9 +65,9 @@ class TestProtectionModesRealScenarios(unittest.TestCase):
         mock_config.return_value = None
         mock_local.return_value = None
         mock_enterprise.return_value = None
-        
+
         engine = DataProtectionEngine(FailFastMode())
-        
+
         def financial_analysis(financial_data):
             """Simulate a financial analysis function."""
             total_balance = financial_data['balance'].sum()
@@ -77,7 +77,7 @@ class TestProtectionModesRealScenarios(unittest.TestCase):
                 "average_credit_score": avg_credit_score,
                 "risk_level": "low" if avg_credit_score > 700 else "high"
             }
-        
+
         # Test with high-quality financial data - should pass
         with patch('adri.guard.modes.ValidationEngine') as mock_engine_class:
             mock_engine = Mock()
@@ -90,7 +90,7 @@ class TestProtectionModesRealScenarios(unittest.TestCase):
             }
             mock_engine.assess.return_value = mock_result
             mock_engine_class.return_value = mock_engine
-            
+
             with patch('os.path.exists', return_value=True):
                 with patch('builtins.print'):  # Suppress output
                     result = engine.protect_function_call(
@@ -103,7 +103,7 @@ class TestProtectionModesRealScenarios(unittest.TestCase):
                         min_score=85.0,
                         verbose=True
                     )
-            
+
             self.assertEqual(result["risk_level"], "low")
             self.assertGreater(result["total_balance"], 1000000)
 
@@ -115,14 +115,14 @@ class TestProtectionModesRealScenarios(unittest.TestCase):
         mock_config.return_value = None
         mock_local.return_value = None
         mock_enterprise.return_value = None
-        
+
         engine = DataProtectionEngine(SelectiveMode())
-        
+
         def ecommerce_analysis(product_data):
             """Simulate e-commerce analysis that handles poor data gracefully."""
             # Filter out both None and empty string product IDs
             valid_products = product_data[
-                (product_data['product_id'].notna()) & 
+                (product_data['product_id'].notna()) &
                 (product_data['product_id'] != "")
             ]
             avg_price = product_data['price'].mean()
@@ -131,7 +131,7 @@ class TestProtectionModesRealScenarios(unittest.TestCase):
                 "average_price": avg_price,
                 "quality_issues": len(product_data) - len(valid_products)
             }
-        
+
         # Test with poor quality data - should continue with warnings
         with patch('adri.guard.modes.ValidationEngine') as mock_engine_class:
             mock_engine = Mock()
@@ -144,7 +144,7 @@ class TestProtectionModesRealScenarios(unittest.TestCase):
             }
             mock_engine.assess.return_value = mock_result
             mock_engine_class.return_value = mock_engine
-            
+
             with patch('os.path.exists', return_value=True):
                 with patch('builtins.print'):  # Suppress output
                     result = engine.protect_function_call(
@@ -158,7 +158,7 @@ class TestProtectionModesRealScenarios(unittest.TestCase):
                         dimensions={"validity": 15.0, "completeness": 16.0},
                         verbose=True
                     )
-            
+
             # Should continue execution despite low scores
             self.assertEqual(result["valid_products"], 3)  # 3 valid products
             self.assertGreater(result["quality_issues"], 0)
@@ -171,9 +171,9 @@ class TestProtectionModesRealScenarios(unittest.TestCase):
         mock_config.return_value = None
         mock_local.return_value = None
         mock_enterprise.return_value = None
-        
+
         engine = DataProtectionEngine(WarnOnlyMode())
-        
+
         def risky_analysis(data):
             """Simulate analysis that should always run but with warnings."""
             return {
@@ -181,7 +181,7 @@ class TestProtectionModesRealScenarios(unittest.TestCase):
                 "processing_time": "1.2s",
                 "warnings": "Data quality below recommended levels"
             }
-        
+
         # Test with extremely poor data - should still continue
         with patch('adri.guard.modes.ValidationEngine') as mock_engine_class:
             mock_engine = Mock()
@@ -194,7 +194,7 @@ class TestProtectionModesRealScenarios(unittest.TestCase):
             }
             mock_engine.assess.return_value = mock_result
             mock_engine_class.return_value = mock_engine
-            
+
             with patch('os.path.exists', return_value=True):
                 with patch('builtins.print'):  # Suppress output
                     result = engine.protect_function_call(
@@ -207,7 +207,7 @@ class TestProtectionModesRealScenarios(unittest.TestCase):
                         min_score=95.0,  # Very high requirement
                         verbose=True
                     )
-            
+
             # Should always continue regardless of quality
             self.assertEqual(result["total_records"], 5)
             self.assertIn("warnings", result)
@@ -219,7 +219,7 @@ class TestDataProtectionEngineComprehensive(unittest.TestCase):
     def setUp(self):
         """Set up test environment."""
         self.test_dir = tempfile.mkdtemp()
-        
+
         # Mixed quality healthcare data
         self.healthcare_data = pd.DataFrame({
             "patient_id": ["PAT001", "PAT002", "PAT003", "PAT004", "PAT005"],
@@ -242,9 +242,9 @@ class TestDataProtectionEngineComprehensive(unittest.TestCase):
         mock_config.return_value = None
         mock_local.return_value = None
         mock_enterprise.return_value = None
-        
+
         engine = DataProtectionEngine(SelectiveMode())
-        
+
         def healthcare_processor(patient_data):
             """Process healthcare data with strict requirements."""
             return {
@@ -252,7 +252,7 @@ class TestDataProtectionEngineComprehensive(unittest.TestCase):
                 "valid_emails": patient_data['email'].notna().sum(),
                 "avg_vital_score": patient_data['vital_score'].mean()
             }
-        
+
         # Test auto-generation when standard doesn't exist
         with patch('adri.guard.modes.ValidationEngine') as mock_engine_class:
             with patch('os.path.exists', return_value=False):  # Standard doesn't exist
@@ -263,13 +263,13 @@ class TestDataProtectionEngineComprehensive(unittest.TestCase):
                                 mock_generator = Mock()
                                 mock_generator.generate_standard.return_value = {"test": "standard"}
                                 mock_gen_class.return_value = mock_generator
-                                
+
                                 mock_engine = Mock()
                                 mock_result = Mock()
                                 mock_result.overall_score = 78.0
                                 mock_engine.assess.return_value = mock_result
                                 mock_engine_class.return_value = mock_engine
-                                
+
                                 with patch('builtins.print'):  # Suppress output
                                     result = engine.protect_function_call(
                                         func=healthcare_processor,
@@ -282,7 +282,7 @@ class TestDataProtectionEngineComprehensive(unittest.TestCase):
                                         auto_generate=True,
                                         verbose=True
                                     )
-                                
+
                                 # Verify that the test continues execution (SelectiveMode)
                                 # Note: Auto-generation might not be called due to mocking flow
                                 self.assertEqual(result["processed_patients"], 5)
@@ -295,10 +295,10 @@ class TestDataProtectionEngineComprehensive(unittest.TestCase):
         mock_config.return_value = None
         mock_local.return_value = None
         mock_enterprise.return_value = None
-        
+
         engine = DataProtectionEngine(FailFastMode())
-        
-        def complex_analytics(primary_data, analysis_type="standard", *additional_datasets, 
+
+        def complex_analytics(primary_data, analysis_type="standard", *additional_datasets,
                             **analysis_options):
             """Complex function with multiple parameter types."""
             base_result = {
@@ -307,12 +307,12 @@ class TestDataProtectionEngineComprehensive(unittest.TestCase):
                 "additional_datasets": len(additional_datasets),
                 "options_count": len(analysis_options)
             }
-            
+
             if analysis_options.get("include_summary", False):
                 base_result["summary"] = "Analysis completed"
-            
+
             return base_result
-        
+
         # Test with complex parameter passing
         with patch('adri.guard.modes.ValidationEngine') as mock_engine_class:
             mock_engine = Mock()
@@ -320,10 +320,10 @@ class TestDataProtectionEngineComprehensive(unittest.TestCase):
             mock_result.overall_score = 88.0
             mock_engine.assess.return_value = mock_result
             mock_engine_class.return_value = mock_engine
-            
+
             additional_data1 = pd.DataFrame({"extra": [1, 2, 3]})
             additional_data2 = pd.DataFrame({"more": [4, 5, 6]})
-            
+
             with patch('os.path.exists', return_value=True):
                 with patch('builtins.print'):  # Suppress output
                     result = engine.protect_function_call(
@@ -338,7 +338,7 @@ class TestDataProtectionEngineComprehensive(unittest.TestCase):
                         function_name="complex_analytics",
                         min_score=85.0
                     )
-            
+
             self.assertEqual(result["primary_records"], 5)
             self.assertEqual(result["analysis_type"], "advanced")
             self.assertIn("summary", result)
@@ -351,13 +351,13 @@ class TestDataProtectionEngineComprehensive(unittest.TestCase):
         mock_config.return_value = None
         mock_local.return_value = None
         mock_enterprise.return_value = None
-        
+
         engine = DataProtectionEngine(FailFastMode())
-        
+
         def error_prone_function(data):
             """Function that may encounter various errors."""
             return {"processed": True}
-        
+
         # Test missing data parameter error
         try:
             engine.protect_function_call(
@@ -374,7 +374,7 @@ class TestDataProtectionEngineComprehensive(unittest.TestCase):
         except Exception as e:
             # If different exception type, still verify the message
             self.assertIn("missing_data", str(e))
-        
+
         # Test standard file not found with auto-generation disabled
         with patch('os.path.exists', return_value=False):
             try:
@@ -397,18 +397,18 @@ class TestDataProtectionEngineComprehensive(unittest.TestCase):
                 # Any other exception is also a form of protection
                 # The key is that we handle the missing standard gracefully
                 self.assertIsInstance(e, Exception)
-        
+
         # Test function execution error
         def failing_function(data):
             raise ValueError("Function execution failed")
-        
+
         with patch('adri.guard.modes.ValidationEngine') as mock_engine_class:
             mock_engine = Mock()
             mock_result = Mock()
             mock_result.overall_score = 95.0  # High score, should pass protection
             mock_engine.assess.return_value = mock_result
             mock_engine_class.return_value = mock_engine
-            
+
             with patch('os.path.exists', return_value=True):
                 with self.assertRaises(ProtectionError) as context:
                     engine.protect_function_call(
@@ -418,7 +418,7 @@ class TestDataProtectionEngineComprehensive(unittest.TestCase):
                         data_param="data",
                         function_name="failing_function"
                     )
-        
+
         self.assertIn("Data protection failed", str(context.exception))
 
     @patch('adri.guard.modes.ConfigurationLoader')
@@ -429,9 +429,9 @@ class TestDataProtectionEngineComprehensive(unittest.TestCase):
         mock_config.return_value = None
         mock_local.return_value = None
         mock_enterprise.return_value = None
-        
+
         engine = DataProtectionEngine(FailFastMode())
-        
+
         def dimension_sensitive_function(data):
             """Function requiring specific dimension thresholds."""
             return {
@@ -439,7 +439,7 @@ class TestDataProtectionEngineComprehensive(unittest.TestCase):
                 "completeness_check": "passed",
                 "consistency_check": "passed"
             }
-        
+
         # Test passing all dimension requirements
         with patch('adri.guard.modes.ValidationEngine') as mock_engine_class:
             mock_engine = Mock()
@@ -454,7 +454,7 @@ class TestDataProtectionEngineComprehensive(unittest.TestCase):
             }
             mock_engine.assess.return_value = mock_result
             mock_engine_class.return_value = mock_engine
-            
+
             with patch('os.path.exists', return_value=True):
                 with patch('builtins.print'):  # Suppress output
                     result = engine.protect_function_call(
@@ -472,16 +472,16 @@ class TestDataProtectionEngineComprehensive(unittest.TestCase):
                             "plausibility": 15.0
                         }
                     )
-            
+
             self.assertEqual(result["validity_check"], "passed")
-        
+
         # Test failing dimension requirements
         mock_result.dimension_scores["consistency"] = Mock(score=16.0)  # Below 17.0 requirement
-        
+
         with patch('adri.guard.modes.ValidationEngine') as mock_engine_class:
             mock_engine.assess.return_value = mock_result
             mock_engine_class.return_value = mock_engine
-            
+
             with patch('os.path.exists', return_value=True):
                 with self.assertRaises(ProtectionError) as context:
                     engine.protect_function_call(
@@ -499,7 +499,7 @@ class TestDataProtectionEngineComprehensive(unittest.TestCase):
                             "plausibility": 15.0
                         }
                     )
-        
+
         # Verify that the protection failed due to dimension requirements
         self.assertIn("blocked", str(context.exception).lower())
 
@@ -518,19 +518,19 @@ class TestDataProtectionEngineComprehensive(unittest.TestCase):
             }
         }
         mock_config.return_value = mock_config_instance
-        
+
         # Setup logging mocks
         mock_local_instance = Mock()
         mock_enterprise_instance = Mock()
         mock_local.return_value = mock_local_instance
         mock_enterprise.return_value = mock_enterprise_instance
-        
+
         engine = DataProtectionEngine()
-        
+
         def logged_function(data):
             """Function with logging integration."""
             return {"logged": True, "data_size": len(data)}
-        
+
         # Test with configuration and logging
         with patch('adri.guard.modes.ValidationEngine') as mock_engine_class:
             mock_engine = Mock()
@@ -538,7 +538,7 @@ class TestDataProtectionEngineComprehensive(unittest.TestCase):
             mock_result.overall_score = 87.0
             mock_engine.assess.return_value = mock_result
             mock_engine_class.return_value = mock_engine
-            
+
             with patch('os.path.exists', return_value=True):
                 with patch('builtins.print'):  # Suppress output
                     result = engine.protect_function_call(
@@ -550,14 +550,14 @@ class TestDataProtectionEngineComprehensive(unittest.TestCase):
                         standard_name="logged_function_standard",  # Provide string standard
                         min_score=80.0  # Explicitly set min_score as float
                     )
-            
+
             self.assertTrue(result["logged"])
             self.assertEqual(result["data_size"], 5)
-            
+
             # Verify loggers were initialized
             mock_local.assert_called()
             mock_enterprise.assert_called()
-            
+
             # Configuration loading may happen during initialization
             # Verifying the test completed successfully is sufficient
 
@@ -567,7 +567,7 @@ class TestProtectionModesFactoryFunctions(unittest.TestCase):
 
     def test_factory_functions_comprehensive(self):
         """Test comprehensive factory function scenarios."""
-        
+
         # Test with comprehensive configuration
         comprehensive_config = {
             "default_min_score": 88,
@@ -583,33 +583,33 @@ class TestProtectionModesFactoryFunctions(unittest.TestCase):
                 "plausibility": 0.15
             }
         }
-        
+
         # Test fail_fast_mode factory
         fail_fast = fail_fast_mode(comprehensive_config)
         self.assertIsInstance(fail_fast, FailFastMode)
         self.assertEqual(fail_fast.config["default_min_score"], 88)
         self.assertTrue(fail_fast.config["auto_generate_standards"])
         self.assertEqual(fail_fast.config["cache_duration_hours"], 24)
-        
+
         # Test selective_mode factory
         selective = selective_mode(comprehensive_config)
         self.assertIsInstance(selective, SelectiveMode)
         self.assertEqual(selective.config["default_min_score"], 88)
         self.assertTrue(selective.config["enterprise_logging"])
-        
+
         # Test warn_only_mode factory
         warn_only = warn_only_mode(comprehensive_config)
         self.assertIsInstance(warn_only, WarnOnlyMode)
         self.assertEqual(warn_only.config["verbose_protection"], True)
         self.assertIn("dimension_weights", warn_only.config)
-        
+
         # Test with empty configuration
         empty_config = {}
-        
+
         fail_fast_empty = fail_fast_mode(empty_config)
         self.assertIsInstance(fail_fast_empty, FailFastMode)
         self.assertEqual(fail_fast_empty.config, {})
-        
+
         # Test with None configuration
         fail_fast_none = fail_fast_mode(None)
         self.assertIsInstance(fail_fast_none, FailFastMode)
@@ -617,21 +617,21 @@ class TestProtectionModesFactoryFunctions(unittest.TestCase):
 
     def test_mode_descriptions_and_properties(self):
         """Test mode descriptions and properties."""
-        
+
         # Test FailFastMode
         fail_fast = FailFastMode()
         self.assertEqual(fail_fast.mode_name, "fail-fast")
         description = fail_fast.get_description()
         self.assertIn("stops execution", description.lower())
         self.assertIn("fail", description.lower())
-        
+
         # Test SelectiveMode
         selective = SelectiveMode()
         self.assertEqual(selective.mode_name, "selective")
         description = selective.get_description()
         self.assertIn("continues execution", description.lower())
         self.assertIn("logs", description.lower())
-        
+
         # Test WarnOnlyMode
         warn_only = WarnOnlyMode()
         self.assertEqual(warn_only.mode_name, "warn-only")

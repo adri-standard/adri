@@ -15,7 +15,7 @@ import yaml
 class ConfigurationLoader:
     """
     Streamlined configuration loader for ADRI. Simplified from ConfigManager.
-    
+
     Handles basic configuration loading, validation, and path resolution
     without the complex management features of the original.
     """
@@ -131,7 +131,9 @@ class ConfigurationLoader:
         except Exception:
             return False
 
-    def save_config(self, config: Dict[str, Any], config_path: str = "adri-config.yaml") -> None:
+    def save_config(
+        self, config: Dict[str, Any], config_path: str = "adri-config.yaml"
+    ) -> None:
         """
         Save configuration to YAML file.
 
@@ -142,7 +144,9 @@ class ConfigurationLoader:
         with open(config_path, "w") as f:
             yaml.dump(config, f, default_flow_style=False, indent=2)
 
-    def load_config(self, config_path: str = "adri-config.yaml") -> Optional[Dict[str, Any]]:
+    def load_config(
+        self, config_path: str = "adri-config.yaml"
+    ) -> Optional[Dict[str, Any]]:
         """
         Load configuration from YAML file.
 
@@ -183,7 +187,7 @@ class ConfigurationLoader:
                 "ADRI/adri-config.yaml",
                 ".adri.yaml",
             ]
-            
+
             for config_name in config_names:
                 config_path = path / config_name
                 if config_path.exists():
@@ -191,7 +195,9 @@ class ConfigurationLoader:
 
         return None
 
-    def get_active_config(self, config_path: Optional[str] = None) -> Optional[Dict[str, Any]]:
+    def get_active_config(
+        self, config_path: Optional[str] = None
+    ) -> Optional[Dict[str, Any]]:
         """
         Get the active configuration, searching for config file if not specified.
 
@@ -239,7 +245,9 @@ class ConfigurationLoader:
 
         return env_config
 
-    def get_protection_config(self, environment: Optional[str] = None) -> Dict[str, Any]:
+    def get_protection_config(
+        self, environment: Optional[str] = None
+    ) -> Dict[str, Any]:
         """
         Get protection configuration with environment-specific overrides.
 
@@ -279,7 +287,9 @@ class ConfigurationLoader:
 
         return protection_config
 
-    def resolve_standard_path(self, standard_name: str, environment: Optional[str] = None) -> str:
+    def resolve_standard_path(
+        self, standard_name: str, environment: Optional[str] = None
+    ) -> str:
         """
         Resolve a standard name to full path using active configuration.
 
@@ -379,10 +389,10 @@ class ConfigurationLoader:
 def load_adri_config(config_path: Optional[str] = None) -> Optional[Dict[str, Any]]:
     """
     Load ADRI configuration using simplified interface.
-    
+
     Args:
         config_path: Specific config file path, or None to search
-        
+
     Returns:
         Configuration dictionary or None if not found
     """
@@ -393,10 +403,10 @@ def load_adri_config(config_path: Optional[str] = None) -> Optional[Dict[str, An
 def get_protection_settings(environment: Optional[str] = None) -> Dict[str, Any]:
     """
     Get protection settings for an environment.
-    
+
     Args:
         environment: Environment name, or None for default
-        
+
     Returns:
         Protection configuration dictionary
     """
@@ -407,11 +417,11 @@ def get_protection_settings(environment: Optional[str] = None) -> Dict[str, Any]
 def resolve_standard_file(standard_name: str, environment: Optional[str] = None) -> str:
     """
     Resolve standard name to file path.
-    
+
     Args:
         standard_name: Name of standard
         environment: Environment to use
-        
+
     Returns:
         Full path to standard file
     """

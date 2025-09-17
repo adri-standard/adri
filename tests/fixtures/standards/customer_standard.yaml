@@ -8,7 +8,7 @@ standards:
 
 requirements:
   overall_minimum: 75.0
-  
+
   dimension_requirements:
     validity:
       minimum_score: 15.0
@@ -20,19 +20,19 @@ requirements:
       minimum_score: 15.0
     plausibility:
       minimum_score: 12.0
-  
+
   field_requirements:
     customer_id:
       type: "integer"
       nullable: false
       description: "Unique customer identifier"
-    
+
     email:
       type: "string"
       nullable: false
       pattern: "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
       description: "Customer email address"
-    
+
     age:
       type: "integer"
       nullable: false

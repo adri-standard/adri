@@ -28,6 +28,7 @@ def _get_version_from_setuptools_scm() -> str:
     # Try to import from setuptools_scm generated version file
     try:
         from adri._version import version
+
         return version
     except (ImportError, AttributeError):
         pass
@@ -35,6 +36,7 @@ def _get_version_from_setuptools_scm() -> str:
     # Fallback: try to get from package metadata
     try:
         import importlib.metadata
+
         return importlib.metadata.version("adri")
     except (ImportError, Exception):  # nosec B110
         pass

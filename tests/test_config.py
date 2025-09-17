@@ -40,7 +40,7 @@ class TestConfigurationLoader(unittest.TestCase):
     def test_create_default_config(self):
         """Test creating default configuration."""
         config = self.loader.create_default_config("test_project")
-        
+
         self.assertIn("adri", config)
         self.assertEqual(config["adri"]["project_name"], "test_project")
         self.assertEqual(config["adri"]["version"], "4.0.0")
@@ -76,11 +76,11 @@ class TestConfigurationLoader(unittest.TestCase):
         """Test saving and loading configuration."""
         config = self.loader.create_default_config("test_project")
         config_path = "test-config.yaml"
-        
+
         # Save config
         self.loader.save_config(config, config_path)
         self.assertTrue(os.path.exists(config_path))
-        
+
         # Load config
         loaded_config = self.loader.load_config(config_path)
         self.assertEqual(loaded_config["adri"]["project_name"], "test_project")
@@ -95,7 +95,7 @@ class TestConfigurationLoader(unittest.TestCase):
         # Create config file
         with open("adri-config.yaml", 'w') as f:
             f.write("test: config")
-        
+
         found_path = self.loader.find_config_file()
         self.assertEqual(found_path, str(Path.cwd() / "adri-config.yaml"))
 
@@ -109,7 +109,7 @@ class TestConfigurationLoader(unittest.TestCase):
         config = self.loader.create_default_config("test")
         config_path = "test-config.yaml"
         self.loader.save_config(config, config_path)
-        
+
         active_config = self.loader.get_active_config(config_path)
         self.assertEqual(active_config["adri"]["project_name"], "test")
 
@@ -117,7 +117,7 @@ class TestConfigurationLoader(unittest.TestCase):
         """Test getting active config by searching."""
         config = self.loader.create_default_config("test")
         self.loader.save_config(config, "adri-config.yaml")
-        
+
         active_config = self.loader.get_active_config()
         self.assertEqual(active_config["adri"]["project_name"], "test")
 
@@ -125,7 +125,7 @@ class TestConfigurationLoader(unittest.TestCase):
         """Test getting environment config for default environment."""
         config = self.loader.create_default_config("test")
         env_config = self.loader.get_environment_config(config)
-        
+
         # Should return development environment (default)
         self.assertIn("paths", env_config)
         self.assertEqual(env_config["paths"]["standards"], "./ADRI/dev/standards")
@@ -134,24 +134,24 @@ class TestConfigurationLoader(unittest.TestCase):
         """Test getting environment config for specific environment."""
         config = self.loader.create_default_config("test")
         env_config = self.loader.get_environment_config(config, "production")
-        
+
         self.assertIn("paths", env_config)
         self.assertEqual(env_config["paths"]["standards"], "./ADRI/prod/standards")
 
     def test_get_environment_config_invalid_environment(self):
         """Test getting environment config for invalid environment."""
         config = self.loader.create_default_config("test")
-        
+
         with self.assertRaises(ValueError) as context:
             self.loader.get_environment_config(config, "invalid_env")
-        
+
         self.assertIn("Environment 'invalid_env' not found", str(context.exception))
 
     def test_get_protection_config_no_config_file(self):
         """Test getting protection config when no config file exists."""
         with patch.object(self.loader, 'get_active_config', return_value=None):
             protection_config = self.loader.get_protection_config()
-        
+
         # Should return defaults
         self.assertEqual(protection_config["default_failure_mode"], "raise")
         self.assertEqual(protection_config["default_min_score"], 80)
@@ -161,27 +161,27 @@ class TestConfigurationLoader(unittest.TestCase):
         config = self.loader.create_default_config("test")
         # Add environment-specific protection config
         config["adri"]["environments"]["development"]["protection"]["default_min_score"] = 70
-        
+
         with patch.object(self.loader, 'get_active_config', return_value=config):
             protection_config = self.loader.get_protection_config("development")
-        
+
         self.assertEqual(protection_config["default_min_score"], 70)  # Should be overridden
 
     def test_resolve_standard_path_no_config(self):
         """Test resolving standard path when no config exists."""
         with patch.object(self.loader, 'get_active_config', return_value=None):
             path = self.loader.resolve_standard_path("test_standard")
-        
+
         # Should return fallback path
         self.assertEqual(path, "./ADRI/dev/standards/test_standard.yaml")
 
     def test_resolve_standard_path_with_config(self):
         """Test resolving standard path with active config."""
         config = self.loader.create_default_config("test")
-        
+
         with patch.object(self.loader, 'get_active_config', return_value=config):
             path = self.loader.resolve_standard_path("test_standard", "production")
-        
+
         self.assertEqual(path, "./ADRI/prod/standards/test_standard.yaml")
 
 
@@ -207,9 +207,9 @@ class TestConfigurationConvenienceFunctions(unittest.TestCase):
         mock_config = {"adri": {"project_name": "test"}}
         mock_loader.get_active_config.return_value = mock_config
         mock_loader_class.return_value = mock_loader
-        
+
         result = load_adri_config("test-config.yaml")
-        
+
         self.assertEqual(result, mock_config)
         mock_loader.get_active_config.assert_called_once_with("test-config.yaml")
 
@@ -220,9 +220,9 @@ class TestConfigurationConvenienceFunctions(unittest.TestCase):
         mock_settings = {"default_min_score": 85}
         mock_loader.get_protection_config.return_value = mock_settings
         mock_loader_class.return_value = mock_loader
-        
+
         result = get_protection_settings("production")
-        
+
         self.assertEqual(result, mock_settings)
         mock_loader.get_protection_config.assert_called_once_with("production")
 
@@ -233,9 +233,9 @@ class TestConfigurationConvenienceFunctions(unittest.TestCase):
         mock_path = "./ADRI/prod/standards/test.yaml"
         mock_loader.resolve_standard_path.return_value = mock_path
         mock_loader_class.return_value = mock_loader
-        
+
         result = resolve_standard_file("test", "production")
-        
+
         self.assertEqual(result, mock_path)
         mock_loader.resolve_standard_path.assert_called_once_with("test", "production")
 

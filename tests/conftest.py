@@ -125,12 +125,12 @@ def temp_config_dir(tmp_path):
     """Create a temporary configuration directory."""
     config_dir = tmp_path / "config_test"
     config_dir.mkdir()
-    
+
     # Create ADRI subdirectories
     for env in ["dev", "prod"]:
         for subdir in ["standards", "assessments", "training-data"]:
             (config_dir / "ADRI" / env / subdir).mkdir(parents=True)
-    
+
     return config_dir
 
 
@@ -168,11 +168,11 @@ def sample_config(temp_config_dir):
             }
         }
     }
-    
+
     config_file = temp_config_dir / "adri-config.yaml"
     with open(config_file, 'w') as f:
         yaml.dump(config, f)
-    
+
     return config
 
 
@@ -182,7 +182,7 @@ def mock_assessment_result():
     class MockDimensionScore:
         def __init__(self, score):
             self.score = score
-    
+
     class MockAssessmentResult:
         def __init__(self):
             self.overall_score = 82.5
@@ -197,7 +197,7 @@ def mock_assessment_result():
             self.standard_id = "test_standard"
             self.rule_execution_log = []
             self.field_analysis = {}
-            
+
         def to_dict(self):
             return {
                 "overall_score": self.overall_score,
@@ -206,10 +206,10 @@ def mock_assessment_result():
                     k: v.score for k, v in self.dimension_scores.items()
                 }
             }
-            
+
         def to_standard_dict(self):
             return self.to_dict()
-    
+
     return MockAssessmentResult()
 
 
@@ -218,9 +218,9 @@ def clean_environment():
     """Clean up environment before and after each test."""
     # Setup
     original_env = os.environ.copy()
-    
+
     yield
-    
+
     # Cleanup - restore original environment
     os.environ.clear()
     os.environ.update(original_env)
@@ -230,7 +230,7 @@ def clean_environment():
 def create_test_dataframe(rows: int = 100, include_nulls: bool = True) -> pd.DataFrame:
     """Create a test DataFrame with optional null values."""
     import random
-    
+
     data = []
     for i in range(rows):
         row = {
@@ -241,23 +241,23 @@ def create_test_dataframe(rows: int = 100, include_nulls: bool = True) -> pd.Dat
             "score": random.uniform(0, 100) if not (include_nulls and random.random() < 0.03) else None,
         }
         data.append(row)
-    
+
     return pd.DataFrame(data)
 
 
 def assert_dimension_scores_valid(dimension_scores: Dict[str, Any]):
     """Assert that dimension scores are in valid format."""
     expected_dimensions = ["validity", "completeness", "consistency", "freshness", "plausibility"]
-    
+
     for dim in expected_dimensions:
         assert dim in dimension_scores, f"Missing dimension: {dim}"
-        
+
         score_obj = dimension_scores[dim]
         if hasattr(score_obj, "score"):
             score = score_obj.score
         else:
             score = score_obj
-            
+
         assert 0 <= score <= 20, f"Score for {dim} out of range: {score}"
 
 
@@ -280,7 +280,7 @@ def create_minimal_standard(name: str = "test") -> Dict[str, Any]:
 
 class TestDataHelper:
     """Helper class for creating test data."""
-    
+
     @staticmethod
     def create_quality_data(rows: int = 50) -> pd.DataFrame:
         """Create high-quality test data."""
@@ -291,7 +291,7 @@ class TestDataHelper:
             "age": [25 + (i % 50) for i in range(rows)],
             "balance": [1000.0 + (i * 100) for i in range(rows)]
         })
-    
+
     @staticmethod
     def create_poor_quality_data(rows: int = 50) -> pd.DataFrame:
         """Create poor-quality test data with issues."""
@@ -305,5 +305,5 @@ class TestDataHelper:
                 "balance": None if i % 8 == 0 else (1000.0 + (i * 100))  # 12.5% missing
             }
             data.append(row)
-        
+
         return pd.DataFrame(data)

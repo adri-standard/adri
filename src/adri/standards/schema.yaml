@@ -12,7 +12,7 @@ schema_definition:
   required_sections:
     - standards
     - requirements
-  
+
   standards_section:
     required_fields:
       - id
@@ -24,7 +24,7 @@ schema_definition:
       - effective_date
       - expires_date
       - tags
-    
+
     field_constraints:
       id:
         type: string
@@ -42,21 +42,21 @@ schema_definition:
         type: string
         min_length: 3
         max_length: 100
-  
+
   requirements_section:
     required_fields:
       - overall_minimum
     optional_fields:
       - field_requirements
       - dimension_requirements
-    
+
     field_constraints:
       overall_minimum:
         type: number
         min_value: 0
         max_value: 100
         description: Overall minimum score requirement
-  
+
   field_requirements_section:
     allowed_field_types:
       - string
@@ -65,7 +65,7 @@ schema_definition:
       - boolean
       - date
       - datetime
-    
+
     allowed_constraints:
       string:
         - nullable
@@ -92,7 +92,7 @@ schema_definition:
         - nullable
         - after_datetime
         - before_datetime
-  
+
   dimension_requirements_section:
     allowed_dimensions:
       - validity
@@ -100,7 +100,7 @@ schema_definition:
       - consistency
       - freshness
       - plausibility
-    
+
     dimension_constraints:
       minimum_score:
         type: number
@@ -111,7 +111,7 @@ schema_definition:
 validation_rules:
   - rule: "standards section must be present"
     check: "has_section('standards')"
-  - rule: "requirements section must be present"  
+  - rule: "requirements section must be present"
     check: "has_section('requirements')"
   - rule: "overall_minimum must be between 0-100"
     check: "0 <= requirements.overall_minimum <= 100"
