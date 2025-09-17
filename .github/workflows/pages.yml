@@ -55,9 +55,6 @@ jobs:
   # Deployment job
   deploy:
     if: github.ref == 'refs/heads/main'
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     needs: build
     steps:
@@ -96,10 +93,20 @@ jobs:
             exit 1
           fi
 
-          # With permalink: pretty, quick-start.md becomes quick-start/index.html
-          if [ ! -f "_site/quick-start/index.html" ]; then
-            echo "❌ quick-start page not generated"
+          # Check our new simplified documentation structure
+          if [ ! -f "_site/faq/index.html" ]; then
+            echo "❌ FAQ page not generated"
             exit 1
           fi
 
-          echo "✅ Jekyll build successful - key documentation files generated"
+          if [ ! -f "_site/getting-started/index.html" ]; then
+            echo "❌ Getting Started page not generated"
+            exit 1
+          fi
+
+          if [ ! -f "_site/frameworks/index.html" ]; then
+            echo "❌ Frameworks page not generated"
+            exit 1
+          fi
+
+          echo "✅ Jekyll build successful - simplified documentation structure generated"

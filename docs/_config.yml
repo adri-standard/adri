@@ -13,7 +13,8 @@ plugins:
 # Navigation
 header_pages:
   - index.md
-  - quick-start.md
+  - faq.md
+  - getting-started.md
   - frameworks.md
 
 # Settings

@@ -42,7 +42,7 @@ def process_customers(data):
 
 ## Documentation
 
-📖 **[FAQ](FAQ.md)** - Complete guide covering everything you need to know  
+📖 **[FAQ](docs/faq.md)** - Complete guide covering everything you need to know  
 🏗️ **[Architecture](ARCHITECTURE.md)** - How ADRI works  
 📋 **[Examples](examples/)** - Ready-to-run use cases and standards  
 🤝 **[Contributing](CONTRIBUTING.md)** - Join the community

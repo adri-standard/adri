@@ -1,3 +1,8 @@
+---
+layout: default
+title: ADRI FAQ
+---
+
 # ADRI – Frequently Asked Questions
 
 ## What is ADRI?
