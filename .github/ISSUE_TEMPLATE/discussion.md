@@ -1,9 +1,11 @@
 ---
 name: Discussion
-about: Start a discussion about ADRI project direction, architecture, or community topics
-title: '[Discussion] '
-labels: ['discussion', 'question']
+about: Start a discussion about ADRI project direction, architecture, or community
+  topics
+title: "[Discussion] "
+labels: question
 assignees: ''
+
 ---
 
 ## Topic

@@ -1,9 +1,10 @@
 ---
 name: Feature request
 about: Suggest an idea for ADRI
-title: '[FEATURE] '
-labels: ['enhancement', 'triage']
+title: "[FEATURE] "
+labels: enhancement
 assignees: ''
+
 ---
 
 ## Feature Summary

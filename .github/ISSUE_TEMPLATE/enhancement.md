@@ -1,9 +1,10 @@
 ---
 name: Enhancement
 about: Improve existing ADRI functionality
-title: '[Enhancement] '
-labels: ['enhancement', 'improvement']
+title: "[Enhancement] "
+labels: enhancement
 assignees: ''
+
 ---
 
 ## Current Behavior
