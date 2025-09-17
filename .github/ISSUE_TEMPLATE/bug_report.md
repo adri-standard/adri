@@ -1,78 +1,75 @@
 ---
-name: Bug Report
-about: Report a general bug or unexpected behavior in ADRI
-title: '[Bug] '
-labels: ['bug', 'needs-triage']
+name: Bug report
+about: Create a report to help us improve ADRI
+title: '[BUG] '
+labels: ['bug', 'triage']
 assignees: ''
 ---
 
-## Bug Report
-
-**Describe the bug**
+## Bug Description
 A clear and concise description of what the bug is.
 
-**Steps to Reproduce**
+## Steps to Reproduce
 Steps to reproduce the behavior:
 1. Go to '...'
 2. Click on '....'
 3. Scroll down to '....'
 4. See error
 
-**Expected Behavior**
+## Expected Behavior
 A clear and concise description of what you expected to happen.
 
-**Actual Behavior**
+## Actual Behavior
 A clear and concise description of what actually happened.
 
-**Code Example (if applicable)**
+## Code Sample
+If applicable, provide a minimal code sample that reproduces the issue:
+
 ```python
-from adri.decorators.guard import adri_protected
-import pandas as pd
+# Your code here
+from adri import adri_protected
 
-# Minimal code example that demonstrates the bug
-@adri_protected(data_param='data', min_score=70)
-def example_function(data):
-    # Your code here
+@adri_protected(standard="your_standard")
+def your_function(data):
     return data
-
-# Sample data or usage that triggers the bug
-df = pd.DataFrame({
-    # Your test data here
-})
-
-result = example_function(df)
 ```
 
-**Error Messages**
+## Environment Information
+Please complete the following information:
+- **ADRI Version**: [e.g., 4.0.0]
+- **Python Version**: [e.g., 3.11.0]
+- **Operating System**: [e.g., macOS, Ubuntu 22.04, Windows 11]
+- **Installation Method**: [e.g., pip, conda, from source]
+
+## Data Information
+If the issue is related to data processing:
+- **Data Type**: [e.g., CSV, Parquet, DataFrame]
+- **Data Size**: [e.g., 1000 rows, 50MB]
+- **Data Source**: [e.g., file, database, API]
+
+## Error Output
+If applicable, paste the full error traceback:
+
 ```
-Paste any error messages, stack traces, or logs here
+Paste error traceback here
 ```
 
-**Environment**
-- ADRI version: [e.g. 4.0.0]
-- Python version: [e.g. 3.11.0]
-- Operating System: [e.g. macOS 13.0, Windows 11, Ubuntu 22.04]
-- Installation method: [e.g. pip install adri, conda install adri]
+## ADRI Configuration
+If using custom configuration, please share relevant parts:
 
-**Framework Integration (if applicable)**
-<!-- Check if this bug occurs with specific frameworks -->
-- [ ] LangChain
-- [ ] CrewAI
-- [ ] AutoGen
-- [ ] Haystack
-- [ ] LlamaIndex
-- [ ] LangGraph
-- [ ] Semantic Kernel
-- [ ] Generic/Framework-agnostic
-- [ ] Not applicable
+```yaml
+# Your adri-config.yaml or relevant configuration
+```
 
-**Additional Context**
-Add any other context about the problem here, including screenshots if helpful.
+## Additional Context
+Add any other context about the problem here, such as:
+- Screenshots (if applicable)
+- Related issues or discussions
+- Workarounds you've tried
+- Impact on your workflow
 
-**Workaround (if any)**
-If you've found a temporary workaround, please describe it here.
-
----
-**Linking Instructions**: Once this issue is created, reference it in your branch name using the format: `fix/issue-{number}-brief-description` (e.g., `fix/issue-123-decorator-crash-bug`) when creating a PR to fix this bug.
-
-**Note**: For data quality specific bugs, please use the [Data Quality Bug Report](https://github.com/adri-standard/adri/issues/new?assignees=&labels=bug%2Cdata-quality&template=data_quality_bug.md&title=%5BBug%5D+) template instead.
+## Checklist
+- [ ] I have searched existing issues to make sure this is not a duplicate
+- [ ] I have provided all the requested information above
+- [ ] I can reproduce this issue consistently
+- [ ] This issue is specific to ADRI (not a general Python/pandas issue)

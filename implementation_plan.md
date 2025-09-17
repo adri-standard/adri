@@ -1,69 +1,145 @@
 # Implementation Plan
 
-## Overview
-Resolve CI pipeline issues and ensure code coverage is properly scoped to core code only, excluding development and test directories.
+Systematic debloating of ADRI project while maintaining 80%+ test coverage on core functionality.
 
-Based on investigation, the code coverage configuration in pyproject.toml is already correctly set up to focus on core functionality (adri/) while excluding development/, tests/, examples/, and tools/ directories. The main issues are CI environment-specific pandas import conflicts and the need to sync with the latest main branch changes while preserving necessary CI fixes.
+The ADRI project has significant bloat across multiple dimensions: duplicate test infrastructure (109 test files for 24 core files), excessive development tooling (96 files in development/ directory), and redundant configuration. This plan addresses these issues through a phased, safety-first approach that prioritizes core functionality preservation while aggressively removing non-essential components.
 
-## Types
-No new type definitions required for this implementation.
+## [Overview]
 
-The existing coverage configuration uses standard pytest-cov types and excludes non-core directories as intended. All type annotations remain unchanged.
+Comprehensive debloating targeting 40-50% project size reduction through systematic removal of duplicate test infrastructure, development tooling excess, redundant examples, and configuration proliferation while maintaining complete core functionality and 80%+ test coverage.
 
-## Files
-Files requiring modification and attention.
+## [Types]
 
-**Existing files to be preserved:**
-- `.github/workflows/ci-essential.yml` - Contains necessary fixes for CI environment issues
-- `pyproject.toml` - Already has correct coverage configuration excluding non-core directories
+No new type definitions required - this is a removal/consolidation effort.
 
-**Files to be synchronized:**
-- All files from main branch to ensure latest updates
+Core types to preserve:
+- AssessmentResult, DimensionScore, FieldAnalysis from assessor.py
+- AuditRecord from audit_logger.py  
+- All CLI command type annotations
+- Configuration manager types
 
-**Configuration validation:**
-- Coverage omit patterns in pyproject.toml correctly exclude examples/, development/, tools/, tests/
-- CI workflow ignores problematic test directories that cause environment-specific failures
+## [Files]
 
-## Functions
-No function modifications required for this implementation.
+Systematic file removal and consolidation across four phases.
 
-The coverage exclusion functionality is handled through pytest-cov configuration in pyproject.toml and pytest command-line arguments in CI workflows. All existing assessment and protection functions remain unchanged.
+**Files to Remove:**
+- `development/testing/` directory (85 test files) - duplicate test infrastructure
+- `development/tools/` directory (11 script files) - excessive tooling
+- `development/docs/` directory - redundant documentation
+- `examples/` directory reduction from 7 to 3 framework examples
+- 5-7 bundled standards (reduce from 15 to 8-10 essential ones)
+- `tools/adri-setup.py` - redundant with CLI setup command
+- `MagicMock/`, `subdir/`, `htmlcov/`, `logs/` directories - development artifacts
 
-## Classes
-No class modifications required for this implementation.
+**Files to Consolidate:**
+- Merge essential tests from `development/testing/tests/unit/` into `tests/unit/`
+- Consolidate documentation from multiple sources into single location
+- Merge configuration examples and templates
 
-All existing ADRI classes (DataQualityAssessor, DataProtectionEngine, etc.) remain unchanged. The focus is on CI configuration and coverage scope, not core functionality.
+**Files to Preserve (Core):**
+- All files in `adri/` package (24 files, 10,712 lines) - core functionality
+- Essential tests in `tests/` directory (24 files) - coverage maintenance  
+- Core configuration files (pyproject.toml, setup.py)
+- LICENSE, README.md, CHANGELOG.md
+- Essential bundled standards (8-10 most important)
 
-## Dependencies
-Dependencies are already correctly configured.
+## [Functions]
 
-Current dependencies in pyproject.toml support the required coverage and testing functionality:
-- pytest-cov>=4.0 for coverage reporting
-- pytest>=7.0 for test execution
-- Coverage exclusions properly configured for non-core directories
+No function modifications required - this is purely removal/consolidation.
 
-## Testing
-Test configuration improvements and validation approach.
+**Functions to Preserve:**
+- All functions in core `adri/` package modules
+- All CLI command functions in commands.py
+- Essential test functions that provide core coverage
+- Configuration management functions
 
-**Coverage scope verification:**
-- Confirm coverage reports only include adri/ core modules
-- Validate exclusion of examples/, development/, tools/, tests/ directories
-- Ensure 85% coverage target applies only to core functionality
+**Functions to Remove:**
+- Development-only utility functions
+- Redundant test helper functions
+- Example-specific utility functions
+- Development tooling functions
 
-**CI pipeline validation:**
-- Local validation shows pre-commit hooks pass
-- Type checking (mypy) passes on core code
-- Documentation builds successfully
-- Security scanning (bandit) passes
-- Example import tests skipped due to known CI environment pandas conflicts
+## [Classes]
 
-## Implementation Order
-Logical sequence of implementation steps.
+No class modifications required - preservation focus.
 
-1. **Commit current CI fixes** - Preserve necessary changes to ci-essential.yml that exclude problematic tests
-2. **Sync with main branch** - Pull latest changes while preserving CI fixes through merge or rebase
-3. **Validate coverage configuration** - Confirm pyproject.toml settings exclude non-core directories
-4. **Test CI pipeline locally** - Run essential checks that mirror required status checks
-5. **Push changes and verify** - Ensure all required status checks pass in GitHub
-6. **Document coverage scope** - Update documentation to clarify core-only coverage policy
-7. **Monitor CI stability** - Verify consistent pipeline execution without environment conflicts
+**Classes to Preserve:**
+- DataQualityAssessor, AssessmentEngine, AssessmentResult
+- All core classes in assessor.py, audit_logger.py, protection.py
+- CLI command classes and configuration managers
+- Essential test fixture classes
+
+**Classes to Remove:**
+- Development tooling classes
+- Example-specific classes  
+- Redundant test utility classes
+
+## [Dependencies]
+
+Dependency cleanup through removal of development-only requirements.
+
+**Dependencies to Remove:**
+- Development-only packages that are no longer needed after tooling removal
+- Example-specific dependencies (if examples are removed)
+- Testing dependencies that become redundant after consolidation
+
+**Dependencies to Preserve:**
+- All core runtime dependencies in pyproject.toml
+- Essential test dependencies for coverage maintenance
+- CLI dependencies
+
+## [Testing]
+
+Test consolidation strategy maintaining 80%+ core coverage.
+
+**Testing Approach:**
+- Consolidate duplicate tests from `development/testing/` into `tests/`
+- Preserve all tests covering core `adri/` package functionality
+- Remove redundant test infrastructure and utilities
+- Maintain coverage reporting and validation
+- Remove example-specific and development-only tests
+
+**Coverage Validation:**
+- Run coverage reports before and after each phase
+- Ensure core package maintains 80%+ coverage throughout
+- Implement rollback procedures if coverage drops
+
+## [Implementation Order]
+
+Phased approach with coverage validation at each step to ensure systematic, safe debloating.
+
+1. **Phase 1: Coverage Audit and Backup**
+   - Run comprehensive coverage analysis on current codebase
+   - Identify critical test files providing core coverage
+   - Create backup of essential tests before any changes
+   - Document baseline coverage metrics
+
+2. **Phase 2: Test Infrastructure Consolidation**
+   - Merge essential tests from `development/testing/tests/unit/` to `tests/unit/`
+   - Remove duplicate test utilities and fixtures
+   - Validate coverage remains above 80% after consolidation
+   - Remove `development/testing/` directory structure
+
+3. **Phase 3: Development Tooling Removal**
+   - Remove `development/tools/` directory (11 files)
+   - Remove `development/docs/` redundant documentation
+   - Clean up development artifacts (`MagicMock/`, `htmlcov/`, etc.)
+   - Update pyproject.toml to remove unused dev dependencies
+
+4. **Phase 4: Example and Configuration Cleanup**
+   - Reduce examples from 7 to 3 most important frameworks
+   - Consolidate bundled standards from 15 to 8-10 essential ones
+   - Remove redundant configuration files
+   - Clean up YAML file proliferation
+
+5. **Phase 5: Final Validation and Documentation**
+   - Run final coverage report to confirm 80%+ core coverage
+   - Update documentation to reflect new project structure
+   - Clean up any remaining development artifacts
+   - Update CI/CD configurations for new structure
+
+6. **Phase 6: Project Structure Validation**
+   - Verify all core functionality works after cleanup
+   - Run complete test suite to ensure no regressions
+   - Validate CLI commands function correctly
+   - Confirm package builds and installs properly

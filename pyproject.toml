@@ -1,10 +1,10 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=61.0", "setuptools_scm[toml]>=6.2", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "adri"
-version = "4.0.0"
+dynamic = ["version"]
 description = "AI Data Reliability Intelligence - Comprehensive data quality assessment and validation framework"
 readme = "README.md"
 license = {file = "LICENSE"}
@@ -78,9 +78,10 @@ Issues = "https://github.com/adri-standard/adri/issues"
 Changelog = "https://github.com/adri-standard/adri/blob/main/CHANGELOG.md"
 
 [project.scripts]
-adri = "adri.cli.commands:main"
+adri = "adri.cli:main"
 
 [tool.setuptools.packages.find]
+where = ["src"]
 include = ["adri*"]
 exclude = [
     "development*",
@@ -101,8 +102,8 @@ adri = [
     "*.yaml",
     "*.yml",
     "templates/*.yaml",
-    "standards/bundled/*.yaml",
-    "standards/bundled/*.yml"
+    "standards/*.yaml",
+    "standards/*.yml"
 ]
 
 # Black configuration
@@ -229,7 +230,7 @@ timeout_method = "thread"  # Use thread-based timeout
 
 # coverage configuration
 [tool.coverage.run]
-source = ["adri"]
+source = ["src/adri"]
 omit = [
     "*/tests/*",
     "*/test_*",
@@ -258,3 +259,10 @@ precision = 2
 
 [tool.coverage.html]
 directory = "htmlcov"
+
+# setuptools_scm configuration
+[tool.setuptools_scm]
+version_scheme = "post-release"
+local_scheme = "node-and-date"
+write_to = "src/adri/_version.py"
+fallback_version = "4.0.0"

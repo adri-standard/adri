@@ -1,0 +1,44 @@
+# ADRI Demo Configuration
+# Demonstrates the new streamlined configuration for modernized ADRI
+
+[adri]
+version = "4.0.0"
+project_name = "adri-demo"
+default_environment = "development"
+
+[adri.environments.development]
+paths.standards = "./demos/standards"
+paths.assessments = "./demos/assessments" 
+paths.training_data = "./demos/data"
+
+protection.default_failure_mode = "warn"
+protection.default_min_score = 75
+protection.cache_duration_hours = 0.5
+
+[adri.environments.production]
+paths.standards = "./production/standards"
+paths.assessments = "./production/assessments"
+paths.training_data = "./production/data"
+
+protection.default_failure_mode = "raise"
+protection.default_min_score = 85
+protection.cache_duration_hours = 24
+
+[adri.protection]
+default_failure_mode = "raise"
+default_min_score = 80
+cache_duration_hours = 1
+auto_generate_standards = true
+verbose_protection = false
+
+[adri.assessment]
+caching.enabled = true
+caching.ttl = "24h"
+output.format = "json"
+performance.max_rows = 1000000
+performance.timeout = "5m"
+
+[adri.generation]
+default_thresholds.completeness_min = 85
+default_thresholds.validity_min = 90
+default_thresholds.consistency_min = 80

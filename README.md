@@ -6,25 +6,28 @@
 
 ```bash
 pip install adri
+export ADRI_STANDARDS_PATH="./standards"
 ```
 
 ```python
 from adri.decorators.guard import adri_protected
 
-@adri_protected
+@adri_protected(standard="customer_data_standard")
 def your_agent_function(data):
     # Your existing code - now protected!
     return result
 ```
 
-**That's it.** Your AI agents are now protected from bad data.
+**First run:** ADRI creates `standards/customer_data_standard.yaml` from your data patterns  
+**Second run:** ADRI uses the existing standard - fast and transparent!
 
 ## What You Get
 
-✅ **Zero Configuration** - Works immediately with built-in standards  
+✅ **Smart Defaults** - Auto-generates standards from your data patterns  
+✅ **Full Transparency** - See exactly what rules protect your functions  
 ✅ **Framework Agnostic** - Protects any Python function  
 ✅ **Offline First** - No external dependencies or API keys  
-✅ **Sub-millisecond** - Intelligent caching for performance  
+✅ **Sub-millisecond** - Intelligent caching for performance
 
 ## Protection in Action
 
@@ -48,58 +51,58 @@ def your_agent_function(data):
 
 ## Real Examples
 
-### 🟢 Zero-Configuration (Auto-Generated Standards)
+### 🟢 Smart Auto-Generation (Transparent Standards)
 
 ```python
-# Customer service agent - ADRI automatically selects customer_data_standard
-@adri_protected
+# Customer service agent - creates customer_data_standard.yaml first run
+@adri_protected(standard="customer_data_standard")
 def process_customer_request(customer_data):
-    # ADRI infers: customer data → customer_data_standard.yaml
+    # First run: Creates standards/customer_data_standard.yaml from your data
+    # Second run: Uses existing standards/customer_data_standard.yaml
     response = generate_support_response(customer_data)
     return response
 
-# Financial analysis - ADRI automatically selects financial standard  
-@adri_protected(min_score=95)  # Extra strict
+# Financial analysis - strict requirements with auto-generation
+@adri_protected(standard="financial_data_standard", min_score=95)
 def analyze_loan_application(application_data):
-    # ADRI infers: loan/financial → financial_risk_analyzer_standard.yaml
+    # Creates standards/financial_data_standard.yaml with strict validation rules
     risk_assessment = calculate_risk(application_data)
     return risk_assessment
 
-# Any Python function - ADRI generates standard from data patterns
-@adri_protected
-def my_function(data):
-    # ADRI analyzes data structure at runtime → creates custom standard
-    return process_data(data)
+# Custom data parameter - ADRI generates standard from actual data patterns
+@adri_protected(standard="user_profile_standard", data_param="profile_data")
+def update_user_profile(profile_data, settings):
+    # Creates standards/user_profile_standard.yaml analyzing profile_data structure
+    return process_profile(profile_data)
 ```
 
-### 🎯 Explicit Standard References
+### 🎯 Using Template Standards
 
 ```python
-# Use specific bundled standard
-@adri_protected(standard_file="customer_data_standard.yaml")
+# Copy from examples/standards/ to your standards/ directory
+# cp examples/standards/customer_data_standard.yaml standards/
+
+@adri_protected(standard="customer_data_standard")
 def process_customer_request(customer_data):
+    # Uses your copied and customized standard
     response = generate_support_response(customer_data)
     return response
 
-# Use custom standard with strict requirements
+# Use template with strict requirements
 @adri_protected(
-    standard_file="my_loan_validation.yaml",
+    standard="financial_risk_analyzer_financial_data_standard",
     min_score=95,
-    auto_generate=False  # Don't auto-generate if standard missing
+    auto_generate=False  # Don't auto-generate, use exact template
 )
 def analyze_loan_application(application_data):
     risk_assessment = calculate_risk(application_data)
     return risk_assessment
-
-# Reference by standard name instead of file
-@adri_protected(standard_name="high_quality_agent_data_standard")
-def my_function(data):
-    return process_data(data)
 ```
 
-**Choose Your Approach:**
-- **Zero-Config**: Just add `@adri_protected` - ADRI handles everything automatically
-- **Explicit**: Specify exact standards when you need precise control over validation rules
+**Two-Run Approach:**
+- **First run**: ADRI creates `standards/your_standard.yaml` from your data patterns
+- **Second run**: ADRI uses the existing standard - fast, cached, and transparent
+- **Templates**: Copy from `examples/standards/` if you want pre-built standards
 
 ## How It Works - Step by Step
 
@@ -107,56 +110,56 @@ Let me break down exactly what happens when you add `@adri_protected` to your fu
 
 ### Example 1: Customer Service Agent (Basic Protection)
 ```python
-@adri_protected
+@adri_protected(standard="customer_data_standard")
 def process_customer_request(customer_data):
     response = generate_support_response(customer_data)
     return response
 ```
 
-**What ADRI does automatically:**
-1. **📝 Function Name Analysis**: Sees "process_customer_request" → infers customer data handling
-2. **🎯 Standard Selection**: Automatically selects `customer_data_standard.yaml` (built-in)
-3. **🔍 Data Validation**: Before `generate_support_response()` runs, validates `customer_data`:
-   - ✅ Checks if customer_id is an integer
-   - ✅ Validates email format with regex patterns
-   - ✅ Ensures age is between 18-120
-   - ✅ Verifies required fields aren't missing
+**What ADRI does on first and subsequent runs:**
+1. **🎯 Standard Check**: Looks for `standards/customer_data_standard.yaml`
+2. **📝 Auto-Generation (First Run)**: If missing, analyzes `customer_data` to create the standard:
+   - ✅ Detects customer_id as integer type
+   - ✅ Creates email format validation rules
+   - ✅ Sets age range validation (18-120)
+   - ✅ Identifies required vs optional fields
+3. **🔍 Data Validation (Every Run)**: Before `generate_support_response()` runs:
+   - ✅ Validates against the created/existing standard
+   - ✅ Checks data quality across 5 dimensions
 4. **🛡️ Protection Decision**: 
    - If data quality ≥ 75/100 → Function executes normally
    - If data quality < 75/100 → Function blocked, detailed error raised
 
 ### Example 2: Financial Analysis (Strict Protection)
 ```python
-@adri_protected(min_score=95)  # Extra strict
+@adri_protected(standard="financial_data_standard", min_score=95)
 def analyze_loan_application(application_data):
     risk_assessment = calculate_risk(application_data)
     return risk_assessment
 ```
 
 **What the strict protection does:**
-1. **📝 Function Name Analysis**: Sees "analyze_loan_application" → infers financial/loan data
-2. **🎯 Standard Selection**: Selects `financial_risk_analyzer_financial_data_standard.yaml`
+1. **🎯 Standard Management**: Uses `standards/financial_data_standard.yaml`
+2. **📝 Smart Generation**: Creates financial-specific validation rules from your data patterns
 3. **🔍 Enhanced Validation**: Same validation process but with **min_score=95** (vs default 75)
 4. **🛡️ High-Stakes Protection**: 
    - Only executes if data quality ≥ 95/100 (very strict)
    - Perfect for financial functions where bad data = big problems
 
-### Example 3: Generic Function (Adaptive Protection)
+### Example 3: Custom Data Parameter
 ```python
-@adri_protected
-def my_function(data):
-    return process_data(data)
+@adri_protected(standard="user_profile_standard", data_param="profile_data")
+def update_user_profile(profile_data, settings):
+    return process_profile(profile_data)
 ```
 
-**How adaptive protection works:**
-1. **📝 Function Name Analysis**: "my_function" is generic → can't infer data type
-2. **🔍 Runtime Analysis**: Examines actual `data` structure when called:
-   - Analyzes field names, data types, patterns
-   - Checks data volume and structure
-3. **🎯 Dynamic Standard Generation**: Creates custom standard based on your data patterns
-4. **🛡️ Adaptive Protection**: Standard evolves based on actual data it sees
+**How custom parameter protection works:**
+1. **🎯 Standard Location**: `standards/user_profile_standard.yaml`
+2. **🔍 Parameter Analysis**: Examines `profile_data` specifically (not `settings`)
+3. **📝 Targeted Generation**: Creates validation rules based on profile data structure
+4. **🛡️ Selective Protection**: Only validates the specified parameter
 
-### The Magic Behind the Scenes
+### The Transparency Behind the Scenes
 
 **❌ Before ADRI (Your function is vulnerable):**
 ```python
@@ -170,10 +173,10 @@ def process_customer_request(customer_data):
 
 **✅ With ADRI (Your function is protected):**
 ```python
-@adri_protected
+@adri_protected(standard="customer_data_standard")
 def process_customer_request(customer_data):
-    # ✅ ADRI validates before this line ever runs
-    # ✅ Bad data is caught and blocked automatically  
+    # ✅ ADRI validates against standards/customer_data_standard.yaml
+    # ✅ You can see and edit the exact validation rules
     # ✅ Clear error messages tell you exactly what's wrong
     # ✅ Audit logs track every decision for compliance
     response = generate_support_response(customer_data)
@@ -181,13 +184,13 @@ def process_customer_request(customer_data):
 ```
 
 **Key Benefits Demonstrated:**
-- **🚀 Zero Configuration**: Just add `@adri_protected` - no setup required
-- **🧠 Intelligent Inference**: ADRI figures out what kind of data you're using
+- **📋 Explicit Standards**: Always see which standard protects your function
+- **🔍 Full Transparency**: Standards are visible files you can inspect and modify
 - **⚙️ Configurable Strictness**: Use `min_score` to set validation requirements
 - **🌐 Universal Protection**: Works on any Python function, any data type
-- **📋 Automatic Standards**: No need to write validation rules manually
+- **🚀 Smart Generation**: Auto-creates standards from your actual data patterns
 
-The decorator essentially wraps your function with a **"data quality gate"** that only allows high-quality data to reach your business logic.
+The decorator wraps your function with a **"data quality gate"** using transparent, editable standards.
 
 ## Enhanced Protection Examples
 
@@ -195,7 +198,7 @@ The decorator essentially wraps your function with a **"data quality gate"** tha
 
 ```python
 # Prevents common data issues that break agents
-@adri_protected
+@adri_protected(standard="user_data_standard")
 def process_user_data(user_data):
     # ADRI automatically catches:
     # ❌ Missing required fields: customer_id, email
@@ -208,6 +211,17 @@ def process_user_data(user_data):
 # Real failure prevented:
 # Input: {"customer_id": "abc", "age": -5, "email": "invalid"}
 # Result: BLOCKED before reaching your expensive AI calls
+
+# Production-ready examples with explicit standards
+@adri_strict(standard="financial_transaction_standard")
+def process_payment(transaction_data):
+    # High-security payment processing with 90% quality requirement
+    return payment_gateway.process(transaction_data)
+
+@adri_permissive(standard="dev_test_data_standard") 
+def development_function(test_data):
+    # Development-friendly with 70% quality requirement and warnings
+    return experimental_processing(test_data)
 ```
 
 ## Auto-Generated Standards
@@ -330,24 +344,20 @@ Focus on audit trails and regulatory requirements:
 
 ## Framework Solutions
 
-ADRI solves documented production issues across every major AI framework:
+ADRI solves documented production issues across major AI frameworks:
 
 | Framework | GitHub Issues Prevented | What ADRI Solves |
 |-----------|------------------------|-------------------|
 | **🦜 LangChain** | 525+ validation failures | Chain input validation failures, memory context corruption, tool integration breakdowns |
 | **🤝 CrewAI** | 124+ coordination failures | Crew coordination failures, agent role mismatches, task distribution errors |
-| **💬 AutoGen** | 54+ conversation failures | Conversational flow breaks, function argument failures, message handling corruption |
 | **🦙 LlamaIndex** | 949+ index failures | Document indexing errors, query processing failures, retrieval pipeline breaks |
-| **🌾 Haystack** | 347+ pipeline failures | Search pipeline errors, document processing failures, retriever breakdowns |
-| **🌐 LangGraph** | 245+ state failures | Workflow state corruption, graph execution errors, node processing failures |
-| **🧠 Semantic Kernel** | 178+ plugin failures | Plugin execution errors, kernel function failures, AI service integration issues |
 
 **Universal Pattern:** Add `@adri_protected` to any framework function and prevent the documented GitHub issues that break production agents.
 
 ## Next Steps
 
-- **[Quick Start Guide](QUICK_START.md)** - Comprehensive examples for all frameworks
-- **[Framework Examples](DETAILED_EXAMPLES.md)** - LangChain, CrewAI, AutoGen, LlamaIndex, etc.
+- **[Architecture Guide](ARCHITECTURE.md)** - Simple explanation of how ADRI works
+- **[Quick Start Guide](QUICK_START.md)** - Comprehensive examples for core frameworks
 - **[CLI Tools](QUICK_START.md#cli-tools)** - `adri assess`, `adri generate-standard`, etc.
 
 ## Support

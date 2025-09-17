@@ -1,0 +1,6 @@
+customer_id,email,age,registration_date,name
+123,john.doe@example.com,25,2024-01-15,John Doe
+456,jane.smith@domain.com,35,2024-02-20,Jane Smith
+789,bob.wilson@test.org,45,2024-03-10,Bob Wilson
+101,alice.brown@company.net,28,2024-01-05,Alice Brown
+202,charlie.davis@email.com,32,2024-04-12,Charlie Davis

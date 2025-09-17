@@ -297,5 +297,11 @@ env/
 # Framework research directory (excluded from Git tracking)
 development/framework-research/
 
+# Archive directory for legacy files (setuptools_scm implementation)
+archive/
+
+# Generated version file (setuptools_scm)
+src/adri/_version.py
+
 # NOTE: development/ directory is tracked in git but excluded from package builds via pyproject.toml
 # This directory contains tests/, docs/, scripts/, and other development artifacts

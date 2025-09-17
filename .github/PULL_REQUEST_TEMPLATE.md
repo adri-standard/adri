@@ -1,82 +1,71 @@
-# Pull Request
-
-## Linked Issue
-<!-- REQUIRED: Link to the issue this PR addresses -->
-**Closes #[issue-number]**
-
-<!-- If this PR is related to but doesn't close an issue, use: -->
-<!-- **Related to #[issue-number]** -->
-
 ## Description
-<!-- Provide a clear and concise description of what this PR does -->
+Brief description of the changes in this PR.
 
 ## Type of Change
-<!-- Check the relevant option -->
-- [ ] 🐛 Bug fix (non-breaking change which fixes an issue)
-- [ ] ✨ New feature (non-breaking change which adds functionality)
-- [ ] 💥 Breaking change (fix or feature that would cause existing functionality to not work as expected)
-- [ ] 📚 Documentation update
-- [ ] 🧹 Code refactoring (no functional changes)
-- [ ] ⚡ Performance improvement
-- [ ] 🧪 Test coverage improvement
+- [ ] Bug fix (non-breaking change which fixes an issue)
+- [ ] New feature (non-breaking change which adds functionality)
+- [ ] Breaking change (fix or feature that would cause existing functionality to not work as expected)
+- [ ] Documentation update
+- [ ] Performance improvement
+- [ ] Code refactoring
+- [ ] Test improvements
+- [ ] CI/CD improvements
 
-## Framework Compatibility
-<!-- Check all frameworks this change affects -->
-- [ ] LangChain
-- [ ] CrewAI
-- [ ] AutoGen
-- [ ] Haystack
-- [ ] LlamaIndex
-- [ ] LangGraph
-- [ ] Semantic Kernel
-- [ ] Generic/Framework-agnostic
-- [ ] Not applicable
+## Related Issues
+Fixes # (issue number)
+Related to # (issue number)
 
-## Testing Performed
-<!-- Describe the tests you ran to verify your changes -->
-- [ ] Existing tests pass
-- [ ] New tests added for new functionality
-- [ ] Manual testing performed
-- [ ] Performance testing (if applicable)
-- [ ] Integration testing with supported frameworks
+## Changes Made
+- [ ] Change 1
+- [ ] Change 2
+- [ ] Change 3
 
-### Test Details
-<!-- Provide specific details about testing -->
+## Testing
+- [ ] I have added tests that prove my fix is effective or that my feature works
+- [ ] I have run the existing test suite and all tests pass
+- [ ] I have tested this change with real data scenarios
 
-## Documentation Updates
-<!-- Check all that apply -->
-- [ ] Code comments updated
-- [ ] README updated
-- [ ] API documentation updated
-- [ ] Examples updated
-- [ ] No documentation changes needed
+### Test Coverage
+- [ ] Unit tests added/updated
+- [ ] Integration tests added/updated
+- [ ] Manual testing completed
+
+## Code Quality
+- [ ] I have performed a self-review of my own code
+- [ ] I have commented my code, particularly in hard-to-understand areas
+- [ ] I have made corresponding changes to the documentation
+- [ ] My changes generate no new warnings
+- [ ] I have followed the existing code style and conventions
+
+## ADRI Specific Checks
+- [ ] Data validation logic is properly implemented
+- [ ] Error messages are clear and actionable
+- [ ] Performance impact has been considered for large datasets
+- [ ] Framework integrations (if applicable) have been tested
+- [ ] YAML standard schema changes (if applicable) are backward compatible
 
 ## Breaking Changes
-<!-- If this is a breaking change, describe what breaks and how to migrate -->
+If this is a breaking change, please describe:
+- What will break?
+- How can users migrate their existing code?
+- Has the version number been updated appropriately?
 
-## Checklist
-<!-- Ensure all requirements are met before requesting review -->
-- [ ] My code follows the project's style guidelines
-- [ ] I have performed a self-review of my code
-- [ ] My changes generate no new warnings
-- [ ] I have added tests that prove my fix is effective or that my feature works
-- [ ] New and existing unit tests pass locally with my changes
-- [ ] Any dependent changes have been merged and published
+## Documentation
+- [ ] README.md updated (if needed)
+- [ ] API documentation updated (if needed)
+- [ ] Examples updated (if needed)
+- [ ] CHANGELOG.md updated
+- [ ] Migration guide provided (for breaking changes)
 
-## Branch Naming Convention
-<!-- Confirm your branch follows the naming convention -->
-Branch name follows format: `type/issue-{number}-brief-description`
-- [ ] ✅ Branch name is correctly formatted
-- [ ] ❌ Branch name needs to be updated
-
-**Current branch:** `[branch-name-will-be-auto-filled]`
+## Screenshots (if applicable)
+Add screenshots to help explain your changes.
 
 ## Additional Notes
-<!-- Add any additional notes for reviewers -->
+Any additional information that reviewers should know.
 
----
-**🤖 Automated Checks**: This PR will be automatically validated for:
-- ✅ Issue link presence and validity
-- ✅ Branch naming convention compliance
-- ✅ Required section completion
-- ✅ Test coverage requirements
+## Checklist
+- [ ] I have read the [CONTRIBUTING.md](CONTRIBUTING.md) guidelines
+- [ ] My code follows the project's coding standards
+- [ ] I have tested my changes thoroughly
+- [ ] I have updated relevant documentation
+- [ ] I am ready for code review and feedback
