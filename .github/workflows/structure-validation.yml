@@ -46,11 +46,16 @@ jobs:
           "tests"
         )
         
-        # Check for unauthorized files in root
+        # Check for unauthorized files in root (excluding temporary test artifacts)
         echo "📁 Checking for unauthorized files in root directory..."
         VIOLATIONS=0
         
         for file in *; do
+          # Skip temporary test artifacts that might be created during parallel CI runs
+          if [[ "$file" =~ ^(htmlcov|\.coverage|coverage\.json|\.pytest_cache|\.benchmarks|.*_standard\.yaml|test_logs)$ ]]; then
+            echo "⏭️ Skipping temporary artifact: $file"
+            continue
+          fi
           if [[ -f "$file" ]]; then
             # Check if file is in allowed list
             FOUND=0
