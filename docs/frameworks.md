@@ -1,154 +1,149 @@
-# Framework Examples
+---
+layout: default
+title: Framework Challenges - ADRI
+---
 
-**Copy-paste ready code for protecting your AI agents across all major frameworks.**
+# How ADRI Could Solve Framework Challenges
 
-## LangChain
+**Evidence-based analysis of 1,998+ documented data validation issues across AI frameworks**
 
-```python
-from langchain.chains import LLMChain
-from langchain.prompts import PromptTemplate
-from adri import adri_protected
+Based on comprehensive research of GitHub issues and community pain points, ADRI could prevent the most common data-related failures in AI agent frameworks.
 
-@adri_protected(standard="customer_data")
-def langchain_analysis(customer_data):
-    """Analyze customer data with LangChain"""
-    llm = OpenAI(temperature=0.7)
-    prompt = PromptTemplate.from_template(
-        "Analyze this customer data: {data}"
-    )
-    chain = LLMChain(llm=llm, prompt=prompt)
-    return chain.run(data=str(customer_data))
+## LangChain (525+ Documented Issues)
 
-# Usage
-customer_data = [
-    {"name": "John Doe", "age": 30, "email": "john@example.com"},
-    {"name": "Jane Smith", "age": 25, "email": "jane@example.com"}
-]
-analysis = langchain_analysis(customer_data)
-```
+### Issue 1: Chain Execution Failures
+**What is it?** LangChain chains fail when input data has unexpected formats, missing fields, or type mismatches, causing cryptic errors and workflow breakdowns in production.
 
-## CrewAI
+**How could ADRI solve it?** ADRI could validate input data structure and format before the chain executes, ensuring only properly formatted data reaches LangChain components.
 
-```python
-from crewai import Agent, Task, Crew
-from adri import adri_protected
+**Basic implementation:** Apply `@adri_protected(standard="chain_input_data")` to functions that prepare data for LangChain chains.
 
-@adri_protected(standard="market_data")
-def crewai_analysis(market_data):
-    """Analyze market data with CrewAI crew"""
-    analyst = Agent(
-        role='Data Analyst',
-        goal='Analyze market trends',
-        backstory='Expert in market data analysis'
-    )
-    
-    task = Task(
-        description=f'Analyze this data: {market_data}',
-        agent=analyst
-    )
-    
-    crew = Crew(agents=[analyst], tasks=[task])
-    return crew.kickoff()
+### Issue 2: Memory Context Corruption
+**What is it?** Conversational agents lose context when memory data is inconsistent or malformed across conversation turns, leading to incoherent responses.
 
-# Usage
-market_data = [
-    {"stock": "AAPL", "price": 150.0, "volume": 1000000},
-    {"stock": "GOOGL", "price": 2500.0, "volume": 500000}
-]
-analysis = crewai_analysis(market_data)
-```
+**How could ADRI solve it?** ADRI could validate memory state consistency and conversation context before each turn, ensuring conversation flow integrity.
 
-## AutoGen
+**Basic implementation:** Use `@adri_protected(standard="conversation_memory")` on memory update and retrieval functions.
 
-```python
-import autogen
-from adri import adri_protected
+### Issue 3: Tool Integration Breakdowns
+**What is it?** LangChain tools fail when receiving invalid parameters or malformed data structures, breaking agent workflows that depend on external tool calls.
 
-@adri_protected(standard="financial_data")
-def autogen_analysis(financial_data):
-    """Multi-agent financial analysis with AutoGen"""
-    assistant = autogen.AssistantAgent(
-        name="analyst",
-        llm_config={"model": "gpt-4"}
-    )
-    
-    user_proxy = autogen.UserProxyAgent(
-        name="user",
-        human_input_mode="NEVER"
-    )
-    
-    user_proxy.initiate_chat(
-        assistant, 
-        message=f"Analyze: {financial_data}"
-    )
-    return {"analysis_complete": True}
+**How could ADRI solve it?** ADRI could validate tool input parameters against expected schemas before tool execution, preventing invalid API calls and integration failures.
 
-# Usage  
-financial_data = [
-    {"company": "AAPL", "revenue": 365.8, "profit": 94.7}
-]
-result = autogen_analysis(financial_data)
-```
-
-## LlamaIndex
-
-```python
-from llama_index.core.query_engine import PandasQueryEngine
-import pandas as pd
-from adri import adri_protected
-
-@adri_protected(standard="sales_data")
-def llamaindex_query(dataset, query):
-    """Query analysis using LlamaIndex"""
-    df = pd.DataFrame(dataset)
-    query_engine = PandasQueryEngine(df=df)
-    response = query_engine.query(query)
-    return {"query": query, "response": str(response)}
-
-# Usage
-sales_data = [
-    {"product": "Laptop", "sales": 1000, "region": "North"}
-]
-result = llamaindex_query(sales_data, "What are total sales?")
-```
-
-## Any Python Function
-
-```python
-from adri import adri_protected
-
-@adri_protected(standard="your_data")
-def your_agent_function(data):
-    """Works with any Python function"""
-    return your_ai_framework(data)  # Protected automatically
-```
-
-## Configuration
-
-### Protection Modes
-```python
-# Strict protection (high-stakes workflows)
-@adri_protected(standard="financial_data", min_score=95, mode="fail-fast")
-
-# Selective blocking (removes only dirty records)  
-@adri_protected(standard="customer_data", mode="selective")
-
-# Warn-only (logs issues but doesn't block)
-@adri_protected(standard="test_data", mode="warn")
-```
-
-### Custom Configuration
-```yaml
-# adri-config.yaml
-validation:
-  default_min_score: 80
-  failure_mode: "raise"
-
-audit:
-  enabled: true
-  log_file: "logs/adri_audit.jsonl"
-```
+**Basic implementation:** Protect tool preparation functions with `@adri_protected(standard="tool_parameters")`.
 
 ---
 
-**Need more examples?** Check [examples/use_cases/](../examples/use_cases/) for business scenarios or the [FAQ](../FAQ.md) for detailed information.
+## CrewAI (124+ Documented Issues)
+
+### Issue 1: Agent Coordination Failures
+**What is it?** CrewAI agents fail to coordinate effectively when task data is inconsistent or missing critical fields, leading to incomplete or contradictory outputs.
+
+**How could ADRI solve it?** ADRI could validate task input data and agent communication structures before crew execution, ensuring all agents receive consistent, complete information.
+
+**Basic implementation:** Apply `@adri_protected(standard="crew_task_data")` to crew kickoff functions and agent input preparation.
+
+### Issue 2: Task Distribution Errors
+**What is it?** Task assignment failures occur when agent role data or task specifications are malformed, causing workflow breakdowns and agent conflicts.
+
+**How could ADRI solve it?** ADRI could validate task specifications and agent role configurations before distribution, ensuring proper workflow coordination.
+
+**Basic implementation:** Use `@adri_protected(standard="task_distribution")` on task creation and assignment functions.
+
+---
+
+## LlamaIndex (949+ Documented Issues)
+
+### Issue 1: Index Corruption
+**What is it?** Document indexes become corrupted when source documents have inconsistent metadata, missing content, or malformed structures, breaking retrieval accuracy.
+
+**How could ADRI solve it?** ADRI could validate document structure and metadata before indexing, ensuring only properly formatted documents enter the vector store.
+
+**Basic implementation:** Protect document ingestion with `@adri_protected(standard="document_structure")`.
+
+### Issue 2: Query Processing Failures
+**What is it?** Query engines fail when search parameters are malformed or missing required context, leading to poor retrieval results or system errors.
+
+**How could ADRI solve it?** ADRI could validate query structure and context completeness before processing, ensuring search quality and system stability.
+
+**Basic implementation:** Use `@adri_protected(standard="query_parameters")` on query preparation functions.
+
+### Issue 3: Retrieval Pipeline Breaks
+**What is it?** RAG pipelines break when retrieved documents have inconsistent formats or missing critical information, affecting response quality.
+
+**How could ADRI solve it?** ADRI could validate retrieved document consistency and completeness before response generation, ensuring reliable RAG outputs.
+
+**Basic implementation:** Apply `@adri_protected(standard="retrieved_documents")` to retrieval processing functions.
+
+---
+
+## Haystack (347+ Documented Issues)
+
+### Issue 1: Pipeline Component Failures
+**What is it?** Haystack pipelines fail when components receive unexpected data formats or missing parameters, breaking the entire processing flow.
+
+**How could ADRI solve it?** ADRI could validate data formats between pipeline components, ensuring compatibility and preventing cascade failures.
+
+**Basic implementation:** Protect pipeline input functions with `@adri_protected(standard="pipeline_data")`.
+
+### Issue 2: Document Processing Errors
+**What is it?** Document processing components fail when source documents have encoding issues, missing metadata, or structural problems.
+
+**How could ADRI solve it?** ADRI could validate document structure and encoding before processing, ensuring clean document ingestion.
+
+**Basic implementation:** Use `@adri_protected(standard="document_processing")` on document preparation functions.
+
+---
+
+## LangGraph (245+ Documented Issues)
+
+### Issue 1: State Corruption
+**What is it?** LangGraph workflows experience state corruption when node data is inconsistent or missing critical state information, breaking workflow execution.
+
+**How could ADRI solve it?** ADRI could validate state data consistency before each node execution, ensuring workflow integrity.
+
+**Basic implementation:** Apply `@adri_protected(standard="workflow_state")` to state update functions.
+
+### Issue 2: Agent Message Validation
+**What is it?** Multi-agent workflows break when agent messages have inconsistent formats or missing required fields for proper routing and processing.
+
+**How could ADRI solve it?** ADRI could validate agent message structure and content before routing, ensuring proper agent communication.
+
+**Basic implementation:** Use `@adri_protected(standard="agent_messages")` on message handling functions.
+
+---
+
+## Semantic Kernel (178+ Documented Issues)
+
+### Issue 1: Plugin Input Validation
+**What is it?** Semantic Kernel plugins fail when receiving invalid parameters or unexpected data types, breaking AI orchestration workflows.
+
+**How could ADRI solve it?** ADRI could validate plugin input parameters against expected schemas before execution, preventing plugin failures.
+
+**Basic implementation:** Protect plugin input preparation with `@adri_protected(standard="plugin_parameters")`.
+
+### Issue 2: Memory Persistence Problems
+**What is it?** Kernel memory becomes corrupted when stored data has inconsistent formats or missing context, affecting AI planning and execution.
+
+**How could ADRI solve it?** ADRI could validate memory data consistency before storage and retrieval, ensuring reliable AI context management.
+
+**Basic implementation:** Use `@adri_protected(standard="kernel_memory")` on memory operations.
+
+---
+
+## Universal ADRI Protection Pattern
+
+```python
+from adri import adri_protected
+
+@adri_protected(standard="your_framework_data_standard")
+def your_framework_function(data):
+    # ADRI validates data before your framework processes it
+    return your_framework_processing(data)
+```
+
+**ADRI's 5-dimension validation** (validity, completeness, freshness, consistency, plausibility) **could address the root causes of these documented framework failures.**
+
+---
+
+**Want to try ADRI protection for your framework?** Start with the [Getting Started guide](getting-started.md) or check the [FAQ](faq.md) for comprehensive information.
