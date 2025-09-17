@@ -30,7 +30,6 @@ jobs:
           "CONTRIBUTING.md"
           "LICENSE"
           "pyproject.toml"
-          "QUICK_START.md"
           "README.md"
           "SECURITY.md"
         )
