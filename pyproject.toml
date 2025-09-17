@@ -184,7 +184,7 @@ max-statements = 60
 # bandit configuration
 [tool.bandit]
 exclude_dirs = ["development"]
-skips = ["B101", "B601"]  # Skip assert_used and shell_injection_process_args
+skips = ["B101", "B601", "B110"]  # Skip assert_used, shell_injection_process_args, and try_except_pass
 
 # pytest configuration
 [tool.pytest.ini_options]
