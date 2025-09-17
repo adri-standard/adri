@@ -282,7 +282,12 @@ class LocalLogger:
         config = config or {}
 
         self.enabled = config.get("enabled", False)
-        self.log_dir = Path(config.get("log_dir", "./logs"))
+        # Accept both log_dir and log_location for backward compatibility
+        log_path = config.get("log_dir") or config.get("log_location", "./logs")
+        # Extract directory from log_location if it includes filename
+        if "/" in str(log_path) and str(log_path).endswith((".jsonl", ".log", ".csv")):
+            log_path = str(Path(log_path).parent)
+        self.log_dir = Path(log_path)
         self.log_prefix = config.get("log_prefix", "adri")
         self.log_level = config.get("log_level", "INFO")
         self.include_data_samples = config.get("include_data_samples", True)
@@ -556,7 +561,7 @@ def log_to_csv(
 ) -> Optional[AuditRecord]:
     """
     Helper function to log an assessment to CSV.
-    
+
     Args:
         assessment_result: Assessment result object
         execution_context: Execution context information
@@ -564,7 +569,7 @@ def log_to_csv(
         performance_metrics: Performance metrics
         failed_checks: Failed validation checks
         config: Logger configuration
-        
+
     Returns:
         AuditRecord if successful, None otherwise
     """

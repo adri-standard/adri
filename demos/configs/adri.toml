@@ -8,7 +8,7 @@ default_environment = "development"
 
 [adri.environments.development]
 paths.standards = "./demos/standards"
-paths.assessments = "./demos/assessments" 
+paths.assessments = "./demos/assessments"
 paths.training_data = "./demos/data"
 
 protection.default_failure_mode = "warn"

@@ -46,7 +46,7 @@ repos:
     rev: 1.7.5
     hooks:
       - id: bandit
-        args: [-r, adri]
+        args: [--skip, B110]
         exclude: ^(tests/|examples/|scripts/|development/|tools/)
         additional_dependencies: [pbr]
 

@@ -25,7 +25,9 @@ except ImportError:
     except ImportError:
         # Fallback AuditRecord class if not available
         class AuditRecord:
-            def __init__(self, assessment_id: str, timestamp: datetime, adri_version: str):
+            def __init__(
+                self, assessment_id: str, timestamp: datetime, adri_version: str
+            ):
                 self.assessment_id = assessment_id
                 self.timestamp = timestamp
                 self.adri_version = adri_version
@@ -300,7 +302,9 @@ class EnterpriseLogger:
                     continue
                 else:
                     # Client error or final attempt
-                    print(f"Failed to upload to Verodat: {response.status_code} - {response.text}")
+                    print(
+                        f"Failed to upload to Verodat: {response.status_code} - {response.text}"
+                    )
                     return False
 
             except Exception as e:
@@ -312,7 +316,9 @@ class EnterpriseLogger:
 
         return False
 
-    def _prepare_payload(self, records: List[AuditRecord], dataset_type: str) -> List[Dict[str, Any]]:
+    def _prepare_payload(
+        self, records: List[AuditRecord], dataset_type: str
+    ) -> List[Dict[str, Any]]:
         """
         Prepare the complete payload for Verodat API.
 
@@ -340,7 +346,9 @@ class EnterpriseLogger:
                 rows.extend(dimension_rows)
             elif dataset_type == "failed_validations":
                 # Special handling for failed validations (multiple rows per record)
-                failed_validation_rows = self._format_failed_validations(record, standard)
+                failed_validation_rows = self._format_failed_validations(
+                    record, standard
+                )
                 rows.extend(failed_validation_rows)
             else:
                 row = self._format_record_to_row(record, standard, dataset_type)
@@ -349,7 +357,9 @@ class EnterpriseLogger:
         # Return Verodat payload format
         return [{"header": header}, {"rows": rows}]
 
-    def _format_dimension_scores(self, record: AuditRecord, standard: Dict[str, Any]) -> List[List[Any]]:
+    def _format_dimension_scores(
+        self, record: AuditRecord, standard: Dict[str, Any]
+    ) -> List[List[Any]]:
         """Format dimension scores from audit record."""
         rows = []
         dimension_scores = record.assessment_results.get("dimension_scores", {})
@@ -375,18 +385,22 @@ class EnterpriseLogger:
                         elif field_name == "issues_found":
                             value = "0"  # Default
                         elif field_name == "details":
-                            value = json.dumps({"score": dim_score, "dimension": dim_name})
+                            value = json.dumps(
+                                {"score": dim_score, "dimension": dim_name}
+                            )
                         else:
                             value = None
 
                         formatted_value = self._format_value(value, field_type)
                         row.append(formatted_value)
-                
+
                 rows.append(row)
 
         return rows
 
-    def _format_failed_validations(self, record: AuditRecord, standard: Dict[str, Any]) -> List[List[Any]]:
+    def _format_failed_validations(
+        self, record: AuditRecord, standard: Dict[str, Any]
+    ) -> List[List[Any]]:
         """Format failed validations from audit record."""
         rows = []
         failed_checks_list = record.assessment_results.get("failed_checks", [])
@@ -395,7 +409,7 @@ class EnterpriseLogger:
             for idx, check in enumerate(failed_checks_list):
                 if not isinstance(check, dict):
                     continue
-                    
+
                 row = []
                 fields = standard.get("fields", [])
                 validation_id = f"val_{idx:03d}"
@@ -547,7 +561,7 @@ def log_to_verodat(
 ) -> bool:
     """
     Helper function to log an assessment to Verodat.
-    
+
     Args:
         assessment_result: Assessment result object
         execution_context: Execution context information
@@ -555,33 +569,33 @@ def log_to_verodat(
         performance_metrics: Performance metrics
         failed_checks: Failed validation checks
         config: Verodat configuration
-        
+
     Returns:
         True if successful, False otherwise
     """
     if not config or not config.get("enabled", False):
         return True
-    
+
     logger = EnterpriseLogger(config)
-    
+
     # Create audit record
     timestamp = datetime.now()
     assessment_id = f"adri_{timestamp.strftime('%Y%m%d_%H%M%S')}_{os.urandom(3).hex()}"
-    
+
     try:
         from ..version import __version__
     except ImportError:
         __version__ = "unknown"
-    
+
     record = AuditRecord(assessment_id, timestamp, __version__)
-    
+
     # Populate record (simplified)
     record.execution_context.update(execution_context)
     if hasattr(assessment_result, "overall_score"):
         record.assessment_results["overall_score"] = assessment_result.overall_score
     if hasattr(assessment_result, "passed"):
         record.assessment_results["passed"] = assessment_result.passed
-    
+
     # Add to batch and try immediate upload for single record
     logger.add_to_batch(record)
     return logger.upload([record], "assessment_logs")

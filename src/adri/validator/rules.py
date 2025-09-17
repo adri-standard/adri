@@ -77,15 +77,17 @@ def check_field_range(value: Any, field_req: Dict[str, Any]) -> bool:
         return True
 
 
-def validate_field(field_name: str, value: Any, field_requirements: Dict[str, Any]) -> Dict[str, Any]:
+def validate_field(
+    field_name: str, value: Any, field_requirements: Dict[str, Any]
+) -> Dict[str, Any]:
     """
     Validate a single field value against its requirements.
-    
+
     Args:
         field_name: Name of the field being validated
         value: The value to validate
         field_requirements: Dictionary of field requirements
-        
+
     Returns:
         Dictionary containing validation result with details
     """
@@ -94,36 +96,40 @@ def validate_field(field_name: str, value: Any, field_requirements: Dict[str, An
         "value": value,
         "passed": True,
         "errors": [],
-        "warnings": []
+        "warnings": [],
     }
-    
+
     if field_name not in field_requirements:
         # No requirements defined for this field
         return result
-    
+
     field_req = field_requirements[field_name]
-    
+
     # Check if field is nullable and value is null
     nullable = field_req.get("nullable", True)
     if not nullable and (value is None or str(value).strip() == ""):
         result["passed"] = False
         result["errors"].append("Field is required but value is null/empty")
         return result
-    
+
     # If value is null and field is nullable, skip other checks
     if value is None or str(value).strip() == "":
         return result
-    
+
     # Type validation
     if not check_field_type(value, field_req):
         result["passed"] = False
-        result["errors"].append(f"Value does not match required type: {field_req.get('type', 'string')}")
-    
+        result["errors"].append(
+            f"Value does not match required type: {field_req.get('type', 'string')}"
+        )
+
     # Pattern validation
     if not check_field_pattern(value, field_req):
         result["passed"] = False
-        result["errors"].append(f"Value does not match required pattern: {field_req.get('pattern', '')}")
-    
+        result["errors"].append(
+            f"Value does not match required pattern: {field_req.get('pattern', '')}"
+        )
+
     # Range validation
     if not check_field_range(value, field_req):
         result["passed"] = False
@@ -135,5 +141,5 @@ def validate_field(field_name: str, value: Any, field_requirements: Dict[str, An
             result["errors"].append(f"Value must be at least {min_val}")
         elif max_val is not None:
             result["errors"].append(f"Value must be at most {max_val}")
-    
+
     return result

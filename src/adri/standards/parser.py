@@ -32,8 +32,10 @@ except ImportError:
         # Fallback exception classes
         class StandardsDirectoryNotFoundError(Exception):
             pass
+
         class StandardNotFoundError(Exception):
             pass
+
         class InvalidStandardError(Exception):
             pass
 
@@ -68,18 +70,18 @@ class StandardsParser:
                 "ADRI_STANDARDS_PATH environment variable must be set. "
                 "Set it to point to your standards directory."
             )
-        
+
         env_dir = Path(env_path)
         if not env_dir.exists():
             raise StandardsDirectoryNotFoundError(
                 f"Standards directory does not exist: {env_path}"
             )
-        
+
         if not env_dir.is_dir():
             raise StandardsDirectoryNotFoundError(
                 f"Standards path is not a directory: {env_path}"
             )
-        
+
         return env_dir.resolve()
 
     def _validate_standards_directory(self):
@@ -263,10 +265,10 @@ class StandardsParser:
     def validate_standard_file(self, standard_path: str) -> Dict[str, Any]:
         """
         Validate a YAML standard file and return detailed results.
-        
+
         Args:
             standard_path: Path to YAML standard file
-            
+
         Returns:
             Dict containing validation results
         """
@@ -297,14 +299,20 @@ class StandardsParser:
 
             # Validate using existing structure validation
             try:
-                self._validate_standard_structure(yaml_content, os.path.basename(standard_path))
-                validation_result["passed_checks"].append("Valid ADRI standard structure")
+                self._validate_standard_structure(
+                    yaml_content, os.path.basename(standard_path)
+                )
+                validation_result["passed_checks"].append(
+                    "Valid ADRI standard structure"
+                )
             except InvalidStandardError as e:
                 validation_result["errors"].append(str(e))
                 validation_result["is_valid"] = False
 
         except Exception as e:
-            validation_result["errors"].append(f"Unexpected error during validation: {e}")
+            validation_result["errors"].append(
+                f"Unexpected error during validation: {e}"
+            )
             validation_result["is_valid"] = False
 
         return validation_result

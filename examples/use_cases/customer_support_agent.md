@@ -26,11 +26,11 @@ import pandas as pd
 def generate_support_response(customer_profile, ticket_data):
     """
     Generate personalized customer support response.
-    
+
     Args:
         customer_profile: Customer profile data (protected by ADRI)
         ticket_data: Support ticket information
-        
+
     Returns:
         Personalized response with customer context
     """
@@ -38,7 +38,7 @@ def generate_support_response(customer_profile, ticket_data):
     customer_name = customer_profile.get("name", "Valued Customer")
     customer_tier = customer_profile.get("tier", "standard")
     purchase_history = customer_profile.get("recent_purchases", [])
-    
+
     # Generate context-aware response
     if customer_tier == "premium":
         response_tone = "priority"
@@ -46,7 +46,7 @@ def generate_support_response(customer_profile, ticket_data):
     else:
         response_tone = "standard"
         escalation_available = False
-    
+
     # Build personalized response
     response = {
         "greeting": f"Hello {customer_name}",
@@ -58,7 +58,7 @@ def generate_support_response(customer_profile, ticket_data):
             "profile_quality": "verified"  # ADRI ensures this
         }
     }
-    
+
     return response
 ```
 
@@ -75,64 +75,64 @@ standards:
 
 requirements:
   overall_minimum: 80.0
-  
+
   field_requirements:
     customer_id:
       type: string
       nullable: false
       description: Unique customer identifier
-    
+
     name:
       type: string
       nullable: false
       description: Customer full name
-    
+
     email:
       type: string
       nullable: false
       pattern: "^[^@]+@[^@]+\\.[^@]+$"
       description: Valid email address for follow-up
-    
+
     phone:
       type: string
       nullable: true
       pattern: "^\\+?[0-9\\s\\-\\(\\)]+$"
       description: Phone number in standard format
-    
+
     tier:
       type: string
       nullable: false
       allowed_values: ["standard", "premium", "enterprise"]
       description: Customer service tier
-    
+
     account_status:
       type: string
       nullable: false
       allowed_values: ["active", "suspended", "closed"]
       description: Current account status
-    
+
     registration_date:
       type: date
       nullable: false
       description: Customer registration date
-  
+
   dimension_requirements:
     validity:
       minimum_score: 17.0
       description: Email and phone must be valid for customer contact
-    
+
     completeness:
       minimum_score: 18.0
       description: Must have complete customer information for personalization
-    
+
     consistency:
       minimum_score: 15.0
       description: Data formats must be consistent across records
-    
+
     freshness:
       minimum_score: 16.0
       description: Customer data should be reasonably recent
-    
+
     plausibility:
       minimum_score: 14.0
       description: Customer information should be realistic
@@ -168,7 +168,7 @@ try:
     response = generate_support_response(customer_profile, ticket_data)
     print("✅ Support response generated successfully")
     print(f"Response: {response}")
-    
+
 except Exception as e:
     print(f"❌ Support response failed: {e}")
     # Handle poor data quality scenario
@@ -186,7 +186,7 @@ except Exception as e:
 - **Context Awareness**: Complete profiles enable personalized responses
 - **Error Prevention**: Invalid contact info is caught before sending responses
 
-### For Customers  
+### For Customers
 - **Better Experience**: Agents have accurate customer context
 - **Faster Resolution**: No delays from missing/incorrect customer data
 - **Appropriate Tone**: Customer tier information ensures proper response level
@@ -227,10 +227,10 @@ def daily_quality_check():
     data = load_data("daily_customer_updates.csv")
     assessor = DataQualityAssessor()
     result = assessor.assess(data, "customer_profile_standard.yaml")
-    
+
     if result.overall_score < 85:
         send_alert_to_data_team(result)
-    
+
     log_quality_metrics(result)
 
 # Schedule daily at 8 AM

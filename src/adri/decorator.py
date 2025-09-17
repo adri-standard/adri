@@ -90,7 +90,7 @@ def adri_protected(
             return updated_profile
         ```
     """
-    
+
     # Check for missing standard parameter and provide helpful error message
     if standard is None:
         raise ValueError(
@@ -98,8 +98,8 @@ def adri_protected(
             "The @adri_protected decorator needs a name for your data quality standard.\n"
             "ADRI will use an existing standard or auto-create one with this name.\n\n"
             "Examples:\n"
-            "  @adri_protected(standard=\"customer_data\")\n"
-            "  @adri_protected(standard=\"financial_transactions\")\n\n"
+            '  @adri_protected(standard="customer_data")\n'
+            '  @adri_protected(standard="financial_transactions")\n\n'
             "What happens:\n"
             "  • If 'customer_data.yaml' exists → ADRI uses it\n"
             "  • If it doesn't exist → ADRI creates it from your data\n\n"
@@ -115,9 +115,11 @@ def adri_protected(
             try:
                 # Check if protection engine is available
                 if DataProtectionEngine is None:
-                    logger.warning("DataProtectionEngine not available, executing function without protection")
+                    logger.warning(
+                        "DataProtectionEngine not available, executing function without protection"
+                    )
                     return func(*args, **kwargs)
-                
+
                 # Initialize protection engine
                 engine = DataProtectionEngine()
 
@@ -150,7 +152,9 @@ def adri_protected(
                     )
                 else:
                     # Fallback if ProtectionError is not available
-                    raise Exception(f"Data protection failed for function '{func.__name__}': {e}")
+                    raise Exception(
+                        f"Data protection failed for function '{func.__name__}': {e}"
+                    )
 
         # Mark the function as ADRI protected
         setattr(wrapper, "_adri_protected", True)
@@ -184,7 +188,7 @@ def adri_protected(
 #
 # Financial-grade protection:
 # @adri_protected(
-#     standard="banking_data", 
+#     standard="banking_data",
 #     min_score=95,
 #     dimensions={"validity": 19, "completeness": 19, "consistency": 18},
 #     on_failure="raise"

@@ -100,14 +100,14 @@ We provide specialized templates to streamline different types of contributions:
 
 **General Templates:**
 - **🚀 Feature Request** - For completely new functionality
-- **⚡ Enhancement** - For improvements to existing features  
+- **⚡ Enhancement** - For improvements to existing features
 - **🐛 Bug Report** - For general bugs or unexpected behavior
 - **🐛 Data Quality Bug Report** - For issues specific to data quality assessment or validation
 - **💬 Discussion** - For architectural decisions or community input
 
 **Framework-Specific Templates:**
 - **AutoGen Integration** - Issues with Microsoft AutoGen framework
-- **CrewAI Integration** - Issues with CrewAI framework  
+- **CrewAI Integration** - Issues with CrewAI framework
 - **LangChain Integration** - Issues with LangChain framework
 
 **Template Features:**

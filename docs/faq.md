@@ -20,7 +20,7 @@ ADRI was founded by Verodat, under Thomas Russell's leadership, as part of a bro
 ## Who is ADRI for?
 
 - **Agent Builders & AI Engineers** → Ensure reliable agent execution
-- **Data Engineers & Platform Teams** → Apply standardized readiness checks  
+- **Data Engineers & Platform Teams** → Apply standardized readiness checks
 - **Business Owners & Compliance Teams** → Gain confidence, trust, and auditability
 - **Researchers & Contributors** → Extend ADRI for benchmarking and innovation
 - **Enterprises & SMBs** → Adopt lightweight, out-of-the-box quality checks

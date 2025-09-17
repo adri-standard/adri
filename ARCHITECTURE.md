@@ -25,7 +25,7 @@ Think of ADRI as a **quality bouncer** for your AI functions:
 ```
 1. Data arrives → 2. ADRI checks → 3. Decision → 4. Your function
    {"age": -5}     "Is this OK?"    "NO! Block!"   (Never runs)
-   
+
    {"age": 25}     "Is this OK?"    "YES! Allow"   ✅ Runs safely
 ```
 
@@ -36,7 +36,7 @@ Think of ADRI as a **quality bouncer** for your AI functions:
 3. **ADRI asks**: "Is this data good enough for AI?"
 4. **ADRI checks** 5 quality dimensions:
    - ✅ **Valid** - Correct formats (real emails, valid dates)
-   - ✅ **Complete** - No missing required fields  
+   - ✅ **Complete** - No missing required fields
    - ✅ **Consistent** - Same format across records
    - ✅ **Fresh** - Recent enough for your needs
    - ✅ **Realistic** - Values make sense (age 0-120, not -5)
@@ -69,7 +69,7 @@ Think of ADRI as a **quality bouncer** for your AI functions:
 
 # Financial-grade protection:
 @adri_protected(
-    standard="banking_data", 
+    standard="banking_data",
     min_score=95,
     dimensions={"validity": 19, "completeness": 19, "consistency": 18},
     on_failure="raise"
@@ -82,7 +82,7 @@ Think of ADRI as a **quality bouncer** for your AI functions:
 
 ---
 
-### **🔍 Validator Engine (The Quality Inspector)** 
+### **🔍 Validator Engine (The Quality Inspector)**
 *Module: `src/adri/validator/`* | **Coverage: 87.25%** ✅ | **Multi-Dimensional Score: 92%+** ✅
 
 **Components:**
@@ -100,9 +100,9 @@ Think of ADRI as a **quality bouncer** for your AI functions:
 - **Assessment Result Objects** - Detailed scoring with dimension breakdowns and failure reporting
 - **Integration Testing** - Real-world data assessment scenarios with edge case handling
 
-**How it works:** 
+**How it works:**
 - Loads data from multiple formats: CSV, JSON, Parquet
-- Runs validation rules on your data 
+- Runs validation rules on your data
 - Calculates scores for validity, completeness, consistency, freshness, plausibility
 - Returns comprehensive assessment results with dimension breakdown
 - Provides detailed failure analysis and quality improvement recommendations
@@ -227,7 +227,7 @@ Think of ADRI as a **quality bouncer** for your AI functions:
 **Why it exists:** Regulations require audit trails. Debugging needs execution history.
 
 **How it works:**
-- **Local Logging**: Three-file CSV structure (assessments, dimensions, failures) 
+- **Local Logging**: Three-file CSV structure (assessments, dimensions, failures)
 - **Enterprise Logging**: Full Verodat API integration with batch processing
 - **Audit Standards**: Complete YAML standards for audit data structure
 - **Thread-Safe Operations**: Concurrent logging with proper locking
@@ -242,7 +242,7 @@ Think of ADRI as a **quality bouncer** for your AI functions:
 
 **Components (Future):**
 - LangChain integration helpers
-- CrewAI integration utilities  
+- CrewAI integration utilities
 - LlamaIndex integration support
 
 **Current Status:** Module structure created, ready for framework-specific implementations as needed.
@@ -305,7 +305,7 @@ Think of ADRI as a **quality bouncer** for your AI functions:
 
 **Multi-Dimensional Scoring:**
 - **Line Coverage** - Traditional code coverage metrics
-- **Integration Tests** - Component interaction and end-to-end scenarios  
+- **Integration Tests** - Component interaction and end-to-end scenarios
 - **Error Handling** - Failure modes, edge cases, and recovery scenarios
 - **Performance** - Speed, efficiency, and resource usage under load
 
@@ -316,14 +316,14 @@ Overall Score = (Line Coverage × 0.3) + (Integration × 0.3) + (Error Handling 
 
 **Quality Gates for Release:**
 - ✅ All Business Critical: 90%+ overall score
-- ✅ All System Infrastructure: 80%+ overall score  
+- ✅ All System Infrastructure: 80%+ overall score
 - ✅ All Data Processing: 75%+ overall score
 - ✅ Zero critical bugs in production paths
 - ✅ Performance benchmarks met
 
 **Deployment Readiness Checklist:**
 - [ ] **Integration Test Suite**: 95%+ pass rate across all components
-- [ ] **End-to-End Scenarios**: 100% coverage of critical user journeys  
+- [ ] **End-to-End Scenarios**: 100% coverage of critical user journeys
 - [ ] **Error Recovery**: All failure modes gracefully handled
 - [ ] **Performance Validation**: Response times within SLA requirements
 - [ ] **Documentation**: All public APIs documented and tested

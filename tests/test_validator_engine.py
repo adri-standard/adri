@@ -39,7 +39,7 @@ class TestValidationEngine(unittest.TestCase):
     def test_basic_assessment(self):
         """Test basic assessment without standard."""
         result = self.engine._basic_assessment(self.sample_data)
-        
+
         self.assertIsInstance(result, AssessmentResult)
         self.assertGreater(result.overall_score, 0)
         self.assertIn("validity", result.dimension_scores)
@@ -88,7 +88,7 @@ class TestValidationEngine(unittest.TestCase):
         """Test assessment with empty data."""
         empty_data = pd.DataFrame()
         result = self.engine._basic_assessment(empty_data)
-        
+
         self.assertIsInstance(result, AssessmentResult)
         self.assertEqual(result.dimension_scores["completeness"].score, 0.0)
 
@@ -109,7 +109,7 @@ class TestDataQualityAssessor(unittest.TestCase):
     def test_assess_without_standard(self):
         """Test assessment without standard file."""
         result = self.assessor.assess(self.sample_data)
-        
+
         self.assertIsInstance(result, AssessmentResult)
         self.assertGreater(result.overall_score, 0)
         self.assertIsInstance(result.passed, bool)
@@ -118,7 +118,7 @@ class TestDataQualityAssessor(unittest.TestCase):
         """Test assessment with dictionary data input."""
         dict_data = {"name": "Alice", "age": 25}
         result = self.assessor.assess(dict_data)
-        
+
         self.assertIsInstance(result, AssessmentResult)
         self.assertGreater(result.overall_score, 0)
 
@@ -126,14 +126,14 @@ class TestDataQualityAssessor(unittest.TestCase):
         """Test assessment with pandas Series input."""
         series_data = pd.Series([1, 2, 3])
         result = self.assessor.assess(series_data)
-        
+
         self.assertIsInstance(result, AssessmentResult)
 
     def test_assess_with_list_data(self):
         """Test assessment with list data input."""
         list_data = [{"name": "Alice"}, {"name": "Bob"}]
         result = self.assessor.assess(list_data)
-        
+
         self.assertIsInstance(result, AssessmentResult)
 
     @patch('adri.validator.engine.ValidationEngine.assess')
@@ -167,7 +167,7 @@ class TestAssessmentResult(unittest.TestCase):
             "freshness": DimensionScore(17.0),
             "plausibility": DimensionScore(15.0)
         }
-        
+
         self.result = AssessmentResult(
             overall_score=82.5,
             passed=True,
@@ -186,7 +186,7 @@ class TestAssessmentResult(unittest.TestCase):
         """Test adding rule execution results."""
         rule_result = RuleExecutionResult(rule_name="test_rule", passed=True, score=18.0)
         self.result.add_rule_execution(rule_result)
-        
+
         self.assertEqual(len(self.result.rule_execution_log), 1)
         self.assertEqual(self.result.rule_execution_log[0], rule_result)
 
@@ -194,14 +194,14 @@ class TestAssessmentResult(unittest.TestCase):
         """Test adding field analysis."""
         field_analysis = FieldAnalysis("test_field", total_failures=0)
         self.result.add_field_analysis("test_field", field_analysis)
-        
+
         self.assertIn("test_field", self.result.field_analysis)
         self.assertEqual(self.result.field_analysis["test_field"], field_analysis)
 
     def test_set_dataset_info(self):
         """Test setting dataset information."""
         self.result.set_dataset_info(100, 5, 2.5)
-        
+
         self.assertEqual(self.result.dataset_info["total_records"], 100)
         self.assertEqual(self.result.dataset_info["total_fields"], 5)
         self.assertEqual(self.result.dataset_info["size_mb"], 2.5)
@@ -209,7 +209,7 @@ class TestAssessmentResult(unittest.TestCase):
     def test_set_execution_stats(self):
         """Test setting execution statistics."""
         self.result.set_execution_stats(total_execution_time_ms=500, rules_executed=10)
-        
+
         self.assertEqual(self.result.execution_stats["total_execution_time_ms"], 500)
         self.assertEqual(self.result.execution_stats["rules_executed"], 10)
         self.assertEqual(self.result.execution_stats["duration_ms"], 500)  # Alias
@@ -217,7 +217,7 @@ class TestAssessmentResult(unittest.TestCase):
     def test_to_dict(self):
         """Test conversion to dictionary."""
         result_dict = self.result.to_dict()
-        
+
         self.assertIsInstance(result_dict, dict)
         self.assertIn("adri_assessment_report", result_dict)
 
@@ -237,7 +237,7 @@ class TestDimensionScore(unittest.TestCase):
         """Test percentage calculation."""
         score = DimensionScore(15.0, max_score=20.0)
         self.assertEqual(score.percentage(), 75.0)
-        
+
         score = DimensionScore(18.0, max_score=20.0)
         self.assertEqual(score.percentage(), 90.0)
 
@@ -254,7 +254,7 @@ class TestFieldAnalysis(unittest.TestCase):
             total_count=100,
             total_failures=2
         )
-        
+
         self.assertEqual(analysis.field_name, "test_field")
         self.assertEqual(analysis.data_type, "string")
         self.assertEqual(analysis.null_count, 5)
@@ -267,11 +267,11 @@ class TestFieldAnalysis(unittest.TestCase):
         # Normal case
         analysis = FieldAnalysis("field", null_count=10, total_count=100)
         self.assertEqual(analysis.completeness, 0.9)
-        
+
         # Edge case: no nulls
         analysis = FieldAnalysis("field", null_count=0, total_count=50)
         self.assertEqual(analysis.completeness, 1.0)
-        
+
         # Edge case: all nulls
         analysis = FieldAnalysis("field", null_count=50, total_count=50)
         self.assertEqual(analysis.completeness, 0.0)
@@ -283,7 +283,7 @@ class TestFieldAnalysis(unittest.TestCase):
             total_failures=3,
             ml_readiness="high"
         )
-        
+
         result_dict = analysis.to_dict()
         self.assertEqual(result_dict["field_name"], "test_field")
         self.assertEqual(result_dict["total_failures"], 3)
@@ -304,7 +304,7 @@ class TestRuleExecutionResult(unittest.TestCase):
             failed=10,
             rule_score=18.0
         )
-        
+
         self.assertEqual(result.rule_id, "test_rule")
         self.assertEqual(result.dimension, "validity")
         self.assertEqual(result.field, "email")
@@ -321,7 +321,7 @@ class TestRuleExecutionResult(unittest.TestCase):
             score=17.5,
             message="Test message"
         )
-        
+
         self.assertEqual(result.rule_name, "legacy_rule")
         self.assertEqual(result.rule_id, "legacy_rule")
         self.assertEqual(result.passed, 1)  # Converted to int
@@ -337,14 +337,14 @@ class TestRuleExecutionResult(unittest.TestCase):
             failed=15,
             rule_score=17.0
         )
-        
+
         result_dict = result.to_dict()
         self.assertEqual(result_dict["rule_id"], "test_rule")
         self.assertEqual(result_dict["total_records"], 100)
         self.assertEqual(result_dict["passed"], 85)
         self.assertEqual(result_dict["failed"], 15)
         self.assertEqual(result_dict["rule_score"], 17.0)
-        
+
         # Check required v2.0 compliance fields
         self.assertIn("execution", result_dict)
         self.assertIn("failures", result_dict)
@@ -369,7 +369,7 @@ class TestBundledStandardWrapper(unittest.TestCase):
     def test_get_field_requirements(self):
         """Test getting field requirements."""
         requirements = self.wrapper.get_field_requirements()
-        
+
         self.assertIn("name", requirements)
         self.assertIn("age", requirements)
         self.assertEqual(requirements["name"]["type"], "string")
@@ -383,10 +383,10 @@ class TestBundledStandardWrapper(unittest.TestCase):
     def test_empty_requirements(self):
         """Test with empty or missing requirements."""
         empty_wrapper = BundledStandardWrapper({})
-        
+
         requirements = empty_wrapper.get_field_requirements()
         self.assertEqual(requirements, {})
-        
+
         minimum = empty_wrapper.get_overall_minimum()
         self.assertEqual(minimum, 75.0)  # Default
 
@@ -408,12 +408,12 @@ class TestAssessmentIntegration(unittest.TestCase):
     def test_end_to_end_assessment(self):
         """Test complete assessment workflow."""
         result = self.assessor.assess(self.sample_data)
-        
+
         # Basic validations
         self.assertIsInstance(result, AssessmentResult)
         self.assertIsInstance(result.overall_score, (int, float))
         self.assertIsInstance(result.passed, bool)
-        
+
         # Dimension scores validation
         expected_dimensions = ["validity", "completeness", "consistency", "freshness", "plausibility"]
         for dim in expected_dimensions:
@@ -430,12 +430,12 @@ class TestAssessmentIntegration(unittest.TestCase):
             "age": [25, 30, 35],
             "email": ["alice@example.com", "bob@example.com", "charlie@example.com"],
         })
-        
+
         result = self.assessor.assess(high_quality_data)
-        
+
         # Should have high scores
         self.assertGreater(result.overall_score, 70)
-        
+
         # Completeness should be perfect (no nulls)
         completeness_score = result.dimension_scores["completeness"].score
         self.assertEqual(completeness_score, 20.0)
@@ -447,12 +447,12 @@ class TestAssessmentIntegration(unittest.TestCase):
             "age": [-5, 30, 200, 35],  # Invalid ages
             "email": ["invalid", "bob@example.com", "also-invalid", "dave@example.com"],
         })
-        
+
         result = self.assessor.assess(poor_quality_data)
-        
+
         # Should have lower scores (but not as strict as original test)
         self.assertLess(result.overall_score, 85)  # More realistic expectation
-        
+
         # Completeness should be reduced (nulls present)
         completeness_score = result.dimension_scores["completeness"].score
         self.assertLess(completeness_score, 20.0)
@@ -466,9 +466,9 @@ class TestAssessmentIntegration(unittest.TestCase):
             }
         }
         assessor = DataQualityAssessor(config)
-        
+
         result = assessor.assess(self.sample_data)
-        
+
         # Should work with audit logging
         self.assertIsInstance(result, AssessmentResult)
         self.assertGreater(result.overall_score, 0)
@@ -479,7 +479,7 @@ class TestAssessmentIntegration(unittest.TestCase):
         dict_data = {"name": "Alice", "age": 25, "email": "alice@test.com"}
         result = self.assessor.assess(dict_data)
         self.assertIsInstance(result, AssessmentResult)
-        
+
         # Test with list of dictionaries
         list_data = [
             {"name": "Alice", "age": 25},
@@ -487,7 +487,7 @@ class TestAssessmentIntegration(unittest.TestCase):
         ]
         result = self.assessor.assess(list_data)
         self.assertIsInstance(result, AssessmentResult)
-        
+
         # Test with pandas Series
         series_data = pd.Series([1, 2, 3, 4, 5])
         result = self.assessor.assess(series_data)
@@ -519,19 +519,19 @@ class TestValidationEngineComprehensive(unittest.TestCase):
                 }
             }
         }
-        
+
         result = self.engine.assess_with_standard_dict(self.test_data, standard_dict)
-        
+
         self.assertIsInstance(result, AssessmentResult)
         self.assertGreater(result.overall_score, 0)
 
     def test_assess_with_invalid_standard_dict(self):
         """Test assessment with invalid standard dictionary."""
         invalid_standard = {"invalid": "structure"}
-        
+
         # Should fallback to basic assessment
         result = self.engine.assess_with_standard_dict(self.test_data, invalid_standard)
-        
+
         self.assertIsInstance(result, AssessmentResult)
         self.assertGreater(result.overall_score, 0)
 
@@ -541,7 +541,7 @@ class TestValidationEngineComprehensive(unittest.TestCase):
         empty_wrapper = BundledStandardWrapper({})
         self.assertEqual(empty_wrapper.get_field_requirements(), {})
         self.assertEqual(empty_wrapper.get_overall_minimum(), 75.0)
-        
+
         # Test with invalid requirements structure
         invalid_wrapper = BundledStandardWrapper({"requirements": "not_a_dict"})
         self.assertEqual(invalid_wrapper.get_field_requirements(), {})
@@ -550,11 +550,11 @@ class TestValidationEngineComprehensive(unittest.TestCase):
     def test_assessment_result_metadata_handling(self):
         """Test AssessmentResult metadata and execution stats."""
         result = AssessmentResult(85.0, True, {}, "test_standard")
-        
+
         # Test dataset info
         result.set_dataset_info(100, 5, 2.5)
         self.assertEqual(result.dataset_info["total_records"], 100)
-        
+
         # Test execution stats with duration_ms alias
         result.set_execution_stats(duration_ms=500, rules_executed=10)
         self.assertEqual(result.execution_stats["duration_ms"], 500)
@@ -563,7 +563,7 @@ class TestValidationEngineComprehensive(unittest.TestCase):
     def test_assessment_result_to_standard_dict_fallback(self):
         """Test AssessmentResult to_standard_dict with import fallback."""
         result = AssessmentResult(85.0, True, {}, "test_standard")
-        
+
         # Should use v2 format when ReportGenerator not available
         standard_dict = result.to_standard_dict()
         self.assertIn("adri_assessment_report", standard_dict)
@@ -575,7 +575,7 @@ class TestValidationEngineComprehensive(unittest.TestCase):
         self.assertEqual(old_result.rule_name, "old_rule")
         self.assertEqual(old_result.rule_id, "old_rule")
         self.assertEqual(old_result.passed, 1)  # Converted to int
-        
+
         # Test new signature
         new_result = RuleExecutionResult(rule_id="new_rule", total_records=100, passed=90, failed=10)
         result_dict = new_result.to_dict()
@@ -585,7 +585,7 @@ class TestValidationEngineComprehensive(unittest.TestCase):
     def test_assess_with_completeness_requirements(self):
         """Test assessment with completeness requirements."""
         engine = self.engine
-        
+
         # Test with mandatory fields
         requirements = {"mandatory_fields": ["name", "email"]}
         data_with_nulls = pd.DataFrame({
@@ -593,11 +593,11 @@ class TestValidationEngineComprehensive(unittest.TestCase):
             "email": ["alice@test.com", "bob@test.com", None],
             "optional": [None, "value", "test"]
         })
-        
+
         score = engine.assess_completeness(data_with_nulls, requirements)
         # Should be reduced due to nulls in required fields
         self.assertLess(score, 20.0)
-        
+
         # Test without requirements
         score_no_reqs = engine.assess_completeness(data_with_nulls)
         self.assertGreater(score_no_reqs, 0)
@@ -605,14 +605,14 @@ class TestValidationEngineComprehensive(unittest.TestCase):
     def test_assess_with_consistency_rules(self):
         """Test assessment with consistency format rules."""
         engine = self.engine
-        
+
         consistency_rules = {
             "format_rules": {
                 "name": "title_case",
                 "city": "lowercase"
             }
         }
-        
+
         # Test with consistent data
         consistent_data = pd.DataFrame({
             "name": ["Alice", "Bob", "Charlie"],
@@ -620,7 +620,7 @@ class TestValidationEngineComprehensive(unittest.TestCase):
         })
         score = engine.assess_consistency(consistent_data, consistency_rules)
         self.assertGreater(score, 15)
-        
+
         # Test with inconsistent data
         inconsistent_data = pd.DataFrame({
             "name": ["alice", "BOB", "Charlie"],  # Mixed case
@@ -632,7 +632,7 @@ class TestValidationEngineComprehensive(unittest.TestCase):
     def test_assess_with_plausibility_business_rules(self):
         """Test assessment with business rules for plausibility."""
         engine = self.engine
-        
+
         plausibility_config = {
             "business_rules": {
                 "age": {"min": 0, "max": 120},
@@ -642,7 +642,7 @@ class TestValidationEngineComprehensive(unittest.TestCase):
                 "score": {"method": "range", "min": 0, "max": 100}
             }
         }
-        
+
         # Test with valid business data
         valid_data = pd.DataFrame({
             "age": [25, 30, 35, 40],
@@ -651,7 +651,7 @@ class TestValidationEngineComprehensive(unittest.TestCase):
         })
         score = engine.assess_plausibility(valid_data, plausibility_config)
         self.assertGreater(score, 15)
-        
+
         # Test with invalid business data
         invalid_data = pd.DataFrame({
             "age": [-5, 30, 200, 40],  # Invalid ages
@@ -669,21 +669,21 @@ class TestValidationEngineComprehensive(unittest.TestCase):
         })
         score = self.engine._assess_validity(valid_email_data)
         self.assertGreater(score, 15)
-        
+
         # Test invalid emails
         invalid_email_data = pd.DataFrame({
             "email": ["not-email", "invalid@", "@invalid.com"]
         })
         score = self.engine._assess_validity(invalid_email_data)
         self.assertLess(score, 10)
-        
+
         # Test valid ages
         valid_age_data = pd.DataFrame({
             "age": [25, 30, 45, 60]
         })
         score = self.engine._assess_validity(valid_age_data)
         self.assertGreater(score, 15)
-        
+
         # Test invalid ages
         invalid_age_data = pd.DataFrame({
             "age": [-5, 200, -10, 300]
@@ -700,7 +700,7 @@ class TestValidationEngineComprehensive(unittest.TestCase):
         })
         score = self.engine._assess_completeness(complete_data)
         self.assertEqual(score, 20.0)
-        
+
         # Partial completeness
         partial_data = pd.DataFrame({
             "field1": [1, None, 3],
@@ -709,7 +709,7 @@ class TestValidationEngineComprehensive(unittest.TestCase):
         score = self.engine._assess_completeness(partial_data)
         self.assertGreater(score, 10)
         self.assertLess(score, 20)
-        
+
         # Empty data
         empty_data = pd.DataFrame()
         score = self.engine._assess_completeness(empty_data)
@@ -720,11 +720,11 @@ class TestValidationEngineComprehensive(unittest.TestCase):
         # Test consistency
         score = self.engine._assess_consistency(self.test_data)
         self.assertEqual(score, 16.0)  # Default return value
-        
-        # Test freshness  
+
+        # Test freshness
         score = self.engine._assess_freshness(self.test_data)
         self.assertEqual(score, 19.0)  # Default return value
-        
+
         # Test plausibility
         score = self.engine._assess_plausibility(self.test_data)
         self.assertEqual(score, 15.5)  # Default return value
@@ -732,12 +732,12 @@ class TestValidationEngineComprehensive(unittest.TestCase):
     def test_email_validation_edge_cases(self):
         """Test email validation with edge cases."""
         engine = self.engine
-        
+
         # Valid emails
         self.assertTrue(engine._is_valid_email("user@domain.com"))
         self.assertTrue(engine._is_valid_email("test.email@example.org"))
         self.assertTrue(engine._is_valid_email("user+tag@domain.co.uk"))
-        
+
         # Invalid emails
         self.assertFalse(engine._is_valid_email("invalid"))
         self.assertFalse(engine._is_valid_email("user@"))
@@ -756,15 +756,15 @@ class TestValidationEngineComprehensive(unittest.TestCase):
                 }
             }
         }
-        
+
         wrapper = BundledStandardWrapper(standard_dict)
-        
+
         # Test field requirements extraction
         field_reqs = wrapper.get_field_requirements()
         self.assertIn("name", field_reqs)
         self.assertIn("age", field_reqs)
         self.assertEqual(field_reqs["name"]["type"], "string")
-        
+
         # Test overall minimum extraction
         min_score = wrapper.get_overall_minimum()
         self.assertEqual(min_score, 85.0)
@@ -772,7 +772,7 @@ class TestValidationEngineComprehensive(unittest.TestCase):
     def test_validation_engine_public_methods(self):
         """Test public methods for backward compatibility."""
         engine = self.engine
-        
+
         # Test assess_validity
         field_requirements = {
             "email": {"type": "string", "pattern": r"^[^@]+@[^@]+\.[^@]+$"}
@@ -780,7 +780,7 @@ class TestValidationEngineComprehensive(unittest.TestCase):
         data = pd.DataFrame({"email": ["test@example.com", "user@domain.org"]})
         score = engine.assess_validity(data, field_requirements)
         self.assertGreater(score, 15)
-        
+
         # Test assess_completeness
         requirements = {"mandatory_fields": ["name", "email"]}
         data = pd.DataFrame({
@@ -790,7 +790,7 @@ class TestValidationEngineComprehensive(unittest.TestCase):
         })
         score = engine.assess_completeness(data, requirements)
         self.assertGreater(score, 15)
-        
+
         # Test assess_consistency
         consistency_rules = {
             "format_rules": {
@@ -800,13 +800,13 @@ class TestValidationEngineComprehensive(unittest.TestCase):
         data = pd.DataFrame({"name": ["Alice", "Bob", "Charlie"]})
         score = engine.assess_consistency(data, consistency_rules)
         self.assertGreater(score, 0)
-        
+
         # Test assess_freshness
         freshness_config = {"date_fields": ["created_at"]}
         data = pd.DataFrame({"created_at": ["2024-01-01", "2024-01-02"]})
         score = engine.assess_freshness(data, freshness_config)
         self.assertEqual(score, 18.0)  # Should return good score for date fields
-        
+
         # Test assess_plausibility
         plausibility_config = {
             "business_rules": {
@@ -836,7 +836,7 @@ class TestValidationEngineEdgeCases(unittest.TestCase):
         # Create mock standard that raises exception
         mock_standard = Mock()
         mock_standard.get_field_requirements.side_effect = Exception("Standard error")
-        
+
         data = pd.DataFrame({"test": [1, 2, 3]})
         # Should fallback to basic validity assessment
         score = self.engine._assess_validity_with_standard(data, mock_standard)
@@ -846,7 +846,7 @@ class TestValidationEngineEdgeCases(unittest.TestCase):
         """Test assess_completeness_with_standard with error handling."""
         mock_standard = Mock()
         mock_standard.get_field_requirements.side_effect = Exception("Standard error")
-        
+
         data = pd.DataFrame({"test": [1, 2, 3]})
         # Should fallback to basic completeness assessment
         score = self.engine._assess_completeness_with_standard(data, mock_standard)
@@ -859,7 +859,7 @@ class TestValidationEngineEdgeCases(unittest.TestCase):
             "field1": ["value1", "value2"],
             "field2": [100, 200]
         })
-        
+
         score = self.engine._assess_validity(data)
         self.assertEqual(score, 18.0)  # Should return default good score
 
@@ -873,7 +873,7 @@ class TestValidationEngineEdgeCases(unittest.TestCase):
             }
         }
         wrapper = BundledStandardWrapper(standard_dict)
-        
+
         data = pd.DataFrame({"different_field": ["value1", "value2"]})
         score = self.engine._assess_validity_with_standard(data, wrapper)
         self.assertEqual(score, 18.0)  # Should return default when no checks
@@ -888,7 +888,7 @@ class TestValidationEngineEdgeCases(unittest.TestCase):
             }
         }
         wrapper = BundledStandardWrapper(standard_dict)
-        
+
         data = pd.DataFrame({"field1": ["value1", None, "value3"]})
         score = self.engine._assess_completeness_with_standard(data, wrapper)
         # Should fallback to basic completeness since no required fields
@@ -902,14 +902,14 @@ class TestValidationEngineEdgeCases(unittest.TestCase):
             }
         }
         wrapper = BundledStandardWrapper(standard_dict)
-        
+
         minimum = wrapper.get_overall_minimum()
         self.assertEqual(minimum, 75.0)  # Should return default
 
     def test_assessment_result_v2_format_with_all_data(self):
         """Test AssessmentResult v2 format with complete data."""
         from datetime import datetime
-        
+
         result = AssessmentResult(
             overall_score=85.0,
             passed=True,
@@ -917,18 +917,18 @@ class TestValidationEngineEdgeCases(unittest.TestCase):
             standard_id="test_standard",
             assessment_date=datetime.now()
         )
-        
+
         # Add dataset info and execution stats
         result.set_dataset_info(100, 5, 2.5)
         result.set_execution_stats(total_execution_time_ms=500, rules_executed=10)
-        
+
         # Add field analysis
         field_analysis = FieldAnalysis("test_field", total_failures=2)
         result.add_field_analysis("test_field", field_analysis)
-        
+
         # Test v2 format generation
         v2_dict = result.to_v2_standard_dict("test_dataset", "4.0.0")
-        
+
         self.assertIn("adri_assessment_report", v2_dict)
         metadata = v2_dict["adri_assessment_report"]["metadata"]
         self.assertEqual(metadata["dataset_name"], "test_dataset")

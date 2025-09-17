@@ -660,11 +660,7 @@ class ValidationEngine:
     ) -> float:
         """Assess validity using rules from the YAML standard."""
         # Import validation rules - these will be extracted to rules.py later
-        from .rules import (
-            check_field_type,
-            check_field_pattern,
-            check_field_range,
-        )
+        from .rules import check_field_pattern, check_field_range, check_field_type
 
         total_checks = 0
         failed_checks = 0
@@ -744,7 +740,7 @@ class ValidationEngine:
         for column in data.columns:
             # Convert column to string to handle integer column names
             column_str = str(column).lower()
-            
+
             if "email" in column_str:
                 # Check email format
                 for value in data[column].dropna():
@@ -796,7 +792,7 @@ class ValidationEngine:
         # Simple plausibility check - return good score for now
         return 15.5
 
-    # Public methods for backward compatibility with tests  
+    # Public methods for backward compatibility with tests
     def assess_validity(
         self, data: pd.DataFrame, field_requirements: Optional[Dict[str, Any]] = None
     ) -> float:

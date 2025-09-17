@@ -33,7 +33,7 @@ class TestAuditLoggingIntegration(unittest.TestCase):
         self.test_dir = tempfile.mkdtemp()
         self.log_dir = os.path.join(self.test_dir, "audit_logs")
         os.makedirs(self.log_dir, exist_ok=True)
-        
+
         # Configuration with audit logging enabled
         self.audit_config = {
             "audit": {
@@ -43,7 +43,7 @@ class TestAuditLoggingIntegration(unittest.TestCase):
                 "log_level": "INFO"
             }
         }
-        
+
         # High quality test data
         self.sample_data = pd.DataFrame({
             "customer_id": [1001, 1002, 1003, 1004, 1005],
@@ -64,24 +64,24 @@ class TestAuditLoggingIntegration(unittest.TestCase):
         # Set up mock audit logger
         mock_audit_logger = Mock()
         mock_csv_logger_class.return_value = mock_audit_logger
-        
+
         # Create assessor with audit logging
         assessor = DataQualityAssessor(self.audit_config)
-        
+
         # Verify audit logger was initialized
         self.assertIsNotNone(assessor.audit_logger)
         mock_csv_logger_class.assert_called_once_with(self.audit_config["audit"])
-        
+
         # Perform assessment
         result = assessor.assess(self.sample_data)
-        
+
         # Verify assessment succeeded
         self.assertIsInstance(result, AssessmentResult)
         self.assertGreater(result.overall_score, 0)
-        
+
         # Verify audit logging was called
         mock_audit_logger.log_assessment.assert_called_once()
-        
+
         # Verify audit call parameters
         call_args = mock_audit_logger.log_assessment.call_args
         self.assertIsInstance(call_args[1]["assessment_result"], AssessmentResult)
@@ -98,7 +98,7 @@ class TestAuditLoggingIntegration(unittest.TestCase):
         mock_verodat_logger = Mock()
         mock_csv_logger_class.return_value = mock_audit_logger
         mock_verodat_class.return_value = mock_verodat_logger
-        
+
         # Configuration with Verodat enabled
         verodat_config = {
             "audit": {
@@ -111,20 +111,20 @@ class TestAuditLoggingIntegration(unittest.TestCase):
                 "auto_flush": True
             }
         }
-        
+
         # Create assessor
         assessor = DataQualityAssessor(verodat_config)
-        
+
         # Verify Verodat logger was attached
         mock_verodat_class.assert_called_once_with(verodat_config["verodat"])
         self.assertEqual(assessor.audit_logger.verodat_logger, mock_verodat_logger)
-        
+
         # Perform assessment
         result = assessor.assess(self.sample_data)
-        
+
         # Verify assessment succeeded
         self.assertIsInstance(result, AssessmentResult)
-        
+
         # Verify Verodat integration was called
         mock_audit_logger.log_assessment.assert_called_once()
         mock_verodat_logger.add_to_batch.assert_called_once()
@@ -135,26 +135,26 @@ class TestAuditLoggingIntegration(unittest.TestCase):
         with patch('adri.validator.engine.CSVAuditLogger') as mock_csv_logger_class:
             mock_audit_logger = Mock()
             mock_csv_logger_class.return_value = mock_audit_logger
-            
+
             # Create assessor and perform assessment
             assessor = DataQualityAssessor(self.audit_config)
             result = assessor.assess(self.sample_data)
-            
+
             # Extract audit call arguments
             call_args = mock_audit_logger.log_assessment.call_args[1]
-            
+
             # Verify execution context details
             execution_context = call_args["execution_context"]
             self.assertEqual(execution_context["function_name"], "assess")
             self.assertEqual(execution_context["module_path"], "adri.validator.engine")
             self.assertIn("environment", execution_context)
-            
+
             # Verify data info
             data_info = call_args["data_info"]
             self.assertEqual(data_info["row_count"], 5)
             self.assertEqual(data_info["column_count"], 6)
             self.assertEqual(data_info["columns"], list(self.sample_data.columns))
-            
+
             # Verify performance metrics
             performance_metrics = call_args["performance_metrics"]
             self.assertIn("duration_ms", performance_metrics)
@@ -170,17 +170,17 @@ class TestAuditLoggingIntegration(unittest.TestCase):
             "age": [25, -5, 30, 200, 28],  # Invalid ages
             "score": [85.5, None, 92.0, 78.5, None]  # Missing scores
         })
-        
+
         with patch('adri.validator.engine.CSVAuditLogger') as mock_csv_logger_class:
             mock_audit_logger = Mock()
             mock_csv_logger_class.return_value = mock_audit_logger
-            
+
             assessor = DataQualityAssessor(self.audit_config)
             result = assessor.assess(poor_quality_data)
-            
+
             # Extract audit call arguments
             call_args = mock_audit_logger.log_assessment.call_args[1]
-            
+
             # Should have failed checks due to poor data quality
             failed_checks = call_args.get("failed_checks")
             if failed_checks:  # If any dimensions scored below 15
@@ -195,7 +195,7 @@ class TestAuditLoggingIntegration(unittest.TestCase):
         with patch('adri.validator.engine.CSVAuditLogger') as mock_csv_logger_class:
             mock_audit_logger = Mock()
             mock_csv_logger_class.return_value = mock_audit_logger
-            
+
             # Use larger dataset to ensure measurable execution time
             large_data = pd.DataFrame({
                 "id": range(1000),
@@ -203,21 +203,21 @@ class TestAuditLoggingIntegration(unittest.TestCase):
                 "email": [f"customer{i}@test.com" for i in range(1000)],
                 "value": [100.0 + i for i in range(1000)]
             })
-            
+
             assessor = DataQualityAssessor(self.audit_config)
             result = assessor.assess(large_data)
-            
+
             # Extract performance metrics
             call_args = mock_audit_logger.log_assessment.call_args[1]
             performance_metrics = call_args["performance_metrics"]
-            
+
             # Verify performance calculations
             duration_ms = performance_metrics["duration_ms"]
             rows_per_second = performance_metrics["rows_per_second"]
-            
+
             self.assertGreater(duration_ms, 0)
             self.assertGreater(rows_per_second, 0)
-            
+
             # Verify calculation accuracy
             expected_rps = 1000 / (duration_ms / 1000.0) if duration_ms > 0 else 0
             self.assertAlmostEqual(rows_per_second, expected_rps, delta=1.0)
@@ -241,13 +241,13 @@ class TestComprehensiveValidationScenarios(unittest.TestCase):
             "credit_score": [720, 810, 650, 780, 695],
             "account_type": ["checking", "savings", "investment", "premium", "business"]
         })
-        
+
         result = self.assessor.assess(financial_data)
-        
+
         # Financial data should have high quality scores
         self.assertIsInstance(result, AssessmentResult)
         self.assertGreater(result.overall_score, 80)  # Expect high quality
-        
+
         # All key dimensions should be measured
         expected_dimensions = ["validity", "completeness", "consistency", "freshness", "plausibility"]
         for dim in expected_dimensions:
@@ -264,13 +264,13 @@ class TestComprehensiveValidationScenarios(unittest.TestCase):
             "vital_score": [85.5, 72.3, 94.1, 68.7],
             "status": ["stable", "monitoring", "recovered", "critical"]
         })
-        
+
         result = self.assessor.assess(healthcare_data)
-        
+
         # Healthcare data should meet quality standards
         self.assertIsInstance(result, AssessmentResult)
         self.assertGreater(result.overall_score, 70)
-        
+
         # Completeness should be high (no missing critical data)
         completeness_score = result.dimension_scores["completeness"].score
         self.assertGreater(completeness_score, 18)  # Very high completeness expected
@@ -285,17 +285,17 @@ class TestComprehensiveValidationScenarios(unittest.TestCase):
             "rating": [4.5, 3.8, 5.0, 2.1, 4.2],
             "category": ["electronics", "clothing", "books", "home", "sports"]
         })
-        
+
         result = self.assessor.assess(ecommerce_data)
-        
+
         # E-commerce data with issues should have lower scores
         self.assertIsInstance(result, AssessmentResult)
         self.assertLess(result.overall_score, 85)  # Expect lower quality due to issues
-        
+
         # Validity should be impacted by invalid emails and values
         validity_score = result.dimension_scores["validity"].score
         self.assertLess(validity_score, 18)  # Should be reduced due to invalid data
-        
+
         # Completeness should be impacted by missing values
         completeness_score = result.dimension_scores["completeness"].score
         self.assertLess(completeness_score, 20)  # Should be reduced due to nulls
@@ -310,13 +310,13 @@ class TestComprehensiveValidationScenarios(unittest.TestCase):
             "pressure": [1013.25 + (i * 0.1) for i in range(20)], # Realistic pressure progression
             "status": ["active"] * 18 + ["maintenance", "error"]   # Mostly active with some issues
         })
-        
+
         result = self.assessor.assess(iot_data)
-        
+
         # IoT data should have high quality (structured, complete)
         self.assertIsInstance(result, AssessmentResult)
         self.assertGreater(result.overall_score, 85)
-        
+
         # Should have perfect completeness (no missing sensor readings)
         completeness_score = result.dimension_scores["completeness"].score
         self.assertEqual(completeness_score, 20.0)
@@ -331,13 +331,13 @@ class TestComprehensiveValidationScenarios(unittest.TestCase):
             "engagement_rate": [3.5, 8.2, 1.9, 6.4, 4.1],
             "content_type": ["video", "image", "text", "mixed", "video"]
         })
-        
+
         result = self.assessor.assess(social_data)
-        
+
         # Social media data should have good quality
         self.assertIsInstance(result, AssessmentResult)
         self.assertGreater(result.overall_score, 75)
-        
+
         # Verify all dimension scores are reasonable
         for dim_name, dim_score in result.dimension_scores.items():
             self.assertIsInstance(dim_score, DimensionScore)
@@ -358,16 +358,16 @@ class TestValidationEngineEdgeCasesIntegration(unittest.TestCase):
         with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
             f.write("invalid: yaml: content: [[[")
             malformed_standard = f.name
-        
+
         try:
             test_data = pd.DataFrame({"test": [1, 2, 3]})
-            
+
             # Should fallback to basic assessment when standard can't be loaded
             result = self.engine.assess(test_data, malformed_standard)
-            
+
             self.assertIsInstance(result, AssessmentResult)
             self.assertGreater(result.overall_score, 0)
-            
+
         finally:
             os.unlink(malformed_standard)
 
@@ -378,7 +378,7 @@ class TestValidationEngineEdgeCasesIntegration(unittest.TestCase):
         result = self.engine._basic_assessment(empty_df)
         self.assertIsInstance(result, AssessmentResult)
         self.assertEqual(result.dimension_scores["completeness"].score, 0.0)
-        
+
         # DataFrame with columns but no rows
         empty_with_columns = pd.DataFrame(columns=["name", "age", "email"])
         result = self.engine._basic_assessment(empty_with_columns)
@@ -394,12 +394,12 @@ class TestValidationEngineEdgeCasesIntegration(unittest.TestCase):
             "mixed_types": [1, "text", 3.14],
             "email": ["test@domain.com", "unicode🚀@domain.com", "normal@test.org"]
         })
-        
+
         result = self.engine._basic_assessment(extreme_data)
-        
+
         self.assertIsInstance(result, AssessmentResult)
         self.assertGreater(result.overall_score, 0)
-        
+
         # Should handle extreme values without crashing
         for dim_score in result.dimension_scores.values():
             self.assertIsInstance(dim_score.score, (int, float))
@@ -413,9 +413,9 @@ class TestValidationEngineEdgeCasesIntegration(unittest.TestCase):
             "all_null_2": [None, None, None],
             "mixed": ["value", None, "another"]
         })
-        
+
         result = self.engine._basic_assessment(null_data)
-        
+
         self.assertIsInstance(result, AssessmentResult)
         # Completeness should be significantly reduced
         completeness_score = result.dimension_scores["completeness"].score
@@ -433,7 +433,7 @@ class TestValidationEngineEdgeCasesIntegration(unittest.TestCase):
                 "overall_minimum": 80.0,
                 "field_requirements": {
                     "name": {
-                        "type": "string", 
+                        "type": "string",
                         "nullable": False,
                         "pattern": "^[A-Za-z ]+$",
                         "min_length": 2,
@@ -441,7 +441,7 @@ class TestValidationEngineEdgeCasesIntegration(unittest.TestCase):
                     },
                     "age": {
                         "type": "integer",
-                        "nullable": False, 
+                        "nullable": False,
                         "min_value": 0,
                         "max_value": 120
                     },
@@ -459,19 +459,19 @@ class TestValidationEngineEdgeCasesIntegration(unittest.TestCase):
                 }
             }
         }
-        
+
         test_data = pd.DataFrame({
             "name": ["Alice Johnson", "Bob Smith", "Charlie Brown"],
             "age": [25, 30, 35],
             "email": ["alice@test.com", "bob@test.com", "charlie@test.com"],
             "score": [85.5, 92.0, 78.5]
         })
-        
+
         result = self.engine.assess_with_standard_dict(test_data, comprehensive_standard)
-        
+
         self.assertIsInstance(result, AssessmentResult)
         self.assertGreater(result.overall_score, 75)
-        
+
         # Should pass the 80% minimum from the standard
         self.assertTrue(result.passed or result.overall_score >= 80.0)
 
@@ -487,24 +487,24 @@ class TestValidationEngineEdgeCasesIntegration(unittest.TestCase):
                 }
             }
         }
-        
+
         wrapper = BundledStandardWrapper(standard_dict)
-        
+
         # Test field requirements
         field_reqs = wrapper.get_field_requirements()
         self.assertIsInstance(field_reqs, dict)
         self.assertIn("required_field", field_reqs)
         self.assertIn("optional_field", field_reqs)
-        
+
         # Test overall minimum
         minimum = wrapper.get_overall_minimum()
         self.assertEqual(minimum, 90.0)
-        
+
         # Test with missing requirements
         empty_wrapper = BundledStandardWrapper({})
         self.assertEqual(empty_wrapper.get_field_requirements(), {})
         self.assertEqual(empty_wrapper.get_overall_minimum(), 75.0)
-        
+
         # Test with invalid structure
         invalid_wrapper = BundledStandardWrapper({"requirements": "not_a_dict"})
         self.assertEqual(invalid_wrapper.get_field_requirements(), {})
@@ -517,7 +517,7 @@ class TestValidationEngineMethodCoverage(unittest.TestCase):
     def setUp(self):
         """Set up test environment."""
         self.engine = ValidationEngine()
-        
+
     def test_public_assessment_methods_comprehensive(self):
         """Test all public assessment methods comprehensively."""
         test_data = pd.DataFrame({
@@ -527,7 +527,7 @@ class TestValidationEngineMethodCoverage(unittest.TestCase):
             "created_at": ["2024-01-01", "2024-01-02", "2024-01-03"],
             "score": [85, 92, 78]
         })
-        
+
         # Test assess_validity with field requirements
         validity_requirements = {
             "email": {"type": "string", "pattern": r"^[^@]+@[^@]+\.[^@]+$"},
@@ -537,7 +537,7 @@ class TestValidationEngineMethodCoverage(unittest.TestCase):
         self.assertIsInstance(validity_score, float)
         self.assertGreaterEqual(validity_score, 0)
         self.assertLessEqual(validity_score, 20)
-        
+
         # Test assess_completeness with requirements
         completeness_requirements = {
             "mandatory_fields": ["name", "email", "age"]
@@ -546,7 +546,7 @@ class TestValidationEngineMethodCoverage(unittest.TestCase):
         self.assertIsInstance(completeness_score, float)
         self.assertGreaterEqual(completeness_score, 0)
         self.assertLessEqual(completeness_score, 20)
-        
+
         # Test assess_consistency with format rules
         consistency_rules = {
             "format_rules": {
@@ -557,7 +557,7 @@ class TestValidationEngineMethodCoverage(unittest.TestCase):
         self.assertIsInstance(consistency_score, float)
         self.assertGreaterEqual(consistency_score, 0)
         self.assertLessEqual(consistency_score, 20)
-        
+
         # Test assess_freshness with date fields
         freshness_config = {
             "date_fields": ["created_at"]
@@ -565,7 +565,7 @@ class TestValidationEngineMethodCoverage(unittest.TestCase):
         freshness_score = self.engine.assess_freshness(test_data, freshness_config)
         self.assertIsInstance(freshness_score, float)
         self.assertEqual(freshness_score, 18.0)  # Should return good score for date fields
-        
+
         # Test assess_plausibility with business rules
         plausibility_config = {
             "business_rules": {
@@ -584,7 +584,7 @@ class TestValidationEngineMethodCoverage(unittest.TestCase):
     def test_email_validation_comprehensive(self):
         """Test email validation with comprehensive test cases."""
         engine = self.engine
-        
+
         # Valid email formats
         valid_emails = [
             "user@domain.com",
@@ -594,16 +594,16 @@ class TestValidationEngineMethodCoverage(unittest.TestCase):
             "user123@test-domain.net",
             "admin@subdomain.domain.com"
         ]
-        
+
         for email in valid_emails:
             with self.subTest(email=email):
                 self.assertTrue(engine._is_valid_email(email), f"Should validate: {email}")
-        
+
         # Invalid email formats
         invalid_emails = [
             "invalid",
             "user@",
-            "@domain.com", 
+            "@domain.com",
             "user@@domain.com",
             "user@domain",
             "user@.com",
@@ -612,7 +612,7 @@ class TestValidationEngineMethodCoverage(unittest.TestCase):
             "user space@domain.com",
             "user@domain@extra.com"
         ]
-        
+
         for email in invalid_emails:
             with self.subTest(email=email):
                 self.assertFalse(engine._is_valid_email(email), f"Should not validate: {email}")
@@ -620,7 +620,7 @@ class TestValidationEngineMethodCoverage(unittest.TestCase):
     def test_assessment_result_comprehensive_methods(self):
         """Test all AssessmentResult methods comprehensively."""
         from datetime import datetime
-        
+
         # Create comprehensive assessment result
         dimension_scores = {
             "validity": DimensionScore(16.5, issues=["email format"], details={"check_count": 10}),
@@ -629,7 +629,7 @@ class TestValidationEngineMethodCoverage(unittest.TestCase):
             "freshness": DimensionScore(17.0, issues=[], details={"last_updated": "2024-03-01"}),
             "plausibility": DimensionScore(15.0, issues=["outlier detected"], details={"outlier_count": 1})
         }
-        
+
         result = AssessmentResult(
             overall_score=82.5,
             passed=True,
@@ -637,21 +637,21 @@ class TestValidationEngineMethodCoverage(unittest.TestCase):
             standard_id="comprehensive_standard",
             assessment_date=datetime.now()
         )
-        
+
         # Test all methods
         rule_result = RuleExecutionResult(rule_id="test_rule", passed=90, failed=10, total_records=100)
         result.add_rule_execution(rule_result)
-        
+
         field_analysis = FieldAnalysis("test_field", total_failures=2, ml_readiness="high")
         result.add_field_analysis("test_field", field_analysis)
-        
+
         result.set_dataset_info(100, 5, 2.5)
         result.set_execution_stats(total_execution_time_ms=500, rules_executed=10)
-        
+
         # Test dictionary conversion
         result_dict = result.to_dict()
         self.assertIn("adri_assessment_report", result_dict)
-        
+
         # Test v2 format
         v2_dict = result.to_v2_standard_dict("test_dataset")
         self.assertIn("adri_assessment_report", v2_dict)

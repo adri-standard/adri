@@ -20,12 +20,12 @@ jobs:
     outputs:
       tag: ${{ steps.get-tag.outputs.tag }}
       version: ${{ steps.get-tag.outputs.version }}
-    
+
     steps:
     - uses: actions/checkout@v4
       with:
         fetch-depth: 0
-        
+
     - name: Get tag
       id: get-tag
       run: |
@@ -34,69 +34,69 @@ jobs:
         else
           TAG=${GITHUB_REF#refs/tags/}
         fi
-        
+
         echo "tag=${TAG}" >> $GITHUB_OUTPUT
-        
+
         # Extract version (remove 'v' prefix)
         VERSION=${TAG#v}
         echo "version=${VERSION}" >> $GITHUB_OUTPUT
-        
+
         # Validate tag format
         if [[ ! $TAG =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
           echo "Invalid tag format: $TAG. Expected format: v1.2.3"
           exit 1
         fi
-        
+
         echo "✅ Valid tag: $TAG (version: $VERSION)"
 
   build:
     needs: validate-tag
     runs-on: ubuntu-latest
-    
+
     steps:
     - uses: actions/checkout@v4
       with:
         fetch-depth: 0  # Needed for setuptools_scm
-        
+
     - name: Set up Python ${{ env.PYTHON_VERSION }}
       uses: actions/setup-python@v4
       with:
         python-version: ${{ env.PYTHON_VERSION }}
-        
+
     - name: Install build dependencies
       run: |
         python -m pip install --upgrade pip
         pip install build twine setuptools_scm
-        
+
     - name: Verify setuptools_scm version
       run: |
         DETECTED_VERSION=$(python -c "from setuptools_scm import get_version; print(get_version())")
         EXPECTED_VERSION="${{ needs.validate-tag.outputs.version }}"
-        
+
         echo "Detected version: $DETECTED_VERSION"
         echo "Expected version: $EXPECTED_VERSION"
-        
+
         if [[ "$DETECTED_VERSION" != "$EXPECTED_VERSION" ]]; then
           echo "❌ Version mismatch!"
           echo "setuptools_scm detected: $DETECTED_VERSION"
           echo "Git tag indicates: $EXPECTED_VERSION"
           exit 1
         fi
-        
+
         echo "✅ Version verification passed"
-        
+
     - name: Build package
       run: |
         python -m build
-        
+
     - name: Check package integrity
       run: |
         twine check dist/*
-        
+
     - name: List build artifacts
       run: |
         ls -la dist/
-        
+
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
       with:
@@ -111,60 +111,60 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
         python-version: ['3.10', '3.11', '3.12']
-        
+
     steps:
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
-        
+
     - name: Download build artifacts
       uses: actions/download-artifact@v4
       with:
         name: dist-${{ needs.validate-tag.outputs.tag }}
         path: dist/
-        
+
     - name: Test wheel installation
       run: |
         pip install dist/*.whl
-        
+
     - name: Test CLI functionality
       run: |
         adri --version
         adri --help
-        
+
     - name: Test Python import
       run: |
         python -c "
         import adri
         print(f'✅ Successfully imported ADRI version: {adri.__version__}')
-        
+
         # Verify version matches expectation
         expected = '${{ needs.validate-tag.outputs.version }}'
         if adri.__version__ != expected:
             print(f'❌ Version mismatch: {adri.__version__} != {expected}')
             exit(1)
-        
+
         print('✅ Version verification passed')
         "
 
   publish-test-pypi:
     needs: [validate-tag, build, test-install]
     runs-on: ubuntu-latest
-      
+
     steps:
     - name: Download build artifacts
       uses: actions/download-artifact@v4
       with:
         name: dist-${{ needs.validate-tag.outputs.tag }}
         path: dist/
-        
+
     - name: Publish to TestPyPI
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
         repository-url: https://test.pypi.org/legacy/
         password: ${{ secrets.TEST_PYPI_API_TOKEN }}
-        
+
     - name: Test installation from TestPyPI
       run: |
         sleep 60  # Wait for package to be available
@@ -174,14 +174,14 @@ jobs:
   publish-pypi:
     needs: [validate-tag, build, test-install, publish-test-pypi]
     runs-on: ubuntu-latest
-      
+
     steps:
     - name: Download build artifacts
       uses: actions/download-artifact@v4
       with:
         name: dist-${{ needs.validate-tag.outputs.tag }}
         path: dist/
-        
+
     - name: Publish to PyPI
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
@@ -190,99 +190,99 @@ jobs:
   create-github-release:
     needs: [validate-tag, build, test-install, publish-pypi]
     runs-on: ubuntu-latest
-    
+
     steps:
     - uses: actions/checkout@v4
       with:
         fetch-depth: 0
-        
+
     - name: Generate release notes
       id: release-notes
       run: |
         # Get the previous tag for comparison
         PREVIOUS_TAG=$(git tag --sort=-version:refname | grep -v "${{ needs.validate-tag.outputs.tag }}" | head -n1)
-        
+
         # Create release notes file
         cat > release_notes.md << 'EOF_HEADER'
         ## What's Changed
         EOF_HEADER
-        
+
         if [[ -n "$PREVIOUS_TAG" ]]; then
           echo "Generating changelog from $PREVIOUS_TAG to ${{ needs.validate-tag.outputs.tag }}"
-          
+
           # Generate commit log and append
           git log --pretty=format:"- %s (%h)" "$PREVIOUS_TAG..${{ needs.validate-tag.outputs.tag }}" >> release_notes.md
-          
+
           cat >> release_notes.md << 'EOF_CHANGELOG'
-        
+
         **Full Changelog**: https://github.com/adri-standard/adri/compare/PREVIOUS_TAG_PLACEHOLDER..TAG_PLACEHOLDER
-        
+
         ## Installation
-        
+
         ```bash
         pip install adri==VERSION_PLACEHOLDER
         ```
-        
+
         ## Links
-        
+
         - 📦 [PyPI Package](https://pypi.org/project/adri/VERSION_PLACEHOLDER/)
         - 📖 [Documentation](https://github.com/adri-standard/adri/blob/main/README.md)
         - 🐛 [Report Issues](https://github.com/adri-standard/adri/issues)
         EOF_CHANGELOG
-        
+
           # Replace placeholders
           sed -i "s/PREVIOUS_TAG_PLACEHOLDER/$PREVIOUS_TAG/g" release_notes.md
           sed -i "s/TAG_PLACEHOLDER/${{ needs.validate-tag.outputs.tag }}/g" release_notes.md
           sed -i "s/VERSION_PLACEHOLDER/${{ needs.validate-tag.outputs.version }}/g" release_notes.md
-          
+
         else
           # Initial release notes
           cat > release_notes.md << 'EOF_INITIAL'
         ## Initial Open Source Release
-        
+
         This is the first open source release of ADRI (AI Data Reliability Intelligence).
-        
+
         ### Key Features
         - 🛡️ **Data Quality Assessment**: Comprehensive 5-dimension validation framework
         - 🚀 **Easy Integration**: Simple @adri_protected decorator for instant data quality
-        - 📊 **Detailed Reports**: Rich validation reports with actionable insights  
+        - 📊 **Detailed Reports**: Rich validation reports with actionable insights
         - 🔧 **Framework Agnostic**: Works with pandas, LangChain, CrewAI, LlamaIndex, and more
         - 🎯 **Smart Standards**: Auto-generated or custom YAML data quality standards
-        
+
         ### Installation
-        
+
         ```bash
         pip install adri==VERSION_PLACEHOLDER
         ```
-        
+
         ### Quick Start
-        
+
         ```python
         from adri import adri_protected
-        
+
         @adri_protected(standard="customer_data")
         def process_customer_data(df):
             return df.groupby('customer_id').sum()
         ```
-        
+
         ## Links
-        
+
         - 📦 [PyPI Package](https://pypi.org/project/adri/VERSION_PLACEHOLDER/)
         - 📖 [Documentation](https://github.com/adri-standard/adri/blob/main/README.md)
         - 🐛 [Report Issues](https://github.com/adri-standard/adri/issues)
         EOF_INITIAL
-        
+
           # Replace version placeholder
           sed -i "s/VERSION_PLACEHOLDER/${{ needs.validate-tag.outputs.version }}/g" release_notes.md
         fi
-        
+
         # Save to GitHub output using file method
         {
           echo "RELEASE_NOTES<<EOF"
           cat release_notes.md
           echo "EOF"
         } >> $GITHUB_OUTPUT
-        
+
     - name: Create GitHub Release
       uses: actions/create-release@v1
       env:
@@ -298,14 +298,14 @@ jobs:
     needs: [validate-tag, create-github-release]
     runs-on: ubuntu-latest
     if: success()
-    
+
     steps:
     - name: Success notification
       run: |
         echo "🎉 Successfully released ADRI ${{ needs.validate-tag.outputs.version }}!"
         echo ""
         echo "✅ Package built and tested"
-        echo "✅ Published to TestPyPI" 
+        echo "✅ Published to TestPyPI"
         echo "✅ Published to PyPI"
         echo "✅ GitHub release created"
         echo ""

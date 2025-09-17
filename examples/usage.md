@@ -33,7 +33,7 @@ def process_financial_transactions(transaction_data):
 from adri import adri_protected
 
 @adri_protected(
-    standard="user_profile_standard", 
+    standard="user_profile_standard",
     min_score=70,
     on_failure="warn",
     verbose=True
@@ -100,13 +100,13 @@ from adri import adri_protected
 class CustomerAnalysisTool(BaseTool):
     name = "customer_analysis"
     description = "Analyze customer data for insights"
-    
+
     @adri_protected(standard="customer_data_standard")
     def _run(self, customer_data):
         return self.analyze_customers(customer_data)
 ```
 
-### CrewAI  
+### CrewAI
 ```python
 from crewai import Agent, Task
 from adri import adri_protected

@@ -26,10 +26,10 @@ def your_agent_function(data):
 
 ## Documentation
 
-📖 **[FAQ](faq)** - Complete guide covering everything you need to know  
-🚀 **[Getting Started](getting-started)** - Step-by-step setup and usage  
-🤖 **[Framework Examples](frameworks)** - Copy-paste code for LangChain, CrewAI, AutoGen, etc.  
-📋 **[API Reference](API_REFERENCE)** - Technical reference  
+📖 **[FAQ](faq)** - Complete guide covering everything you need to know
+🚀 **[Getting Started](getting-started)** - Step-by-step setup and usage
+🤖 **[Framework Examples](frameworks)** - Copy-paste code for LangChain, CrewAI, AutoGen, etc.
+📋 **[API Reference](API_REFERENCE)** - Technical reference
 
 ## Key Features
 
@@ -44,7 +44,7 @@ def your_agent_function(data):
 
 ADRI works seamlessly with all major AI frameworks:
 - **LangChain** - Protect chains and agents
-- **CrewAI** - Validate crew inputs  
+- **CrewAI** - Validate crew inputs
 - **AutoGen** - Secure multi-agent conversations
 - **LlamaIndex** - Guard query engines
 - **Any Python Function** - Universal protection

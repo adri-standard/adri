@@ -52,13 +52,13 @@ def load_data(file_path: str) -> List[Dict[str, Any]]:
 def load_csv(file_path: Path) -> List[Dict[str, Any]]:
     """
     Load data from CSV file.
-    
+
     Args:
         file_path: Path to CSV file
-        
+
     Returns:
         List of dictionaries, one per row
-        
+
     Raises:
         ValueError: If CSV file is empty or invalid
     """
@@ -82,13 +82,13 @@ def load_csv(file_path: Path) -> List[Dict[str, Any]]:
 def load_json(file_path: Path) -> List[Dict[str, Any]]:
     """
     Load data from JSON file.
-    
+
     Args:
         file_path: Path to JSON file
-        
+
     Returns:
         List of dictionaries
-        
+
     Raises:
         ValueError: If JSON file doesn't contain a list of objects
     """
@@ -105,13 +105,13 @@ def load_json(file_path: Path) -> List[Dict[str, Any]]:
 def load_parquet(file_path: Path) -> List[Dict[str, Any]]:
     """
     Load data from Parquet file.
-    
+
     Args:
         file_path: Path to Parquet file
-        
+
     Returns:
         List of dictionaries, one per row
-        
+
     Raises:
         ImportError: If pandas is not installed
         ValueError: If Parquet file is empty or invalid
@@ -173,19 +173,19 @@ def load_standard(file_path: str) -> Dict[str, Any]:
 def detect_format(file_path: str) -> str:
     """
     Detect file format based on file extension.
-    
+
     Args:
         file_path: Path to file
-        
+
     Returns:
         File format ('csv', 'json', 'parquet', or 'unknown')
     """
     if not os.path.exists(file_path):
         raise FileNotFoundError(f"File not found: {file_path}")
-    
+
     file_path_obj = Path(file_path)
     suffix = file_path_obj.suffix.lower()
-    
+
     if suffix == ".csv":
         return "csv"
     elif suffix == ".json":
@@ -201,19 +201,19 @@ def detect_format(file_path: str) -> str:
 def get_data_info(file_path: str) -> Dict[str, Any]:
     """
     Get basic information about a data file without fully loading it.
-    
+
     Args:
         file_path: Path to data file
-        
+
     Returns:
         Dictionary with file information (size, format, estimated rows, etc.)
     """
     if not os.path.exists(file_path):
         raise FileNotFoundError(f"File not found: {file_path}")
-    
+
     file_path_obj = Path(file_path)
     file_stats = file_path_obj.stat()
-    
+
     info = {
         "path": str(file_path_obj),
         "name": file_path_obj.name,
@@ -221,7 +221,7 @@ def get_data_info(file_path: str) -> Dict[str, Any]:
         "format": detect_format(file_path),
         "modified_time": file_stats.st_mtime,
     }
-    
+
     # Add format-specific information
     try:
         if info["format"] == "csv":
@@ -232,7 +232,7 @@ def get_data_info(file_path: str) -> Dict[str, Any]:
             info.update(_get_parquet_info(file_path_obj))
     except Exception as e:
         info["error"] = str(e)
-    
+
     return info
 
 
@@ -243,17 +243,17 @@ def _get_csv_info(file_path: Path) -> Dict[str, Any]:
         first_line = f.readline()
         if first_line:
             headers = list(csv.reader([first_line]))[0]
-            
+
             # Count approximate rows
             f.seek(0)
             row_count = sum(1 for _ in f) - 1  # Subtract header
-            
+
             return {
                 "columns": len(headers),
                 "column_names": headers,
                 "estimated_rows": row_count,
             }
-    
+
     return {"columns": 0, "estimated_rows": 0}
 
 
@@ -261,7 +261,7 @@ def _get_json_info(file_path: Path) -> Dict[str, Any]:
     """Get information about a JSON file."""
     with open(file_path, "r", encoding="utf-8") as f:
         data = json.load(f)
-        
+
         if isinstance(data, list):
             record_count = len(data)
             if record_count > 0 and isinstance(data[0], dict):
@@ -270,7 +270,7 @@ def _get_json_info(file_path: Path) -> Dict[str, Any]:
             else:
                 columns = 0
                 column_names = []
-                
+
             return {
                 "records": record_count,
                 "columns": columns,
@@ -287,7 +287,7 @@ def _get_parquet_info(file_path: Path) -> Dict[str, Any]:
     """Get information about a Parquet file."""
     if pd is None:
         return {"error": "pandas not available"}
-    
+
     try:
         df = pd.read_parquet(file_path)
         return {
