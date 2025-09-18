@@ -147,6 +147,7 @@ class SelectiveMode(ProtectionMode):
         )
 
     def get_description(self) -> str:
+        """Return a description of this protection mode."""
         return "Selective mode: Logs quality issues but continues execution"
 
 
@@ -176,6 +177,7 @@ class WarnOnlyMode(ProtectionMode):
         print("✅ ADRI: Data quality check passed")
 
     def get_description(self) -> str:
+        """Return a description of this protection mode."""
         return "Warn-only mode: Shows warnings but never stops execution"
 
 
@@ -531,7 +533,7 @@ class DataProtectionEngine:
             "",
             "🔧 Fix This:",
             f"   1. Review standard: adri show-standard {standard_name}",
-            f"   2. Fix data issues and retry",
+            "   2. Fix data issues and retry",
             f"   3. Test fixes: adri assess <data> --standard {standard_name}",
         ]
 
