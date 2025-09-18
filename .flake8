@@ -21,6 +21,7 @@ exclude =
     .pytest_cache,
     .mypy_cache,
     examples,
+    demos,
     external,
     scripts
 per-file-ignores =
