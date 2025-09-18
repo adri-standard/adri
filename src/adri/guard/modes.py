@@ -216,7 +216,7 @@ class DataProtectionEngine:
         if self.config_manager:
             try:
                 return self.config_manager.get_protection_config()
-            except (AttributeError, KeyError, ValueError):
+            except Exception:
                 pass
 
         # Return default config
