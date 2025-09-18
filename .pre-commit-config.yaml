@@ -73,7 +73,7 @@ repos:
   #       always_run: true
 
 default_language_version:
-  python: python3.11
+  python: python3
 
 ci:
   autofix_commit_msg: |
