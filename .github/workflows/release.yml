@@ -59,7 +59,7 @@ jobs:
         fetch-depth: 0  # Needed for setuptools_scm
 
     - name: Set up Python ${{ env.PYTHON_VERSION }}
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ env.PYTHON_VERSION }}
 
@@ -95,7 +95,8 @@ jobs:
 
     - name: List build artifacts
       run: |
-        ls -la dist/
+        python -c "import os; print('\\n'.join(f'{f}' for f in os.listdir('dist')))"
+        python -c "import os; [print(f'{f}: {os.path.getsize(os.path.join(\"dist\", f))} bytes') for f in os.listdir('dist')]"
 
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
@@ -114,7 +115,7 @@ jobs:
 
     steps:
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
 
@@ -126,7 +127,7 @@ jobs:
 
     - name: Test wheel installation
       run: |
-        ls -la dist/
+        python -c "import os; print('Available files:'); [print(f'  {f}') for f in os.listdir('dist')]"
         pip install dist/adri-*.whl
 
     - name: Test CLI functionality
