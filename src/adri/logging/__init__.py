@@ -11,12 +11,10 @@ Components:
 This module provides comprehensive audit logging for the ADRI framework.
 """
 
-# Import logging components
-from .local import LocalLogger
 from .enterprise import EnterpriseLogger
 
+# Import logging components
+from .local import LocalLogger
+
 # Export all components
-__all__ = [
-    "LocalLogger",
-    "EnterpriseLogger"
-]
+__all__ = ["LocalLogger", "EnterpriseLogger"]

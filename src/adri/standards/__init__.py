@@ -15,6 +15,4 @@ This module provides standard management for the ADRI framework.
 from .parser import StandardsParser
 
 # Export all components
-__all__ = [
-    "StandardsParser"
-]
+__all__ = ["StandardsParser"]
