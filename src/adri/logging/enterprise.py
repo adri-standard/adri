@@ -39,7 +39,12 @@ except ImportError:
 
 
 class EnterpriseLogger:
-    """Enterprise audit logger with Verodat API integration. Renamed from VerodatLogger."""
+    """
+    Enterprise audit logger with Verodat API integration.
+
+    Renamed from VerodatLogger. Provides centralized logging to Verodat
+    for enterprise audit trails and compliance requirements.
+    """
 
     def __init__(self, config: Dict[str, Any]):
         """
