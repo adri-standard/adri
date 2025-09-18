@@ -1,11 +1,11 @@
 """
-ADRI Standard Generator
+ADRI Standard Generator.
 
 Automatic YAML standard generation from data analysis.
 Migrated and updated for the new src/ layout architecture.
 """
 
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 
 import pandas as pd
 

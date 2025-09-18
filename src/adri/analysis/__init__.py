@@ -1,5 +1,5 @@
 """
-ADRI Analysis Module
+ADRI Analysis Module.
 
 Data analysis and standard generation functionality.
 Provides data profiling and automatic standard generation capabilities.

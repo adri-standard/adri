@@ -1,5 +1,5 @@
 """
-ADRI CLI - Streamlined Command Interface
+ADRI CLI - Streamlined Command Interface.
 
 Consolidated CLI from the original 2656-line commands.py into a clean, maintainable structure.
 Provides essential commands for data quality assessment and standard management.
@@ -9,7 +9,7 @@ import json
 import os
 import sys
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Optional
 
 import click
 import yaml
@@ -54,7 +54,6 @@ def setup_command(force: bool = False, project_name: Optional[str] = None) -> in
             click.echo("❌ Configuration manager not available")
             return 1
 
-        config_loader = ConfigurationLoader()
         project_name = project_name or Path.cwd().name
 
         # Create basic config structure
@@ -243,7 +242,6 @@ def validate_standard_command(standard_path: str) -> int:
 
         # Basic validation
         errors = []
-        warnings = []
 
         # Check required sections
         if "standards" not in standard:
@@ -298,7 +296,7 @@ def list_standards_command() -> int:
                     for i, std_name in enumerate(bundled_standards, 1):
                         click.echo(f"  {i}. {std_name}")
                     standards_found = True
-        except:
+        except (ImportError, AttributeError):
             pass
 
         # Check for project standards
@@ -390,7 +388,7 @@ def list_assessments_command(recent: int = 10, verbose: bool = False) -> int:
                 try:
                     env_config = config_loader.get_environment_config(config)
                     assessments_dir = Path(env_config["paths"]["assessments"])
-                except:
+                except (KeyError, AttributeError):
                     assessments_dir = Path("ADRI/dev/assessments")
             else:
                 assessments_dir = Path("ADRI/dev/assessments")
@@ -442,7 +440,7 @@ def list_assessments_command(recent: int = 10, verbose: bool = False) -> int:
                     passed = assessment_data.get("passed", False)
                     status = "✅ PASSED" if passed else "❌ FAILED"
                     click.echo(f"    📊 Score: {score}/100 ({status})")
-                except:
+                except (json.JSONDecodeError, FileNotFoundError, KeyError):
                     click.echo("    ⚠️  Could not read assessment details")
 
             click.echo()
@@ -601,7 +599,7 @@ def show_standard(standard_name, verbose):
 
 
 def main():
-    """Main CLI entry point."""
+    """Run the main CLI entry point."""
     cli()
 
 

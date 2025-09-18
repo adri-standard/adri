@@ -1,5 +1,5 @@
 """
-ADRI Data Profiler
+ADRI Data Profiler.
 
 Data profiling functionality for automatic standard generation.
 Migrated and updated for the new src/ layout architecture.
@@ -7,7 +7,6 @@ Migrated and updated for the new src/ layout architecture.
 
 from typing import Any, Dict, List, Optional
 
-import numpy as np
 import pandas as pd
 
 
@@ -121,7 +120,7 @@ class DataProfiler:
             lower_bound = Q1 - 1.5 * IQR
             upper_bound = Q3 + 1.5 * IQR
             return ((series < lower_bound) | (series > upper_bound)).sum()
-        except:
+        except (ValueError, TypeError):
             return 0
 
     def _identify_patterns(self, series: pd.Series) -> List[str]:
