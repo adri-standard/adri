@@ -169,7 +169,7 @@ jobs:
         MISSING_PATTERNS=()
 
         for pattern in "${REQUIRED_PATTERNS[@]}"; do
-          if ! grep -q "^$pattern" .gitignore; then
+          if ! grep -qF "$pattern" .gitignore; then
             MISSING_PATTERNS+=("$pattern")
           fi
         done
