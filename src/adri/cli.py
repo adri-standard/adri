@@ -129,7 +129,7 @@ def assess_command(
         result = assessor.assess(data, standard_path)
 
         # Display results
-        click.echo(f"📊 Assessment Score: {result.overall_score: .1f}/100")
+        click.echo(f"📊 Assessment Score: {result.overall_score:.1f}/100")
         click.echo(f"📋 Status: {'✅ PASSED' if result.passed else '❌ FAILED'}")
 
         # Save report if output specified
@@ -428,7 +428,7 @@ def list_assessments_command(recent: int = 10, verbose: bool = False) -> int:
 
             date_str = datetime.fromtimestamp(modified_time).strftime("%Y-%m-%d %H:%M")
 
-            click.echo(f"{i: 2d}. {file_path.name}")
+            click.echo(f"{i:2d}. {file_path.name}")
             click.echo(f"    📅 {date_str}")
 
             if verbose:
