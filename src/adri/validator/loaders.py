@@ -1,5 +1,5 @@
 """
-ADRI Data Loaders
+ADRI Data Loaders.
 
 Data loading utilities extracted from the CLI for use in the validator module.
 Supports CSV, JSON, and Parquet file formats.

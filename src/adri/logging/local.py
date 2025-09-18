@@ -1,5 +1,5 @@
 """
-ADRI Local Logging - CSV-based Audit Logging
+ADRI Local Logging - CSV-based Audit Logging.
 
 Enhanced audit logger module with CSV output, migrated from core/audit_logger_csv.py.
 Captures comprehensive audit logs for all ADRI assessments directly in

@@ -1,5 +1,5 @@
 """
-ADRI Guard Module
+ADRI Guard Module.
 
 Handles data protection modes and guard functionality.
 Consolidates protection logic from the original core/protection.py.

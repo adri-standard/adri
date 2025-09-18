@@ -1,5 +1,5 @@
 """
-ADRI Integrations Module
+ADRI Integrations Module.
 
 Handles framework integrations and helper utilities.
 Provides integration support for popular AI frameworks.

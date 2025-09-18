@@ -1,5 +1,5 @@
 """
-ADRI Configuration Loader
+ADRI Configuration Loader.
 
 Streamlined configuration loading logic, simplified from adri/config/manager.py.
 Removes complex configuration management while preserving essential functionality.
@@ -128,7 +128,7 @@ class ConfigurationLoader:
 
             return True
 
-        except Exception:
+        except (KeyError, TypeError, ValueError):
             return False
 
     def save_config(
@@ -317,7 +317,7 @@ class ConfigurationLoader:
                 standard_name += ".yaml"
 
             return os.path.join(standards_dir, standard_name)
-        except:
+        except (KeyError, ValueError, AttributeError):
             # Fallback on any error
             env_dir = "dev" if environment != "production" else "prod"
             if not standard_name.endswith((".yaml", ".yml")):
@@ -358,7 +358,7 @@ class ConfigurationLoader:
         try:
             env_config = self.get_environment_config(config, environment)
             return env_config["paths"]["assessments"]
-        except:
+        except (KeyError, ValueError, AttributeError):
             env_dir = "dev" if environment != "production" else "prod"
             return f"./ADRI/{env_dir}/assessments"
 
@@ -380,7 +380,7 @@ class ConfigurationLoader:
         try:
             env_config = self.get_environment_config(config, environment)
             return env_config["paths"]["training_data"]
-        except:
+        except (KeyError, ValueError, AttributeError):
             env_dir = "dev" if environment != "production" else "prod"
             return f"./ADRI/{env_dir}/training-data"
 

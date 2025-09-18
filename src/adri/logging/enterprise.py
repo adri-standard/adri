@@ -1,5 +1,5 @@
 """
-ADRI Enterprise Logging - Verodat Integration
+ADRI Enterprise Logging - Verodat Integration.
 
 Verodat logger for centralized audit logging, migrated from core/verodat_logger.py.
 Integrates with Verodat API to upload ADRI assessment audit logs,

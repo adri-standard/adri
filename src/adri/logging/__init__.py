@@ -1,31 +1,22 @@
 """
-ADRI Logging Module
+ADRI Logging Module.
 
-Handles audit logging and enterprise logging functionality.
-Consolidates logging components from the original core/audit_logger*.py and core/verodat_logger.py.
+Audit logging and enterprise integration functionality.
+Provides local CSV logging and enterprise Verodat integration.
 
 Components:
-- LocalLogger: Local CSV-based logging implementation
-- EnterpriseLogger: Enterprise/Verodat logging implementation
-- log_to_csv: CSV audit logging function
-- log_to_verodat: Verodat logging function
+- LocalLogger: CSV-based audit logging for local development
+- EnterpriseLogger: Verodat integration for enterprise environments
 
-This module provides unified logging interfaces for the ADRI framework.
+This module provides comprehensive audit logging for the ADRI framework.
 """
 
-# Import enterprise Verodat logging
-from .enterprise import EnterpriseLogger, log_to_verodat, VerodatLogger
-
-# Import local CSV-based logging
-from .local import AuditRecord, CSVAuditLogger, LocalLogger, log_to_csv
+# Import logging components
+from .local import LocalLogger
+from .enterprise import EnterpriseLogger
 
 # Export all components
 __all__ = [
     "LocalLogger",
-    "AuditRecord",
-    "log_to_csv",
-    "CSVAuditLogger",
-    "EnterpriseLogger",
-    "log_to_verodat",
-    "VerodatLogger",
+    "EnterpriseLogger"
 ]

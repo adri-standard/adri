@@ -1,5 +1,5 @@
 """
-ADRI Guard Modes
+ADRI Guard Modes.
 
 Protection mode classes extracted and refactored from the original core/protection.py.
 Provides clean separation of different protection strategies.
@@ -10,7 +10,7 @@ import os
 import time
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Any, Callable, Dict, Optional
 
 import pandas as pd
 
@@ -210,7 +210,7 @@ class DataProtectionEngine:
         if self.config_manager:
             try:
                 return self.config_manager.get_protection_config()
-            except:
+            except (AttributeError, KeyError, ValueError):
                 pass
 
         # Return default config
