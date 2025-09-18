@@ -298,7 +298,7 @@ class ConfigurationLoader:
             environment: Environment to use
 
         Returns:
-            Full path to standard file
+            Full path to standard file (with forward slashes for cross-platform compatibility)
         """
         config = self.get_active_config()
         if not config:
@@ -306,7 +306,8 @@ class ConfigurationLoader:
             env_dir = "dev" if environment != "production" else "prod"
             if not standard_name.endswith((".yaml", ".yml")):
                 standard_name += ".yaml"
-            return os.path.join(f"./ADRI/{env_dir}/standards", standard_name)
+            # Use os.path.join but normalize separators to forward slashes
+            return os.path.join(f"./ADRI/{env_dir}/standards", standard_name).replace("\\", "/")
 
         try:
             env_config = self.get_environment_config(config, environment)
@@ -316,13 +317,14 @@ class ConfigurationLoader:
             if not standard_name.endswith((".yaml", ".yml")):
                 standard_name += ".yaml"
 
-            return os.path.join(standards_dir, standard_name)
+            # Use os.path.join for proper path construction, normalize separators
+            return os.path.join(standards_dir, standard_name).replace("\\", "/")
         except (KeyError, ValueError, AttributeError):
             # Fallback on any error
             env_dir = "dev" if environment != "production" else "prod"
             if not standard_name.endswith((".yaml", ".yml")):
                 standard_name += ".yaml"
-            return os.path.join(f"./ADRI/{env_dir}/standards", standard_name)
+            return os.path.join(f"./ADRI/{env_dir}/standards", standard_name).replace("\\", "/")
 
     def create_directory_structure(self, config: Dict[str, Any]) -> None:
         """
