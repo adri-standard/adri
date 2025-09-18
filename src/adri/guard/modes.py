@@ -1,5 +1,5 @@
 """
-ADRI Guard Modes
+ADRI Guard Modes.
 
 Protection mode classes extracted and refactored from the original core/protection.py.
 Provides clean separation of different protection strategies.
@@ -10,7 +10,7 @@ import os
 import time
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Any, Callable, Dict, Optional
 
 import pandas as pd
 
@@ -100,11 +100,12 @@ class FailFastMode(ProtectionMode):
 
     @property
     def mode_name(self) -> str:
+        """Return the mode name."""
         return "fail-fast"
 
     def handle_failure(self, assessment_result: Any, error_message: str) -> None:
         """Raise ProtectionError to stop execution immediately."""
-        self.logger.error(f"Fail-fast mode: {error_message}")
+        self.logger.error("Fail-fast mode: %s", error_message)
         raise ProtectionError(error_message)
 
     def handle_success(self, assessment_result: Any, success_message: str) -> None:
@@ -113,6 +114,7 @@ class FailFastMode(ProtectionMode):
         print(success_message)
 
     def get_description(self) -> str:
+        """Return a description of this protection mode."""
         return "Fail-fast mode: Immediately stops execution when data quality is insufficient"
 
 
@@ -126,6 +128,7 @@ class SelectiveMode(ProtectionMode):
 
     @property
     def mode_name(self) -> str:
+        """Return the mode name."""
         return "selective"
 
     def handle_failure(self, assessment_result: Any, error_message: str) -> None:
@@ -133,7 +136,7 @@ class SelectiveMode(ProtectionMode):
         self.logger.warning(
             f"Selective mode: Data quality issue detected but continuing - {error_message}"
         )
-        print(f"⚠️  ADRI Warning: Data quality below threshold but continuing execution")
+        print("⚠️  ADRI Warning: Data quality below threshold but continuing execution")
         print(f"📊 Score: {assessment_result.overall_score:.1f}")
 
     def handle_success(self, assessment_result: Any, success_message: str) -> None:
@@ -144,6 +147,7 @@ class SelectiveMode(ProtectionMode):
         )
 
     def get_description(self) -> str:
+        """Return a description of this protection mode."""
         return "Selective mode: Logs quality issues but continues execution"
 
 
@@ -157,21 +161,23 @@ class WarnOnlyMode(ProtectionMode):
 
     @property
     def mode_name(self) -> str:
+        """Return the mode name."""
         return "warn-only"
 
     def handle_failure(self, assessment_result: Any, error_message: str) -> None:
         """Show warning but continue execution."""
         self.logger.warning(f"Warn-only mode: {error_message}")
-        print(f"⚠️  ADRI Data Quality Warning:")
+        print("⚠️  ADRI Data Quality Warning:")
         print(f"📊 Score: {assessment_result.overall_score:.1f} (below threshold)")
-        print(f"💡 Consider improving data quality for better AI agent performance")
+        print("💡 Consider improving data quality for better AI agent performance")
 
     def handle_success(self, assessment_result: Any, success_message: str) -> None:
         """Log success quietly."""
         self.logger.debug(f"Warn-only mode success: {success_message}")
-        print(f"✅ ADRI: Data quality check passed")
+        print("✅ ADRI: Data quality check passed")
 
     def get_description(self) -> str:
+        """Return a description of this protection mode."""
         return "Warn-only mode: Shows warnings but never stops execution"
 
 
@@ -210,7 +216,7 @@ class DataProtectionEngine:
         if self.config_manager:
             try:
                 return self.config_manager.get_protection_config()
-            except:
+            except Exception:
                 pass
 
         # Return default config
@@ -527,7 +533,7 @@ class DataProtectionEngine:
             "",
             "🔧 Fix This:",
             f"   1. Review standard: adri show-standard {standard_name}",
-            f"   2. Fix data issues and retry",
+            "   2. Fix data issues and retry",
             f"   3. Test fixes: adri assess <data> --standard {standard_name}",
         ]
 

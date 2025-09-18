@@ -1,5 +1,5 @@
 """
-ADRI Validation Rules
+ADRI Validation Rules.
 
 Field-level validation logic extracted from the original AssessmentEngine.
 Contains functions for type checking, pattern matching, and range validation.

@@ -1,5 +1,5 @@
 """
-ADRI Configuration Module
+ADRI Configuration Module.
 
 Handles configuration loading and management functionality.
 Consolidates configuration components from the original config/manager.py.

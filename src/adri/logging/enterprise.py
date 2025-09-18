@@ -1,5 +1,5 @@
 """
-ADRI Enterprise Logging - Verodat Integration
+ADRI Enterprise Logging - Verodat Integration.
 
 Verodat logger for centralized audit logging, migrated from core/verodat_logger.py.
 Integrates with Verodat API to upload ADRI assessment audit logs,
@@ -25,9 +25,12 @@ except ImportError:
     except ImportError:
         # Fallback AuditRecord class if not available
         class AuditRecord:
+            """Fallback AuditRecord class for when local module is not available."""
+
             def __init__(
                 self, assessment_id: str, timestamp: datetime, adri_version: str
             ):
+                """Initialize audit record with basic metadata."""
                 self.assessment_id = assessment_id
                 self.timestamp = timestamp
                 self.adri_version = adri_version
@@ -39,7 +42,12 @@ except ImportError:
 
 
 class EnterpriseLogger:
-    """Enterprise audit logger with Verodat API integration. Renamed from VerodatLogger."""
+    """
+    Enterprise audit logger with Verodat API integration.
+
+    Renamed from VerodatLogger. Provides centralized logging to Verodat
+    for enterprise audit trails and compliance requirements.
+    """
 
     def __init__(self, config: Dict[str, Any]):
         """
@@ -560,7 +568,7 @@ def log_to_verodat(
     config: Optional[Dict[str, Any]] = None,
 ) -> bool:
     """
-    Helper function to log an assessment to Verodat.
+    Log an assessment to Verodat.
 
     Args:
         assessment_result: Assessment result object

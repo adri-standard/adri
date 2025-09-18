@@ -1,5 +1,5 @@
 """
-ADRI Validator Engine
+ADRI Validator Engine.
 
 Core data quality assessment and validation engine functionality.
 Migrated from adri/core/assessor.py for the new src/ layout.

@@ -1,5 +1,5 @@
 """
-ADRI Guard Decorator
+ADRI Guard Decorator.
 
 Main decorator interface migrated from adri/decorators/guard.py.
 Provides the @adri_protected decorator for protecting agent workflows from dirty data.

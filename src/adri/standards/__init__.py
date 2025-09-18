@@ -1,39 +1,18 @@
 """
-ADRI Standards Module
+ADRI Standards Module.
 
-Handles YAML standard parsing and validation functionality.
-Consolidates standards components from the original standards/loader.py.
+Standard parsing and validation functionality.
+Handles YAML standard loading and validation logic.
 
 Components:
-- StandardsParser: YAML parsing functionality (renamed from StandardsLoader)
-- Schema validation: Standards schema validation
-- Standards loading utilities
+- StandardsParser: Parses and validates YAML standards
+- Standard loading utilities
 
-This module provides standards parsing and validation for the ADRI framework.
+This module provides standard management for the ADRI framework.
 """
 
-# Import standards parser
-from .parser import list_bundled_standards, load_bundled_standard, StandardsParser
-
-# Import exceptions
-try:
-    from .exceptions import (
-        InvalidStandardError,
-        StandardNotFoundError,
-        StandardsDirectoryNotFoundError,
-    )
-except ImportError:
-    # Handle missing exceptions gracefully
-    StandardNotFoundError = Exception
-    InvalidStandardError = Exception
-    StandardsDirectoryNotFoundError = Exception
+# Import standards components
+from .parser import StandardsParser
 
 # Export all components
-__all__ = [
-    "StandardsParser",
-    "load_bundled_standard",
-    "list_bundled_standards",
-    "StandardNotFoundError",
-    "InvalidStandardError",
-    "StandardsDirectoryNotFoundError",
-]
+__all__ = ["StandardsParser"]

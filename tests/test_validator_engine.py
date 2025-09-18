@@ -459,19 +459,20 @@ class TestAssessmentIntegration(unittest.TestCase):
 
     def test_assessment_with_audit_logging(self):
         """Test assessment with audit logging enabled."""
-        config = {
-            "audit": {
-                "enabled": True,
-                "log_dir": "./test_logs"
+        import tempfile
+        with tempfile.TemporaryDirectory() as temp_dir:
+            config = {
+                "audit": {
+                    "enabled": True,
+                    "log_dir": temp_dir
+                }
             }
-        }
-        assessor = DataQualityAssessor(config)
+            assessor = DataQualityAssessor(config)
+            result = assessor.assess(self.sample_data)
 
-        result = assessor.assess(self.sample_data)
-
-        # Should work with audit logging
-        self.assertIsInstance(result, AssessmentResult)
-        self.assertGreater(result.overall_score, 0)
+            # Should work with audit logging
+            self.assertIsInstance(result, AssessmentResult)
+            self.assertGreater(result.overall_score, 0)
 
     def test_assessment_with_different_data_formats(self):
         """Test assessment handles various data input formats."""

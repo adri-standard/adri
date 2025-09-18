@@ -1,5 +1,5 @@
 """
-ADRI Standards Parser
+ADRI Standards Parser.
 
 YAML standard parsing and validation functionality, migrated from adri/standards/loader.py.
 Provides offline-first loading of ADRI standards from bundled standards directory.
@@ -31,19 +31,24 @@ except ImportError:
     except ImportError:
         # Fallback exception classes
         class StandardsDirectoryNotFoundError(Exception):
+            """Exception raised when standards directory is not found."""
+
             pass
 
         class StandardNotFoundError(Exception):
+            """Exception raised when a standard is not found."""
+
             pass
 
         class InvalidStandardError(Exception):
+            """Exception raised when a standard is invalid."""
+
             pass
 
 
 class StandardsParser:
     """
     Parses and loads ADRI standards from bundled standards directory.
-    Renamed from StandardsLoader for the new structure.
 
     This parser provides fast, offline access to all standards
     without any network dependencies. All standards are validated on
@@ -52,6 +57,7 @@ class StandardsParser:
 
     def __init__(self):
         """Initialize the standards parser."""
+
         self._lock = threading.RLock()
         self._standards_path = self._get_standards_path()
         self._validate_standards_directory()
@@ -59,10 +65,12 @@ class StandardsParser:
     @property
     def standards_path(self) -> Path:
         """Get the path to the standards directory."""
+
         return self._standards_path
 
     def _get_standards_path(self) -> Path:
         """Resolve standards directory path from environment parameter only."""
+
         # Environment variable is required - no defaults or fallbacks
         env_path = os.getenv("ADRI_STANDARDS_PATH")
         if not env_path:
@@ -86,6 +94,7 @@ class StandardsParser:
 
     def _validate_standards_directory(self):
         """Validate that the standards directory exists."""
+
         if not self._standards_path.exists():
             raise StandardsDirectoryNotFoundError(str(self._standards_path))
 
@@ -97,7 +106,7 @@ class StandardsParser:
     @lru_cache(maxsize=128)
     def parse_standard(self, standard_name: str) -> Dict[str, Any]:
         """
-        Parse a standard by name. Renamed from load_standard.
+        Parse a standard by name.
 
         Args:
             standard_name: Name of the standard to parse (without .yaml extension)
@@ -109,6 +118,7 @@ class StandardsParser:
             StandardNotFoundError: If the standard is not found
             InvalidStandardError: If the standard is invalid
         """
+
         with self._lock:
             # Construct the file path
             standard_file = self._standards_path / f"{standard_name}.yaml"
@@ -153,6 +163,7 @@ class StandardsParser:
         Raises:
             InvalidStandardError: If the standard structure is invalid
         """
+
         if not isinstance(standard, dict):
             raise InvalidStandardError("Standard must be a dictionary", standard_name)
 
@@ -198,6 +209,7 @@ class StandardsParser:
         Returns:
             list: List of standard names (without .yaml extension)
         """
+
         with self._lock:
             standards = []
 
@@ -219,6 +231,7 @@ class StandardsParser:
         Returns:
             bool: True if the standard exists, False otherwise
         """
+
         standard_file = self._standards_path / f"{standard_name}.yaml"
         return standard_file.exists()
 
@@ -235,6 +248,7 @@ class StandardsParser:
         Raises:
             StandardNotFoundError: If the standard is not found
         """
+
         if not self.standard_exists(standard_name):
             raise StandardNotFoundError(standard_name)
 
@@ -256,10 +270,12 @@ class StandardsParser:
 
     def clear_cache(self):
         """Clear the internal cache of parsed standards."""
+
         self.parse_standard.cache_clear()
 
     def get_cache_info(self):
         """Get information about the internal cache."""
+
         return self.parse_standard.cache_info()
 
     def validate_standard_file(self, standard_path: str) -> Dict[str, Any]:
@@ -272,6 +288,7 @@ class StandardsParser:
         Returns:
             Dict containing validation results
         """
+
         validation_result = {
             "file_path": standard_path,
             "is_valid": True,
@@ -329,6 +346,7 @@ def load_bundled_standard(standard_name: str) -> Dict[str, Any]:
     Returns:
         dict: The loaded standard
     """
+
     parser = StandardsParser()
     return parser.parse_standard(standard_name)
 
@@ -340,6 +358,7 @@ def list_bundled_standards() -> List[str]:
     Returns:
         list: List of standard names
     """
+
     parser = StandardsParser()
     return parser.list_available_standards()
 

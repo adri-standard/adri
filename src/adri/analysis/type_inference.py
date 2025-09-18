@@ -1,13 +1,11 @@
 """
-ADRI Type Inference
+ADRI Type Inference.
 
 Data type inference and validation rule generation.
 Migrated and updated for the new src/ layout architecture.
 """
 
-import re
-from datetime import datetime
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, Optional
 
 import pandas as pd
 
@@ -86,7 +84,7 @@ class TypeInference:
                     return "integer"
                 else:
                     return "float"
-        except:
+        except (ValueError, TypeError, AttributeError):
             pass
 
         # Default to string
@@ -134,7 +132,7 @@ class TypeInference:
             if len(numeric_series) > 0:
                 constraints["min_value"] = float(numeric_series.min())
                 constraints["max_value"] = float(numeric_series.max())
-        except:
+        except (ValueError, TypeError, AttributeError):
             pass
 
         return constraints
@@ -195,7 +193,7 @@ class TypeInference:
             if len(date_series) > 0:
                 constraints["after_date"] = date_series.min().isoformat()
                 constraints["before_date"] = date_series.max().isoformat()
-        except:
+        except (ValueError, TypeError, AttributeError):
             pass
 
         return constraints

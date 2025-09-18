@@ -1,14 +1,12 @@
 [flake8]
 max-line-length = 88
 extend-ignore =
-    # E203: whitespace before ':' (conflicts with black)
     E203,
-    # W503: line break before binary operator (conflicts with black)
     W503,
-    # E501: line too long (handled by black)
     E501,
-    # D202: No blank lines allowed after function docstring (conflicts with black)
-    D202
+    D202,
+    E231,
+    E713
 exclude =
     .git,
     __pycache__,
@@ -25,6 +23,7 @@ exclude =
     .pytest_cache,
     .mypy_cache,
     examples,
+    demos,
     external,
     scripts
 per-file-ignores =

@@ -323,13 +323,18 @@ class TestProtectionModesEdgeCases(unittest.TestCase):
 
         # Test with standard path that has no directory component
         with tempfile.TemporaryDirectory() as temp_dir:
-            os.chdir(temp_dir)  # Change to temp directory
+            original_cwd = os.getcwd()  # Save original directory
+            try:
+                os.chdir(temp_dir)  # Change to temp directory
 
-            standard_path = "no_directory_standard.yaml"  # No directory component
+                standard_path = "no_directory_standard.yaml"  # No directory component
 
-            # Should handle this case without trying to create empty directory
-            engine._ensure_standard_exists(standard_path, self.test_data)
-            self.assertTrue(os.path.exists(standard_path))
+                # Should handle this case without trying to create empty directory
+                engine._ensure_standard_exists(standard_path, self.test_data)
+                self.assertTrue(os.path.exists(standard_path))
+            finally:
+                # Always change back to original directory before cleanup
+                os.chdir(original_cwd)
 
     @patch('adri.guard.modes.ConfigurationLoader')
     @patch('adri.guard.modes.LocalLogger')
