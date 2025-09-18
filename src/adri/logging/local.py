@@ -560,7 +560,7 @@ def log_to_csv(
     config: Optional[Dict[str, Any]] = None,
 ) -> Optional[AuditRecord]:
     """
-    Helper function to log an assessment to CSV.
+    Log an assessment to CSV.
 
     Args:
         assessment_result: Assessment result object

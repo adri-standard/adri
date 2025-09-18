@@ -565,7 +565,7 @@ def log_to_verodat(
     config: Optional[Dict[str, Any]] = None,
 ) -> bool:
     """
-    Helper function to log an assessment to Verodat.
+    Log an assessment to Verodat.
 
     Args:
         assessment_result: Assessment result object
