@@ -98,11 +98,11 @@ class TestConfigurationLoader(unittest.TestCase):
 
         found_path = self.loader.find_config_file()
         expected_path = str(Path.cwd().resolve() / "adri-config.yaml")
-        
+
         # Normalize both paths to resolve Windows short vs long path names
         found_normalized = str(Path(found_path).resolve()) if found_path else None
         expected_normalized = str(Path(expected_path).resolve())
-        
+
         self.assertEqual(found_normalized, expected_normalized)
 
     def test_find_config_file_not_found(self):

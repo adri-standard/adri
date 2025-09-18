@@ -307,7 +307,9 @@ class ConfigurationLoader:
             if not standard_name.endswith((".yaml", ".yml")):
                 standard_name += ".yaml"
             # Use os.path.join but normalize separators to forward slashes
-            return os.path.join(f"./ADRI/{env_dir}/standards", standard_name).replace("\\", "/")
+            return os.path.join(f"./ADRI/{env_dir}/standards", standard_name).replace(
+                "\\", "/"
+            )
 
         try:
             env_config = self.get_environment_config(config, environment)
@@ -324,7 +326,9 @@ class ConfigurationLoader:
             env_dir = "dev" if environment != "production" else "prod"
             if not standard_name.endswith((".yaml", ".yml")):
                 standard_name += ".yaml"
-            return os.path.join(f"./ADRI/{env_dir}/standards", standard_name).replace("\\", "/")
+            return os.path.join(f"./ADRI/{env_dir}/standards", standard_name).replace(
+                "\\", "/"
+            )
 
     def create_directory_structure(self, config: Dict[str, Any]) -> None:
         """
