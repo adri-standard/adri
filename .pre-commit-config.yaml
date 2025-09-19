@@ -53,16 +53,8 @@ repos:
   # Documentation validation is handled by CI workflow (docs-check job)
   # Jekyll requires Ruby/bundle which may not be available in all environments
 
-  # Comprehensive CI validation (optional - uncomment to enable)
-  - repo: local
-    hooks:
-      - id: comprehensive-ci-test
-        name: comprehensive-ci-test
-        entry: ./scripts/local-ci-test.sh
-        language: system
-        pass_filenames: false
-        always_run: true
-        verbose: true
+  # Note: comprehensive-ci-test removed to prevent infinite loop
+  # Run ./scripts/local-ci-test.sh manually before committing large changes
 
 default_language_version:
   python: python3
