@@ -122,7 +122,6 @@ def check_primary_key_uniqueness(data, standard_config):
 
                 duplicate_record_ids = []
                 for idx in group.index:
-                    row = data.iloc[idx]
                     record_id = f"{pk_value} (Row {idx + 1})"
                     duplicate_record_ids.append(record_id)
 
