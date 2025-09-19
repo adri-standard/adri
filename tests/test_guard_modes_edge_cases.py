@@ -153,10 +153,13 @@ class TestProtectionModesEdgeCases(unittest.TestCase):
         # Test with auto_generate_standards disabled (line 372)
         engine.protection_config["auto_generate_standards"] = False
 
-        with self.assertRaises(ProtectionError) as context:
-            engine._ensure_standard_exists("nonexistent_standard.yaml", self.test_data)
+        with tempfile.TemporaryDirectory() as temp_dir:
+            standard_path = os.path.join(temp_dir, "nonexistent_standard.yaml")
 
-        self.assertIn("Standard file not found", str(context.exception))
+            with self.assertRaises(ProtectionError) as context:
+                engine._ensure_standard_exists(standard_path, self.test_data)
+
+            self.assertIn("Standard file not found", str(context.exception))
 
         # Re-enable auto generation for further tests
         engine.protection_config["auto_generate_standards"] = True

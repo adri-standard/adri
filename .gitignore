@@ -323,6 +323,16 @@ scratch_*.py
 quick_*.py
 experiment_*.py
 
+# Test-generated files (prevent pre-commit YAML validation failures)
+*nonexistent*.yaml
+*nonexistent*.yml
+test_standard*.yaml
+temp_standard*.yaml
+mock_standard*.yaml
+*_test_standard.yaml
+no_directory_standard.yaml
+null_test_standard.yaml
+
 # System files
 .DS_Store
 .DS_Store?

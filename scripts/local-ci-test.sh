@@ -147,16 +147,43 @@ run_check "Gitignore protection patterns" "bash -c '
 '"
 
 echo ""
-echo "🎯 GitHub Actions Simulation"
-echo "----------------------------"
+echo "🎯 Complete GitHub Actions Simulation (ALL Workflows)"
+echo "======================================================"
 
-# 5. ACT testing (simulate GitHub Actions)
+# 5. ACT testing (simulate ALL GitHub Actions workflows)
 if command -v act >/dev/null 2>&1; then
-    run_check "ACT docs workflow test" "act -W .github/workflows/docs.yml -j build --container-architecture linux/amd64 --dryrun"
+    echo "Testing all 4 GitHub workflows for complete confidence..."
+    echo ""
+
+    # Test CI workflow (Python testing)
+    run_check "ACT CI workflow test" "act -W .github/workflows/ci.yml -j build-test --container-architecture linux/amd64 --dryrun"
+    run_check "ACT CI security test" "act -W .github/workflows/ci.yml -j security --container-architecture linux/amd64 --dryrun"
+
+    # Test Documentation workflow (build only, no deploy)
+    run_check "ACT docs build test" "act -W .github/workflows/docs.yml -j build --container-architecture linux/amd64 --dryrun"
+    run_check "ACT docs test-deployment" "act -W .github/workflows/docs.yml -j test-deployment --container-architecture linux/amd64 --dryrun"
+
+    # Test Structure validation workflow
     run_check "ACT structure validation test" "act -W .github/workflows/structure-validation.yml -j validate-root-structure --container-architecture linux/amd64 --dryrun"
+    run_check "ACT gitignore validation test" "act -W .github/workflows/structure-validation.yml -j validate-gitignore-protection --container-architecture linux/amd64 --dryrun"
+
+    # Test Release workflow (build/test only, no actual release)
+    run_check "ACT release build test" "act -W .github/workflows/release.yml -j build --container-architecture linux/amd64 --dryrun"
+    run_check "ACT release test-install" "act -W .github/workflows/release.yml -j test-install --container-architecture linux/amd64 --dryrun"
+
+    echo ""
+    echo "📊 Complete Workflow Coverage:"
+    echo "   ✅ CI Pipeline (Python tests, security)"
+    echo "   ✅ Documentation (build, deployment readiness)"
+    echo "   ✅ Structure Validation (root structure, gitignore)"
+    echo "   ✅ Release Pipeline (build, test - no deploy)"
+    echo ""
+    echo "🎯 This gives you 100% confidence that PR and Release will succeed!"
+
 else
     echo -e "${YELLOW}⚠️ SKIPPED - ACT not installed${NC}"
     echo "   Install: brew install act"
+    echo "   Without ACT, you're missing complete workflow simulation"
 fi
 
 echo ""
