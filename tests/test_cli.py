@@ -44,10 +44,10 @@ class TestSetupCommand(unittest.TestCase):
         result = setup_command(project_name="test_project")
 
         self.assertEqual(result, 0)
-        self.assertTrue(os.path.exists("adri-config.yaml"))
+        self.assertTrue(os.path.exists("ADRI/config.yaml"))
 
         # Check config content
-        with open("adri-config.yaml", 'r') as f:
+        with open("ADRI/config.yaml", 'r') as f:
             config = yaml.safe_load(f)
 
         self.assertEqual(config["adri"]["project_name"], "test_project")
@@ -55,8 +55,9 @@ class TestSetupCommand(unittest.TestCase):
 
     def test_setup_command_force_overwrite(self):
         """Test setup command with force overwrite."""
-        # Create existing config
-        with open("adri-config.yaml", 'w') as f:
+        # Create ADRI directory and existing config
+        os.makedirs("ADRI", exist_ok=True)
+        with open("ADRI/config.yaml", 'w') as f:
             f.write("existing: config")
 
         result = setup_command(force=True, project_name="new_project")
@@ -64,15 +65,16 @@ class TestSetupCommand(unittest.TestCase):
         self.assertEqual(result, 0)
 
         # Check config was overwritten
-        with open("adri-config.yaml", 'r') as f:
+        with open("ADRI/config.yaml", 'r') as f:
             config = yaml.safe_load(f)
 
         self.assertEqual(config["adri"]["project_name"], "new_project")
 
     def test_setup_command_existing_config_no_force(self):
         """Test setup command fails when config exists and no force."""
-        # Create existing config
-        with open("adri-config.yaml", 'w') as f:
+        # Create ADRI directory and existing config
+        os.makedirs("ADRI", exist_ok=True)
+        with open("ADRI/config.yaml", 'w') as f:
             f.write("existing: config")
 
         result = setup_command(project_name="test_project")
