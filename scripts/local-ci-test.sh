@@ -77,12 +77,83 @@ else
 fi
 
 echo ""
+echo "🏗️ Repository Structure Validation (Mirror GitHub CI)"
+echo "-----------------------------------------------------"
+
+# 4. Repository structure validation (same as GitHub workflow)
+run_check "Root directory structure" "bash -c '
+    VIOLATIONS=0
+    ALLOWED_FILES=(\".commitlintrc.json\" \".flake8\" \".gitignore\" \".gitmessage\" \".pre-commit-config.yaml\" \"adri-config.yaml\" \"ARCHITECTURE.md\" \"CHANGELOG.md\" \"CONTRIBUTING.md\" \"LICENSE\" \"pyproject.toml\" \"README.md\" \"SECURITY.md\")
+    ALLOWED_DIRS=(\".git\" \".github\" \"archive\" \"demos\" \"docs\" \"examples\" \"scripts\" \"src\" \"tests\")
+
+    for file in *; do
+        if [[ \$file =~ ^(htmlcov|\.coverage|coverage\.json|\.pytest_cache|\.benchmarks|.*_standard\.yaml|test_logs)$ ]]; then
+            continue
+        fi
+        if [[ -f \"\$file\" ]]; then
+            FOUND=0
+            for allowed in \"\${ALLOWED_FILES[@]}\"; do
+                if [[ \"\$file\" == \"\$allowed\" ]]; then
+                    FOUND=1
+                    break
+                fi
+            done
+            if [[ \$FOUND -eq 0 ]]; then
+                echo \"❌ UNAUTHORIZED FILE: \$file\"
+                VIOLATIONS=\$((VIOLATIONS + 1))
+            fi
+        elif [[ -d \"\$file\" ]]; then
+            FOUND=0
+            for allowed in \"\${ALLOWED_DIRS[@]}\"; do
+                if [[ \"\$file\" == \"\$allowed\" ]]; then
+                    FOUND=1
+                    break
+                fi
+            done
+            if [[ \$FOUND -eq 0 ]]; then
+                echo \"❌ UNAUTHORIZED DIRECTORY: \$file\"
+                VIOLATIONS=\$((VIOLATIONS + 1))
+            fi
+        fi
+    done
+
+    if [[ \$VIOLATIONS -eq 0 ]]; then
+        echo \"✅ Root directory structure is clean\"
+        exit 0
+    else
+        echo \"❌ Found \$VIOLATIONS structure violations\"
+        exit 1
+    fi
+'"
+
+run_check "Gitignore protection patterns" "bash -c '
+    REQUIRED_PATTERNS=(\"archive/\" \"src/adri/_version.py\" \"*_plan.md\" \"*_implementation*.md\" \"*.DS_Store\" \"*.swp\" \"bandit-report.json\" \"coverage.xml\" \"dist/\" \"build/\" \"*.egg-info/\")
+    MISSING=0
+
+    for pattern in \"\${REQUIRED_PATTERNS[@]}\"; do
+        if ! grep -qF \"\$pattern\" .gitignore; then
+            echo \"❌ Missing .gitignore pattern: \$pattern\"
+            MISSING=\$((MISSING + 1))
+        fi
+    done
+
+    if [[ \$MISSING -eq 0 ]]; then
+        echo \"✅ All required .gitignore patterns present\"
+        exit 0
+    else
+        echo \"❌ Missing \$MISSING required patterns\"
+        exit 1
+    fi
+'"
+
+echo ""
 echo "🎯 GitHub Actions Simulation"
 echo "----------------------------"
 
-# 4. ACT testing (simulate GitHub Actions)
+# 5. ACT testing (simulate GitHub Actions)
 if command -v act >/dev/null 2>&1; then
-    run_check "ACT workflow test" "act -W .github/workflows/docs.yml -j build --container-architecture linux/amd64 --dryrun"
+    run_check "ACT docs workflow test" "act -W .github/workflows/docs.yml -j build --container-architecture linux/amd64 --dryrun"
+    run_check "ACT structure validation test" "act -W .github/workflows/structure-validation.yml -j validate-root-structure --container-architecture linux/amd64 --dryrun"
 else
     echo -e "${YELLOW}⚠️ SKIPPED - ACT not installed${NC}"
     echo "   Install: brew install act"
