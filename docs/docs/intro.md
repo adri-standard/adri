@@ -55,3 +55,5 @@ def your_agent_function(data):
 ---
 
 **Ready to start?** Choose your path above - whether you want to **use ADRI** or **contribute to ADRI**.
+
+*Documentation updated: Testing artifact fix deployment.*
