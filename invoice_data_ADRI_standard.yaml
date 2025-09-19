@@ -1,0 +1,38 @@
+standards:
+  id: invoice_data_standard
+  name: invoice_data ADRI Standard
+  version: 1.0.0
+  authority: ADRI Framework
+  description: Auto-generated standard for invoice_data data
+requirements:
+  overall_minimum: 75.0
+  field_requirements:
+    invoice_id:
+      type: string
+      nullable: false
+    customer_id:
+      type: string
+      nullable: false
+    amount:
+      type: string
+      nullable: false
+    date:
+      type: string
+      nullable: false
+    status:
+      type: string
+      nullable: false
+    payment_method:
+      type: string
+      nullable: false
+  dimension_requirements:
+    validity:
+      minimum_score: 15.0
+    completeness:
+      minimum_score: 15.0
+    consistency:
+      minimum_score: 12.0
+    freshness:
+      minimum_score: 15.0
+    plausibility:
+      minimum_score: 12.0

@@ -1,0 +1,11 @@
+invoice_id,customer_id,amount,date,status,payment_method
+INV-101,CUST-201,1350.00,2024-02-15,paid,credit_card
+INV-102,,925.50,2024-02-16,paid,bank_transfer
+INV-103,CUST-203,-150.75,2024-02-17,invalid,credit_card
+INV-104,CUST-204,0,invalid_date,pending,cash
+,CUST-205,1950.25,,paid,unknown_method
+INV-106,CUST-206,850.00,2024-02-20,PAID,credit_card
+INV-107,CUST-207,1625.50,2024-13-21,paid,bank_transfer
+INV-108,CUST-208,,2024-02-22,pending,
+INV-109,CUST-209,1225.75,2024-02-23,cancelled,cash
+INV-110,DUPLICATE-ID,875.25,2024-02-24,paid,credit_card

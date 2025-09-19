@@ -277,7 +277,7 @@ Think of ADRI as a **quality bouncer** for your AI functions:
 |-----------|---------------|-------------------|----------------|-------------|-------------------|-------------------|
 | **Configuration Loader** | 70%+ | 80%+ | 85%+ | 75%+ | **78%+** | 70% line ✅ (add integration) |
 | **Standards Parser** | 70%+ | 75%+ | 80%+ | 70%+ | **74%+** | 28% line ⚠️ (major work needed) |
-| **CLI Commands** | 70%+ | 80%+ | 75%+ | 70%+ | **74%+** | 0% line ⚠️ (not started) |
+| **CLI Commands** | 70%+ | 80%+ | 75%+ | 70%+ | **74%+** | 63% line ✅ (near target, enhanced coverage) |
 | **Local Logging** | 65%+ | 70%+ | 80%+ | 75%+ | **73%+** | 69% line ✅ (add integration) |
 | **Validator Rules** | 70%+ | 75%+ | 80%+ | 70%+ | **74%+** | 35% line ⚠️ (significant work needed) |
 
