@@ -180,11 +180,12 @@ class ConfigurationLoader:
 
         # Search up the directory tree
         for path in [current_path] + list(current_path.parents):
-            # Check common config file locations
+            # Check common config file locations (new location first)
             config_names = [
-                "adri-config.yaml",
-                "adri-config.yml",
-                "ADRI/adri-config.yaml",
+                "ADRI/config.yaml",
+                "adri-config.yaml",  # backward compatibility
+                "adri-config.yml",  # backward compatibility
+                "ADRI/adri-config.yaml",  # backward compatibility
                 ".adri.yaml",
             ]
 

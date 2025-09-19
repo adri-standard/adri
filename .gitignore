@@ -291,6 +291,7 @@ local/
 # Virtual environments and test environments
 adri_test_env/
 *_test_env/
+.dev-testing/
 venv/
 env/
 

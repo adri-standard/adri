@@ -77,6 +77,113 @@ def check_field_range(value: Any, field_req: Dict[str, Any]) -> bool:
         return True
 
 
+def check_primary_key_uniqueness(data, standard_config):
+    """
+    Check for duplicate primary key values in the dataset.
+
+    Args:
+        data: DataFrame containing the data to validate
+        standard_config: Standard configuration dictionary
+
+    Returns:
+        List of validation failures for duplicate primary keys
+    """
+    import pandas as pd
+
+    failures = []
+
+    # Get primary key configuration from standard
+    record_id_config = standard_config.get("record_identification", {})
+    primary_key_fields = record_id_config.get("primary_key_fields", [])
+
+    if not primary_key_fields:
+        return failures  # No primary key defined, skip check
+
+    # Check if all primary key fields exist in data
+    missing_pk_fields = [
+        field for field in primary_key_fields if field not in data.columns
+    ]
+    if missing_pk_fields:
+        return failures  # Can't validate if primary key fields don't exist
+
+    # Create composite key for uniqueness checking
+    if len(primary_key_fields) == 1:
+        # Single primary key
+        pk_field = primary_key_fields[0]
+        duplicates = data[data.duplicated(subset=[pk_field], keep=False)]
+
+        if not duplicates.empty:
+            # Group duplicates by value
+            duplicate_groups = duplicates.groupby(pk_field)
+
+            for pk_value, group in duplicate_groups:
+                if pd.isna(pk_value):
+                    continue  # Skip null primary keys
+
+                duplicate_record_ids = []
+                for idx in group.index:
+                    row = data.iloc[idx]
+                    record_id = f"{pk_value} (Row {idx + 1})"
+                    duplicate_record_ids.append(record_id)
+
+                if len(duplicate_record_ids) > 1:
+                    failures.append(
+                        {
+                            "validation_id": f"pk_dup_{pk_value}".replace(" ", "_"),
+                            "dimension": "consistency",
+                            "field": pk_field,
+                            "issue": "duplicate_primary_key",
+                            "affected_rows": len(duplicate_record_ids),
+                            "affected_percentage": (
+                                len(duplicate_record_ids) / len(data)
+                            )
+                            * 100,
+                            "samples": duplicate_record_ids,
+                            "remediation": f"Remove duplicate {pk_field} values: {pk_value}",
+                        }
+                    )
+    else:
+        # Compound primary key
+        duplicates = data[data.duplicated(subset=primary_key_fields, keep=False)]
+
+        if not duplicates.empty:
+            # Group duplicates by compound key
+            duplicate_groups = duplicates.groupby(primary_key_fields)
+
+            for pk_values, group in duplicate_groups:
+                # Create compound key string
+                if isinstance(pk_values, tuple):
+                    pk_str = ":".join(str(v) for v in pk_values if pd.notna(v))
+                else:
+                    pk_str = str(pk_values)
+
+                duplicate_record_ids = []
+                for idx in group.index:
+                    record_id = f"{pk_str} (Row {idx + 1})"
+                    duplicate_record_ids.append(record_id)
+
+                if len(duplicate_record_ids) > 1:
+                    failures.append(
+                        {
+                            "validation_id": f"pk_dup_{pk_str}".replace(
+                                " ", "_"
+                            ).replace(":", "_"),
+                            "dimension": "consistency",
+                            "field": ",".join(primary_key_fields),
+                            "issue": "duplicate_compound_key",
+                            "affected_rows": len(duplicate_record_ids),
+                            "affected_percentage": (
+                                len(duplicate_record_ids) / len(data)
+                            )
+                            * 100,
+                            "samples": duplicate_record_ids,
+                            "remediation": f"Remove duplicate compound key values: {pk_str}",
+                        }
+                    )
+
+    return failures
+
+
 def validate_field(
     field_name: str, value: Any, field_requirements: Dict[str, Any]
 ) -> Dict[str, Any]:
