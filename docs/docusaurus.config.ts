@@ -81,19 +81,32 @@ const config: Config = {
       style: 'dark',
       links: [
         {
-          title: 'Documentation',
+          title: '🚀 Package Consumers',
           items: [
             {
               label: 'Getting Started',
-              to: '/docs/getting-started',
+              to: '/docs/users/getting-started',
             },
             {
               label: 'API Reference',
-              to: '/docs/API_REFERENCE',
+              to: '/docs/users/API_REFERENCE',
             },
             {
               label: 'FAQ',
-              to: '/docs/faq',
+              to: '/docs/users/faq',
+            },
+          ],
+        },
+        {
+          title: '🛠️ Contributors',
+          items: [
+            {
+              label: 'Development Workflow',
+              to: '/docs/contributors/development-workflow',
+            },
+            {
+              label: 'Framework Extensions',
+              to: '/docs/contributors/framework-extension-pattern',
             },
           ],
         },
@@ -108,18 +121,9 @@ const config: Config = {
               label: 'Issues',
               href: 'https://github.com/adri-standard/adri/issues',
             },
-          ],
-        },
-        {
-          title: 'More',
-          items: [
             {
-              label: 'Open Source',
-              to: '/docs/WHY_OPEN_SOURCE',
-            },
-            {
-              label: 'Frameworks',
-              to: '/docs/frameworks',
+              label: 'Why Open Source',
+              to: '/docs/users/WHY_OPEN_SOURCE',
             },
           ],
         },
