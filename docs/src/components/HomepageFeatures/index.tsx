@@ -21,7 +21,7 @@ const FeatureList: FeatureItem[] = [
     ),
   },
   {
-    title: '🤖 Framework Agnostic', 
+    title: '🤖 Framework Agnostic',
     Svg: require('@site/static/img/adri-logo.svg').default,
     description: (
       <>
@@ -35,7 +35,7 @@ const FeatureList: FeatureItem[] = [
     Svg: require('@site/static/img/adri-logo.svg').default,
     description: (
       <>
-        Comprehensive validation across validity, completeness, freshness, 
+        Comprehensive validation across validity, completeness, freshness,
         consistency, and plausibility with detailed audit logging.
       </>
     ),
