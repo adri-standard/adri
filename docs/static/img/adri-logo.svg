@@ -1,0 +1,25 @@
+<svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Left side dots representing data points -->
+  <circle cx="20" cy="25" r="3" fill="currentColor"/>
+  <circle cx="35" cy="25" r="3" fill="currentColor"/>
+
+  <circle cx="12" cy="40" r="4" fill="currentColor"/>
+  <circle cx="28" cy="40" r="4" fill="currentColor"/>
+  <circle cx="44" cy="40" r="4" fill="currentColor"/>
+
+  <circle cx="20" cy="55" r="3" fill="currentColor"/>
+  <circle cx="35" cy="55" r="3" fill="currentColor"/>
+  <circle cx="50" cy="55" r="3" fill="currentColor"/>
+
+  <circle cx="12" cy="70" r="4" fill="currentColor"/>
+  <circle cx="28" cy="70" r="4" fill="currentColor"/>
+  <circle cx="44" cy="70" r="4" fill="currentColor"/>
+
+  <circle cx="20" cy="85" r="3" fill="currentColor"/>
+  <circle cx="35" cy="85" r="3" fill="currentColor"/>
+
+  <circle cx="28" cy="100" r="3" fill="currentColor"/>
+
+  <!-- Right side solid D shape representing reliability/structure -->
+  <path d="M60 10 L60 110 A50 50 0 0 0 60 10 Z" fill="currentColor"/>
+</svg>

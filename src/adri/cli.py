@@ -556,9 +556,10 @@ def assess(data_path, standard_path, output_path):
 @cli.command("generate-standard")
 @click.argument("data_path")
 @click.option("--force", is_flag=True, help="Overwrite existing standard file")
-def generate_standard(data_path, force):
+@click.option("-o", "--output", help="Output path for generated standard file")
+def generate_standard(data_path, force, output):
     """Generate ADRI standard from data file analysis."""
-    sys.exit(generate_standard_command(data_path, force))
+    sys.exit(generate_standard_command(data_path, force, output))
 
 
 @cli.command("validate-standard")

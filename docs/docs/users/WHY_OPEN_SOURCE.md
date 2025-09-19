@@ -1,3 +1,7 @@
+---
+sidebar_position: 6
+---
+
 # Why ADRI is Open Source: Our Honest Answer
 
 *Last updated: January 2025*
@@ -99,11 +103,11 @@ And if you decide Verodat's platform offers better economics than building your 
 
 This approach isn't typical for enterprise software companies. If you have questions about our open source strategy, our business model, or anything else, we're happy to discuss openly.
 
-**Contact**: [Your contact information]
+**Contact**: [thomas@verodat.com](mailto:thomas@verodat.com)
 
-**GitHub**: [ADRI Repository Link]
+**GitHub**: [ADRI Repository](https://github.com/adri-standard/adri)
 
-**Verodat Platform**: [Platform information]
+**Verodat Platform**: [verodat.com](https://verodat.com)
 
 ---
 

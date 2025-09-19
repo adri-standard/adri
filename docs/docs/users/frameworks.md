@@ -1,6 +1,5 @@
 ---
-layout: default
-title: Framework Challenges - ADRI
+sidebar_position: 4
 ---
 
 # How ADRI Could Solve Framework Challenges
@@ -146,4 +145,4 @@ def your_framework_function(data):
 
 ---
 
-**Want to try ADRI protection for your framework?** Start with the [Getting Started guide](getting-started.md) or check the [FAQ](faq.md) for comprehensive information.
+**Want to try ADRI protection for your framework?** Start with the [Getting Started guide](getting-started) or check the [FAQ](faq) for comprehensive information.

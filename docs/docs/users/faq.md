@@ -1,6 +1,5 @@
 ---
-layout: default
-title: ADRI FAQ
+sidebar_position: 3
 ---
 
 # ADRI – Frequently Asked Questions

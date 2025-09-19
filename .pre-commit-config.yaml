@@ -53,24 +53,8 @@ repos:
   # Documentation validation is handled by CI workflow (docs-check job)
   # Jekyll requires Ruby/bundle which may not be available in all environments
 
-  # Optional local hooks - these won't block commits but will show warnings
-  # - repo: local
-  #   hooks:
-  #     - id: pytest-check
-  #       name: pytest-check
-  #       entry: pytest
-  #       language: system
-  #       pass_filenames: false
-  #       always_run: true
-  #       args: [tests/unit/, -v, --tb=short]
-
-  #     - id: safety-check
-  #       name: safety-check
-  #       entry: safety
-  #       language: system
-  #       args: [check, --output, json]
-  #       pass_filenames: false
-  #       always_run: true
+  # Note: comprehensive-ci-test removed to prevent infinite loop
+  # Run ./scripts/local-ci-test.sh manually before committing large changes
 
 default_language_version:
   python: python3

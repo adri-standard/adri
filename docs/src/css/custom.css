@@ -1,0 +1,105 @@
+/**
+ * ADRI Documentation - Black & White Theme
+ * Professional, clean design focused on readability and accessibility
+ */
+
+/* Light Mode - Black & White Theme */
+:root {
+  --ifm-color-primary: #000000;
+  --ifm-color-primary-dark: #000000;
+  --ifm-color-primary-darker: #000000;
+  --ifm-color-primary-darkest: #000000;
+  --ifm-color-primary-light: #333333;
+  --ifm-color-primary-lighter: #555555;
+  --ifm-color-primary-lightest: #777777;
+
+  /* Background colors */
+  --ifm-background-color: #ffffff;
+  --ifm-background-surface-color: #f8f9fa;
+
+  /* Text colors */
+  --ifm-color-content: #000000;
+  --ifm-color-content-secondary: #333333;
+
+  /* Code styling */
+  --ifm-code-font-size: 95%;
+  --ifm-code-background: #f5f5f5;
+  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.05);
+
+  /* Hero banner customization */
+  --ifm-hero-background-color: #000000;
+  --ifm-hero-text-color: #ffffff;
+
+  /* Button customization */
+  --ifm-button-background-color: #ffffff;
+  --ifm-button-border-color: #000000;
+  --ifm-button-color: #000000;
+}
+
+/* Dark Mode - Inverted Black & White */
+[data-theme='dark'] {
+  --ifm-color-primary: #ffffff;
+  --ifm-color-primary-dark: #e6e6e6;
+  --ifm-color-primary-darker: #d9d9d9;
+  --ifm-color-primary-darkest: #b3b3b3;
+  --ifm-color-primary-light: #ffffff;
+  --ifm-color-primary-lighter: #ffffff;
+  --ifm-color-primary-lightest: #ffffff;
+
+  /* Background colors */
+  --ifm-background-color: #000000;
+  --ifm-background-surface-color: #1a1a1a;
+
+  /* Text colors */
+  --ifm-color-content: #ffffff;
+  --ifm-color-content-secondary: #cccccc;
+
+  /* Code styling */
+  --ifm-code-background: #2a2a2a;
+  --docusaurus-highlighted-code-line-bg: rgba(255, 255, 255, 0.1);
+
+  /* Hero banner customization */
+  --ifm-hero-background-color: #ffffff;
+  --ifm-hero-text-color: #000000;
+}
+
+/* Custom hero banner styling */
+.hero--primary {
+  background-color: var(--ifm-hero-background-color);
+  color: var(--ifm-hero-text-color);
+}
+
+/* Button styling for black and white theme */
+.button--secondary {
+  background-color: var(--ifm-button-background-color);
+  border: 2px solid var(--ifm-button-border-color);
+  color: var(--ifm-button-color);
+  font-weight: 600;
+}
+
+.button--secondary:hover {
+  background-color: var(--ifm-color-primary);
+  color: var(--ifm-background-color);
+  border-color: var(--ifm-color-primary);
+}
+
+/* Logo and SVG styling for proper contrast */
+.navbar__brand img,
+.featureSvg {
+  filter: none;
+}
+
+[data-theme='dark'] .navbar__brand img,
+[data-theme='dark'] .featureSvg {
+  filter: invert(1);
+}
+
+/* Ensure proper contrast for links */
+a {
+  color: var(--ifm-color-primary);
+}
+
+a:hover {
+  color: var(--ifm-color-primary-dark);
+  text-decoration: underline;
+}
