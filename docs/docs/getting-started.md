@@ -1,3 +1,7 @@
+---
+sidebar_position: 2
+---
+
 # Getting Started with ADRI
 
 **Stop AI agents from breaking on bad data in 5 minutes**
@@ -183,11 +187,11 @@ adri show-standard customer_data_standard
 
 ## Next Steps
 
-1. **[Read the FAQ](faq.md)** - Complete information about ADRI
-2. **[Try Framework Examples](frameworks.md)** - Copy-paste code for your framework
-3. **[Explore Use Cases](../examples/use_cases/)** - Business scenarios and walkthroughs
-4. **[Join the Community](../CONTRIBUTING.md)** - Help improve ADRI
+1. **[Read the FAQ](faq)** - Complete information about ADRI
+2. **[Try Framework Examples](frameworks)** - Copy-paste code for your framework
+3. **[Explore Use Cases](https://github.com/adri-standard/adri/tree/main/examples/use_cases)** - Business scenarios and walkthroughs
+4. **[Join the Community](https://github.com/adri-standard/adri/blob/main/CONTRIBUTING.md)** - Help improve ADRI
 
 ---
 
-**Need help?** Check the [FAQ](faq.md) or [open an issue](https://github.com/adri-standard/adri/issues).
+**Need help?** Check the [FAQ](faq) or [open an issue](https://github.com/adri-standard/adri/issues).

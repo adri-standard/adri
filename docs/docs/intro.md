@@ -1,6 +1,6 @@
 ---
-layout: default
-title: ADRI Documentation
+sidebar_position: 1
+slug: /
 ---
 
 # ADRI - Agent Data Reliability Intelligence
@@ -52,7 +52,7 @@ ADRI works seamlessly with all major AI frameworks:
 ## Community
 
 - **[GitHub Repository](https://github.com/adri-standard/adri)** - Source code and issues
-- **[Contributing Guide](../CONTRIBUTING.md)** - Help improve ADRI
+- **[Contributing Guide](https://github.com/adri-standard/adri/blob/main/CONTRIBUTING.md)** - Help improve ADRI
 - **[GitHub Discussions](https://github.com/adri-standard/adri/discussions)** - Ask questions and share ideas
 
 ---

@@ -1,3 +1,7 @@
+---
+sidebar_position: 5
+---
+
 # ADRI API Reference
 
 **Stop AI Agents Breaking on Bad Data**
