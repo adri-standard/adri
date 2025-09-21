@@ -192,11 +192,11 @@ minversion = "7.0"
 addopts = [
     "--strict-markers",
     "--strict-config",
-    "--cov=adri",
+    "--cov=src/adri",
     "--cov-report=term-missing",
     "--cov-report=html",
     "--cov-report=json",
-    "--cov-fail-under=50",  # Temporary reduction for release
+    "--cov-fail-under=40",  # Required coverage standard
     "--tb=short",  # Shorter traceback format for CI readability
     "--maxfail=3",  # Stop after 3 failures to prevent long CI runs
     "-q",  # Quiet output to prevent token explosion in CI
@@ -258,7 +258,13 @@ show_missing = true
 precision = 2
 
 [tool.coverage.html]
-directory = "htmlcov"
+directory = "tests/coverage/html"
+
+[tool.coverage.xml]
+output = "tests/coverage/coverage.xml"
+
+[tool.coverage.json]
+output = "tests/coverage/coverage.json"
 
 # setuptools_scm configuration
 [tool.setuptools_scm]

@@ -1,0 +1,31 @@
+adri:
+  default_environment: development
+  environments:
+    development:
+      audit:
+        enabled: true
+        include_data_samples: true
+        log_dir: ADRI/dev/audit-logs
+        log_level: INFO
+        log_prefix: adri
+        max_log_size_mb: 100
+      paths:
+        assessments: ADRI/dev/assessments
+        audit_logs: ADRI/dev/audit-logs
+        standards: ADRI/dev/standards
+        training_data: ADRI/dev/training-data
+    production:
+      audit:
+        enabled: true
+        include_data_samples: true
+        log_dir: ADRI/prod/audit-logs
+        log_level: INFO
+        log_prefix: adri
+        max_log_size_mb: 100
+      paths:
+        assessments: ADRI/prod/assessments
+        audit_logs: ADRI/prod/audit-logs
+        standards: ADRI/prod/standards
+        training_data: ADRI/prod/training-data
+  project_name: adri
+  version: 4.0.0

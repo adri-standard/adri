@@ -389,7 +389,12 @@ class EnterpriseLogger:
                         elif field_name == "dimension_score":
                             value = dim_score
                         elif field_name == "dimension_passed":
-                            value = "TRUE" if dim_score > 15 else "FALSE"
+                            # Handle None values properly to prevent TypeError
+                            # Return boolean value directly, not string, to avoid double conversion
+                            if dim_score is None:
+                                value = False
+                            else:
+                                value = dim_score > 15
                         elif field_name == "issues_found":
                             value = "0"  # Default
                         elif field_name == "details":

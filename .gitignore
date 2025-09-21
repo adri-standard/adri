@@ -1,3 +1,11 @@
+# Build artifacts and coverage
+.coverage
+coverage.json
+*.coverage
+
+# Archive directory (internal docs)
+archive/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -291,6 +299,7 @@ local/
 # Virtual environments and test environments
 adri_test_env/
 *_test_env/
+.dev-testing/
 venv/
 env/
 
