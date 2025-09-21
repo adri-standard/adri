@@ -99,7 +99,7 @@ def show_help_guide() -> int:
     click.echo("")
     click.echo("📋 Step 3 of 4: Test Data Quality")
     click.echo(
-        "   adri assess ADRI/test_invoice_data.csv --standard ADRI/dev/standards/invoice_data_ADRI_standard.yaml --guide"
+        "   adri assess ADRI/test_invoice_data.csv --standard examples/standards/invoice_data_ADRI_standard.yaml --guide"
     )
     click.echo("   → Tests data with issues")
     click.echo("   Expected: Score: 88.5/100 ✅ PASSED → Safe for AI agents")
