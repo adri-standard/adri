@@ -258,7 +258,13 @@ show_missing = true
 precision = 2
 
 [tool.coverage.html]
-directory = "htmlcov"
+directory = "tests/coverage/html"
+
+[tool.coverage.xml]
+output = "tests/coverage/coverage.xml"
+
+[tool.coverage.json]
+output = "tests/coverage/coverage.json"
 
 # setuptools_scm configuration
 [tool.setuptools_scm]
