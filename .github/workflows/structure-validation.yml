@@ -51,7 +51,7 @@ jobs:
 
         for file in *; do
           # Skip temporary test artifacts that might be created during parallel CI runs
-          if [[ "$file" =~ ^(htmlcov|\.coverage|coverage\.json|\.pytest_cache|\.benchmarks|.*_standard\.yaml|test_logs)$ ]]; then
+          if [[ "$file" =~ ^(htmlcov|\.coverage|coverage\.(json|xml)|\.pytest_cache|\.benchmarks|.*_standard\.yaml|test_logs)$ ]]; then
             echo "⏭️ Skipping temporary artifact: $file"
             continue
           fi
