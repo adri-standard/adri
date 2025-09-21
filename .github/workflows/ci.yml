@@ -162,6 +162,7 @@ jobs:
         ALLOWED_DIRS=(
           ".git"
           ".github"
+          "ADRI"
           "archive"
           "demos"
           "docs"
