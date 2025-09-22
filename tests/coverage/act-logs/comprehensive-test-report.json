@@ -15,6 +15,14 @@
       "description": "Main CI Workflow Validation",
       "error": "Error: accepts at most 1 arg(s), received 3 ",
       "timestamp": "2025-09-22T15:14:46Z"
+    },
+    {
+      "job": "build-test",
+      "status": "FAILED",
+      "duration": 16,
+      "description": "Main CI Workflow Validation",
+      "error": "[CI/build-test] exitcode '1': failure [CI/build-test] ⭐ Run Complete job [CI/build-test]   ✅  Success - Complete job [CI/build-test] 🏁  Job failed Error: Job 'build-test' failed ",
+      "timestamp": "2025-09-22T15:26:31Z"
     }
   ],
   "summary": {}
