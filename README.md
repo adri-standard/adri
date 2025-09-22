@@ -73,4 +73,8 @@ For organizations that need advanced compliance logging, managed data supply, an
 
 ---
 
-**MIT License** - Use freely in any project. See [LICENSE](LICENSE) for details.
+## License & Attribution
+
+**Apache 2.0 License** - Use freely in any project. See [LICENSE](LICENSE) for details.
+
+ADRI is founded and maintained by [Verodat](https://verodat.com).

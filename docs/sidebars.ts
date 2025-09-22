@@ -47,6 +47,19 @@ const sidebars: SidebarsConfig = {
         'contributors/framework-extension-pattern',
       ],
     },
+    {
+      type: 'category',
+      label: '⚖️ Legal',
+      link: {
+        type: 'generated-index',
+        title: 'Legal Information',
+        description: 'Licensing and trademark information for ADRI',
+        slug: '/legal',
+      },
+      items: [
+        'legal/trademark-policy',
+      ],
+    },
   ],
 };
 

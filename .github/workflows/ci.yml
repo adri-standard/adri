@@ -153,9 +153,11 @@ jobs:
           "CHANGELOG.md"
           "CONTRIBUTING.md"
           "LICENSE"
+          "NOTICE"
           "pyproject.toml"
           "README.md"
           "SECURITY.md"
+          "TRADEMARK.md"
         )
 
         # Define allowed root directories
