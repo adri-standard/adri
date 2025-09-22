@@ -1,0 +1,30 @@
+{
+  "validation_results": [
+    {
+      "test": "pre-commit-hooks",
+      "status": "PASSED",
+      "duration": 2,
+      "details": "Pre-commit hooks validation",
+      "error": "",
+      "timestamp": "2025-09-22T13:56:14Z"
+    },
+    {
+      "test": "path-resolution-comprehensive",
+      "status": "PASSED",
+      "duration": 0,
+      "details": "Comprehensive path resolution validation",
+      "error": "",
+      "timestamp": "2025-09-22T13:56:14Z"
+    },
+    {
+      "test": "test_path_resolution_comprehensive",
+      "status": "FAILED",
+      "duration": 1,
+      "details": "Testing tests/test_path_resolution_comprehensive.py",
+      "error": "Exit code: 1",
+      "timestamp": "2025-09-22T13:56:15Z"
+    }
+  ],
+  "summary": {},
+  "recommendations": []
+}

@@ -14,29 +14,75 @@ from typing import Optional
 import click
 import yaml
 
-# Updated imports for new structure - with fallbacks during migration
-try:
-    from .config.loader import ConfigurationLoader
-    from .standards.parser import StandardsParser
-    from .validator.engine import DataQualityAssessor
-    from .validator.loaders import load_data, load_standard
-    from .version import __version__
-except ImportError:
-    # Fallback to legacy imports during migration
-    try:
-        from adri.cli.commands import load_data, load_standard
-        from adri.config.manager import ConfigManager as ConfigurationLoader
-        from adri.core.assessor import DataQualityAssessor
-        from adri.standards.loader import StandardsLoader as StandardsParser
-        from adri.version import __version__
-    except ImportError:
-        # Handle missing components gracefully
-        DataQualityAssessor = None
-        load_data = None
-        load_standard = None
-        ConfigurationLoader = None
-        StandardsParser = None
-        __version__ = "unknown"
+from .config.loader import ConfigurationLoader
+from .standards.parser import StandardsParser
+from .validator.engine import DataQualityAssessor
+from .validator.loaders import load_data, load_standard
+from .version import __version__
+
+
+def _find_adri_project_root(start_path: Path = None) -> Optional[Path]:
+    """
+    Find the ADRI project root directory by searching for ADRI/config.yaml.
+
+    Searches upward from the current directory until it finds a directory
+    containing ADRI/config.yaml or reaches the filesystem root.
+
+    Args:
+        start_path: Starting directory for search (defaults to current working directory)
+
+    Returns:
+        Path to project root containing ADRI/ folder, or None if not found
+    """
+    current_path = start_path or Path.cwd()
+
+    # Search upward through directory tree
+    while current_path != current_path.parent:
+        adri_config_path = current_path / "ADRI" / "config.yaml"
+        if adri_config_path.exists():
+            return current_path
+        current_path = current_path.parent
+
+    # Check root directory as final attempt
+    adri_config_path = current_path / "ADRI" / "config.yaml"
+    if adri_config_path.exists():
+        return current_path
+
+    return None
+
+
+def _resolve_project_path(relative_path: str) -> Path:
+    """
+    Resolve a path relative to the ADRI project root.
+
+    If an ADRI project is found, resolves the path relative to the project root.
+    Tutorial paths and dev/prod paths are automatically prefixed with ADRI/.
+
+    Args:
+        relative_path: Path relative to project root (e.g., "tutorials/invoice_processing/data.csv")
+
+    Returns:
+        Absolute Path object
+    """
+    project_root = _find_adri_project_root()
+    if project_root:
+        # Handle paths that already include ADRI/
+        if relative_path.startswith("ADRI/"):
+            return project_root / relative_path
+
+        # Handle tutorial paths - these are always inside ADRI/
+        if relative_path.startswith("tutorials/"):
+            return project_root / "ADRI" / relative_path
+
+        # Handle dev/prod environment paths - these are always inside ADRI/
+        if relative_path.startswith("dev/") or relative_path.startswith("prod/"):
+            return project_root / "ADRI" / relative_path
+
+        # For all other paths, assume they should be inside ADRI/
+        return project_root / "ADRI" / relative_path
+    else:
+        # Fallback to current directory if no ADRI project found
+        return Path.cwd() / relative_path
 
 
 def create_sample_files() -> None:
@@ -67,9 +113,12 @@ INV-108,CUST-208,,2024-02-22,pending,
 INV-109,CUST-209,1225.75,2024-02-23,cancelled,cash
 INV-110,DUPLICATE-ID,875.25,2024-02-24,paid,credit_card"""
 
-    # Write sample files in their proper locations
-    training_file = Path("ADRI/dev/training-data/invoice_data.csv")
-    test_file = Path("ADRI/test_invoice_data.csv")
+    # Create tutorials directory with invoice_processing use case
+    tutorial_dir = Path("ADRI/tutorials/invoice_processing")
+    tutorial_dir.mkdir(parents=True, exist_ok=True)
+
+    training_file = tutorial_dir / "invoice_data.csv"
+    test_file = tutorial_dir / "test_invoice_data.csv"
 
     with open(training_file, "w") as f:
         f.write(good_data)
@@ -83,6 +132,27 @@ def show_help_guide() -> int:
     click.echo("🚀 ADRI - First Time User Guide")
     click.echo("===============================")
     click.echo("")
+    click.echo("📁 Directory Structure:")
+    click.echo("   tutorials/          → Packaged learning examples")
+    click.echo("   dev/standards/      → Development YAML rules")
+    click.echo("   dev/assessments/    → Development assessment reports")
+    click.echo("   dev/training-data/  → Development data snapshots")
+    click.echo("   dev/audit-logs/     → Development audit trail")
+    click.echo("   prod/standards/     → Production YAML rules")
+    click.echo("   prod/assessments/   → Production assessment reports")
+    click.echo("   prod/training-data/ → Production data snapshots")
+    click.echo("   prod/audit-logs/    → Production audit trail")
+    click.echo("")
+    click.echo("🌍 Environment Information:")
+    click.echo("   • Default: Development environment (ADRI/dev/)")
+    click.echo("   • Switch: Edit ADRI/config.yaml to change default_environment")
+    click.echo("   • Purpose: Separate development from production workflows")
+    click.echo("")
+    click.echo("💡 Smart Path Resolution:")
+    click.echo("   • Commands work from any directory within your project")
+    click.echo("   • ADRI automatically finds your project root")
+    click.echo("   • Use relative paths like: tutorials/invoice_processing/data.csv")
+    click.echo("")
     click.echo("New to ADRI? Follow this complete walkthrough:")
     click.echo("")
     click.echo("📋 Step 1 of 4: Setup Your Project")
@@ -92,14 +162,14 @@ def show_help_guide() -> int:
     click.echo("")
     click.echo("📋 Step 2 of 4: Create Your First Standard")
     click.echo(
-        "   adri generate-standard ADRI/dev/training-data/invoice_data.csv --guide"
+        "   adri generate-standard tutorials/invoice_processing/invoice_data.csv --guide"
     )
     click.echo("   → Creates quality rules from clean data")
     click.echo("   Expected: ✅ Standard saved to standards/")
     click.echo("")
     click.echo("📋 Step 3 of 4: Test Data Quality")
     click.echo(
-        "   adri assess ADRI/test_invoice_data.csv --standard examples/standards/invoice_data_ADRI_standard.yaml --guide"
+        "   adri assess tutorials/invoice_processing/test_invoice_data.csv --standard dev/standards/invoice_data_ADRI_standard.yaml --guide"
     )
     click.echo("   → Tests data with issues")
     click.echo("   Expected: Score: 88.5/100 ✅ PASSED → Safe for AI agents")
@@ -112,7 +182,7 @@ def show_help_guide() -> int:
     click.echo("💡 Tips:")
     click.echo("- Use Tab to autocomplete file paths")
     click.echo("- Add --verbose to any command for more details")
-    click.echo("- All paths relative to ADRI/ directory")
+    click.echo("- Invoice processing tutorial: ADRI/tutorials/invoice_processing/")
     click.echo("")
     click.echo("🎯 Ready? Start with: adri setup --guide")
     return 0
@@ -136,11 +206,6 @@ def setup_command(
                 click.echo("💡 Or use 'adri show-config' to see current setup")
             else:
                 click.echo("❌ Configuration already exists. Use --force to overwrite.")
-            return 1
-
-        # Create default configuration
-        if not ConfigurationLoader:
-            click.echo("❌ Configuration manager not available")
             return 1
 
         project_name = project_name or Path.cwd().name
@@ -207,9 +272,13 @@ def setup_command(
             try:
                 create_sample_files()
 
-                # Verify files were actually created
-                training_file = Path("ADRI/dev/training-data/invoice_data.csv")
-                test_file = Path("ADRI/test_invoice_data.csv")
+                # Verify files were actually created in tutorials directory
+                training_file = Path(
+                    "ADRI/tutorials/invoice_processing/invoice_data.csv"
+                )
+                test_file = Path(
+                    "ADRI/tutorials/invoice_processing/test_invoice_data.csv"
+                )
 
                 if not training_file.exists():
                     click.echo("❌ Failed to create training data file")
@@ -230,15 +299,18 @@ def setup_command(
             click.echo("✅ Project structure created with sample data")
             click.echo("")
             click.echo("📁 What was created:")
-            click.echo("   📋 standards/     - Quality rules")
-            click.echo("   📊 assessments/   - Assessment reports")
-            click.echo("   📄 training-data/ - Clean sample data")
-            click.echo("   📈 audit-logs/    - Comprehensive audit trail")
+            click.echo(
+                "   📚 tutorials/invoice_processing/ - Invoice processing tutorial"
+            )
+            click.echo("   📋 dev/standards/     - Quality rules")
+            click.echo("   📊 dev/assessments/   - Assessment reports")
+            click.echo("   📄 dev/training-data/ - Preserved data snapshots")
+            click.echo("   📈 dev/audit-logs/    - Comprehensive audit trail")
             click.echo("")
-            click.echo("💡 Tip: All paths relative to ADRI/ directory")
+            click.echo("💡 Note: Commands use relative paths from project root")
             click.echo("")
             click.echo(
-                "▶ Next Step 2 of 4: adri generate-standard training-data/invoice_data.csv --guide"
+                "▶ Next Step 2 of 4: adri generate-standard tutorials/invoice_processing/invoice_data.csv --guide"
             )
         else:
             click.echo("✅ ADRI project initialized successfully!")
@@ -543,6 +615,61 @@ def _analyze_failed_records(data):
     return failed_records_list
 
 
+def _generate_file_hash(file_path: Path) -> str:
+    """Generate SHA256 hash of training data file for integrity verification and snapshot naming."""
+    import hashlib
+
+    hash_sha256 = hashlib.sha256()
+    with open(file_path, "rb") as f:
+        # Read file in chunks to handle large files efficiently
+        for chunk in iter(lambda: f.read(4096), b""):
+            hash_sha256.update(chunk)
+
+    return hash_sha256.hexdigest()[:8]  # Use first 8 characters for filename brevity
+
+
+def _create_training_snapshot(data_path: str) -> Optional[str]:
+    """Create timestamped snapshot of training data with SHA256 hash for filename uniqueness and integrity verification."""
+    try:
+        source_file = Path(data_path)
+        if not source_file.exists():
+            return None
+
+        # Generate file hash for integrity verification and unique naming
+        file_hash = _generate_file_hash(source_file)
+
+        # Get training data directory from configuration
+        training_data_dir = Path("ADRI/dev/training-data")
+        if ConfigurationLoader:
+            config_loader = ConfigurationLoader()
+            config = config_loader.get_active_config()
+            if config:
+                try:
+                    env_config = config_loader.get_environment_config(config)
+                    training_data_dir = Path(env_config["paths"]["training_data"])
+                except (KeyError, AttributeError):
+                    pass
+
+        # Ensure training data directory exists
+        training_data_dir.mkdir(parents=True, exist_ok=True)
+
+        # Create snapshot filename with SHA256 hash prefix for uniqueness
+        data_name = source_file.stem
+        snapshot_filename = f"{data_name}_{file_hash}.csv"
+        snapshot_path = training_data_dir / snapshot_filename
+
+        # Create snapshot by copying the file
+        import shutil
+
+        shutil.copy2(source_file, snapshot_path)
+
+        return str(snapshot_path)
+
+    except Exception:
+        # Return None if snapshot creation fails
+        return None
+
+
 def assess_command(
     data_path: str,
     standard_path: str,
@@ -551,6 +678,57 @@ def assess_command(
 ) -> int:
     """Run data quality assessment."""
     try:
+        # Resolve paths relative to ADRI project root
+        resolved_data_path = _resolve_project_path(data_path)
+        resolved_standard_path = _resolve_project_path(standard_path)
+
+        # Check if resolved files exist
+        if not resolved_data_path.exists():
+            if guide:
+                project_root = _find_adri_project_root()
+                if project_root:
+                    click.echo(
+                        f"❌ Assessment failed: Data file not found: {data_path}"
+                    )
+                    click.echo(f"▶ Searched in project: {project_root}")
+                    click.echo(f"▶ Full path: {resolved_data_path}")
+                    click.echo("💡 Make sure you ran 'adri setup --guide' first")
+                else:
+                    click.echo(
+                        f"❌ Assessment failed: Data file not found: {data_path}"
+                    )
+                    click.echo(
+                        "💡 Run 'adri setup --guide' to initialize project structure"
+                    )
+            else:
+                click.echo(f"❌ Assessment failed: Data file not found: {data_path}")
+            return 1
+
+        if not resolved_standard_path.exists():
+            if guide:
+                project_root = _find_adri_project_root()
+                if project_root:
+                    click.echo(
+                        f"❌ Assessment failed: Standard file not found: {standard_path}"
+                    )
+                    click.echo(f"▶ Searched in project: {project_root}")
+                    click.echo(f"▶ Full path: {resolved_standard_path}")
+                    click.echo(
+                        "💡 Generate a standard first: adri generate-standard <data> --guide"
+                    )
+                else:
+                    click.echo(
+                        f"❌ Assessment failed: Standard file not found: {standard_path}"
+                    )
+                    click.echo(
+                        "💡 Run 'adri setup --guide' to initialize project structure"
+                    )
+            else:
+                click.echo(
+                    f"❌ Assessment failed: Standard file not found: {standard_path}"
+                )
+            return 1
+
         if guide:
             click.echo("📊 ADRI Data Quality Assessment")
             click.echo("==============================")
@@ -560,12 +738,8 @@ def assess_command(
             click.echo("🔍 Running 5-dimension quality analysis...")
             click.echo("")
 
-        # Load and validate data
-        if not load_data:
-            click.echo("❌ Data loader not available")
-            return 1
-
-        data_list = load_data(data_path)
+        # Load and validate data using resolved paths
+        data_list = load_data(str(resolved_data_path))
         if not data_list:
             click.echo("❌ No data loaded")
             return 1
@@ -574,20 +748,15 @@ def assess_command(
 
         data = pd.DataFrame(data_list)
 
-        # Create assessor and run assessment
-        if not DataQualityAssessor:
-            click.echo("❌ Assessment engine not available")
-            return 1
-
+        # Create assessor and run assessment using resolved standard path
         assessor_config = _load_assessor_config()
         assessor = DataQualityAssessor(assessor_config)
-        result = assessor.assess(data, standard_path)
+        result = assessor.assess(data, str(resolved_standard_path))
 
-        # Load standard configuration for record identification
+        # Load standard configuration for record identification using resolved path
         standard_config = {}
         try:
-            if load_standard:
-                standard_config = load_standard(standard_path)
+            standard_config = load_standard(str(resolved_standard_path))
         except Exception:
             pass
 
@@ -644,17 +813,77 @@ def assess_command(
         return 1
 
 
+def _create_lineage_metadata(
+    data_path: str, snapshot_path: Optional[str] = None
+) -> dict:
+    """Generate training data lineage dictionary with source path, snapshot location, timestamp, and hash information."""
+    from datetime import datetime
+
+    source_file = Path(data_path)
+    metadata = {
+        "source_path": str(source_file.resolve()),
+        "timestamp": datetime.now().isoformat(),
+        "file_hash": _generate_file_hash(source_file) if source_file.exists() else None,
+    }
+
+    # Add snapshot information if available
+    if snapshot_path and Path(snapshot_path).exists():
+        snapshot_file = Path(snapshot_path)
+        metadata.update(
+            {
+                "snapshot_path": str(snapshot_file.resolve()),
+                "snapshot_hash": _generate_file_hash(snapshot_file),
+                "snapshot_filename": snapshot_file.name,
+            }
+        )
+
+    # Add file size and modification time for additional provenance
+    if source_file.exists():
+        stat_info = source_file.stat()
+        metadata.update(
+            {
+                "source_size_bytes": stat_info.st_size,
+                "source_modified": datetime.fromtimestamp(
+                    stat_info.st_mtime
+                ).isoformat(),
+            }
+        )
+
+    return metadata
+
+
 def generate_standard_command(
     data_path: str, force: bool = False, guide: bool = False
 ) -> int:
     """Generate ADRI standard from data analysis."""
     try:
-        # Load and analyze data
-        if not load_data:
-            click.echo("❌ Data loader not available")
+        # Resolve data path relative to ADRI project root
+        resolved_data_path = _resolve_project_path(data_path)
+
+        # Check if resolved file exists
+        if not resolved_data_path.exists():
+            if guide:
+                project_root = _find_adri_project_root()
+                if project_root:
+                    click.echo(
+                        f"❌ Generation failed: Data file not found: {data_path}"
+                    )
+                    click.echo(f"▶ Searched in project: {project_root}")
+                    click.echo(f"▶ Full path: {resolved_data_path}")
+                    click.echo("💡 Make sure you ran 'adri setup --guide' first")
+                else:
+                    click.echo(
+                        f"❌ Generation failed: Data file not found: {data_path}"
+                    )
+                    click.echo(
+                        "💡 Run 'adri setup --guide' to initialize project structure"
+                    )
+            else:
+                click.echo(f"❌ Generation failed: Data file not found: {data_path}")
             return 1
 
-        data_list = load_data(data_path)
+        # Load and analyze data using resolved path
+        data_list = load_data(str(resolved_data_path))
         if not data_list:
             click.echo("❌ No data loaded")
             return 1
@@ -708,7 +937,22 @@ def generate_standard_command(
             click.echo("")
             click.echo("📄 Analyzing: {}".format(data_path))
             click.echo("📋 Creating data quality rules based on your good data...")
+            click.echo("🔍 Creating training data snapshot for lineage tracking...")
+
+        # Create training data snapshot for lineage tracking using resolved path
+        snapshot_path = _create_training_snapshot(str(resolved_data_path))
+
+        if guide:
+            if snapshot_path:
+                click.echo(f"✅ Training snapshot created: {Path(snapshot_path).name}")
+            else:
+                click.echo("⚠️  Training snapshot creation skipped (file may not exist)")
             click.echo("")
+
+        # Generate lineage metadata using resolved path
+        lineage_metadata = _create_lineage_metadata(
+            str(resolved_data_path), snapshot_path
+        )
 
         # Create basic standard structure
         import pandas as pd
@@ -751,8 +995,14 @@ def generate_standard_command(
         if not primary_key_fields and len(data.columns) > 0:
             primary_key_fields = [data.columns[0]]
 
-        # Create standard dictionary with record identification
+        # Generate standardized metadata
+        from datetime import datetime
+
+        current_timestamp = datetime.now().isoformat()
+
+        # Create standard dictionary with all sections following meta-schema
         standard = {
+            "training_data_lineage": lineage_metadata,
             "standards": {
                 "id": f"{data_name}_standard",
                 "name": f"{data_name} ADRI Standard",
@@ -774,6 +1024,13 @@ def generate_standard_command(
                     "freshness": {"minimum_score": 15.0},
                     "plausibility": {"minimum_score": 12.0},
                 },
+            },
+            "metadata": {
+                "created_by": "ADRI Framework",
+                "created_date": current_timestamp,
+                "last_modified": current_timestamp,
+                "generation_method": "auto_generated",
+                "tags": ["data_quality", "auto_generated", f"{data_name}_data"],
             },
         }
 
@@ -798,7 +1055,7 @@ def generate_standard_command(
             click.echo("===============================")
             if "invoice_data" in data_path:
                 click.echo(
-                    "adri assess ADRI/test_invoice_data.csv --standard ADRI/dev/standards/invoice_data_ADRI_standard.yaml --guide"
+                    "adri assess tutorials/invoice_processing/test_invoice_data.csv --standard dev/standards/invoice_data_ADRI_standard.yaml --guide"
                 )
             else:
                 click.echo(
@@ -826,10 +1083,6 @@ def validate_standard_command(standard_path: str) -> int:
     """Validate YAML standard file."""
     try:
         # Load standard
-        if not load_standard:
-            click.echo("❌ Standard loader not available")
-            return 1
-
         standard = load_standard(standard_path)
 
         # Basic validation
@@ -1393,11 +1646,6 @@ def view_logs_command(
 def show_standard_command(standard_name: str, verbose: bool = False) -> int:
     """Show details of a specific ADRI standard."""
     try:
-        # Try to load standard
-        if not load_standard:
-            click.echo("❌ Standard loader not available")
-            return 1
-
         # Check if it's a file path or standard name
         if os.path.exists(standard_name):
             standard_path = standard_name

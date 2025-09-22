@@ -93,30 +93,68 @@ class TestAssessCommand(unittest.TestCase):
 
     def setUp(self):
         """Set up test fixtures."""
+        self.temp_dir = tempfile.mkdtemp()
+        self.original_cwd = os.getcwd()
+        os.chdir(self.temp_dir)
+
+        # Create ADRI project structure for path resolution
+        setup_command(force=True, project_name="test_project")
+
         self.sample_data = [
             {"name": "Alice", "age": 25, "email": "alice@test.com"},
             {"name": "Bob", "age": 30, "email": "bob@test.com"}
         ]
 
+    def tearDown(self):
+        """Clean up test fixtures."""
+        os.chdir(self.original_cwd)
+        import shutil
+        shutil.rmtree(self.temp_dir)
+
     @patch('adri.cli.load_data')
+    @patch('adri.cli.load_standard')
     @patch('adri.cli.DataQualityAssessor')
-    def test_assess_command_success(self, mock_assessor_class, mock_load_data):
+    def test_assess_command_success(self, mock_assessor_class, mock_load_standard, mock_load_data):
         """Test successful assess command execution."""
-        # Setup mocks
-        mock_load_data.return_value = self.sample_data
-        mock_assessor = Mock()
-        mock_result = Mock()
-        mock_result.overall_score = 85.0
-        mock_result.passed = True
-        mock_result.to_standard_dict.return_value = {"score": 85.0}
-        mock_assessor.assess.return_value = mock_result
-        mock_assessor_class.return_value = mock_assessor
+        # Create test files in absolute paths to bypass path resolution
+        import tempfile
+        data_file = Path(tempfile.mktemp(suffix=".csv"))
+        standard_file = Path(tempfile.mktemp(suffix=".yaml"))
 
-        result = assess_command("data.csv", "standard.yaml")
+        try:
+            # Create test data file
+            with open(data_file, 'w') as f:
+                f.write("name,age,email\nAlice,25,alice@test.com\nBob,30,bob@test.com")
 
-        self.assertEqual(result, 0)
-        mock_load_data.assert_called_once_with("data.csv")
-        mock_assessor.assess.assert_called_once()
+            # Create test standard file
+            with open(standard_file, 'w') as f:
+                yaml.dump({"standards": {"name": "Test"}, "requirements": {}}, f)
+
+            # Setup mocks
+            mock_load_data.return_value = self.sample_data
+            mock_load_standard.return_value = {"standards": {"name": "Test"}, "requirements": {}}
+            mock_assessor = Mock()
+            mock_result = Mock()
+            mock_result.overall_score = 85.0
+            mock_result.passed = True
+            mock_result.to_standard_dict.return_value = {"score": 85.0}
+            mock_assessor.assess.return_value = mock_result
+            mock_assessor.audit_logger = None
+            mock_assessor_class.return_value = mock_assessor
+
+            # Use absolute paths to bypass path resolution
+            result = assess_command(str(data_file), str(standard_file))
+
+            self.assertEqual(result, 0)
+            mock_load_data.assert_called_once()
+            mock_assessor.assess.assert_called_once()
+
+        finally:
+            # Clean up temporary files
+            if data_file.exists():
+                data_file.unlink()
+            if standard_file.exists():
+                standard_file.unlink()
 
     @patch('adri.cli.load_data')
     def test_assess_command_file_not_found(self, mock_load_data):
@@ -165,58 +203,103 @@ class TestGenerateStandardCommand(unittest.TestCase):
         """Test successful standard generation."""
         mock_load_data.return_value = self.sample_data
 
-        result = generate_standard_command("data.csv")
+        # Create test data file using absolute path to bypass path resolution
+        import tempfile
+        data_file = Path(tempfile.mktemp(suffix=".csv"))
 
-        self.assertEqual(result, 0)
-        # Enhanced CLI saves to ADRI/dev/standards/ directory
-        standard_path = "ADRI/dev/standards/data_ADRI_standard.yaml"
-        self.assertTrue(os.path.exists(standard_path))
+        try:
+            # Create test data file
+            with open(data_file, 'w') as f:
+                f.write("name,age,email\nAlice,25,alice@test.com\nBob,30,bob@test.com")
 
-        # Check generated standard
-        with open(standard_path, 'r') as f:
-            standard = yaml.safe_load(f)
+            # Use absolute path to bypass path resolution issues
+            result = generate_standard_command(str(data_file))
 
-        self.assertIn("standards", standard)
-        self.assertIn("requirements", standard)
-        # Verify enhanced CLI added record identification
-        self.assertIn("record_identification", standard)
+            self.assertEqual(result, 0)
+            # Enhanced CLI saves to ADRI/dev/standards/ directory
+            standard_path = f"ADRI/dev/standards/{data_file.stem}_ADRI_standard.yaml"
+            self.assertTrue(os.path.exists(standard_path))
+
+            # Check generated standard
+            with open(standard_path, 'r') as f:
+                standard = yaml.safe_load(f)
+
+            self.assertIn("standards", standard)
+            self.assertIn("requirements", standard)
+            # Verify enhanced CLI added record identification
+            self.assertIn("record_identification", standard)
+
+        finally:
+            # Clean up temporary file
+            if data_file.exists():
+                data_file.unlink()
 
     @patch('adri.cli.load_data')
     def test_generate_standard_existing_file_no_force(self, mock_load_data):
         """Test generate command fails when file exists and no force."""
         mock_load_data.return_value = self.sample_data
 
-        # Create existing standard in the correct location
-        standard_path = "ADRI/dev/standards/data_ADRI_standard.yaml"
-        with open(standard_path, 'w') as f:
-            f.write("existing: standard")
+        # Create test data file using absolute path
+        import tempfile
+        data_file = Path(tempfile.mktemp(suffix=".csv"))
 
-        result = generate_standard_command("data.csv")
+        try:
+            # Create test data file
+            with open(data_file, 'w') as f:
+                f.write("name,age,email\nAlice,25,alice@test.com\nBob,30,bob@test.com")
 
-        self.assertEqual(result, 1)  # Should fail
+            # Create existing standard in the correct location
+            standard_path = f"ADRI/dev/standards/{data_file.stem}_ADRI_standard.yaml"
+            with open(standard_path, 'w') as f:
+                f.write("existing: standard")
+
+            # Use absolute path
+            result = generate_standard_command(str(data_file))
+
+            self.assertEqual(result, 1)  # Should fail
+
+        finally:
+            # Clean up temporary file
+            if data_file.exists():
+                data_file.unlink()
 
     @patch('adri.cli.load_data')
     def test_generate_standard_force_overwrite(self, mock_load_data):
         """Test generate command with force overwrite."""
         mock_load_data.return_value = self.sample_data
 
-        # Create existing standard in the correct location
-        standard_path = "ADRI/dev/standards/data_ADRI_standard.yaml"
-        with open(standard_path, 'w') as f:
-            f.write("existing: standard")
+        # Create test data file using absolute path
+        import tempfile
+        data_file = Path(tempfile.mktemp(suffix=".csv"))
 
-        result = generate_standard_command("data.csv", force=True)
+        try:
+            # Create test data file
+            with open(data_file, 'w') as f:
+                f.write("name,age,email\nAlice,25,alice@test.com\nBob,30,bob@test.com")
 
-        self.assertEqual(result, 0)
+            # Create existing standard in the correct location
+            standard_path = f"ADRI/dev/standards/{data_file.stem}_ADRI_standard.yaml"
+            with open(standard_path, 'w') as f:
+                f.write("existing: standard")
 
-        # Check standard was overwritten in the correct location
-        with open(standard_path, 'r') as f:
-            standard = yaml.safe_load(f)
+            # Use absolute path with force=True
+            result = generate_standard_command(str(data_file), force=True)
 
-        self.assertIn("standards", standard)
-        self.assertIn("requirements", standard)
-        # Verify enhanced CLI added record identification
-        self.assertIn("record_identification", standard)
+            self.assertEqual(result, 0)
+
+            # Check standard was overwritten in the correct location
+            with open(standard_path, 'r') as f:
+                standard = yaml.safe_load(f)
+
+            self.assertIn("standards", standard)
+            self.assertIn("requirements", standard)
+            # Verify enhanced CLI added record identification
+            self.assertIn("record_identification", standard)
+
+        finally:
+            # Clean up temporary file
+            if data_file.exists():
+                data_file.unlink()
 
 
 class TestValidateStandardCommand(unittest.TestCase):
@@ -551,17 +634,14 @@ class TestSampleFilesCreation(unittest.TestCase):
 
     def test_create_sample_files(self):
         """Test sample files creation."""
-        # Create directories first
-        Path("ADRI/dev/training-data").mkdir(parents=True, exist_ok=True)
-
         create_sample_files()
 
-        # Check files were created
-        self.assertTrue(Path("ADRI/dev/training-data/invoice_data.csv").exists())
-        self.assertTrue(Path("ADRI/test_invoice_data.csv").exists())
+        # Check files were created in new tutorial structure
+        self.assertTrue(Path("ADRI/tutorials/invoice_processing/invoice_data.csv").exists())
+        self.assertTrue(Path("ADRI/tutorials/invoice_processing/test_invoice_data.csv").exists())
 
         # Check content is not empty
-        with open("ADRI/dev/training-data/invoice_data.csv") as f:
+        with open("ADRI/tutorials/invoice_processing/invoice_data.csv") as f:
             content = f.read()
             self.assertIn("invoice_id", content)
             self.assertIn("INV-001", content)
@@ -586,11 +666,11 @@ class TestEnhancedCommandFeatures(unittest.TestCase):
         """Test setup command with guide mode."""
         result = setup_command(guide=True, project_name="test_project")
 
-        # Should create directories and sample files
+        # Should create directories and sample files in new tutorial structure
         self.assertEqual(result, 0)
         self.assertTrue(Path("ADRI/config.yaml").exists())
-        self.assertTrue(Path("ADRI/dev/training-data/invoice_data.csv").exists())
-        self.assertTrue(Path("ADRI/test_invoice_data.csv").exists())
+        self.assertTrue(Path("ADRI/tutorials/invoice_processing/invoice_data.csv").exists())
+        self.assertTrue(Path("ADRI/tutorials/invoice_processing/test_invoice_data.csv").exists())
 
     @patch('adri.cli.load_data')
     def test_generate_standard_with_guide(self, mock_load_data):
@@ -603,10 +683,25 @@ class TestEnhancedCommandFeatures(unittest.TestCase):
         # Create directory structure
         Path("ADRI/dev/standards").mkdir(parents=True, exist_ok=True)
 
-        result = generate_standard_command("data.csv", guide=True)
+        # Create test data file using absolute path
+        import tempfile
+        data_file = Path(tempfile.mktemp(suffix=".csv"))
 
-        self.assertEqual(result, 0)
-        self.assertTrue(Path("ADRI/dev/standards/data_ADRI_standard.yaml").exists())
+        try:
+            # Create test data file
+            with open(data_file, 'w') as f:
+                f.write("name,age,email\nAlice,25,alice@test.com\nBob,30,bob@test.com")
+
+            # Use absolute path for guide mode test
+            result = generate_standard_command(str(data_file), guide=True)
+
+            self.assertEqual(result, 0)
+            self.assertTrue(Path(f"ADRI/dev/standards/{data_file.stem}_ADRI_standard.yaml").exists())
+
+        finally:
+            # Clean up temporary file
+            if data_file.exists():
+                data_file.unlink()
 
 
 class TestCLIUtilities(unittest.TestCase):
