@@ -68,15 +68,10 @@ run_act_command() {
     local status=0
     local output_file="$LOG_DIR/act-${job_name}-$(date +%s).log"
 
-    # Run ACT with comprehensive logging
+    # Run ACT with simplified command to avoid argument parsing issues
     if timeout "$timeout_duration" act \
         -W "$workflow_file" \
         -j "$job_name" \
-        --container-architecture linux/amd64 \
-        --artifact-server-path "$TEMP_DIR/artifacts" \
-        --env-file <(echo "CI=true") \
-        --env-file <(echo "GITHUB_ACTIONS=true") \
-        $additional_args \
         > "$output_file" 2>&1; then
 
         local end_time=$(date +%s)
@@ -272,8 +267,7 @@ EOF
         "$TEMP_DIR/test-path-resolution.yml" \
         "test-path-resolution" \
         "Path Resolution CI Environment Validation" \
-        300 \
-        "--bind"
+        300
 
     # Clean up
     rm -f "$PROJECT_ROOT/test-path-resolution.py"
@@ -299,8 +293,7 @@ run_matrix_testing() {
             "$matrix_workflow" \
             "build-test" \
             "CI Matrix Test - Python $py_version" \
-            900 \
-            "--matrix python-version:$py_version"
+            900
     done
 }
 

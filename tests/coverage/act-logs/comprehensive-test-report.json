@@ -1,0 +1,21 @@
+{
+  "test_results": [
+    {
+      "job": "build-test",
+      "status": "FAILED",
+      "duration": 0,
+      "description": "Main CI Workflow Validation",
+      "error": "Error: accepts at most 1 arg(s), received 3 ",
+      "timestamp": "2025-09-22T15:13:41Z"
+    },
+    {
+      "job": "build-test",
+      "status": "FAILED",
+      "duration": 0,
+      "description": "Main CI Workflow Validation",
+      "error": "Error: accepts at most 1 arg(s), received 3 ",
+      "timestamp": "2025-09-22T15:14:46Z"
+    }
+  ],
+  "summary": {}
+}
