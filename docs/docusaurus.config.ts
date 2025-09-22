@@ -128,7 +128,7 @@ const config: Config = {
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} ADRI Standard Contributors. Built with Docusaurus.`,
+      copyright: `Copyright © ${new Date().getFullYear()} ADRI Standard Contributors. ADRI™ is founded and maintained by <a href="https://verodat.com">Verodat</a>. Built with Docusaurus.`,
     },
     prism: {
       theme: prismThemes.github,
