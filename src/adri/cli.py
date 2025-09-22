@@ -753,44 +753,9 @@ def assess_command(
         assessor = DataQualityAssessor(assessor_config)
         result = assessor.assess(data, str(resolved_standard_path))
 
-        # Load standard configuration for record identification using resolved path
-        standard_config = {}
-        try:
-            standard_config = load_standard(str(resolved_standard_path))
-        except Exception:
-            pass
-
-        primary_key_fields = standard_config.get("record_identification", {}).get(
-            "primary_key_fields", []
-        )
-        failed_checks = _analyze_data_issues(data, primary_key_fields)
-
-        # Log to audit system if available
-        if (
-            hasattr(assessor, "audit_logger")
-            and assessor.audit_logger
-            and failed_checks
-        ):
-            execution_context = {
-                "function_name": "assess",
-                "module_path": "adri.cli",
-                "environment": os.environ.get("ADRI_ENV", "PRODUCTION"),
-            }
-            data_info = {
-                "row_count": len(data),
-                "column_count": len(data.columns),
-                "columns": list(data.columns),
-            }
-            performance_metrics = {"duration_ms": 0}
-
-            if hasattr(assessor.audit_logger, "log_assessment"):
-                assessor.audit_logger.log_assessment(
-                    assessment_result=result,
-                    execution_context=execution_context,
-                    data_info=data_info,
-                    performance_metrics=performance_metrics,
-                    failed_checks=failed_checks,
-                )
+        # Audit logging is handled by the DataQualityAssessor.assess() method
+        # to avoid duplicate entries. The assessor logs comprehensive audit data
+        # including execution context, data info, and performance metrics.
 
         # Save report and display results
         _save_assessment_report(guide, data_path, result)
