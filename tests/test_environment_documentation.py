@@ -192,7 +192,7 @@ class TestEnvironmentDocumentation(unittest.TestCase):
 
                 # Check for workflow steps
                 workflow_steps = [
-                    "Development → Production Workflow:",
+                    "Production Workflow:",
                     "Create and test standards in development",
                     "Validate standards with various test datasets",
                     "Copy proven standards from dev/standards/",

@@ -224,7 +224,9 @@ class TestCompleteWorkflowIntegration(unittest.TestCase):
 
         # Test that paths still resolve correctly after environment switch
         tutorial_path = _resolve_project_path("tutorials/invoice_processing/invoice_data.csv")
-        self.assertTrue("ADRI/tutorials" in str(tutorial_path))
+        # Use normalized path for cross-platform compatibility (Windows uses backslashes)
+        normalized_path = str(tutorial_path).replace("\\", "/")
+        self.assertTrue("ADRI/tutorials" in normalized_path)
 
     def test_workflow_error_handling_and_recovery(self):
         """Test workflow error handling and recovery scenarios."""
@@ -303,8 +305,11 @@ class TestCompleteWorkflowIntegration(unittest.TestCase):
             tutorial_path = _resolve_project_path("tutorials/financial_analysis/market_data.csv")
             dev_path = _resolve_project_path("dev/standards/invoice_standard.yaml")
 
-            self.assertTrue("ADRI/tutorials" in str(tutorial_path.resolve()))
-            self.assertTrue("ADRI/dev" in str(dev_path.resolve()))
+            # Use normalized paths for cross-platform compatibility (Windows uses backslashes)
+            tutorial_normalized = str(tutorial_path.resolve()).replace("\\", "/")
+            dev_normalized = str(dev_path.resolve()).replace("\\", "/")
+            self.assertTrue("ADRI/tutorials" in tutorial_normalized)
+            self.assertTrue("ADRI/dev" in dev_normalized)
 
 
 class TestWorkflowIntegration(unittest.TestCase):
