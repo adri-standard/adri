@@ -46,7 +46,7 @@ class MockProjectFixtures:
         ]
 
         files = {
-            "ADRI/tutorials/invoice_processing/invoice_data.csv": 
+            "ADRI/tutorials/invoice_processing/invoice_data.csv":
                 "invoice_id,amount,status\nINV-001,1250.00,paid\nINV-002,875.50,pending",
             "ADRI/tutorials/invoice_processing/test_invoice_data.csv":
                 "invoice_id,amount,status\nINV-101,1350.00,paid\nINV-102,,925.50"
@@ -118,12 +118,12 @@ class MockProjectFixtures:
                 "invoice_id,customer_id,amount,date,status,payment_method\n"
                 "INV-001,CUST-101,1250.00,2024-01-15,paid,credit_card\n"
                 "INV-002,CUST-102,875.50,2024-01-16,paid,bank_transfer",
-            
+
             "ADRI/tutorials/customer_service/customer_data.csv":
                 "customer_id,name,email,phone,status\n"
                 "CUST-001,John Doe,john@example.com,555-0101,active\n"
                 "CUST-002,Jane Smith,jane@example.com,555-0102,active",
-            
+
             "ADRI/tutorials/financial_analysis/market_data.csv":
                 "date,symbol,price,volume,market_cap\n"
                 "2024-01-15,TECH,125.50,1000000,12550000000\n"
@@ -144,7 +144,7 @@ class MockProjectFixtures:
             # Documentation files
             "docs/README.md": "# Project Documentation",
             "docs/api/endpoints.md": "# API Endpoints",
-            
+
             # Configuration files
             "config/environments/dev.yaml": "environment: development",
             "config/environments/prod.yaml": "environment: production",
@@ -204,11 +204,11 @@ class MockProjectFixtures:
     def deep_nested_project() -> ProjectStructure:
         """Create a project with deeply nested directory structure for performance testing."""
         directories = ["ADRI"]
-        
+
         # Create deep nesting (10 levels)
         nested_path = "very/deeply/nested/directory/structure/for/testing/path/resolution/performance"
         directories.append(nested_path)
-        
+
         # Add ADRI structure
         adri_dirs = [
             "ADRI/tutorials/deep_nesting_test",
@@ -256,7 +256,7 @@ class MockProjectFixtures:
         directories = [
             # Core ADRI structure
             "ADRI/tutorials/invoice_processing",
-            "ADRI/tutorials/customer_management", 
+            "ADRI/tutorials/customer_management",
             "ADRI/tutorials/financial_reporting",
             "ADRI/tutorials/compliance_monitoring",
             "ADRI/dev/standards",
@@ -271,7 +271,7 @@ class MockProjectFixtures:
             "ADRI/prod/assessments",
             "ADRI/prod/training-data",
             "ADRI/prod/audit-logs",
-            
+
             # Enterprise application structure
             "src/main/java/com/enterprise/adri",
             "src/main/resources/config",
@@ -326,7 +326,7 @@ class MockProjectFixtures:
             "config/environments/dev/database.yaml": "host: dev-db.enterprise.com",
             "config/environments/staging/database.yaml": "host: staging-db.enterprise.com",
             "config/environments/prod/database.yaml": "host: prod-db.enterprise.com",
-            
+
             # Documentation
             "docs/architecture/data-quality-framework.md": "# Enterprise Data Quality Framework",
             "docs/user-guides/getting-started.md": "# Getting Started with Enterprise ADRI",
@@ -447,31 +447,31 @@ class ProjectFixtureManager:
 def mock_project_context(project_structure: ProjectStructure, change_to_directory: Optional[str] = None):
     """
     Context manager for creating and cleaning up a mock project.
-    
+
     Args:
         project_structure: The ProjectStructure to create
         change_to_directory: Optional subdirectory to change to (relative to project root)
-        
+
     Yields:
         Path to the project root directory
     """
     import os
-    
+
     manager = ProjectFixtureManager()
     original_cwd = os.getcwd()
-    
+
     try:
         project_root = manager.create_project(project_structure)
-        
+
         if change_to_directory:
             target_dir = project_root / change_to_directory
             target_dir.mkdir(parents=True, exist_ok=True)
             os.chdir(target_dir)
         else:
             os.chdir(project_root)
-            
+
         yield project_root
-        
+
     finally:
         os.chdir(original_cwd)
         manager.cleanup_all()

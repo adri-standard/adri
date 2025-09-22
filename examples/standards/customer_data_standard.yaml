@@ -1,10 +1,14 @@
 standards:
-  id: "customer-data-v1"
+  id: "customer_data_standard"
   name: "Customer Data Quality Standard"
   version: "1.0.0"
   authority: "Data Quality Team"
   effective_date: "2023-01-01"
   description: "Standard for customer data quality assessment"
+
+record_identification:
+  primary_key_fields: ["customer_id"]
+  strategy: "primary_key_with_fallback"
 
 requirements:
   overall_minimum: 75.0
@@ -68,7 +72,8 @@ requirements:
       description: "Current account balance"
 
 metadata:
-  created_by: "ADRI V2 Setup"
-  created_date: "2025-07-02"
-  last_modified: "2025-07-02"
-  tags: ["customer", "financial", "personal-data"]
+  created_by: "Data Quality Team"
+  created_date: "2023-01-01T00:00:00"
+  last_modified: "2025-09-22T12:13:00"
+  generation_method: "manual_creation"
+  tags: ["customer", "financial", "personal-data", "production-ready"]

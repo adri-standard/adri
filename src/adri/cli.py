@@ -631,8 +631,6 @@ def _generate_file_hash(file_path: Path) -> str:
 def _create_training_snapshot(data_path: str) -> Optional[str]:
     """Create timestamped snapshot of training data with SHA256 hash for filename uniqueness and integrity verification."""
     try:
-        from datetime import datetime
-
         source_file = Path(data_path)
         if not source_file.exists():
             return None

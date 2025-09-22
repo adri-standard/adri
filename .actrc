@@ -1,0 +1,34 @@
+# ACT Configuration for ADRI Local Testing
+# ==========================================
+# Optimized configuration for running GitHub Actions locally with ACT
+# This configuration ensures efficient and reliable local testing that
+# mirrors GitHub CI behavior exactly.
+
+# Platform configuration - use Linux containers for consistency with GitHub CI
+-P ubuntu-latest=catthehacker/ubuntu:act-latest
+-P ubuntu-20.04=catthehacker/ubuntu:act-20.04
+-P ubuntu-22.04=catthehacker/ubuntu:act-22.04
+
+# Container architecture - use linux/amd64 for maximum compatibility
+--container-architecture linux/amd64
+
+# Artifact configuration - enable artifact handling
+--artifact-server-path /tmp/act-artifacts
+
+# Environment variables that mirror GitHub Actions
+--env CI=true
+--env GITHUB_ACTIONS=true
+--env RUNNER_OS=Linux
+--env RUNNER_ARCH=X64
+
+# Performance optimizations
+--reuse                    # Reuse containers when possible
+
+# Security and isolation
+--privileged=false         # Run without privileged access
+
+# Networking configuration
+--network bridge           # Use bridge networking (default)
+
+# Logging configuration
+--verbose                  # Enable verbose output for debugging

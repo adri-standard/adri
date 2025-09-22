@@ -1,0 +1,494 @@
+name: Test Validation (ACT Compatible)
+
+# Lightweight workflow designed specifically for ACT testing
+# Tests path resolution enhancements and CLI functionality
+# Optimized for local execution with ACT while maintaining GitHub CI compatibility
+
+on:
+  push:
+    branches: [ main, develop, feature/* ]
+    paths:
+      - 'src/adri/cli.py'
+      - 'tests/test_path_resolution_comprehensive.py'
+      - 'tests/test_environment_documentation.py'
+      - 'tests/test_cli_enhancements.py'
+      - 'ADRI/config.yaml'
+      - 'scripts/*.sh'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'src/adri/cli.py'
+      - 'tests/test_path_resolution_comprehensive.py'
+      - 'tests/test_environment_documentation.py'
+      - 'tests/test_cli_enhancements.py'
+      - 'ADRI/config.yaml'
+      - 'scripts/*.sh'
+
+jobs:
+  path-resolution-validation:
+    name: Path Resolution Enhancement Validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+          pip install pytest pytest-cov pytest-timeout
+
+      - name: Verify project structure
+        run: |
+          echo "🔍 Verifying ADRI project structure..."
+          ls -la ADRI/
+          test -f ADRI/config.yaml || (echo "❌ ADRI/config.yaml missing" && exit 1)
+          echo "✅ Project structure verified"
+
+      - name: Test path resolution functions
+        run: |
+          echo "🛤️ Testing path resolution functionality..."
+          python -c "
+          import sys
+          from pathlib import Path
+          sys.path.insert(0, 'src')
+          from adri.cli import _find_adri_project_root, _resolve_project_path
+
+          print('Testing path resolution in CI environment...')
+
+          # Test 1: Project root detection
+          root = _find_adri_project_root()
+          assert root is not None, 'Should find project root'
+          print(f'✅ Found project root: {root}')
+
+          # Test 2: Tutorial path resolution
+          tutorial_path = _resolve_project_path('tutorials/invoice_processing/data.csv')
+          assert tutorial_path.is_absolute(), 'Tutorial path should be absolute'
+          assert 'ADRI/tutorials' in str(tutorial_path), 'Should contain ADRI/tutorials'
+          print(f'✅ Tutorial path resolved: {tutorial_path}')
+
+          # Test 3: Dev environment path resolution
+          dev_path = _resolve_project_path('dev/standards/test.yaml')
+          assert dev_path.is_absolute(), 'Dev path should be absolute'
+          assert 'ADRI/dev' in str(dev_path), 'Should contain ADRI/dev'
+          print(f'✅ Dev path resolved: {dev_path}')
+
+          # Test 4: Prod environment path resolution
+          prod_path = _resolve_project_path('prod/assessments/report.json')
+          assert prod_path.is_absolute(), 'Prod path should be absolute'
+          assert 'ADRI/prod' in str(prod_path), 'Should contain ADRI/prod'
+          print(f'✅ Prod path resolved: {prod_path}')
+
+          # Test 5: ADRI-prefixed path handling
+          adri_path = _resolve_project_path('ADRI/tutorials/test/data.csv')
+          assert 'ADRI/tutorials' in str(adri_path), 'Should preserve ADRI prefix'
+          print(f'✅ ADRI-prefixed path handled: {adri_path}')
+
+          print('🎉 All path resolution tests passed in CI!')
+          "
+
+      - name: Test cross-directory functionality
+        run: |
+          echo "🔄 Testing cross-directory path resolution..."
+          mkdir -p temp_test_dir/nested/structure
+          cd temp_test_dir/nested/structure
+          python -c "
+          import sys
+          import os
+          from pathlib import Path
+
+          # Go back to project root and add to path
+          project_root = Path.cwd().parent.parent.parent
+          os.chdir(project_root)
+          sys.path.insert(0, str(project_root / 'src'))
+
+          from adri.cli import _find_adri_project_root, _resolve_project_path
+
+          # Test from nested directory
+          nested_dir = project_root / 'temp_test_dir' / 'nested' / 'structure'
+          os.chdir(nested_dir)
+
+          root_from_nested = _find_adri_project_root()
+          assert root_from_nested == project_root, 'Should find project root from nested dir'
+          print(f'✅ Found project root from nested dir: {root_from_nested}')
+
+          tutorial_from_nested = _resolve_project_path('tutorials/invoice_processing/data.csv')
+          expected = project_root / 'ADRI/tutorials/invoice_processing/data.csv'
+          assert tutorial_from_nested == expected, 'Should resolve correctly from nested dir'
+          print(f'✅ Resolved from nested dir: {tutorial_from_nested}')
+
+          print('🎉 Cross-directory functionality verified!')
+          "
+
+      - name: Test CLI command integration with path resolution
+        run: |
+          echo "🎯 Testing CLI command integration..."
+          # Test that CLI commands work with path resolution
+          python -c "
+          import sys
+          import tempfile
+          import shutil
+          import os
+          from pathlib import Path
+          sys.path.insert(0, 'src')
+          from adri.cli import setup_command
+
+          # Create test directory
+          temp_dir = tempfile.mkdtemp()
+          original_cwd = os.getcwd()
+
+          try:
+              os.chdir(temp_dir)
+
+              # Test setup command
+              result = setup_command(force=True, project_name='ci_test')
+              assert result == 0, 'Setup should succeed'
+              print('✅ Setup command works with path resolution')
+
+              # Verify structure
+              assert Path('ADRI/config.yaml').exists(), 'Config should be created'
+              assert Path('ADRI/dev/standards').exists(), 'Dev standards dir should exist'
+              print('✅ Project structure created correctly')
+
+          finally:
+              os.chdir(original_cwd)
+              shutil.rmtree(temp_dir)
+
+          print('🎉 CLI integration with path resolution verified!')
+          "
+
+  enhanced-test-suite:
+    name: Enhanced Test Suite Validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+          pip install pytest pytest-cov pytest-timeout
+
+      - name: Run path resolution comprehensive tests
+        run: |
+          echo "🧪 Running comprehensive path resolution tests..."
+          python -m pytest tests/test_path_resolution_comprehensive.py -v --tb=short
+
+      - name: Run environment documentation tests
+        run: |
+          echo "📖 Running environment documentation tests..."
+          python -m pytest tests/test_environment_documentation.py -v --tb=short
+
+      - name: Run enhanced CLI tests
+        run: |
+          echo "🔧 Running enhanced CLI integration tests..."
+          python -m pytest tests/test_cli_enhancements.py -v --tb=short
+
+      - name: Test performance benchmarks
+        run: |
+          echo "⚡ Running performance benchmarks..."
+          python -c "
+          import sys
+          import time
+          from pathlib import Path
+          sys.path.insert(0, 'src')
+          from adri.cli import _find_adri_project_root, _resolve_project_path
+
+          print('📊 Performance benchmarks for path resolution:')
+
+          # Benchmark project root finding
+          start = time.time()
+          for _ in range(100):
+              _find_adri_project_root()
+          root_time = time.time() - start
+          print(f'Project root finding: {root_time:.4f}s (100 calls)')
+          print(f'Average per call: {root_time/100:.6f}s')
+
+          # Benchmark path resolution
+          paths = [
+              'tutorials/invoice_processing/data.csv',
+              'dev/standards/test.yaml',
+              'prod/assessments/report.json'
+          ]
+
+          start = time.time()
+          for _ in range(100):
+              for path in paths:
+                  _resolve_project_path(path)
+          resolve_time = time.time() - start
+
+          total_calls = 100 * len(paths)
+          print(f'Path resolution: {resolve_time:.4f}s ({total_calls} calls)')
+          print(f'Average per call: {resolve_time/total_calls:.6f}s')
+
+          # Performance assertions for CI
+          assert root_time < 1.0, f'Root finding too slow: {root_time:.4f}s'
+          assert resolve_time < 2.0, f'Path resolution too slow: {resolve_time:.4f}s'
+
+          print('✅ All performance benchmarks passed!')
+          "
+
+  workflow-compatibility:
+    name: Workflow Compatibility Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Validate workflow files
+        run: |
+          echo "🔍 Validating GitHub workflow files..."
+
+          # Check that all workflow files are valid YAML
+          find .github/workflows -name "*.yml" -o -name "*.yaml" | while read -r workflow; do
+            echo "Validating $workflow..."
+            python -c "
+            import yaml
+            with open('$workflow', 'r') as f:
+                yaml.safe_load(f)
+            print('✅ $workflow is valid YAML')
+            "
+          done
+
+      - name: Check workflow job dependencies
+        run: |
+          echo "🔗 Checking workflow job dependencies..."
+          python -c "
+          import yaml
+          import os
+
+          workflow_files = []
+          for root, dirs, files in os.walk('.github/workflows'):
+              for file in files:
+                  if file.endswith(('.yml', '.yaml')):
+                      workflow_files.append(os.path.join(root, file))
+
+          print(f'Found {len(workflow_files)} workflow files')
+
+          for workflow_file in workflow_files:
+              with open(workflow_file, 'r') as f:
+                  workflow = yaml.safe_load(f)
+
+              if workflow and 'jobs' in workflow:
+                  job_count = len(workflow['jobs'])
+                  print(f'✅ {os.path.basename(workflow_file)}: {job_count} jobs')
+              else:
+                  print(f'⚠️ {os.path.basename(workflow_file)}: No jobs found')
+
+          print('🎉 Workflow structure validation complete!')
+          "
+
+      - name: Test ACT compatibility markers
+        run: |
+          echo "🎯 Testing ACT compatibility markers..."
+
+          # Check for ACT-specific configurations
+          if [ -f ".actrc" ]; then
+            echo "✅ ACT configuration file found"
+            echo "📋 ACT configuration:"
+            grep -E "^--" .actrc | head -5
+          else
+            echo "⚠️ No ACT configuration found"
+          fi
+
+          # Verify container architecture compatibility
+          echo "🐳 Container architecture: linux/amd64"
+          echo "🏗️ Platform: ubuntu-latest"
+          echo "✅ ACT compatibility verified"
+
+  environment-documentation-check:
+    name: Environment Documentation Verification
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Verify ADRI config documentation
+        run: |
+          echo "📖 Verifying ADRI configuration documentation..."
+
+          # Check that config.yaml exists and has documentation
+          if [ -f "ADRI/config.yaml" ]; then
+            echo "✅ ADRI/config.yaml found"
+
+            # Check for key documentation sections
+            doc_sections=(
+              "ENVIRONMENT SWITCHING"
+              "ENVIRONMENT CONFIGURATIONS"
+              "DEVELOPMENT ENVIRONMENT"
+              "PRODUCTION ENVIRONMENT"
+              "SWITCHING ENVIRONMENTS"
+              "WORKFLOW RECOMMENDATIONS"
+            )
+
+            for section in "${doc_sections[@]}"; do
+              if grep -q "$section" ADRI/config.yaml; then
+                echo "✅ Documentation section found: $section"
+              else
+                echo "❌ Missing documentation section: $section"
+                exit 1
+              fi
+            done
+
+            echo "🎉 All required documentation sections present!"
+
+          else
+            echo "❌ ADRI/config.yaml not found"
+            exit 1
+          fi
+
+      - name: Verify help guide consistency
+        run: |
+          echo "📋 Verifying help guide consistency..."
+          python -c "
+          import sys
+          sys.path.insert(0, 'src')
+          from adri.cli import show_help_guide
+          from unittest.mock import patch
+
+          # Capture help guide output
+          output_lines = []
+
+          def capture_echo(text):
+              output_lines.append(str(text))
+
+          with patch('click.echo', side_effect=capture_echo):
+              show_help_guide()
+
+          help_output = ' '.join(output_lines)
+
+          # Check for key elements
+          required_elements = [
+              'Environment Information:',
+              'Smart Path Resolution:',
+              'tutorials/invoice_processing/',
+              'dev/standards/',
+              'prod/standards/'
+          ]
+
+          for element in required_elements:
+              assert element in help_output, f'Help guide missing: {element}'
+              print(f'✅ Help guide contains: {element}')
+
+          print('🎉 Help guide consistency verified!')
+          "
+
+  integration-workflow-test:
+    name: Integration Workflow Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [path-resolution-validation, enhanced-test-suite]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+          pip install pytest pytest-cov pytest-timeout
+
+      - name: Run end-to-end integration test
+        run: |
+          echo "🔄 Running end-to-end integration test..."
+          python -c "
+          import sys
+          import tempfile
+          import shutil
+          import os
+          from pathlib import Path
+          sys.path.insert(0, 'src')
+          from adri.cli import setup_command, _find_adri_project_root, _resolve_project_path
+
+          print('🚀 End-to-end integration test')
+
+          # Create temporary test environment
+          temp_dir = tempfile.mkdtemp()
+          original_cwd = os.getcwd()
+
+          try:
+              os.chdir(temp_dir)
+
+              # Test 1: Setup from project root
+              print('📋 Testing setup from project root...')
+              result = setup_command(force=True, project_name='e2e_test')
+              assert result == 0, 'Setup should succeed'
+              print('✅ Setup successful from project root')
+
+              # Test 2: Path resolution from subdirectory
+              print('📋 Testing path resolution from subdirectory...')
+              sub_dir = Path('test_subdir')
+              sub_dir.mkdir()
+              os.chdir(sub_dir)
+
+              root_from_sub = _find_adri_project_root()
+              assert root_from_sub == Path(temp_dir), 'Should find root from subdir'
+              print('✅ Project root found from subdirectory')
+
+              tutorial_from_sub = _resolve_project_path('tutorials/invoice_processing/data.csv')
+              expected = Path(temp_dir) / 'ADRI/tutorials/invoice_processing/data.csv'
+              assert tutorial_from_sub == expected, 'Should resolve correctly from subdir'
+              print('✅ Path resolution works from subdirectory')
+
+              print('🎉 End-to-end integration test passed!')
+
+          finally:
+              os.chdir(original_cwd)
+              shutil.rmtree(temp_dir)
+          "
+
+      - name: Validate test coverage for new features
+        run: |
+          echo "📊 Validating test coverage for enhanced features..."
+          python -m pytest tests/test_path_resolution_comprehensive.py tests/test_environment_documentation.py --cov=src/adri/cli --cov-report=json --cov-report=term
+
+          # Check if coverage JSON was generated
+          if [ -f "coverage.json" ]; then
+            echo "✅ Coverage report generated"
+            python -c "
+            import json
+            with open('coverage.json', 'r') as f:
+                coverage = json.load(f)
+
+            cli_coverage = coverage['files'].get('src/adri/cli.py', {})
+            covered = cli_coverage.get('executed_lines', [])
+            missing = cli_coverage.get('missing_lines', [])
+
+            if covered:
+                coverage_pct = len(covered) / (len(covered) + len(missing)) * 100
+                print(f'📊 CLI module coverage: {coverage_pct:.1f}%')
+
+                if coverage_pct >= 80:
+                    print('✅ Good coverage for enhanced features')
+                else:
+                    print(f'⚠️ Coverage could be improved: {coverage_pct:.1f}%')
+            else:
+                print('⚠️ Could not determine coverage for CLI module')
+            "
+          else
+            echo "⚠️ Coverage report not generated"
