@@ -564,7 +564,9 @@ class TestPathResolutionIntegration(unittest.TestCase):
         mock_load_data.assert_called_once()
         called_path = mock_load_data.call_args[0][0]
         self.assertTrue(called_path.endswith("invoice_data.csv"))
-        self.assertIn("ADRI/tutorials/invoice_processing", called_path)
+        # Use cross-platform path normalization for Windows compatibility
+        called_path_normalized = called_path.replace("\\", "/")
+        self.assertIn("ADRI/tutorials/invoice_processing", called_path_normalized)
 
     def test_path_resolution_edge_cases(self):
         """Test path resolution edge cases and error handling."""
