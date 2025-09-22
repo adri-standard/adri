@@ -40,12 +40,25 @@ from adri.cli import (
 )
 
 # Import test fixtures for reusable project structures
-from tests.fixtures.mock_projects import (
-    MockProjectFixtures,
-    ProjectFixtureManager,
-    mock_project_context,
-    TestDataGenerator,
-)
+try:
+    from tests.fixtures.mock_projects import (
+        MockProjectFixtures,
+        ProjectFixtureManager,
+        mock_project_context,
+        TestDataGenerator,
+    )
+except ImportError:
+    # CI environment compatibility
+    import sys
+    from pathlib import Path
+    tests_dir = Path(__file__).parent
+    sys.path.insert(0, str(tests_dir))
+    from fixtures.mock_projects import (
+        MockProjectFixtures,
+        ProjectFixtureManager,
+        mock_project_context,
+        TestDataGenerator,
+    )
 
 
 @dataclass
