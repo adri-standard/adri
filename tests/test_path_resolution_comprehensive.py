@@ -152,7 +152,9 @@ class TestPathResolutionCore(unittest.TestCase):
                 result = _resolve_project_path(input_path)
 
                 self.assertIsInstance(result, Path)
-                self.assertTrue(str(result).endswith(expected_suffix))
+                # Use cross-platform path normalization for Windows compatibility
+                result_normalized = str(result).replace("\\", "/")
+                self.assertTrue(result_normalized.endswith(expected_suffix))
                 # Use resolve() for cross-platform path comparison
                 self.assertTrue(str(result.resolve()).startswith(str(self.project_root.resolve())))
 
@@ -170,7 +172,9 @@ class TestPathResolutionCore(unittest.TestCase):
                 result = _resolve_project_path(input_path)
 
                 self.assertIsInstance(result, Path)
-                self.assertTrue(str(result).endswith(expected_suffix))
+                # Use cross-platform path normalization for Windows compatibility
+                result_normalized = str(result).replace("\\", "/")
+                self.assertTrue(result_normalized.endswith(expected_suffix))
                 # Use resolve() for cross-platform path comparison
                 self.assertTrue(str(result.resolve()).startswith(str(self.project_root.resolve())))
 
@@ -188,7 +192,9 @@ class TestPathResolutionCore(unittest.TestCase):
                 result = _resolve_project_path(input_path)
 
                 self.assertIsInstance(result, Path)
-                self.assertTrue(str(result).endswith(expected_suffix))
+                # Use cross-platform path normalization for Windows compatibility
+                result_normalized = str(result).replace("\\", "/")
+                self.assertTrue(result_normalized.endswith(expected_suffix))
                 # Use resolve() for cross-platform path comparison
                 self.assertTrue(str(result.resolve()).startswith(str(self.project_root.resolve())))
 
@@ -205,7 +211,9 @@ class TestPathResolutionCore(unittest.TestCase):
                 result = _resolve_project_path(input_path)
 
                 self.assertIsInstance(result, Path)
-                self.assertTrue(str(result).endswith(expected_suffix))
+                # Use cross-platform path normalization for Windows compatibility
+                result_normalized = str(result).replace("\\", "/")
+                self.assertTrue(result_normalized.endswith(expected_suffix))
                 # Use resolve() for cross-platform path comparison
                 self.assertTrue(str(result.resolve()).startswith(str(self.project_root.resolve())))
 
@@ -222,7 +230,9 @@ class TestPathResolutionCore(unittest.TestCase):
                 result = _resolve_project_path(input_path)
 
                 self.assertIsInstance(result, Path)
-                self.assertTrue(str(result).endswith(expected_suffix))
+                # Use cross-platform path normalization for Windows compatibility
+                result_normalized = str(result).replace("\\", "/")
+                self.assertTrue(result_normalized.endswith(expected_suffix))
                 # Use resolve() for cross-platform path comparison
                 self.assertTrue(str(result.resolve()).startswith(str(self.project_root.resolve())))
 
