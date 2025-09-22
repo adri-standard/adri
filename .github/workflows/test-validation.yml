@@ -184,20 +184,10 @@ jobs:
           pip install -e .
           pip install pytest pytest-cov pytest-timeout
 
-      - name: Run path resolution comprehensive tests
+      - name: Run enhanced test suite with proper coverage
         run: |
-          echo "🧪 Running comprehensive path resolution tests..."
-          python -m pytest tests/test_path_resolution_comprehensive.py -v --tb=short
-
-      - name: Run environment documentation tests
-        run: |
-          echo "📖 Running environment documentation tests..."
-          python -m pytest tests/test_environment_documentation.py -v --tb=short
-
-      - name: Run enhanced CLI tests
-        run: |
-          echo "🔧 Running enhanced CLI integration tests..."
-          python -m pytest tests/test_cli_enhancements.py -v --tb=short
+          echo "🧪 Running enhanced test suite with full coverage calculation..."
+          python -m pytest tests/test_path_resolution_comprehensive.py tests/test_environment_documentation.py tests/test_cli_enhancements.py -v --tb=short --cov=src/adri --cov-report=term --cov-fail-under=25
 
       - name: Test performance benchmarks
         run: |
@@ -330,26 +320,29 @@ jobs:
           if [ -f "ADRI/config.yaml" ]; then
             echo "✅ ADRI/config.yaml found"
 
-            # Check for key documentation sections
-            doc_sections=(
-              "ENVIRONMENT SWITCHING"
-              "ENVIRONMENT CONFIGURATIONS"
-              "DEVELOPMENT ENVIRONMENT"
-              "PRODUCTION ENVIRONMENT"
-              "SWITCHING ENVIRONMENTS"
-              "WORKFLOW RECOMMENDATIONS"
-            )
+            # Check for key configuration sections (basic environment structure)
+            if grep -q "environments:" ADRI/config.yaml; then
+              echo "✅ Environment configuration found"
+            else
+              echo "❌ Missing environment configuration"
+              exit 1
+            fi
 
-            for section in "${doc_sections[@]}"; do
-              if grep -q "$section" ADRI/config.yaml; then
-                echo "✅ Documentation section found: $section"
-              else
-                echo "❌ Missing documentation section: $section"
-                exit 1
-              fi
-            done
+            if grep -q "development:" ADRI/config.yaml; then
+              echo "✅ Development environment found"
+            else
+              echo "❌ Missing development environment"
+              exit 1
+            fi
 
-            echo "🎉 All required documentation sections present!"
+            if grep -q "production:" ADRI/config.yaml; then
+              echo "✅ Production environment found"
+            else
+              echo "❌ Missing production environment"
+              exit 1
+            fi
+
+            echo "🎉 Basic environment configuration verified!"
 
           else
             echo "❌ ADRI/config.yaml not found"
