@@ -80,6 +80,95 @@ else
 fi
 
 echo ""
+echo "🛤️  Path Resolution Validation in CI Environment"
+echo "================================================="
+echo "🔍 Testing that recent path resolution enhancements work in CI"
+echo ""
+
+# Create temporary path resolution test
+cat > /tmp/test-path-resolution-ci.py << 'EOF'
+#!/usr/bin/env python3
+"""Test path resolution functionality in CI-like environment"""
+import os
+import sys
+from pathlib import Path
+
+# Add src to path for imports (like CI does)
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root / 'src'))
+
+def test_path_resolution_functions():
+    """Test that path resolution functions work correctly"""
+    try:
+        from adri.cli import _find_adri_project_root, _resolve_project_path
+
+        print("🔍 Testing _find_adri_project_root...")
+        project_root = _find_adri_project_root()
+        if project_root:
+            print(f"✅ Found project root: {project_root}")
+        else:
+            print("❌ Could not find project root")
+            return False
+
+        print("\n🔍 Testing _resolve_project_path with tutorial paths...")
+        tutorial_path = _resolve_project_path("tutorials/invoice_processing/invoice_data.csv")
+        print(f"✅ Tutorial path resolved to: {tutorial_path}")
+
+        print("\n🔍 Testing _resolve_project_path with dev paths...")
+        dev_path = _resolve_project_path("dev/standards/test_standard.yaml")
+        print(f"✅ Dev path resolved to: {dev_path}")
+
+        print("\n🔍 Testing _resolve_project_path with prod paths...")
+        prod_path = _resolve_project_path("prod/assessments/test_report.json")
+        print(f"✅ Prod path resolved to: {prod_path}")
+
+        # Verify paths are absolute and contain expected components
+        if not tutorial_path.is_absolute():
+            print("❌ Tutorial path is not absolute")
+            return False
+
+        if "ADRI/tutorials" not in str(tutorial_path):
+            print("❌ Tutorial path doesn't contain expected ADRI/tutorials")
+            return False
+
+        if "ADRI/dev" not in str(dev_path):
+            print("❌ Dev path doesn't contain expected ADRI/dev")
+            return False
+
+        print("\n✅ All path resolution tests passed!")
+        return True
+
+    except ImportError as e:
+        print(f"❌ Import error: {e}")
+        return False
+    except Exception as e:
+        print(f"❌ Error testing path resolution: {e}")
+        return False
+
+if __name__ == "__main__":
+    success = test_path_resolution_functions()
+    if not success:
+        print("\n❌ Path resolution testing failed!")
+        exit(1)
+    else:
+        print("\n🎉 Path resolution validation successful!")
+EOF
+
+# Run path resolution validation
+echo "Running path resolution validation..."
+if python3 /tmp/test-path-resolution-ci.py; then
+    echo -e "${GREEN}✅ Path resolution validation successful${NC}"
+else
+    echo -e "${RED}❌ Path resolution validation failed${NC}"
+    echo "This means the recent CLI enhancements are not working correctly!"
+    rm -f /tmp/test-path-resolution-ci.py
+    exit 1
+fi
+
+# Clean up
+rm -f /tmp/test-path-resolution-ci.py
+echo ""
+
 echo "🎯 GitHub Actions Workflow Execution (FULL EXECUTION)"
 echo "====================================================="
 
@@ -116,6 +205,63 @@ if command -v act >/dev/null 2>&1; then
     fi
     echo ""
 
+    echo "🔄 Testing Path Resolution in ACT Environment..."
+    echo "================================================"
+
+    # Create a temporary workflow specifically for testing path resolution
+    cat > /tmp/test-path-resolution.yml << 'EOF'
+name: Path Resolution Test
+on: [push]
+jobs:
+  test-path-resolution:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+      - name: Test path resolution in CI
+        run: |
+          python -c "
+          import sys
+          from pathlib import Path
+          sys.path.insert(0, 'src')
+          from adri.cli import _find_adri_project_root, _resolve_project_path
+
+          print('Testing path resolution in ACT/CI environment...')
+          root = _find_adri_project_root()
+          print(f'Project root: {root}')
+
+          tutorial = _resolve_project_path('tutorials/invoice_processing/data.csv')
+          print(f'Tutorial path: {tutorial}')
+
+          dev = _resolve_project_path('dev/standards/test.yaml')
+          print(f'Dev path: {dev}')
+
+          assert root is not None, 'Should find project root'
+          assert tutorial.is_absolute(), 'Tutorial path should be absolute'
+          assert dev.is_absolute(), 'Dev path should be absolute'
+          print('✅ All path resolution tests passed in ACT environment!')
+          "
+EOF
+
+    echo "Testing path resolution in ACT environment..."
+    if timeout 300 act -W /tmp/test-path-resolution.yml -j test-path-resolution --container-architecture linux/amd64; then
+        echo -e "${GREEN}✅ Path resolution works correctly in ACT environment${NC}"
+    else
+        echo -e "${YELLOW}⚠️  Path resolution test in ACT had issues (this may be expected)${NC}"
+        echo "Note: ACT environment differences may cause this to fail while still working in real GitHub CI"
+    fi
+
+    # Clean up temporary workflow
+    rm -f /tmp/test-path-resolution.yml
+    echo ""
+
 else
     echo -e "${RED}❌ ACT not installed - WORKFLOW TESTING SKIPPED${NC}"
     echo ""
@@ -123,6 +269,7 @@ else
     echo "   brew install act"
     echo ""
     echo "🚨 WARNING: Without ACT, you're missing workflow execution testing"
+    echo "🚨 WARNING: Path resolution validation in CI environment not tested"
 fi
 
 echo ""
