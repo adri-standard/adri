@@ -47,6 +47,7 @@ const sidebars: SidebarsConfig = {
       items: [
         'contributors/development-workflow',
         'contributors/framework-extension-pattern',
+        'contributors/architecture',
       ],
     },
     {

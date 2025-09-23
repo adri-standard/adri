@@ -19,6 +19,17 @@ ADRI is a data quality gate for agent workflows. It complements related standard
 
 Use ADRI with or without MCP/A2A — the goal is to stop bad data from breaking agents right at the boundary.
 
+```mermaid
+flowchart LR
+  A[Agents] --> D[ADRI: Data Quality Gate]
+  D --> T[Tools / APIs / Resources]
+  A --> M[MCP: Agent → Tool]
+  M --> T
+  A <--> AA[A2A: Agent ↔ Agent]
+  D -. complements .- M
+  D -. complements .- AA
+```
+
 
 ## Choose Your Path
 
