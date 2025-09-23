@@ -4,194 +4,190 @@ sidebar_position: 2
 
 # Getting Started with ADRI
 
-**Stop AI agents from breaking on bad data in 5 minutes**
+<p>
+  <a href="https://pypi.org/project/adri/" target="_blank" rel="noopener noreferrer">PyPI</a>
+  •
+  <a href="https://github.com/adri-standard/adri" target="_blank" rel="noopener noreferrer">GitHub</a>
+</p>
 
-## Installation
+**Stop AI agents from breaking on bad data in under 5 minutes**
+
+## Step 1 – Install & Bootstrap {#step-install}
 
 ```bash
 pip install adri
+
+# Create ADRI project folders and sample data
+adri setup --guide
 ```
 
-## Basic Usage
+The guided setup creates `ADRI/dev` and `ADRI/prod` folders plus a sample invoice dataset so you can see ADRI working before wiring it into your own data.
 
-### 1. Protect Any Function
-
-```python
-from adri import adri_protected
-
-@adri_protected(standard="customer_data")
-def process_customers(customer_data):
-    # Your existing agent logic
-    return ai_analysis(customer_data)
-```
-
-### 2. Test with CLI
+## Step 2 – Generate a Standard from Good Data {#step-generate}
 
 ```bash
-# Validate data quality
-adri assess customer_data.csv
-
-# See available commands
-adri --help
+adri generate-standard examples/data/invoice_data.csv \
+  --output examples/standards/invoice_data_ADRI_standard.yaml --guide
 ```
 
-## How ADRI Works
+This command profiles your clean dataset and writes a YAML standard that encodes required fields, value ranges, and freshness expectations. The `--guide` flag explains what ADRI is doing at each step.
 
-1. **First Run**: ADRI analyzes your data and auto-generates a YAML standard
-2. **Subsequent Runs**: ADRI validates data against the existing standard
-3. **Protection**: Only quality data reaches your agent functions
-4. **Logging**: Every decision is logged for transparency and compliance
+## Step 3 – Validate New Data with the Standard {#step-assess}
 
-## Configuration Modes
-
-ADRI offers flexible protection levels:
-
-### **Fail-Fast Mode** (Default)
-```python
-@adri_protected(standard="customer_data")  # Blocks entire dataset if critical issues
+```bash
+adri assess examples/data/test_invoice_data.csv \
+  --standard examples/standards/invoice_data_ADRI_standard.yaml --guide
 ```
 
-### **Selective Blocking**
-```python
-@adri_protected(standard="customer_data", mode="selective")  # Removes only dirty records
+What you should see:
+- Allowed ✅ when data complies with the generated standard
+- Blocked ❌ with a summary of failed checks when the test data violates the standard
+
+```
+🛡️ ADRI Protection: BLOCKED ❌
+📊 Quality Score: 62.4/100 (Required: 80.0/100)
+⚠️ Issues: amount must be > 0, status must be lowercase paid/pending/...
 ```
 
-### **Warn-Only Mode**
-```python
-@adri_protected(standard="customer_data", mode="warn")  # Logs issues but doesn't block
-```
+When the score is above the threshold ADRI prints `ALLOWED ✅` so you know the data is safe for your agent.
 
-## Framework Examples
+## Step 4 – Protect a Function {#step-protect}
 
-### LangChain
 ```python
-from langchain.chains import LLMChain
 from adri import adri_protected
 
-@adri_protected(standard="customer_support_data")
-def langchain_support_agent(customer_data):
+@adri_protected(standard="invoice_data_standard", data_param="invoice_rows")
+def process_invoices(invoice_rows):
+    # Your existing agent logic
+    return ai_agent(invoice_rows)
+```
+
+Key parameters:
+- `standard` – Name of the YAML standard (without `.yaml`) you generated or stored in `ADRI/**/standards`
+- `data_param` – The function argument that contains the data you want ADRI to validate
+- `min_score` (optional) – Override the required score (default comes from config)
+- `on_failure` (optional) – Choose how to respond: `"raise"`, `"warn"`, or `"continue"`
+
+See [Core Concepts](core-concepts.md) for protection modes and the five dimensions.
+
+### Change Failure Handling
+
+```python
+# Warn-only: log issues but keep running (great for pilots)
+@adri_protected(standard="invoice_data_standard", data_param="invoice_rows", on_failure="warn")
+
+# Selective mode: continue but mark the run
+@adri_protected(standard="invoice_data_standard", data_param="invoice_rows", on_failure="continue")
+
+# Strict mode: raise ProtectionError when data fails validation (default)
+@adri_protected(standard="invoice_data_standard", data_param="invoice_rows")
+```
+
+## Common Framework Patterns
+
+```python
+# LangChain
+@adri_protected(standard="invoice_data_standard", data_param="invoice_rows")
+def langchain_support_agent(invoice_rows):
     chain = prompt | model | parser
-    return chain.invoke(customer_data)
-```
+    return chain.invoke(invoice_rows)
 
-### CrewAI
-```python
-from crewai import Agent, Task, Crew
-from adri import adri_protected
-
-@adri_protected(standard="market_analysis_data")
-def crewai_market_analysis(market_data):
+# CrewAI
+@adri_protected(standard="invoice_data_standard", data_param="invoice_rows")
+def crewai_market_analysis(invoice_rows):
     crew = Crew(agents=[analyst], tasks=[analysis_task])
-    return crew.kickoff(inputs=market_data)
+    return crew.kickoff(inputs=invoice_rows)
+
+# Generic Python function
+@adri_protected(standard="invoice_data_standard", data_param="invoice_rows")
+def your_agent_function(invoice_rows):
+    return your_ai_framework(invoice_rows)
 ```
 
-### Any Framework
-```python
-@adri_protected(standard="your_data_standard")
-def your_agent_function(data):
-    return your_ai_framework(data)  # Protected automatically
-```
+## Configure ADRI (Optional)
 
-## Common Use Cases
-
-### Customer Support Agent
-```python
-@adri_protected(standard="customer_data")
-def handle_support_ticket(customer_data):
-    # ADRI ensures valid emails, customer IDs, and recent data
-    return generate_response(customer_data)
-```
-
-### Invoice Processing
-```python
-@adri_protected(standard="invoice_data", min_score=90)
-def process_invoices(invoice_data):
-    # ADRI validates totals > 0, valid IDs, and proper formats
-    return automate_payment(invoice_data)
-```
-
-### Financial Analysis
-```python
-@adri_protected(standard="financial_data", min_score=95)
-def risk_analysis(financial_data):
-    # ADRI ensures high-quality data for critical decisions
-    return calculate_risk(financial_data)
-```
-
-## Configuration
-
-Create `adri-config.yaml` for project-wide settings:
+Create `ADRI/config.yaml` (or edit the generated one) to customise defaults:
 
 ```yaml
-validation:
-  default_min_score: 80
-  failure_mode: "raise"  # raise, warn, or log
+adri:
+  project_name: "invoice-agents"
+  default_environment: "development"
 
-audit:
-  enabled: true
-  log_file: "logs/adri_audit.jsonl"
+  protection:
+    default_min_score: 80
+    default_failure_mode: "raise"   # raise | warn | continue
+    cache_duration_hours: 1
+    auto_generate_standards: true
+    verbose_protection: false
 
-standards:
-  auto_generate: true
-  path: "./standards"
+  environments:
+    development:
+      paths:
+        standards: "./ADRI/dev/standards"
+        assessments: "./ADRI/dev/assessments"
+        training_data: "./ADRI/dev/training-data"
+      protection:
+        default_min_score: 75
+        default_failure_mode: "warn"
+    production:
+      paths:
+        standards: "./ADRI/prod/standards"
+        assessments: "./ADRI/prod/assessments"
+        training_data: "./ADRI/prod/training-data"
+      protection:
+        default_min_score: 90
+        default_failure_mode: "raise"
 ```
 
-## What Gets Validated
+## What ADRI Validates
 
-ADRI automatically checks your data across **5 dimensions**:
+ADRI automatically checks **five dimensions**:
+- **Validity** – Correct formats (emails, dates, enumerations)
+- **Completeness** – Required fields populated
+- **Consistency** – Data types and formats aligned
+- **Plausibility** – Realistic value ranges
+- **Freshness** – Data recency and relevance
 
-- **Validity** - Format compliance (emails, dates, patterns)
-- **Completeness** - Required fields populated
-- **Consistency** - Data types and formats aligned
-- **Plausibility** - Realistic value ranges
-- **Freshness** - Data recency and relevance
+## Logs & Audit Trail
 
-## Output and Logs
-
-### Console Output
-```
-🛡️ ADRI Protection: ALLOWED ✅
-📊 Quality Score: 94.2/100 (Required: 80.0/100)
-```
-
-### JSON Audit Logs
-```json
-{
-  "timestamp": "2024-01-15T10:30:00Z",
-  "function_name": "process_customers",
-  "overall_score": 94.2,
-  "passed": true,
-  "issues_found": []
-}
-```
+Every assessment captures:
+- Console summary (success/failure + score)
+- JSON reports in `ADRI/**/assessments`
+- Optional CSV audit trail when enabled
+- Enterprise mode streaming to Verodat MCP (see [Adoption Journey](adoption-journey.md))
 
 ## Troubleshooting
 
-### Common Issues
+**`ValueError: Could not find data parameter`** – Make sure `data_param` matches the name of the argument in your protected function.
 
-**Q: No standards directory found**
-```bash
-mkdir standards
-# ADRI will auto-create standards here on first run
-```
+**`Standard file not found`** – Confirm the path you pass to `--standard` exists. Use `adri list-standards` to see registered files.
 
-**Q: Too strict validation**
+**Validation too strict?** – Lower the threshold temporarily:
 ```python
-@adri_protected(standard="your_data", min_score=60)  # More permissive
+@adri_protected(standard="your_data_standard", data_param="invoice_rows", min_score=60)
 ```
 
-**Q: Want to see what ADRI checks**
+**See what ADRI is checking** – Inspect the YAML:
 ```bash
-adri show-standard customer_data_standard
+adri show-standard invoice_data_standard
 ```
 
 ## Next Steps
 
-1. **[Read the FAQ](faq)** - Complete information about ADRI
-2. **[Try Framework Examples](frameworks)** - Copy-paste code for your framework
-3. **[Explore Use Cases](https://github.com/adri-standard/adri/tree/main/examples/use_cases)** - Business scenarios and walkthroughs
-4. **[Join the Community](https://github.com/adri-standard/adri/blob/main/CONTRIBUTING.md)** - Help improve ADRI
+1. **[Work through a framework playbook](frameworks.md)** – Copy/paste solutions for LangChain, CrewAI, LlamaIndex, and more.
+2. **[Review the FAQ](faq.md)** – Understand logging, standards, and roadmap.
+3. **[Explore real examples](https://github.com/adri-standard/adri/tree/main/examples/use_cases)** – Business scenarios and walkthroughs.
+4. **[Follow the Adoption Journey](adoption-journey.md)** – Know when to turn on Verodat-managed supply.
 
 ---
 
-**Need help?** Check the [FAQ](faq) or [open an issue](https://github.com/adri-standard/adri/issues).
+Need help? Open an [issue on GitHub](https://github.com/adri-standard/adri/issues) or join the discussion.
+
+## Next steps
+
+<p>
+  <a class="button button--primary button--sm" href="frameworks">Framework Playbooks</a>
+  <a class="button button--secondary button--sm margin-left--sm" href="core-concepts">Core Concepts</a>
+  <a class="button button--secondary button--sm margin-left--sm" href="API_REFERENCE">API Reference</a>
+  <a class="button button--outline button--sm margin-left--sm" href="adoption-journey">Adoption Journey</a>
+</p>
