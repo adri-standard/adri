@@ -39,7 +39,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 18
           cache: npm
           cache-dependency-path: docs/package-lock.json
 
@@ -47,9 +47,6 @@ jobs:
         run: |
           cd docs
           npm ci
-          echo "Verifying Mermaid theme installation..."
-          npm ls @docusaurus/theme-mermaid || true
-          node -p "require.resolve('@docusaurus/theme-mermaid')" || true
 
       - name: Build website
         run: |
