@@ -5,7 +5,7 @@ slug: /
 
 # ADRI Documentation
 
-**Agent Data Reliability Intelligence – Stop AI agents from breaking on bad data**
+**Agent Data Readiness Index – Stop AI agents from breaking on bad data**
 
 ADRI is an open-source data quality validation framework built for AI agents. Generate a standard from good data once, wrap your functions with `@adri_protected`, and block dirty payloads before they crash your agents.
 

@@ -6,7 +6,7 @@ sidebar_position: 3
 
 ## What is ADRI?
 
-ADRI stands for **Agent Data Reliability Intelligence**. It is an open-source standard and toolset that evaluates how ready a dataset is for use by AI agents. ADRI ensures that data is valid, complete, fresh, consistent, and plausible before agents use it. This improves agent reliability, reduces errors, and prevents wasted cycles.
+ADRI stands for **Agent Data Readiness Index**. It is an open-source standard and toolset that evaluates how ready a dataset is for use by AI agents. ADRI ensures that data is valid, complete, fresh, consistent, and plausible before agents use it. This improves agent reliability, reduces errors, and prevents wasted cycles.
 
 ## Why was ADRI created?
 

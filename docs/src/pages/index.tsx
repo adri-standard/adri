@@ -176,9 +176,6 @@ export default function Home(): ReactNode {
       <main>
         <QuickStartPanel />
         <FourStepCapsule />
-        <StartBuildingCards />
-        <ThreeStepCTA />
-        <HomepageFeatures />
       </main>
     </Layout>
   );
