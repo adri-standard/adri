@@ -6,7 +6,7 @@ import type * as Preset from '@docusaurus/preset-classic';
 
 const config: Config = {
   title: 'ADRI Documentation',
-  tagline: 'Artificial Data Reliability Initiative - Enhancing AI system reliability through structured data standards',
+  tagline: 'Stop AI agents from breaking on bad data',
   favicon: 'img/adri-favicon.ico',
 
   // Future flags, see https://docusaurus.io/docs/api/docusaurus-config#future
@@ -70,6 +70,9 @@ const config: Config = {
           position: 'left',
           label: 'Documentation',
         },
+        { to: '/docs/users/getting-started', label: 'Getting Started', position: 'left' },
+        { to: '/docs/users/core-concepts', label: 'Core Concepts', position: 'left' },
+        { to: '/docs/users/API_REFERENCE', label: 'API Reference', position: 'left' },
         {
           href: 'https://github.com/adri-standard/adri',
           label: 'GitHub',
@@ -86,6 +89,10 @@ const config: Config = {
             {
               label: 'Getting Started',
               to: '/docs/users/getting-started',
+            },
+            {
+              label: 'Core Concepts',
+              to: '/docs/users/core-concepts',
             },
             {
               label: 'API Reference',

@@ -27,8 +27,10 @@ const sidebars: SidebarsConfig = {
       },
       items: [
         'users/getting-started',
+        'users/core-concepts',
         'users/faq',
         'users/frameworks',
+        'users/adoption-journey',
         'users/API_REFERENCE',
         'users/WHY_OPEN_SOURCE',
       ],

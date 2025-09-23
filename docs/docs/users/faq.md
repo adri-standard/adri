@@ -34,17 +34,18 @@ ADRI was founded by Verodat, under Thomas Russell's leadership, as part of a bro
 
 ## What logging does ADRI provide?
 
-ADRI generates multiple log types:
+ADRI generates multiple log types depending on how far you are in the adoption journey:
 
-- **Console Output** → Quick human-readable feedback
-- **Log Files** → Persistent local records
-- **JSON Reports** → Machine-readable, integrates with dashboards
-- **Failure Logs (Guard Mode)** → Stops workflows when data fails
-- **Verbose/Debug Logs** → Detailed engineering traceability
+- **Console Output** → Immediate pass/fail feedback for developers
+- **Assessment Reports** (`ADRI/**/assessments`) → JSON summaries you can diff or feed into dashboards
+- **Optional CSV Audit Logs** (`ADRI/**/audit-logs`) → Detailed row-level evidence when local auditing is enabled
+- **Enterprise Streaming Logs** → When you connect to Verodat MCP (Step 5 onward in the [Adoption Journey](adoption-journey.md)), ADRI ships every assessment to your governed workspace
+- **Verbose/Debug Output** → Turn on with `@adri_protected(..., verbose=True)` to trace decision making
 
 ## Does ADRI block all bad data, or just the dirty records?
 
 ADRI is flexible and can be configured in three modes:
+See also: [Core Concepts](core-concepts.md) for definitions of protection modes and how the five dimensions are scored.
 
 1. **Fail-Fast (Hard Stop)**
    - Blocks the entire dataset if critical checks fail
@@ -110,7 +111,7 @@ Very. Teams can:
 
 ## Is ADRI a fixed standard or evolving?
 
-ADRI has five baseline dimensions (Validity, Completeness, Freshness, Consistency, Plausibility).
+ADRI has five baseline dimensions (Validity, Completeness, Consistency, Plausibility, Freshness). See [Core Concepts](core-concepts.md).
 
 These are stable, but the framework is open for extensions.
 
@@ -150,7 +151,7 @@ Yes. ADRI is open-source — you can contribute standards, rules, and improvemen
 
 Yes. ADRI is designed for scalable agent workflows:
 
-- Each workflow step can be protected with `@adri_protected`
+- Each workflow step can be protected with `@adri_protected(standard=..., data_param=...)`
 - Standards can be applied per dataset, per agent, or across pipelines
 
 ## What's on the ADRI roadmap?
@@ -168,21 +169,33 @@ Yes. ADRI is designed for scalable agent workflows:
 pip install adri
 ```
 
-**Run your first check:**
+**Bootstrap the project (folders + tutorial data):**
 ```bash
-adri assess dataset.csv
+adri setup --guide
 ```
 
-**Protect an agent workflow:**
+**Generate a standard from a good dataset:**
+```bash
+adri generate-standard examples/data/invoice_data.csv \
+  --output examples/standards/invoice_data_ADRI_standard.yaml
+```
+
+**Assess new data before your agent sees it:**
+```bash
+adri assess examples/data/test_invoice_data.csv \
+  --standard examples/standards/invoice_data_ADRI_standard.yaml
+```
+
+**Protect your agent workflow:**
 ```python
 from adri import adri_protected
 
-@adri_protected
-def run_agent(data):
+@adri_protected(standard="invoice_data_standard", data_param="invoice_rows")
+def run_agent(invoice_rows):
     ...
 ```
 
-ADRI will auto-generate a YAML standard from your first "good" dataset, then enforce it on future runs.
+When you outgrow local logging, continue to Step 5 of the [Adoption Journey](adoption-journey.md) to stream assessments into Verodat MCP.
 
 ## Is there an enterprise version of ADRI?
 

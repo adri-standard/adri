@@ -2,48 +2,75 @@
 
 **Prevent AI agent failures with one decorator**
 
-## 30-Second Setup
+## 5-Minute Quickstart
 
 ```bash
 pip install adri
+
+# Bootstrap project folders and sample data
+adri setup --guide
+
+# Generate a standard from your "good" dataset
+adri generate-standard examples/data/invoice_data.csv \
+  --output examples/standards/invoice_data_ADRI_standard.yaml
+
+# Validate a new dataset against the generated standard
+adri assess examples/data/test_invoice_data.csv \
+  --standard examples/standards/invoice_data_ADRI_standard.yaml
 ```
+
+What you should see
+
+- Allowed ✅ when data complies with the generated standard
+- Blocked ❌ with a summary of failed checks when the test data violates the standard
 
 ```python
 from adri import adri_protected
 
-@adri_protected(standard="customer_data")
-def your_agent_function(data):
+@adri_protected(standard="invoice_data_standard", data_param="invoice_rows")
+def your_agent_function(invoice_rows):
     # Your existing code - now protected!
     return result
 ```
 
-**ADRI automatically creates standards from your data patterns and protects your agents from bad data.**
+**ADRI automatically creates standards from your data patterns and blocks bad data before it reaches your agents.**
 
 ## Key Features
 
 - **🛡️ One-Decorator Protection** - Add `@adri_protected` to any function
 - **🤖 Framework Agnostic** - Works with LangChain, CrewAI, AutoGen, LlamaIndex, etc.
-- **🚀 Zero Configuration** - Smart defaults, customize when needed
+- **🚀 Smart Defaults** - Zero-config start with optional fine-grained control
 - **📊 5-Dimension Validation** - Completeness, validity, consistency, plausibility, freshness
 - **📋 Detailed Reporting** - JSON logs and actionable error messages
-- **⚡ Enterprise Ready** - Production-tested with optional enterprise features
+- **⚡ Enterprise Ready** - Local-first with a path to managed Verodat supply
 
 ## Quick Example
 
 ```bash
-# Test data quality
-adri assess customer_data.csv
+# Generate a data standard once
+adri generate-standard data/customers_clean.csv \
+  --output ADRI/dev/standards/customer_data_standard.yaml
 
-# Protect any agent function
-@adri_protected(standard="customer_data")
-def process_customers(data):
-    return ai_analysis(data)  # Only runs on quality data
+# Use the same standard to guard new inputs
+adri assess data/customers_latest.csv \
+  --standard ADRI/dev/standards/customer_data_standard.yaml
+```
+
+```python
+from adri import adri_protected
+
+@adri_protected(standard="customer_data_standard", data_param="invoice_rows")
+def process_customers(invoice_rows):
+    return ai_analysis(invoice_rows)  # Only runs on quality data
 ```
 
 ## Documentation
 
-📖 **[FAQ](docs/faq.md)** - Complete guide covering everything you need to know
-🏗️ **[Architecture](ARCHITECTURE.md)** - How ADRI works
+📖 **[Getting Started](docs/docs/users/getting-started.md)** - Installation and first success
+❓ **[FAQ](docs/docs/users/faq.md)** - Answers for agent engineers and data teams
+🧠 **[Framework Playbooks](docs/docs/users/frameworks.md)** - Copy/paste fixes for LangChain, CrewAI, LlamaIndex, and more
+🧭 **[Adoption Journey](docs/docs/users/adoption-journey.md)** - When to move from local logging to Verodat MCP
+🏗️ **[Architecture](ARCHITECTURE.md)** - How ADRI is built
 📋 **[Examples](examples/)** - Ready-to-run use cases and standards
 🤝 **[Contributing](CONTRIBUTING.md)** - Join the community
 
@@ -56,7 +83,7 @@ ADRI works seamlessly with all major AI frameworks:
 - **LlamaIndex** - Guard query engines
 - **Any Python Function** - Universal protection
 
-See [docs/frameworks.md](docs/frameworks.md) for copy-paste examples.
+See [docs/docs/users/frameworks.md](docs/docs/users/frameworks.md) for copy-paste playbooks.
 
 ## Support
 
@@ -65,11 +92,9 @@ See [docs/frameworks.md](docs/frameworks.md) for copy-paste examples.
 
 ---
 
-## ADRI Enterprise
+## ADRI Adoption Path
 
-The open-source edition of ADRI is complete and free for all users.
-
-For organizations that need advanced compliance logging, managed data supply, and enterprise support, see [ADRI Enterprise](https://verodat.com/adri-enterprise/).
+See the Adoption Journey for next steps: [docs/docs/users/adoption-journey.md](docs/docs/users/adoption-journey.md)
 
 ---
 
