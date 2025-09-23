@@ -61,6 +61,16 @@ ADRI computes scores across five complementary dimensions. Together they roll up
 - Plausibility: values fall within reasonable real‑world ranges or patterns
 - Freshness: data is timely relative to expectations
 
+```mermaid
+flowchart TB
+  Q[Overall Data Quality] --> V[Validity]
+  Q --> C[Completeness]
+  Q --> S[Consistency]
+  Q --> P[Plausibility]
+  Q --> F[Freshness]
+  style Q fill:#eef,stroke:#88f,stroke-width:1px
+```
+
 Tip:
 - Start with validity and completeness for a fast Day‑0 win.
 - Expand to consistency, plausibility, and freshness as you harden your pipelines.
@@ -74,6 +84,19 @@ Protection modes control what happens when validations fail at runtime (via the 
 | raise    | Fail fast. Raise an error and block the protected function.               | Production enforcement; stop bad data early.          |
 | warn     | Log warnings and proceed with the function.                               | Staging/experimentation; surface issues without fail. |
 | continue | Proceed silently and record results in logs only.                         | Local/dev flows; never block.                         |
+
+```mermaid
+flowchart TB
+  A[Assessment Score] -->|≥ min_score| ALLOW[ALLOW: run function]
+  A -->|< min_score| FAIL[Quality Failure]
+  FAIL -->|on_failure = "raise"| RAISE[BLOCK: raise error]
+  FAIL -->|on_failure = "warn"| WARN[Proceed + warn]
+  FAIL -->|on_failure = "continue"| CONTINUE[Proceed silently + log]
+  style ALLOW fill:#e8ffe8,stroke:#4CAF50
+  style RAISE fill:#ffe8e8,stroke:#f44336
+  style WARN fill:#fff8e1,stroke:#ff9800
+  style CONTINUE fill:#e3f2fd,stroke:#2196f3
+```
 
 Notes:
 - Default policy is configurable; commonly "raise" in production.

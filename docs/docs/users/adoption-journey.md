@@ -1,5 +1,4 @@
 ---
-id: adoption-journey
 sidebar_position: 6
 title: ADRI Adoption Journey
 slug: /users/adoption-journey
@@ -25,6 +24,19 @@ slug: /users/adoption-journey
 | 10 | Ship AI solutions | ✅ | ✅ | Share ADRI standards in marketplace | Token burn-down + Dataset licence |
 
 > ✅* indicates the open-source edition makes it possible, but Verodat MCP reduces the effort to near-zero.
+
+## Data flow and logging
+
+```mermaid
+flowchart LR
+  D[Dataset] --> Assess[ADRI Assess]
+  Assess -->|ALLOW| Func[Your Function]
+  Assess -->|BLOCK| Stop[Prevent execution]
+  Assess --> LogsLocal[Local Logs (CSV/JSON under ADRI/**)]
+  Assess --> LogsEnt[Enterprise Logs (Verodat Workspace)]
+  LogsLocal -. optional .-> Reports[Developer review]
+  LogsEnt -. optional .-> Governance[Compliance dashboards]
+```
 
 ## Stage 1 – Local Wins (Steps 1–4)
 

@@ -12,6 +12,17 @@ sidebar_position: 2
 
 **Stop AI agents from breaking on bad data in under 5 minutes**
 
+```mermaid
+flowchart LR
+  I[Install] --> G[Generate Standard]
+  G --> A[Assess Dataset]
+  A --> D[Decorate Function]
+  click I "#step-install" "Install & Bootstrap"
+  click G "#step-generate" "Generate a Standard from Good Data"
+  click A "#step-assess" "Validate New Data with the Standard"
+  click D "#step-protect" "Protect a Function"
+```
+
 ## Step 1 – Install & Bootstrap {#step-install}
 
 ```bash
