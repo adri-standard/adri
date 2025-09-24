@@ -80,11 +80,16 @@ This section documents the internal helper responsibilities introduced to reduce
     - Per-field, per-rule-type overrides; unknown rules ignored; negatives clamped to 0 with a warning.
   - _assemble_validity_explain(counts, per_field_counts, applied_global, applied_overrides) -> dict
     - Produces the explain payload shape consumed by reports and tests:
+      ```jsonc
       {
-        "rule_counts": counts,
-        "per_field_counts": per_field_counts,
-        "applied_weights": {"global": applied_global, "overrides": applied_overrides}
+        "rule_counts": "…",
+        "per_field_counts": "…",
+        "applied_weights": {
+          "global": "…",
+          "overrides": "…"
+        }
       }
+      ```
   - _assess_validity_with_standard(...)
     - Orchestrates: compute counts → apply global weights → apply overrides.
     - Uses S = (Sg + So) / (Wg + Wo) on 0..1, then scales to 0..20.
