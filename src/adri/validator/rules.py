@@ -58,7 +58,7 @@ def check_field_pattern(value: Any, field_req: Dict[str, Any]) -> bool:
 
 
 def check_field_range(value: Any, field_req: Dict[str, Any]) -> bool:
-    """Check if value is within the required range."""
+    """Check if value is within the required numeric range."""
     try:
         numeric_value = float(value)
 
@@ -147,18 +147,21 @@ def _parse_date_like(value: Any):
             "%Y/%m/%d %H:%M:%S",
         ]
         for fmt in fmts:
+            parsed_dt = None
             try:
-                return datetime.strptime(s, fmt)
+                parsed_dt = datetime.strptime(s, fmt)
             except Exception:
-                continue
+                parsed_dt = None
+            if parsed_dt is not None:
+                return parsed_dt
     except Exception:
         return None
     return None
 
 
 def check_date_bounds(value: Any, field_req: Dict[str, Any]) -> bool:
-    """
-    Check after/before bounds for date or datetime fields.
+    """Check after/before bounds for date or datetime fields.
+
     Supports keys:
       - after_date / before_date (YYYY-MM-DD)
       - after_datetime / before_datetime (ISO-like)

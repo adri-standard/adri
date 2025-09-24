@@ -147,13 +147,29 @@ class StandardGenerator:
             elif "date" in patterns:
                 requirement["pattern"] = r"^\d{4}-\d{2}-\d{2}"
 
-            # Add length constraints
+            # Add length constraints (emit both min_length and max_length when available)
+            if "min_length" in field_profile:
+                try:
+                    requirement["min_length"] = int(field_profile["min_length"])
+                except Exception:
+                    pass
             if "max_length" in field_profile:
                 max_len = field_profile["max_length"]
-                if max_len < 1000:  # Only add if reasonable
-                    requirement["max_length"] = int(
-                        float(max_len) * 1.2
-                    )  # Allow 20% buffer
+                try:
+                    max_len_val = int(float(max_len))
+                except Exception:
+                    max_len_val = None
+                if (
+                    max_len_val is not None and max_len_val < 1000
+                ):  # Only add if reasonable
+                    # Keep the existing 20% buffer while ensuring it's >= min_length if present
+                    widened = int(float(max_len) * 1.2)
+                    if (
+                        "min_length" in requirement
+                        and widened < requirement["min_length"]
+                    ):
+                        widened = requirement["min_length"]
+                    requirement["max_length"] = widened
 
         return requirement
 
@@ -239,8 +255,8 @@ class StandardGenerator:
 
         # Type-specific enrichment
         if req["type"] in ("integer", "float"):
-            # Choose range inference strategy (default: span uses observed range ± margin)
-            strategy = getattr(inf_cfg, "range_strategy", "span")
+            # Choose range inference strategy (default: robust iqr)
+            strategy = getattr(inf_cfg, "range_strategy", "iqr")
             series_for_range = numeric_series if numeric_series is not None else series
             rng = None
             if strategy == "span":
@@ -260,7 +276,7 @@ class StandardGenerator:
                 req["min_value"], req["max_value"] = float(rng[0]), float(rng[1])
 
         elif req["type"] == "string":
-            # Length bounds
+            # Length bounds - guarantee min and max
             lb = infer_length_bounds(series, widen=None)
             if lb:
                 req["min_length"], req["max_length"] = int(lb[0]), int(lb[1])
@@ -650,11 +666,6 @@ class StandardGenerator:
                         if not req["nullable"]
                         else "Nulls were observed in training, so this field is allowed to be null"
                     ),
-                    "reason": (
-                        "Required because 0% nulls observed in training"
-                        if not req["nullable"]
-                        else "Nulls were observed in training, so this field is allowed to be null"
-                    ),
                     "stats": {"null_count": nulls, "total": total},
                 }
             # Enums
@@ -898,7 +909,7 @@ class StandardGenerator:
         thresholds = config.get("default_thresholds", {})
         inf_cfg = InferenceConfig(**(config.get("inference", {}) or {}))
 
-        # Build sections
+        # Build standards metadata
         standards_meta = {
             "id": f"{data_name}_standard",
             "name": f"{data_name.replace('_', ' ').title()} ADRI Standard",
@@ -915,6 +926,7 @@ class StandardGenerator:
         field_requirements = self._generate_enriched_field_requirements(
             data, data_profile, inf_cfg, pk_fields=pk_fields
         )
+
         requirements = {
             "overall_minimum": thresholds.get("overall_minimum", 75.0),
             "field_requirements": field_requirements,

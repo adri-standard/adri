@@ -27,6 +27,8 @@ import pandas as pd
 # -----------------------------
 @dataclass
 class InferenceConfig:
+    """Configuration options controlling inference behavior."""
+
     enum_max_unique: int = 30
     enum_min_coverage: float = 0.95  # fraction of total rows covered by non-null values
     range_margin_pct: float = (
@@ -293,10 +295,13 @@ def _try_parse_date(val: Any) -> Optional[datetime]:
         "%Y/%m/%d %H:%M:%S",
     ]
     for fmt in fmts:
+        parsed_dt = None
         try:
-            return datetime.strptime(s, fmt)
+            parsed_dt = datetime.strptime(s, fmt)
         except Exception:
-            continue
+            parsed_dt = None
+        if parsed_dt is not None:
+            return parsed_dt
 
     return None
 
@@ -321,7 +326,7 @@ def infer_date_bounds(series: pd.Series, margin_days: int) -> Optional[Tuple[str
 # -----------------------------
 # Primary Key Detection
 # -----------------------------
-def detect_primary_key(df: pd.DataFrame, max_combo: int = 2) -> List[str]:
+def detect_primary_key(df: pd.DataFrame, max_combo: int = 2) -> List[str]:  # noqa: C901
     """
     Detect a minimal primary key with strong heuristics:
     - Prefer a single column that is unique/no-nulls AND name looks identifier-like (id/key/code/number/uuid/guid)
@@ -372,12 +377,13 @@ def detect_primary_key(df: pd.DataFrame, max_combo: int = 2) -> List[str]:
         s = df[col]
         if not _is_series_hashable(s):
             continue
+        ok_unique = False
         try:
-            if s.notna().all() and s.nunique(dropna=True) == n:
-                unique_cols.append(col)
+            ok_unique = s.notna().all() and s.nunique(dropna=True) == n
         except Exception:
-            # If nunique fails, treat as non-unique
-            continue
+            ok_unique = False
+        if ok_unique:
+            unique_cols.append(col)
 
     # Rank single unique columns: id-like first, then non-measure strings, then others
     id_like_uniques = [c for c in unique_cols if _is_id_like(c)]
@@ -410,11 +416,15 @@ def detect_primary_key(df: pd.DataFrame, max_combo: int = 2) -> List[str]:
             if any(not _is_series_hashable(df[c]) for c in subset):
                 continue
             # Must be unique across rows
+            dupe_check_failed = False
+            is_dup = False
             try:
-                if df.duplicated(subset=subset, keep=False).any():
-                    continue
+                is_dup = df.duplicated(subset=subset, keep=False).any()
             except Exception:
-                # If duplicated check fails (e.g., due to unhashable), skip
+                dupe_check_failed = True
+            if dupe_check_failed:
+                continue
+            if is_dup:
                 continue
 
             score = sum(1 for c in subset if _is_id_like(c))
@@ -449,9 +459,7 @@ def detect_primary_key(df: pd.DataFrame, max_combo: int = 2) -> List[str]:
 # Money Field Heuristic
 # -----------------------------
 def is_money_field(name: str, hints: Iterable[str]) -> bool:
-    """
-    Simple name-based heuristic to identify money-like fields.
-    """
+    """Identify money-like fields using a simple name-based heuristic."""
     lname = (name or "").lower()
     for h in hints:
         if h.lower() in lname:

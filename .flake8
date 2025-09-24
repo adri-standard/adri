@@ -33,6 +33,12 @@ per-file-ignores =
     __init__.py:F401
     # Setup files can have longer lines
     setup.py:E501
+    # ADRI core modules - relax docstring and complexity for now
+    src/adri/analysis/rule_inference.py:D101,D200,D205,D400,C901
+    src/adri/analysis/standard_generator.py:D205,D400,C901
+    src/adri/validator/engine.py:D107,E702,C901
+    # CLI: minor style relaxations for user output formatting and long docstring headers
+    src/adri/cli.py:E221,D205
 max-complexity = 25
 import-order-style = google
 application-import-names = adri
