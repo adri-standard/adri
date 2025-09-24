@@ -14,11 +14,30 @@ from typing import Any, Dict, List, Optional
 import click
 import yaml
 
+from .catalog import CatalogClient, CatalogConfig
 from .config.loader import ConfigurationLoader
-from .standards.parser import StandardsParser
 from .validator.engine import DataQualityAssessor
 from .validator.loaders import load_data, load_standard
 from .version import __version__
+
+# Ensure UTF-8 console output on Windows (avoid 'charmap' codec errors)
+try:
+    # Python 3.7+ TextIOWrapper supports reconfigure; use errors='replace' for maximum safety
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+except Exception:
+    # If not supported (or already configured), proceed without modification
+    pass
+
+
+# --------------- Debug IO helpers -----------------
+def _debug_io_enabled() -> bool:
+    try:
+        v = os.environ.get("ADRI_DEBUG_LOG", "0")
+        return str(v).lower() in ("1", "true", "yes", "on")
+    except Exception:
+        return False
+
 
 # ---------------- Path discovery and helpers -----------------
 
@@ -813,40 +832,84 @@ def validate_standard_command(standard_path: str) -> int:
         return 1
 
 
-def list_standards_command() -> int:
-    """List available YAML standards (bundled + project)."""
+def list_standards_command(include_catalog: bool = False) -> int:
+    """List available YAML standards (local). Optionally include remote catalog."""
     try:
         standards_found = False
-        try:
-            if StandardsParser:
-                parser = StandardsParser()
-                bundled_standards = parser.list_available_standards()
-                if bundled_standards:
-                    click.echo("📦 Bundled Standards:")
-                    for i, std_name in enumerate(bundled_standards, 1):
-                        click.echo(f"  {i}. {std_name}")
-                    standards_found = True
-        except Exception:
-            # Explicitly report bundled standards failure (no fallback) per tests
-            click.echo("❌ Failed to load bundled standards")
-            return 1
 
-        standards_dir = Path("ADRI/dev/standards")
-        if standards_dir.exists():
-            yaml_files = list(standards_dir.glob("*.yaml")) + list(
-                standards_dir.glob("*.yml")
-            )
-            if yaml_files:
-                if standards_found:
-                    click.echo()
-                click.echo("🏗️  Project Standards:")
-                for i, file_path in enumerate(yaml_files, 1):
-                    click.echo(f"  {i}. {file_path.name}")
-                standards_found = True
+        # Local project standards (development and production)
+        dev_dir = Path("ADRI/dev/standards")
+        prod_dir = Path("ADRI/prod/standards")
 
-        if not standards_found:
+        # Try to resolve from config if available
+        if ConfigurationLoader:
+            try:
+                cl = ConfigurationLoader()
+                cfg = cl.get_active_config()
+                if cfg:
+                    dev_env = cl.get_environment_config(cfg, "development")
+                    prod_env = cl.get_environment_config(cfg, "production")
+                    dev_dir = Path(dev_env["paths"]["standards"])
+                    prod_dir = Path(prod_env["paths"]["standards"])
+            except Exception:
+                pass
+
+        def _list_yaml(dir_path: Path) -> List[Path]:
+            if not dir_path.exists():
+                return []
+            return list(dir_path.glob("*.yaml")) + list(dir_path.glob("*.yml"))
+
+        dev_files = _list_yaml(dev_dir)
+        prod_files = _list_yaml(prod_dir)
+
+        if dev_files:
+            click.echo("🏗️  Project Standards (dev):")
+            for i, p in enumerate(dev_files, 1):
+                click.echo(f"  {i}. {p.name}")
+            standards_found = True
+
+        if prod_files:
+            if standards_found:
+                click.echo()
+            click.echo("🏛️  Project Standards (prod):")
+            for i, p in enumerate(prod_files, 1):
+                click.echo(f"  {i}. {p.name}")
+            standards_found = True
+
+        # Optionally include remote catalog
+        if include_catalog:
+            if standards_found:
+                click.echo()
+            base_url = None
+            try:
+                # Local import to avoid hard dependency if package not available
+                from .catalog import CatalogClient as _CC  # type: ignore
+                from .catalog import CatalogConfig as _CFG
+
+                base_url = _CC.resolve_base_url()
+                CatalogClientLocal = _CC
+                CatalogConfigLocal = _CFG
+            except Exception:
+                base_url = None
+                CatalogClientLocal = None  # type: ignore
+                CatalogConfigLocal = None  # type: ignore
+
+            if not base_url or not CatalogClientLocal or not CatalogConfigLocal:
+                click.echo("🌐 Remote Catalog: (not configured)")
+            else:
+                try:
+                    client = CatalogClientLocal(CatalogConfigLocal(base_url=base_url))
+                    resp = client.list()
+                    click.echo(f"🌐 Remote Catalog ({len(resp.entries)}):")
+                    for i, e in enumerate(resp.entries, 1):
+                        click.echo(f"  {i}. {e.id} — {e.name} v{e.version}")
+                except Exception as e:
+                    click.echo(f"⚠️ Could not load remote catalog: {e}")
+
+        if not standards_found and not include_catalog:
             click.echo("📋 No standards found")
             click.echo("💡 Use 'adri generate-standard <data>' to create one")
+
         return 0
     except Exception as e:
         click.echo(f"❌ Failed to list standards: {e}")
@@ -937,9 +1000,9 @@ def _parse_assessment_files(assessment_files: List[Path]) -> List[Dict[str, Any]
                     "file": file_path.name,
                 }
             )
-        except Exception:
-            # Skipping invalid or unreadable assessment entry
-            pass
+        except Exception as e:
+            if _debug_io_enabled():
+                click.echo(f"⚠️ Skipping invalid assessment entry {file_path}: {e}")
     return table_data
 
 
@@ -981,9 +1044,9 @@ def _load_audit_entries() -> List[Dict[str, Any]]:
                             "overall_score": float(row.get("overall_score", 0)),
                         }
                     )
-                except Exception:
-                    # Skipping unreadable audit log row
-                    pass
+                except Exception as e:
+                    if _debug_io_enabled():
+                        click.echo(f"⚠️ Skipping unreadable audit log row: {e}")
     return audit_entries
 
 
@@ -1128,9 +1191,9 @@ def _parse_audit_log_entries(main_log_file: Path, today: bool):
                         "execution_decision": row.get("execution_decision", "unknown"),
                     }
                 )
-            except Exception:
-                # Skipping unreadable audit log row
-                pass
+            except Exception as e:
+                if _debug_io_enabled():
+                    click.echo(f"⚠️ Skipping unreadable audit log row: {e}")
     return log_entries
 
 
@@ -1792,7 +1855,7 @@ def setup_command(
             }
         }
 
-        with open(config_path, "w") as f:
+        with open(config_path, "w", encoding="utf-8") as f:
             f.write(doc_header)
             yaml.dump(config, f, default_flow_style=False)
 
@@ -1911,9 +1974,15 @@ def validate_standard(standard_path):
 
 
 @cli.command("list-standards")
-def list_standards():
+@click.option(
+    "--catalog",
+    "include_catalog",
+    is_flag=True,
+    help="Also show remote catalog entries",
+)
+def list_standards(include_catalog):
     """List available YAML standards."""
-    sys.exit(list_standards_command())
+    sys.exit(list_standards_command(include_catalog))
 
 
 @cli.command("show-config")
@@ -1976,6 +2045,187 @@ def scoring_explain(data_path, standard_path, json_output):
 def scoring_preset_apply(preset, standard_path, output_path):
     """Apply a scoring preset to a standard's dimension requirements."""
     sys.exit(scoring_preset_apply_command(preset, standard_path, output_path))
+
+
+# ---------------- Remote standards catalog (group) -----------------
+
+
+def standards_catalog_list_command(json_output: bool = False) -> int:
+    """List available standards from the remote catalog."""
+    try:
+        base_url = CatalogClient.resolve_base_url()
+        if not base_url:
+            if json_output:
+                click.echo(json.dumps({"error": "no_catalog_configured"}))
+            else:
+                click.echo(
+                    "⚠️ No catalog URL configured. Set ADRI_STANDARDS_CATALOG_URL or adri.catalog.url in ADRI/config.yaml"
+                )
+            return 0
+
+        client = CatalogClient(CatalogConfig(base_url=base_url))
+        resp = client.list()
+
+        if json_output:
+            entries = [
+                {
+                    "id": e.id,
+                    "name": e.name,
+                    "version": e.version,
+                    "description": e.description,
+                    "path": e.path,
+                    "tags": e.tags,
+                }
+                for e in resp.entries
+            ]
+            click.echo(
+                json.dumps(
+                    {"source_url": resp.source_url, "entries": entries}, indent=2
+                )
+            )
+        else:
+            click.echo(f"🌐 Remote Catalog ({len(resp.entries)}) at {resp.source_url}:")
+            for i, e in enumerate(resp.entries, 1):
+                click.echo(f"  {i}. {e.id} — {e.name} v{e.version}")
+                if e.description:
+                    click.echo(f"     · {e.description}")
+        return 0
+    except Exception as e:
+        if json_output:
+            click.echo(json.dumps({"error": str(e)}))
+        else:
+            click.echo(f"⚠️ Could not list remote catalog: {e}")
+        return 0  # Non-fatal for UX
+
+
+def standards_catalog_fetch_command(
+    name_or_id: str,
+    dest: str = "dev",
+    filename: Optional[str] = None,
+    overwrite: bool = False,
+    json_output: bool = False,
+) -> int:
+    """Fetch a standard from the remote catalog and save it locally."""
+    try:
+        base_url = CatalogClient.resolve_base_url()
+        if not base_url:
+            if json_output:
+                click.echo(json.dumps({"error": "no_catalog_configured"}))
+            else:
+                click.echo(
+                    "⚠️ No catalog URL configured. Set ADRI_STANDARDS_CATALOG_URL or adri.catalog.url in ADRI/config.yaml"
+                )
+            return 1
+
+        client = CatalogClient(CatalogConfig(base_url=base_url))
+        res = client.fetch(name_or_id)
+
+        # Validate YAML before writing
+        try:
+            content_text = res.content_bytes.decode("utf-8")
+            parsed = yaml.safe_load(content_text)  # type: ignore
+            if not isinstance(parsed, dict) or "standards" not in parsed:
+                raise ValueError("Missing 'standards' section")
+        except Exception as ve:
+            if json_output:
+                click.echo(json.dumps({"error": f"invalid_yaml: {ve}"}))
+            else:
+                click.echo(f"❌ Invalid YAML from catalog: {ve}")
+            return 1
+
+        # Determine destination directory
+        dest_dir = (
+            Path("ADRI/dev/standards") if dest == "dev" else Path("ADRI/prod/standards")
+        )
+        if ConfigurationLoader:
+            try:
+                cl = ConfigurationLoader()
+                cfg = cl.get_active_config()
+                if cfg:
+                    env_name = "development" if dest == "dev" else "production"
+                    env_cfg = cl.get_environment_config(cfg, env_name)
+                    dest_dir = Path(env_cfg["paths"]["standards"])
+            except Exception:
+                pass
+
+        dest_dir.mkdir(parents=True, exist_ok=True)
+        out_name = filename or f"{res.entry.id}.yaml"
+        out_path = dest_dir / out_name
+
+        if out_path.exists() and not overwrite:
+            if json_output:
+                click.echo(json.dumps({"error": "file_exists", "path": str(out_path)}))
+            else:
+                click.echo(f"❌ File exists: {out_path}. Use --overwrite to replace.")
+            return 1
+
+        with open(out_path, "wb") as f:
+            f.write(res.content_bytes)
+
+        if json_output:
+            click.echo(
+                json.dumps(
+                    {
+                        "saved_to": str(out_path),
+                        "id": res.entry.id,
+                        "name": res.entry.name,
+                        "version": res.entry.version,
+                    },
+                    indent=2,
+                )
+            )
+        else:
+            click.echo(f"✅ Saved standard '{res.entry.name}' to {out_path}")
+        return 0
+    except Exception as e:
+        if json_output:
+            click.echo(json.dumps({"error": str(e)}))
+        else:
+            click.echo(f"❌ Failed to fetch standard: {e}")
+        return 1
+
+
+# Register subcommands under main CLI group
+@click.group("standards-catalog")
+def standards_catalog():
+    """Remote standards catalog commands."""
+    pass
+
+
+@standards_catalog.command("list")
+@click.option(
+    "--json", "json_output", is_flag=True, help="Output machine-readable JSON"
+)
+def standards_catalog_list(json_output):
+    """List available standards from the remote catalog."""
+    sys.exit(standards_catalog_list_command(json_output))
+
+
+@standards_catalog.command("fetch")
+@click.argument("name_or_id")
+@click.option(
+    "--dest",
+    type=click.Choice(["dev", "prod"]),
+    default="dev",
+    show_default=True,
+    help="Destination environment directory",
+)
+@click.option("--filename", help="Override destination filename")
+@click.option("--overwrite", is_flag=True, help="Overwrite existing file")
+@click.option(
+    "--json", "json_output", is_flag=True, help="Output machine-readable JSON"
+)
+def standards_catalog_fetch(name_or_id, dest, filename, overwrite, json_output):
+    """Fetch a standard from the remote catalog and save it locally."""
+    sys.exit(
+        standards_catalog_fetch_command(
+            name_or_id, dest, filename, overwrite, json_output
+        )
+    )
+
+
+# Attach the group to the main CLI
+cli.add_command(standards_catalog)
 
 
 def main():

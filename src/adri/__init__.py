@@ -33,7 +33,6 @@ from .decorator import adri_protected
 from .guard.modes import DataProtectionEngine
 from .logging.enterprise import EnterpriseLogger
 from .logging.local import LocalLogger
-from .standards.parser import StandardsParser
 
 # Core component imports
 from .validator.engine import DataQualityAssessor, ValidationEngine
@@ -51,7 +50,6 @@ __all__ = [
     "DataProtectionEngine",
     "LocalLogger",
     "EnterpriseLogger",
-    "StandardsParser",
     "ConfigurationLoader",
     "DataProfiler",
     "StandardGenerator",

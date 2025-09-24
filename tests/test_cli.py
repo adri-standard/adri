@@ -377,23 +377,26 @@ class TestListStandardsCommand(unittest.TestCase):
         import shutil
         shutil.rmtree(self.temp_dir)
 
-    @patch('adri.cli.StandardsParser')
-    def test_list_standards_with_bundled(self, mock_parser_class):
-        """Test list standards with bundled standards available."""
-        mock_parser = Mock()
-        mock_parser.list_available_standards.return_value = ["standard1", "standard2"]
-        mock_parser_class.return_value = mock_parser
+    def test_list_standards_local_only(self):
+        """Test list standards shows local dev/prod standards without remote catalog."""
+        # Create project standards directories and files
+        dev_dir = Path("ADRI/dev/standards")
+        prod_dir = Path("ADRI/prod/standards")
+        dev_dir.mkdir(parents=True, exist_ok=True)
+        prod_dir.mkdir(parents=True, exist_ok=True)
+
+        (dev_dir / "project_standard1.yaml").touch()
+        (prod_dir / "project_standard2.yaml").touch()
 
         result = list_standards_command()
 
         self.assertEqual(result, 0)
-        mock_parser.list_available_standards.assert_called_once()
 
     def test_list_standards_with_project_standards(self):
         """Test list standards with project standards."""
         # Create project standards directory and files
         standards_dir = Path("ADRI/dev/standards")
-        standards_dir.mkdir(parents=True)
+        standards_dir.mkdir(parents=True, exist_ok=True)
 
         (standards_dir / "project_standard1.yaml").touch()
         (standards_dir / "project_standard2.yaml").touch()
@@ -402,15 +405,9 @@ class TestListStandardsCommand(unittest.TestCase):
 
         self.assertEqual(result, 0)
 
-    @patch('adri.cli.StandardsParser')
-    def test_list_standards_no_standards(self, mock_parser_class):
-        """Test list standards when no standards are found."""
-        mock_parser = Mock()
-        mock_parser.list_available_standards.return_value = []
-        mock_parser_class.return_value = mock_parser
-
+    def test_list_standards_no_standards(self):
+        """Test list standards when no local standards are found."""
         result = list_standards_command()
-
         self.assertEqual(result, 0)  # Should still succeed but show message
 
 
