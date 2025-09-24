@@ -32,8 +32,8 @@ flowchart LR
   D[Dataset] --> Assess[ADRI Assess]
   Assess -->|ALLOW| Func[Your Function]
   Assess -->|BLOCK| Stop[Prevent execution]
-  Assess --> LogsLocal[Local Logs (CSV/JSON under ADRI folders)]
-  Assess --> LogsEnt[Enterprise Logs (Verodat Workspace)]
+  Assess --> LogsLocal[Local Logs]
+  Assess --> LogsEnt[Enterprise Logs]
   LogsLocal -. optional .-> Reports[Developer review]
   LogsEnt -. optional .-> Governance[Compliance dashboards]
 ```
