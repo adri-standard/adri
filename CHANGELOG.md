@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - GitHub community templates for improved contributions
 - Unified pytest configuration with enhanced test coverage
 - Production-ready GitHub Pages documentation deployment
+- Helper-level stability tests for validator engine and standard generator refactor
 
 ### Fixed
 - Jekyll configuration for GitHub Pages deployment
@@ -22,6 +23,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Consolidated test configuration in pyproject.toml
 - Enhanced test markers for better categorization
 - Improved CI performance with optimized test settings
+- Internal refactor: split complex functions in src/adri/analysis/standard_generator.py and src/adri/validator/engine.py into cohesive helpers without behavior changes
+- Lint: removed C901 ignores for the two modules; updated .flake8 to exclude .dev-testing directory
+- Docs: added helper architecture notes to docs/docs/contributors/architecture.md describing new helper responsibilities and orchestration
 
 ## [4.0.0] - 2024-12-09
 
