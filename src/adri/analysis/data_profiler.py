@@ -77,8 +77,10 @@ class DataProfiler:
             "dtype": str(series.dtype),
             "null_count": int(series.isnull().sum()),
             "null_percentage": float((series.isnull().sum() / len(series)) * 100),
-            "unique_count": int(series.nunique()),
-            "unique_percentage": float((series.nunique() / len(series)) * 100),
+            "unique_count": int(series.astype(str).nunique()),
+            "unique_percentage": float(
+                (series.astype(str).nunique() / len(series)) * 100
+            ),
         }
 
         # Add type-specific analysis
@@ -98,14 +100,26 @@ class DataProfiler:
         elif pd.api.types.is_string_dtype(series) or series.dtype == "object":
             non_null_series = series.dropna()
             if len(non_null_series) > 0:
+                non_null_str = non_null_series.astype(str)
+                # Build small head/tail sample for regex inference and docs
+                unique_non_null_str = non_null_str.drop_duplicates()
+                head_vals = unique_non_null_str.head(5).tolist()
+                tail_vals = (
+                    unique_non_null_str.tail(5).tolist()
+                    if len(unique_non_null_str) > 5
+                    else []
+                )
+                sample_values = head_vals + [v for v in tail_vals if v not in head_vals]
+                # Clamp to at most 10 items
+                sample_values = sample_values[:10]
+
                 profile.update(
                     {
-                        "avg_length": float(
-                            non_null_series.astype(str).str.len().mean()
-                        ),
-                        "max_length": int(non_null_series.astype(str).str.len().max()),
-                        "min_length": int(non_null_series.astype(str).str.len().min()),
+                        "avg_length": float(non_null_str.str.len().mean()),
+                        "max_length": int(non_null_str.str.len().max()),
+                        "min_length": int(non_null_str.str.len().min()),
                         "common_patterns": self._identify_patterns(non_null_series),
+                        "sample_values": sample_values,
                     }
                 )
 

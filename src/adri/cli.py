@@ -1028,93 +1028,49 @@ def generate_standard_command(
 
         data = pd.DataFrame(data_list)
 
-        # Generate field requirements from data
-        field_requirements = {}
-        for column in data.columns:
-            # Infer type and nullable from data
-            non_null_data = data[column].dropna()
-            if len(non_null_data) == 0:
-                field_type = "string"
-            elif non_null_data.dtype in ["int64", "int32"]:
-                field_type = "integer"
-            elif non_null_data.dtype in ["float64", "float32"]:
-                field_type = "float"
-            else:
-                field_type = "string"
+        # Enriched standard generation with training-pass guarantee
+        from .analysis.standard_generator import StandardGenerator
 
-            # Convert numpy boolean to native Python bool
-            nullable = bool(data[column].isnull().any())
+        gen = StandardGenerator()
+        std_dict = gen.generate_from_dataframe(data, data_name, generation_config=None)
 
-            field_requirements[column] = {"type": field_type, "nullable": nullable}
-
-        # Determine primary key fields for record identification
-        primary_key_fields = []
-        for column in data.columns:
-            column_str = str(column).lower()
-            # Look for common ID patterns
-            if any(
-                pattern in column_str for pattern in ["id", "key", "number"]
-            ) and not any(
-                skip in column_str for skip in ["description", "name", "type"]
-            ):
-                primary_key_fields = [column]
-                break
-
-        # If no clear primary key found, use the first column as fallback
-        if not primary_key_fields and len(data.columns) > 0:
-            primary_key_fields = [data.columns[0]]
-
-        # Generate standardized metadata
+        # Merge lineage and metadata (preserve existing sections)
         from datetime import datetime
 
         current_timestamp = datetime.now().isoformat()
 
-        # Create standard dictionary with all sections following meta-schema
-        standard = {
-            "training_data_lineage": lineage_metadata,
-            "standards": {
-                "id": f"{data_name}_standard",
-                "name": f"{data_name} ADRI Standard",
-                "version": "1.0.0",
-                "authority": "ADRI Framework",
-                "description": f"Auto-generated standard for {data_name} data",
-            },
-            "record_identification": {
-                "primary_key_fields": primary_key_fields,
-                "strategy": "primary_key_with_fallback",
-            },
-            "requirements": {
-                "overall_minimum": 75.0,
-                "field_requirements": field_requirements,
-                "dimension_requirements": {
-                    "validity": {"minimum_score": 15.0},
-                    "completeness": {"minimum_score": 15.0},
-                    "consistency": {"minimum_score": 12.0},
-                    "freshness": {"minimum_score": 15.0},
-                    "plausibility": {"minimum_score": 12.0},
-                },
-            },
-            "metadata": {
-                "created_by": "ADRI Framework",
-                "created_date": current_timestamp,
-                "last_modified": current_timestamp,
-                "generation_method": "auto_generated",
-                "tags": ["data_quality", "auto_generated", f"{data_name}_data"],
-            },
+        # Attach training data lineage
+        std_dict["training_data_lineage"] = lineage_metadata
+
+        # Attach/merge metadata
+        base_metadata = {
+            "created_by": "ADRI Framework",
+            "created_date": current_timestamp,
+            "last_modified": current_timestamp,
+            "generation_method": "auto_generated",
+            "tags": ["data_quality", "auto_generated", f"{data_name}_data"],
         }
+        existing_meta = std_dict.get("metadata", {}) or {}
+        std_dict["metadata"] = {**base_metadata, **existing_meta}
 
         # Save standard
         with open(output_path, "w") as f:
-            yaml.dump(standard, f, default_flow_style=False, sort_keys=False)
+            yaml.dump(std_dict, f, default_flow_style=False, sort_keys=False)
 
         if guide:
             click.echo("✅ Standard Generated Successfully!")
             click.echo("==================================")
-            click.echo(f"📄 Standard: {standard['standards']['name']}")
+            click.echo(f"📄 Standard: {std_dict['standards']['name']}")
             click.echo(f"📁 Saved to: {_rel_to_project_root(output_path)}")
             click.echo("")
             click.echo("📋 What the standard contains:")
-            click.echo(f"   • {len(field_requirements)} field requirements")
+            try:
+                field_reqs = (
+                    std_dict.get("requirements", {}).get("field_requirements", {}) or {}
+                )
+                click.echo(f"   • {len(field_reqs)} field requirements")
+            except Exception:
+                click.echo("   • Field requirements summary unavailable")
             click.echo(
                 "   • 5 quality dimensions (validity, completeness, consistency, freshness, plausibility)"
             )
@@ -1128,7 +1084,7 @@ def generate_standard_command(
             click.echo(f"▶ Next: {next_cmd}")
         else:
             click.echo("✅ Standard generated successfully!")
-            click.echo(f"📄 Standard: {standard['standards']['name']}")
+            click.echo(f"📄 Standard: {std_dict['standards']['name']}")
             click.echo(f"📁 Saved to: {output_path}")
 
         return 0
@@ -1777,6 +1733,364 @@ def show_standard_command(standard_name: str, verbose: bool = False) -> int:
 
 
 # CLI Group Definition
+
+
+def _compute_dimension_contributions(dimension_scores, applied_dimension_weights):
+    """Compute contribution (%) of each dimension to overall score given 0..20 scores and weights."""
+    try:
+        # Extract simple score numbers
+        scores = {}
+        for dim, val in (dimension_scores or {}).items():
+            if hasattr(val, "score"):
+                scores[dim] = float(val.score)
+            elif isinstance(val, (int, float)):
+                scores[dim] = float(val)
+            else:
+                try:
+                    scores[dim] = float(val.get("score", 0.0))  # fallback if dict-like
+                except Exception:
+                    scores[dim] = 0.0
+
+        weights = {k: float(v) for k, v in (applied_dimension_weights or {}).items()}
+        sum_w = sum(weights.values()) if weights else 0.0
+        contributions = {}
+        for dim, s in scores.items():
+            w = weights.get(dim, 1.0)
+            if sum_w > 0.0:
+                contributions[dim] = (s / 20.0) * (w / sum_w) * 100.0
+            else:
+                contributions[dim] = 0.0
+        return contributions
+    except Exception:
+        return {}
+
+
+def scoring_explain_command(
+    data_path: str,
+    standard_path: str,
+    json_output: bool = False,
+) -> int:
+    """Produce a scoring breakdown using the standard's configured weights."""
+    try:
+        # Resolve paths
+        resolved_data_path = _resolve_project_path(data_path)
+        resolved_standard_path = _resolve_project_path(standard_path)
+
+        # Existence checks
+        if not resolved_data_path.exists():
+            click.echo(f"❌ Data file not found: {data_path}")
+            click.echo(_get_project_root_display())
+            click.echo(f"📄 Testing: {_rel_to_project_root(resolved_data_path)}")
+            return 1
+        if not resolved_standard_path.exists():
+            click.echo(f"❌ Standard file not found: {standard_path}")
+            click.echo(_get_project_root_display())
+            click.echo(
+                f"📋 Against Standard: {_rel_to_project_root(resolved_standard_path)}"
+            )
+            return 1
+
+        # Load data
+        data_list = load_data(str(resolved_data_path))
+        if not data_list:
+            click.echo("❌ No data loaded")
+            return 1
+
+        import pandas as pd
+
+        data = pd.DataFrame(data_list)
+
+        # Run assessment (engine will attach explain + weights in metadata)
+        assessor = DataQualityAssessor(_load_assessor_config())
+        result = assessor.assess(data, str(resolved_standard_path))
+
+        # Extract basics
+        threshold = _get_threshold_from_standard(resolved_standard_path)
+        dim_scores_obj = result.dimension_scores or {}
+        # Flatten to simple numbers for printing/JSON
+        dim_scores = {}
+        for dim, s in dim_scores_obj.items():
+            dim_scores[dim] = float(s.score) if hasattr(s, "score") else float(s)
+
+        metadata = result.metadata or {}
+        applied_dim_weights = metadata.get("applied_dimension_weights", {})
+        contributions = _compute_dimension_contributions(
+            dim_scores_obj, applied_dim_weights
+        )
+        warnings = metadata.get("scoring_warnings", [])
+        explain = metadata.get("explain", {}) or {}
+        validity_explain = (
+            explain.get("validity", {}) if isinstance(explain, dict) else {}
+        )
+
+        # Build JSON if requested
+        if json_output:
+            payload = {
+                "overall_score": float(result.overall_score),
+                "threshold": float(threshold),
+                "passed": bool(result.passed),
+                "dimension_scores": dim_scores,
+                "dimension_weights": {
+                    k: float(v) for k, v in applied_dim_weights.items()
+                },
+                "contributions_percent": {
+                    k: float(v) for k, v in contributions.items()
+                },
+                "validity": {
+                    "rule_counts": validity_explain.get("rule_counts", {}),
+                    "per_field_counts": validity_explain.get("per_field_counts", {}),
+                    "applied_weights": validity_explain.get("applied_weights", {}),
+                },
+                "warnings": warnings,
+            }
+            click.echo(json.dumps(payload, indent=2))
+            return 0
+
+        # Human-readable output
+        status_icon = "✅" if result.passed else "❌"
+        status_text = "PASSED" if result.passed else "FAILED"
+
+        click.echo("📊 Scoring Explain")
+        click.echo("==================")
+        click.echo(
+            f"Overall: {result.overall_score:.1f}/100 {status_icon} {status_text}"
+        )
+        click.echo(f"Threshold: {threshold:.1f}/100")
+        click.echo("")
+        click.echo("Dimensions (score/20, weight, contribution to overall):")
+        # Ensure stable display order
+        for dim in [
+            "validity",
+            "completeness",
+            "consistency",
+            "freshness",
+            "plausibility",
+        ]:
+            if dim in dim_scores:
+                s = dim_scores[dim]
+                w = float(applied_dim_weights.get(dim, 1.0))
+                c = float(contributions.get(dim, 0.0))
+                click.echo(
+                    f"  • {dim}: {s:.2f}/20, weight={w:.2f}, contribution={c:.2f}%"
+                )
+
+        # Validity breakdown (if available)
+        rule_counts = validity_explain.get("rule_counts", {})
+        applied_weights = validity_explain.get("applied_weights", {})
+        global_weights = (applied_weights or {}).get("global", {}) or {}
+
+        # Only show if we have anything
+        active_rules = (
+            [rk for rk, cnt in rule_counts.items() if cnt.get("total", 0) > 0]
+            if isinstance(rule_counts, dict)
+            else []
+        )
+        if active_rules:
+            click.echo("")
+            click.echo("Validity rule-type breakdown:")
+            for rk in [
+                "type",
+                "allowed_values",
+                "pattern",
+                "length_bounds",
+                "numeric_bounds",
+                "date_bounds",
+            ]:
+                cnt = rule_counts.get(rk, {}) if isinstance(rule_counts, dict) else {}
+                total = int(cnt.get("total", 0) or 0)
+                passed_c = int(cnt.get("passed", 0) or 0)
+                if total <= 0:
+                    continue
+                pass_rate = (passed_c / total) * 100.0
+                gw = float(global_weights.get(rk, 0.0))
+                click.echo(
+                    f"  - {rk}: {passed_c}/{total} ({pass_rate:.1f}%), weight={gw:.2f}"
+                )
+
+        if warnings:
+            click.echo("")
+            click.echo("⚠️  Warnings:")
+            for w in warnings:
+                click.echo(f"  - {w}")
+
+        return 0
+
+    except Exception as e:
+        click.echo(f"❌ Scoring explain failed: {e}")
+        return 1
+
+
+def scoring_preset_apply_command(
+    preset: str,
+    standard_path: str,
+    output_path: Optional[str] = None,
+) -> int:
+    """Apply a scoring preset to a standard's dimension requirements."""
+    try:
+        # Resolve paths
+        resolved_standard_path = _resolve_project_path(standard_path)
+        if not resolved_standard_path.exists():
+            click.echo(f"❌ Standard file not found: {standard_path}")
+            click.echo(_get_project_root_display())
+            click.echo(f"📋 Path tried: {_rel_to_project_root(resolved_standard_path)}")
+            return 1
+
+        # Load standard YAML
+        std = load_standard(str(resolved_standard_path)) if load_standard else None
+        if std is None:
+            with open(resolved_standard_path, "r") as f:
+                std = yaml.safe_load(f) or {}
+
+        if not isinstance(std, dict):
+            click.echo("❌ Invalid standard structure")
+            return 1
+
+        req = std.setdefault("requirements", {})
+        dim_reqs = req.setdefault("dimension_requirements", {})
+
+        # Define presets
+        presets = {
+            "balanced": {
+                "weights": {
+                    "validity": 1.0,
+                    "completeness": 1.0,
+                    "consistency": 1.0,
+                    "freshness": 1.0,
+                    "plausibility": 1.0,
+                },
+                "minimums": {
+                    "validity": 15.0,
+                    "completeness": 15.0,
+                    "consistency": 12.0,
+                    "freshness": 15.0,
+                    "plausibility": 12.0,
+                },
+                "validity_rule_weights": {
+                    "type": 0.30,
+                    "allowed_values": 0.20,
+                    "pattern": 0.20,
+                    "length_bounds": 0.10,
+                    "numeric_bounds": 0.20,
+                },
+            },
+            "strict": {
+                "weights": {
+                    "validity": 1.3,
+                    "completeness": 1.2,
+                    "consistency": 1.1,
+                    "freshness": 1.0,
+                    "plausibility": 0.9,
+                },
+                "minimums": {
+                    "validity": 17.0,
+                    "completeness": 17.0,
+                    "consistency": 14.0,
+                    "freshness": 16.0,
+                    "plausibility": 14.0,
+                },
+                "validity_rule_weights": {
+                    "type": 0.35,
+                    "allowed_values": 0.15,
+                    "pattern": 0.25,
+                    "length_bounds": 0.10,
+                    "numeric_bounds": 0.25,
+                },
+            },
+            "lenient": {
+                "weights": {
+                    "validity": 0.9,
+                    "completeness": 0.8,
+                    "consistency": 1.0,
+                    "freshness": 1.0,
+                    "plausibility": 1.0,
+                },
+                "minimums": {
+                    "validity": 12.0,
+                    "completeness": 12.0,
+                    "consistency": 10.0,
+                    "freshness": 12.0,
+                    "plausibility": 10.0,
+                },
+                "validity_rule_weights": {
+                    "type": 0.25,
+                    "allowed_values": 0.25,
+                    "pattern": 0.15,
+                    "length_bounds": 0.10,
+                    "numeric_bounds": 0.25,
+                },
+            },
+        }
+
+        if preset not in presets:
+            click.echo(f"❌ Unknown preset: {preset}")
+            click.echo("Available: balanced, strict, lenient")
+            return 1
+
+        cfg = presets[preset]
+
+        # Apply per-dimension settings
+        changed_dims = []
+        for dim in [
+            "validity",
+            "completeness",
+            "consistency",
+            "freshness",
+            "plausibility",
+        ]:
+            dim_cfg = dim_reqs.setdefault(dim, {})
+            before_weight = dim_cfg.get("weight")
+            before_min = dim_cfg.get("minimum_score")
+            dim_cfg["weight"] = float(
+                cfg["weights"].get(dim, dim_cfg.get("weight", 1.0))
+            )
+            dim_cfg["minimum_score"] = float(
+                cfg["minimums"].get(dim, dim_cfg.get("minimum_score", 15.0))
+            )
+            if dim == "validity":
+                scoring = dim_cfg.setdefault("scoring", {})
+                rw = scoring.setdefault("rule_weights", {})
+                # Overwrite rule_weights with preset (field_overrides untouched)
+                scoring["rule_weights"] = {
+                    k: float(v) for k, v in cfg["validity_rule_weights"].items()
+                }
+                scoring.setdefault(
+                    "field_overrides", scoring.get("field_overrides", {})
+                )
+            changed_dims.append(
+                f"{dim} (weight {before_weight}→{dim_cfg['weight']}, min {before_min}→{dim_cfg['minimum_score']})"
+            )
+
+        # Determine output path
+        out_path = (
+            _resolve_project_path(output_path)
+            if output_path
+            else resolved_standard_path
+        )
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+
+        with open(out_path, "w") as f:
+            yaml.dump(std, f, default_flow_style=False, sort_keys=False)
+
+        if output_path:
+            click.echo(
+                f"✅ Preset '{preset}' applied and saved to: {_rel_to_project_root(out_path)}"
+            )
+        else:
+            click.echo(
+                f"✅ Preset '{preset}' applied in-place: {_rel_to_project_root(out_path)}"
+            )
+
+        click.echo("Changes:")
+        for line in changed_dims:
+            click.echo(f"  • {line}")
+
+        return 0
+
+    except Exception as e:
+        click.echo(f"❌ Failed to apply preset: {e}")
+        return 1
+
+
 @click.group()
 @click.version_option(version=__version__, prog_name="adri")
 def cli():
@@ -1872,6 +2186,35 @@ def show_standard(standard_name, verbose):
 def view_logs(recent, today, verbose):
     """View audit logs from CSV files."""
     sys.exit(view_logs_command(recent, today, verbose))
+
+
+@cli.command("scoring-explain")
+@click.argument("data_path")
+@click.option(
+    "--standard", "standard_path", required=True, help="Path to YAML standard file"
+)
+@click.option(
+    "--json", "json_output", is_flag=True, help="Output machine-readable breakdown JSON"
+)
+def scoring_explain(data_path, standard_path, json_output):
+    """Explain scoring breakdown for a dataset against a standard."""
+    sys.exit(scoring_explain_command(data_path, standard_path, json_output))
+
+
+@cli.command("scoring-preset-apply")
+@click.argument("preset", type=click.Choice(["balanced", "strict", "lenient"]))
+@click.option(
+    "--standard", "standard_path", required=True, help="Path to YAML standard file"
+)
+@click.option(
+    "-o",
+    "--output",
+    "output_path",
+    help="Write modified standard to this path (defaults to in-place)",
+)
+def scoring_preset_apply(preset, standard_path, output_path):
+    """Apply a scoring preset to a standard's dimension requirements."""
+    sys.exit(scoring_preset_apply_command(preset, standard_path, output_path))
 
 
 def main():
