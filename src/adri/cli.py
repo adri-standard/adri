@@ -85,6 +85,81 @@ def _resolve_project_path(relative_path: str) -> Path:
         return Path.cwd() / relative_path
 
 
+# === Path/Display Helpers for Guide UX ===
+def _shorten_home(path: Path) -> str:
+    """Return a home-shortened absolute path, e.g. ~/project/file.txt."""
+    try:
+        abs_path = Path(os.path.abspath(str(path)))
+        home_abs = Path(os.path.abspath(str(Path.home())))
+        p_str = str(abs_path)
+        h_str = str(home_abs)
+        if p_str.startswith(h_str):
+            return "~" + p_str[len(h_str) :]
+        return p_str
+    except Exception:
+        # Best-effort fallback
+        try:
+            return str(path)
+        except Exception:
+            return ""
+
+
+def _rel_to_project_root(path: Path) -> str:
+    """Return path relative to ADRI project root if under it, else home-shortened absolute path.
+
+    Additionally, strip leading 'ADRI/' for display brevity when under the root.
+    """
+    try:
+        root = _find_adri_project_root()
+        abs_path = Path(os.path.abspath(str(path)))
+        if root:
+            root_abs = Path(os.path.abspath(str(root)))
+            try:
+                rel = abs_path.relative_to(root_abs)
+                rel_str = str(rel)
+                # Prefer concise in-project display (strip leading 'ADRI/')
+                if rel_str.startswith("ADRI/"):
+                    rel_str = rel_str[len("ADRI/") :]
+                return rel_str
+            except ValueError:
+                # Not under root - show shortened absolute
+                return _shorten_home(abs_path)
+        # No root - show shortened absolute
+        return _shorten_home(abs_path)
+    except Exception:
+        # Robust fallback
+        return _shorten_home(Path(path))
+
+
+def _get_project_root_display() -> str:
+    """Return '📂 Project Root: ~/...' or '(not detected)'."""
+    root = _find_adri_project_root()
+    if root:
+        return f"📂 Project Root: {_shorten_home(Path(root))}"
+    return "📂 Project Root: (not detected)"
+
+
+def _get_threshold_from_standard(standard_path: Path) -> float:
+    """Read requirements.overall_minimum from a standard YAML, defaulting to 75.0.
+
+    Clamp to [0, 100] and return a float.
+    """
+    try:
+        std = load_standard(str(standard_path)) if load_standard else None
+        if std is None:
+            with open(standard_path, "r") as f:
+                std = yaml.safe_load(f) or {}
+        req = std.get("requirements", {}) if isinstance(std, dict) else {}
+        thr = float(req.get("overall_minimum", 75.0))
+        if thr < 0.0:
+            thr = 0.0
+        if thr > 100.0:
+            thr = 100.0
+        return thr
+    except Exception:
+        return 75.0
+
+
 def create_sample_files() -> None:
     """Create sample CSV files for guided experience."""
     # Good invoice data - clean and complete (for training/creating standards)
@@ -131,6 +206,8 @@ def show_help_guide() -> int:
     """Show first-time user guide."""
     click.echo("🚀 ADRI - First Time User Guide")
     click.echo("===============================")
+    click.echo("")
+    click.echo(_get_project_root_display())
     click.echo("")
     click.echo("📁 Directory Structure:")
     click.echo("   tutorials/          → Packaged learning examples")
@@ -517,7 +594,7 @@ def _save_assessment_report(guide, data_path, result):
         json.dump(report_data, f, indent=2)
 
 
-def _display_assessment_results(result, data, guide):
+def _display_assessment_results(result, data, guide, threshold: float = 75.0):
     """Display assessment results in appropriate format."""
     status_icon = "✅" if result.passed else "❌"
     status_text = "PASSED" if result.passed else "FAILED"
@@ -534,6 +611,7 @@ def _display_assessment_results(result, data, guide):
         click.echo(
             f"🎯 Agent System Health: {result.overall_score:.1f}/100 {status_icon} {status_text}"
         )
+        click.echo(f"Threshold = {threshold:.1f}/100 (set in your standard)")
         click.echo("   → Overall reliability for AI agent workflows")
         click.echo(
             "   → Use for: monitoring agent performance, framework integration health"
@@ -557,10 +635,7 @@ def _display_assessment_results(result, data, guide):
                 click.echo(f"   • ... and {remaining} more records with issues")
 
         click.echo("")
-        click.echo("▶ Next: adri list-assessments --verbose")
-        click.echo("▶ View audit trail: adri view-logs")
-        if not result.passed:
-            click.echo("▶ See specific issues: adri view-logs --verbose")
+        click.echo("▶ Next: adri view-logs")
     else:
         # Simple non-guide mode output
         passed_records = int((result.overall_score / 100.0) * total_records)
@@ -576,27 +651,36 @@ def _display_assessment_results(result, data, guide):
 
 
 def _analyze_failed_records(data):
-    """Analyze data to find records with issues."""
+    """Analyze data to find records with issues and append concise remediation hints."""
     import pandas as pd
 
     failed_records_list = []
     for i, row in data.iterrows():
         issues = []
 
-        # Check for missing values
-        if row.isnull().any():
-            missing_fields = [col for col in row.index if pd.isna(row[col])]
-            if missing_fields:
-                issues.append(f"missing {', '.join(missing_fields[:2])}")
+        # Check for missing values (treat NaN/None and empty/whitespace-only strings as missing)
+        def _is_missing(v):
+            try:
+                if pd.isna(v):
+                    return True
+            except Exception:
+                pass
+            return isinstance(v, str) and v.strip() == ""
+
+        missing_fields = [col for col in row.index if _is_missing(row[col])]
+        if missing_fields:
+            # Limit to top 2 missing fields to avoid verbosity
+            top_missing = missing_fields[:2]
+            issues.append(("missing", top_missing))
 
         # Check for negative amounts
         if "amount" in row and pd.notna(row["amount"]):
             try:
                 amount_val = float(row["amount"])
                 if amount_val < 0:
-                    issues.append("negative amount")
+                    issues.append(("negative_amount", None))
             except (ValueError, TypeError):
-                issues.append("invalid amount format")
+                issues.append(("invalid_amount_format", None))
 
         # Check for invalid dates
         if (
@@ -604,13 +688,34 @@ def _analyze_failed_records(data):
             and pd.notna(row["date"])
             and "invalid" in str(row["date"]).lower()
         ):
-            issues.append("invalid date format")
+            issues.append(("invalid_date_format", None))
 
         if issues:
             record_id = row.get("invoice_id", f"Row {i+1}")
             if pd.isna(record_id):
                 record_id = f"Row {i+1}"
-            failed_records_list.append(f"   • {record_id}: {', '.join(issues)}")
+
+            # Map issues to human-friendly text + remediation hints
+            parts = []
+            for code, payload in issues:
+                if code == "missing":
+                    # payload is list of fields
+                    fields_str = ", ".join(payload)
+                    parts.append(
+                        f"missing {fields_str} (fill missing {fields_str} values)"
+                    )
+                elif code == "negative_amount":
+                    parts.append("negative amount (should be ≥ 0)")
+                elif code == "invalid_date_format":
+                    parts.append("invalid date format (use YYYY-MM-DD)")
+                elif code == "invalid_amount_format":
+                    parts.append(
+                        "invalid amount format (fix amount format to a valid number)"
+                    )
+                else:
+                    parts.append(str(code))
+
+            failed_records_list.append(f"   • {record_id}: {', '.join(parts)}")
 
     return failed_records_list
 
@@ -686,43 +791,32 @@ def assess_command(
         if not resolved_data_path.exists():
             if guide:
                 project_root = _find_adri_project_root()
-                if project_root:
-                    click.echo(
-                        f"❌ Assessment failed: Data file not found: {data_path}"
-                    )
-                    click.echo(f"▶ Searched in project: {project_root}")
-                    click.echo(f"▶ Full path: {resolved_data_path}")
-                    click.echo("💡 Make sure you ran 'adri setup --guide' first")
-                else:
-                    click.echo(
-                        f"❌ Assessment failed: Data file not found: {data_path}"
-                    )
+                click.echo(f"❌ Assessment failed: Data file not found: {data_path}")
+                click.echo(_get_project_root_display())
+                # Show where we looked, using concise relative if possible
+                click.echo(f"📄 Testing: {_rel_to_project_root(resolved_data_path)}")
+                if not project_root:
                     click.echo(
                         "💡 Run 'adri setup --guide' to initialize project structure"
                     )
+                else:
+                    click.echo("💡 Make sure you ran 'adri setup --guide' first")
             else:
                 click.echo(f"❌ Assessment failed: Data file not found: {data_path}")
             return 1
 
         if not resolved_standard_path.exists():
             if guide:
-                project_root = _find_adri_project_root()
-                if project_root:
-                    click.echo(
-                        f"❌ Assessment failed: Standard file not found: {standard_path}"
-                    )
-                    click.echo(f"▶ Searched in project: {project_root}")
-                    click.echo(f"▶ Full path: {resolved_standard_path}")
-                    click.echo(
-                        "💡 Generate a standard first: adri generate-standard <data> --guide"
-                    )
-                else:
-                    click.echo(
-                        f"❌ Assessment failed: Standard file not found: {standard_path}"
-                    )
-                    click.echo(
-                        "💡 Run 'adri setup --guide' to initialize project structure"
-                    )
+                click.echo(
+                    f"❌ Assessment failed: Standard file not found: {standard_path}"
+                )
+                click.echo(_get_project_root_display())
+                click.echo(
+                    f"📋 Against Standard: {_rel_to_project_root(resolved_standard_path)}"
+                )
+                click.echo(
+                    "💡 Generate a standard first: adri generate-standard <data> --guide"
+                )
             else:
                 click.echo(
                     f"❌ Assessment failed: Standard file not found: {standard_path}"
@@ -733,8 +827,11 @@ def assess_command(
             click.echo("📊 ADRI Data Quality Assessment")
             click.echo("==============================")
             click.echo("")
-            click.echo(f"📄 Testing: {data_path}")
-            click.echo(f"📋 Against Standard: {standard_path}")
+            click.echo(_get_project_root_display())
+            click.echo(f"📄 Testing: {_rel_to_project_root(resolved_data_path)}")
+            click.echo(
+                f"📋 Against Standard: {_rel_to_project_root(resolved_standard_path)}"
+            )
             click.echo("🔍 Running 5-dimension quality analysis...")
             click.echo("")
 
@@ -759,7 +856,11 @@ def assess_command(
 
         # Save report and display results
         _save_assessment_report(guide, data_path, result)
-        _display_assessment_results(result, data, guide)
+
+        # Compute threshold from standard for clarity line
+        threshold = _get_threshold_from_standard(resolved_standard_path)
+
+        _display_assessment_results(result, data, guide, threshold)
 
         # Save manual report if specified
         if output_path:
@@ -900,7 +1001,10 @@ def generate_standard_command(
             click.echo("📊 Generating ADRI Standard from Data Analysis")
             click.echo("=============================================")
             click.echo("")
-            click.echo("📄 Analyzing: {}".format(data_path))
+            click.echo(_get_project_root_display())
+            click.echo(
+                "📄 Analyzing: {}".format(_rel_to_project_root(resolved_data_path))
+            )
             click.echo("📋 Creating data quality rules based on your good data...")
             click.echo("🔍 Creating training data snapshot for lineage tracking...")
 
@@ -1007,7 +1111,7 @@ def generate_standard_command(
             click.echo("✅ Standard Generated Successfully!")
             click.echo("==================================")
             click.echo(f"📄 Standard: {standard['standards']['name']}")
-            click.echo(f"📁 Saved to: {output_path}")
+            click.echo(f"📁 Saved to: {_rel_to_project_root(output_path)}")
             click.echo("")
             click.echo("📋 What the standard contains:")
             click.echo(f"   • {len(field_requirements)} field requirements")
@@ -1016,22 +1120,12 @@ def generate_standard_command(
             )
             click.echo("   • Overall minimum score: 75.0/100")
             click.echo("")
-            click.echo("🎯 Next Step - Test Data Quality:")
-            click.echo("===============================")
+            # Single CTA to proceed to Step 3
             if "invoice_data" in data_path:
-                click.echo(
-                    "adri assess tutorials/invoice_processing/test_invoice_data.csv --standard dev/standards/invoice_data_ADRI_standard.yaml --guide"
-                )
+                next_cmd = "adri assess tutorials/invoice_processing/test_invoice_data.csv --standard dev/standards/invoice_data_ADRI_standard.yaml --guide"
             else:
-                click.echo(
-                    "adri assess your_test_data.csv --standard {} --guide".format(
-                        output_path
-                    )
-                )
-            click.echo("")
-            click.echo(
-                "💡 This will test data with quality issues against your new standard!"
-            )
+                next_cmd = f"adri assess your_test_data.csv --standard {_rel_to_project_root(output_path)} --guide"
+            click.echo(f"▶ Next: {next_cmd}")
         else:
             click.echo("✅ Standard generated successfully!")
             click.echo(f"📄 Standard: {standard['standards']['name']}")
@@ -1348,9 +1442,6 @@ def _display_assessments_table(enhanced_table_data, table_data, verbose):
             click.echo(f"  {i}. {entry['file']}")
         click.echo()
 
-    click.echo("▶ View details: adri list-assessments --verbose")
-    click.echo("▶ View audit trail: adri view-logs")
-
 
 def list_assessments_command(recent: int = 10, verbose: bool = False) -> int:
     """List previous assessment reports."""
@@ -1561,6 +1652,16 @@ def _display_audit_logs_table(table_data, log_entries, audit_logs_dir, verbose):
     click.echo(f"   📄 {audit_logs_dir}/adri_assessment_logs.csv")
     click.echo(f"   📊 {audit_logs_dir}/adri_dimension_scores.csv")
     click.echo(f"   ❌ {audit_logs_dir}/adri_failed_validations.csv")
+
+    # Always-on wrap-up banner after logs
+    click.echo()
+    click.echo("🎉 ADRI onboarding complete!")
+    click.echo("You now know how to:")
+    click.echo("  • Generate a standard")
+    click.echo("  • Assess data")
+    click.echo("  • Review assessments")
+    click.echo("  • Audit logs")
+    click.echo("👉 Next: Integrate ADRI into your agent workflow (see docs)")
 
 
 def view_logs_command(
