@@ -36,12 +36,21 @@ jobs:
         with:
           fetch-depth: 0
 
+      # Use Node 20 on GitHub runners, but avoid downloads under act (local) where Node is preinstalled
       - name: Setup Node.js
+        if: ${{ !env.ACT }}
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
           cache-dependency-path: docs/package-lock.json
+
+      - name: Setup Node.js (act local)
+        if: ${{ env.ACT }}
+        run: |
+          echo "Using preinstalled Node & npm under act:"
+          node -v
+          npm -v
 
       - name: Install dependencies
         run: |

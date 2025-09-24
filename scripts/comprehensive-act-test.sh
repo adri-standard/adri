@@ -72,6 +72,8 @@ run_act_command() {
     if timeout "$timeout_duration" act \
         -W "$workflow_file" \
         -j "$job_name" \
+        --artifact-server-path "$TEMP_DIR/artifacts" \
+        $additional_args \
         > "$output_file" 2>&1; then
 
         local end_time=$(date +%s)

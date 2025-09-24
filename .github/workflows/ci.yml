@@ -111,10 +111,12 @@ jobs:
         adri --version
         python -c "import adri; print(f'ADRI version: {adri.__version__}')"
 
+    # Skip artifact upload under act (local) - fails due to missing node in runner
     - name: Upload build artifacts
+      if: ${{ !env.ACT }}
       uses: actions/upload-artifact@v4
       with:
-        name: dist-${{ github.run_number }}
+        name: adri-build-${{ matrix.python-version }}
         path: dist/
 
   validate-root-structure:

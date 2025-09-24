@@ -25,7 +25,8 @@ exclude =
     examples,
     demos,
     external,
-    scripts
+    scripts,
+    .dev-testing
 per-file-ignores =
     # Tests can have longer lines and more complex imports
     tests/*:E501,F401,F811
@@ -35,8 +36,8 @@ per-file-ignores =
     setup.py:E501
     # ADRI core modules - relax docstring and complexity for now
     src/adri/analysis/rule_inference.py:D101,D200,D205,D400,C901
-    src/adri/analysis/standard_generator.py:D205,D400,C901
-    src/adri/validator/engine.py:D107,E702,C901
+    src/adri/analysis/standard_generator.py:D205,D400
+    src/adri/validator/engine.py:D107,E702
     # CLI: minor style relaxations for user output formatting and long docstring headers
     src/adri/cli.py:E221,D205
 max-complexity = 25

@@ -609,6 +609,203 @@ class ValidationEngine:
             )
         return active
 
+    # --------------------- Validity scoring helper methods ---------------------
+    def _compute_validity_rule_counts(
+        self, data: pd.DataFrame, field_requirements: Dict[str, Any]
+    ):
+        """
+        Compute totals and passes per rule type and per field for validity scoring.
+
+        Returns (counts, per_field_counts) with the same structure used in explain payloads.
+        """
+        # Import validation rules (apply in strict order)
+        from collections import defaultdict
+
+        from .rules import (
+            check_allowed_values,
+            check_date_bounds,
+            check_field_pattern,
+            check_field_range,
+            check_field_type,
+            check_length_bounds,
+        )
+
+        RULE_KEYS = [
+            "type",
+            "allowed_values",
+            "length_bounds",
+            "pattern",
+            "numeric_bounds",
+            "date_bounds",
+        ]
+
+        counts = {rk: {"passed": 0, "total": 0} for rk in RULE_KEYS}
+        per_field_counts: Dict[str, Dict[str, Dict[str, int]]] = defaultdict(
+            lambda: {rk: {"passed": 0, "total": 0} for rk in RULE_KEYS}
+        )
+
+        for column in data.columns:
+            if column not in field_requirements:
+                continue
+            field_req = field_requirements[column]
+            series = data[column].dropna()
+
+            for value in series:
+                # 1) Type
+                counts["type"]["total"] += 1
+                per_field_counts[column]["type"]["total"] += 1
+                if not check_field_type(value, field_req):
+                    # type failed; short-circuit further checks for this value
+                    continue
+                counts["type"]["passed"] += 1
+                per_field_counts[column]["type"]["passed"] += 1
+
+                # 2) Allowed values (only if rule present)
+                if "allowed_values" in field_req:
+                    counts["allowed_values"]["total"] += 1
+                    per_field_counts[column]["allowed_values"]["total"] += 1
+                    if not check_allowed_values(value, field_req):
+                        continue
+                    counts["allowed_values"]["passed"] += 1
+                    per_field_counts[column]["allowed_values"]["passed"] += 1
+
+                # 3) Length bounds (only if present)
+                if ("min_length" in field_req) or ("max_length" in field_req):
+                    counts["length_bounds"]["total"] += 1
+                    per_field_counts[column]["length_bounds"]["total"] += 1
+                    if not check_length_bounds(value, field_req):
+                        continue
+                    counts["length_bounds"]["passed"] += 1
+                    per_field_counts[column]["length_bounds"]["passed"] += 1
+
+                # 4) Pattern (only if present)
+                if "pattern" in field_req:
+                    counts["pattern"]["total"] += 1
+                    per_field_counts[column]["pattern"]["total"] += 1
+                    if not check_field_pattern(value, field_req):
+                        continue
+                    counts["pattern"]["passed"] += 1
+                    per_field_counts[column]["pattern"]["passed"] += 1
+
+                # 5) Numeric bounds (only if present)
+                if ("min_value" in field_req) or ("max_value" in field_req):
+                    counts["numeric_bounds"]["total"] += 1
+                    per_field_counts[column]["numeric_bounds"]["total"] += 1
+                    if not check_field_range(value, field_req):
+                        continue
+                    counts["numeric_bounds"]["passed"] += 1
+                    per_field_counts[column]["numeric_bounds"]["passed"] += 1
+
+                # 6) Date/datetime bounds (only if present)
+                if any(
+                    k in field_req
+                    for k in [
+                        "after_date",
+                        "before_date",
+                        "after_datetime",
+                        "before_datetime",
+                    ]
+                ):
+                    counts["date_bounds"]["total"] += 1
+                    per_field_counts[column]["date_bounds"]["total"] += 1
+                    if not check_date_bounds(value, field_req):
+                        continue
+                    counts["date_bounds"]["passed"] += 1
+                    per_field_counts[column]["date_bounds"]["passed"] += 1
+
+        return counts, per_field_counts
+
+    def _apply_global_rule_weights(
+        self,
+        counts: Dict[str, Dict[str, int]],
+        rule_weights_cfg: Dict[str, float],
+        rule_keys: List[str],
+    ):
+        """
+        Apply normalized global rule weights to aggregate score.
+
+        Returns (S_raw_contrib, W_contrib, applied_global_weights).
+        """
+        S_raw = 0.0
+        W = 0.0
+        applied_global = self._normalize_rule_weights(
+            rule_weights_cfg, rule_keys, counts
+        )
+
+        for rule_name, weight in applied_global.items():
+            total = counts.get(rule_name, {}).get("total", 0)
+            if total <= 0:
+                continue
+            passed = counts[rule_name]["passed"]
+            score_r = passed / total
+            S_raw += float(weight) * score_r
+            W += float(weight)
+
+        return S_raw, W, applied_global
+
+    def _apply_field_overrides(
+        self,
+        per_field_counts: Dict[str, Dict[str, Dict[str, int]]],
+        overrides_cfg: Dict[str, Dict[str, float]],
+        rule_keys: List[str],
+    ):
+        """
+        Apply field-level overrides to aggregate score.
+
+        Returns (S_raw_contrib, W_contrib, applied_overrides_dict).
+        """
+        S_add = 0.0
+        W_add = 0.0
+        applied_overrides: Dict[str, Dict[str, float]] = {}
+
+        if isinstance(overrides_cfg, dict):
+            for field_name, overrides in overrides_cfg.items():
+                if field_name not in per_field_counts or not isinstance(
+                    overrides, dict
+                ):
+                    continue
+                for rule_name, weight in overrides.items():
+                    if rule_name not in rule_keys:
+                        continue
+                    try:
+                        fw = float(weight)
+                    except Exception:
+                        fw = 0.0
+                    if fw <= 0.0:
+                        if isinstance(weight, (int, float)) and weight < 0:
+                            self._scoring_warnings.append(
+                                f"Validity field_overrides contained negative weight for '{field_name}.{rule_name}', clamped to 0.0"
+                            )
+                        continue
+                    c = per_field_counts[field_name].get(rule_name)
+                    if not c or c.get("total", 0) <= 0:
+                        continue
+                    passed = c["passed"]
+                    total = c["total"]
+                    score_fr = passed / total
+                    S_add += fw * score_fr
+                    W_add += fw
+                    applied_overrides.setdefault(field_name, {})[rule_name] = fw
+
+        return S_add, W_add, applied_overrides
+
+    def _assemble_validity_explain(
+        self,
+        counts: Dict[str, Any],
+        per_field_counts: Dict[str, Any],
+        applied_global: Dict[str, float],
+        applied_overrides: Dict[str, Dict[str, float]],
+    ) -> Dict[str, Any]:
+        """Assemble the validity explain payload preserving existing schema."""
+        return {
+            "rule_counts": counts,
+            "per_field_counts": per_field_counts,
+            "applied_weights": {
+                "global": applied_global,
+                "overrides": applied_overrides,
+            },
+        }
+
     def assess(self, data: pd.DataFrame, standard_path: str) -> AssessmentResult:
         """
         Run assessment on data using the provided standard.
@@ -857,9 +1054,6 @@ class ValidationEngine:
             return success_rate * 20.0
 
         # Weighted rule-type scoring
-        # Track totals and passes per rule type, and per field for overrides
-        from collections import defaultdict
-
         RULE_KEYS = [
             "type",
             "allowed_values",
@@ -869,130 +1063,20 @@ class ValidationEngine:
             "date_bounds",
         ]
 
-        counts = {rk: {"passed": 0, "total": 0} for rk in RULE_KEYS}
-        per_field_counts: Dict[str, Dict[str, Dict[str, int]]] = defaultdict(
-            lambda: {rk: {"passed": 0, "total": 0} for rk in RULE_KEYS}
+        counts, per_field_counts = self._compute_validity_rule_counts(
+            data, field_requirements
         )
 
-        for column in data.columns:
-            if column not in field_requirements:
-                continue
-            field_req = field_requirements[column]
-            series = data[column].dropna()
-
-            for value in series:
-                # 1) Type
-                counts["type"]["total"] += 1
-                per_field_counts[column]["type"]["total"] += 1
-                if not check_field_type(value, field_req):
-                    # type failed; count fail and short-circuit further checks for this value
-                    # (other rule totals are not incremented when type fails)
-                    # do not increment 'passed' for type
-                    continue
-                counts["type"]["passed"] += 1
-                per_field_counts[column]["type"]["passed"] += 1
-
-                # 2) Allowed values (only if rule present)
-                if "allowed_values" in field_req:
-                    counts["allowed_values"]["total"] += 1
-                    per_field_counts[column]["allowed_values"]["total"] += 1
-                    if not check_allowed_values(value, field_req):
-                        continue
-                    counts["allowed_values"]["passed"] += 1
-                    per_field_counts[column]["allowed_values"]["passed"] += 1
-
-                # 3) Length bounds (only if present)
-                if ("min_length" in field_req) or ("max_length" in field_req):
-                    counts["length_bounds"]["total"] += 1
-                    per_field_counts[column]["length_bounds"]["total"] += 1
-                    if not check_length_bounds(value, field_req):
-                        continue
-                    counts["length_bounds"]["passed"] += 1
-                    per_field_counts[column]["length_bounds"]["passed"] += 1
-
-                # 4) Pattern (only if present)
-                if "pattern" in field_req:
-                    counts["pattern"]["total"] += 1
-                    per_field_counts[column]["pattern"]["total"] += 1
-                    if not check_field_pattern(value, field_req):
-                        continue
-                    counts["pattern"]["passed"] += 1
-                    per_field_counts[column]["pattern"]["passed"] += 1
-
-                # 5) Numeric bounds (only if present)
-                if ("min_value" in field_req) or ("max_value" in field_req):
-                    counts["numeric_bounds"]["total"] += 1
-                    per_field_counts[column]["numeric_bounds"]["total"] += 1
-                    if not check_field_range(value, field_req):
-                        continue
-                    counts["numeric_bounds"]["passed"] += 1
-                    per_field_counts[column]["numeric_bounds"]["passed"] += 1
-
-                # 6) Date/datetime bounds (only if present)
-                if any(
-                    k in field_req
-                    for k in [
-                        "after_date",
-                        "before_date",
-                        "after_datetime",
-                        "before_datetime",
-                    ]
-                ):
-                    counts["date_bounds"]["total"] += 1
-                    per_field_counts[column]["date_bounds"]["total"] += 1
-                    if not check_date_bounds(value, field_req):
-                        continue
-                    counts["date_bounds"]["passed"] += 1
-                    per_field_counts[column]["date_bounds"]["passed"] += 1
-
-        # Compute weighted score with normalization
-        S_raw = 0.0
-        W = 0.0
-
-        # Normalize global rule weights against active rule types
-        applied_global = self._normalize_rule_weights(
-            rule_weights_cfg, RULE_KEYS, counts
+        # Apply global weights and field overrides
+        Sg, Wg, applied_global = self._apply_global_rule_weights(
+            counts, rule_weights_cfg, RULE_KEYS
+        )
+        So, Wo, applied_overrides = self._apply_field_overrides(
+            per_field_counts, field_overrides_cfg, RULE_KEYS
         )
 
-        for rule_name, weight in applied_global.items():
-            total = counts.get(rule_name, {}).get("total", 0)
-            if total <= 0:
-                continue
-            passed = counts[rule_name]["passed"]
-            score_r = passed / total
-            S_raw += float(weight) * score_r
-            W += float(weight)
-
-        # Field overrides (clamp to non-negative, ignore unknown rules)
-        applied_overrides: Dict[str, Dict[str, float]] = {}
-        if isinstance(field_overrides_cfg, dict):
-            for field_name, overrides in field_overrides_cfg.items():
-                if field_name not in per_field_counts or not isinstance(
-                    overrides, dict
-                ):
-                    continue
-                for rule_name, weight in overrides.items():
-                    if rule_name not in RULE_KEYS:
-                        continue
-                    try:
-                        fw = float(weight)
-                    except Exception:
-                        fw = 0.0
-                    if fw <= 0.0:
-                        if isinstance(weight, (int, float)) and weight < 0:
-                            self._scoring_warnings.append(
-                                f"Validity field_overrides contained negative weight for '{field_name}.{rule_name}', clamped to 0.0"
-                            )
-                        continue
-                    c = per_field_counts[field_name].get(rule_name)
-                    if not c or c.get("total", 0) <= 0:
-                        continue
-                    passed = c["passed"]
-                    total = c["total"]
-                    score_fr = passed / total
-                    S_raw += fw * score_fr
-                    W += fw
-                    applied_overrides.setdefault(field_name, {})[rule_name] = fw
+        S_raw = Sg + So
+        W = Wg + Wo
 
         if W <= 0.0:
             # No applicable weighted components; fall back to default good score
@@ -1000,27 +1084,17 @@ class ValidationEngine:
                 "No applicable validity rule weights after normalization; using default score 18.0/20"
             )
             # Cache minimal explain payload
-            self._explain["validity"] = {
-                "rule_counts": counts,
-                "per_field_counts": per_field_counts,
-                "applied_weights": {
-                    "global": applied_global,
-                    "overrides": applied_overrides,
-                },
-            }
+            self._explain["validity"] = self._assemble_validity_explain(
+                counts, per_field_counts, applied_global, applied_overrides
+            )
             return 18.0
 
         S = S_raw / W  # 0..1
 
         # Cache explain payload
-        self._explain["validity"] = {
-            "rule_counts": counts,
-            "per_field_counts": per_field_counts,
-            "applied_weights": {
-                "global": applied_global,
-                "overrides": applied_overrides,
-            },
-        }
+        self._explain["validity"] = self._assemble_validity_explain(
+            counts, per_field_counts, applied_global, applied_overrides
+        )
         return S * 20.0
 
     def _assess_completeness_with_standard(
