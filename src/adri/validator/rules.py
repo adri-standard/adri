@@ -58,7 +58,7 @@ def check_field_pattern(value: Any, field_req: Dict[str, Any]) -> bool:
 
 
 def check_field_range(value: Any, field_req: Dict[str, Any]) -> bool:
-    """Check if value is within the required range."""
+    """Check if value is within the required numeric range."""
     try:
         numeric_value = float(value)
 
@@ -75,6 +75,107 @@ def check_field_range(value: Any, field_req: Dict[str, Any]) -> bool:
     except Exception:
         # Not a numeric value, skip range check
         return True
+
+
+def check_allowed_values(value: Any, field_req: Dict[str, Any]) -> bool:
+    """Check if value is in allowed_values (robust to number/string comparisons)."""
+    allowed = field_req.get("allowed_values")
+    if not isinstance(allowed, list):
+        return True
+    try:
+        val_str = str(value)
+    except Exception:
+        val_str = f"{value}"
+    allowed_str = {str(v) for v in allowed}
+    return val_str in allowed_str
+
+
+def check_length_bounds(value: Any, field_req: Dict[str, Any]) -> bool:
+    """Check if string length within min_length/max_length when provided."""
+    min_len = field_req.get("min_length")
+    max_len = field_req.get("max_length")
+    # If neither bound provided, this check passes
+    if min_len is None and max_len is None:
+        return True
+    try:
+        s = str(value)
+    except Exception:
+        # If cannot stringify, consider as failure when any constraint exists
+        return False
+    L = len(s)
+    if min_len is not None and L < int(min_len):
+        return False
+    if max_len is not None and L > int(max_len):
+        return False
+    return True
+
+
+def _parse_date_iso(date_str: str):
+    """Parse YYYY-MM-DD into a date object; returns None on failure."""
+    from datetime import datetime
+
+    try:
+        return datetime.strptime(str(date_str), "%Y-%m-%d").date()
+    except Exception:
+        return None
+
+
+def _parse_datetime_iso(datetime_str: str):
+    """Parse ISO datetime (best effort) into a datetime; returns None on failure."""
+    from datetime import datetime
+
+    try:
+        # datetime.fromisoformat handles 'YYYY-MM-DD' and 'YYYY-MM-DDTHH:MM:SS' without Z
+        s = str(datetime_str).replace("Z", "")
+        return datetime.fromisoformat(s)
+    except Exception:
+        return None
+
+
+def check_date_bounds(value: Any, field_req: Dict[str, Any]) -> bool:
+    """Check value against date/datetime bounds if provided.
+
+    Supports:
+      - after_date / before_date (YYYY-MM-DD inclusive)
+      - after_datetime / before_datetime (ISO-like; inclusive)
+    """
+    after_d = field_req.get("after_date")
+    before_d = field_req.get("before_date")
+    after_dt = field_req.get("after_datetime")
+    before_dt = field_req.get("before_datetime")
+
+    # If no date-related bounds configured, pass
+    if not any([after_d, before_d, after_dt, before_dt]):
+        return True
+
+    # If datetime bounds present, try datetime comparison first
+    if after_dt or before_dt:
+        v_dt = _parse_datetime_iso(value)
+        if v_dt is None:
+            return False
+        if after_dt:
+            a_dt = _parse_datetime_iso(after_dt)
+            if a_dt and v_dt < a_dt:
+                return False
+        if before_dt:
+            b_dt = _parse_datetime_iso(before_dt)
+            if b_dt and v_dt > b_dt:
+                return False
+        return True
+
+    # Otherwise use date bounds
+    v_d = _parse_date_iso(value)
+    if v_d is None:
+        return False
+    if after_d:
+        a_d = _parse_date_iso(after_d)
+        if a_d and v_d < a_d:
+            return False
+    if before_d:
+        b_d = _parse_date_iso(before_d)
+        if b_d and v_d > b_d:
+            return False
+    return True
 
 
 def check_primary_key_uniqueness(data, standard_config):
@@ -229,6 +330,27 @@ def validate_field(
             f"Value does not match required type: {field_req.get('type', 'string')}"
         )
 
+    # Allowed values validation
+    if not check_allowed_values(value, field_req):
+        result["passed"] = False
+        result["errors"].append(
+            f"Value not in allowed_values: {field_req.get('allowed_values', [])}"
+        )
+
+    # Length bounds validation
+    if not check_length_bounds(value, field_req):
+        result["passed"] = False
+        min_len = field_req.get("min_length")
+        max_len = field_req.get("max_length")
+        if min_len is not None and max_len is not None:
+            result["errors"].append(
+                f"Value length must be between {min_len} and {max_len}"
+            )
+        elif min_len is not None:
+            result["errors"].append(f"Value length must be at least {min_len}")
+        elif max_len is not None:
+            result["errors"].append(f"Value length must be at most {max_len}")
+
     # Pattern validation
     if not check_field_pattern(value, field_req):
         result["passed"] = False
@@ -236,7 +358,7 @@ def validate_field(
             f"Value does not match required pattern: {field_req.get('pattern', '')}"
         )
 
-    # Range validation
+    # Numeric range validation
     if not check_field_range(value, field_req):
         result["passed"] = False
         min_val = field_req.get("min_value")
@@ -247,5 +369,19 @@ def validate_field(
             result["errors"].append(f"Value must be at least {min_val}")
         elif max_val is not None:
             result["errors"].append(f"Value must be at most {max_val}")
+
+    # Date/datetime bounds validation
+    if not check_date_bounds(value, field_req):
+        result["passed"] = False
+        after_d = field_req.get("after_date") or field_req.get("after_datetime")
+        before_d = field_req.get("before_date") or field_req.get("before_datetime")
+        if after_d and before_d:
+            result["errors"].append(
+                f"Value must be within date bounds [{after_d}, {before_d}]"
+            )
+        elif after_d:
+            result["errors"].append(f"Value must be on/after {after_d}")
+        elif before_d:
+            result["errors"].append(f"Value must be on/before {before_d}")
 
     return result

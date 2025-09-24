@@ -126,13 +126,29 @@ class StandardGenerator:
             elif "date" in patterns:
                 requirement["pattern"] = r"^\d{4}-\d{2}-\d{2}"
 
-            # Add length constraints
+            # Add length constraints (emit both min_length and max_length when available)
+            if "min_length" in field_profile:
+                try:
+                    requirement["min_length"] = int(field_profile["min_length"])
+                except Exception:
+                    pass
             if "max_length" in field_profile:
                 max_len = field_profile["max_length"]
-                if max_len < 1000:  # Only add if reasonable
-                    requirement["max_length"] = int(
-                        float(max_len) * 1.2
-                    )  # Allow 20% buffer
+                try:
+                    max_len_val = int(float(max_len))
+                except Exception:
+                    max_len_val = None
+                if (
+                    max_len_val is not None and max_len_val < 1000
+                ):  # Only add if reasonable
+                    # Keep the existing 20% buffer while ensuring it's >= min_length if present
+                    widened = int(float(max_len) * 1.2)
+                    if (
+                        "min_length" in requirement
+                        and widened < requirement["min_length"]
+                    ):
+                        widened = requirement["min_length"]
+                    requirement["max_length"] = widened
 
         return requirement
 
@@ -167,9 +183,64 @@ class StandardGenerator:
         """
         # Profile the data first
         data_profile = self.profiler.profile_data(data)
+        config = generation_config or {}
+        thresholds = config.get("default_thresholds", {})
 
-        # Generate standard from profile
-        return self.generate_standard(data_profile, data_name, generation_config)
+        # Build standards metadata
+        standard_metadata = {
+            "id": f"{data_name}_standard",
+            "name": f"{data_name.replace('_', ' ').title()} ADRI Standard",
+            "version": "1.0.0",
+            "authority": "ADRI Framework",
+            "description": f"Auto-generated standard for {data_name} data",
+        }
+
+        # Build field requirements with direct string-length fallback (guaranteed lengths for strings)
+        field_requirements: Dict[str, Any] = {}
+        prof_fields = (
+            (data_profile.get("fields") or {}) if isinstance(data_profile, dict) else {}
+        )
+
+        for col in data.columns:
+            fp = prof_fields.get(col, {"dtype": str(data[col].dtype)})
+            # Baseline requirement using existing logic
+            req = self._generate_single_field_requirement(fp)
+
+            # Ensure string length bounds are emitted for strings
+            try:
+                if req.get("type") == "string":
+                    non_null = data[col].dropna().astype(str)
+                    if len(non_null) > 0:
+                        min_len_observed = int(non_null.str.len().min())
+                        max_len_observed = int(non_null.str.len().max())
+                        # Emit min_length always
+                        req["min_length"] = int(fp.get("min_length", min_len_observed))
+                        # Emit max_length with 20% buffer but not below min_length
+                        widened = int(max_len_observed * 1.2)
+                        if widened < req["min_length"]:
+                            widened = req["min_length"]
+                        req["max_length"] = max(
+                            int(fp.get("max_length", 0)) if "max_length" in fp else 0,
+                            widened,
+                        )
+            except Exception:
+                # Best-effort; keep whatever baseline we had
+                pass
+
+            field_requirements[col] = req
+
+        # Build requirements with minimal dimension scaffolding
+        requirements = {
+            "overall_minimum": thresholds.get("overall_minimum", 75.0),
+            "field_requirements": field_requirements,
+            "dimension_requirements": self._generate_dimension_requirements(thresholds),
+        }
+
+        # Assemble final standard
+        return {
+            "standards": standard_metadata,
+            "requirements": requirements,
+        }
 
 
 # Convenience function
