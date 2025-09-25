@@ -6,6 +6,7 @@ Migrated and updated for the new src/ layout architecture.
 """
 
 import json
+from datetime import datetime
 from typing import Any, Dict, Optional
 
 import pandas as pd
@@ -902,7 +903,7 @@ class StandardGenerator:
                 "weight": 1.0,
                 "scoring": {
                     "rule_weights": {
-                        # "recency_window": 1.0  # enable when you add explicit recency rules
+                        "recency_window": 0.0  # inactive by default; generator may enable when safe
                     },
                     "field_overrides": {},
                 },
@@ -1097,6 +1098,65 @@ class StandardGenerator:
 
         # Enforce training-pass guarantee by self-validation and rule relaxation (log adjustments)
         standard = self._enforce_training_pass(data, standard)
+
+        # Freshness activation or scaffolding
+        try:
+            candidate_col = None
+            best_cov = 0.0
+            for col in data.columns:
+                s = data[col]
+                try:
+                    non_null = int(s.notna().sum())
+                except Exception:
+                    non_null = 0
+                if non_null <= 0:
+                    continue
+                parsed = pd.to_datetime(s, errors="coerce")
+                parsed_non_null = int(parsed.notna().sum())
+                cov = (parsed_non_null / non_null) if non_null > 0 else 0.0
+                if cov >= 0.9 and cov > best_cov:
+                    best_cov = cov
+                    candidate_col = col
+            meta = standard.setdefault("metadata", {})
+            if candidate_col:
+                meta["freshness"] = {
+                    "as_of": datetime.now().isoformat() + "Z",
+                    "window_days": 365,
+                    "date_field": candidate_col,
+                }
+                try:
+                    standard["requirements"]["dimension_requirements"].setdefault(
+                        "freshness", {}
+                    ).setdefault("scoring", {}).setdefault("rule_weights", {})[
+                        "recency_window"
+                    ] = 1.0
+                except Exception:
+                    pass
+            else:
+                meta["freshness_scaffolding"] = (
+                    "# freshness:\n"
+                    "#   as_of: " + datetime.now().isoformat() + "Z\n"
+                    "#   window_days: 365\n"
+                    "#   date_field: <your_date_field>\n"
+                    "#   how_to_enable: set requirements.dimension_requirements.freshness.scoring.rule_weights.recency_window to 1.0\n"
+                )
+        except Exception:
+            # Non-fatal; omit freshness hints on failure
+            pass
+
+        # Plausibility commented templates (kept disabled to avoid overlap with Validity)
+        try:
+            meta = standard.setdefault("metadata", {})
+            meta["plausibility_templates"] = (
+                "# plausibility:\n"
+                "#   scoring:\n"
+                "#     rule_weights:\n"
+                "#       numeric_sigma: 1.0      # enable if not overlapping with validity numeric_bounds\n"
+                "#       categorical_tail: 1.0   # enable to flag rare categories\n"
+                '#   notes: "Disabled by default to avoid overlap with Validity. Review before enabling."\n'
+            )
+        except Exception:
+            pass
 
         return standard
 

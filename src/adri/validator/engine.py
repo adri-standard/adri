@@ -64,6 +64,11 @@ class BundledStandardWrapper:
             return dim_reqs if isinstance(dim_reqs, dict) else {}
         return {}
 
+    def get_record_identification(self) -> Dict[str, Any]:
+        """Get record identification configuration (e.g., primary_key_fields) from the standard."""
+        rid = self.standard_dict.get("record_identification", {})
+        return rid if isinstance(rid, dict) else {}
+
 
 class AssessmentResult:
     """Represents the result of a data quality assessment."""
@@ -849,8 +854,8 @@ class ValidationEngine:
         # Perform assessment using the standard's requirements
         validity_score = self._assess_validity_with_standard(data, standard)
         completeness_score = self._assess_completeness_with_standard(data, standard)
-        consistency_score = self._assess_consistency(data)  # Keep basic for now
-        freshness_score = self._assess_freshness(data)  # Keep basic for now
+        consistency_score = self._assess_consistency_with_standard(data, standard)
+        freshness_score = self._assess_freshness_with_standard(data, standard)
         plausibility_score = self._assess_plausibility(data)  # Keep basic for now
 
         dimension_scores = {
@@ -921,6 +926,8 @@ class ValidationEngine:
             AssessmentResult object
         """
         try:
+            # Reset explain/warnings for this run
+            self._reset_explain()
             # Create a wrapper object that mimics the YAML standard interface
             standard_wrapper = BundledStandardWrapper(standard_dict)
 
@@ -929,8 +936,12 @@ class ValidationEngine:
             completeness_score = self._assess_completeness_with_standard(
                 data, standard_wrapper
             )
-            consistency_score = self._assess_consistency(data)  # Keep basic for now
-            freshness_score = self._assess_freshness(data)  # Keep basic for now
+            consistency_score = self._assess_consistency_with_standard(
+                data, standard_wrapper
+            )
+            freshness_score = self._assess_freshness_with_standard(
+                data, standard_wrapper
+            )
             plausibility_score = self._assess_plausibility(data)  # Keep basic for now
 
             dimension_scores = {
@@ -941,9 +952,40 @@ class ValidationEngine:
                 "plausibility": DimensionScore(plausibility_score),
             }
 
-            # Calculate overall score
-            total_score = sum(score.score for score in dimension_scores.values())
-            overall_score = (total_score / 100.0) * 100.0  # Convert to percentage
+            # Calculate overall score using per-dimension weights if provided (parity with assess())
+            try:
+                dim_reqs = standard_wrapper.get_dimension_requirements()
+            except Exception:
+                dim_reqs = {}
+
+            weights = {
+                "validity": float(dim_reqs.get("validity", {}).get("weight", 1.0)),
+                "completeness": float(
+                    dim_reqs.get("completeness", {}).get("weight", 1.0)
+                ),
+                "consistency": float(
+                    dim_reqs.get("consistency", {}).get("weight", 1.0)
+                ),
+                "freshness": float(dim_reqs.get("freshness", {}).get("weight", 1.0)),
+                "plausibility": float(
+                    dim_reqs.get("plausibility", {}).get("weight", 1.0)
+                ),
+            }
+            applied_weights = self._normalize_nonneg_weights(weights)
+            applied_weights = self._equalize_if_zero(applied_weights, "Dimension")
+
+            weighted_sum = 0.0
+            weight_total = 0.0
+            for dim, ds in dimension_scores.items():
+                w = applied_weights.get(dim, 1.0)
+                weighted_sum += w * float(ds.score)
+                weight_total += w
+
+            overall_score = (
+                ((weighted_sum / weight_total) / 20.0) * 100.0
+                if weight_total > 0
+                else 0.0
+            )
 
             # Get minimum score from standard or use default
             min_score = standard_dict.get("requirements", {}).get(
@@ -951,7 +993,18 @@ class ValidationEngine:
             )
             passed = overall_score >= min_score
 
-            return AssessmentResult(overall_score, passed, dimension_scores)
+            # Build metadata with explain and warnings
+            metadata: Dict[str, Any] = {
+                "applied_dimension_weights": applied_weights,
+            }
+            if getattr(self, "_scoring_warnings", None):
+                metadata["scoring_warnings"] = list(self._scoring_warnings)
+            if getattr(self, "_explain", None):
+                metadata["explain"] = self._explain
+
+            return AssessmentResult(
+                overall_score, passed, dimension_scores, None, None, metadata
+            )
 
         except Exception:
             # Fallback to basic assessment if standard can't be processed
@@ -1097,36 +1150,317 @@ class ValidationEngine:
         )
         return S * 20.0
 
+    def _compute_completeness_breakdown(
+        self, data: pd.DataFrame, field_requirements: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """Compute detailed completeness breakdown for required (non-nullable) fields."""
+        required_fields = [
+            col
+            for col, cfg in (field_requirements or {}).items()
+            if isinstance(cfg, dict) and not cfg.get("nullable", True)
+        ]
+        required_total = len(data) * len(required_fields) if len(data) > 0 else 0
+
+        per_field_missing: Dict[str, int] = {}
+        for col in required_fields:
+            if col in data.columns:
+                try:
+                    per_field_missing[col] = int(data[col].isnull().sum())
+                except Exception:
+                    per_field_missing[col] = 0
+
+        missing_required = (
+            int(sum(per_field_missing.values())) if per_field_missing else 0
+        )
+        pass_rate = (
+            ((required_total - missing_required) / required_total)
+            if required_total > 0
+            else 1.0
+        )
+        # Top 5 missing fields (descending)
+        top_missing_fields = sorted(
+            [{"field": k, "missing": v} for k, v in per_field_missing.items()],
+            key=lambda x: x["missing"],
+            reverse=True,
+        )[:5]
+
+        return {
+            "required_total": int(required_total),
+            "missing_required": int(missing_required),
+            "pass_rate": float(pass_rate),
+            "score_0_20": float(pass_rate * 20.0),
+            "per_field_missing": per_field_missing,
+            "top_missing_fields": top_missing_fields,
+        }
+
     def _assess_completeness_with_standard(
         self, data: pd.DataFrame, standard: Any
     ) -> float:
-        """Assess completeness using nullable requirements from standard."""
+        """Assess completeness using nullable requirements from standard and attach explain payload."""
         try:
             field_requirements = standard.get_field_requirements()
         except Exception:
             # Fallback to basic completeness check
             return self._assess_completeness(data)
 
-        total_required_fields = 0
-        missing_required_values = 0
+        # Compute breakdown for explain
+        breakdown = self._compute_completeness_breakdown(data, field_requirements)
+        self._explain["completeness"] = breakdown
 
-        for column in data.columns:
-            if column in field_requirements:
-                field_req = field_requirements[column]
-                nullable = field_req.get("nullable", True)
-
-                if not nullable:  # Field is required
-                    total_required_fields += len(data)
-                    missing_required_values += data[column].isnull().sum()
-
-        if total_required_fields == 0:
-            # No required fields defined, use basic completeness
+        # Original score logic preserved (rate on required cells only)
+        required_total = breakdown.get("required_total", 0)
+        missing_required = breakdown.get("missing_required", 0)
+        if required_total <= 0:
             return self._assess_completeness(data)
 
-        completeness_rate = (
-            total_required_fields - missing_required_values
-        ) / total_required_fields
-        return completeness_rate * 20.0
+        completeness_rate = (required_total - missing_required) / required_total
+        return float(completeness_rate * 20.0)
+
+    def _assess_consistency_with_standard(
+        self, data: pd.DataFrame, standard: Any
+    ) -> float:
+        """Assess consistency using standard policy (primary_key_uniqueness) and attach explain."""
+        try:
+            dim_reqs = standard.get_dimension_requirements()
+            consistency_cfg = dim_reqs.get("consistency", {})
+            scoring_cfg = (
+                consistency_cfg.get("scoring", {})
+                if isinstance(consistency_cfg, dict)
+                else {}
+            )
+            rule_weights_cfg: Dict[str, float] = (
+                scoring_cfg.get("rule_weights", {})
+                if isinstance(scoring_cfg, dict)
+                else {}
+            )
+            pk_fields = []
+            try:
+                rid = standard.get_record_identification()
+                pk_fields = (
+                    rid.get("primary_key_fields", []) if isinstance(rid, dict) else []
+                )
+            except Exception:
+                # Fallback direct read
+                pk_fields = (
+                    (getattr(standard, "standard_dict", {}) or {})
+                    .get("record_identification", {})
+                    .get("primary_key_fields", [])
+                )
+            pk_fields = list(pk_fields) if isinstance(pk_fields, list) else []
+        except Exception:
+            # Fallback to basic if standard is not usable
+            return self._assess_consistency(data)
+
+        # Determine if rule is active
+        try:
+            w = float(rule_weights_cfg.get("primary_key_uniqueness", 0.0))
+        except Exception:
+            w = 0.0
+        if w < 0.0:
+            w = 0.0
+
+        if not pk_fields or w <= 0.0:
+            # No active rules configured
+            self._explain["consistency"] = {
+                "pk_fields": pk_fields,
+                "counts": {"passed": len(data), "failed": 0, "total": len(data)},
+                "pass_rate": 1.0 if len(data) > 0 else 0.0,
+                "rule_weights_applied": {"primary_key_uniqueness": 0.0},
+                "score_0_20": 16.0,  # default baseline
+                "warnings": [
+                    "no active rules configured; using baseline score 16.0/20"
+                ],
+            }
+            return 16.0
+
+        # Execute PK uniqueness rule
+        try:
+            from .rules import check_primary_key_uniqueness
+        except Exception:
+            return self._assess_consistency(data)
+
+        std_cfg = {"record_identification": {"primary_key_fields": pk_fields}}
+        failures = []
+        try:
+            failures = check_primary_key_uniqueness(data, std_cfg) or []
+        except Exception:
+            failures = []
+
+        # Sum affected rows across duplicate groups (cap at total for safety)
+        total = int(len(data))
+        failed_rows = 0
+        for f in failures:
+            try:
+                failed_rows += int(f.get("affected_rows", 0) or 0)
+            except Exception:
+                pass
+        if failed_rows > total:
+            failed_rows = total
+        passed = total - failed_rows
+        pass_rate = (passed / total) if total > 0 else 1.0
+
+        score = float(pass_rate * 20.0)
+        self._explain["consistency"] = {
+            "pk_fields": pk_fields,
+            "counts": {
+                "passed": int(passed),
+                "failed": int(failed_rows),
+                "total": total,
+            },
+            "pass_rate": float(pass_rate),
+            "rule_weights_applied": {"primary_key_uniqueness": float(w)},
+            "score_0_20": float(score),
+        }
+        return score
+
+    def _assess_freshness_with_standard(
+        self, data: pd.DataFrame, standard: Any
+    ) -> float:
+        """Assess freshness using minimal recency window baseline when configured.
+
+        Active only if metadata.freshness {as_of, window_days, date_field} present AND
+        requirements.dimension_requirements.freshness.scoring.rule_weights.recency_window > 0.
+        """
+        # Load config from wrapper
+        std_dict = getattr(standard, "standard_dict", {}) or {}
+        metadata = std_dict.get("metadata", {}) if isinstance(std_dict, dict) else {}
+        freshness_meta = (
+            metadata.get("freshness", {}) if isinstance(metadata, dict) else {}
+        )
+
+        as_of_str = freshness_meta.get("as_of")
+        date_field = freshness_meta.get("date_field")
+        window_days = freshness_meta.get("window_days")
+
+        try:
+            dim_reqs = standard.get_dimension_requirements()
+            fresh_cfg = (
+                dim_reqs.get("freshness", {}) if isinstance(dim_reqs, dict) else {}
+            )
+            scoring_cfg = (
+                fresh_cfg.get("scoring", {}) if isinstance(fresh_cfg, dict) else {}
+            )
+            rw_cfg = (
+                scoring_cfg.get("rule_weights", {})
+                if isinstance(scoring_cfg, dict)
+                else {}
+            )
+            rw = float(rw_cfg.get("recency_window", 0.0)) if rw_cfg else 0.0
+            if rw < 0.0:
+                rw = 0.0
+        except Exception:
+            rw = 0.0
+
+        # Gate activation: if metadata not present at all -> baseline without explain.
+        wd_val = None
+        try:
+            wd_val = float(window_days)
+        except Exception:
+            wd_val = None
+        has_meta = bool(as_of_str and date_field and wd_val is not None)
+        if not has_meta:
+            return self._assess_freshness(data)
+        # If metadata present but rule weight is inactive (<=0), attach informational explain with baseline.
+        if rw <= 0.0:
+            self._explain["freshness"] = {
+                "date_field": date_field,
+                "as_of": as_of_str,
+                "window_days": int(wd_val) if wd_val is not None else None,
+                "counts": {"passed": 0, "total": 0},
+                "pass_rate": 1.0,
+                "rule_weights_applied": {"recency_window": float(rw)},
+                "score_0_20": 19.0,
+                "warnings": [
+                    "no active rules configured; recency_window weight is 0.0; using baseline score 19.0/20"
+                ],
+            }
+            return 19.0
+
+        # Parse as_of
+        try:
+            import pandas as pd  # already imported at top
+
+            as_of = pd.to_datetime(as_of_str, utc=True, errors="coerce")
+            if as_of is not None and not pd.isna(as_of):
+                try:
+                    as_of = as_of.tz_convert(None)
+                except Exception:
+                    # already naive
+                    pass
+        except Exception:
+            as_of = None
+
+        if as_of is None or pd.isna(as_of):
+            self._explain["freshness"] = {
+                "date_field": date_field,
+                "as_of": as_of_str,
+                "window_days": (
+                    int(window_days) if isinstance(window_days, (int, float)) else None
+                ),
+                "counts": {"passed": 0, "total": 0},
+                "pass_rate": 1.0,
+                "rule_weights_applied": {"recency_window": float(rw)},
+                "score_0_20": 19.0,
+                "warnings": ["invalid as_of timestamp; using baseline score 19.0/20"],
+            }
+            return 19.0
+
+        # Evaluate parsable values only
+        series = data[date_field] if date_field in data.columns else None
+        if series is None:
+            self._explain["freshness"] = {
+                "date_field": date_field,
+                "as_of": str(as_of),
+                "window_days": int(wd_val) if wd_val is not None else None,
+                "counts": {"passed": 0, "total": 0},
+                "pass_rate": 1.0,
+                "rule_weights_applied": {"recency_window": float(rw)},
+                "score_0_20": 19.0,
+                "warnings": [
+                    f"date_field '{date_field}' not found; using baseline score 19.0/20"
+                ],
+            }
+            return 19.0
+
+        parsed = pd.to_datetime(series, utc=True, errors="coerce")
+        try:
+            parsed = parsed.dt.tz_convert(None)
+        except Exception:
+            pass
+        total = int(parsed.notna().sum())
+        if total <= 0:
+            self._explain["freshness"] = {
+                "date_field": date_field,
+                "as_of": str(as_of),
+                "window_days": int(wd_val) if wd_val is not None else None,
+                "counts": {"passed": 0, "total": 0},
+                "pass_rate": 1.0,
+                "rule_weights_applied": {"recency_window": float(rw)},
+                "score_0_20": 19.0,
+                "warnings": [
+                    "no parsable dates in date_field; using baseline score 19.0/20"
+                ],
+            }
+            return 19.0
+
+        # Compute recency: rows within window_days of as_of (future-dated rows also pass)
+        deltas = as_of - parsed
+        # Days can be negative for future dates; treat negative as within window (fresh)
+        days = deltas.dt.days
+        passed = int(((days <= float(window_days)) | (days < 0)).sum())
+        pass_rate = float(passed / total)
+        score = float(pass_rate * 20.0)
+
+        self._explain["freshness"] = {
+            "date_field": date_field,
+            "as_of": str(as_of),
+            "window_days": int(wd_val) if wd_val is not None else None,
+            "counts": {"passed": passed, "total": total},
+            "pass_rate": pass_rate,
+            "rule_weights_applied": {"recency_window": float(rw)},
+            "score_0_20": score,
+        }
+        return score
 
     def _assess_validity(self, data: pd.DataFrame) -> float:
         """Assess data validity (format correctness)."""
