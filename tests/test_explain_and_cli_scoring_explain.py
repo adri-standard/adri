@@ -198,11 +198,15 @@ def test_cli_scoring_explain_json_includes_new_sections(tmp_path: Path):
         assert "consistency" in payload   # pk uniqueness configured
         # Freshness explain present since metadata + weight active
         assert "freshness" in payload
+        # Plausibility should be present with active rules
+        assert "plausibility" in payload
         # Basic shape checks
         assert "rule_counts" in payload["validity"]
         assert "required_total" in payload["completeness"]
         assert "pk_fields" in payload["consistency"]
         assert "date_field" in payload["freshness"]
+        assert "rule_counts" in payload["plausibility"]
+        assert "rule_weights_applied" in payload["plausibility"]
     finally:
         # Restore original working directory for test isolation
         os.chdir(original_cwd)

@@ -856,7 +856,7 @@ class ValidationEngine:
         completeness_score = self._assess_completeness_with_standard(data, standard)
         consistency_score = self._assess_consistency_with_standard(data, standard)
         freshness_score = self._assess_freshness_with_standard(data, standard)
-        plausibility_score = self._assess_plausibility(data)  # Keep basic for now
+        plausibility_score = self._assess_plausibility_with_standard(data, standard)
 
         dimension_scores = {
             "validity": DimensionScore(validity_score),
@@ -942,7 +942,9 @@ class ValidationEngine:
             freshness_score = self._assess_freshness_with_standard(
                 data, standard_wrapper
             )
-            plausibility_score = self._assess_plausibility(data)  # Keep basic for now
+            plausibility_score = self._assess_plausibility_with_standard(
+                data, standard_wrapper
+            )
 
             dimension_scores = {
                 "validity": DimensionScore(validity_score),
@@ -1517,8 +1519,200 @@ class ValidationEngine:
         # Simple freshness check - return good score for now
         return 19.0
 
+    def _assess_plausibility_with_standard(
+        self, data: pd.DataFrame, standard: Any
+    ) -> float:
+        """Assess plausibility using distinct rule types that don't overlap with validity."""
+        try:
+            dim_reqs = standard.get_dimension_requirements()
+            plaus_cfg = dim_reqs.get("plausibility", {})
+            scoring_cfg = (
+                plaus_cfg.get("scoring", {}) if isinstance(plaus_cfg, dict) else {}
+            )
+            rule_weights_cfg: Dict[str, float] = (
+                scoring_cfg.get("rule_weights", {})
+                if isinstance(scoring_cfg, dict)
+                else {}
+            )
+        except Exception:
+            return self._assess_plausibility(data)
+
+        # Check if any rules are active
+        active_weights = {
+            k: float(v) for k, v in rule_weights_cfg.items() if float(v or 0) > 0
+        }
+        if not active_weights:
+            # No active rules configured - use baseline
+            self._explain["plausibility"] = {
+                "rule_counts": {
+                    "statistical_outliers": {"passed": 0, "total": 0},
+                    "categorical_frequency": {"passed": 0, "total": 0},
+                    "business_logic": {"passed": 0, "total": 0},
+                    "cross_field_consistency": {"passed": 0, "total": 0},
+                },
+                "pass_rate": 1.0,
+                "rule_weights_applied": rule_weights_cfg,
+                "score_0_20": 15.5,
+                "warnings": [
+                    "no active rules configured; using baseline score 15.5/20"
+                ],
+            }
+            return 15.5
+
+        # Execute plausibility rules with distinct logic from validity
+        rule_results = self._execute_plausibility_rules(data, active_weights)
+
+        # Calculate weighted score
+        total_weight = sum(active_weights.values())
+        if total_weight <= 0:
+            score = 15.5
+        else:
+            weighted_score = sum(
+                active_weights.get(rule, 0) * result["pass_rate"]
+                for rule, result in rule_results.items()
+            )
+            score = (weighted_score / total_weight) * 20.0
+
+        # Build explain payload
+        rule_counts = {
+            rule: {
+                "passed": result.get("passed", 0),
+                "total": result.get("total", 0),
+            }
+            for rule, result in rule_results.items()
+        }
+        # Fill in zero counts for inactive rules
+        for rule in [
+            "statistical_outliers",
+            "categorical_frequency",
+            "business_logic",
+            "cross_field_consistency",
+        ]:
+            if rule not in rule_counts:
+                rule_counts[rule] = {"passed": 0, "total": 0}
+
+        overall_passed = sum(r["passed"] for r in rule_counts.values())
+        overall_total = sum(r["total"] for r in rule_counts.values())
+        pass_rate = (overall_passed / overall_total) if overall_total > 0 else 1.0
+
+        self._explain["plausibility"] = {
+            "rule_counts": rule_counts,
+            "pass_rate": float(pass_rate),
+            "rule_weights_applied": active_weights,
+            "score_0_20": float(score),
+            "warnings": [],
+        }
+
+        return float(score)
+
+    def _execute_plausibility_rules(
+        self, data: pd.DataFrame, active_weights: Dict[str, float]
+    ) -> Dict[str, Any]:
+        """Execute plausibility rules that are distinct from validity rules."""
+        results = {}
+
+        # Statistical outliers - IQR-based outlier detection (different from validity bounds)
+        if "statistical_outliers" in active_weights:
+            results["statistical_outliers"] = self._assess_statistical_outliers(data)
+
+        # Categorical frequency - flag rare categories (different from validity allowed_values)
+        if "categorical_frequency" in active_weights:
+            results["categorical_frequency"] = self._assess_categorical_frequency(data)
+
+        # Business logic - domain-specific rules (placeholder for future)
+        if "business_logic" in active_weights:
+            results["business_logic"] = self._assess_business_logic(data)
+
+        # Cross-field consistency - relationships between fields (placeholder for future)
+        if "cross_field_consistency" in active_weights:
+            results["cross_field_consistency"] = self._assess_cross_field_consistency(
+                data
+            )
+
+        return results
+
+    def _assess_statistical_outliers(self, data: pd.DataFrame) -> Dict[str, Any]:
+        """Assess statistical outliers using IQR method (distinct from validity bounds)."""
+        passed = 0
+        total = 0
+
+        for col in data.columns:
+            series = data[col]
+            if series.dtype in ["int64", "float64"]:
+                non_null = series.dropna()
+                if len(non_null) < 4:  # Need at least 4 values for IQR
+                    continue
+
+                q1 = non_null.quantile(0.25)
+                q3 = non_null.quantile(0.75)
+                iqr = q3 - q1
+
+                if iqr > 0:  # Avoid division by zero
+                    lower_bound = q1 - 1.5 * iqr
+                    upper_bound = q3 + 1.5 * iqr
+
+                    for value in non_null:
+                        total += 1
+                        if lower_bound <= value <= upper_bound:
+                            passed += 1
+
+        return {
+            "passed": passed,
+            "total": total,
+            "pass_rate": (passed / total) if total > 0 else 1.0,
+        }
+
+    def _assess_categorical_frequency(self, data: pd.DataFrame) -> Dict[str, Any]:
+        """Assess categorical frequency - flag rare categories (distinct from validity allowed_values)."""
+        passed = 0
+        total = 0
+
+        for col in data.columns:
+            series = data[col]
+            if series.dtype == "object":  # String/categorical columns
+                non_null = series.dropna()
+                if len(non_null) == 0:
+                    continue
+
+                # Calculate frequency threshold (categories appearing in <5% of data are "rare")
+                value_counts = non_null.value_counts()
+                threshold = len(non_null) * 0.05
+
+                for value in non_null:
+                    total += 1
+                    if value_counts[value] >= threshold:
+                        passed += 1
+
+        return {
+            "passed": passed,
+            "total": total,
+            "pass_rate": (passed / total) if total > 0 else 1.0,
+        }
+
+    def _assess_business_logic(self, data: pd.DataFrame) -> Dict[str, Any]:
+        """Assess business logic rules (placeholder - could be extended with domain rules)."""
+        # Placeholder implementation - assume all values pass business logic for now
+        # In a real implementation, this would check domain-specific rules
+        total = len(data) if not data.empty else 0
+        return {
+            "passed": total,
+            "total": total,
+            "pass_rate": 1.0,
+        }
+
+    def _assess_cross_field_consistency(self, data: pd.DataFrame) -> Dict[str, Any]:
+        """Assess cross-field consistency (placeholder - could check field relationships)."""
+        # Placeholder implementation - assume all records are consistent for now
+        # In a real implementation, this would check relationships between fields
+        total = len(data) if not data.empty else 0
+        return {
+            "passed": total,
+            "total": total,
+            "pass_rate": 1.0,
+        }
+
     def _assess_plausibility(self, data: pd.DataFrame) -> float:
-        """Assess data plausibility."""
+        """Assess data plausibility (fallback when no standard available)."""
         # Simple plausibility check - return good score for now
         return 15.5
 
