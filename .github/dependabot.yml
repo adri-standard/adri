@@ -1,0 +1,37 @@
+version: 2
+updates:
+  # Python (pip) at repo root
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      timezone: "UTC"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    labels: ["dependencies", "python"]
+    groups:
+      python-minors:
+        patterns: ["*"]
+
+  # npm for docs site
+  - package-ecosystem: "npm"
+    directory: "/docs"
+    schedule:
+      interval: "weekly"
+      timezone: "UTC"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    labels: ["dependencies", "npm", "docs"]
+    groups:
+      docs-minors:
+        patterns: ["*"]
+
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      timezone: "UTC"
+    labels: ["dependencies", "github-actions"]
