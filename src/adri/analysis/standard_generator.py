@@ -913,10 +913,11 @@ class StandardGenerator:
                 "weight": 1.0,
                 "scoring": {
                     "rule_weights": {
-                        # If you want plausibility to reflect realism separate from validity,
-                        # you can route a portion of bounds/enums here:
-                        # "numeric_bounds": 0.6,
-                        # "allowed_values": 0.4,
+                        # Active by default with distinct rule types from Validity
+                        "statistical_outliers": 0.4,  # IQR/MAD-based outlier detection (different from validity bounds)
+                        "categorical_frequency": 0.3,  # Flag rare categories (different from validity allowed_values)
+                        "business_logic": 0.2,  # Domain-specific business rules
+                        "cross_field_consistency": 0.1,  # Relationships between fields
                     },
                     "field_overrides": {},
                 },

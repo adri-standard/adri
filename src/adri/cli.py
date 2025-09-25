@@ -1479,6 +1479,9 @@ def scoring_explain_command(
         freshness_explain = (
             explain.get("freshness", {}) if isinstance(explain, dict) else {}
         )
+        plausibility_explain = (
+            explain.get("plausibility", {}) if isinstance(explain, dict) else {}
+        )
 
         if json_output:
             payload = {
@@ -1540,6 +1543,16 @@ def scoring_explain_command(
                     ),
                     "score_0_20": float(freshness_explain.get("score_0_20", 0.0)),
                     "warnings": freshness_explain.get("warnings", []),
+                }
+            if plausibility_explain:
+                payload["plausibility"] = {
+                    "rule_counts": plausibility_explain.get("rule_counts", {}),
+                    "pass_rate": float(plausibility_explain.get("pass_rate", 0.0)),
+                    "rule_weights_applied": plausibility_explain.get(
+                        "rule_weights_applied", {}
+                    ),
+                    "score_0_20": float(plausibility_explain.get("score_0_20", 0.0)),
+                    "warnings": plausibility_explain.get("warnings", []),
                 }
             click.echo(json.dumps(payload, indent=2))
             return 0
