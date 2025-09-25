@@ -1470,6 +1470,15 @@ def scoring_explain_command(
         validity_explain = (
             explain.get("validity", {}) if isinstance(explain, dict) else {}
         )
+        completeness_explain = (
+            explain.get("completeness", {}) if isinstance(explain, dict) else {}
+        )
+        consistency_explain = (
+            explain.get("consistency", {}) if isinstance(explain, dict) else {}
+        )
+        freshness_explain = (
+            explain.get("freshness", {}) if isinstance(explain, dict) else {}
+        )
 
         if json_output:
             payload = {
@@ -1490,6 +1499,48 @@ def scoring_explain_command(
                 },
                 "warnings": warnings,
             }
+            # Include completeness/consistency always if present; freshness only when active/present
+            if completeness_explain:
+                payload["completeness"] = {
+                    "required_total": int(
+                        completeness_explain.get("required_total", 0)
+                    ),
+                    "missing_required": int(
+                        completeness_explain.get("missing_required", 0)
+                    ),
+                    "pass_rate": float(completeness_explain.get("pass_rate", 0.0)),
+                    "score_0_20": float(completeness_explain.get("score_0_20", 0.0)),
+                    "per_field_missing": completeness_explain.get(
+                        "per_field_missing", {}
+                    ),
+                    "top_missing_fields": completeness_explain.get(
+                        "top_missing_fields", []
+                    ),
+                }
+            if consistency_explain:
+                payload["consistency"] = {
+                    "pk_fields": consistency_explain.get("pk_fields", []),
+                    "counts": consistency_explain.get("counts", {}),
+                    "pass_rate": float(consistency_explain.get("pass_rate", 0.0)),
+                    "rule_weights_applied": consistency_explain.get(
+                        "rule_weights_applied", {}
+                    ),
+                    "score_0_20": float(consistency_explain.get("score_0_20", 0.0)),
+                    "warnings": consistency_explain.get("warnings", []),
+                }
+            if freshness_explain:
+                payload["freshness"] = {
+                    "date_field": freshness_explain.get("date_field"),
+                    "as_of": freshness_explain.get("as_of"),
+                    "window_days": freshness_explain.get("window_days"),
+                    "counts": freshness_explain.get("counts", {}),
+                    "pass_rate": float(freshness_explain.get("pass_rate", 0.0)),
+                    "rule_weights_applied": freshness_explain.get(
+                        "rule_weights_applied", {}
+                    ),
+                    "score_0_20": float(freshness_explain.get("score_0_20", 0.0)),
+                    "warnings": freshness_explain.get("warnings", []),
+                }
             click.echo(json.dumps(payload, indent=2))
             return 0
 
@@ -1549,6 +1600,66 @@ def scoring_explain_command(
                 click.echo(
                     f"  - {rk}: {passed_c}/{total} ({pass_rate:.1f}%), weight={gw:.2f}"
                 )
+
+        # Completeness explain
+        if completeness_explain:
+            click.echo("")
+            click.echo("Completeness breakdown:")
+            req_total = int(completeness_explain.get("required_total", 0) or 0)
+            miss = int(completeness_explain.get("missing_required", 0) or 0)
+            pr = float(completeness_explain.get("pass_rate", 0.0) or 0.0) * 100.0
+            click.echo(
+                f"  - required cells: {req_total}, missing required: {miss}, pass_rate={pr:.1f}%"
+            )
+            top_missing = completeness_explain.get("top_missing_fields", []) or []
+            if top_missing:
+                click.echo("  - top missing fields:")
+                for item in top_missing[:5]:
+                    try:
+                        click.echo(
+                            f"     • {item.get('field')}: {int(item.get('missing', 0))} missing"
+                        )
+                    except Exception:
+                        pass
+
+        # Consistency explain
+        if consistency_explain:
+            click.echo("")
+            click.echo("Consistency breakdown:")
+            pk_fields = consistency_explain.get("pk_fields", []) or []
+            counts = consistency_explain.get("counts", {}) or {}
+            total = int(counts.get("total", 0) or 0)
+            passed_c = int(counts.get("passed", 0) or 0)
+            failed_c = int(counts.get("failed", 0) or 0)
+            pr = float(consistency_explain.get("pass_rate", 0.0) or 0.0) * 100.0
+            rw = (consistency_explain.get("rule_weights_applied", {}) or {}).get(
+                "primary_key_uniqueness", 0.0
+            )
+            click.echo(f"  - pk_fields: {pk_fields if pk_fields else '[]'}")
+            click.echo(
+                f"  - primary_key_uniqueness: {passed_c}/{total} passed, failed={failed_c}, pass_rate={pr:.1f}%, weight={float(rw):.2f}"
+            )
+
+        # Freshness explain (or explicit note if inactive)
+        click.echo("")
+        if freshness_explain:
+            click.echo("Freshness breakdown:")
+            df = freshness_explain.get("date_field")
+            as_of = freshness_explain.get("as_of")
+            wd = freshness_explain.get("window_days")
+            counts = freshness_explain.get("counts", {}) or {}
+            total = int(counts.get("total", 0) or 0)
+            passed_c = int(counts.get("passed", 0) or 0)
+            pr = float(freshness_explain.get("pass_rate", 0.0) or 0.0) * 100.0
+            rw = (freshness_explain.get("rule_weights_applied", {}) or {}).get(
+                "recency_window", 0.0
+            )
+            click.echo(f"  - date_field: {df}, window_days: {wd}, as_of: {as_of}")
+            click.echo(
+                f"  - recency_window: {passed_c}/{total} passed, pass_rate={pr:.1f}%, weight={float(rw):.2f}"
+            )
+        else:
+            click.echo("Freshness: no active rules configured")
 
         if warnings:
             click.echo("")
