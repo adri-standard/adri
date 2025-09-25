@@ -14,6 +14,9 @@
 
 set -e  # Exit on any error
 
+# ACT explicit flags for local runs (no .actrc)
+ACT_FLAGS="--container-architecture linux/amd64 -P ubuntu-latest=ghcr.io/catthehacker/ubuntu:full-latest --env CI=true --env GITHUB_ACTIONS=true --artifact-server-addr 127.0.0.1 --artifact-server-port 0"
+
 # Script configuration
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
@@ -69,9 +72,11 @@ run_act_command() {
     local output_file="$LOG_DIR/act-${job_name}-$(date +%s).log"
 
     # Run ACT with simplified command to avoid argument parsing issues
-    if timeout "$timeout_duration" act \
+    if timeout "$timeout_duration" act $ACT_FLAGS \
         -W "$workflow_file" \
         -j "$job_name" \
+        --artifact-server-path "$TEMP_DIR/artifacts" \
+        $additional_args \
         > "$output_file" 2>&1; then
 
         local end_time=$(date +%s)

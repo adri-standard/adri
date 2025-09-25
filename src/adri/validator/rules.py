@@ -58,7 +58,7 @@ def check_field_pattern(value: Any, field_req: Dict[str, Any]) -> bool:
 
 
 def check_field_range(value: Any, field_req: Dict[str, Any]) -> bool:
-    """Check if value is within the required range."""
+    """Check if value is within the required numeric range."""
     try:
         numeric_value = float(value)
 
@@ -75,6 +75,138 @@ def check_field_range(value: Any, field_req: Dict[str, Any]) -> bool:
     except Exception:
         # Not a numeric value, skip range check
         return True
+
+
+def check_allowed_values(value: Any, field_req: Dict[str, Any]) -> bool:
+    """Check if value is one of the allowed_values when specified."""
+    allowed = field_req.get("allowed_values")
+    if not allowed:
+        return True
+
+    # Direct match first
+    if value in allowed:
+        return True
+
+    # Try string-normalized match for robustness
+    try:
+        val_str = str(value)
+        allowed_strs = {str(v) for v in allowed}
+        return val_str in allowed_strs
+    except Exception:
+        return False
+
+
+def check_length_bounds(value: Any, field_req: Dict[str, Any]) -> bool:
+    """Check string length against min_length/max_length if present."""
+    min_len = field_req.get("min_length")
+    max_len = field_req.get("max_length")
+
+    if min_len is None and max_len is None:
+        return True
+
+    try:
+        s = str(value)
+        n = len(s)
+        if min_len is not None and n < int(min_len):
+            return False
+        if max_len is not None and n > int(max_len):
+            return False
+        return True
+    except Exception:
+        # If we can't get a string length, fail conservatively
+        return False
+
+
+def _parse_date_like(value: Any):
+    """Best-effort parse of date/datetime; returns Python datetime or None."""
+    if value is None:
+        return None
+    try:
+        # Fast path ISO
+        from datetime import datetime
+
+        s = str(value).strip()
+        if not s:
+            return None
+
+        # Accept 'Z'
+        if s.endswith("Z"):
+            s = s.replace("Z", "+00:00")
+        try:
+            return datetime.fromisoformat(s)
+        except Exception:
+            pass
+
+        # Common alternatives
+        fmts = [
+            "%Y-%m-%d",
+            "%m/%d/%Y",
+            "%Y/%m/%d",
+            "%d-%m-%Y",
+            "%Y-%m-%d %H:%M:%S",
+            "%Y/%m/%d %H:%M:%S",
+        ]
+        for fmt in fmts:
+            parsed_dt = None
+            try:
+                parsed_dt = datetime.strptime(s, fmt)
+            except Exception:
+                parsed_dt = None
+            if parsed_dt is not None:
+                return parsed_dt
+    except Exception:
+        return None
+    return None
+
+
+def check_date_bounds(value: Any, field_req: Dict[str, Any]) -> bool:
+    """Check after/before bounds for date or datetime fields.
+
+    Supports keys:
+      - after_date / before_date (YYYY-MM-DD)
+      - after_datetime / before_datetime (ISO-like)
+    """
+    after_d = field_req.get("after_date")
+    before_d = field_req.get("before_date")
+    after_dt = field_req.get("after_datetime")
+    before_dt = field_req.get("before_datetime")
+
+    # Nothing to enforce
+    if not any([after_d, before_d, after_dt, before_dt]):
+        return True
+
+    try:
+        from datetime import datetime
+
+        v = _parse_date_like(value)
+        if v is None:
+            return False
+
+        if after_d:
+            # Interpret as date-only lower bound (inclusive)
+            lb = datetime.fromisoformat(str(after_d))
+            if v < lb:
+                return False
+
+        if before_d:
+            ub = datetime.fromisoformat(str(before_d))
+            if v > ub:
+                return False
+
+        if after_dt:
+            lb = _parse_date_like(after_dt)
+            if lb and v < lb:
+                return False
+
+        if before_dt:
+            ub = _parse_date_like(before_dt)
+            if ub and v > ub:
+                return False
+
+        return True
+    except Exception:
+        # If parsing fails, treat as failure for strictness
+        return False
 
 
 def check_primary_key_uniqueness(data, standard_config):
@@ -222,21 +354,39 @@ def validate_field(
     if value is None or str(value).strip() == "":
         return result
 
-    # Type validation
+    # 1) Type validation
     if not check_field_type(value, field_req):
         result["passed"] = False
         result["errors"].append(
             f"Value does not match required type: {field_req.get('type', 'string')}"
         )
+        # Do not return early; continue to check other constraints so callers can see multiple issues
 
-    # Pattern validation
+    # 2) Allowed values
+    if not check_allowed_values(value, field_req):
+        result["passed"] = False
+        result["errors"].append("Value not in allowed_values set")
+
+    # 3) Length bounds (string)
+    if not check_length_bounds(value, field_req):
+        result["passed"] = False
+        min_len = field_req.get("min_length")
+        max_len = field_req.get("max_length")
+        if min_len is not None and max_len is not None:
+            result["errors"].append(f"Length must be between {min_len} and {max_len}")
+        elif min_len is not None:
+            result["errors"].append(f"Length must be at least {min_len}")
+        elif max_len is not None:
+            result["errors"].append(f"Length must be at most {max_len}")
+
+    # 4) Pattern validation
     if not check_field_pattern(value, field_req):
         result["passed"] = False
         result["errors"].append(
             f"Value does not match required pattern: {field_req.get('pattern', '')}"
         )
 
-    # Range validation
+    # 5) Numeric range
     if not check_field_range(value, field_req):
         result["passed"] = False
         min_val = field_req.get("min_value")
@@ -247,5 +397,17 @@ def validate_field(
             result["errors"].append(f"Value must be at least {min_val}")
         elif max_val is not None:
             result["errors"].append(f"Value must be at most {max_val}")
+
+    # 6) Date/datetime bounds
+    if not check_date_bounds(value, field_req):
+        result["passed"] = False
+        ad = field_req.get("after_date") or field_req.get("after_datetime")
+        bd = field_req.get("before_date") or field_req.get("before_datetime")
+        if ad and bd:
+            result["errors"].append(f"Date must be between {ad} and {bd}")
+        elif ad:
+            result["errors"].append(f"Date must be on or after {ad}")
+        elif bd:
+            result["errors"].append(f"Date must be on or before {bd}")
 
     return result

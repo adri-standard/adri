@@ -34,7 +34,8 @@ jobs:
 
     - name: Run tests with pytest
       run: |
-        pytest --cov=adri --cov-report=term-missing
+        python -c "import os; os.makedirs('tests/coverage', exist_ok=True)"
+        pytest --cov=adri --cov-report=term-missing --cov-report=xml:tests/coverage/coverage.xml
 
     - name: Upload coverage to Codecov
       if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.11'
@@ -111,10 +112,12 @@ jobs:
         adri --version
         python -c "import adri; print(f'ADRI version: {adri.__version__}')"
 
+    # Skip artifact upload under act (local) - fails due to missing node in runner
     - name: Upload build artifacts
+      if: ${{ !env.ACT }}
       uses: actions/upload-artifact@v4
       with:
-        name: dist-${{ github.run_number }}
+        name: adri-build-3.11
         path: dist/
 
   validate-root-structure:

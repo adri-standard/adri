@@ -56,6 +56,14 @@ class BundledStandardWrapper:
             )
         return 75.0
 
+    def get_dimension_requirements(self) -> Dict[str, Any]:
+        """Get dimension requirements (including weights and scoring config) from the standard."""
+        requirements = self.standard_dict.get("requirements", {})
+        if isinstance(requirements, dict):
+            dim_reqs = requirements.get("dimension_requirements", {})
+            return dim_reqs if isinstance(dim_reqs, dict) else {}
+        return {}
+
 
 class AssessmentResult:
     """Represents the result of a data quality assessment."""
@@ -533,6 +541,271 @@ class DataQualityAssessor:
 class ValidationEngine:
     """Main validation engine for data quality assessment. Renamed from AssessmentEngine."""
 
+    def __init__(self):
+        # Warnings and explain payload are reset per assessment
+        self._scoring_warnings: List[str] = []
+        self._explain: Dict[str, Any] = {}
+
+    def _reset_explain(self):
+        self._scoring_warnings = []
+        self._explain = {}
+
+    def _normalize_nonneg_weights(self, weights: Dict[str, float]) -> Dict[str, float]:
+        """Clamp negatives to 0.0 and coerce to float for weight dictionaries."""
+        norm: Dict[str, float] = {}
+        for k, v in weights.items():
+            try:
+                w = float(v)
+            except Exception:
+                w = 0.0
+            if w < 0.0:
+                w = 0.0
+            norm[k] = w
+        return norm
+
+    def _equalize_if_zero(
+        self, weights: Dict[str, float], label: str
+    ) -> Dict[str, float]:
+        """If all weights sum to 0, assign equal weight of 1.0 to each present key and record a warning."""
+        total = sum(weights.values())
+        if len(weights) > 0 and total <= 0.0:
+            for k in list(weights.keys()):
+                weights[k] = 1.0
+            self._scoring_warnings.append(
+                f"{label} weights were zero/invalid; applied equal weights of 1.0 to present dimensions"
+            )
+        return weights
+
+    def _normalize_rule_weights(
+        self,
+        rule_weights_cfg: Dict[str, float],
+        rule_keys: List[str],
+        counts: Dict[str, Dict[str, int]],
+    ) -> Dict[str, float]:
+        """Normalize validity rule weights: clamp negatives, drop unknowns, and equalize when all zero for active rule-types."""
+        applied: Dict[str, float] = {}
+        for rk, w in (rule_weights_cfg or {}).items():
+            if rk not in rule_keys:
+                continue
+            try:
+                fw = float(w)
+            except Exception:
+                fw = 0.0
+            if fw < 0.0:
+                fw = 0.0
+            applied[rk] = fw
+
+        # Keep only rule types that had any evaluations
+        active = {
+            rk: applied.get(rk, 0.0)
+            for rk in rule_keys
+            if counts.get(rk, {}).get("total", 0) > 0
+        }
+        if active and sum(active.values()) <= 0.0:
+            for rk in active.keys():
+                active[rk] = 1.0
+            self._scoring_warnings.append(
+                "Validity rule_weights were zero/invalid; applied equal weights across active rule types"
+            )
+        return active
+
+    # --------------------- Validity scoring helper methods ---------------------
+    def _compute_validity_rule_counts(
+        self, data: pd.DataFrame, field_requirements: Dict[str, Any]
+    ):
+        """
+        Compute totals and passes per rule type and per field for validity scoring.
+
+        Returns (counts, per_field_counts) with the same structure used in explain payloads.
+        """
+        # Import validation rules (apply in strict order)
+        from collections import defaultdict
+
+        from .rules import (
+            check_allowed_values,
+            check_date_bounds,
+            check_field_pattern,
+            check_field_range,
+            check_field_type,
+            check_length_bounds,
+        )
+
+        RULE_KEYS = [
+            "type",
+            "allowed_values",
+            "length_bounds",
+            "pattern",
+            "numeric_bounds",
+            "date_bounds",
+        ]
+
+        counts = {rk: {"passed": 0, "total": 0} for rk in RULE_KEYS}
+        per_field_counts: Dict[str, Dict[str, Dict[str, int]]] = defaultdict(
+            lambda: {rk: {"passed": 0, "total": 0} for rk in RULE_KEYS}
+        )
+
+        for column in data.columns:
+            if column not in field_requirements:
+                continue
+            field_req = field_requirements[column]
+            series = data[column].dropna()
+
+            for value in series:
+                # 1) Type
+                counts["type"]["total"] += 1
+                per_field_counts[column]["type"]["total"] += 1
+                if not check_field_type(value, field_req):
+                    # type failed; short-circuit further checks for this value
+                    continue
+                counts["type"]["passed"] += 1
+                per_field_counts[column]["type"]["passed"] += 1
+
+                # 2) Allowed values (only if rule present)
+                if "allowed_values" in field_req:
+                    counts["allowed_values"]["total"] += 1
+                    per_field_counts[column]["allowed_values"]["total"] += 1
+                    if not check_allowed_values(value, field_req):
+                        continue
+                    counts["allowed_values"]["passed"] += 1
+                    per_field_counts[column]["allowed_values"]["passed"] += 1
+
+                # 3) Length bounds (only if present)
+                if ("min_length" in field_req) or ("max_length" in field_req):
+                    counts["length_bounds"]["total"] += 1
+                    per_field_counts[column]["length_bounds"]["total"] += 1
+                    if not check_length_bounds(value, field_req):
+                        continue
+                    counts["length_bounds"]["passed"] += 1
+                    per_field_counts[column]["length_bounds"]["passed"] += 1
+
+                # 4) Pattern (only if present)
+                if "pattern" in field_req:
+                    counts["pattern"]["total"] += 1
+                    per_field_counts[column]["pattern"]["total"] += 1
+                    if not check_field_pattern(value, field_req):
+                        continue
+                    counts["pattern"]["passed"] += 1
+                    per_field_counts[column]["pattern"]["passed"] += 1
+
+                # 5) Numeric bounds (only if present)
+                if ("min_value" in field_req) or ("max_value" in field_req):
+                    counts["numeric_bounds"]["total"] += 1
+                    per_field_counts[column]["numeric_bounds"]["total"] += 1
+                    if not check_field_range(value, field_req):
+                        continue
+                    counts["numeric_bounds"]["passed"] += 1
+                    per_field_counts[column]["numeric_bounds"]["passed"] += 1
+
+                # 6) Date/datetime bounds (only if present)
+                if any(
+                    k in field_req
+                    for k in [
+                        "after_date",
+                        "before_date",
+                        "after_datetime",
+                        "before_datetime",
+                    ]
+                ):
+                    counts["date_bounds"]["total"] += 1
+                    per_field_counts[column]["date_bounds"]["total"] += 1
+                    if not check_date_bounds(value, field_req):
+                        continue
+                    counts["date_bounds"]["passed"] += 1
+                    per_field_counts[column]["date_bounds"]["passed"] += 1
+
+        return counts, per_field_counts
+
+    def _apply_global_rule_weights(
+        self,
+        counts: Dict[str, Dict[str, int]],
+        rule_weights_cfg: Dict[str, float],
+        rule_keys: List[str],
+    ):
+        """
+        Apply normalized global rule weights to aggregate score.
+
+        Returns (S_raw_contrib, W_contrib, applied_global_weights).
+        """
+        S_raw = 0.0
+        W = 0.0
+        applied_global = self._normalize_rule_weights(
+            rule_weights_cfg, rule_keys, counts
+        )
+
+        for rule_name, weight in applied_global.items():
+            total = counts.get(rule_name, {}).get("total", 0)
+            if total <= 0:
+                continue
+            passed = counts[rule_name]["passed"]
+            score_r = passed / total
+            S_raw += float(weight) * score_r
+            W += float(weight)
+
+        return S_raw, W, applied_global
+
+    def _apply_field_overrides(
+        self,
+        per_field_counts: Dict[str, Dict[str, Dict[str, int]]],
+        overrides_cfg: Dict[str, Dict[str, float]],
+        rule_keys: List[str],
+    ):
+        """
+        Apply field-level overrides to aggregate score.
+
+        Returns (S_raw_contrib, W_contrib, applied_overrides_dict).
+        """
+        S_add = 0.0
+        W_add = 0.0
+        applied_overrides: Dict[str, Dict[str, float]] = {}
+
+        if isinstance(overrides_cfg, dict):
+            for field_name, overrides in overrides_cfg.items():
+                if field_name not in per_field_counts or not isinstance(
+                    overrides, dict
+                ):
+                    continue
+                for rule_name, weight in overrides.items():
+                    if rule_name not in rule_keys:
+                        continue
+                    try:
+                        fw = float(weight)
+                    except Exception:
+                        fw = 0.0
+                    if fw <= 0.0:
+                        if isinstance(weight, (int, float)) and weight < 0:
+                            self._scoring_warnings.append(
+                                f"Validity field_overrides contained negative weight for '{field_name}.{rule_name}', clamped to 0.0"
+                            )
+                        continue
+                    c = per_field_counts[field_name].get(rule_name)
+                    if not c or c.get("total", 0) <= 0:
+                        continue
+                    passed = c["passed"]
+                    total = c["total"]
+                    score_fr = passed / total
+                    S_add += fw * score_fr
+                    W_add += fw
+                    applied_overrides.setdefault(field_name, {})[rule_name] = fw
+
+        return S_add, W_add, applied_overrides
+
+    def _assemble_validity_explain(
+        self,
+        counts: Dict[str, Any],
+        per_field_counts: Dict[str, Any],
+        applied_global: Dict[str, float],
+        applied_overrides: Dict[str, Dict[str, float]],
+    ) -> Dict[str, Any]:
+        """Assemble the validity explain payload preserving existing schema."""
+        return {
+            "rule_counts": counts,
+            "per_field_counts": per_field_counts,
+            "applied_weights": {
+                "global": applied_global,
+                "overrides": applied_overrides,
+            },
+        }
+
     def assess(self, data: pd.DataFrame, standard_path: str) -> AssessmentResult:
         """
         Run assessment on data using the provided standard.
@@ -544,15 +817,30 @@ class ValidationEngine:
         Returns:
             AssessmentResult object
         """
-        # Load the YAML standard - updated import path with fallback
+        # Reset explain/warnings for this run
+        self._reset_explain()
+        # Load the YAML standard - prefer validator.loaders, fallback to legacy CLI path
+        load_standard_fn = None
         try:
-            from adri.cli.commands import load_standard
-        except ImportError:
-            # During migration, CLI may not be available yet
-            return self._basic_assessment(data)
+            from .loaders import load_standard as _ls  # same package
+
+            load_standard_fn = _ls
+        except Exception:
+            try:
+                from adri.validator.loaders import load_standard as _ls2  # absolute
+
+                load_standard_fn = _ls2
+            except Exception:
+                try:
+                    # Legacy fallback (older tree)
+                    from adri.cli.commands import load_standard as _ls3
+
+                    load_standard_fn = _ls3
+                except Exception:
+                    return self._basic_assessment(data)
 
         try:
-            yaml_dict = load_standard(standard_path)
+            yaml_dict = load_standard_fn(standard_path)
             standard = BundledStandardWrapper(yaml_dict)
         except Exception:
             # Fallback to basic assessment if standard can't be loaded
@@ -573,15 +861,51 @@ class ValidationEngine:
             "plausibility": DimensionScore(plausibility_score),
         }
 
-        # Calculate overall score
-        total_score = sum(score.score for score in dimension_scores.values())
-        overall_score = (total_score / 100.0) * 100.0  # Convert to percentage
+        # Calculate overall score using per-dimension weights if provided
+        try:
+            dim_reqs = standard.get_dimension_requirements()
+        except Exception:
+            dim_reqs = {}
+
+        weights = {
+            "validity": float(dim_reqs.get("validity", {}).get("weight", 1.0)),
+            "completeness": float(dim_reqs.get("completeness", {}).get("weight", 1.0)),
+            "consistency": float(dim_reqs.get("consistency", {}).get("weight", 1.0)),
+            "freshness": float(dim_reqs.get("freshness", {}).get("weight", 1.0)),
+            "plausibility": float(dim_reqs.get("plausibility", {}).get("weight", 1.0)),
+        }
+        # Normalize and guard weights
+        applied_weights = self._normalize_nonneg_weights(weights)
+        applied_weights = self._equalize_if_zero(applied_weights, "Dimension")
+
+        weighted_sum = 0.0
+        weight_total = 0.0
+        for dim, ds in dimension_scores.items():
+            w = applied_weights.get(dim, 1.0)
+            weighted_sum += w * float(ds.score)
+            weight_total += w
+
+        # Weighted average on 0..20, then scale to 0..100
+        overall_score = (
+            ((weighted_sum / weight_total) / 20.0) * 100.0 if weight_total > 0 else 0.0
+        )
 
         # Get minimum score from standard or use default
         min_score = standard.get_overall_minimum()
         passed = overall_score >= min_score
 
-        return AssessmentResult(overall_score, passed, dimension_scores)
+        # Build metadata with explain and warnings
+        metadata: Dict[str, Any] = {
+            "applied_dimension_weights": applied_weights,
+        }
+        if getattr(self, "_scoring_warnings", None):
+            metadata["scoring_warnings"] = list(self._scoring_warnings)
+        if getattr(self, "_explain", None):
+            metadata["explain"] = self._explain
+
+        return AssessmentResult(
+            overall_score, passed, dimension_scores, None, None, metadata
+        )
 
     def assess_with_standard_dict(
         self, data: pd.DataFrame, standard_dict: Dict[str, Any]
@@ -659,11 +983,36 @@ class ValidationEngine:
         self, data: pd.DataFrame, standard: Any
     ) -> float:
         """Assess validity using rules from the YAML standard."""
-        # Import validation rules - these will be extracted to rules.py later
-        from .rules import check_field_pattern, check_field_range, check_field_type
+        # Import validation rules (apply in strict order)
+        from .rules import (
+            check_allowed_values,
+            check_date_bounds,
+            check_field_pattern,
+            check_field_range,
+            check_field_type,
+            check_length_bounds,
+        )
 
-        total_checks = 0
-        failed_checks = 0
+        # Try to get scoring policy (rule weights) from dimension_requirements.validity
+        try:
+            dim_reqs = standard.get_dimension_requirements()
+            validity_cfg = dim_reqs.get("validity", {})
+            scoring_cfg = validity_cfg.get("scoring", {})
+            rule_weights_cfg: Dict[str, float] = scoring_cfg.get("rule_weights", {})
+            field_overrides_cfg: Dict[str, Dict[str, float]] = scoring_cfg.get(
+                "field_overrides", {}
+            )
+        except Exception:
+            dim_reqs = {}
+            validity_cfg = {}
+            scoring_cfg = {}
+            rule_weights_cfg = {}
+            field_overrides_cfg = {}
+
+        # If no rule_weights provided, fall back to previous simple method
+        fallback_simple = (
+            not isinstance(rule_weights_cfg, dict) or len(rule_weights_cfg) == 0
+        )
 
         # Get field requirements from standard
         try:
@@ -672,34 +1021,81 @@ class ValidationEngine:
             # Fallback to basic validity check
             return self._assess_validity(data)
 
-        for column in data.columns:
-            if column in field_requirements:
-                field_req = field_requirements[column]
+        # If falling back, keep original aggregation
+        if fallback_simple:
+            total_checks = 0
+            failed_checks = 0
+            for column in data.columns:
+                if column in field_requirements:
+                    field_req = field_requirements[column]
+                    for value in data[column].dropna():
+                        total_checks += 1
+                        if not check_field_type(value, field_req):
+                            failed_checks += 1
+                            continue
+                        if not check_allowed_values(value, field_req):
+                            failed_checks += 1
+                            continue
+                        if not check_length_bounds(value, field_req):
+                            failed_checks += 1
+                            continue
+                        if not check_field_pattern(value, field_req):
+                            failed_checks += 1
+                            continue
+                        if not check_field_range(value, field_req):
+                            failed_checks += 1
+                            continue
+                        if not check_date_bounds(value, field_req):
+                            failed_checks += 1
+                            continue
+            if total_checks == 0:
+                return 18.0
+            success_rate = (total_checks - failed_checks) / total_checks
+            return success_rate * 20.0
 
-                for value in data[column].dropna():
-                    total_checks += 1
+        # Weighted rule-type scoring
+        RULE_KEYS = [
+            "type",
+            "allowed_values",
+            "length_bounds",
+            "pattern",
+            "numeric_bounds",
+            "date_bounds",
+        ]
 
-                    # Check type constraints
-                    if not check_field_type(value, field_req):
-                        failed_checks += 1
-                        continue
+        counts, per_field_counts = self._compute_validity_rule_counts(
+            data, field_requirements
+        )
 
-                    # Check pattern constraints (e.g., email regex)
-                    if not check_field_pattern(value, field_req):
-                        failed_checks += 1
-                        continue
+        # Apply global weights and field overrides
+        Sg, Wg, applied_global = self._apply_global_rule_weights(
+            counts, rule_weights_cfg, RULE_KEYS
+        )
+        So, Wo, applied_overrides = self._apply_field_overrides(
+            per_field_counts, field_overrides_cfg, RULE_KEYS
+        )
 
-                    # Check range constraints
-                    if not check_field_range(value, field_req):
-                        failed_checks += 1
-                        continue
+        S_raw = Sg + So
+        W = Wg + Wo
 
-        if total_checks == 0:
-            return 18.0  # Default good score if no checks
+        if W <= 0.0:
+            # No applicable weighted components; fall back to default good score
+            self._scoring_warnings.append(
+                "No applicable validity rule weights after normalization; using default score 18.0/20"
+            )
+            # Cache minimal explain payload
+            self._explain["validity"] = self._assemble_validity_explain(
+                counts, per_field_counts, applied_global, applied_overrides
+            )
+            return 18.0
 
-        # Calculate score (0-20 scale)
-        success_rate = (total_checks - failed_checks) / total_checks
-        return success_rate * 20.0
+        S = S_raw / W  # 0..1
+
+        # Cache explain payload
+        self._explain["validity"] = self._assemble_validity_explain(
+            counts, per_field_counts, applied_global, applied_overrides
+        )
+        return S * 20.0
 
     def _assess_completeness_with_standard(
         self, data: pd.DataFrame, standard: Any
