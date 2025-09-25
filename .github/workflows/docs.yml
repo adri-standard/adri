@@ -39,7 +39,7 @@ jobs:
       # Use Node 20 on GitHub runners, but avoid downloads under act (local) where Node is preinstalled
       - name: Setup Node.js
         if: ${{ !env.ACT }}
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: 20
           cache: npm
