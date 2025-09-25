@@ -71,8 +71,8 @@ This section documents the internal helper responsibilities introduced to reduce
     - Applies validity rules in strict order per value with short-circuit on first failure:
       type → allowed_values → length_bounds → pattern → numeric_bounds → date_bounds
     - Produces:
-      - counts: {rule: {"passed": int, "total": int}}
-      - per_field_counts: {field: {rule: {"passed": int, "total": int}}}
+      - counts: `{rule: {"passed": int, "total": int}}`
+      - per_field_counts: `{field: {rule: {"passed": int, "total": int}}}`
   - _apply_global_rule_weights(counts, rule_weights_cfg, RULE_KEYS) -> (Sg, Wg, applied_global)
     - Normalizes weights: clamp negatives to 0, drop unknown rules, filter to active rule-types (total > 0).
     - If the sum of active weights is 0, equalize per active rule-type and record a scoring warning.
@@ -106,7 +106,7 @@ This section documents the internal helper responsibilities introduced to reduce
   - Training-pass guarantee
     - _prepare_observed_stats(...): precomputes min/max length and numeric min/max to support safe widening.
     - _validate_value_against_rules(...): strict rule order to identify the failing rule key.
-    - _relax_constraint_for_failure(...): relaxes only the failing rule and logs under metadata.explanations.<column>.adjustments with before/after where applicable.
+    - _relax_constraint_for_failure(...): relaxes only the failing rule and logs under `metadata.explanations.<column>.adjustments` with before/after where applicable.
     - _enforce_training_pass(...): iterates up to 2 passes to converge; ensures training data passes while preserving explain logging.
   - Explanations
     - _build_explanations composes per-rule helpers (_explain_type/_nullable/_allowed_values/_length/_range/_date/_pattern) without affecting enforcement.

@@ -34,7 +34,8 @@ jobs:
 
     - name: Run tests with pytest
       run: |
-        pytest --cov=adri --cov-report=term-missing
+        mkdir -p tests/coverage
+        pytest --cov=adri --cov-report=term-missing --cov-report=xml:tests/coverage/coverage.xml
 
     - name: Upload coverage to Codecov
       if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.11'
@@ -116,7 +117,7 @@ jobs:
       if: ${{ !env.ACT }}
       uses: actions/upload-artifact@v4
       with:
-        name: adri-build-${{ matrix.python-version }}
+        name: adri-build-3.11
         path: dist/
 
   validate-root-structure:
