@@ -46,7 +46,7 @@ dev = [
     "pytest-benchmark>=4.0",
     "pytest-timeout>=2.1.0",  # For test timeout support
     "pre-commit>=3.0.0",  # For pre-commit hooks
-    "black==25.1.0",
+    "black==25.9.0",
     "isort>=5.13.2",
     "flake8>=7.1.1",
     "mypy>=1.11.2",
