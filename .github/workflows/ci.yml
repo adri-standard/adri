@@ -34,7 +34,7 @@ jobs:
 
     - name: Run tests with pytest
       run: |
-        mkdir -p tests/coverage
+        python -c "import os; os.makedirs('tests/coverage', exist_ok=True)"
         pytest --cov=adri --cov-report=term-missing --cov-report=xml:tests/coverage/coverage.xml
 
     - name: Upload coverage to Codecov
