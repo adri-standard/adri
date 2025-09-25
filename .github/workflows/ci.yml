@@ -14,7 +14,7 @@ jobs:
         python-version: ['3.10', '3.11', '3.12']
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
       with:
         fetch-depth: 0  # Needed for setuptools_scm
 
@@ -48,7 +48,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
       with:
         fetch-depth: 0
 
@@ -80,7 +80,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
       with:
         fetch-depth: 0  # Needed for setuptools_scm
 
@@ -126,7 +126,7 @@ jobs:
     if: always()  # Run even if other jobs had issues
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
 
     - name: Clean up temporary CI artifacts before validation
       run: |
@@ -278,7 +278,7 @@ jobs:
     if: always()  # Run even if other jobs had issues
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
 
     - name: Validate .gitignore protections
       run: |
