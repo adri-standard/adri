@@ -47,6 +47,33 @@ def scoring_explain_command(*args, **kwargs):
     return command.explain(*args, **kwargs)
 
 
+def generate_standard_command(*args, **kwargs):
+    """Generate standard command - backward compatibility wrapper."""
+    from .commands.generate_standard import GenerateStandardCommand
+
+    command = GenerateStandardCommand()
+    return command.execute(*args, **kwargs)
+
+
+def show_config_command(*args, **kwargs):
+    """Show config command - backward compatibility wrapper."""
+    from .commands.config import ConfigCommand
+
+    command = ConfigCommand()
+    return command.execute(*args, **kwargs)
+
+
+def _resolve_project_path(*args, **kwargs):
+    """Resolve project path - backward compatibility wrapper."""
+    cli_module = _get_cli_functions()
+    # Check if this function exists in cli.py
+    if hasattr(cli_module, "_resolve_project_path"):
+        return cli_module._resolve_project_path(*args, **kwargs)
+    else:
+        # Fallback - might be in a different location or deprecated
+        return _find_adri_project_root(*args, **kwargs)
+
+
 # Import main function from the CLI module
 def main():
     """Import and run the CLI main function."""
@@ -108,4 +135,7 @@ __all__ = [
     "_find_adri_project_root",
     "setup_command",
     "scoring_explain_command",
+    "generate_standard_command",
+    "show_config_command",
+    "_resolve_project_path",
 ]
