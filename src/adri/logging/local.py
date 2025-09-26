@@ -22,14 +22,8 @@ if TYPE_CHECKING:
     except ImportError:
         from adri.core.verodat_logger import VerodatLogger
 
-# Updated import for version info
-try:
-    from ..version import __version__
-except ImportError:
-    try:
-        from adri.version import __version__
-    except ImportError:
-        __version__ = "unknown"
+# Clean import for version info
+from ..version import __version__
 
 
 class AuditRecord:

@@ -9,16 +9,8 @@ import functools
 import logging
 from typing import Callable, Dict, Optional
 
-# Updated imports for new structure - with fallbacks during migration
-try:
-    from .guard.modes import DataProtectionEngine, ProtectionError
-except ImportError:
-    # Fallback to legacy imports during migration
-    try:
-        from adri.core.protection import DataProtectionEngine, ProtectionError
-    except ImportError:
-        DataProtectionEngine = None
-        ProtectionError = Exception
+# Clean imports for modular architecture
+from .guard.modes import DataProtectionEngine, ProtectionError
 
 logger = logging.getLogger(__name__)
 

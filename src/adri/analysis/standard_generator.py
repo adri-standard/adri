@@ -1,50 +1,39 @@
 """
 ADRI Standard Generator.
 
-Automatic YAML standard generation from data analysis.
-Migrated and updated for the new src/ layout architecture.
+Refactored to use modular generation components for improved maintainability.
+Coordinates field inference, dimension building, and explanation generation.
 """
 
-import json
-from datetime import datetime
 from typing import Any, Dict, Optional
 
 import pandas as pd
 
-# For training-pass self-validation
-from ..validator.rules import (
-    check_allowed_values,
-    check_date_bounds,
-    check_field_pattern,
-    check_field_range,
-    check_field_type,
-    check_length_bounds,
-)
 from .data_profiler import DataProfiler
-from .rule_inference import (
-    detect_primary_key,
-    infer_allowed_values,
-    infer_allowed_values_tolerant,
-    infer_date_bounds,
-    infer_length_bounds,
-    infer_numeric_range,
-    infer_numeric_range_robust,
-    infer_regex_pattern,
-    InferenceConfig,
+from .generation import (
+    DimensionRequirementsBuilder,
+    ExplanationGenerator,
+    FieldInferenceEngine,
+    StandardBuilder,
 )
+from .rule_inference import InferenceConfig
 
 
 class StandardGenerator:
     """
     Generates ADRI-compliant YAML standards from data analysis.
 
-    This component creates validation rules based on data patterns,
-    enabling automatic standard creation for any dataset.
+    Refactored to use modular architecture with focused component classes
+    for field inference, dimension requirements, and explanation generation.
     """
 
     def __init__(self):
-        """Initialize the standard generator."""
+        """Initialize the standard generator with modular components."""
         self.profiler = DataProfiler()
+        self.field_engine = FieldInferenceEngine()
+        self.dimension_builder = DimensionRequirementsBuilder()
+        self.standard_builder = StandardBuilder()
+        self.explanation_generator = ExplanationGenerator()
 
     # ------------------------- Helper methods (refactor) -------------------------
     def _is_id_like(self, name: Optional[str]) -> bool:
@@ -1019,145 +1008,42 @@ class StandardGenerator:
         generation_config: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         """
-        Generate enriched standard directly from a DataFrame with training-pass guarantee.
+        Generate enriched standard using modular architecture with training-pass guarantee.
 
         Args:
             data: DataFrame to analyze
             data_name: Name for the generated standard
-            generation_config: Configuration for generation. Accepts:
-                - default_thresholds: dict with dimension minimums
-                - inference: dict that maps to InferenceConfig
+            generation_config: Configuration for generation
 
         Returns:
-            Complete ADRI standard dictionary (not yet including lineage/metadata)
+            Complete ADRI standard dictionary
         """
-        # Sanitize object-like columns (dict/list/set) to strings to prevent hashing errors
-        data = self._sanitize_dataframe(data)
+        # Sanitize data to handle complex object types
+        data = self.standard_builder.sanitize_dataframe(data)
 
-        # Profile the data first
+        # Profile the data
         data_profile = self.profiler.profile_data(data)
 
-        # Extract thresholds and inference config
+        # Build the standard using modular components
+        standard = self.standard_builder.build_standard(
+            data, data_name, data_profile, generation_config
+        )
+
+        # Enforce training-pass guarantee
+        standard = self.standard_builder.enforce_training_pass_guarantee(data, standard)
+
+        # Configure freshness detection
+        standard = self.standard_builder.detect_and_configure_freshness(data, standard)
+
+        # Add explanations
         config = generation_config or {}
-        thresholds = config.get("default_thresholds", {})
-        inf_cfg = InferenceConfig(**(config.get("inference", {}) or {}))
-
-        # Build standards metadata
-        standards_meta = {
-            "id": f"{data_name}_standard",
-            "name": f"{data_name.replace('_', ' ').title()} ADRI Standard",
-            "version": "1.0.0",
-            "authority": "ADRI Framework",
-            "description": f"Auto-generated standard for {data_name} data",
-        }
-
-        # Record identification first (so we can suppress enums for PK)
-        pk_fields = detect_primary_key(data, max_combo=inf_cfg.max_pk_combo_size)
-        if not pk_fields and len(data.columns) > 0:
-            pk_fields = [data.columns[0]]
-
-        field_requirements = self._generate_enriched_field_requirements(
-            data, data_profile, inf_cfg, pk_fields=pk_fields
+        inference_config = InferenceConfig(**(config.get("inference", {}) or {}))
+        standard = self.explanation_generator.add_explanations_to_standard(
+            standard, data, data_profile, inference_config
         )
 
-        requirements = {
-            "overall_minimum": thresholds.get("overall_minimum", 75.0),
-            "field_requirements": field_requirements,
-            "dimension_requirements": self._generate_dimension_requirements(thresholds),
-        }
-
-        record_identification = {
-            "primary_key_fields": pk_fields,
-            "strategy": "primary_key_with_fallback",
-        }
-
-        # Build explanations for active rules
-        explanations = self._build_explanations(
-            data, data_profile, inf_cfg, field_requirements
-        )
-
-        # Build glossary and note for explanations
-        explanations_glossary = {
-            "iqr": "Interquartile Range (Q3 - Q1): a robust measure of spread, less sensitive to outliers.",
-            "q1": "25th percentile of the training values.",
-            "q3": "75th percentile of the training values.",
-            "coverage": "Share of non-null training values that satisfy the rule.",
-            "unique_count": "Number of distinct non-null values observed in training.",
-        }
-        explanations_note = "Explanations are for human review; only requirements.field_requirements are enforced."
-
-        standard = {
-            "standards": standards_meta,
-            "record_identification": record_identification,
-            "requirements": requirements,
-            "metadata": {
-                "explanations_note": explanations_note,
-                "explanations_glossary": explanations_glossary,
-                "explanations": explanations,
-            },
-        }
-
-        # Enforce training-pass guarantee by self-validation and rule relaxation (log adjustments)
-        standard = self._enforce_training_pass(data, standard)
-
-        # Freshness activation or scaffolding
-        try:
-            candidate_col = None
-            best_cov = 0.0
-            for col in data.columns:
-                s = data[col]
-                try:
-                    non_null = int(s.notna().sum())
-                except Exception:
-                    non_null = 0
-                if non_null <= 0:
-                    continue
-                parsed = pd.to_datetime(s, errors="coerce")
-                parsed_non_null = int(parsed.notna().sum())
-                cov = (parsed_non_null / non_null) if non_null > 0 else 0.0
-                if cov >= 0.9 and cov > best_cov:
-                    best_cov = cov
-                    candidate_col = col
-            meta = standard.setdefault("metadata", {})
-            if candidate_col:
-                meta["freshness"] = {
-                    "as_of": datetime.now().isoformat() + "Z",
-                    "window_days": 365,
-                    "date_field": candidate_col,
-                }
-                try:
-                    standard["requirements"]["dimension_requirements"].setdefault(
-                        "freshness", {}
-                    ).setdefault("scoring", {}).setdefault("rule_weights", {})[
-                        "recency_window"
-                    ] = 1.0
-                except Exception:
-                    pass
-            else:
-                meta["freshness_scaffolding"] = (
-                    "# freshness:\n"
-                    "#   as_of: " + datetime.now().isoformat() + "Z\n"
-                    "#   window_days: 365\n"
-                    "#   date_field: <your_date_field>\n"
-                    "#   how_to_enable: set requirements.dimension_requirements.freshness.scoring.rule_weights.recency_window to 1.0\n"
-                )
-        except Exception:
-            # Non-fatal; omit freshness hints on failure
-            pass
-
-        # Plausibility commented templates (kept disabled to avoid overlap with Validity)
-        try:
-            meta = standard.setdefault("metadata", {})
-            meta["plausibility_templates"] = (
-                "# plausibility:\n"
-                "#   scoring:\n"
-                "#     rule_weights:\n"
-                "#       numeric_sigma: 1.0      # enable if not overlapping with validity numeric_bounds\n"
-                "#       categorical_tail: 1.0   # enable to flag rare categories\n"
-                '#   notes: "Disabled by default to avoid overlap with Validity. Review before enabling."\n'
-            )
-        except Exception:
-            pass
+        # Add plausibility templates
+        standard = self.standard_builder.add_plausibility_templates(standard)
 
         return standard
 

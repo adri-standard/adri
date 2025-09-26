@@ -11,13 +11,9 @@ import os
 from pathlib import Path
 from typing import Any, Dict, List
 
+# Standard pandas import for data operations
+import pandas as pd
 import yaml
-
-# Handle optional pandas import for Parquet support
-try:
-    import pandas as pd
-except ImportError:
-    pd = None
 
 
 def load_data(file_path: str) -> List[Dict[str, Any]]:

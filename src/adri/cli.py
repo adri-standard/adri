@@ -1,32 +1,25 @@
 """
 ADRI CLI - Streamlined Command Interface.
 
-Consolidated CLI from the original 2656-line commands.py into a clean, maintainable structure.
-Provides essential commands for data quality assessment and standard management.
+Refactored CLI using modular command pattern architecture.
+Entry point delegates to individual command classes for maintainability.
 """
 
-import json
 import os
 import sys
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Optional
 
 import click
-import yaml
 
-from .catalog import CatalogClient, CatalogConfig
-from .config.loader import ConfigurationLoader
-from .validator.engine import DataQualityAssessor
-from .validator.loaders import load_data, load_standard
+from .cli.registry import get_command, register_all_commands
 from .version import __version__
 
 # Ensure UTF-8 console output on Windows (avoid 'charmap' codec errors)
 try:
-    # Python 3.7+ TextIOWrapper supports reconfigure; use errors='replace' for maximum safety
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     sys.stderr.reconfigure(encoding="utf-8", errors="replace")
 except Exception:
-    # If not supported (or already configured), proceed without modification
     pass
 
 
@@ -2043,6 +2036,10 @@ def cli():
     pass
 
 
+# Initialize command registry on module load
+register_all_commands()
+
+
 @cli.command()
 @click.option("--force", is_flag=True, help="Overwrite existing configuration")
 @click.option("--project-name", help="Custom project name")
@@ -2051,7 +2048,9 @@ def cli():
 )
 def setup(force, project_name, guide):
     """Initialize ADRI in a project."""
-    sys.exit(setup_command(force, project_name, guide))
+    command = get_command("setup")
+    args = {"force": force, "project_name": project_name, "guide": guide}
+    sys.exit(command.execute(args))
 
 
 @cli.command()
@@ -2065,7 +2064,14 @@ def setup(force, project_name, guide):
 )
 def assess(data_path, standard_path, output_path, guide):
     """Run data quality assessment."""
-    sys.exit(assess_command(data_path, standard_path, output_path, guide))
+    command = get_command("assess")
+    args = {
+        "data_path": data_path,
+        "standard_path": standard_path,
+        "output_path": output_path,
+        "guide": guide,
+    }
+    sys.exit(command.execute(args))
 
 
 @cli.command("generate-standard")
@@ -2081,7 +2087,9 @@ def assess(data_path, standard_path, output_path, guide):
 )
 def generate_standard(data_path, force, output, guide):
     """Generate ADRI standard from data file analysis."""
-    sys.exit(generate_standard_command(data_path, force, guide))
+    command = get_command("generate-standard")
+    args = {"data_path": data_path, "force": force, "output": output, "guide": guide}
+    sys.exit(command.execute(args))
 
 
 @cli.command("help-guide")
@@ -2094,7 +2102,9 @@ def help_guide():
 @click.argument("standard_path")
 def validate_standard(standard_path):
     """Validate YAML standard file."""
-    sys.exit(validate_standard_command(standard_path))
+    command = get_command("validate-standard")
+    args = {"standard_path": standard_path}
+    sys.exit(command.execute(args))
 
 
 @cli.command("list-standards")
@@ -2106,7 +2116,9 @@ def validate_standard(standard_path):
 )
 def list_standards(include_catalog):
     """List available YAML standards."""
-    sys.exit(list_standards_command(include_catalog))
+    command = get_command("list-standards")
+    args = {"include_catalog": include_catalog}
+    sys.exit(command.execute(args))
 
 
 @cli.command("show-config")
@@ -2114,7 +2126,9 @@ def list_standards(include_catalog):
 @click.option("--environment", help="Show specific environment only")
 def show_config(paths_only, environment):
     """Show current ADRI configuration."""
-    sys.exit(show_config_command(paths_only, environment))
+    command = get_command("show-config")
+    args = {"paths_only": paths_only, "environment": environment}
+    sys.exit(command.execute(args))
 
 
 @cli.command("list-assessments")
@@ -2122,7 +2136,9 @@ def show_config(paths_only, environment):
 @click.option("--verbose", is_flag=True, help="Show detailed assessment information")
 def list_assessments(recent, verbose):
     """List previous assessment reports."""
-    sys.exit(list_assessments_command(recent, verbose))
+    command = get_command("list-assessments")
+    args = {"recent": recent, "verbose": verbose}
+    sys.exit(command.execute(args))
 
 
 @cli.command("show-standard")
@@ -2130,7 +2146,9 @@ def list_assessments(recent, verbose):
 @click.option("--verbose", is_flag=True, help="Show detailed requirements and rules")
 def show_standard(standard_name, verbose):
     """Show details of a specific ADRI standard."""
-    sys.exit(show_standard_command(standard_name, verbose))
+    command = get_command("show-standard")
+    args = {"standard_name": standard_name, "verbose": verbose}
+    sys.exit(command.execute(args))
 
 
 @cli.command("view-logs")
@@ -2139,7 +2157,9 @@ def show_standard(standard_name, verbose):
 @click.option("--verbose", is_flag=True, help="Show detailed audit log information")
 def view_logs(recent, today, verbose):
     """View audit logs from CSV files."""
-    sys.exit(view_logs_command(recent, today, verbose))
+    command = get_command("view-logs")
+    args = {"recent": recent, "today": today, "verbose": verbose}
+    sys.exit(command.execute(args))
 
 
 @cli.command("scoring-explain")
@@ -2152,7 +2172,13 @@ def view_logs(recent, today, verbose):
 )
 def scoring_explain(data_path, standard_path, json_output):
     """Explain scoring breakdown for a dataset against a standard."""
-    sys.exit(scoring_explain_command(data_path, standard_path, json_output))
+    command = get_command("scoring-explain")
+    args = {
+        "data_path": data_path,
+        "standard_path": standard_path,
+        "json_output": json_output,
+    }
+    sys.exit(command.execute(args))
 
 
 @cli.command("scoring-preset-apply")
@@ -2168,148 +2194,18 @@ def scoring_explain(data_path, standard_path, json_output):
 )
 def scoring_preset_apply(preset, standard_path, output_path):
     """Apply a scoring preset to a standard's dimension requirements."""
-    sys.exit(scoring_preset_apply_command(preset, standard_path, output_path))
+    command = get_command("scoring-preset-apply")
+    args = {
+        "preset": preset,
+        "standard_path": standard_path,
+        "output_path": output_path,
+    }
+    sys.exit(command.execute(args))
 
 
 # ---------------- Remote standards catalog (group) -----------------
 
 
-def standards_catalog_list_command(json_output: bool = False) -> int:
-    """List available standards from the remote catalog."""
-    try:
-        base_url = CatalogClient.resolve_base_url()
-        if not base_url:
-            if json_output:
-                click.echo(json.dumps({"error": "no_catalog_configured"}))
-            else:
-                click.echo(
-                    "⚠️ No catalog URL configured. Set ADRI_STANDARDS_CATALOG_URL or adri.catalog.url in ADRI/config.yaml"
-                )
-            return 0
-
-        client = CatalogClient(CatalogConfig(base_url=base_url))
-        resp = client.list()
-
-        if json_output:
-            entries = [
-                {
-                    "id": e.id,
-                    "name": e.name,
-                    "version": e.version,
-                    "description": e.description,
-                    "path": e.path,
-                    "tags": e.tags,
-                }
-                for e in resp.entries
-            ]
-            click.echo(
-                json.dumps(
-                    {"source_url": resp.source_url, "entries": entries}, indent=2
-                )
-            )
-        else:
-            click.echo(f"🌐 Remote Catalog ({len(resp.entries)}) at {resp.source_url}:")
-            for i, e in enumerate(resp.entries, 1):
-                click.echo(f"  {i}. {e.id} — {e.name} v{e.version}")
-                if e.description:
-                    click.echo(f"     · {e.description}")
-        return 0
-    except Exception as e:
-        if json_output:
-            click.echo(json.dumps({"error": str(e)}))
-        else:
-            click.echo(f"⚠️ Could not list remote catalog: {e}")
-        return 0  # Non-fatal for UX
-
-
-def standards_catalog_fetch_command(
-    name_or_id: str,
-    dest: str = "dev",
-    filename: Optional[str] = None,
-    overwrite: bool = False,
-    json_output: bool = False,
-) -> int:
-    """Fetch a standard from the remote catalog and save it locally."""
-    try:
-        base_url = CatalogClient.resolve_base_url()
-        if not base_url:
-            if json_output:
-                click.echo(json.dumps({"error": "no_catalog_configured"}))
-            else:
-                click.echo(
-                    "⚠️ No catalog URL configured. Set ADRI_STANDARDS_CATALOG_URL or adri.catalog.url in ADRI/config.yaml"
-                )
-            return 1
-
-        client = CatalogClient(CatalogConfig(base_url=base_url))
-        res = client.fetch(name_or_id)
-
-        # Validate YAML before writing
-        try:
-            content_text = res.content_bytes.decode("utf-8")
-            parsed = yaml.safe_load(content_text)  # type: ignore
-            if not isinstance(parsed, dict) or "standards" not in parsed:
-                raise ValueError("Missing 'standards' section")
-        except Exception as ve:
-            if json_output:
-                click.echo(json.dumps({"error": f"invalid_yaml: {ve}"}))
-            else:
-                click.echo(f"❌ Invalid YAML from catalog: {ve}")
-            return 1
-
-        # Determine destination directory
-        dest_dir = (
-            Path("ADRI/dev/standards") if dest == "dev" else Path("ADRI/prod/standards")
-        )
-        if ConfigurationLoader:
-            try:
-                cl = ConfigurationLoader()
-                cfg = cl.get_active_config()
-                if cfg:
-                    env_name = "development" if dest == "dev" else "production"
-                    env_cfg = cl.get_environment_config(cfg, env_name)
-                    dest_dir = Path(env_cfg["paths"]["standards"])
-            except Exception:
-                pass
-
-        dest_dir.mkdir(parents=True, exist_ok=True)
-        out_name = filename or f"{res.entry.id}.yaml"
-        out_path = dest_dir / out_name
-
-        if out_path.exists() and not overwrite:
-            if json_output:
-                click.echo(json.dumps({"error": "file_exists", "path": str(out_path)}))
-            else:
-                click.echo(f"❌ File exists: {out_path}. Use --overwrite to replace.")
-            return 1
-
-        with open(out_path, "wb") as f:
-            f.write(res.content_bytes)
-
-        if json_output:
-            click.echo(
-                json.dumps(
-                    {
-                        "saved_to": str(out_path),
-                        "id": res.entry.id,
-                        "name": res.entry.name,
-                        "version": res.entry.version,
-                    },
-                    indent=2,
-                )
-            )
-        else:
-            click.echo(f"✅ Saved standard '{res.entry.name}' to {out_path}")
-        return 0
-    except Exception as e:
-        if json_output:
-            click.echo(json.dumps({"error": str(e)}))
-        else:
-            click.echo(f"❌ Failed to fetch standard: {e}")
-        return 1
-
-
-# Register subcommands under main CLI group
 @click.group("standards-catalog")
 def standards_catalog():
     """Remote standards catalog commands."""
@@ -2322,6 +2218,9 @@ def standards_catalog():
 )
 def standards_catalog_list(json_output):
     """List available standards from the remote catalog."""
+    # Keep catalog commands as legacy for now
+    from .catalog import CatalogClient, CatalogConfig
+
     sys.exit(standards_catalog_list_command(json_output))
 
 
@@ -2341,6 +2240,7 @@ def standards_catalog_list(json_output):
 )
 def standards_catalog_fetch(name_or_id, dest, filename, overwrite, json_output):
     """Fetch a standard from the remote catalog and save it locally."""
+    # Keep catalog commands as legacy for now
     sys.exit(
         standards_catalog_fetch_command(
             name_or_id, dest, filename, overwrite, json_output
