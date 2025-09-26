@@ -28,15 +28,13 @@ from typing import Dict, Any, Optional, List
 
 # Import CLI functions for comprehensive workflow testing
 from src.adri.cli import (
-    setup_command,
-    generate_standard_command,
-    assess_command,
-    show_help_guide,
-    show_config_command,
-    list_assessments_command,
+    SetupCommand,
+    GenerateStandardCommand,
+    AssessCommand,
+    ShowConfigCommand,
+    ListAssessmentsCommand,
     _find_adri_project_root,
     _resolve_project_path,
-    create_sample_files,
 )
 
 # Import test fixtures for reusable project structures
@@ -92,7 +90,7 @@ class TestCompleteWorkflowIntegration(unittest.TestCase):
         os.chdir(self.temp_dir)
 
         # Step 1: Setup with guide
-        result = setup_command(guide=True, project_name="workflow_test")
+        result = SetupCommand().execute(guide=True, project_name="workflow_test")
         self.assertEqual(result, 0)
 
         # Verify project structure
@@ -106,7 +104,7 @@ class TestCompleteWorkflowIntegration(unittest.TestCase):
                 {"invoice_id": "INV-001", "amount": 1250.00, "status": "paid"}
             ]
 
-            result = generate_standard_command("tutorials/invoice_processing/invoice_data.csv", force=True)
+            result = GenerateStandardCommand().execute("tutorials/invoice_processing/invoice_data.csv", force=True)
             self.assertEqual(result, 0)
 
         # Verify standard creation

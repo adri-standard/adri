@@ -4,10 +4,17 @@ This package contains the command-line interface components including
 individual command implementations and registry functionality.
 """
 
+# Import command classes for clean modular access
+from .commands.assess import AssessCommand
+from .commands.config import ShowConfigCommand
+from .commands.generate_standard import GenerateStandardCommand
+from .commands.list_assessments import ListAssessmentsCommand
+from .commands.scoring import ScoringExplainCommand
+from .commands.setup import SetupCommand
+from .commands.view_logs import ViewLogsCommand
 from .registry import create_command_registry, get_command, register_all_commands
 
 
-# Import functions that are still needed for backward compatibility
 def _get_cli_functions():
     """Get CLI functions lazily to avoid circular imports."""
     import importlib.util
@@ -25,52 +32,18 @@ def _get_cli_functions():
 
 
 def _find_adri_project_root(*args, **kwargs):
-    """Find ADRI project root - backward compatibility wrapper."""
+    """Find ADRI project root."""
     cli_module = _get_cli_functions()
     return cli_module._find_adri_project_root(*args, **kwargs)
 
 
-def setup_command(*args, **kwargs):
-    """Provide setup command - backward compatibility wrapper."""
-    from .commands.setup import SetupCommand
-
-    command = SetupCommand()
-    return command.execute(*args, **kwargs)
-
-
-def scoring_explain_command(*args, **kwargs):
-    """Scoring explain command - backward compatibility wrapper."""
-    from .commands.scoring import ScoringCommand
-
-    command = ScoringCommand()
-    # This might need to be adapted based on the actual command structure
-    return command.explain(*args, **kwargs)
-
-
-def generate_standard_command(*args, **kwargs):
-    """Generate standard command - backward compatibility wrapper."""
-    from .commands.generate_standard import GenerateStandardCommand
-
-    command = GenerateStandardCommand()
-    return command.execute(*args, **kwargs)
-
-
-def show_config_command(*args, **kwargs):
-    """Show config command - backward compatibility wrapper."""
-    from .commands.config import ConfigCommand
-
-    command = ConfigCommand()
-    return command.execute(*args, **kwargs)
-
-
 def _resolve_project_path(*args, **kwargs):
-    """Resolve project path - backward compatibility wrapper."""
+    """Resolve project path."""
     cli_module = _get_cli_functions()
-    # Check if this function exists in cli.py
     if hasattr(cli_module, "_resolve_project_path"):
         return cli_module._resolve_project_path(*args, **kwargs)
     else:
-        # Fallback - might be in a different location or deprecated
+        # Fallback to project root function
         return _find_adri_project_root(*args, **kwargs)
 
 
@@ -133,9 +106,13 @@ __all__ = [
     "standards_catalog_list_command",
     "standards_catalog_fetch_command",
     "_find_adri_project_root",
-    "setup_command",
-    "scoring_explain_command",
-    "generate_standard_command",
-    "show_config_command",
     "_resolve_project_path",
+    # Clean command classes
+    "AssessCommand",
+    "ShowConfigCommand",
+    "GenerateStandardCommand",
+    "ListAssessmentsCommand",
+    "ScoringExplainCommand",
+    "SetupCommand",
+    "ViewLogsCommand",
 ]
