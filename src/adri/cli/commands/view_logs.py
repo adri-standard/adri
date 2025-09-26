@@ -151,7 +151,7 @@ class ViewLogsCommand(Command):
                         }
                     )
 
-                except Exception:
+                except (ValueError, TypeError, OSError):
                     continue  # Skip unreadable entries
 
         return log_entries

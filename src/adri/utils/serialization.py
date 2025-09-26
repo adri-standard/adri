@@ -9,12 +9,11 @@ import json
 from datetime import date, datetime
 from io import StringIO
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Type, Union
+from typing import Any, Dict, List, Optional, Union
 
 import yaml
 
 from ..core.exceptions import SerializationError
-from ..core.protocols import ResultSerializer
 
 
 class JSONSerializer:
@@ -24,7 +23,7 @@ class JSONSerializer:
     def serialize(
         data: Any, indent: Optional[int] = 2, ensure_ascii: bool = False
     ) -> str:
-        """Serialize data to JSON string.
+        """Convert data to JSON string format.
 
         Args:
             data: Data to serialize
@@ -68,7 +67,7 @@ class JSONSerializer:
 
     @staticmethod
     def _json_default(obj: Any) -> Any:
-        """Default serialization handler for non-JSON-serializable objects."""
+        """Handle serialization of non-JSON-serializable objects."""
         if isinstance(obj, (datetime, date)):
             return obj.isoformat()
         elif hasattr(obj, "to_dict"):

@@ -13,8 +13,6 @@ from typing import Any, Callable, Dict, List, Optional, Union
 
 import pandas as pd
 
-from ..core.exceptions import DataValidationError, ValidationRuleError
-
 
 def validate_field_value(
     value: Any,
@@ -263,7 +261,8 @@ def generate_record_id(row: Any, row_index: int, primary_key_fields: List[str]) 
 
                 if value is not None and not is_missing_value(value):
                     key_values.append(str(value))
-            except Exception:
+            except (ValueError, TypeError, AttributeError):
+                # Skip invalid field values during key generation
                 continue
 
         if key_values:

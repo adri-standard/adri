@@ -5,7 +5,7 @@ This module contains the CompletenessAssessor class that evaluates data complete
 ADRI standards.
 """
 
-from typing import Any, Dict, List
+from typing import Any, Dict
 
 import pandas as pd
 
@@ -47,7 +47,7 @@ class CompletenessAssessor(DimensionAssessor):
         return self._assess_completeness_with_requirements(data, field_requirements)
 
     def _assess_completeness_basic(self, data: pd.DataFrame) -> float:
-        """Basic completeness assessment without field requirements."""
+        """Perform basic completeness assessment without field requirements."""
         total_cells = int(data.size)
         missing_cells = int(data.isnull().sum().sum())
         completeness_rate = (total_cells - missing_cells) / total_cells

@@ -4,7 +4,6 @@ This module contains utilities for resolving paths, finding project roots,
 and handling path operations consistently across the ADRI system.
 """
 
-import os
 from pathlib import Path
 from typing import Optional, Union
 

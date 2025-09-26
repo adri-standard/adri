@@ -9,20 +9,14 @@ import importlib
 import inspect
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Type, TypeVar, Union
+from typing import Any, Dict, List, Optional, TypeVar
 
 from .exceptions import (
     ComponentNotFoundError,
     ComponentRegistrationError,
     RegistryError,
 )
-from .protocols import (
-    Command,
-    DataLoader,
-    DimensionAssessor,
-    ResultSerializer,
-    StandardLoader,
-)
+from .protocols import Command, DimensionAssessor
 
 T = TypeVar("T")
 
@@ -361,7 +355,7 @@ class LoaderRegistry(ComponentRegistry):
                     if file_format in loader.get_supported_formats():
                         return loader
 
-            except Exception:
+            except (ImportError, TypeError, AttributeError):
                 continue  # Skip loaders that fail to instantiate
 
         return None
@@ -430,7 +424,7 @@ class SerializerRegistry(ComponentRegistry):
                     if serializer.get_format_name().lower() == format_name.lower():
                         return serializer
 
-            except Exception:
+            except (ImportError, TypeError, AttributeError):
                 continue  # Skip serializers that fail to instantiate
 
         return None

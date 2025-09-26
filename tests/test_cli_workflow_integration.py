@@ -27,7 +27,7 @@ from dataclasses import dataclass
 from typing import Dict, Any, Optional, List
 
 # Import CLI functions for comprehensive workflow testing
-from adri.cli import (
+from src.adri.cli import (
     setup_command,
     generate_standard_command,
     assess_command,

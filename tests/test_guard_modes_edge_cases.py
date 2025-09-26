@@ -20,7 +20,7 @@ from unittest.mock import Mock, patch, MagicMock
 from pathlib import Path
 
 # Test the actual imports
-from adri.guard.modes import (
+from src.adri.guard.modes import (
     DataProtectionEngine,
     FailFastMode,
     SelectiveMode,

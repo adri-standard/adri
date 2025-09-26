@@ -9,8 +9,8 @@ import pandas as pd
 import yaml
 from unittest.mock import patch
 
-from adri.validator.engine import ValidationEngine
-from adri.cli import scoring_explain_command
+from src.adri.validator.engine import ValidationEngine
+from src.adri.cli import scoring_explain_command
 
 
 def _make_standard_dict(field_requirements: Dict[str, Any], extra: Dict[str, Any] = None) -> Dict[str, Any]:

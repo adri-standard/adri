@@ -14,7 +14,7 @@ from unittest.mock import Mock, patch, MagicMock
 from datetime import datetime
 
 # Updated imports for new src/ layout
-from adri.guard.modes import (
+from src.adri.guard.modes import (
     DataProtectionEngine,
     FailFastMode,
     SelectiveMode,

@@ -12,7 +12,6 @@ import click
 import yaml
 
 from ...core.protocols import Command
-from ...utils.path_utils import find_adri_project_root
 
 
 class SetupCommand(Command):

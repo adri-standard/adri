@@ -139,7 +139,7 @@ class ListAssessmentsCommand(Command):
                     }
                 )
 
-            except Exception:
+            except (json.JSONDecodeError, KeyError, ValueError, FileNotFoundError):
                 # Skip invalid assessment files
                 continue
 
@@ -187,7 +187,7 @@ class ListAssessmentsCommand(Command):
                                 "overall_score": float(row.get("overall_score", 0)),
                             }
                         )
-                    except Exception:
+                    except (ValueError, TypeError, OSError):
                         continue  # Skip unreadable entries
 
         return audit_entries

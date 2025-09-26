@@ -28,7 +28,7 @@ from dataclasses import dataclass
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # Import path resolution functions for benchmarking
-from adri.cli import (
+from src.adri.cli import (
     _find_adri_project_root,
     _resolve_project_path,
     setup_command,
