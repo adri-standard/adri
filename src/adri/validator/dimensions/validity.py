@@ -65,7 +65,7 @@ class ValidityAssessor(DimensionAssessor):
         )
 
     def _assess_validity_basic(self, data: pd.DataFrame) -> float:
-        """Basic validity assessment without field requirements."""
+        """Perform basic validity assessment without field requirements."""
         total_checks = 0
         failed_checks = 0
 
@@ -97,7 +97,7 @@ class ValidityAssessor(DimensionAssessor):
     def _assess_validity_simple(
         self, data: pd.DataFrame, field_requirements: Dict[str, Any]
     ) -> float:
-        """Simple validity assessment using field requirements."""
+        """Perform simple validity assessment using field requirements."""
         total_checks = 0
         failed_checks = 0
 

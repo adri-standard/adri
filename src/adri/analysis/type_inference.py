@@ -246,3 +246,26 @@ def infer_validation_rules_from_data(data: pd.DataFrame) -> Dict[str, Dict[str, 
     """
     inference = TypeInference()
     return inference.infer_validation_rules(data)
+
+
+def check_allowed_values(series: pd.Series, max_unique: int = 10) -> Optional[list]:
+    """
+    Check if a series has a small set of allowed values.
+
+    Args:
+        series: Pandas Series to analyze
+        max_unique: Maximum number of unique values to consider as allowed values
+
+    Returns:
+        List of allowed values if cardinality is low, None otherwise
+    """
+    if series.isnull().all():
+        return None
+
+    # Remove nulls and get unique values
+    unique_values = series.dropna().unique()
+
+    if len(unique_values) <= max_unique:
+        return list(unique_values)
+
+    return None
