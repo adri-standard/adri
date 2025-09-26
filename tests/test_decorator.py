@@ -12,7 +12,7 @@ import os
 from pathlib import Path
 
 # Updated imports for new src/ layout
-from adri.decorator import (
+from src.adri.decorator import (
     adri_protected,
     ProtectionError
 )

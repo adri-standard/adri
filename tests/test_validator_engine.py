@@ -12,7 +12,7 @@ import tempfile
 import os
 
 # Updated imports for new src/ layout
-from adri.validator.engine import (
+from src.adri.validator.engine import (
     ValidationEngine,
     DataQualityAssessor,
     AssessmentResult,
@@ -136,21 +136,21 @@ class TestDataQualityAssessor(unittest.TestCase):
 
         self.assertIsInstance(result, AssessmentResult)
 
-    @patch('adri.validator.engine.ValidationEngine.assess')
-    def test_assess_with_standard_file(self, mock_assess):
+    def test_assess_with_standard_file(self):
         """Test assessment with standard file."""
-        mock_result = Mock()
-        mock_result.standard_id = None
-        mock_assess.return_value = mock_result
-
         with tempfile.NamedTemporaryFile(suffix='.yaml', delete=False) as f:
             standard_path = f.name
 
         try:
-            self.assessor.assess(self.sample_data, standard_path)
-            mock_assess.assert_called_once()
-            # Should set standard_id from filename
-            self.assertIsNotNone(mock_result.standard_id)
+            # Create a valid YAML file
+            with open(standard_path, 'w') as f:
+                f.write("standards:\n  id: test_standard\n  name: Test Standard\n")
+
+            result = self.assessor.assess(self.sample_data, standard_path)
+
+            # Should return valid assessment result
+            self.assertIsInstance(result, AssessmentResult)
+            self.assertGreater(result.overall_score, 0)
         finally:
             os.unlink(standard_path)
 

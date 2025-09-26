@@ -16,29 +16,8 @@ from typing import Any, Dict, List, Optional
 import requests
 import yaml
 
-# Updated imports for new structure - with fallbacks during migration
-try:
-    from .local import AuditRecord
-except ImportError:
-    try:
-        from adri.core.audit_logger import AuditRecord
-    except ImportError:
-        # Fallback AuditRecord class if not available
-        class AuditRecord:
-            """Fallback AuditRecord class for when local module is not available."""
-
-            def __init__(
-                self, assessment_id: str, timestamp: datetime, adri_version: str
-            ):
-                """Initialize audit record with basic metadata."""
-                self.assessment_id = assessment_id
-                self.timestamp = timestamp
-                self.adri_version = adri_version
-                self.assessment_results = {}
-                self.execution_context = {}
-                self.data_fingerprint = {}
-                self.standard_applied = {}
-                self.performance_metrics = {}
+# Clean imports for modular architecture
+from .local import AuditRecord
 
 
 class EnterpriseLogger:

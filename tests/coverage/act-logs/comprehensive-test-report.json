@@ -23,6 +23,14 @@
       "description": "Main CI Workflow Validation",
       "error": "[CI/build-test] exitcode '1': failure [CI/build-test] ⭐ Run Complete job [CI/build-test]   ✅  Success - Complete job [CI/build-test] 🏁  Job failed Error: Job 'build-test' failed ",
       "timestamp": "2025-09-22T15:26:31Z"
+    },
+    {
+      "job": "build-test",
+      "status": "FAILED",
+      "duration": 904,
+      "description": "Main CI Workflow Validation",
+      "error": "[CI/build-test]   🐳  docker pull image=ghcr.io/catthehacker/ubuntu:full-latest platform=linux/amd64 username= forcePull=true [CI/build-test] context canceled [CI/build-test]   ❌  Failure - Set up job [CI/build-test] 🏁  Job failed Error: context canceled ",
+      "timestamp": "2025-09-26T21:12:41Z"
     }
   ],
   "summary": {}

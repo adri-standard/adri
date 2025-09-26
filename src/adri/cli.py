@@ -1,8 +1,8 @@
 """
 ADRI CLI - Streamlined Command Interface.
 
-Consolidated CLI from the original 2656-line commands.py into a clean, maintainable structure.
-Provides essential commands for data quality assessment and standard management.
+Refactored CLI using modular command pattern architecture.
+Entry point delegates to individual command classes for maintainability.
 """
 
 import json
@@ -14,19 +14,41 @@ from typing import Any, Dict, List, Optional
 import click
 import yaml
 
-from .catalog import CatalogClient, CatalogConfig
-from .config.loader import ConfigurationLoader
-from .validator.engine import DataQualityAssessor
-from .validator.loaders import load_data, load_standard
-from .version import __version__
+from adri.cli.registry import get_command
+from adri.version import __version__
+
+# Import needed components
+try:
+    from adri.config.loader import ConfigurationLoader
+except ImportError:
+    ConfigurationLoader = None
+
+try:
+    from adri.validator.assessor import DataQualityAssessor
+except ImportError:
+    DataQualityAssessor = None
+
+try:
+    from adri.standards import load_standard
+except ImportError:
+    try:
+        from adri.standards.loader import load_standard
+    except ImportError:
+        load_standard = None
+
+try:
+    from adri.utils.data_loader import load_data
+except ImportError:
+    try:
+        from adri.utils import load_data
+    except ImportError:
+        load_data = None
 
 # Ensure UTF-8 console output on Windows (avoid 'charmap' codec errors)
 try:
-    # Python 3.7+ TextIOWrapper supports reconfigure; use errors='replace' for maximum safety
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     sys.stderr.reconfigure(encoding="utf-8", errors="replace")
 except Exception:
-    # If not supported (or already configured), proceed without modification
     pass
 
 
@@ -347,7 +369,7 @@ def _analyze_data_issues(data, primary_key_fields):
     validation_id = 1
 
     try:
-        from .validator.rules import check_primary_key_uniqueness
+        from adri.validator.rules import check_primary_key_uniqueness
 
         standard_config = {
             "record_identification": {"primary_key_fields": primary_key_fields}
@@ -597,368 +619,6 @@ def _create_lineage_metadata(
 # ---------------- Core commands -----------------
 
 
-def assess_command(
-    data_path: str,
-    standard_path: str,
-    output_path: Optional[str] = None,
-    guide: bool = False,
-) -> int:
-    """Run data quality assessment."""
-    try:
-        resolved_data_path = _resolve_project_path(data_path)
-        resolved_standard_path = _resolve_project_path(standard_path)
-
-        if not resolved_data_path.exists():
-            if guide:
-                click.echo(f"❌ Assessment failed: Data file not found: {data_path}")
-                click.echo(_get_project_root_display())
-                click.echo(f"📄 Testing: {_rel_to_project_root(resolved_data_path)}")
-            else:
-                click.echo(f"❌ Assessment failed: Data file not found: {data_path}")
-            return 1
-
-        if not resolved_standard_path.exists():
-            if guide:
-                click.echo(
-                    f"❌ Assessment failed: Standard file not found: {standard_path}"
-                )
-                click.echo(_get_project_root_display())
-                click.echo(
-                    f"📋 Against Standard: {_rel_to_project_root(resolved_standard_path)}"
-                )
-            else:
-                click.echo(
-                    f"❌ Assessment failed: Standard file not found: {standard_path}"
-                )
-            return 1
-
-        data_list = load_data(str(resolved_data_path))
-        if not data_list:
-            click.echo("❌ No data loaded")
-            return 1
-
-        import pandas as pd
-
-        data = pd.DataFrame(data_list)
-
-        assessor = DataQualityAssessor(_load_assessor_config())
-        result = assessor.assess(data, str(resolved_standard_path))
-
-        _save_assessment_report(guide, data_path, result)
-        threshold = _get_threshold_from_standard(resolved_standard_path)
-        _display_assessment_results(result, data, guide, threshold)
-
-        if output_path:
-            report_data = result.to_standard_dict()
-            with open(output_path, "w") as f:
-                json.dump(report_data, f, indent=2)
-            click.echo(f"📄 Report saved: {output_path}")
-
-        return 0
-    except FileNotFoundError as e:
-        click.echo(f"❌ File not found: {e}")
-        return 1
-    except Exception as e:
-        click.echo(f"❌ Assessment failed: {e}")
-        return 1
-
-
-def generate_standard_command(  # noqa: C901
-    data_path: str, force: bool = False, guide: bool = False
-) -> int:
-    """Generate ADRI standard from data analysis (uses StandardGenerator)."""
-    try:
-        resolved_data_path = _resolve_project_path(data_path)
-        if not resolved_data_path.exists():
-            click.echo(f"❌ Generation failed: Data file not found: {data_path}")
-            return 1
-
-        data_list = load_data(str(resolved_data_path))
-        if not data_list:
-            click.echo("❌ No data loaded")
-            return 1
-
-        data_name = Path(data_path).stem
-        standard_filename = f"{data_name}_ADRI_standard.yaml"
-
-        # Determine output path via configuration
-        output_path: Path
-        if ConfigurationLoader:
-            config_loader = ConfigurationLoader()
-            config = config_loader.get_active_config()
-            if config:
-                try:
-                    env_config = config_loader.get_environment_config(config)
-                    standards_dir = Path(env_config["paths"]["standards"])
-                    standards_dir.mkdir(parents=True, exist_ok=True)
-                    output_path = standards_dir / standard_filename
-                except (KeyError, AttributeError):
-                    Path("ADRI/dev/standards").mkdir(parents=True, exist_ok=True)
-                    output_path = Path("ADRI/dev/standards") / standard_filename
-            else:
-                Path("ADRI/dev/standards").mkdir(parents=True, exist_ok=True)
-                output_path = Path("ADRI/dev/standards") / standard_filename
-        else:
-            Path("ADRI/dev/standards").mkdir(parents=True, exist_ok=True)
-            output_path = Path("ADRI/dev/standards") / standard_filename
-
-        if output_path.exists() and not force:
-            click.echo(f"❌ Standard exists: {output_path}. Use --force to overwrite.")
-            return 1
-
-        # Show guide intro
-        if guide:
-            click.echo("📊 Generating ADRI Standard from Data Analysis")
-            click.echo("=============================================")
-            click.echo("")
-            click.echo(_get_project_root_display())
-            click.echo(f"📄 Analyzing: {_rel_to_project_root(resolved_data_path)}")
-            click.echo("📋 Creating data quality rules based on your good data...")
-            click.echo("🔍 Creating training data snapshot for lineage tracking...")
-
-        # Build DataFrame
-        import pandas as pd
-
-        data = pd.DataFrame(data_list)
-
-        snapshot_path = _create_training_snapshot(str(resolved_data_path))
-        if guide:
-            if snapshot_path:
-                click.echo(f"✅ Training snapshot created: {Path(snapshot_path).name}")
-            else:
-                click.echo("⚠️  Training snapshot creation skipped")
-            click.echo("")
-
-        # Generate enriched standard using StandardGenerator
-        from .analysis.standard_generator import StandardGenerator
-
-        gen = StandardGenerator()
-        std_dict = gen.generate_from_dataframe(data, data_name, generation_config=None)
-
-        # Merge lineage and metadata
-        lineage_metadata = _create_lineage_metadata(
-            str(resolved_data_path), snapshot_path
-        )
-        std_dict["training_data_lineage"] = lineage_metadata
-
-        from datetime import datetime
-
-        current_timestamp = datetime.now().isoformat()
-        base_metadata = {
-            "created_by": "ADRI Framework",
-            "created_date": current_timestamp,
-            "last_modified": current_timestamp,
-            "generation_method": "auto_generated",
-            "tags": ["data_quality", "auto_generated", f"{data_name}_data"],
-        }
-        existing_meta = std_dict.get("metadata", {}) or {}
-        std_dict["metadata"] = {**base_metadata, **existing_meta}
-
-        # Save standard
-        with open(output_path, "w") as f:
-            yaml.dump(std_dict, f, default_flow_style=False, sort_keys=False)
-
-        if guide:
-            click.echo("✅ Standard Generated Successfully!")
-            click.echo("==================================")
-            try:
-                std_name = std_dict["standards"]["name"]
-            except Exception:
-                std_name = standard_filename
-            click.echo(f"📄 Standard: {std_name}")
-            click.echo(f"📁 Saved to: {_rel_to_project_root(output_path)}")
-            click.echo("")
-            click.echo("📋 What the standard contains:")
-            try:
-                field_reqs = (
-                    std_dict.get("requirements", {}).get("field_requirements", {}) or {}
-                )
-                click.echo(f"   • {len(field_reqs)} field requirements")
-            except Exception:
-                click.echo("   • Field requirements summary unavailable")
-            click.echo(
-                "   • 5 quality dimensions (validity, completeness, consistency, freshness, plausibility)"
-            )
-            click.echo("   • Overall minimum score: 75.0/100")
-            click.echo("")
-            next_cmd = (
-                "adri assess tutorials/invoice_processing/test_invoice_data.csv --standard dev/standards/invoice_data_ADRI_standard.yaml --guide"
-                if "invoice_data" in data_path
-                else f"adri assess your_test_data.csv --standard {_rel_to_project_root(output_path)} --guide"
-            )
-            click.echo(f"▶ Next: {next_cmd}")
-        else:
-            click.echo("✅ Standard generated successfully!")
-            click.echo(f"📄 Standard: {standard_filename}")
-            click.echo(f"📁 Saved to: {output_path}")
-
-        return 0
-    except Exception as e:
-        click.echo(f"❌ Generation failed: {e}")
-        return 1
-
-
-def validate_standard_command(standard_path: str) -> int:
-    """Validate YAML standard file (basic structural checks)."""
-    try:
-        standard = load_standard(standard_path)
-        errors = []
-        if "standards" not in standard or not isinstance(standard["standards"], dict):
-            errors.append("'standards' section missing or invalid")
-        else:
-            std_section = standard["standards"]
-            for field in ["id", "name", "version", "authority"]:
-                if not std_section.get(field):
-                    errors.append(f"Missing required field in standards: '{field}'")
-        if "requirements" not in standard or not isinstance(
-            standard["requirements"], dict
-        ):
-            errors.append("'requirements' section missing or invalid")
-
-        if errors:
-            click.echo("❌ Standard validation FAILED")
-            for error in errors:
-                click.echo(f"  • {error}")
-            return 1
-
-        click.echo("✅ Standard validation PASSED")
-        std_info = standard.get("standards", {})
-        click.echo(f"📄 Name: {std_info.get('name', 'Unknown')}")
-        click.echo(f"🆔 ID: {std_info.get('id', 'Unknown')}")
-        click.echo(f"📦 Version: {std_info.get('version', 'Unknown')}")
-        return 0
-    except Exception as e:
-        click.echo(f"❌ Validation failed: {e}")
-        return 1
-
-
-def list_standards_command(include_catalog: bool = False) -> int:
-    """List available YAML standards (local). Optionally include remote catalog."""
-    try:
-        standards_found = False
-
-        # Local project standards (development and production)
-        dev_dir = Path("ADRI/dev/standards")
-        prod_dir = Path("ADRI/prod/standards")
-
-        # Try to resolve from config if available
-        if ConfigurationLoader:
-            try:
-                cl = ConfigurationLoader()
-                cfg = cl.get_active_config()
-                if cfg:
-                    dev_env = cl.get_environment_config(cfg, "development")
-                    prod_env = cl.get_environment_config(cfg, "production")
-                    dev_dir = Path(dev_env["paths"]["standards"])
-                    prod_dir = Path(prod_env["paths"]["standards"])
-            except Exception:
-                pass
-
-        def _list_yaml(dir_path: Path) -> List[Path]:
-            if not dir_path.exists():
-                return []
-            return list(dir_path.glob("*.yaml")) + list(dir_path.glob("*.yml"))
-
-        dev_files = _list_yaml(dev_dir)
-        prod_files = _list_yaml(prod_dir)
-
-        if dev_files:
-            click.echo("🏗️  Project Standards (dev):")
-            for i, p in enumerate(dev_files, 1):
-                click.echo(f"  {i}. {p.name}")
-            standards_found = True
-
-        if prod_files:
-            if standards_found:
-                click.echo()
-            click.echo("🏛️  Project Standards (prod):")
-            for i, p in enumerate(prod_files, 1):
-                click.echo(f"  {i}. {p.name}")
-            standards_found = True
-
-        # Optionally include remote catalog
-        if include_catalog:
-            if standards_found:
-                click.echo()
-            base_url = None
-            try:
-                # Local import to avoid hard dependency if package not available
-                from .catalog import CatalogClient as _CC  # type: ignore
-                from .catalog import CatalogConfig as _CFG
-
-                base_url = _CC.resolve_base_url()
-                CatalogClientLocal = _CC
-                CatalogConfigLocal = _CFG
-            except Exception:
-                base_url = None
-                CatalogClientLocal = None  # type: ignore
-                CatalogConfigLocal = None  # type: ignore
-
-            if not base_url or not CatalogClientLocal or not CatalogConfigLocal:
-                click.echo("🌐 Remote Catalog: (not configured)")
-            else:
-                try:
-                    client = CatalogClientLocal(CatalogConfigLocal(base_url=base_url))
-                    resp = client.list()
-                    click.echo(f"🌐 Remote Catalog ({len(resp.entries)}):")
-                    for i, e in enumerate(resp.entries, 1):
-                        click.echo(f"  {i}. {e.id} — {e.name} v{e.version}")
-                except Exception as e:
-                    click.echo(f"⚠️ Could not load remote catalog: {e}")
-
-        if not standards_found and not include_catalog:
-            click.echo("📋 No standards found")
-            click.echo("💡 Use 'adri generate-standard <data>' to create one")
-
-        return 0
-    except Exception as e:
-        click.echo(f"❌ Failed to list standards: {e}")
-        return 1
-
-
-def show_config_command(
-    paths_only: bool = False, environment: Optional[str] = None
-) -> int:
-    """Show current ADRI configuration."""
-    try:
-        if not ConfigurationLoader:
-            click.echo("❌ Configuration loader not available")
-            return 1
-        config_loader = ConfigurationLoader()
-        config = config_loader.get_active_config()
-        if not config:
-            click.echo("❌ No ADRI configuration found")
-            click.echo("💡 Run 'adri setup' to initialize ADRI in this project")
-            return 1
-
-        adri_config = config["adri"]
-        if not paths_only:
-            click.echo("📋 ADRI Configuration")
-            click.echo(f"🏗️  Project: {adri_config['project_name']}")
-            click.echo(f"📦 Version: {adri_config.get('version', '4.0.0')}")
-            click.echo(f"🌍 Default Environment: {adri_config['default_environment']}")
-            click.echo()
-
-        environments_to_show = (
-            [environment] if environment else list(adri_config["environments"].keys())
-        )
-        for env_name in environments_to_show:
-            if env_name not in adri_config["environments"]:
-                click.echo(f"❌ Environment '{env_name}' not found")
-                continue
-            env_config = adri_config["environments"][env_name]
-            paths = env_config["paths"]
-            click.echo(f"📁 {env_name.title()} Environment:")
-            for path_type, path_value in paths.items():
-                status = "✅" if os.path.exists(path_value) else "❌"
-                click.echo(f"  {status} {path_type}: {path_value}")
-            click.echo()
-        return 0
-    except Exception as e:
-        click.echo(f"❌ Failed to show configuration: {e}")
-        return 1
-
-
 def _get_assessments_directory() -> Path:
     assessments_dir = Path("ADRI/dev/assessments")
     if ConfigurationLoader:
@@ -1102,41 +762,6 @@ def _display_assessments_table(enhanced_table_data, table_data, verbose):
         for i, entry in enumerate(table_data, 1):
             click.echo(f"  {i}. {entry['file']}")
         click.echo()
-
-
-def list_assessments_command(recent: int = 10, verbose: bool = False) -> int:
-    """List previous assessment reports."""
-    try:
-        assessments_dir = _get_assessments_directory()
-        if not assessments_dir.exists():
-            click.echo("📁 No assessments directory found")
-            click.echo("▶ Create assessments: adri assess <data> --standard <standard>")
-            return 0
-
-        assessment_files = list(assessments_dir.glob("*.json"))
-        if not assessment_files:
-            click.echo("📊 No assessment reports found")
-            click.echo("▶ Create assessments: adri assess <data> --standard <standard>")
-            return 0
-
-        assessment_files.sort(key=lambda x: x.stat().st_mtime, reverse=True)
-        if recent > 0:
-            assessment_files = assessment_files[:recent]
-
-        table_data = _parse_assessment_files(assessment_files)
-        if not table_data:
-            click.echo("📊 No valid assessment reports found")
-            click.echo("▶ Try running: adri assess <data> --standard <standard>")
-            return 0
-
-        audit_entries = _load_audit_entries()
-        enhanced_table_data = _enhance_with_record_counts(table_data, audit_entries)
-        _display_assessments_table(enhanced_table_data, table_data, verbose)
-        return 0
-    except Exception as e:
-        click.echo(f"❌ Failed to list assessments: {e}")
-        click.echo("▶ Try: adri assess <data> --standard <standard>")
-        return 1
 
 
 def _get_audit_logs_directory() -> Path:
@@ -1294,102 +919,6 @@ def _display_audit_logs_table(table_data, log_entries, audit_logs_dir, verbose):
     click.echo("👉 Next: Integrate ADRI into your agent workflow (see docs)")
 
 
-def view_logs_command(
-    recent: int = 10, today: bool = False, verbose: bool = False
-) -> int:
-    """View audit logs from CSV files."""
-    try:
-        audit_logs_dir = _get_audit_logs_directory()
-        if not audit_logs_dir.exists():
-            click.echo("📁 No audit logs directory found")
-            click.echo(
-                "💡 Run 'adri assess <data> --standard <standard>' to create audit logs"
-            )
-            return 0
-        main_log_file = audit_logs_dir / "adri_assessment_logs.csv"
-        if not main_log_file.exists():
-            click.echo("📊 No audit logs found")
-            click.echo(
-                "💡 Run 'adri assess <data> --standard <standard>' to create audit logs"
-            )
-            return 0
-        log_entries = _parse_audit_log_entries(main_log_file, today)
-        if not log_entries:
-            click.echo("📊 No audit log entries found")
-            return 0
-        log_entries.sort(key=lambda x: x["timestamp"], reverse=True)
-        if recent > 0:
-            log_entries = log_entries[:recent]
-        table_data = _format_log_table_data(log_entries)
-        _display_audit_logs_table(table_data, log_entries, audit_logs_dir, verbose)
-        return 0
-    except Exception as e:
-        click.echo(f"❌ Failed to view logs: {e}")
-        return 1
-
-
-def show_standard_command(standard_name: str, verbose: bool = False) -> int:
-    """Show details of a specific ADRI standard."""
-    try:
-        if os.path.exists(standard_name):
-            standard_path = standard_name
-        else:
-            standard_path = None
-            for path in [
-                f"ADRI/dev/standards/{standard_name}.yaml",
-                f"ADRI/prod/standards/{standard_name}.yaml",
-                f"{standard_name}.yaml",
-            ]:
-                if os.path.exists(path):
-                    standard_path = path
-                    break
-            if not standard_path:
-                click.echo(f"❌ Standard not found: {standard_name}")
-                click.echo("💡 Use 'adri list-standards' to see available standards")
-                return 1
-
-        standard = load_standard(standard_path)
-        std_info = standard.get("standards", {})
-
-        click.echo("📋 ADRI Standard Details")
-        click.echo(f"📄 Name: {std_info.get('name', 'Unknown')}")
-        click.echo(f"🆔 ID: {std_info.get('id', 'Unknown')}")
-        click.echo(f"📦 Version: {std_info.get('version', 'Unknown')}")
-        click.echo(f"🏛️  Authority: {std_info.get('authority', 'Unknown')}")
-        if "description" in std_info:
-            click.echo(f"📝 Description: {std_info['description']}")
-
-        requirements = standard.get("requirements", {})
-        click.echo(
-            f"\n🎯 Overall Minimum Score: {requirements.get('overall_minimum', 'Not set')}/100"
-        )
-
-        if verbose and "field_requirements" in requirements:
-            field_reqs = requirements["field_requirements"]
-            click.echo(f"\n📋 Field Requirements ({len(field_reqs)} fields):")
-            for field_name, field_config in field_reqs.items():
-                field_type = field_config.get("type", "unknown")
-                nullable = (
-                    "nullable" if field_config.get("nullable", True) else "required"
-                )
-                click.echo(f"  • {field_name}: {field_type} ({nullable})")
-
-        if verbose and "dimension_requirements" in requirements:
-            dim_reqs = requirements["dimension_requirements"]
-            click.echo(f"\n📊 Dimension Requirements ({len(dim_reqs)} dimensions):")
-            for dim_name, dim_config in dim_reqs.items():
-                min_score = dim_config.get("minimum_score", "Not set")
-                click.echo(f"  • {dim_name}: ≥{min_score}/20")
-
-        click.echo(
-            f"\n💡 Use 'adri assess <data> --standard {standard_name}' to test data"
-        )
-        return 0
-    except Exception as e:
-        click.echo(f"❌ Failed to show standard: {e}")
-        return 1
-
-
 def _compute_dimension_contributions(dimension_scores, applied_dimension_weights):
     """Compute contribution (%) of each dimension to overall score given 0..20 scores and weights."""
     try:
@@ -1418,621 +947,6 @@ def _compute_dimension_contributions(dimension_scores, applied_dimension_weights
         return {}
 
 
-def scoring_explain_command(
-    data_path: str,
-    standard_path: str,
-    json_output: bool = False,
-) -> int:
-    """Produce a scoring breakdown using the standard's configured weights."""
-    try:
-        resolved_data_path = _resolve_project_path(data_path)
-        resolved_standard_path = _resolve_project_path(standard_path)
-
-        if not resolved_data_path.exists():
-            click.echo(f"❌ Data file not found: {data_path}")
-            click.echo(_get_project_root_display())
-            click.echo(f"📄 Testing: {_rel_to_project_root(resolved_data_path)}")
-            return 1
-        if not resolved_standard_path.exists():
-            click.echo(f"❌ Standard file not found: {standard_path}")
-            click.echo(_get_project_root_display())
-            click.echo(
-                f"📋 Against Standard: {_rel_to_project_root(resolved_standard_path)}"
-            )
-            return 1
-
-        data_list = load_data(str(resolved_data_path))
-        if not data_list:
-            click.echo("❌ No data loaded")
-            return 1
-
-        import pandas as pd
-
-        data = pd.DataFrame(data_list)
-
-        assessor = DataQualityAssessor(_load_assessor_config())
-        result = assessor.assess(data, str(resolved_standard_path))
-
-        threshold = _get_threshold_from_standard(resolved_standard_path)
-        dim_scores_obj = result.dimension_scores or {}
-        dim_scores = {
-            dim: (float(s.score) if hasattr(s, "score") else float(s))
-            for dim, s in dim_scores_obj.items()
-        }
-
-        metadata = result.metadata or {}
-        applied_dim_weights = metadata.get("applied_dimension_weights", {})
-        contributions = _compute_dimension_contributions(
-            dim_scores_obj, applied_dim_weights
-        )
-        warnings = metadata.get("scoring_warnings", [])
-        explain = metadata.get("explain", {}) or {}
-        validity_explain = (
-            explain.get("validity", {}) if isinstance(explain, dict) else {}
-        )
-        completeness_explain = (
-            explain.get("completeness", {}) if isinstance(explain, dict) else {}
-        )
-        consistency_explain = (
-            explain.get("consistency", {}) if isinstance(explain, dict) else {}
-        )
-        freshness_explain = (
-            explain.get("freshness", {}) if isinstance(explain, dict) else {}
-        )
-        plausibility_explain = (
-            explain.get("plausibility", {}) if isinstance(explain, dict) else {}
-        )
-
-        if json_output:
-            payload = {
-                "overall_score": float(result.overall_score),
-                "threshold": float(threshold),
-                "passed": bool(result.passed),
-                "dimension_scores": dim_scores,
-                "dimension_weights": {
-                    k: float(v) for k, v in applied_dim_weights.items()
-                },
-                "contributions_percent": {
-                    k: float(v) for k, v in contributions.items()
-                },
-                "validity": {
-                    "rule_counts": validity_explain.get("rule_counts", {}),
-                    "per_field_counts": validity_explain.get("per_field_counts", {}),
-                    "applied_weights": validity_explain.get("applied_weights", {}),
-                },
-                "warnings": warnings,
-            }
-            # Include completeness/consistency always if present; freshness only when active/present
-            if completeness_explain:
-                payload["completeness"] = {
-                    "required_total": int(
-                        completeness_explain.get("required_total", 0)
-                    ),
-                    "missing_required": int(
-                        completeness_explain.get("missing_required", 0)
-                    ),
-                    "pass_rate": float(completeness_explain.get("pass_rate", 0.0)),
-                    "score_0_20": float(completeness_explain.get("score_0_20", 0.0)),
-                    "per_field_missing": completeness_explain.get(
-                        "per_field_missing", {}
-                    ),
-                    "top_missing_fields": completeness_explain.get(
-                        "top_missing_fields", []
-                    ),
-                }
-            if consistency_explain:
-                payload["consistency"] = {
-                    "pk_fields": consistency_explain.get("pk_fields", []),
-                    "counts": consistency_explain.get("counts", {}),
-                    "pass_rate": float(consistency_explain.get("pass_rate", 0.0)),
-                    "rule_weights_applied": consistency_explain.get(
-                        "rule_weights_applied", {}
-                    ),
-                    "score_0_20": float(consistency_explain.get("score_0_20", 0.0)),
-                    "warnings": consistency_explain.get("warnings", []),
-                }
-            if freshness_explain:
-                payload["freshness"] = {
-                    "date_field": freshness_explain.get("date_field"),
-                    "as_of": freshness_explain.get("as_of"),
-                    "window_days": freshness_explain.get("window_days"),
-                    "counts": freshness_explain.get("counts", {}),
-                    "pass_rate": float(freshness_explain.get("pass_rate", 0.0)),
-                    "rule_weights_applied": freshness_explain.get(
-                        "rule_weights_applied", {}
-                    ),
-                    "score_0_20": float(freshness_explain.get("score_0_20", 0.0)),
-                    "warnings": freshness_explain.get("warnings", []),
-                }
-            if plausibility_explain:
-                payload["plausibility"] = {
-                    "rule_counts": plausibility_explain.get("rule_counts", {}),
-                    "pass_rate": float(plausibility_explain.get("pass_rate", 0.0)),
-                    "rule_weights_applied": plausibility_explain.get(
-                        "rule_weights_applied", {}
-                    ),
-                    "score_0_20": float(plausibility_explain.get("score_0_20", 0.0)),
-                    "warnings": plausibility_explain.get("warnings", []),
-                }
-            click.echo(json.dumps(payload, indent=2))
-            return 0
-
-        status_icon = "✅" if result.passed else "❌"
-        status_text = "PASSED" if result.passed else "FAILED"
-
-        click.echo("📊 Scoring Explain")
-        click.echo("==================")
-        click.echo(
-            f"Overall: {result.overall_score:.1f}/100 {status_icon} {status_text}"
-        )
-        click.echo(f"Threshold: {threshold:.1f}/100")
-        click.echo("")
-        click.echo("Dimensions (score/20, weight, contribution to overall):")
-        for dim in [
-            "validity",
-            "completeness",
-            "consistency",
-            "freshness",
-            "plausibility",
-        ]:
-            if dim in dim_scores:
-                s = dim_scores[dim]
-                w = float(applied_dim_weights.get(dim, 1.0))
-                c = float(contributions.get(dim, 0.0))
-                click.echo(
-                    f"  • {dim}: {s:.2f}/20, weight={w:.2f}, contribution={c:.2f}%"
-                )
-
-        rule_counts = validity_explain.get("rule_counts", {})
-        applied_weights = validity_explain.get("applied_weights", {})
-        global_weights = (applied_weights or {}).get("global", {}) or {}
-
-        active_rules = (
-            [rk for rk, cnt in rule_counts.items() if cnt.get("total", 0) > 0]
-            if isinstance(rule_counts, dict)
-            else []
-        )
-        if active_rules:
-            click.echo("")
-            click.echo("Validity rule-type breakdown:")
-            for rk in [
-                "type",
-                "allowed_values",
-                "pattern",
-                "length_bounds",
-                "numeric_bounds",
-                "date_bounds",
-            ]:
-                cnt = rule_counts.get(rk, {}) if isinstance(rule_counts, dict) else {}
-                total = int(cnt.get("total", 0) or 0)
-                passed_c = int(cnt.get("passed", 0) or 0)
-                if total <= 0:
-                    continue
-                pass_rate = (passed_c / total) * 100.0
-                gw = float(global_weights.get(rk, 0.0))
-                click.echo(
-                    f"  - {rk}: {passed_c}/{total} ({pass_rate:.1f}%), weight={gw:.2f}"
-                )
-
-        # Completeness explain
-        if completeness_explain:
-            click.echo("")
-            click.echo("Completeness breakdown:")
-            req_total = int(completeness_explain.get("required_total", 0) or 0)
-            miss = int(completeness_explain.get("missing_required", 0) or 0)
-            pr = float(completeness_explain.get("pass_rate", 0.0) or 0.0) * 100.0
-            click.echo(
-                f"  - required cells: {req_total}, missing required: {miss}, pass_rate={pr:.1f}%"
-            )
-            top_missing = completeness_explain.get("top_missing_fields", []) or []
-            if top_missing:
-                click.echo("  - top missing fields:")
-                for item in top_missing[:5]:
-                    try:
-                        click.echo(
-                            f"     • {item.get('field')}: {int(item.get('missing', 0))} missing"
-                        )
-                    except Exception:
-                        pass
-
-        # Consistency explain
-        if consistency_explain:
-            click.echo("")
-            click.echo("Consistency breakdown:")
-            pk_fields = consistency_explain.get("pk_fields", []) or []
-            counts = consistency_explain.get("counts", {}) or {}
-            total = int(counts.get("total", 0) or 0)
-            passed_c = int(counts.get("passed", 0) or 0)
-            failed_c = int(counts.get("failed", 0) or 0)
-            pr = float(consistency_explain.get("pass_rate", 0.0) or 0.0) * 100.0
-            rw = (consistency_explain.get("rule_weights_applied", {}) or {}).get(
-                "primary_key_uniqueness", 0.0
-            )
-            click.echo(f"  - pk_fields: {pk_fields if pk_fields else '[]'}")
-            click.echo(
-                f"  - primary_key_uniqueness: {passed_c}/{total} passed, failed={failed_c}, pass_rate={pr:.1f}%, weight={float(rw):.2f}"
-            )
-
-        # Freshness explain (or explicit note if inactive)
-        click.echo("")
-        if freshness_explain:
-            click.echo("Freshness breakdown:")
-            df = freshness_explain.get("date_field")
-            as_of = freshness_explain.get("as_of")
-            wd = freshness_explain.get("window_days")
-            counts = freshness_explain.get("counts", {}) or {}
-            total = int(counts.get("total", 0) or 0)
-            passed_c = int(counts.get("passed", 0) or 0)
-            pr = float(freshness_explain.get("pass_rate", 0.0) or 0.0) * 100.0
-            rw = (freshness_explain.get("rule_weights_applied", {}) or {}).get(
-                "recency_window", 0.0
-            )
-            click.echo(f"  - date_field: {df}, window_days: {wd}, as_of: {as_of}")
-            click.echo(
-                f"  - recency_window: {passed_c}/{total} passed, pass_rate={pr:.1f}%, weight={float(rw):.2f}"
-            )
-        else:
-            click.echo("Freshness: no active rules configured")
-
-        if warnings:
-            click.echo("")
-            click.echo("⚠️  Warnings:")
-            for w in warnings:
-                click.echo(f"  - {w}")
-        return 0
-    except Exception as e:
-        click.echo(f"❌ Scoring explain failed: {e}")
-        return 1
-
-
-def scoring_preset_apply_command(
-    preset: str,
-    standard_path: str,
-    output_path: Optional[str] = None,
-) -> int:
-    """Apply a scoring preset to a standard's dimension requirements."""
-    try:
-        resolved_standard_path = _resolve_project_path(standard_path)
-        if not resolved_standard_path.exists():
-            click.echo(f"❌ Standard file not found: {standard_path}")
-            click.echo(_get_project_root_display())
-            click.echo(f"📋 Path tried: {_rel_to_project_root(resolved_standard_path)}")
-            return 1
-
-        std = load_standard(str(resolved_standard_path)) if load_standard else None
-        if std is None:
-            with open(resolved_standard_path, "r") as f:
-                std = yaml.safe_load(f) or {}
-        if not isinstance(std, dict):
-            click.echo("❌ Invalid standard structure")
-            return 1
-
-        req = std.setdefault("requirements", {})
-        dim_reqs = req.setdefault("dimension_requirements", {})
-
-        presets = {
-            "balanced": {
-                "weights": {
-                    "validity": 1.0,
-                    "completeness": 1.0,
-                    "consistency": 1.0,
-                    "freshness": 1.0,
-                    "plausibility": 1.0,
-                },
-                "minimums": {
-                    "validity": 15.0,
-                    "completeness": 15.0,
-                    "consistency": 12.0,
-                    "freshness": 15.0,
-                    "plausibility": 12.0,
-                },
-                "validity_rule_weights": {
-                    "type": 0.30,
-                    "allowed_values": 0.20,
-                    "pattern": 0.20,
-                    "length_bounds": 0.10,
-                    "numeric_bounds": 0.20,
-                },
-            },
-            "strict": {
-                "weights": {
-                    "validity": 1.3,
-                    "completeness": 1.2,
-                    "consistency": 1.1,
-                    "freshness": 1.0,
-                    "plausibility": 0.9,
-                },
-                "minimums": {
-                    "validity": 17.0,
-                    "completeness": 17.0,
-                    "consistency": 14.0,
-                    "freshness": 16.0,
-                    "plausibility": 14.0,
-                },
-                "validity_rule_weights": {
-                    "type": 0.35,
-                    "allowed_values": 0.15,
-                    "pattern": 0.25,
-                    "length_bounds": 0.10,
-                    "numeric_bounds": 0.25,
-                },
-            },
-            "lenient": {
-                "weights": {
-                    "validity": 0.9,
-                    "completeness": 0.8,
-                    "consistency": 1.0,
-                    "freshness": 1.0,
-                    "plausibility": 1.0,
-                },
-                "minimums": {
-                    "validity": 12.0,
-                    "completeness": 12.0,
-                    "consistency": 10.0,
-                    "freshness": 12.0,
-                    "plausibility": 10.0,
-                },
-                "validity_rule_weights": {
-                    "type": 0.25,
-                    "allowed_values": 0.25,
-                    "pattern": 0.15,
-                    "length_bounds": 0.10,
-                    "numeric_bounds": 0.25,
-                },
-            },
-        }
-
-        if preset not in presets:
-            click.echo(f"❌ Unknown preset: {preset}")
-            click.echo("Available: balanced, strict, lenient")
-            return 1
-
-        cfg = presets[preset]
-        changed_dims = []
-        for dim in [
-            "validity",
-            "completeness",
-            "consistency",
-            "freshness",
-            "plausibility",
-        ]:
-            dim_cfg = dim_reqs.setdefault(dim, {})
-            before_weight = dim_cfg.get("weight")
-            before_min = dim_cfg.get("minimum_score")
-            dim_cfg["weight"] = float(
-                cfg["weights"].get(dim, dim_cfg.get("weight", 1.0))
-            )
-            dim_cfg["minimum_score"] = float(
-                cfg["minimums"].get(dim, dim_cfg.get("minimum_score", 15.0))
-            )
-            if dim == "validity":
-                scoring = dim_cfg.setdefault("scoring", {})
-                scoring["rule_weights"] = {
-                    k: float(v) for k, v in cfg["validity_rule_weights"].items()
-                }
-                scoring.setdefault(
-                    "field_overrides", scoring.get("field_overrides", {})
-                )
-            changed_dims.append(
-                f"{dim} (weight {before_weight}→{dim_cfg['weight']}, min {before_min}→{dim_cfg['minimum_score']})"
-            )
-
-        out_path = (
-            _resolve_project_path(output_path)
-            if output_path
-            else resolved_standard_path
-        )
-        out_path.parent.mkdir(parents=True, exist_ok=True)
-
-        with open(out_path, "w") as f:
-            yaml.dump(std, f, default_flow_style=False, sort_keys=False)
-
-        if output_path:
-            click.echo(
-                f"✅ Preset '{preset}' applied and saved to: {_rel_to_project_root(out_path)}"
-            )
-        else:
-            click.echo(
-                f"✅ Preset '{preset}' applied in-place: {_rel_to_project_root(out_path)}"
-            )
-
-        click.echo("Changes:")
-        for line in changed_dims:
-            click.echo(f"  • {line}")
-        return 0
-    except Exception as e:
-        click.echo(f"❌ Failed to apply preset: {e}")
-        return 1
-
-
-def setup_command(
-    force: bool = False, project_name: Optional[str] = None, guide: bool = False
-) -> int:
-    """Initialize ADRI in a project (writes documentation header required by tests)."""
-    try:
-        adri_dir = Path("ADRI")
-        adri_dir.mkdir(exist_ok=True)
-        config_path = "ADRI/config.yaml"
-
-        if os.path.exists(config_path) and not force:
-            if guide:
-                click.echo("❌ Configuration already exists. Use --force to overwrite.")
-                click.echo("💡 Or use 'adri show-config' to see current setup")
-            else:
-                click.echo("❌ Configuration already exists. Use --force to overwrite.")
-            return 1
-
-        project_name = project_name or Path.cwd().name
-
-        if guide:
-            click.echo("🚀 Step 1 of 4: ADRI Project Setup")
-            click.echo("==================================")
-            click.echo("")
-
-        # Comprehensive doc header with phrases required by tests
-        doc_header = """# ADRI PROJECT CONFIGURATION
-# ==================================
-#
-# Directory Structure Created:
-# - tutorials/                → Packaged learning examples for onboarding and tutorial data
-# - standards/                → Generic directory name used throughout documentation
-# - assessments/              → Generic directory name used throughout documentation
-# - training-data/            → Generic directory name used throughout documentation
-# - audit-logs/               → Generic directory name used throughout documentation
-# - ADRI/dev/standards        → Development YAML standard files are stored (quality validation rules)
-# - ADRI/dev/assessments      → Development assessment reports are saved (JSON quality reports)
-# - ADRI/dev/training-data    → Development training data snapshots are preserved (SHA256 integrity tracking)
-# - ADRI/dev/audit-logs       → Development audit logs are stored (CSV activity tracking)
-# - ADRI/prod/standards       → Production-validated YAML standards
-# - ADRI/prod/assessments     → Production business-critical quality reports
-# - ADRI/prod/training-data   → Production training data snapshots for lineage tracking
-# - ADRI/prod/audit-logs      → Production regulatory compliance tracking and compliance and security logging
-#
-# ENVIRONMENT SWITCHING
-# ENVIRONMENT CONFIGURATIONS
-# DEVELOPMENT ENVIRONMENT
-# PRODUCTION ENVIRONMENT
-# SWITCHING ENVIRONMENTS
-# WORKFLOW RECOMMENDATIONS
-#
-# Environment purposes:
-# Development:
-#   - Standard creation, testing, and experimentation
-#   - Creating new data quality standards
-#   - Testing standards against various datasets
-#   - tutorial data
-# Production:
-#   - Validated standards and production data quality
-#   - Deploying proven standards
-#   - Enterprise governance
-#   - CI/CD pipelines
-#
-# How to switch environments (three methods):
-# 1) Configuration Method:
-#    - Set 'default_environment' in ADRI/config.yaml
-#    - Example: default_environment: production
-# 2) Environment Variable Method:
-#    - Use environment variable ADRI_ENV
-#    - Example: export ADRI_ENV=production
-# 3) Command Line Method:
-#    - Pass --environment where supported (e.g., show-config)
-#    - Example: adri show-config --environment production
-#
-# AUDIT CONFIGURATION
-# - Comprehensive logging for development debugging
-# - Enhanced logging for compliance, security
-# - include_data_samples: include sample values when safe
-# - max_log_size_mb: rotate logs after exceeding this size
-# - log_level: INFO/DEBUG
-# - regulatory compliance
-#
-# Production Workflow:
-# - Create and test standards in development
-# - Validate standards with various test datasets
-# - Copy proven standards from dev/standards/ to prod/standards/
-# - Switch to production environment
-# - Monitor production audit logs
-#
-# Note: This header is comments only and does not affect runtime behavior. It exists to satisfy
-# environment documentation tests and improve onboarding clarity.
-"""
-
-        config = {
-            "adri": {
-                "project_name": project_name,
-                "version": "4.0.0",
-                "default_environment": "development",
-                "environments": {
-                    "development": {
-                        "paths": {
-                            "standards": "ADRI/dev/standards",
-                            "assessments": "ADRI/dev/assessments",
-                            "training_data": "ADRI/dev/training-data",
-                            "audit_logs": "ADRI/dev/audit-logs",
-                        },
-                        "audit": {
-                            "enabled": True,
-                            "log_dir": "ADRI/dev/audit-logs",
-                            "log_prefix": "adri",
-                            "log_level": "INFO",
-                            "include_data_samples": True,
-                            "max_log_size_mb": 100,
-                        },
-                    },
-                    "production": {
-                        "paths": {
-                            "standards": "ADRI/prod/standards",
-                            "assessments": "ADRI/prod/assessments",
-                            "training_data": "ADRI/prod/training-data",
-                            "audit_logs": "ADRI/prod/audit-logs",
-                        },
-                        "audit": {
-                            "enabled": True,
-                            "log_dir": "ADRI/prod/audit-logs",
-                            "log_prefix": "adri",
-                            "log_level": "INFO",
-                            "include_data_samples": True,
-                            "max_log_size_mb": 100,
-                        },
-                    },
-                },
-            }
-        }
-
-        with open(config_path, "w", encoding="utf-8") as f:
-            f.write(doc_header)
-            yaml.dump(config, f, default_flow_style=False)
-
-        # Create directories
-        for env_data in config["adri"]["environments"].values():
-            for path in env_data["paths"].values():
-                Path(path).mkdir(parents=True, exist_ok=True)
-
-        if guide:
-            try:
-                create_sample_files()
-                training_file = Path(
-                    "ADRI/tutorials/invoice_processing/invoice_data.csv"
-                )
-                test_file = Path(
-                    "ADRI/tutorials/invoice_processing/test_invoice_data.csv"
-                )
-                if not training_file.exists() or not test_file.exists():
-                    click.echo("❌ Failed to create tutorial data files")
-                    click.echo("▶ Try: adri setup --guide --force")
-                    return 1
-            except Exception as e:
-                click.echo(f"❌ Failed to create sample files: {e}")
-                click.echo("▶ Try: adri setup --guide --force")
-                return 1
-
-            click.echo("✅ Project structure created with sample data")
-            click.echo("")
-            click.echo("📁 What was created:")
-            click.echo(
-                "   📚 tutorials/invoice_processing/ - Invoice processing tutorial"
-            )
-            click.echo("   📋 dev/standards/     - Quality rules")
-            click.echo("   📊 dev/assessments/   - Assessment reports")
-            click.echo("   📄 dev/training-data/ - Preserved data snapshots")
-            click.echo("   📈 dev/audit-logs/    - Comprehensive audit trail")
-            click.echo("")
-            click.echo("💡 Note: Commands use relative paths from project root")
-            click.echo("")
-            click.echo(
-                "▶ Next Step 2 of 4: adri generate-standard tutorials/invoice_processing/invoice_data.csv --guide"
-            )
-        else:
-            click.echo("✅ ADRI project initialized successfully!")
-            click.echo(f"📁 Project: {project_name}")
-            click.echo(f"⚙️  Config: {config_path}")
-        return 0
-    except Exception as e:
-        click.echo(f"❌ Setup failed: {e}")
-        click.echo("▶ Try: adri setup --guide --force")
-        return 1
-
-
 # ---------------- Click CLI group -----------------
 
 
@@ -2043,6 +957,10 @@ def cli():
     pass
 
 
+# Initialize command registry on module load
+# Note: Commands will be registered on first use to avoid duplicate registrations
+
+
 @cli.command()
 @click.option("--force", is_flag=True, help="Overwrite existing configuration")
 @click.option("--project-name", help="Custom project name")
@@ -2051,7 +969,9 @@ def cli():
 )
 def setup(force, project_name, guide):
     """Initialize ADRI in a project."""
-    sys.exit(setup_command(force, project_name, guide))
+    command = get_command("setup")
+    args = {"force": force, "project_name": project_name, "guide": guide}
+    sys.exit(command.execute(args))
 
 
 @cli.command()
@@ -2065,7 +985,14 @@ def setup(force, project_name, guide):
 )
 def assess(data_path, standard_path, output_path, guide):
     """Run data quality assessment."""
-    sys.exit(assess_command(data_path, standard_path, output_path, guide))
+    command = get_command("assess")
+    args = {
+        "data_path": data_path,
+        "standard_path": standard_path,
+        "output_path": output_path,
+        "guide": guide,
+    }
+    sys.exit(command.execute(args))
 
 
 @cli.command("generate-standard")
@@ -2081,7 +1008,9 @@ def assess(data_path, standard_path, output_path, guide):
 )
 def generate_standard(data_path, force, output, guide):
     """Generate ADRI standard from data file analysis."""
-    sys.exit(generate_standard_command(data_path, force, guide))
+    command = get_command("generate-standard")
+    args = {"data_path": data_path, "force": force, "output": output, "guide": guide}
+    sys.exit(command.execute(args))
 
 
 @cli.command("help-guide")
@@ -2094,7 +1023,9 @@ def help_guide():
 @click.argument("standard_path")
 def validate_standard(standard_path):
     """Validate YAML standard file."""
-    sys.exit(validate_standard_command(standard_path))
+    command = get_command("validate-standard")
+    args = {"standard_path": standard_path}
+    sys.exit(command.execute(args))
 
 
 @cli.command("list-standards")
@@ -2106,7 +1037,9 @@ def validate_standard(standard_path):
 )
 def list_standards(include_catalog):
     """List available YAML standards."""
-    sys.exit(list_standards_command(include_catalog))
+    command = get_command("list-standards")
+    args = {"include_catalog": include_catalog}
+    sys.exit(command.execute(args))
 
 
 @cli.command("show-config")
@@ -2114,7 +1047,9 @@ def list_standards(include_catalog):
 @click.option("--environment", help="Show specific environment only")
 def show_config(paths_only, environment):
     """Show current ADRI configuration."""
-    sys.exit(show_config_command(paths_only, environment))
+    command = get_command("show-config")
+    args = {"paths_only": paths_only, "environment": environment}
+    sys.exit(command.execute(args))
 
 
 @cli.command("list-assessments")
@@ -2122,7 +1057,9 @@ def show_config(paths_only, environment):
 @click.option("--verbose", is_flag=True, help="Show detailed assessment information")
 def list_assessments(recent, verbose):
     """List previous assessment reports."""
-    sys.exit(list_assessments_command(recent, verbose))
+    command = get_command("list-assessments")
+    args = {"recent": recent, "verbose": verbose}
+    sys.exit(command.execute(args))
 
 
 @cli.command("show-standard")
@@ -2130,7 +1067,9 @@ def list_assessments(recent, verbose):
 @click.option("--verbose", is_flag=True, help="Show detailed requirements and rules")
 def show_standard(standard_name, verbose):
     """Show details of a specific ADRI standard."""
-    sys.exit(show_standard_command(standard_name, verbose))
+    command = get_command("show-standard")
+    args = {"standard_name": standard_name, "verbose": verbose}
+    sys.exit(command.execute(args))
 
 
 @cli.command("view-logs")
@@ -2139,7 +1078,9 @@ def show_standard(standard_name, verbose):
 @click.option("--verbose", is_flag=True, help="Show detailed audit log information")
 def view_logs(recent, today, verbose):
     """View audit logs from CSV files."""
-    sys.exit(view_logs_command(recent, today, verbose))
+    command = get_command("view-logs")
+    args = {"recent": recent, "today": today, "verbose": verbose}
+    sys.exit(command.execute(args))
 
 
 @cli.command("scoring-explain")
@@ -2152,7 +1093,13 @@ def view_logs(recent, today, verbose):
 )
 def scoring_explain(data_path, standard_path, json_output):
     """Explain scoring breakdown for a dataset against a standard."""
-    sys.exit(scoring_explain_command(data_path, standard_path, json_output))
+    command = get_command("scoring-explain")
+    args = {
+        "data_path": data_path,
+        "standard_path": standard_path,
+        "json_output": json_output,
+    }
+    sys.exit(command.execute(args))
 
 
 @cli.command("scoring-preset-apply")
@@ -2168,148 +1115,18 @@ def scoring_explain(data_path, standard_path, json_output):
 )
 def scoring_preset_apply(preset, standard_path, output_path):
     """Apply a scoring preset to a standard's dimension requirements."""
-    sys.exit(scoring_preset_apply_command(preset, standard_path, output_path))
+    command = get_command("scoring-preset-apply")
+    args = {
+        "preset": preset,
+        "standard_path": standard_path,
+        "output_path": output_path,
+    }
+    sys.exit(command.execute(args))
 
 
 # ---------------- Remote standards catalog (group) -----------------
 
 
-def standards_catalog_list_command(json_output: bool = False) -> int:
-    """List available standards from the remote catalog."""
-    try:
-        base_url = CatalogClient.resolve_base_url()
-        if not base_url:
-            if json_output:
-                click.echo(json.dumps({"error": "no_catalog_configured"}))
-            else:
-                click.echo(
-                    "⚠️ No catalog URL configured. Set ADRI_STANDARDS_CATALOG_URL or adri.catalog.url in ADRI/config.yaml"
-                )
-            return 0
-
-        client = CatalogClient(CatalogConfig(base_url=base_url))
-        resp = client.list()
-
-        if json_output:
-            entries = [
-                {
-                    "id": e.id,
-                    "name": e.name,
-                    "version": e.version,
-                    "description": e.description,
-                    "path": e.path,
-                    "tags": e.tags,
-                }
-                for e in resp.entries
-            ]
-            click.echo(
-                json.dumps(
-                    {"source_url": resp.source_url, "entries": entries}, indent=2
-                )
-            )
-        else:
-            click.echo(f"🌐 Remote Catalog ({len(resp.entries)}) at {resp.source_url}:")
-            for i, e in enumerate(resp.entries, 1):
-                click.echo(f"  {i}. {e.id} — {e.name} v{e.version}")
-                if e.description:
-                    click.echo(f"     · {e.description}")
-        return 0
-    except Exception as e:
-        if json_output:
-            click.echo(json.dumps({"error": str(e)}))
-        else:
-            click.echo(f"⚠️ Could not list remote catalog: {e}")
-        return 0  # Non-fatal for UX
-
-
-def standards_catalog_fetch_command(
-    name_or_id: str,
-    dest: str = "dev",
-    filename: Optional[str] = None,
-    overwrite: bool = False,
-    json_output: bool = False,
-) -> int:
-    """Fetch a standard from the remote catalog and save it locally."""
-    try:
-        base_url = CatalogClient.resolve_base_url()
-        if not base_url:
-            if json_output:
-                click.echo(json.dumps({"error": "no_catalog_configured"}))
-            else:
-                click.echo(
-                    "⚠️ No catalog URL configured. Set ADRI_STANDARDS_CATALOG_URL or adri.catalog.url in ADRI/config.yaml"
-                )
-            return 1
-
-        client = CatalogClient(CatalogConfig(base_url=base_url))
-        res = client.fetch(name_or_id)
-
-        # Validate YAML before writing
-        try:
-            content_text = res.content_bytes.decode("utf-8")
-            parsed = yaml.safe_load(content_text)  # type: ignore
-            if not isinstance(parsed, dict) or "standards" not in parsed:
-                raise ValueError("Missing 'standards' section")
-        except Exception as ve:
-            if json_output:
-                click.echo(json.dumps({"error": f"invalid_yaml: {ve}"}))
-            else:
-                click.echo(f"❌ Invalid YAML from catalog: {ve}")
-            return 1
-
-        # Determine destination directory
-        dest_dir = (
-            Path("ADRI/dev/standards") if dest == "dev" else Path("ADRI/prod/standards")
-        )
-        if ConfigurationLoader:
-            try:
-                cl = ConfigurationLoader()
-                cfg = cl.get_active_config()
-                if cfg:
-                    env_name = "development" if dest == "dev" else "production"
-                    env_cfg = cl.get_environment_config(cfg, env_name)
-                    dest_dir = Path(env_cfg["paths"]["standards"])
-            except Exception:
-                pass
-
-        dest_dir.mkdir(parents=True, exist_ok=True)
-        out_name = filename or f"{res.entry.id}.yaml"
-        out_path = dest_dir / out_name
-
-        if out_path.exists() and not overwrite:
-            if json_output:
-                click.echo(json.dumps({"error": "file_exists", "path": str(out_path)}))
-            else:
-                click.echo(f"❌ File exists: {out_path}. Use --overwrite to replace.")
-            return 1
-
-        with open(out_path, "wb") as f:
-            f.write(res.content_bytes)
-
-        if json_output:
-            click.echo(
-                json.dumps(
-                    {
-                        "saved_to": str(out_path),
-                        "id": res.entry.id,
-                        "name": res.entry.name,
-                        "version": res.entry.version,
-                    },
-                    indent=2,
-                )
-            )
-        else:
-            click.echo(f"✅ Saved standard '{res.entry.name}' to {out_path}")
-        return 0
-    except Exception as e:
-        if json_output:
-            click.echo(json.dumps({"error": str(e)}))
-        else:
-            click.echo(f"❌ Failed to fetch standard: {e}")
-        return 1
-
-
-# Register subcommands under main CLI group
 @click.group("standards-catalog")
 def standards_catalog():
     """Remote standards catalog commands."""
@@ -2322,6 +1139,7 @@ def standards_catalog():
 )
 def standards_catalog_list(json_output):
     """List available standards from the remote catalog."""
+    # Keep catalog commands as legacy for now
     sys.exit(standards_catalog_list_command(json_output))
 
 
@@ -2341,6 +1159,7 @@ def standards_catalog_list(json_output):
 )
 def standards_catalog_fetch(name_or_id, dest, filename, overwrite, json_output):
     """Fetch a standard from the remote catalog and save it locally."""
+    # Keep catalog commands as legacy for now
     sys.exit(
         standards_catalog_fetch_command(
             name_or_id, dest, filename, overwrite, json_output
@@ -2350,6 +1169,212 @@ def standards_catalog_fetch(name_or_id, dest, filename, overwrite, json_output):
 
 # Attach the group to the main CLI
 cli.add_command(standards_catalog)
+
+
+# Standalone functions for testing (extracted from Click commands above)
+def standards_catalog_list_command(json_output: bool = False) -> int:
+    """List available standards from the remote catalog (standalone function for tests)."""
+    try:
+        base_url = None
+        try:
+            # Local import to avoid hard dependency if package not available
+            from adri.catalog import CatalogClient as _CC  # type: ignore
+            from adri.catalog import CatalogConfig as _CFG
+
+            base_url = _CC.resolve_base_url()
+            CatalogClientLocal = _CC
+            CatalogConfigLocal = _CFG
+        except Exception:
+            base_url = None
+            CatalogClientLocal = None  # type: ignore
+            CatalogConfigLocal = None  # type: ignore
+
+        if not base_url or not CatalogClientLocal or not CatalogConfigLocal:
+            if json_output:
+                import json
+
+                click.echo(json.dumps({"error": "no_catalog_configured"}))
+            else:
+                click.echo("🌐 Remote Catalog: (not configured)")
+            return 0
+
+        try:
+            client = CatalogClientLocal(CatalogConfigLocal(base_url=base_url))
+            resp = client.list()
+
+            if json_output:
+                import json
+
+                entries_data = [
+                    {
+                        "id": e.id,
+                        "name": e.name,
+                        "version": e.version,
+                        "description": e.description,
+                        "tags": e.tags,
+                    }
+                    for e in resp.entries
+                ]
+                click.echo(json.dumps({"entries": entries_data}))
+            else:
+                click.echo(f"🌐 Remote Catalog ({len(resp.entries)}):")
+                for i, e in enumerate(resp.entries, 1):
+                    click.echo(f"  {i}. {e.id} — {e.name} v{e.version}")
+            return 0
+        except Exception as e:
+            if json_output:
+                import json
+
+                click.echo(
+                    json.dumps({"error": "catalog_fetch_failed", "details": str(e)})
+                )
+            else:
+                click.echo(f"⚠️ Could not load remote catalog: {e}")
+            return 1
+    except Exception as e:
+        if json_output:
+            import json
+
+            click.echo(json.dumps({"error": "unexpected_error", "details": str(e)}))
+        else:
+            click.echo(f"❌ Failed to list catalog: {e}")
+        return 1
+
+
+def standards_catalog_fetch_command(
+    name_or_id: str,
+    dest: str = "dev",
+    filename: Optional[str] = None,
+    overwrite: bool = False,
+    json_output: bool = False,
+) -> int:
+    """Fetch a standard from the remote catalog and save it locally (standalone function for tests)."""
+    try:
+        # Import catalog components
+        try:
+            from adri.catalog import CatalogClient, CatalogConfig
+        except ImportError:
+            if json_output:
+                import json
+
+                click.echo(json.dumps({"error": "catalog_not_available"}))
+            else:
+                click.echo("❌ Catalog functionality not available")
+            return 1
+
+        try:
+            base_url = CatalogClient.resolve_base_url()
+            client = CatalogClient(CatalogConfig(base_url=base_url))
+        except Exception as e:
+            if json_output:
+                import json
+
+                click.echo(
+                    json.dumps({"error": "catalog_config_failed", "details": str(e)})
+                )
+            else:
+                click.echo(f"❌ Failed to configure catalog client: {e}")
+            return 1
+
+        # Fetch the standard
+        try:
+            result = client.fetch(name_or_id)
+        except Exception as e:
+            if json_output:
+                import json
+
+                click.echo(json.dumps({"error": "fetch_failed", "details": str(e)}))
+            else:
+                click.echo(f"❌ Failed to fetch standard '{name_or_id}': {e}")
+            return 1
+
+        # Determine destination directory
+        if dest == "dev":
+            dest_dir = Path("ADRI/dev/standards")
+        elif dest == "prod":
+            dest_dir = Path("ADRI/prod/standards")
+        else:
+            if json_output:
+                import json
+
+                click.echo(
+                    json.dumps(
+                        {
+                            "error": "invalid_destination",
+                            "valid_destinations": ["dev", "prod"],
+                        }
+                    )
+                )
+            else:
+                click.echo(f"❌ Invalid destination '{dest}'. Use 'dev' or 'prod'")
+            return 1
+
+        dest_dir.mkdir(parents=True, exist_ok=True)
+
+        # Determine filename
+        if filename:
+            output_filename = (
+                filename if filename.endswith(".yaml") else f"{filename}.yaml"
+            )
+        else:
+            output_filename = f"{result.entry.id}.yaml"
+
+        output_path = dest_dir / output_filename
+
+        # Check if file exists and handle overwrite
+        if output_path.exists() and not overwrite:
+            if json_output:
+                import json
+
+                click.echo(
+                    json.dumps({"error": "file_exists", "path": str(output_path)})
+                )
+            else:
+                click.echo(f"❌ File exists: {output_path}. Use --overwrite to replace")
+            return 1
+
+        # Save the standard
+        try:
+            with open(output_path, "wb") as f:
+                f.write(result.content_bytes)
+        except Exception as e:
+            if json_output:
+                import json
+
+                click.echo(json.dumps({"error": "write_failed", "details": str(e)}))
+            else:
+                click.echo(f"❌ Failed to save standard: {e}")
+            return 1
+
+        if json_output:
+            import json
+
+            click.echo(
+                json.dumps(
+                    {
+                        "success": True,
+                        "saved_path": str(output_path),
+                        "entry": {
+                            "id": result.entry.id,
+                            "name": result.entry.name,
+                            "version": result.entry.version,
+                        },
+                    }
+                )
+            )
+        else:
+            click.echo(f"✅ Standard '{result.entry.name}' fetched successfully")
+            click.echo(f"📄 Saved to: {output_path}")
+
+        return 0
+    except Exception as e:
+        if json_output:
+            import json
+
+            click.echo(json.dumps({"error": "unexpected_error", "details": str(e)}))
+        else:
+            click.echo(f"❌ Failed to fetch standard: {e}")
+        return 1
 
 
 def main():

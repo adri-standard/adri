@@ -15,7 +15,7 @@ import sys
 import importlib
 
 # Test the actual decorator functions
-from adri.decorator import (
+from src.adri.decorator import (
     adri_protected,
     ProtectionError
 )

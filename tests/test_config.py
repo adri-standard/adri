@@ -13,7 +13,7 @@ from pathlib import Path
 import yaml
 
 # Updated imports for new src/ layout
-from adri.config.loader import (
+from src.adri.config.loader import (
     ConfigurationLoader,
     load_adri_config,
     get_protection_settings,

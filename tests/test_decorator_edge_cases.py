@@ -13,7 +13,7 @@ import importlib
 from unittest.mock import Mock, patch, MagicMock
 
 # Test the actual decorator functions
-from adri.decorator import (
+from src.adri.decorator import (
     adri_protected,
     ProtectionError
 )

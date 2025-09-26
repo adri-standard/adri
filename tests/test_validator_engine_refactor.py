@@ -3,7 +3,7 @@ from typing import Dict, Any, List
 
 import pandas as pd
 
-from adri.validator.engine import ValidationEngine, BundledStandardWrapper
+from src.adri.validator.engine import ValidationEngine, BundledStandardWrapper
 
 
 class TestValidatorEngineRefactor(unittest.TestCase):

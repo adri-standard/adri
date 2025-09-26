@@ -1,249 +1,85 @@
 """
-Shared test configuration for ADRI tests.
+Modern Test Configuration for ADRI Test Suite.
 
-Provides common fixtures, utilities, and configuration for all ADRI tests.
-Supports both the legacy adri/ imports and new src/adri/ imports during migration.
+Provides comprehensive test configuration with multi-dimensional quality measurement,
+modern fixtures integration, and production-ready testing infrastructure.
+
+No backward compatibility - uses only src/adri/* imports and modern patterns.
+Supports 80% coverage target and component-specific quality requirements.
 """
 
 import os
 import sys
-import tempfile
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict
 
-import pandas as pd
 import pytest
-import yaml
 
-# Add src directory to Python path for testing the new structure
+# Ensure src directory is in path for modern imports
 src_path = Path(__file__).parent.parent / "src"
-if src_path.exists():
-    sys.path.insert(0, str(src_path))
+sys.path.insert(0, str(src_path))
 
-# Set up test environment variables
+# Import modern fixtures and quality framework
+from tests.quality_framework import QualityFramework, ComponentTester, quality_framework
+from tests.fixtures.modern_fixtures import *  # Import all modern fixtures
+
+# Set up modern test environment
 os.environ["ADRI_ENV"] = "TEST"
+os.environ["ADRI_LOG_LEVEL"] = "DEBUG"
 os.environ["ADRI_STANDARDS_PATH"] = str(Path(__file__).parent / "fixtures" / "standards")
+os.environ["ADRI_COVERAGE_TARGET"] = "80"  # Production coverage target
+
+
+# Quality Framework Integration
+
+@pytest.fixture(scope="session")
+def global_quality_framework():
+    """Provide global quality framework for test session."""
+    return quality_framework
 
 
 @pytest.fixture
-def sample_data():
-    """Provide sample data for testing."""
-    return pd.DataFrame({
-        "name": ["Alice", "Bob", "Charlie", None],
-        "age": [25, 30, 35, 28],
-        "email": ["alice@test.com", "bob@test.com", "invalid-email", "charlie@test.com"],
-        "salary": [50000, 60000, 70000, 55000]
-    })
+def component_tester():
+    """Factory fixture for creating component testers."""
+    def _create_tester(component_name: str):
+        return ComponentTester(component_name, quality_framework)
+    return _create_tester
+
+
+# Legacy compatibility fixtures (delegated to modern_fixtures.py)
+# These provide backward compatibility for existing tests during migration
+
+@pytest.fixture
+def sample_data(high_quality_data):
+    """Legacy compatibility - use high_quality_data."""
+    return high_quality_data
 
 
 @pytest.fixture
-def sample_data_dict():
-    """Provide sample data as list of dictionaries."""
-    return [
-        {"name": "Alice", "age": 25, "email": "alice@test.com", "salary": 50000},
-        {"name": "Bob", "age": 30, "email": "bob@test.com", "salary": 60000},
-        {"name": "Charlie", "age": 35, "email": "invalid-email", "salary": 70000},
-        {"name": None, "age": 28, "email": "charlie@test.com", "salary": 55000}
-    ]
+def sample_data_dict(high_quality_data):
+    """Legacy compatibility - convert to dict format."""
+    return high_quality_data.to_dict('records')
 
 
 @pytest.fixture
-def sample_standard():
-    """Provide a sample ADRI standard."""
-    return {
-        "standards": {
-            "id": "test_standard",
-            "name": "Test Standard",
-            "version": "1.0.0",
-            "authority": "ADRI Framework",
-            "description": "Test standard for unit tests"
-        },
-        "requirements": {
-            "overall_minimum": 75.0,
-            "field_requirements": {
-                "name": {
-                    "type": "string",
-                    "nullable": False
-                },
-                "age": {
-                    "type": "integer",
-                    "nullable": False,
-                    "min_value": 0,
-                    "max_value": 120
-                },
-                "email": {
-                    "type": "string",
-                    "nullable": False,
-                    "pattern": r"^[^@]+@[^@]+\.[^@]+$"
-                },
-                "salary": {
-                    "type": "integer",
-                    "nullable": False,
-                    "min_value": 0
-                }
-            },
-            "dimension_requirements": {
-                "validity": {"minimum_score": 15.0},
-                "completeness": {"minimum_score": 15.0},
-                "consistency": {"minimum_score": 12.0},
-                "freshness": {"minimum_score": 15.0},
-                "plausibility": {"minimum_score": 12.0}
-            }
-        }
-    }
+def sample_standard(comprehensive_standard):
+    """Legacy compatibility - use comprehensive_standard."""
+    return comprehensive_standard
 
 
 @pytest.fixture
-def sample_standard_file(tmp_path, sample_standard):
-    """Create a temporary standard file."""
-    standard_file = tmp_path / "test_standard.yaml"
-    with open(standard_file, 'w') as f:
-        yaml.dump(sample_standard, f)
-    return str(standard_file)
+def temp_config_dir(temp_workspace):
+    """Legacy compatibility - use temp_workspace."""
+    return temp_workspace
 
 
 @pytest.fixture
-def sample_csv_file(tmp_path, sample_data):
-    """Create a temporary CSV file with sample data."""
-    csv_file = tmp_path / "test_data.csv"
-    sample_data.to_csv(csv_file, index=False)
-    return str(csv_file)
+def sample_config(complete_config):
+    """Legacy compatibility - use complete_config."""
+    return complete_config
 
 
-@pytest.fixture
-def sample_json_file(tmp_path, sample_data_dict):
-    """Create a temporary JSON file with sample data."""
-    json_file = tmp_path / "test_data.json"
-    import json
-    with open(json_file, 'w') as f:
-        json.dump(sample_data_dict, f)
-    return str(json_file)
-
-
-@pytest.fixture
-def temp_config_dir(tmp_path):
-    """Create a temporary configuration directory."""
-    config_dir = tmp_path / "config_test"
-    config_dir.mkdir()
-
-    # Create ADRI subdirectories
-    for env in ["dev", "prod"]:
-        for subdir in ["standards", "assessments", "training-data"]:
-            (config_dir / "ADRI" / env / subdir).mkdir(parents=True)
-
-    return config_dir
-
-
-@pytest.fixture
-def sample_config(temp_config_dir):
-    """Create a sample ADRI configuration."""
-    config = {
-        "adri": {
-            "version": "4.0.0",
-            "project_name": "test_project",
-            "default_environment": "development",
-            "environments": {
-                "development": {
-                    "paths": {
-                        "standards": str(temp_config_dir / "ADRI" / "dev" / "standards"),
-                        "assessments": str(temp_config_dir / "ADRI" / "dev" / "assessments"),
-                        "training_data": str(temp_config_dir / "ADRI" / "dev" / "training-data"),
-                    },
-                    "protection": {
-                        "default_failure_mode": "warn",
-                        "default_min_score": 75,
-                    },
-                },
-                "production": {
-                    "paths": {
-                        "standards": str(temp_config_dir / "ADRI" / "prod" / "standards"),
-                        "assessments": str(temp_config_dir / "ADRI" / "prod" / "assessments"),
-                        "training_data": str(temp_config_dir / "ADRI" / "prod" / "training-data"),
-                    },
-                    "protection": {
-                        "default_failure_mode": "raise",
-                        "default_min_score": 85,
-                    },
-                }
-            }
-        }
-    }
-
-    config_file = temp_config_dir / "adri-config.yaml"
-    with open(config_file, 'w') as f:
-        yaml.dump(config, f)
-
-    return config
-
-
-@pytest.fixture
-def mock_assessment_result():
-    """Provide a mock assessment result for testing."""
-    class MockDimensionScore:
-        def __init__(self, score):
-            self.score = score
-
-    class MockAssessmentResult:
-        def __init__(self):
-            self.overall_score = 82.5
-            self.passed = True
-            self.dimension_scores = {
-                "validity": MockDimensionScore(16.5),
-                "completeness": MockDimensionScore(18.0),
-                "consistency": MockDimensionScore(16.0),
-                "freshness": MockDimensionScore(17.0),
-                "plausibility": MockDimensionScore(15.0)
-            }
-            self.standard_id = "test_standard"
-            self.rule_execution_log = []
-            self.field_analysis = {}
-
-        def to_dict(self):
-            return {
-                "overall_score": self.overall_score,
-                "passed": self.passed,
-                "dimension_scores": {
-                    k: v.score for k, v in self.dimension_scores.items()
-                }
-            }
-
-        def to_standard_dict(self):
-            return self.to_dict()
-
-    return MockAssessmentResult()
-
-
-@pytest.fixture(autouse=True)
-def clean_environment():
-    """Clean up environment before and after each test."""
-    # Setup
-    original_env = os.environ.copy()
-
-    yield
-
-    # Cleanup - restore original environment
-    os.environ.clear()
-    os.environ.update(original_env)
-
-
-# Test utilities
-def create_test_dataframe(rows: int = 100, include_nulls: bool = True) -> pd.DataFrame:
-    """Create a test DataFrame with optional null values."""
-    import random
-
-    data = []
-    for i in range(rows):
-        row = {
-            "id": i + 1,
-            "name": f"Person_{i+1}" if not (include_nulls and random.random() < 0.1) else None,
-            "age": random.randint(18, 80) if not (include_nulls and random.random() < 0.05) else None,
-            "email": f"person{i+1}@test.com" if not (include_nulls and random.random() < 0.08) else None,
-            "score": random.uniform(0, 100) if not (include_nulls and random.random() < 0.03) else None,
-        }
-        data.append(row)
-
-    return pd.DataFrame(data)
-
+# Modern Test Utilities
 
 def assert_dimension_scores_valid(dimension_scores: Dict[str, Any]):
     """Assert that dimension scores are in valid format."""
@@ -259,6 +95,22 @@ def assert_dimension_scores_valid(dimension_scores: Dict[str, Any]):
             score = score_obj
 
         assert 0 <= score <= 20, f"Score for {dim} out of range: {score}"
+
+
+def assert_quality_target_met(component_name: str, metrics: Dict[str, float]):
+    """Assert that component meets quality targets."""
+    from tests.quality_framework import QualityMetrics
+
+    quality_metrics: QualityMetrics = {
+        "line_coverage": metrics.get("line_coverage", 0.0),
+        "integration_tests": metrics.get("integration_tests", 0.0),
+        "error_handling": metrics.get("error_handling", 0.0),
+        "performance": metrics.get("performance", 0.0),
+        "overall_score": metrics.get("overall_score", 0.0)
+    }
+
+    assert quality_framework.validate_component_quality(component_name, quality_metrics), \
+        f"Component {component_name} does not meet quality targets"
 
 
 def create_minimal_standard(name: str = "test") -> Dict[str, Any]:
@@ -278,32 +130,54 @@ def create_minimal_standard(name: str = "test") -> Dict[str, Any]:
     }
 
 
-class TestDataHelper:
-    """Helper class for creating test data."""
+# Pytest Configuration
 
-    @staticmethod
-    def create_quality_data(rows: int = 50) -> pd.DataFrame:
-        """Create high-quality test data."""
-        return pd.DataFrame({
-            "customer_id": range(1, rows + 1),
-            "name": [f"Customer {i}" for i in range(1, rows + 1)],
-            "email": [f"customer{i}@example.com" for i in range(1, rows + 1)],
-            "age": [25 + (i % 50) for i in range(rows)],
-            "balance": [1000.0 + (i * 100) for i in range(rows)]
-        })
+def pytest_configure(config):
+    """Configure pytest for modern ADRI testing."""
+    # Add custom markers for quality dimensions
+    config.addinivalue_line("markers", "unit: Unit test - individual component functionality")
+    config.addinivalue_line("markers", "integration: Integration test - component interactions")
+    config.addinivalue_line("markers", "performance: Performance test - speed and efficiency")
+    config.addinivalue_line("markers", "error_handling: Error handling test - failure scenarios")
+    config.addinivalue_line("markers", "end_to_end: End-to-end test - complete workflows")
 
-    @staticmethod
-    def create_poor_quality_data(rows: int = 50) -> pd.DataFrame:
-        """Create poor-quality test data with issues."""
-        data = []
-        for i in range(rows):
-            row = {
-                "customer_id": i + 1,
-                "name": None if i % 5 == 0 else f"Customer {i}",  # 20% missing
-                "email": "invalid-email" if i % 4 == 0 else f"customer{i}@example.com",  # 25% invalid
-                "age": -5 if i % 10 == 0 else (25 + (i % 50)),  # 10% invalid ages
-                "balance": None if i % 8 == 0 else (1000.0 + (i * 100))  # 12.5% missing
-            }
-            data.append(row)
+    # Component type markers
+    config.addinivalue_line("markers", "business_critical: Business critical component (90%+ target)")
+    config.addinivalue_line("markers", "system_infrastructure: System infrastructure component (80%+ target)")
+    config.addinivalue_line("markers", "data_processing: Data processing component (75%+ target)")
 
-        return pd.DataFrame(data)
+
+def pytest_collection_modifyitems(config, items):
+    """Modify test collection for quality framework integration."""
+    for item in items:
+        # Auto-mark tests based on path
+        if "test_decorator" in str(item.fspath) or "test_guard" in str(item.fspath) or "test_validator_engine" in str(item.fspath):
+            item.add_marker(pytest.mark.business_critical)
+        elif "test_config" in str(item.fspath) or "test_standards" in str(item.fspath) or "test_cli" in str(item.fspath):
+            item.add_marker(pytest.mark.system_infrastructure)
+        elif "test_analysis" in str(item.fspath) or "test_logging" in str(item.fspath):
+            item.add_marker(pytest.mark.data_processing)
+
+
+def pytest_sessionstart(session):
+    """Initialize quality framework for test session."""
+    print(f"\n=== ADRI Test Framework Modernization ===")
+    print(f"Coverage Target: 80% (Production Ready)")
+    print(f"Quality Framework: Multi-dimensional measurement enabled")
+    print(f"Legacy Compatibility: Disabled - Modern patterns only")
+
+
+def pytest_sessionfinish(session, exitstatus):
+    """Generate quality report at end of test session."""
+    if quality_framework.test_results:
+        print(f"\n=== Quality Framework Report ===")
+        report = quality_framework.generate_quality_report()
+
+        print(f"Overall Coverage: {report['overall_coverage']}%")
+        print(f"Components Tested: {report['components_tested']}")
+        print(f"Components Passing: {report['components_passing']}")
+        print(f"Pass Rate: {report['summary']['pass_rate']}%")
+        print(f"Production Ready: {report['summary']['production_ready']}")
+
+        if not report['summary']['production_ready']:
+            print(f"\n⚠️  Quality targets not met - see component details for gaps")

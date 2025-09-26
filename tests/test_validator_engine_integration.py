@@ -14,7 +14,7 @@ from unittest.mock import Mock, patch, MagicMock
 from datetime import datetime
 
 # Updated imports for new src/ layout
-from adri.validator.engine import (
+from src.adri.validator.engine import (
     ValidationEngine,
     DataQualityAssessor,
     AssessmentResult,

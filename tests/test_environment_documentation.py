@@ -23,7 +23,7 @@ from dataclasses import dataclass
 from typing import Dict, Any, Optional, List
 
 # Import CLI functions for testing environment documentation integration
-from adri.cli import (
+from src.adri.cli import (
     setup_command,
     show_config_command,
     show_help_guide,

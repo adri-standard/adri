@@ -13,21 +13,14 @@ from pathlib import Path
 import yaml
 import json
 
-# Updated imports for new src/ layout
-from adri.cli import (
-    setup_command,
-    assess_command,
-    generate_standard_command,
-    validate_standard_command,
-    list_standards_command,
-    show_config_command,
-    list_assessments_command,
-    view_logs_command,
-    show_standard_command,
-    show_help_guide,
-    create_sample_files,
-    main
-)
+# Updated imports for modular architecture
+from src.adri.cli.commands.setup import SetupCommand
+from src.adri.cli.commands.assess import AssessCommand
+from src.adri.cli.commands.generate_standard import GenerateStandardCommand
+from src.adri.cli.commands.config import ValidateStandardCommand, ListStandardsCommand, ShowConfigCommand, ShowStandardCommand
+from src.adri.cli.commands.list_assessments import ListAssessmentsCommand
+from src.adri.cli.commands.view_logs import ViewLogsCommand
+from src.adri import cli
 
 
 class TestSetupCommand(unittest.TestCase):
@@ -47,7 +40,8 @@ class TestSetupCommand(unittest.TestCase):
 
     def test_setup_command_success(self):
         """Test successful setup command execution."""
-        result = setup_command(project_name="test_project")
+        cmd = SetupCommand()
+        result = cmd.execute({"project_name": "test_project", "force": False, "guide": False})
 
         self.assertEqual(result, 0)
         self.assertTrue(os.path.exists("ADRI/config.yaml"))
@@ -66,7 +60,8 @@ class TestSetupCommand(unittest.TestCase):
         with open("ADRI/config.yaml", 'w') as f:
             f.write("existing: config")
 
-        result = setup_command(force=True, project_name="new_project")
+        cmd = SetupCommand()
+        result = cmd.execute({"force": True, "project_name": "new_project", "guide": False})
 
         self.assertEqual(result, 0)
 
@@ -83,7 +78,8 @@ class TestSetupCommand(unittest.TestCase):
         with open("ADRI/config.yaml", 'w') as f:
             f.write("existing: config")
 
-        result = setup_command(project_name="test_project")
+        cmd = SetupCommand()
+        result = cmd.execute({"project_name": "test_project", "force": False, "guide": False})
 
         self.assertEqual(result, 1)  # Should fail
 
@@ -98,7 +94,8 @@ class TestAssessCommand(unittest.TestCase):
         os.chdir(self.temp_dir)
 
         # Create ADRI project structure for path resolution
-        setup_command(force=True, project_name="test_project")
+        cmd = SetupCommand()
+        cmd.execute({"force": True, "project_name": "test_project", "guide": False})
 
         self.sample_data = [
             {"name": "Alice", "age": 25, "email": "alice@test.com"},
@@ -111,9 +108,9 @@ class TestAssessCommand(unittest.TestCase):
         import shutil
         shutil.rmtree(self.temp_dir)
 
-    @patch('adri.cli.load_data')
-    @patch('adri.cli.load_standard')
-    @patch('adri.cli.DataQualityAssessor')
+    @patch('adri.validator.loaders.load_data')
+    @patch('adri.validator.loaders.load_standard')
+    @patch('adri.validator.engine.DataQualityAssessor')
     def test_assess_command_success(self, mock_assessor_class, mock_load_standard, mock_load_data):
         """Test successful assess command execution."""
         # Create test files in absolute paths to bypass path resolution
@@ -142,8 +139,14 @@ class TestAssessCommand(unittest.TestCase):
             mock_assessor.audit_logger = None
             mock_assessor_class.return_value = mock_assessor
 
-            # Use absolute paths to bypass path resolution
-            result = assess_command(str(data_file), str(standard_file))
+            # Use modular command approach
+            cmd = AssessCommand()
+            result = cmd.execute({
+                "data_path": str(data_file),
+                "standard_path": str(standard_file),
+                "output_path": None,
+                "guide": False
+            })
 
             self.assertEqual(result, 0)
             mock_load_data.assert_called_once()
@@ -156,21 +159,33 @@ class TestAssessCommand(unittest.TestCase):
             if standard_file.exists():
                 standard_file.unlink()
 
-    @patch('adri.cli.load_data')
+    @patch('adri.validator.loaders.load_data')
     def test_assess_command_file_not_found(self, mock_load_data):
         """Test assess command with file not found."""
         mock_load_data.side_effect = FileNotFoundError("File not found")
 
-        result = assess_command("missing.csv", "standard.yaml")
+        cmd = AssessCommand()
+        result = cmd.execute({
+            "data_path": "missing.csv",
+            "standard_path": "standard.yaml",
+            "output_path": None,
+            "guide": False
+        })
 
         self.assertEqual(result, 1)  # Should fail
 
-    @patch('adri.cli.load_data')
+    @patch('adri.validator.loaders.load_data')
     def test_assess_command_no_data(self, mock_load_data):
         """Test assess command with no data loaded."""
         mock_load_data.return_value = []
 
-        result = assess_command("empty.csv", "standard.yaml")
+        cmd = AssessCommand()
+        result = cmd.execute({
+            "data_path": "empty.csv",
+            "standard_path": "standard.yaml",
+            "output_path": None,
+            "guide": False
+        })
 
         self.assertEqual(result, 1)  # Should fail
 
@@ -198,7 +213,7 @@ class TestGenerateStandardCommand(unittest.TestCase):
         import shutil
         shutil.rmtree(self.temp_dir)
 
-    @patch('adri.cli.load_data')
+    @patch('adri.validator.loaders.load_data')
     def test_generate_standard_success(self, mock_load_data):
         """Test successful standard generation."""
         mock_load_data.return_value = self.sample_data
@@ -212,8 +227,14 @@ class TestGenerateStandardCommand(unittest.TestCase):
             with open(data_file, 'w') as f:
                 f.write("name,age,email\nAlice,25,alice@test.com\nBob,30,bob@test.com")
 
-            # Use absolute path to bypass path resolution issues
-            result = generate_standard_command(str(data_file))
+            # Use modular command approach
+            cmd = GenerateStandardCommand()
+            result = cmd.execute({
+                "data_path": str(data_file),
+                "force": False,
+                "guide": False,
+                "output": None
+            })
 
             self.assertEqual(result, 0)
             # Enhanced CLI saves to ADRI/dev/standards/ directory
@@ -234,7 +255,7 @@ class TestGenerateStandardCommand(unittest.TestCase):
             if data_file.exists():
                 data_file.unlink()
 
-    @patch('adri.cli.load_data')
+    @patch('adri.validator.loaders.load_data')
     def test_generate_standard_existing_file_no_force(self, mock_load_data):
         """Test generate command fails when file exists and no force."""
         mock_load_data.return_value = self.sample_data
@@ -253,8 +274,14 @@ class TestGenerateStandardCommand(unittest.TestCase):
             with open(standard_path, 'w') as f:
                 f.write("existing: standard")
 
-            # Use absolute path
-            result = generate_standard_command(str(data_file))
+            # Use modular command approach
+            cmd = GenerateStandardCommand()
+            result = cmd.execute({
+                "data_path": str(data_file),
+                "force": False,
+                "guide": False,
+                "output": None
+            })
 
             self.assertEqual(result, 1)  # Should fail
 
@@ -263,7 +290,7 @@ class TestGenerateStandardCommand(unittest.TestCase):
             if data_file.exists():
                 data_file.unlink()
 
-    @patch('adri.cli.load_data')
+    @patch('adri.validator.loaders.load_data')
     def test_generate_standard_force_overwrite(self, mock_load_data):
         """Test generate command with force overwrite."""
         mock_load_data.return_value = self.sample_data
@@ -282,8 +309,14 @@ class TestGenerateStandardCommand(unittest.TestCase):
             with open(standard_path, 'w') as f:
                 f.write("existing: standard")
 
-            # Use absolute path with force=True
-            result = generate_standard_command(str(data_file), force=True)
+            # Use modular command approach
+            cmd = GenerateStandardCommand()
+            result = cmd.execute({
+                "data_path": str(data_file),
+                "force": True,
+                "guide": False,
+                "output": None
+            })
 
             self.assertEqual(result, 0)
 
@@ -317,7 +350,7 @@ class TestValidateStandardCommand(unittest.TestCase):
         import shutil
         shutil.rmtree(self.temp_dir)
 
-    @patch('adri.cli.load_standard')
+    @patch('adri.validator.loaders.load_standard')
     def test_validate_standard_success(self, mock_load_standard):
         """Test successful standard validation."""
         mock_load_standard.return_value = {
@@ -332,11 +365,12 @@ class TestValidateStandardCommand(unittest.TestCase):
             }
         }
 
-        result = validate_standard_command("test_standard.yaml")
+        cmd = ValidateStandardCommand()
+        result = cmd.execute({"standard_path": "test_standard.yaml"})
 
         self.assertEqual(result, 0)
 
-    @patch('adri.cli.load_standard')
+    @patch('adri.validator.loaders.load_standard')
     def test_validate_standard_missing_sections(self, mock_load_standard):
         """Test standard validation with missing sections."""
         mock_load_standard.return_value = {
@@ -348,16 +382,18 @@ class TestValidateStandardCommand(unittest.TestCase):
             # Missing requirements section
         }
 
-        result = validate_standard_command("test_standard.yaml")
+        cmd = ValidateStandardCommand()
+        result = cmd.execute({"standard_path": "test_standard.yaml"})
 
         self.assertEqual(result, 1)  # Should fail
 
-    @patch('adri.cli.load_standard')
+    @patch('adri.validator.loaders.load_standard')
     def test_validate_standard_file_error(self, mock_load_standard):
         """Test standard validation with file loading error."""
         mock_load_standard.side_effect = FileNotFoundError("File not found")
 
-        result = validate_standard_command("missing_standard.yaml")
+        cmd = ValidateStandardCommand()
+        result = cmd.execute({"standard_path": "missing_standard.yaml"})
 
         self.assertEqual(result, 1)  # Should fail
 
@@ -388,7 +424,8 @@ class TestListStandardsCommand(unittest.TestCase):
         (dev_dir / "project_standard1.yaml").touch()
         (prod_dir / "project_standard2.yaml").touch()
 
-        result = list_standards_command()
+        cmd = ListStandardsCommand()
+        result = cmd.execute({"include_catalog": False})
 
         self.assertEqual(result, 0)
 
@@ -401,13 +438,15 @@ class TestListStandardsCommand(unittest.TestCase):
         (standards_dir / "project_standard1.yaml").touch()
         (standards_dir / "project_standard2.yaml").touch()
 
-        result = list_standards_command()
+        cmd = ListStandardsCommand()
+        result = cmd.execute({"include_catalog": False})
 
         self.assertEqual(result, 0)
 
     def test_list_standards_no_standards(self):
         """Test list standards when no local standards are found."""
-        result = list_standards_command()
+        cmd = ListStandardsCommand()
+        result = cmd.execute({"include_catalog": False})
         self.assertEqual(result, 0)  # Should still succeed but show message
 
 
@@ -483,7 +522,8 @@ class TestListAssessmentsCommand(unittest.TestCase):
 
     def test_list_assessments_no_directory(self):
         """Test list assessments when no assessments directory exists."""
-        result = list_assessments_command()
+        cmd = ListAssessmentsCommand()
+        result = cmd.execute({"recent": 10, "verbose": False})
         self.assertEqual(result, 0)
 
     def test_list_assessments_empty_directory(self):
@@ -491,7 +531,8 @@ class TestListAssessmentsCommand(unittest.TestCase):
         assessments_dir = Path("ADRI/dev/assessments")
         assessments_dir.mkdir(parents=True, exist_ok=True)
 
-        result = list_assessments_command()
+        cmd = ListAssessmentsCommand()
+        result = cmd.execute({"recent": 10, "verbose": False})
         self.assertEqual(result, 0)
 
     def test_list_assessments_with_reports(self):
@@ -512,7 +553,8 @@ class TestListAssessmentsCommand(unittest.TestCase):
         with open(assessments_dir / "test_assessment_20240101_120000.json", "w") as f:
             json.dump(sample_report, f)
 
-        result = list_assessments_command()
+        cmd = ListAssessmentsCommand()
+        result = cmd.execute({"recent": 10, "verbose": False})
         self.assertEqual(result, 0)
 
 
@@ -533,7 +575,8 @@ class TestViewLogsCommand(unittest.TestCase):
 
     def test_view_logs_no_directory(self):
         """Test view logs when no logs directory exists."""
-        result = view_logs_command()
+        cmd = ViewLogsCommand()
+        result = cmd.execute({"recent": 10, "today": False, "verbose": False})
         self.assertEqual(result, 0)
 
     def test_view_logs_no_files(self):
@@ -541,7 +584,8 @@ class TestViewLogsCommand(unittest.TestCase):
         logs_dir = Path("ADRI/dev/audit-logs")
         logs_dir.mkdir(parents=True, exist_ok=True)
 
-        result = view_logs_command()
+        cmd = ViewLogsCommand()
+        result = cmd.execute({"recent": 10, "today": False, "verbose": False})
         self.assertEqual(result, 0)
 
     def test_view_logs_with_data(self):
@@ -556,7 +600,8 @@ class TestViewLogsCommand(unittest.TestCase):
             writer.writerow(["timestamp", "assessment_id", "overall_score", "passed", "data_row_count", "function_name", "standard_id", "assessment_duration_ms", "execution_decision"])
             writer.writerow(["2024-01-01 12:00:00", "test_001", "85.0", "TRUE", "100", "assess", "test_standard", "150", "ALLOW"])
 
-        result = view_logs_command()
+        cmd = ViewLogsCommand()
+        result = cmd.execute({"recent": 10, "today": False, "verbose": False})
         self.assertEqual(result, 0)
 
 
