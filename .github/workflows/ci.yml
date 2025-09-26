@@ -68,9 +68,9 @@ jobs:
         bandit -r src/ -f json -o tests/security/bandit-report.json --skip B110
         bandit -r src/ --skip B110
 
-    - name: Run Safety check
+    - name: Run Safety scan
       run: |
-        safety check
+        safety scan
 
     - name: Run pip-audit
       run: |
