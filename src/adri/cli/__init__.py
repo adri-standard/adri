@@ -7,6 +7,46 @@ individual command implementations and registry functionality.
 from .registry import create_command_registry, get_command, register_all_commands
 
 
+# Import functions that are still needed for backward compatibility
+def _get_cli_functions():
+    """Get CLI functions lazily to avoid circular imports."""
+    import importlib.util
+    from pathlib import Path
+
+    # Get the path to the cli.py module
+    cli_path = Path(__file__).parent / ".." / "cli.py"
+
+    # Load the module dynamically
+    spec = importlib.util.spec_from_file_location("adri_cli", cli_path)
+    cli_module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(cli_module)
+
+    return cli_module
+
+
+def _find_adri_project_root(*args, **kwargs):
+    """Find ADRI project root - backward compatibility wrapper."""
+    cli_module = _get_cli_functions()
+    return cli_module._find_adri_project_root(*args, **kwargs)
+
+
+def setup_command(*args, **kwargs):
+    """Provide setup command - backward compatibility wrapper."""
+    from .commands.setup import SetupCommand
+
+    command = SetupCommand()
+    return command.execute(*args, **kwargs)
+
+
+def scoring_explain_command(*args, **kwargs):
+    """Scoring explain command - backward compatibility wrapper."""
+    from .commands.scoring import ScoringCommand
+
+    command = ScoringCommand()
+    # This might need to be adapted based on the actual command structure
+    return command.explain(*args, **kwargs)
+
+
 # Import main function from the CLI module
 def main():
     """Import and run the CLI main function."""
@@ -65,4 +105,7 @@ __all__ = [
     "main",
     "standards_catalog_list_command",
     "standards_catalog_fetch_command",
+    "_find_adri_project_root",
+    "setup_command",
+    "scoring_explain_command",
 ]
