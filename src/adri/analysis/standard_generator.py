@@ -5,6 +5,7 @@ Refactored to use modular generation components for improved maintainability.
 Coordinates field inference, dimension building, and explanation generation.
 """
 
+import json
 from typing import Any, Dict, Optional
 
 import pandas as pd
@@ -17,6 +18,21 @@ from .generation import (
     StandardBuilder,
 )
 from .rule_inference import InferenceConfig
+from .type_inference import (
+    check_allowed_values,
+    check_date_bounds,
+    check_field_pattern,
+    check_field_range,
+    check_field_type,
+    check_length_bounds,
+    infer_allowed_values,
+    infer_allowed_values_tolerant,
+    infer_date_bounds,
+    infer_length_bounds,
+    infer_numeric_range,
+    infer_numeric_range_robust,
+    infer_regex_pattern,
+)
 
 
 class StandardGenerator:

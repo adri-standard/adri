@@ -6,7 +6,7 @@ and other core components.
 """
 
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Optional, Protocol
+from typing import Any, Dict, List, Protocol
 
 
 class ValidationRule(Protocol):
