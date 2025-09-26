@@ -16,13 +16,6 @@ from ..validator.rules import (
     check_field_range,
     check_field_type,
     check_length_bounds,
-    infer_allowed_values,
-    infer_allowed_values_tolerant,
-    infer_date_bounds,
-    infer_length_bounds,
-    infer_numeric_range,
-    infer_numeric_range_robust,
-    infer_regex_pattern,
 )
 from .data_profiler import DataProfiler
 from .generation import (
@@ -31,7 +24,16 @@ from .generation import (
     FieldInferenceEngine,
     StandardBuilder,
 )
-from .rule_inference import InferenceConfig
+from .rule_inference import (
+    infer_allowed_values,
+    infer_allowed_values_tolerant,
+    infer_date_bounds,
+    infer_length_bounds,
+    infer_numeric_range,
+    infer_numeric_range_robust,
+    infer_regex_pattern,
+    InferenceConfig,
+)
 from .type_inference import check_allowed_values
 
 
