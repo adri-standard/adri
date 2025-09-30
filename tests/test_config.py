@@ -28,14 +28,38 @@ class TestConfigurationLoader(unittest.TestCase):
         """Set up test fixtures."""
         self.loader = ConfigurationLoader()
         self.temp_dir = tempfile.mkdtemp()
-        self.original_cwd = os.getcwd()
+        # Robust directory handling for CI environments
+        try:
+            self.original_cwd = os.getcwd()
+        except (OSError, FileNotFoundError):
+            # Fallback to absolute path of project root if current dir doesn't exist
+            self.original_cwd = str(Path(__file__).parent.parent.absolute())
+
+        # Ensure temp directory exists and is accessible
+        os.makedirs(self.temp_dir, exist_ok=True)
         os.chdir(self.temp_dir)
 
     def tearDown(self):
         """Clean up test fixtures."""
-        os.chdir(self.original_cwd)
-        import shutil
-        shutil.rmtree(self.temp_dir)
+        try:
+            # Safely change back to original directory
+            if os.path.exists(self.original_cwd):
+                os.chdir(self.original_cwd)
+            else:
+                # Fallback to a safe directory if original doesn't exist
+                os.chdir(str(Path(__file__).parent.parent.absolute()))
+        except (OSError, FileNotFoundError):
+            # If all else fails, go to a known safe directory
+            os.chdir("/tmp" if os.path.exists("/tmp") else ".")
+
+        # Clean up temp directory safely
+        try:
+            import shutil
+            if os.path.exists(self.temp_dir):
+                shutil.rmtree(self.temp_dir, ignore_errors=True)
+        except (OSError, PermissionError):
+            # Ignore cleanup errors in CI environments
+            pass
 
     def test_create_default_config(self):
         """Test creating default configuration."""
@@ -197,16 +221,40 @@ class TestConfigurationConvenienceFunctions(unittest.TestCase):
     def setUp(self):
         """Set up test fixtures."""
         self.temp_dir = tempfile.mkdtemp()
-        self.original_cwd = os.getcwd()
+        # Robust directory handling for CI environments
+        try:
+            self.original_cwd = os.getcwd()
+        except (OSError, FileNotFoundError):
+            # Fallback to absolute path of project root if current dir doesn't exist
+            self.original_cwd = str(Path(__file__).parent.parent.absolute())
+
+        # Ensure temp directory exists and is accessible
+        os.makedirs(self.temp_dir, exist_ok=True)
         os.chdir(self.temp_dir)
 
     def tearDown(self):
         """Clean up test fixtures."""
-        os.chdir(self.original_cwd)
-        import shutil
-        shutil.rmtree(self.temp_dir)
+        try:
+            # Safely change back to original directory
+            if os.path.exists(self.original_cwd):
+                os.chdir(self.original_cwd)
+            else:
+                # Fallback to a safe directory if original doesn't exist
+                os.chdir(str(Path(__file__).parent.parent.absolute()))
+        except (OSError, FileNotFoundError):
+            # If all else fails, go to a known safe directory
+            os.chdir("/tmp" if os.path.exists("/tmp") else ".")
 
-    @patch('adri.config.loader.ConfigurationLoader')
+        # Clean up temp directory safely
+        try:
+            import shutil
+            if os.path.exists(self.temp_dir):
+                shutil.rmtree(self.temp_dir, ignore_errors=True)
+        except (OSError, PermissionError):
+            # Ignore cleanup errors in CI environments
+            pass
+
+    @patch('src.adri.config.loader.ConfigurationLoader')
     def test_load_adri_config(self, mock_loader_class):
         """Test load_adri_config convenience function."""
         mock_loader = Mock()
@@ -219,7 +267,7 @@ class TestConfigurationConvenienceFunctions(unittest.TestCase):
         self.assertEqual(result, mock_config)
         mock_loader.get_active_config.assert_called_once_with("test-config.yaml")
 
-    @patch('adri.config.loader.ConfigurationLoader')
+    @patch('src.adri.config.loader.ConfigurationLoader')
     def test_get_protection_settings(self, mock_loader_class):
         """Test get_protection_settings convenience function."""
         mock_loader = Mock()
@@ -232,7 +280,7 @@ class TestConfigurationConvenienceFunctions(unittest.TestCase):
         self.assertEqual(result, mock_settings)
         mock_loader.get_protection_config.assert_called_once_with("production")
 
-    @patch('adri.config.loader.ConfigurationLoader')
+    @patch('src.adri.config.loader.ConfigurationLoader')
     def test_resolve_standard_file(self, mock_loader_class):
         """Test resolve_standard_file convenience function."""
         mock_loader = Mock()

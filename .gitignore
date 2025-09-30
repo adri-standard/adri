@@ -343,6 +343,19 @@ mock_standard*.yaml
 no_directory_standard.yaml
 null_test_standard.yaml
 
+# Prevent unauthorized root directory YAML files (CI structure policy)
+/*_standard.yaml
+/*_standard.yml
+/completely_missing_standard.yaml
+/malformed_test.yaml
+/pipeline_standard.yaml
+/sample_standard.yaml
+/nonexistent_standard.yaml
+/*missing*.yaml
+/*malformed*.yaml
+/*pipeline*.yaml
+/test_*.yaml
+
 # System files
 .DS_Store
 .DS_Store?

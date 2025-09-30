@@ -81,6 +81,89 @@ def sample_config(complete_config):
 
 # Modern Test Utilities
 
+@pytest.fixture
+def safe_temp_directory():
+    """Create a safe temporary directory with robust cleanup for CI environments."""
+    import tempfile
+    import shutil
+
+    temp_dir = tempfile.mkdtemp(prefix="adri_test_")
+    original_cwd = None
+
+    try:
+        # Store original directory safely
+        try:
+            original_cwd = os.getcwd()
+        except (OSError, FileNotFoundError):
+            original_cwd = str(Path(__file__).parent.parent.absolute())
+
+        yield temp_dir
+    finally:
+        # Safe cleanup and restoration
+        try:
+            if original_cwd and os.path.exists(original_cwd):
+                os.chdir(original_cwd)
+            else:
+                os.chdir(str(Path(__file__).parent.parent.absolute()))
+        except (OSError, FileNotFoundError):
+            # Fallback to a safe directory
+            os.chdir("/tmp" if os.path.exists("/tmp") else ".")
+
+        # Clean up temp directory
+        try:
+            if os.path.exists(temp_dir):
+                shutil.rmtree(temp_dir, ignore_errors=True)
+        except (OSError, PermissionError):
+            pass  # Ignore cleanup errors in CI
+
+
+@pytest.fixture
+def isolated_working_directory(safe_temp_directory):
+    """Provide an isolated working directory for tests that change cwd."""
+    original_cwd = None
+
+    try:
+        # Store and change to temp directory
+        try:
+            original_cwd = os.getcwd()
+        except (OSError, FileNotFoundError):
+            original_cwd = str(Path(__file__).parent.parent.absolute())
+
+        os.chdir(safe_temp_directory)
+        yield safe_temp_directory
+    finally:
+        # Restore original directory
+        try:
+            if original_cwd and os.path.exists(original_cwd):
+                os.chdir(original_cwd)
+            else:
+                os.chdir(str(Path(__file__).parent.parent.absolute()))
+        except (OSError, FileNotFoundError):
+            os.chdir("/tmp" if os.path.exists("/tmp") else ".")
+
+
+@pytest.fixture
+def ci_environment_detector():
+    """Detect and adapt to CI environment characteristics."""
+    def is_ci():
+        return any(key in os.environ for key in [
+            'CI', 'CONTINUOUS_INTEGRATION', 'GITHUB_ACTIONS',
+            'TRAVIS', 'CIRCLECI', 'JENKINS_URL', 'GITLAB_CI'
+        ])
+
+    def get_parallel_workers():
+        """Get number of parallel test workers in CI."""
+        if 'PYTEST_XDIST_WORKER' in os.environ:
+            return os.environ.get('PYTEST_XDIST_WORKER_COUNT', '1')
+        return '1'
+
+    return {
+        'is_ci': is_ci(),
+        'parallel_workers': get_parallel_workers(),
+        'worker_id': os.environ.get('PYTEST_XDIST_WORKER', 'main')
+    }
+
+
 def assert_dimension_scores_valid(dimension_scores: Dict[str, Any]):
     """Assert that dimension scores are in valid format."""
     expected_dimensions = ["validity", "completeness", "consistency", "freshness", "plausibility"]
