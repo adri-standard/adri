@@ -208,7 +208,7 @@ class FreshnessAssessor(DimensionAssessor):
                 "rule_weights_applied": {"recency_window": config["recency_weight"]},
                 "score_0_20": 19.0,
                 "warnings": [
-                    f"date_field '{date_field}' not found; using baseline score 19.0/20"
+                    f"date_field '{date_field}' not found, using baseline score 19.0/20"
                 ],
             }
 

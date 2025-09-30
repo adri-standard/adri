@@ -37,6 +37,24 @@ from .rule_inference import (
 from .type_inference import check_allowed_values
 
 
+class GenerationConfig:
+    """Configuration for standard generation."""
+
+    def __init__(self, **kwargs):
+        """Initialize GenerationConfig with keyword arguments."""
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+
+
+class StandardTemplate:
+    """Template for standard generation."""
+
+    def __init__(self, template_id: str, template_data: dict):
+        """Initialize StandardTemplate with template information."""
+        self.template_id = template_id
+        self.template_data = template_data
+
+
 class StandardGenerator:
     """
     Generates ADRI-compliant YAML standards from data analysis.

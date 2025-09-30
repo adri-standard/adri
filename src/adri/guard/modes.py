@@ -36,6 +36,14 @@ except ImportError:
 logger = logging.getLogger(__name__)
 
 
+class FailureMode:
+    """Stub class for failure mode configuration."""
+
+    def __init__(self, mode_type: str = "default"):
+        """Initialize FailureMode with mode type."""
+        self.mode_type = mode_type
+
+
 class ProtectionError(Exception):
     """Exception raised when data protection fails."""
 

@@ -201,6 +201,173 @@ INV-110,DUPLICATE-ID,875.25,2024-02-24,paid,credit_card"""
     (tutorial_dir / "test_invoice_data.csv").write_text(test_data)
 
 
+def show_config_command(
+    paths_only: bool = False, environment: Optional[str] = None
+) -> int:
+    """Show current ADRI configuration (standalone function for tests)."""
+    try:
+        if not ConfigurationLoader:
+            click.echo("❌ Configuration loader not available")
+            return 1
+
+        config_loader = ConfigurationLoader()
+        config = config_loader.get_active_config()
+
+        if not config:
+            click.echo("❌ No ADRI configuration found")
+            return 1
+
+        click.echo("✅ ADRI Configuration loaded successfully")
+        return 0
+    except Exception as e:
+        click.echo(f"❌ Error loading configuration: {e}")
+        return 1
+
+
+def show_standard_command(standard_path: str, verbose: bool = False) -> int:
+    """Show details of a specific ADRI standard (standalone function for tests)."""
+    try:
+        standard_file = Path(standard_path)
+        if not standard_file.exists():
+            click.echo(f"❌ Standard file not found: {standard_path}")
+            return 1
+
+        if load_standard:
+            standard = load_standard(standard_path)
+        else:
+            with open(standard_file, "r") as f:
+                standard = yaml.safe_load(f)
+
+        if standard:
+            click.echo(f"✅ Standard loaded: {standard_path}")
+            return 0
+        else:
+            click.echo(f"❌ Failed to load standard: {standard_path}")
+            return 1
+    except Exception as e:
+        click.echo(f"❌ Error loading standard: {e}")
+        return 1
+
+
+def setup_command(
+    force: bool = False, project_name: Optional[str] = None, guide: bool = False
+) -> int:
+    """Initialize ADRI in a project (standalone function for tests)."""
+    try:
+        from adri.cli.commands.setup import SetupCommand
+
+        cmd = SetupCommand()
+        args = {
+            "force": force,
+            "project_name": project_name or "adri_project",
+            "guide": guide,
+        }
+        return cmd.execute(args)
+    except Exception as e:
+        click.echo(f"❌ Setup failed: {e}")
+        return 1
+
+
+def assess_command(
+    data_path: str,
+    standard_path: str,
+    output_path: Optional[str] = None,
+    guide: bool = False,
+) -> int:
+    """Run data quality assessment (standalone function for tests)."""
+    try:
+        from adri.cli.commands.assess import AssessCommand
+
+        cmd = AssessCommand()
+        args = {
+            "data_path": data_path,
+            "standard_path": standard_path,
+            "output_path": output_path,
+            "guide": guide,
+        }
+        return cmd.execute(args)
+    except Exception as e:
+        click.echo(f"❌ Assessment failed: {e}")
+        return 1
+
+
+def generate_standard_command(
+    data_path: str,
+    force: bool = False,
+    output: Optional[str] = None,
+    guide: bool = False,
+) -> int:
+    """Generate ADRI standard from data (standalone function for tests)."""
+    try:
+        from adri.cli.commands.generate_standard import GenerateStandardCommand
+
+        cmd = GenerateStandardCommand()
+        args = {
+            "data_path": data_path,
+            "force": force,
+            "output": output,
+            "guide": guide,
+        }
+        return cmd.execute(args)
+    except Exception as e:
+        click.echo(f"❌ Standard generation failed: {e}")
+        return 1
+
+
+def validate_standard_command(standard_path: str) -> int:
+    """Validate YAML standard file (standalone function for tests)."""
+    try:
+        from adri.cli.commands.config import ValidateStandardCommand
+
+        cmd = ValidateStandardCommand()
+        args = {"standard_path": standard_path}
+        return cmd.execute(args)
+    except Exception as e:
+        click.echo(f"❌ Validation failed: {e}")
+        return 1
+
+
+def list_standards_command(include_catalog: bool = False) -> int:
+    """List available YAML standards (standalone function for tests)."""
+    try:
+        from adri.cli.commands.config import ListStandardsCommand
+
+        cmd = ListStandardsCommand()
+        args = {"include_catalog": include_catalog}
+        return cmd.execute(args)
+    except Exception as e:
+        click.echo(f"❌ Failed to list standards: {e}")
+        return 1
+
+
+def list_assessments_command(recent: int = 10, verbose: bool = False) -> int:
+    """List previous assessment reports (standalone function for tests)."""
+    try:
+        from adri.cli.commands.list_assessments import ListAssessmentsCommand
+
+        cmd = ListAssessmentsCommand()
+        args = {"recent": recent, "verbose": verbose}
+        return cmd.execute(args)
+    except Exception as e:
+        click.echo(f"❌ Failed to list assessments: {e}")
+        return 1
+
+
+def view_logs_command(
+    recent: int = 10, today: bool = False, verbose: bool = False
+) -> int:
+    """View audit logs (standalone function for tests)."""
+    try:
+        from adri.cli.commands.view_logs import ViewLogsCommand
+
+        cmd = ViewLogsCommand()
+        args = {"recent": recent, "today": today, "verbose": verbose}
+        return cmd.execute(args)
+    except Exception as e:
+        click.echo(f"❌ Failed to view logs: {e}")
+        return 1
+
+
 def show_help_guide() -> int:
     """Show first-time user guide."""
     click.echo("🚀 ADRI - First Time User Guide")

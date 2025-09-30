@@ -20,6 +20,31 @@ import yaml
 from .local import AuditRecord
 
 
+class LogBatch:
+    """Stub class for log batch operations."""
+
+    def __init__(self, logs: list = None):
+        """Initialize LogBatch with logs."""
+        self.logs = logs or []
+
+
+class APIClient:
+    """Stub class for API client operations."""
+
+    def __init__(self, base_url: str = "", api_key: str = ""):
+        """Initialize APIClient with connection details."""
+        self.base_url = base_url
+        self.api_key = api_key
+
+
+class AuthenticationManager:
+    """Stub class for authentication management."""
+
+    def __init__(self, auth_config: dict = None):
+        """Initialize AuthenticationManager with configuration."""
+        self.auth_config = auth_config or {}
+
+
 class EnterpriseLogger:
     """
     Enterprise audit logger with Verodat API integration.

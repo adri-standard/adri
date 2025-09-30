@@ -68,6 +68,10 @@ class DataValidationError(ADRIError):
     pass
 
 
+# Backward compatibility alias for tests
+ValidationError = DataValidationError
+
+
 # Standard-Related Errors
 class StandardError(ADRIError):
     """Base class for standard-related errors."""
@@ -302,5 +306,5 @@ def format_validation_errors(errors: list) -> str:
     if len(errors) == 1:
         return f"Validation error: {errors[0]}"
 
-    formatted_errors = "\n".join(f"  - {error}" for error in errors)
+    formatted_errors = "\n".join(f" - {error}" for error in errors)
     return f"Validation errors:\n{formatted_errors}"

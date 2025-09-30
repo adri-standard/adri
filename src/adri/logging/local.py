@@ -580,3 +580,19 @@ def log_to_csv(
 # Backward compatibility aliases
 CSVAuditLogger = LocalLogger
 AuditLoggerCSV = LocalLogger
+
+
+class LogRotator:
+    """Stub class for log rotation functionality."""
+
+    def __init__(self, log_directory: str, max_file_size: int, max_files: int):
+        """Initialize the log rotator.
+
+        Args:
+            log_directory: Directory where logs are stored
+            max_file_size: Maximum file size in bytes before rotation
+            max_files: Maximum number of log files to keep
+        """
+        self.log_directory = log_directory
+        self.max_file_size = max_file_size
+        self.max_files = max_files

@@ -10,7 +10,7 @@ import yaml
 from unittest.mock import patch
 
 from src.adri.validator.engine import ValidationEngine
-from src.adri.cli import scoring_explain_command
+from src.adri.cli.registry import get_command
 
 
 def _make_standard_dict(field_requirements: Dict[str, Any], extra: Dict[str, Any] = None) -> Dict[str, Any]:
@@ -187,7 +187,12 @@ def test_cli_scoring_explain_json_includes_new_sections(tmp_path: Path):
             captured["payload"] = str(msg)
 
         with patch("adri.cli.click.echo", side_effect=_capture_echo):
-            rc = scoring_explain_command("dev/sample.csv", "dev/standards/sample_ADRI_standard.yaml", json_output=True)
+            scoring_explain_cmd = get_command("scoring-explain")
+            rc = scoring_explain_cmd.execute({
+                "data_path": "dev/sample.csv",
+                "standard_path": "dev/standards/sample_ADRI_standard.yaml",
+                "json_output": True
+            })
 
         assert rc == 0
         assert "payload" in captured

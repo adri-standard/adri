@@ -27,15 +27,8 @@ from dataclasses import dataclass
 from typing import Dict, Any, Optional, List
 
 # Import CLI functions for comprehensive workflow testing
-from src.adri.cli import (
-    SetupCommand,
-    GenerateStandardCommand,
-    AssessCommand,
-    ShowConfigCommand,
-    ListAssessmentsCommand,
-    _find_adri_project_root,
-    _resolve_project_path,
-)
+import src.adri.cli as adri_cli
+from src.adri.cli.registry import get_command
 
 # Import test fixtures for reusable project structures
 try:

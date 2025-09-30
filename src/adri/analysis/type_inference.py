@@ -10,6 +10,30 @@ from typing import Any, Dict, Optional
 import pandas as pd
 
 
+class InferenceResult:
+    """Result of type inference operation."""
+
+    def __init__(
+        self, field_types: dict, confidence_scores: dict = None, metadata: dict = None
+    ):
+        """Initialize InferenceResult with type inference data."""
+        self.field_types = field_types
+        self.confidence_scores = confidence_scores or {}
+        self.metadata = metadata or {}
+
+
+class FieldTypeInfo:
+    """Type information for a single field."""
+
+    def __init__(
+        self, inferred_type: str, confidence: float = 1.0, sample_values: list = None
+    ):
+        """Initialize FieldTypeInfo with field type information."""
+        self.inferred_type = inferred_type
+        self.confidence = confidence
+        self.sample_values = sample_values or []
+
+
 class TypeInference:
     """
     Infers data types and appropriate validation rules from data patterns.

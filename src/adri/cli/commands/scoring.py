@@ -283,7 +283,7 @@ class ScoringExplainCommand(Command):
             click.echo("")
             click.echo("⚠️  Warnings:")
             for warning in scoring_info["warnings"]:
-                click.echo(f"  - {warning}")
+                click.echo(f" - {warning}")
 
     def _format_dimension_explanation(
         self, dimension: str, dim_explain: Dict[str, Any]
@@ -378,7 +378,7 @@ class ScoringExplainCommand(Command):
                 pass_rate = (passed_c / total) * 100.0
                 gw = float(global_weights.get(rk, 0.0))
                 click.echo(
-                    f"  - {rk}: {passed_c}/{total} ({pass_rate:.1f}%), weight={gw:.2f}"
+                    f" - {rk}: {passed_c}/{total} ({pass_rate:.1f}%), weight={gw:.2f}"
                 )
 
     def _display_completeness_explanation(
@@ -391,7 +391,7 @@ class ScoringExplainCommand(Command):
         miss = int(completeness_explain.get("missing_required", 0) or 0)
         pr = float(completeness_explain.get("pass_rate", 0.0) or 0.0) * 100.0
         click.echo(
-            f"  - required cells: {req_total}, missing required: {miss}, pass_rate={pr:.1f}%"
+            f" - required cells: {req_total}, missing required: {miss}, pass_rate={pr:.1f}%"
         )
 
         top_missing = completeness_explain.get("top_missing_fields", []) or []
@@ -421,9 +421,9 @@ class ScoringExplainCommand(Command):
             "primary_key_uniqueness", 0.0
         )
 
-        click.echo(f"  - pk_fields: {pk_fields if pk_fields else '[]'}")
+        click.echo(f" - pk_fields: {pk_fields if pk_fields else '[]'}")
         click.echo(
-            f"  - primary_key_uniqueness: {passed_c}/{total} passed, failed={failed_c}, pass_rate={pr:.1f}%, weight={float(rw):.2f}"
+            f" - primary_key_uniqueness: {passed_c}/{total} passed, failed={failed_c}, pass_rate={pr:.1f}%, weight={float(rw):.2f}"
         )
 
     def _display_freshness_explanation(self, freshness_explain: Dict[str, Any]) -> None:
@@ -441,9 +441,9 @@ class ScoringExplainCommand(Command):
             "recency_window", 0.0
         )
 
-        click.echo(f"  - date_field: {df}, window_days: {wd}, as_of: {as_of}")
+        click.echo(f" - date_field: {df}, window_days: {wd}, as_of: {as_of}")
         click.echo(
-            f"  - recency_window: {passed_c}/{total} passed, pass_rate={pr:.1f}%, weight={float(rw):.2f}"
+            f" - recency_window: {passed_c}/{total} passed, pass_rate={pr:.1f}%, weight={float(rw):.2f}"
         )
 
     def get_name(self) -> str:

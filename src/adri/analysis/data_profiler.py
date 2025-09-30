@@ -10,6 +10,33 @@ from typing import Any, Dict, List, Optional
 import pandas as pd
 
 
+class ProfileResult:
+    """Result of data profiling operation."""
+
+    def __init__(
+        self,
+        field_profiles: dict,
+        summary_statistics: dict,
+        data_quality_score: float,
+        metadata: dict = None,
+    ):
+        """Initialize ProfileResult with profiling data."""
+        self.field_profiles = field_profiles
+        self.summary_statistics = summary_statistics
+        self.data_quality_score = data_quality_score
+        self.metadata = metadata or {}
+
+
+class FieldProfile:
+    """Profile information for a single field."""
+
+    def __init__(self, field_type: str, null_count: int = 0, unique_count: int = 0):
+        """Initialize FieldProfile with field statistics."""
+        self.field_type = field_type
+        self.null_count = null_count
+        self.unique_count = unique_count
+
+
 class DataProfiler:
     """
     Analyzes data patterns and structure for standard generation.

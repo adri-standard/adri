@@ -27,24 +27,30 @@ def register_all_commands() -> None:
     """Register all CLI commands with the global registry."""
     registry = get_global_registry()
 
-    # Core commands
-    registry.commands.register("setup", SetupCommand)
-    registry.commands.register("assess", AssessCommand)
-    registry.commands.register("generate-standard", GenerateStandardCommand)
+    # Define all commands to register
+    commands_to_register = [
+        # Core commands
+        ("setup", SetupCommand),
+        ("assess", AssessCommand),
+        ("generate-standard", GenerateStandardCommand),
+        # Information commands
+        ("list-assessments", ListAssessmentsCommand),
+        ("list-standards", ListStandardsCommand),
+        ("view-logs", ViewLogsCommand),
+        # Configuration commands
+        ("show-config", ShowConfigCommand),
+        ("validate-standard", ValidateStandardCommand),
+        ("show-standard", ShowStandardCommand),
+        # Scoring commands
+        ("scoring-explain", ScoringExplainCommand),
+        ("scoring-preset-apply", ScoringPresetApplyCommand),
+    ]
 
-    # Information commands
-    registry.commands.register("list-assessments", ListAssessmentsCommand)
-    registry.commands.register("list-standards", ListStandardsCommand)
-    registry.commands.register("view-logs", ViewLogsCommand)
-
-    # Configuration commands
-    registry.commands.register("show-config", ShowConfigCommand)
-    registry.commands.register("validate-standard", ValidateStandardCommand)
-    registry.commands.register("show-standard", ShowStandardCommand)
-
-    # Scoring commands
-    registry.commands.register("scoring-explain", ScoringExplainCommand)
-    registry.commands.register("scoring-preset-apply", ScoringPresetApplyCommand)
+    # Register commands only if they're not already registered
+    existing_commands = set(registry.commands.list_components())
+    for command_name, command_class in commands_to_register:
+        if command_name not in existing_commands:
+            registry.commands.register(command_name, command_class)
 
 
 def create_command_registry() -> Dict[str, Command]:
