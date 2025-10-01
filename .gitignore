@@ -327,7 +327,6 @@ src/adri/_version.py
 *_COMPLETE.md
 *_FINAL.md
 temp_*.py
-test_*.py
 demo_*.py
 scratch_*.py
 quick_*.py
