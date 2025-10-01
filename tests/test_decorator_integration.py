@@ -42,7 +42,7 @@ class TestDecoratorIntegration(unittest.TestCase):
             "currency": ["USD", "USD", "USD"]
         })
 
-    @patch('adri.decorator.DataProtectionEngine')
+    @patch('src.adri.decorator.DataProtectionEngine')
     def test_explicit_protection_patterns_comprehensive(self, mock_engine_class):
         """Test @adri_protected with different explicit configuration patterns."""
         # Setup mock engine
@@ -100,7 +100,7 @@ class TestDecoratorIntegration(unittest.TestCase):
         self.assertIn("validity", call_args[1]["dimensions"])
         self.assertEqual(call_args[1]["dimensions"]["validity"], 19)
 
-    @patch('adri.decorator.DataProtectionEngine')
+    @patch('src.adri.decorator.DataProtectionEngine')
     def test_explicit_protection_with_custom_overrides(self, mock_engine_class):
         """Test @adri_protected with custom parameter overrides."""
         mock_engine = Mock()
@@ -174,8 +174,8 @@ class TestDecoratorIntegration(unittest.TestCase):
     def test_data_protection_engine_unavailable_scenario(self):
         """Test decorator behavior when DataProtectionEngine is None."""
         # Test the warning path when DataProtectionEngine is not available
-        with patch('adri.decorator.DataProtectionEngine', None):
-            with patch('adri.decorator.logger') as mock_logger:
+        with patch('src.adri.decorator.DataProtectionEngine', None):
+            with patch('src.adri.decorator.logger') as mock_logger:
 
                 @adri_protected(standard="test_standard")
                 def test_function_no_engine(data):
@@ -191,7 +191,7 @@ class TestDecoratorIntegration(unittest.TestCase):
                     "DataProtectionEngine not available, executing function without protection"
                 )
 
-    @patch('adri.decorator.DataProtectionEngine')
+    @patch('src.adri.decorator.DataProtectionEngine')
     def test_protection_error_handling_comprehensive(self, mock_engine_class):
         """Test comprehensive protection error handling scenarios."""
         mock_engine = Mock()
@@ -222,7 +222,7 @@ class TestDecoratorIntegration(unittest.TestCase):
         self.assertIn("Data protection failed for function 'function_with_unexpected_error'", str(context.exception))
         self.assertIn("Unexpected system error", str(context.exception))
 
-    @patch('adri.decorator.DataProtectionEngine')
+    @patch('src.adri.decorator.DataProtectionEngine')
     def test_comprehensive_protection_configuration(self, mock_engine_class):
         """Test @adri_protected with comprehensive configuration options."""
         mock_engine = Mock()
@@ -258,7 +258,7 @@ class TestDecoratorIntegration(unittest.TestCase):
         expected_dims = {"validity": 20, "completeness": 20, "consistency": 19, "freshness": 18, "plausibility": 17}
         self.assertEqual(call_args[1]["dimensions"], expected_dims)
 
-    @patch('adri.decorator.DataProtectionEngine')
+    @patch('src.adri.decorator.DataProtectionEngine')
     def test_decorator_function_attributes(self, mock_engine_class):
         """Test decorator sets correct function attributes."""
         mock_engine = Mock()
@@ -303,7 +303,7 @@ class TestDecoratorIntegration(unittest.TestCase):
         self.assertEqual(test_function_with_all_params.__name__, "test_function_with_all_params")
         self.assertIn("Test function with comprehensive parameters", test_function_with_all_params.__doc__)
 
-    @patch('adri.decorator.DataProtectionEngine')
+    @patch('src.adri.decorator.DataProtectionEngine')
     def test_real_world_integration_scenarios(self, mock_engine_class):
         """Test real-world integration scenarios with explicit protection configurations."""
         mock_engine = Mock()
@@ -386,7 +386,7 @@ class TestDecoratorEdgeCases(unittest.TestCase):
             "value": ["a", "b", "c"]
         })
 
-    @patch('adri.decorator.DataProtectionEngine')
+    @patch('src.adri.decorator.DataProtectionEngine')
     def test_complex_function_signatures(self, mock_engine_class):
         """Test decorator with complex function signatures."""
         mock_engine = Mock()
@@ -420,7 +420,7 @@ class TestDecoratorEdgeCases(unittest.TestCase):
         self.assertEqual(call_args[1]["function_name"], "complex_function")
         self.assertEqual(call_args[1]["data_param"], "main_data")
 
-    @patch('adri.decorator.DataProtectionEngine')
+    @patch('src.adri.decorator.DataProtectionEngine')
     def test_nested_decorators_scenario(self, mock_engine_class):
         """Test ADRI decorator used with other decorators."""
         mock_engine = Mock()

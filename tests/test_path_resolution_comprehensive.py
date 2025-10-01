@@ -486,7 +486,7 @@ class TestPathResolutionIntegration(unittest.TestCase):
         self.assertTrue(config_path.exists() or local_config.exists(),
             f"Config should exist at {config_path} or {local_config}")
 
-    @patch('adri.cli.load_data')
+    @patch('src.adri.cli.load_data')
     def test_generate_standard_command_path_resolution(self, mock_load_data):
         """Test generate-standard command works with path resolution."""
         mock_load_data.return_value = [
@@ -513,9 +513,9 @@ class TestPathResolutionIntegration(unittest.TestCase):
         self.assertTrue(standard_path1.exists() or standard_path2.exists(),
             f"Standard should exist at {standard_path1} or {standard_path2}")
 
-    @patch('adri.cli.load_data')
-    @patch('adri.cli.load_standard')
-    @patch('adri.cli.DataQualityAssessor')
+    @patch('src.adri.cli.commands.assess.load_data')
+    @patch('src.adri.cli.commands.assess.load_standard')
+    @patch('src.adri.cli.commands.assess.DataQualityAssessor')
     def test_assess_command_path_resolution(self, mock_assessor_class, mock_load_standard, mock_load_data):
         """Test assess command works with path resolution."""
         # Setup mocks

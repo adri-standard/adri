@@ -229,21 +229,9 @@ def show_config_command(
 ) -> int:
     """Show current ADRI configuration (standalone function for tests)."""
     try:
-        # Import at runtime to allow proper mocking in tests
-        from ..config.loader import ConfigurationLoader as LoaderClass
-
-        config_loader = LoaderClass()
-        config = config_loader.get_active_config()
-
-        if not config:
-            click.echo("❌ No ADRI configuration found")
-            return 1
-
-        click.echo("✅ ADRI Configuration loaded successfully")
-        return 0
-    except ImportError:
-        click.echo("❌ Configuration loader not available")
-        return 1
+        cmd = ShowConfigCommand()
+        args = {"paths_only": paths_only, "environment": environment}
+        return cmd.execute(args)
     except Exception as e:
         click.echo(f"❌ Error loading configuration: {e}")
         return 1

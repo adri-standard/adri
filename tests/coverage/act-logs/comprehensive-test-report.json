@@ -39,6 +39,22 @@
       "description": "Main CI Workflow Validation",
       "error": "[CI/build-test]   🐳  docker pull image=ghcr.io/catthehacker/ubuntu:full-latest platform=linux/amd64 username= forcePull=true [CI/build-test] failed to list containers: Cannot connect to the Docker daemon at unix:///var/run/docker.sock. Is the docker daemon running? [CI/build-test]   ❌  Failure - Set up job [CI/build-test] 🏁  Job failed Error: failed to list containers: Cannot connect to the Docker daemon at unix:///var/run/docker.sock. Is the docker daemon running? ",
       "timestamp": "2025-09-30T11:50:34Z"
+    },
+    {
+      "job": "build-test",
+      "status": "SUCCESS",
+      "duration": 607,
+      "description": "Main CI Workflow Validation",
+      "error": "",
+      "timestamp": "2025-10-01T17:04:17Z"
+    },
+    {
+      "job": "build",
+      "status": "FAILED",
+      "duration": 95,
+      "description": "Documentation Build Workflow",
+      "error": "[Deploy Documentation to GitHub Pages/build]   ✅  Success - Post Upload artifact for deployment [66.189667ms] [Deploy Documentation to GitHub Pages/build] ⭐ Run Complete job [Deploy Documentation to GitHub Pages/build]   ✅  Success - Complete job [Deploy Documentation to GitHub Pages/build] 🏁  Job failed Error: Job 'build' failed ",
+      "timestamp": "2025-10-01T17:05:52Z"
     }
   ],
   "summary": {}

@@ -26,15 +26,63 @@ class ProfileResult:
         self.data_quality_score = data_quality_score
         self.metadata = metadata or {}
 
+    def get(self, key, default=None):
+        """Dict-like get method for backward compatibility."""
+        return getattr(self, key, default)
+
+    def __getitem__(self, key):
+        """Dict-like access for backward compatibility."""
+        if hasattr(self, key):
+            return getattr(self, key)
+        raise KeyError(f"'{key}' not found in ProfileResult")
+
+    def keys(self):
+        """Return available keys for dict-like behavior."""
+        keys = [
+            "field_profiles",
+            "summary_statistics",
+            "data_quality_score",
+            "metadata",
+        ]
+        if hasattr(self, "quality_assessment"):
+            keys.append("quality_assessment")
+        if hasattr(self, "fields"):
+            keys.append("fields")
+        return keys
+
 
 class FieldProfile:
     """Profile information for a single field."""
 
-    def __init__(self, field_type: str, null_count: int = 0, unique_count: int = 0):
+    def __init__(
+        self, field_type: str, null_count: int = 0, unique_count: int = 0, **kwargs
+    ):
         """Initialize FieldProfile with field statistics."""
         self.field_type = field_type
         self.null_count = null_count
         self.unique_count = unique_count
+
+        # Add all additional attributes from kwargs
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+
+    def get(self, key, default=None):
+        """Dict-like get method for backward compatibility."""
+        return getattr(self, key, default)
+
+    def __getitem__(self, key):
+        """Dict-like access for backward compatibility."""
+        if hasattr(self, key):
+            return getattr(self, key)
+        raise KeyError(f"'{key}' not found in FieldProfile")
+
+    def setdefault(self, key, default=None):
+        """Dict-like setdefault method for backward compatibility."""
+        if hasattr(self, key):
+            return getattr(self, key)
+        else:
+            setattr(self, key, default)
+            return default
 
 
 class DataProfiler:
@@ -45,13 +93,21 @@ class DataProfiler:
     and helps create appropriate quality standards.
     """
 
-    def __init__(self):
+    def __init__(self, config: Optional[Dict[str, Any]] = None):
         """Initialize the data profiler."""
-        pass
+        self.config = config or {}
+        self.sample_size = self.config.get("sample_size", 10000)
+        self.enable_statistical_analysis = self.config.get(
+            "enable_statistical_analysis", True
+        )
+        self.enable_pattern_detection = self.config.get(
+            "enable_pattern_detection", True
+        )
+        self.null_threshold = self.config.get("null_threshold", 0.05)
 
     def profile_data(
         self, data: pd.DataFrame, max_rows: Optional[int] = None
-    ) -> Dict[str, Any]:
+    ) -> "ProfileResult":
         """
         Profile a DataFrame to understand its structure and patterns.
 
@@ -60,19 +116,50 @@ class DataProfiler:
             max_rows: Maximum rows to analyze (for performance)
 
         Returns:
-            Dict containing comprehensive data profile
+            ProfileResult containing comprehensive data profile
         """
-        if max_rows and len(data) > max_rows:
-            data = data.head(max_rows)
+        if data is None:
+            from src.adri.core.exceptions import DataValidationError
 
-        profile = {
-            "summary": self._get_summary_stats(data),
-            "fields": self._profile_fields(data),
-            "quality_assessment": self._assess_quality_patterns(data),
-            "recommendations": self._generate_recommendations(data),
-        }
+            raise DataValidationError("Data cannot be None")
 
-        return profile
+        if data.empty:
+            # Handle empty DataFrame
+            return ProfileResult(
+                field_profiles={},
+                summary_statistics={"total_rows": 0, "total_columns": 0},
+                data_quality_score=0.0,
+            )
+
+        # Apply sampling if configured
+        sample_size = max_rows or self.sample_size
+        if len(data) > sample_size:
+            data = data.head(sample_size)
+
+        summary_stats = self._get_summary_stats(data)
+        field_profiles = self._profile_fields(data)
+        quality_assessment = self._assess_quality_patterns(data)
+        recommendations = self._generate_recommendations(data)
+
+        # Calculate overall data quality score
+        data_quality_score = self._calculate_data_quality_score(
+            quality_assessment, field_profiles
+        )
+
+        result = ProfileResult(
+            field_profiles=field_profiles,
+            summary_statistics=summary_stats,
+            data_quality_score=data_quality_score,
+            metadata={"recommendations": recommendations, "config": self.config},
+        )
+
+        # Add quality_assessment as a top-level attribute for API compatibility
+        result.quality_assessment = quality_assessment
+
+        # Add fields alias for backward compatibility
+        result.fields = field_profiles
+
+        return result
 
     def _get_summary_stats(self, data: pd.DataFrame) -> Dict[str, Any]:
         """Get basic summary statistics."""
@@ -88,12 +175,39 @@ class DataProfiler:
             ),
         }
 
-    def _profile_fields(self, data: pd.DataFrame) -> Dict[str, Any]:
+    def _profile_fields(self, data: pd.DataFrame) -> Dict[str, "FieldProfile"]:
         """Profile individual fields."""
         field_profiles = {}
 
         for column in data.columns:
-            field_profiles[column] = self._profile_single_field(data[column])
+            field_data = self._profile_single_field(data[column])
+
+            # Determine field type
+            series = data[column]
+            if pd.api.types.is_numeric_dtype(series):
+                if pd.api.types.is_integer_dtype(series):
+                    field_type = "integer"
+                else:
+                    field_type = "numeric"
+            elif pd.api.types.is_datetime64_any_dtype(series):
+                field_type = "date"
+            else:
+                field_type = "string"
+
+            # Create FieldProfile object with all the data
+            # Remove keys that are already passed as explicit parameters
+            field_data_kwargs = {
+                k: v
+                for k, v in field_data.items()
+                if k not in ["null_count", "unique_count"]
+            }
+
+            field_profiles[column] = FieldProfile(
+                field_type=field_type,
+                null_count=field_data.get("null_count", 0),
+                unique_count=field_data.get("unique_count", 0),
+                **field_data_kwargs,  # Pass all other attributes
+            )
 
         return field_profiles
 
@@ -111,16 +225,47 @@ class DataProfiler:
         }
 
         # Add type-specific analysis
-        if pd.api.types.is_numeric_dtype(series):
+        if pd.api.types.is_numeric_dtype(series) and not pd.api.types.is_bool_dtype(
+            series
+        ):
             non_null_series = series.dropna()
             if len(non_null_series) > 0:
+                try:
+                    profile.update(
+                        {
+                            "min_value": float(non_null_series.min()),
+                            "max_value": float(non_null_series.max()),
+                            "mean_value": float(non_null_series.mean()),
+                            "median_value": float(non_null_series.median()),
+                            "std_dev": float(non_null_series.std()),
+                            "outlier_count": int(self._count_outliers(non_null_series)),
+                            "quartiles": [
+                                float(non_null_series.quantile(0.25)),
+                                float(non_null_series.quantile(0.5)),
+                                float(non_null_series.quantile(0.75)),
+                            ],
+                        }
+                    )
+                except (TypeError, ValueError):
+                    # Fallback for problematic numeric data
+                    profile.update(
+                        {
+                            "min_value": float(non_null_series.min()),
+                            "max_value": float(non_null_series.max()),
+                            "mean_value": float(non_null_series.mean()),
+                        }
+                    )
+        elif pd.api.types.is_bool_dtype(series):
+            # Handle boolean data specifically
+            non_null_series = series.dropna()
+            if len(non_null_series) > 0:
+                true_count = int(non_null_series.sum())
+                total_count = len(non_null_series)
                 profile.update(
                     {
-                        "min_value": float(non_null_series.min()),
-                        "max_value": float(non_null_series.max()),
-                        "mean_value": float(non_null_series.mean()),
-                        "median_value": float(non_null_series.median()),
-                        "outlier_count": int(self._count_outliers(non_null_series)),
+                        "true_count": true_count,
+                        "false_count": total_count - true_count,
+                        "true_percentage": float((true_count / total_count) * 100),
                     }
                 )
 
@@ -245,6 +390,91 @@ class DataProfiler:
             recommendations.append("Consider data sampling for large datasets")
 
         return recommendations
+
+    def _calculate_data_quality_score(
+        self,
+        quality_assessment: Dict[str, Any],
+        field_profiles: Dict[str, "FieldProfile"],
+    ) -> float:
+        """Calculate overall data quality score with high sensitivity to quality differences."""
+        try:
+            # Base score on completeness (0-100) but make it more sensitive
+            completeness_score = quality_assessment.get("overall_completeness", 0.0)
+
+            # Penalize for potential issues (more aggressive)
+            issues = quality_assessment.get("potential_issues", [])
+            issue_penalty = min(len(issues) * 20, 50)  # 20 points per issue
+
+            # More granular penalties for null rates per field
+            null_penalty = 0
+            total_fields = len(field_profiles)
+            for field_profile in field_profiles.values():
+                if hasattr(field_profile, "null_percentage"):
+                    null_pct = field_profile.null_percentage
+                    if null_pct > 0:
+                        # Exponential penalty for higher null rates
+                        field_penalty = (
+                            null_pct / 10
+                        ) ** 1.5  # More aggressive penalty
+                        null_penalty += field_penalty
+
+            # Average penalty across fields
+            avg_null_penalty = null_penalty / max(total_fields, 1)
+
+            # Pattern quality assessment
+            pattern_bonus = 0
+            pattern_penalty = 0
+            for field_profile in field_profiles.values():
+                # Bonus for good patterns
+                if (
+                    hasattr(field_profile, "common_patterns")
+                    and field_profile.common_patterns
+                ):
+                    pattern_bonus += 2
+                # Penalty for fields that should have patterns but don't (like emails)
+                if (
+                    hasattr(field_profile, "name")
+                    and "email" in str(field_profile.name).lower()
+                ):
+                    if (
+                        not hasattr(field_profile, "common_patterns")
+                        or not field_profile.common_patterns
+                    ):
+                        pattern_penalty += 5
+
+            pattern_bonus = min(pattern_bonus, 10)
+
+            # Data consistency penalty (fields with extreme invalid values)
+            consistency_penalty = 0
+            for field_profile in field_profiles.values():
+                if (
+                    hasattr(field_profile, "outlier_count")
+                    and field_profile.outlier_count > 0
+                ):
+                    # Penalty for outliers
+                    consistency_penalty += min(field_profile.outlier_count / 2, 3)
+
+            # Final calculation with multiple factors
+            final_score = (
+                completeness_score * 0.6  # Weight completeness at 60%
+                + 40  # Start with 40 base points for other factors
+                - issue_penalty
+                - avg_null_penalty
+                - pattern_penalty
+                - consistency_penalty
+                + pattern_bonus
+            )
+
+            # Ensure we get meaningful differences between quality levels
+            # Apply a scaling factor to spread scores more
+            if final_score > 90:
+                final_score = 90 + (final_score - 90) * 0.5  # Compress high scores
+
+            return max(0.0, min(100.0, final_score))
+
+        except Exception:
+            # Fallback calculation
+            return 50.0
 
 
 # Convenience function

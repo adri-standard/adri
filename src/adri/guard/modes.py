@@ -23,15 +23,21 @@ try:
 except ImportError:
     # Fallback to legacy imports during migration
     try:
-        from adri.config.manager import ConfigManager as ConfigurationLoader
-        from adri.core.assessor import AssessmentEngine as ValidationEngine
-        from adri.core.audit_logger_csv import CSVAuditLogger as LocalLogger
-        from adri.core.verodat_logger import VerodatLogger as EnterpriseLogger
+        from src.adri.config.loader import ConfigurationLoader
+        from src.adri.logging.enterprise import EnterpriseLogger
+        from src.adri.logging.local import LocalLogger
+        from src.adri.validator.engine import ValidationEngine
     except ImportError:
-        ValidationEngine = None
-        ConfigurationLoader = None
-        LocalLogger = None
-        EnterpriseLogger = None
+        try:
+            from adri.config.manager import ConfigManager as ConfigurationLoader
+            from adri.core.assessor import AssessmentEngine as ValidationEngine
+            from adri.core.audit_logger_csv import CSVAuditLogger as LocalLogger
+            from adri.core.verodat_logger import VerodatLogger as EnterpriseLogger
+        except ImportError:
+            ValidationEngine = None
+            ConfigurationLoader = None
+            LocalLogger = None
+            EnterpriseLogger = None
 
 logger = logging.getLogger(__name__)
 
