@@ -35,7 +35,7 @@ jobs:
     - name: Run tests with pytest
       run: |
         python -c "import os; os.makedirs('tests/coverage', exist_ok=True)"
-        pytest --cov=adri --cov-report=term-missing --cov-report=xml:tests/coverage/coverage.xml
+        pytest --cov=src/adri --cov-report=term-missing --cov-report=xml:tests/coverage/coverage.xml --cov-fail-under=80
 
     - name: Upload coverage to Codecov
       if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.11'
