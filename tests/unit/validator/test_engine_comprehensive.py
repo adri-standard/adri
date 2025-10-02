@@ -574,7 +574,7 @@ class TestValidatorEngineComprehensive:
             assert result.overall_score >= 0
 
         # Use centralized threshold for validator engine batch processing performance
-        assert_performance(sequential_duration, "micro", "validation_simple", "Validator engine batch processing (5x1000 rows)")
+        assert_performance(sequential_duration, "small", "validation_multiple", "Validator engine batch processing (5x1000 rows)")
 
         self.component_tester.record_test_execution(TestCategory.PERFORMANCE, True)
 
