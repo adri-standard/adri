@@ -86,6 +86,8 @@ def safe_temp_directory():
     """Create a safe temporary directory with robust cleanup for CI environments."""
     import tempfile
     import shutil
+    import time
+    import gc
 
     temp_dir = tempfile.mkdtemp(prefix="adri_test_")
     original_cwd = None
@@ -109,12 +111,30 @@ def safe_temp_directory():
             # Fallback to a safe directory
             os.chdir("/tmp" if os.path.exists("/tmp") else ".")
 
-        # Clean up temp directory
-        try:
-            if os.path.exists(temp_dir):
-                shutil.rmtree(temp_dir, ignore_errors=True)
-        except (OSError, PermissionError):
-            pass  # Ignore cleanup errors in CI
+        # Enhanced Windows-safe cleanup
+        if os.path.exists(temp_dir):
+            # Force garbage collection to release file handles on Windows
+            gc.collect()
+
+            # Give Windows time to release file handles
+            time.sleep(0.1)
+
+            # Multiple cleanup attempts for Windows
+            for attempt in range(3):
+                try:
+                    # First try: standard removal
+                    shutil.rmtree(temp_dir, ignore_errors=False)
+                    break
+                except (OSError, PermissionError):
+                    if attempt < 2:  # Not the last attempt
+                        time.sleep(0.2)  # Wait longer between attempts
+                        gc.collect()  # Try to release handles again
+                    else:
+                        # Final attempt: force removal with ignore_errors
+                        try:
+                            shutil.rmtree(temp_dir, ignore_errors=True)
+                        except:
+                            pass  # Ultimate fallback - ignore all errors
 
 
 @pytest.fixture
