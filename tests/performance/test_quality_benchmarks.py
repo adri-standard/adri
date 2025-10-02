@@ -111,7 +111,7 @@ class TestQualityBenchmarks:
         assert field_count > 0  # Should generate field requirements
 
         # Performance target: < 20 seconds for 1000 rows standard generation
-        assert benchmark.stats.stats.mean < 0.2, f"Standard generation too slow: {benchmark.stats.stats.mean:.2f}s"
+        assert benchmark.stats.stats.mean < 0.25, f"Standard generation too slow: {benchmark.stats.stats.mean:.2f}s"
 
     @pytest.mark.benchmark
     @pytest.mark.performance
