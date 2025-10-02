@@ -12,12 +12,63 @@ import os
 import sys
 import tempfile
 import time
+import shutil
+import gc
 from pathlib import Path
 from unittest.mock import Mock, patch, MagicMock
 import pytest
 import pandas as pd
 import yaml
 import json
+
+
+def safe_rmtree(path, max_retries=3, delay=0.1):
+    """Windows-safe recursive directory removal with retries."""
+    for attempt in range(max_retries):
+        try:
+            if os.path.exists(path):
+                # Force garbage collection to release file handles
+                gc.collect()
+
+                # Try different removal strategies
+                if os.name == 'nt':  # Windows
+                    import subprocess
+                    try:
+                        subprocess.run(['rmdir', '/s', '/q', path],
+                                     shell=True, check=False, capture_output=True)
+                        if not os.path.exists(path):
+                            return
+                    except:
+                        pass
+
+                # Fallback to shutil with error handling
+                shutil.rmtree(path, ignore_errors=True)
+
+                if not os.path.exists(path):
+                    return
+
+            else:
+                return  # Directory doesn't exist, success
+
+        except (OSError, PermissionError) as e:
+            if attempt == max_retries - 1:
+                # Final attempt failed, but don't raise error for tearDown
+                try:
+                    # Try to at least make files writable for later cleanup
+                    for root, dirs, files in os.walk(path, topdown=False):
+                        for name in files:
+                            try:
+                                filepath = os.path.join(root, name)
+                                os.chmod(filepath, 0o777)
+                            except:
+                                pass
+                except:
+                    pass
+                return  # Don't raise in tearDown
+
+            # Wait before retrying
+            time.sleep(delay * (attempt + 1))
+            gc.collect()
 
 # Modern imports only - no legacy patterns
 from src.adri.decorator import adri_protected

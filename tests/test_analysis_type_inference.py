@@ -10,6 +10,7 @@ import os
 import shutil
 import time
 import threading
+import gc
 from datetime import datetime, date
 from pathlib import Path
 from unittest.mock import patch, Mock, MagicMock
@@ -24,6 +25,55 @@ from src.adri.analysis.type_inference import (
 )
 
 
+def safe_rmtree(path, max_retries=3, delay=0.1):
+    """Windows-safe recursive directory removal with retries."""
+    for attempt in range(max_retries):
+        try:
+            if os.path.exists(path):
+                # Force garbage collection to release file handles
+                gc.collect()
+
+                # Try different removal strategies
+                if os.name == 'nt':  # Windows
+                    import subprocess
+                    try:
+                        subprocess.run(['rmdir', '/s', '/q', path],
+                                     shell=True, check=False, capture_output=True)
+                        if not os.path.exists(path):
+                            return
+                    except:
+                        pass
+
+                # Fallback to shutil with error handling
+                shutil.rmtree(path, ignore_errors=True)
+
+                if not os.path.exists(path):
+                    return
+
+            else:
+                return  # Directory doesn't exist, success
+
+        except (OSError, PermissionError) as e:
+            if attempt == max_retries - 1:
+                # Final attempt failed, but don't raise error for tearDown
+                try:
+                    # Try to at least make files writable for later cleanup
+                    for root, dirs, files in os.walk(path, topdown=False):
+                        for name in files:
+                            try:
+                                filepath = os.path.join(root, name)
+                                os.chmod(filepath, 0o777)
+                            except:
+                                pass
+                except:
+                    pass
+                return  # Don't raise in tearDown
+
+            # Wait before retrying
+            time.sleep(delay * (attempt + 1))
+            gc.collect()
+
+
 class TestTypeInferenceIntegration(unittest.TestCase):
     """Test complete type inference workflow integration (30% weight in quality score)."""
 
@@ -34,7 +84,7 @@ class TestTypeInferenceIntegration(unittest.TestCase):
 
     def tearDown(self):
         """Clean up test environment."""
-        shutil.rmtree(self.temp_dir)
+        safe_rmtree(self.temp_dir)
 
     def test_complete_type_inference_workflow(self):
         """Test end-to-end type inference workflow with comprehensive data types."""
@@ -349,7 +399,7 @@ class TestTypeInferenceErrorHandling(unittest.TestCase):
 
     def tearDown(self):
         """Clean up test environment."""
-        shutil.rmtree(self.temp_dir)
+        safe_rmtree(self.temp_dir)
 
     def test_empty_data_error_handling(self):
         """Test handling of empty data structures."""
@@ -560,7 +610,7 @@ class TestTypeInferencePerformance(unittest.TestCase):
 
     def tearDown(self):
         """Clean up test environment."""
-        shutil.rmtree(self.temp_dir)
+        safe_rmtree(self.temp_dir)
 
     @pytest.mark.benchmark(group="type_inference")
     def test_large_dataset_inference_performance(self, benchmark=None):
@@ -751,7 +801,7 @@ class TestTypeInferenceEdgeCases(unittest.TestCase):
 
     def tearDown(self):
         """Clean up test environment."""
-        shutil.rmtree(self.temp_dir)
+        safe_rmtree(self.temp_dir)
 
     def test_single_value_series_edge_cases(self):
         """Test type inference with single-value series."""
