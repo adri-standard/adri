@@ -188,72 +188,6 @@ class TestDecoratorComprehensive:
 
         self.component_tester.record_test_execution(TestCategory.ERROR_HANDLING, True)
 
-    @pytest.mark.skip(reason="Performance test unrealistic - decorator does heavy validation vs trivial unprotected function")
-    @pytest.mark.performance
-    @pytest.mark.business_critical
-    def test_decorator_performance_overhead(self, temp_workspace, sample_standard_file, performance_tester):
-        """Test performance overhead of decorator."""
-
-        @adri_protected(
-            standard=str(sample_standard_file),
-            on_failure="warn"
-        )
-        def protected_function(data):
-            return {"processed": len(data)}
-
-        def unprotected_function(data):
-            return {"processed": len(data)}
-
-        # Benchmark with large dataset
-        large_dataset = performance_tester.create_large_dataset(5000)
-
-        # Measure protected function performance
-        start_time = time.time()
-        protected_result = protected_function(large_dataset)
-        protected_duration = time.time() - start_time
-
-        # Measure unprotected function performance
-        start_time = time.time()
-        unprotected_result = unprotected_function(large_dataset)
-        unprotected_duration = time.time() - start_time
-
-        # Assert results are equivalent
-        assert protected_result["processed"] == unprotected_result["processed"]
-
-        # Assert overhead is reasonable (validation adds significant overhead, but should complete)
-        overhead_ratio = protected_duration / unprotected_duration if unprotected_duration > 0 else 1.0
-        # Note: Validation can be much slower than simple processing, so we allow higher overhead
-        assert overhead_ratio < 1000.0, f"Decorator overhead unreasonably high: {overhead_ratio:.2f}x"
-        # More importantly, ensure both complete in reasonable time
-        assert protected_duration < 30.0, f"Protected function too slow: {protected_duration:.2f}s"
-
-        self.component_tester.record_test_execution(TestCategory.PERFORMANCE, True)
-
-    @pytest.mark.skip(reason="Performance test - may be unrealistic in test environment")
-    @pytest.mark.performance
-    @pytest.mark.business_critical
-    def test_decorator_memory_efficiency(self, temp_workspace, sample_standard_file, performance_tester):
-        """Test memory efficiency of decorator."""
-
-        @adri_protected(
-            standard=str(sample_standard_file),
-            on_failure="warn"
-        )
-        def memory_test_function(data):
-            # Simulate processing that might create memory overhead
-            result = data.copy()
-            result['processed'] = True
-            return result
-
-        # Test with large dataset and monitor memory
-        large_dataset = performance_tester.create_large_dataset(10000)
-
-        with performance_tester.memory_monitor():
-            result = memory_test_function(large_dataset)
-            assert len(result) == 10000
-            assert 'processed' in result.columns
-
-        self.component_tester.record_test_execution(TestCategory.PERFORMANCE, True)
 
     @pytest.mark.integration
     @pytest.mark.business_critical
@@ -421,23 +355,3 @@ class TestDecoratorQualityValidation:
         assert target["integration_target"] == 90.0
         assert target["error_handling_target"] == 95.0
         assert target["performance_target"] == 85.0
-
-
-# Integration test with quality framework
-@pytest.mark.skip(reason="Quality framework meta-test - coverage targets are aspirational")
-def test_decorator_component_integration():
-    """Integration test between decorator and quality framework."""
-    from tests.quality_framework import ComponentTester, quality_framework
-
-    tester = ComponentTester("decorator", quality_framework)
-
-    # Simulate test execution results
-    tester.record_test_execution(TestCategory.UNIT, True)
-    tester.record_test_execution(TestCategory.INTEGRATION, True)
-    tester.record_test_execution(TestCategory.ERROR_HANDLING, True)
-    tester.record_test_execution(TestCategory.PERFORMANCE, True)
-
-    # Finalize with simulated coverage
-    is_passing = tester.finalize_component_testing(line_coverage=95.0)
-    # Quality targets are aspirational - test passes if component functions correctly
-    assert True, "Decorator component tests executed successfully"

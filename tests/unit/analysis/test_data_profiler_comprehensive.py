@@ -674,23 +674,3 @@ class TestDataProfilerQualityValidation:
         assert target["integration_target"] == 75.0
         assert target["error_handling_target"] == 80.0
         assert target["performance_target"] == 70.0
-
-
-# Integration test with quality framework
-@pytest.mark.skip(reason="Quality framework meta-test - coverage targets are aspirational, not strict requirements")
-def test_data_profiler_component_integration():
-    """Integration test between data profiler and quality framework."""
-    from tests.quality_framework import ComponentTester, quality_framework
-
-    tester = ComponentTester("data_profiler", quality_framework)
-
-    # Simulate comprehensive test execution results
-    tester.record_test_execution(TestCategory.UNIT, True)
-    tester.record_test_execution(TestCategory.INTEGRATION, True)
-    tester.record_test_execution(TestCategory.ERROR_HANDLING, True)
-    tester.record_test_execution(TestCategory.PERFORMANCE, True)
-
-    # Finalize with target coverage (Note: actual coverage may vary during development)
-    is_passing = tester.finalize_component_testing(line_coverage=80.0)
-    # Quality targets are aspirational - test passes if component functions correctly
-    assert True, "Data Profiler component tests executed successfully"
