@@ -7,6 +7,7 @@ Migrated from adri/core/assessor.py for the new src/ layout.
 
 import os
 import time
+from dataclasses import dataclass
 from typing import Any, Dict, List, Optional
 
 import pandas as pd
@@ -15,6 +16,92 @@ from ..logging.enterprise import VerodatLogger
 
 # Clean imports for new modular architecture
 from ..logging.local import CSVAuditLogger
+
+
+@dataclass
+class ThresholdInfo:
+    """Information about how threshold was resolved."""
+
+    value: float
+    source: str  # "standard_overall_minimum", "config_default", "parameter_override"
+    standard_path: Optional[str] = None
+
+
+class ThresholdResolver:
+    """Centralized threshold resolution logic for CLI and decorator consistency."""
+
+    @staticmethod
+    def resolve_assessment_threshold(
+        standard_path: Optional[str] = None,
+        min_score_override: Optional[float] = None,
+        config: Optional[Dict[str, Any]] = None,
+    ) -> ThresholdInfo:
+        """
+        Resolve assessment threshold with consistent priority order.
+
+        Priority order:
+        1. Explicit min_score parameter override
+        2. Standard file overall_minimum value
+        3. Configuration default_min_score
+        4. Hardcoded fallback (75.0)
+
+        Args:
+            standard_path: Path to YAML standard file
+            min_score_override: Explicit threshold override
+            config: Configuration dictionary
+
+        Returns:
+            ThresholdInfo with resolved value and source
+        """
+        # Priority 1: Explicit parameter override
+        if min_score_override is not None:
+            return ThresholdInfo(
+                value=float(min_score_override),
+                source="parameter_override",
+                standard_path=standard_path,
+            )
+
+        # Priority 2: Standard file overall_minimum
+        if standard_path:
+            try:
+                from .loaders import load_standard
+
+                standard_dict = load_standard(standard_path)
+                overall_minimum = standard_dict.get("requirements", {}).get(
+                    "overall_minimum"
+                )
+                if overall_minimum is not None:
+                    threshold = float(overall_minimum)
+                    # Clamp to valid range [0, 100]
+                    threshold = max(0.0, min(100.0, threshold))
+                    return ThresholdInfo(
+                        value=threshold,
+                        source="standard_overall_minimum",
+                        standard_path=standard_path,
+                    )
+            except Exception:
+                # Standard loading failed, continue to config fallback
+                pass
+
+        # Priority 3: Configuration default_min_score
+        if config:
+            default_min_score = config.get("default_min_score")
+            if default_min_score is not None:
+                try:
+                    threshold = float(default_min_score)
+                    threshold = max(0.0, min(100.0, threshold))
+                    return ThresholdInfo(
+                        value=threshold,
+                        source="config_default",
+                        standard_path=standard_path,
+                    )
+                except (ValueError, TypeError):
+                    pass
+
+        # Priority 4: Hardcoded fallback
+        return ThresholdInfo(
+            value=75.0, source="hardcoded_fallback", standard_path=standard_path
+        )
 
 
 class BundledStandardWrapper:
@@ -69,6 +156,8 @@ class AssessmentResult:
         standard_id: Optional[str] = None,
         assessment_date=None,
         metadata: Optional[Dict[str, Any]] = None,
+        assessment_source: str = "unknown",
+        threshold_info: Optional[ThresholdInfo] = None,
     ):
         """Initialize assessment result with scores and metadata."""
         self.overall_score = overall_score
@@ -79,6 +168,10 @@ class AssessmentResult:
         self.metadata = metadata or {}
         self.rule_execution_log: List[Any] = []
         self.field_analysis: Dict[str, Any] = {}
+
+        # Enhanced tracking for issue #35 debugging
+        self.assessment_source = assessment_source  # "cli" or "decorator"
+        self.threshold_info = threshold_info
 
     def add_rule_execution(self, rule_result):
         """Add a rule execution result to the assessment."""

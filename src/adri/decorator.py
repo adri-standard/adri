@@ -115,6 +115,22 @@ def adri_protected(
                 # Initialize protection engine
                 engine = DataProtectionEngine()
 
+                # Check if standard is a file path or just a name
+                import os
+
+                if standard and (
+                    standard.endswith(".yaml")
+                    or standard.endswith(".yml")
+                    or os.path.exists(standard)
+                ):
+                    # It's a file path
+                    standard_file = standard
+                    standard_name = None
+                else:
+                    # It's a standard name
+                    standard_file = None
+                    standard_name = standard
+
                 # Protect the function call
                 return engine.protect_function_call(
                     func=func,
@@ -122,7 +138,8 @@ def adri_protected(
                     kwargs=kwargs,
                     data_param=data_param,
                     function_name=func.__name__,
-                    standard_name=standard,
+                    standard_file=standard_file,
+                    standard_name=standard_name,
                     min_score=min_score,
                     dimensions=dimensions,
                     on_failure=on_failure,
