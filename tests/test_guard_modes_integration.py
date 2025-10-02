@@ -79,7 +79,7 @@ class TestProtectionModesRealScenarios(unittest.TestCase):
             }
 
         # Test with high-quality financial data - should pass
-        with patch('src.adri.guard.modes.ValidationEngine') as mock_engine_class:
+        with patch('src.adri.guard.modes.DataQualityAssessor') as mock_engine_class:
             mock_engine = Mock()
             mock_result = Mock()
             mock_result.overall_score = 92.0  # High quality score

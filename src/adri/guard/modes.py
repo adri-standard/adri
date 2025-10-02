@@ -18,6 +18,7 @@ import pandas as pd
 from ..config.loader import ConfigurationLoader
 from ..logging.enterprise import EnterpriseLogger
 from ..logging.local import LocalLogger
+from ..validator.engine import DataQualityAssessor
 
 logger = logging.getLogger(__name__)
 
@@ -488,8 +489,6 @@ class DataProtectionEngine:
 
     def _assess_data_quality(self, data: Any, standard_path: str) -> Any:
         """Assess data quality against a standard using same engine as CLI."""
-        from ..validator.engine import DataQualityAssessor
-
         # Convert data to DataFrame if needed (same logic as CLI)
         if not isinstance(data, pd.DataFrame):
             if isinstance(data, list):
