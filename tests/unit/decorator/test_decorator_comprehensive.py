@@ -291,7 +291,6 @@ class TestDecoratorComprehensive:
 
         self.component_tester.record_test_execution(TestCategory.INTEGRATION, True)
 
-    @pytest.mark.skip(reason="ValidationError not imported - needs API investigation")
     @pytest.mark.error_handling
     @pytest.mark.business_critical
     def test_decorator_edge_case_handling(self, temp_workspace, sample_standard_file):
