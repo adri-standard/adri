@@ -244,7 +244,7 @@ class TestProtectionModesEdgeCases(unittest.TestCase):
             42  # Number that can't be converted
         ]
 
-        with patch('src.adri.guard.modes.ValidationEngine') as mock_engine_class:
+        with patch('src.adri.guard.modes.DataQualityAssessor') as mock_engine_class:
             mock_engine = Mock()
             mock_result = Mock()
             mock_result.overall_score = 85.0

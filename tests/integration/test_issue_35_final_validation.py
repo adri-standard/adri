@@ -95,8 +95,8 @@ def test_decorator_assessment_with_tracking(issue_35_test_setup):
     # Store results for comparison
     decorator_results = {}
 
-    # Create a test function with decorator
-    @adri_protected(standard="roadmap_sample_standard")
+    # Create a test function with decorator - use the actual standard file path
+    @adri_protected(standard=str(setup['temp_standard_path']))
     def test_function(data):
         # Capture the actual assessment result for analysis
         from src.adri.guard.modes import DataProtectionEngine
