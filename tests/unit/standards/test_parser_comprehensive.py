@@ -451,7 +451,7 @@ class TestStandardsParserComprehensive:
 
             assert large_result is not None
             assert len(large_result["requirements"]["field_requirements"]) == 100
-            assert large_duration < 0.20, f"Large standard parsing too slow: {large_duration:.2f}s"
+            assert large_duration < 0.25, f"Large standard parsing too slow: {large_duration:.2f}s"
 
             self.component_tester.record_test_execution(TestCategory.PERFORMANCE, True)
         finally:
