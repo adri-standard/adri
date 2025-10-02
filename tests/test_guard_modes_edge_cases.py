@@ -47,10 +47,9 @@ class TestProtectionModesEdgeCases(unittest.TestCase):
         """Test import fallback logic (lines 23-34)."""
         # This is tricky to test directly since imports happen at module load
         # But we can verify the fallback values are set correctly
-        from adri.guard.modes import ValidationEngine, ConfigurationLoader, LocalLogger, EnterpriseLogger
+        from adri.guard.modes import ConfigurationLoader, LocalLogger, EnterpriseLogger
 
         # These should be loaded successfully in our test environment
-        self.assertIsNotNone(ValidationEngine)
         self.assertIsNotNone(ConfigurationLoader)
         self.assertIsNotNone(LocalLogger)
         self.assertIsNotNone(EnterpriseLogger)

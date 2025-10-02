@@ -1,0 +1,46 @@
+standards:
+  id: "issue_35_test"
+  name: "Issue 35 Test Standard"
+  version: "1.0.0"
+  authority: "ADRI Framework"
+  description: "Test standard for validating Issue #35 CLI/decorator consistency fix"
+
+requirements:
+  overall_minimum: 75.0
+  field_requirements:
+    customer_id:
+      type: "string"
+      nullable: false
+      description: "Unique customer identifier"
+    customer_name:
+      type: "string"
+      nullable: false
+      description: "Customer full name"
+    email:
+      type: "string"
+      nullable: false
+      pattern: "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+      description: "Customer email address"
+    age:
+      type: "integer"
+      nullable: true
+      min_value: 18
+      max_value: 120
+      description: "Customer age"
+    account_balance:
+      type: "number"
+      nullable: true
+      min_value: 0.0
+      description: "Customer account balance"
+
+  dimension_requirements:
+    validity:
+      minimum_score: 15.0
+    completeness:
+      minimum_score: 15.0
+    consistency:
+      minimum_score: 12.0
+    freshness:
+      minimum_score: 15.0
+    plausibility:
+      minimum_score: 12.0
