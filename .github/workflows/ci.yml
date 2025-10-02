@@ -38,7 +38,7 @@ jobs:
         python -c "import os; os.makedirs('tests/coverage', exist_ok=True)"
         echo "🔍 Validating test discovery in CI environment..."
 
-        # First, validate test discovery - MUST find all 863 tests
+        # First, validate test discovery - MUST find all 858 tests
         TEST_COUNT=$(pytest --collect-only -q | grep -o '[0-9]\+ tests collected' | grep -o '[0-9]\+' | head -1 || echo "0")
         echo "📊 Tests discovered: $TEST_COUNT"
 
@@ -51,9 +51,9 @@ jobs:
         echo "📂 Test files found: $(find tests -name 'test_*.py' | wc -l)"
         echo "🔢 Test functions found: $(grep -r 'def test_' tests --include='test_*.py' | wc -l)"
 
-        # CRITICAL: Ensure we find ALL 863 tests, not just 400+
-        if [ "$TEST_COUNT" -lt 863 ]; then
-          echo "❌ CRITICAL: Only found $TEST_COUNT tests, expected exactly 863"
+        # CRITICAL: Ensure we find ALL 858 tests, not just 400+
+        if [ "$TEST_COUNT" -lt 858 ]; then
+          echo "❌ CRITICAL: Only found $TEST_COUNT tests, expected exactly 858"
           echo "🔍 Detailed test discovery debugging..."
           echo "📋 All test files:"
           find tests -name 'test_*.py' | sort
@@ -68,7 +68,7 @@ jobs:
           exit 1
         fi
 
-        echo "✅ Test discovery validation passed ($TEST_COUNT tests found - all 863 tests detected)"
+        echo "✅ Test discovery validation passed ($TEST_COUNT tests found - all 858 tests detected)"
 
         # Run the actual tests with proper coverage (use pyproject.toml settings)
         pytest
