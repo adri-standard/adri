@@ -14,30 +14,11 @@ from typing import Any, Callable, Dict, Optional
 
 import pandas as pd
 
-# Updated imports for new structure - with fallbacks during migration
-try:
-    from ..config.loader import ConfigurationLoader
-    from ..logging.enterprise import EnterpriseLogger
-    from ..logging.local import LocalLogger
-    from ..validator.engine import ValidationEngine
-except ImportError:
-    # Fallback to legacy imports during migration
-    try:
-        from src.adri.config.loader import ConfigurationLoader
-        from src.adri.logging.enterprise import EnterpriseLogger
-        from src.adri.logging.local import LocalLogger
-        from src.adri.validator.engine import ValidationEngine
-    except ImportError:
-        try:
-            from adri.config.manager import ConfigManager as ConfigurationLoader
-            from adri.core.assessor import AssessmentEngine as ValidationEngine
-            from adri.core.audit_logger_csv import CSVAuditLogger as LocalLogger
-            from adri.core.verodat_logger import VerodatLogger as EnterpriseLogger
-        except ImportError:
-            ValidationEngine = None
-            ConfigurationLoader = None
-            LocalLogger = None
-            EnterpriseLogger = None
+# Clean imports for modular architecture
+from ..config.loader import ConfigurationLoader
+from ..logging.enterprise import EnterpriseLogger
+from ..logging.local import LocalLogger
+from ..validator.engine import DataQualityAssessor
 
 logger = logging.getLogger(__name__)
 
@@ -283,12 +264,24 @@ class DataProtectionEngine:
             ValueError: If data parameter is not found
             ProtectionError: If data quality is insufficient (fail-fast mode)
         """
-        # Apply configuration defaults
-        min_score = (
-            min_score
-            if min_score is not None
-            else self.protection_config.get("default_min_score", 80)
+        # Use unified threshold resolution for consistency with CLI
+        from ..validator.engine import ThresholdResolver
+
+        # Resolve standard file path from standard name if needed
+        resolved_standard_path = self._resolve_standard_file_path(standard_name)
+
+        # Apply unified threshold resolution
+        threshold_info = ThresholdResolver.resolve_assessment_threshold(
+            standard_path=resolved_standard_path,
+            min_score_override=min_score,
+            config=self.protection_config,
         )
+        min_score = threshold_info.value
+
+        if verbose:
+            self.logger.info(
+                f"Threshold resolved: {threshold_info.value} from {threshold_info.source}"
+            )
         verbose = (
             verbose
             if verbose is not None
@@ -495,11 +488,8 @@ class DataProtectionEngine:
             yaml.dump(standard, f, default_flow_style=False, sort_keys=False)
 
     def _assess_data_quality(self, data: Any, standard_path: str) -> Any:
-        """Assess data quality against a standard."""
-        if not ValidationEngine:
-            raise ProtectionError("Validation engine not available")
-
-        # Convert data to DataFrame if needed
+        """Assess data quality against a standard using same engine as CLI."""
+        # Convert data to DataFrame if needed (same logic as CLI)
         if not isinstance(data, pd.DataFrame):
             if isinstance(data, list):
                 df = pd.DataFrame(data)
@@ -511,9 +501,15 @@ class DataProtectionEngine:
         else:
             df = data
 
-        # Run assessment
-        engine = ValidationEngine()
-        return engine.assess(df, standard_path)
+        # Use the same assessor as CLI for identical scoring logic
+        assessor = DataQualityAssessor()
+        result = assessor.assess(df, standard_path)
+
+        # Mark the result with decorator source for debugging
+        if hasattr(result, "assessment_source"):
+            result.assessment_source = "decorator"
+
+        return result
 
     def _check_dimension_requirements(
         self, assessment_result: Any, dimensions: Dict[str, float]
@@ -552,6 +548,32 @@ class DataProtectionEngine:
         ]
 
         return "\n".join(message_lines)
+
+    def _resolve_standard_file_path(
+        self, standard_name: Optional[str]
+    ) -> Optional[str]:
+        """Resolve standard name to file path for threshold resolution."""
+        if not standard_name:
+            return None
+
+        # Check if it's already a file path
+        if standard_name.endswith(".yaml") or standard_name.endswith(".yml"):
+            if os.path.exists(standard_name):
+                return standard_name
+
+        # Try common standard directories
+        potential_paths = [
+            f"{standard_name}.yaml",
+            f"standards/{standard_name}.yaml",
+            f"ADRI/standards/{standard_name}.yaml",
+            f"examples/standards/{standard_name}.yaml",
+        ]
+
+        for path in potential_paths:
+            if os.path.exists(path):
+                return path
+
+        return None
 
     def _format_success_message(
         self,

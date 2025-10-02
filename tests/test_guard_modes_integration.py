@@ -79,7 +79,7 @@ class TestProtectionModesRealScenarios(unittest.TestCase):
             }
 
         # Test with high-quality financial data - should pass
-        with patch('src.adri.guard.modes.ValidationEngine') as mock_engine_class:
+        with patch('src.adri.guard.modes.DataQualityAssessor') as mock_engine_class:
             mock_engine = Mock()
             mock_result = Mock()
             mock_result.overall_score = 92.0  # High quality score
@@ -133,7 +133,7 @@ class TestProtectionModesRealScenarios(unittest.TestCase):
             }
 
         # Test with poor quality data - should continue with warnings
-        with patch('src.adri.guard.modes.ValidationEngine') as mock_engine_class:
+        with patch('src.adri.guard.modes.DataQualityAssessor') as mock_engine_class:
             mock_engine = Mock()
             mock_result = Mock()
             mock_result.overall_score = 65.0  # Low quality score
@@ -183,7 +183,7 @@ class TestProtectionModesRealScenarios(unittest.TestCase):
             }
 
         # Test with extremely poor data - should still continue
-        with patch('src.adri.guard.modes.ValidationEngine') as mock_engine_class:
+        with patch('src.adri.guard.modes.DataQualityAssessor') as mock_engine_class:
             mock_engine = Mock()
             mock_result = Mock()
             mock_result.overall_score = 25.0  # Very low quality score
@@ -254,7 +254,7 @@ class TestDataProtectionEngineComprehensive(unittest.TestCase):
             }
 
         # Test auto-generation when standard doesn't exist
-        with patch('src.adri.guard.modes.ValidationEngine') as mock_engine_class:
+        with patch('src.adri.guard.modes.DataQualityAssessor') as mock_engine_class:
             with patch('os.path.exists', return_value=False):  # Standard doesn't exist
                 with patch('os.makedirs') as mock_makedirs:
                     with patch('builtins.open', create=True) as mock_open:
@@ -314,7 +314,7 @@ class TestDataProtectionEngineComprehensive(unittest.TestCase):
             return base_result
 
         # Test with complex parameter passing
-        with patch('src.adri.guard.modes.ValidationEngine') as mock_engine_class:
+        with patch('src.adri.guard.modes.DataQualityAssessor') as mock_engine_class:
             mock_engine = Mock()
             mock_result = Mock()
             mock_result.overall_score = 88.0
@@ -402,7 +402,7 @@ class TestDataProtectionEngineComprehensive(unittest.TestCase):
         def failing_function(data):
             raise ValueError("Function execution failed")
 
-        with patch('src.adri.guard.modes.ValidationEngine') as mock_engine_class:
+        with patch('src.adri.guard.modes.DataQualityAssessor') as mock_engine_class:
             mock_engine = Mock()
             mock_result = Mock()
             mock_result.overall_score = 95.0  # High score, should pass protection
@@ -441,7 +441,7 @@ class TestDataProtectionEngineComprehensive(unittest.TestCase):
             }
 
         # Test passing all dimension requirements
-        with patch('src.adri.guard.modes.ValidationEngine') as mock_engine_class:
+        with patch('src.adri.guard.modes.DataQualityAssessor') as mock_engine_class:
             mock_engine = Mock()
             mock_result = Mock()
             mock_result.overall_score = 85.0
@@ -478,7 +478,7 @@ class TestDataProtectionEngineComprehensive(unittest.TestCase):
         # Test failing dimension requirements
         mock_result.dimension_scores["consistency"] = Mock(score=16.0)  # Below 17.0 requirement
 
-        with patch('src.adri.guard.modes.ValidationEngine') as mock_engine_class:
+        with patch('src.adri.guard.modes.DataQualityAssessor') as mock_engine_class:
             mock_engine.assess.return_value = mock_result
             mock_engine_class.return_value = mock_engine
 
@@ -532,7 +532,7 @@ class TestDataProtectionEngineComprehensive(unittest.TestCase):
             return {"logged": True, "data_size": len(data)}
 
         # Test with configuration and logging
-        with patch('src.adri.guard.modes.ValidationEngine') as mock_engine_class:
+        with patch('src.adri.guard.modes.DataQualityAssessor') as mock_engine_class:
             mock_engine = Mock()
             mock_result = Mock()
             mock_result.overall_score = 87.0

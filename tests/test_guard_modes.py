@@ -265,7 +265,7 @@ class TestProtectionEngineIntegration(unittest.TestCase):
     @patch('adri.guard.modes.ConfigurationLoader')
     @patch('adri.guard.modes.LocalLogger')
     @patch('adri.guard.modes.EnterpriseLogger')
-    @patch('adri.guard.modes.ValidationEngine')
+    @patch('adri.guard.modes.DataQualityAssessor')
     @patch('os.path.exists')
     def test_protect_function_call_success(self, mock_exists, mock_engine_class, mock_enterprise, mock_local, mock_config):
         """Test successful function protection."""
@@ -376,7 +376,7 @@ class TestProtectionEngineComprehensive(unittest.TestCase):
     @patch('adri.guard.modes.ConfigurationLoader')
     @patch('adri.guard.modes.LocalLogger')
     @patch('adri.guard.modes.EnterpriseLogger')
-    @patch('adri.guard.modes.ValidationEngine')
+    @patch('adri.guard.modes.DataQualityAssessor')
     @patch('os.path.exists')
     @patch('os.makedirs')
     @patch('builtins.open', create=True)
