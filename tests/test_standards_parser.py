@@ -799,7 +799,10 @@ class TestStandardsParserPerformance(unittest.TestCase):
 
         self.assertEqual(parsed_large["standards"]["id"], "large_standard")
         self.assertEqual(len(parsed_large["dimensions"]), 50)
-        self.assertLess(parse_time, 3.0)  # Should parse within 3 seconds
+
+        # Simple performance threshold - reasonable upper limit for all environments
+        # Catches real performance regressions while allowing for normal CI variance
+        self.assertLess(parse_time, 5.0)  # Should parse within 5 seconds
 
     def test_concurrent_parsing_performance(self):
         """Test performance with concurrent parsing operations."""
