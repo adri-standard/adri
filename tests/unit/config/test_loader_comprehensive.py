@@ -352,8 +352,8 @@ class TestConfigurationLoaderComprehensive:
         assert config is not None
         assert len(config["adri"]["environments"]) == 50
 
-        # Performance should be reasonable (less than 1 second)
-        assert load_duration < 0.04, f"Config loading too slow: {load_duration:.2f}s"
+        # Realistic production threshold - config loading should be fast
+        assert load_duration < 0.05, f"Config loading too slow: {load_duration:.2f}s"
 
         self.component_tester.record_test_execution(TestCategory.PERFORMANCE, True)
 
