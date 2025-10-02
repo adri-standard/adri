@@ -188,7 +188,6 @@ Desktop.ini
 *.sublime-workspace
 
 # Local configuration files
-.actrc
 local_settings.py
 .env.local
 .env.development.local

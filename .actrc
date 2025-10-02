@@ -1,0 +1,13 @@
+# ACT Configuration for ADRI Local Testing
+# ==========================================
+# Simplified configuration to avoid command parsing issues
+
+# Platform configuration - use Linux containers for consistency with GitHub CI
+-P ubuntu-latest=catthehacker/ubuntu:act-latest
+
+# Container architecture - use linux/amd64 for maximum compatibility
+--container-architecture linux/amd64
+
+# Environment variables that mirror GitHub Actions
+--env CI=true
+--env GITHUB_ACTIONS=true
