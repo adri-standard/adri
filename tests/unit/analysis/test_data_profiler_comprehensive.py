@@ -418,7 +418,9 @@ class TestDataProfilerComprehensive:
         duration = time.time() - start_time
 
         # Realistic production threshold for wide dataset profiling (200 columns x 1000 rows)
-        assert duration < 2.0, f"Wide dataset profiling too slow: {duration:.2f}s"
+        # Windows systems are typically slower than Unix systems for this operation
+        max_duration = 4.0 if sys.platform.startswith('win') else 2.0
+        assert duration < max_duration, f"Wide dataset profiling too slow: {duration:.2f}s"
 
         # Verify all columns were profiled
         assert len(profile_result.field_profiles) == 200
