@@ -1510,7 +1510,8 @@ class TestLocalLoggingEdgeCases(unittest.TestCase):
 
         # Should extract directory from file path
         expected_dir = self.log_dir
-        self.assertEqual(logger.log_dir, expected_dir)
+        # On Windows, compare the resolved paths to handle path separator differences
+        self.assertEqual(Path(logger.log_dir).resolve(), Path(expected_dir).resolve())
 
         mock_assessment = Mock()
         mock_assessment.overall_score = 80.0

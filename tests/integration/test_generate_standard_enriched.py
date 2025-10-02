@@ -81,4 +81,18 @@ def test_generate_standard_enriched_and_training_pass_guarantee():
         assert result.overall_score >= req.get("overall_minimum", 75.0)
 
     finally:
-        shutil.rmtree(temp_dir)
+        # Use Windows-safe temp directory cleanup
+        import time
+        for attempt in range(5):
+            try:
+                shutil.rmtree(temp_dir)
+                break
+            except (PermissionError, OSError) as e:
+                if attempt < 4:
+                    time.sleep(0.1 * (attempt + 1))
+                    continue
+                try:
+                    import subprocess
+                    subprocess.run(['rmdir', '/S', '/Q', temp_dir], shell=True, check=False)
+                except Exception:
+                    pass
