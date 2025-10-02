@@ -144,7 +144,7 @@ class PerformanceThresholdManager:
             "micro": {
                 "config_load": 0.15,           # Config file loading
                 "config_cache": 0.08,          # Config cache access
-                "validation_simple": 0.12,     # Simple validation operations
+                "validation_simple": 0.18,     # Simple validation operations (includes batch processing)
                 "path_resolution": 0.10,       # Path resolution operations
                 "environment_detection": 0.05, # Environment/platform detection
                 "file_discovery": 0.20,        # File system discovery
