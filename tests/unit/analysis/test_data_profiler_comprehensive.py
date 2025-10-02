@@ -27,6 +27,8 @@ from src.adri.analysis.data_profiler import DataProfiler, ProfileResult, FieldPr
 from src.adri.core.exceptions import DataValidationError, ConfigurationError
 from tests.quality_framework import TestCategory, ComponentTester, performance_monitor
 from tests.fixtures.modern_fixtures import ModernFixtures, ErrorSimulator
+from tests.performance_thresholds import get_performance_threshold
+from tests.utils.performance_helpers import assert_performance
 
 
 class TestDataProfilerComprehensive:
@@ -399,9 +401,9 @@ class TestDataProfilerComprehensive:
             # Performance should not degrade more than 3x the data size increase
             assert ratio_10x < (size_ratio * 3), f"Performance degradation too high: {ratio_10x:.2f}x"
 
-        # Overall performance should be reasonable
+        # Use centralized threshold for data profiling performance
         for result in performance_results:
-            assert result['duration'] < 30.0, f"Profiling too slow for {result['size']} rows: {result['duration']:.2f}s"
+            assert_performance(result['duration'], "medium", "data_profiling", f"Data profiling for {result['size']} rows")
 
         self.component_tester.record_test_execution(TestCategory.PERFORMANCE, True)
 
@@ -417,10 +419,8 @@ class TestDataProfilerComprehensive:
         profile_result = self.profiler.profile_data(wide_dataset)
         duration = time.time() - start_time
 
-        # Realistic production threshold for wide dataset profiling (200 columns x 1000 rows)
-        # Windows systems are typically slower than Unix systems for this operation
-        max_duration = 4.0 if sys.platform.startswith('win') else 2.0
-        assert duration < max_duration, f"Wide dataset profiling too slow: {duration:.2f}s"
+        # Use centralized threshold for wide dataset profiling performance
+        assert_performance(duration, "medium", "data_profiling", "Wide dataset profiling (200 columns x 1000 rows)")
 
         # Verify all columns were profiled
         assert len(profile_result.field_profiles) == 200

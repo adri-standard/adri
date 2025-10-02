@@ -26,6 +26,8 @@ from src.adri.config.loader import ConfigurationLoader
 from src.adri.core.exceptions import ConfigurationError, DataValidationError
 from tests.quality_framework import TestCategory, ComponentTester, performance_monitor
 from tests.fixtures.modern_fixtures import ModernFixtures, ErrorSimulator
+from tests.performance_thresholds import get_performance_threshold
+from tests.utils.performance_helpers import assert_performance
 
 
 class TestConfigurationLoaderComprehensive:
@@ -352,8 +354,8 @@ class TestConfigurationLoaderComprehensive:
         assert config is not None
         assert len(config["adri"]["environments"]) == 50
 
-        # Realistic production threshold - config loading should be fast
-        assert load_duration < 0.10, f"Config loading too slow: {load_duration:.2f}s"
+        # Use centralized threshold for config loading performance
+        assert_performance(load_duration, "micro", "config_load", "Large config loading")
 
         self.component_tester.record_test_execution(TestCategory.PERFORMANCE, True)
 
@@ -379,10 +381,9 @@ class TestConfigurationLoaderComprehensive:
         # Verify configs are equivalent
         assert config1 == config2
 
-        # If caching is implemented, second load should be faster
-        # If not implemented, both loads should be reasonably fast
-        assert first_load_duration < 0.04, f"First load too slow: {first_load_duration:.2f}s"
-        assert second_load_duration < 0.04, f"Second load too slow: {second_load_duration:.2f}s"
+        # Use centralized thresholds for config caching performance
+        assert_performance(first_load_duration, "micro", "config_cache", "First config load")
+        assert_performance(second_load_duration, "micro", "config_cache", "Second config load (cached)")
 
         self.component_tester.record_test_execution(TestCategory.PERFORMANCE, True)
 

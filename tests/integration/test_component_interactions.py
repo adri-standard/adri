@@ -84,6 +84,8 @@ from src.adri.logging.local import LocalLogger
 from src.adri.logging.enterprise import EnterpriseLogger
 from tests.quality_framework import TestCategory, ComponentTester, performance_monitor
 from tests.fixtures.modern_fixtures import ModernFixtures, ErrorSimulator
+from tests.performance_thresholds import get_performance_threshold
+from tests.utils.performance_helpers import assert_performance
 
 
 class TestComponentInteractions:
@@ -454,8 +456,8 @@ class TestComponentInteractions:
 
         total_duration = time.time() - start_time
 
-        # Complete pipeline should complete in reasonable time - realistic production threshold
-        assert total_duration < 5.0, f"Complete pipeline too slow: {total_duration:.2f}s"
+        # Use centralized threshold for complete pipeline performance
+        assert_performance(total_duration, "large", "integration_test", "Complete component integration pipeline (2000 rows)")
 
         # Verify all steps completed successfully
         assert profile_result.get('quality_assessment', {}).get('overall_completeness', 0) > 0

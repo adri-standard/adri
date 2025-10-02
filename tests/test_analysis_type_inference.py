@@ -23,6 +23,8 @@ from src.adri.analysis.type_inference import (
     infer_types_from_dataframe,
     infer_validation_rules_from_data
 )
+from tests.performance_thresholds import get_performance_threshold
+from tests.utils.performance_helpers import assert_performance
 
 
 def safe_rmtree(path, max_retries=3, delay=0.1):
@@ -640,7 +642,8 @@ class TestTypeInferencePerformance(unittest.TestCase):
             end_time = time.time()
 
             self.assertEqual(len(result), 6)
-            self.assertLess(end_time - start_time, 5.0)  # Should complete within 5 seconds
+            # Use centralized threshold for type inference performance
+            assert_performance(end_time - start_time, "large", "type_inference", "Large dataset type inference")
 
     def test_individual_field_inference_performance(self):
         """Test performance of individual field type inference."""

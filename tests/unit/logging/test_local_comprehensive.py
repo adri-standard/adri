@@ -27,6 +27,8 @@ from src.adri.logging.local import AuditRecord, LocalLogger, LogRotator
 from src.adri.core.exceptions import ConfigurationError, ValidationError
 from tests.quality_framework import TestCategory, ComponentTester, performance_monitor
 from tests.fixtures.modern_fixtures import ModernFixtures, ErrorSimulator
+from tests.performance_thresholds import get_performance_threshold
+from tests.utils.performance_helpers import assert_performance
 
 
 class TestLocalLoggingComprehensive:
@@ -520,8 +522,8 @@ class TestLocalLoggingComprehensive:
 
         duration = time.time() - start_time
 
-        # Performance should be reasonable (less than 10 seconds for 100 records)
-        assert duration < 10.0, f"High volume logging too slow: {duration:.2f}s for {num_records} records"
+        # Use centralized threshold for high volume logging performance
+        assert_performance(duration, "small", "file_processing_small", f"High volume logging ({num_records} records)")
 
         # Verify all records were logged
         log_files = list(log_dir.glob("*.csv"))

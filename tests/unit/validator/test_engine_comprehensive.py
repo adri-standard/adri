@@ -32,6 +32,8 @@ from src.adri.validator.dimensions.plausibility import PlausibilityAssessor
 from src.adri.core.exceptions import ValidationError, ConfigurationError
 from tests.quality_framework import TestCategory, ComponentTester, performance_monitor
 from tests.fixtures.modern_fixtures import ModernFixtures, ErrorSimulator
+from tests.performance_thresholds import get_performance_threshold
+from tests.utils.performance_helpers import assert_performance
 
 
 class TestValidatorEngineComprehensive:
@@ -571,8 +573,8 @@ class TestValidatorEngineComprehensive:
         for result in results:
             assert result.overall_score >= 0
 
-        # Test performance is reasonable (less than 30 seconds for 5x1000 rows)
-        assert sequential_duration < 0.35, f"Batch processing too slow: {sequential_duration:.2f}s"
+        # Use centralized threshold for validator engine batch processing performance
+        assert_performance(sequential_duration, "micro", "validation_simple", "Validator engine batch processing (5x1000 rows)")
 
         self.component_tester.record_test_execution(TestCategory.PERFORMANCE, True)
 

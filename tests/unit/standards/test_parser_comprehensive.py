@@ -26,6 +26,8 @@ from src.adri.standards.parser import StandardsParser
 from src.adri.core.exceptions import ValidationError, ConfigurationError
 from tests.quality_framework import TestCategory, ComponentTester, performance_monitor
 from tests.fixtures.modern_fixtures import ModernFixtures, ErrorSimulator
+from tests.performance_thresholds import get_performance_threshold
+from tests.utils.performance_helpers import assert_performance
 
 
 class TestStandardsParserComprehensive:
@@ -407,7 +409,8 @@ class TestStandardsParserComprehensive:
             small_duration = time.time() - start_time
 
             assert small_result is not None
-            assert small_duration < 0.04, f"Small standard parsing too slow: {small_duration:.2f}s"
+            # Use centralized threshold for small standard parsing performance
+            assert_performance(small_duration, "micro", "file_processing_small", "Small standard parsing")
         finally:
             # Restore original environment
             if original_path:
