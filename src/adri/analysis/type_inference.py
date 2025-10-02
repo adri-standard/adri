@@ -10,6 +10,30 @@ from typing import Any, Dict, Optional
 import pandas as pd
 
 
+class InferenceResult:
+    """Result of type inference operation."""
+
+    def __init__(
+        self, field_types: dict, confidence_scores: dict = None, metadata: dict = None
+    ):
+        """Initialize InferenceResult with type inference data."""
+        self.field_types = field_types
+        self.confidence_scores = confidence_scores or {}
+        self.metadata = metadata or {}
+
+
+class FieldTypeInfo:
+    """Type information for a single field."""
+
+    def __init__(
+        self, inferred_type: str, confidence: float = 1.0, sample_values: list = None
+    ):
+        """Initialize FieldTypeInfo with field type information."""
+        self.inferred_type = inferred_type
+        self.confidence = confidence
+        self.sample_values = sample_values or []
+
+
 class TypeInference:
     """
     Infers data types and appropriate validation rules from data patterns.
@@ -21,6 +45,173 @@ class TypeInference:
     def __init__(self):
         """Initialize the type inference engine."""
         pass
+
+    def infer_types(self, data: pd.DataFrame) -> "InferenceResult":
+        """
+        Infer types for all fields in a DataFrame.
+
+        Args:
+            data: DataFrame to analyze
+
+        Returns:
+            InferenceResult containing field types and confidence scores
+        """
+        if data is None:
+            raise ValueError("Data cannot be None")
+
+        if data.empty:
+            return InferenceResult({}, {}, {})
+
+        field_types = {}
+        confidence_scores = {}
+
+        for column in data.columns:
+            try:
+                # Infer the field type
+                field_type = self.infer_field_type(data[column])
+                constraints = self.infer_field_constraints(data[column], field_type)
+
+                # Create FieldTypeInfo with proper attributes
+                field_info = FieldTypeInfo(field_type)
+                field_info.primary_type = field_type
+                field_info.constraints = constraints
+
+                # Add specialized type detection
+                if field_type == "string":
+                    specialized = self._detect_specialized_type(data[column])
+                    if specialized:
+                        field_info.specialized_type = specialized
+
+                field_types[column] = field_info
+
+                # Calculate confidence score based on data quality
+                confidence = self._calculate_confidence(data[column], field_type)
+                confidence_scores[column] = confidence
+
+            except Exception:
+                # Fallback for problematic columns
+                field_info = FieldTypeInfo("string")
+                field_info.primary_type = "string"
+                field_types[column] = field_info
+                confidence_scores[column] = 0.5
+
+        return InferenceResult(field_types, confidence_scores)
+
+    def infer_types_from_profile(self, profile_result) -> "InferenceResult":
+        """
+        Infer types using data profiler results.
+
+        Args:
+            profile_result: Result from data profiler
+
+        Returns:
+            InferenceResult with enhanced type information
+        """
+        field_types = {}
+        confidence_scores = {}
+
+        if hasattr(profile_result, "field_profiles"):
+            for field_name, profile in profile_result.field_profiles.items():
+                # Extract type from profile
+                if hasattr(profile, "field_type"):
+                    field_type = profile.field_type
+                else:
+                    field_type = "string"
+
+                # Create enhanced field info
+                field_info = FieldTypeInfo(field_type)
+                field_info.primary_type = field_type
+
+                # Add pattern confidence if available
+                if hasattr(profile, "pattern_matches") and hasattr(
+                    profile, "total_count"
+                ):
+                    if profile.total_count > 0:
+                        pattern_confidence = (
+                            profile.pattern_matches / profile.total_count
+                        )
+                        field_info.pattern_confidence = pattern_confidence
+                        confidence_scores[field_name] = pattern_confidence
+                    else:
+                        confidence_scores[field_name] = 0.5
+                else:
+                    confidence_scores[field_name] = (
+                        0.8  # Default high confidence from profiler
+                    )
+
+                field_types[field_name] = field_info
+
+        return InferenceResult(field_types, confidence_scores)
+
+    def _detect_specialized_type(self, series: pd.Series) -> Optional[str]:
+        """Detect specialized types for string data."""
+        if len(series) == 0:
+            return None
+
+        sample_values = series.dropna().astype(str).head(100)
+        if len(sample_values) == 0:
+            return None
+
+        # Email detection
+        email_pattern = r"^[^@]+@[^@]+\.[^@]+$"
+        email_matches = sample_values.str.match(email_pattern).sum()
+        if email_matches > len(sample_values) * 0.8:
+            return "email"
+
+        # Phone detection
+        phone_pattern = r"^[\+]?[0-9\s\-\(\)]+$"
+        phone_matches = sample_values.str.match(phone_pattern).sum()
+        if phone_matches > len(sample_values) * 0.8:
+            return "phone"
+
+        # Currency detection
+        currency_pattern = r"^\$[\d,]+\.?\d*$"
+        currency_matches = sample_values.str.match(currency_pattern).sum()
+        if currency_matches > len(sample_values) * 0.8:
+            return "currency"
+
+        return None
+
+    def _calculate_confidence(self, series: pd.Series, field_type: str) -> float:
+        """Calculate confidence score for type inference."""
+        if len(series) == 0:
+            return 0.0
+
+        non_null_count = series.notna().sum()
+        total_count = len(series)
+
+        # Base confidence on null percentage
+        data_completeness = non_null_count / total_count
+
+        # Adjust based on type-specific factors
+        if field_type in ["integer", "float"]:
+            try:
+                numeric_series = pd.to_numeric(series, errors="coerce")
+                successful_conversions = numeric_series.notna().sum()
+                type_accuracy = (
+                    successful_conversions / non_null_count if non_null_count > 0 else 0
+                )
+                return min(data_completeness * type_accuracy, 1.0)
+            except (ValueError, TypeError, AttributeError):
+                return 0.5
+
+        elif field_type == "boolean":
+            try:
+                bool_values = series.dropna().astype(str).str.lower()
+                bool_matches = bool_values.isin(
+                    ["true", "false", "yes", "no", "1", "0"]
+                ).sum()
+                type_accuracy = (
+                    bool_matches / non_null_count if non_null_count > 0 else 0
+                )
+                return min(data_completeness * type_accuracy, 1.0)
+            except (ValueError, TypeError, AttributeError):
+                return 0.5
+
+        # For strings and other types, use data completeness as primary factor
+        return min(
+            data_completeness * 0.9, 1.0
+        )  # Slightly reduce confidence for string inference
 
     def infer_field_type(self, series: pd.Series) -> str:
         """
@@ -246,3 +437,26 @@ def infer_validation_rules_from_data(data: pd.DataFrame) -> Dict[str, Dict[str, 
     """
     inference = TypeInference()
     return inference.infer_validation_rules(data)
+
+
+def check_allowed_values(series: pd.Series, max_unique: int = 10) -> Optional[list]:
+    """
+    Check if a series has a small set of allowed values.
+
+    Args:
+        series: Pandas Series to analyze
+        max_unique: Maximum number of unique values to consider as allowed values
+
+    Returns:
+        List of allowed values if cardinality is low, None otherwise
+    """
+    if series.isnull().all():
+        return None
+
+    # Remove nulls and get unique values
+    unique_values = series.dropna().unique()
+
+    if len(unique_values) <= max_unique:
+        return list(unique_values)
+
+    return None

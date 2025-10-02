@@ -23,12 +23,7 @@ from dataclasses import dataclass
 from typing import Dict, Any, Optional, List
 
 # Import CLI functions for testing environment documentation integration
-from adri.cli import (
-    setup_command,
-    show_config_command,
-    show_help_guide,
-    _find_adri_project_root,
-)
+import src.adri.cli as adri_cli
 
 
 @dataclass
@@ -326,7 +321,7 @@ class TestConfigurationValidation(unittest.TestCase):
 
     def test_config_structure_matches_documentation(self):
         """Test that generated config matches documented structure."""
-        result = setup_command(force=True, project_name="structure_test")
+        result = adri_cli.setup_command(force=True, project_name="structure_test")
         self.assertEqual(result, 0)
 
         config_path = self.adri_dir / "config.yaml"
@@ -358,7 +353,7 @@ class TestConfigurationValidation(unittest.TestCase):
 
     def test_environment_paths_configuration(self):
         """Test that environment paths are correctly configured."""
-        result = setup_command(force=True, project_name="paths_test")
+        result = adri_cli.setup_command(force=True, project_name="paths_test")
         self.assertEqual(result, 0)
 
         config_path = self.adri_dir / "config.yaml"
@@ -387,7 +382,7 @@ class TestConfigurationValidation(unittest.TestCase):
 
     def test_audit_configuration_completeness(self):
         """Test that audit configuration is complete for both environments."""
-        result = setup_command(force=True, project_name="audit_test")
+        result = adri_cli.setup_command(force=True, project_name="audit_test")
         self.assertEqual(result, 0)
 
         config_path = self.adri_dir / "config.yaml"
@@ -415,7 +410,7 @@ class TestConfigurationValidation(unittest.TestCase):
 
     def test_default_environment_setting(self):
         """Test that default environment is properly set."""
-        result = setup_command(force=True, project_name="default_test")
+        result = adri_cli.setup_command(force=True, project_name="default_test")
         self.assertEqual(result, 0)
 
         config_path = self.adri_dir / "config.yaml"
@@ -428,7 +423,7 @@ class TestConfigurationValidation(unittest.TestCase):
 
     def test_configuration_version_consistency(self):
         """Test that configuration version is properly set."""
-        result = setup_command(force=True, project_name="version_test")
+        result = adri_cli.setup_command(force=True, project_name="version_test")
         self.assertEqual(result, 0)
 
         config_path = self.adri_dir / "config.yaml"
@@ -461,7 +456,7 @@ class TestHelpGuideEnvironmentInformation(unittest.TestCase):
     @patch('click.echo')
     def test_help_guide_includes_environment_information(self, mock_echo):
         """Test that help guide includes comprehensive environment information."""
-        result = show_help_guide()
+        result = adri_cli.show_help_guide()
         self.assertEqual(result, 0)
 
         # Capture all echo calls
@@ -487,7 +482,7 @@ class TestHelpGuideEnvironmentInformation(unittest.TestCase):
     @patch('click.echo')
     def test_help_guide_directory_structure_explanation(self, mock_echo):
         """Test that help guide explains directory structure correctly."""
-        result = show_help_guide()
+        result = adri_cli.show_help_guide()
         self.assertEqual(result, 0)
 
         echo_calls = [call.args[0] for call in mock_echo.call_args_list]
@@ -522,7 +517,7 @@ class TestShowConfigEnvironmentDisplay(unittest.TestCase):
         os.chdir(self.temp_dir)
 
         # Create ADRI project
-        result = setup_command(force=True, project_name="config_display_test")
+        result = adri_cli.setup_command(force=True, project_name="config_display_test")
         self.assertEqual(result, 0)
 
     def tearDown(self):
@@ -533,7 +528,7 @@ class TestShowConfigEnvironmentDisplay(unittest.TestCase):
     @patch('click.echo')
     def test_show_config_displays_environment_paths(self, mock_echo):
         """Test that show-config correctly displays environment paths."""
-        result = show_config_command()
+        result = adri_cli.show_config_command()
         self.assertEqual(result, 0)
 
         # Safe handling of mock call arguments
@@ -561,7 +556,7 @@ class TestShowConfigEnvironmentDisplay(unittest.TestCase):
     @patch('click.echo')
     def test_show_config_specific_environment_display(self, mock_echo):
         """Test show-config with specific environment parameter."""
-        result = show_config_command(environment="development")
+        result = adri_cli.show_config_command(environment="development")
         self.assertEqual(result, 0)
 
         # Safe handling of mock call arguments
@@ -579,7 +574,7 @@ class TestShowConfigEnvironmentDisplay(unittest.TestCase):
     @patch('click.echo')
     def test_show_config_paths_only_mode(self, mock_echo):
         """Test show-config paths-only mode."""
-        result = show_config_command(paths_only=True)
+        result = adri_cli.show_config_command(paths_only=True)
         self.assertEqual(result, 0)
 
         # Safe handling of mock call arguments
@@ -610,7 +605,7 @@ class TestEnvironmentDocumentationIntegration(unittest.TestCase):
 
     def test_created_directories_match_documented_structure(self):
         """Test that setup creates directories matching documented structure."""
-        result = setup_command(force=True, project_name="integration_test")
+        result = adri_cli.setup_command(force=True, project_name="integration_test")
         self.assertEqual(result, 0)
 
         # Read config documentation to extract expected directories
@@ -635,7 +630,7 @@ class TestEnvironmentDocumentationIntegration(unittest.TestCase):
 
     def test_environment_switching_documentation_accuracy(self):
         """Test that documented environment switching methods work."""
-        result = setup_command(force=True, project_name="switching_test")
+        result = adri_cli.setup_command(force=True, project_name="switching_test")
         self.assertEqual(result, 0)
 
         config_path = Path("ADRI/config.yaml")
@@ -658,7 +653,7 @@ class TestEnvironmentDocumentationIntegration(unittest.TestCase):
 
     def test_workflow_recommendations_are_actionable(self):
         """Test that documented workflow recommendations are actionable."""
-        result = setup_command(force=True, project_name="workflow_test")
+        result = adri_cli.setup_command(force=True, project_name="workflow_test")
         self.assertEqual(result, 0)
 
         # Test step: "Copy proven standards from dev/standards/ to prod/standards/"
@@ -694,7 +689,7 @@ class TestDocumentationConsistency(unittest.TestCase):
         os.chdir(self.temp_dir)
 
         # Create comprehensive ADRI project
-        result = setup_command(force=True, project_name="consistency_test")
+        result = adri_cli.setup_command(force=True, project_name="consistency_test")
         self.assertEqual(result, 0)
 
     def tearDown(self):
@@ -706,7 +701,7 @@ class TestDocumentationConsistency(unittest.TestCase):
     def test_help_guide_config_consistency(self, mock_echo):
         """Test consistency between help guide and config.yaml documentation."""
         # Get help guide output
-        show_help_guide()
+        adri_cli.show_help_guide()
         echo_calls = [call.args[0] for call in mock_echo.call_args_list]
         help_output = ' '.join(echo_calls)
 
@@ -738,7 +733,7 @@ class TestDocumentationConsistency(unittest.TestCase):
     @patch('click.echo')
     def test_show_config_documentation_consistency(self, mock_echo):
         """Test consistency between show-config output and actual config."""
-        show_config_command()
+        adri_cli.show_config_command()
 
         # Safe handling of mock call arguments
         echo_calls = []

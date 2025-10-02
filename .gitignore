@@ -188,7 +188,6 @@ Desktop.ini
 *.sublime-workspace
 
 # Local configuration files
-.actrc
 local_settings.py
 .env.local
 .env.development.local
@@ -327,7 +326,6 @@ src/adri/_version.py
 *_COMPLETE.md
 *_FINAL.md
 temp_*.py
-test_*.py
 demo_*.py
 scratch_*.py
 quick_*.py
@@ -342,6 +340,19 @@ mock_standard*.yaml
 *_test_standard.yaml
 no_directory_standard.yaml
 null_test_standard.yaml
+
+# Prevent unauthorized root directory YAML files (CI structure policy)
+/*_standard.yaml
+/*_standard.yml
+/completely_missing_standard.yaml
+/malformed_test.yaml
+/pipeline_standard.yaml
+/sample_standard.yaml
+/nonexistent_standard.yaml
+/*missing*.yaml
+/*malformed*.yaml
+/*pipeline*.yaml
+/test_*.yaml
 
 # System files
 .DS_Store

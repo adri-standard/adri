@@ -22,14 +22,8 @@ if TYPE_CHECKING:
     except ImportError:
         from adri.core.verodat_logger import VerodatLogger
 
-# Updated import for version info
-try:
-    from ..version import __version__
-except ImportError:
-    try:
-        from adri.version import __version__
-    except ImportError:
-        __version__ = "unknown"
+# Clean import for version info
+from ..version import __version__
 
 
 class AuditRecord:
@@ -475,19 +469,23 @@ class LocalLogger:
             self._check_rotation()
 
             # Write main record to assessment log
-            with open(self.assessment_log_path, "a", newline="") as f:
+            with open(self.assessment_log_path, "a", newline="", encoding="utf-8") as f:
                 writer = csv.DictWriter(f, fieldnames=self.ASSESSMENT_LOG_HEADERS)
                 writer.writerow(verodat_data["main_record"])
 
             # Write dimension records
             if verodat_data["dimension_records"]:
-                with open(self.dimension_score_path, "a", newline="") as f:
+                with open(
+                    self.dimension_score_path, "a", newline="", encoding="utf-8"
+                ) as f:
                     writer = csv.DictWriter(f, fieldnames=self.DIMENSION_SCORE_HEADERS)
                     writer.writerows(verodat_data["dimension_records"])
 
             # Write failed validation records
             if verodat_data["failed_validation_records"]:
-                with open(self.failed_validation_path, "a", newline="") as f:
+                with open(
+                    self.failed_validation_path, "a", newline="", encoding="utf-8"
+                ) as f:
                     writer = csv.DictWriter(
                         f, fieldnames=self.FAILED_VALIDATION_HEADERS
                     )
@@ -495,6 +493,8 @@ class LocalLogger:
 
     def _check_rotation(self) -> None:
         """Check if log files need rotation."""
+        import time
+
         for file_path in [
             self.assessment_log_path,
             self.dimension_score_path,
@@ -507,22 +507,44 @@ class LocalLogger:
             file_size_mb = file_path.stat().st_size / (1024 * 1024)
 
             if file_size_mb >= self.max_log_size_mb:
-                # Rotate log file
+                # Rotate log file with Windows-safe handling
                 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
                 rotated_path = file_path.with_suffix(f".{timestamp}.csv")
-                file_path.rename(rotated_path)
+
+                # Windows-safe file rotation
+                try:
+                    # Ensure unique filename to avoid conflicts
+                    counter = 0
+                    original_rotated_path = rotated_path
+                    while rotated_path.exists():
+                        counter += 1
+                        rotated_path = original_rotated_path.with_suffix(
+                            f".{timestamp}_{counter:03d}.csv"
+                        )
+
+                    # Small delay to ensure file handles are released on Windows
+                    time.sleep(0.01)
+                    file_path.rename(rotated_path)
+                except (OSError, PermissionError):
+                    # If rotation fails on Windows, continue without rotating
+                    # This prevents blocking the logging process
+                    continue
 
                 # Recreate file with headers
-                if file_path == self.assessment_log_path:
-                    headers = self.ASSESSMENT_LOG_HEADERS
-                elif file_path == self.dimension_score_path:
-                    headers = self.DIMENSION_SCORE_HEADERS
-                else:
-                    headers = self.FAILED_VALIDATION_HEADERS
+                try:
+                    if file_path == self.assessment_log_path:
+                        headers = self.ASSESSMENT_LOG_HEADERS
+                    elif file_path == self.dimension_score_path:
+                        headers = self.DIMENSION_SCORE_HEADERS
+                    else:
+                        headers = self.FAILED_VALIDATION_HEADERS
 
-                with open(file_path, "w", newline="") as f:
-                    writer = csv.DictWriter(f, fieldnames=headers)
-                    writer.writeheader()
+                    with open(file_path, "w", newline="", encoding="utf-8") as f:
+                        writer = csv.DictWriter(f, fieldnames=headers)
+                        writer.writeheader()
+                except (OSError, PermissionError):
+                    # If recreation fails, continue - file will be recreated on next write
+                    pass
 
     def get_log_files(self) -> Dict[str, Path]:
         """Get the paths to the current log files."""
@@ -586,3 +608,19 @@ def log_to_csv(
 # Backward compatibility aliases
 CSVAuditLogger = LocalLogger
 AuditLoggerCSV = LocalLogger
+
+
+class LogRotator:
+    """Stub class for log rotation functionality."""
+
+    def __init__(self, log_directory: str, max_file_size: int, max_files: int):
+        """Initialize the log rotator.
+
+        Args:
+            log_directory: Directory where logs are stored
+            max_file_size: Maximum file size in bytes before rotation
+            max_files: Maximum number of log files to keep
+        """
+        self.log_directory = log_directory
+        self.max_file_size = max_file_size
+        self.max_files = max_files

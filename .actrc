@@ -1,0 +1,4 @@
+# ACT Configuration for Windows Testing
+-P windows-latest=ghcr.io/catthehacker/ubuntu:act-latest
+--container-architecture linux/amd64
+--artifact-server-path /tmp/artifacts

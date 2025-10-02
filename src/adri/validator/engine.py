@@ -11,22 +11,10 @@ from typing import Any, Dict, List, Optional
 
 import pandas as pd
 
-# Updated imports for new structure - with fallbacks during migration
-try:
-    from ..logging.local import CSVAuditLogger
-except ImportError:
-    try:
-        from adri.core.audit_logger_csv import CSVAuditLogger
-    except ImportError:
-        CSVAuditLogger = None  # type: ignore
+from ..logging.enterprise import VerodatLogger
 
-try:
-    from ..logging.enterprise import VerodatLogger
-except ImportError:
-    try:
-        from adri.core.verodat_logger import VerodatLogger
-    except ImportError:
-        VerodatLogger = None  # type: ignore
+# Clean imports for new modular architecture
+from ..logging.local import CSVAuditLogger
 
 
 class BundledStandardWrapper:
@@ -437,12 +425,15 @@ class RuleExecutionResult:
 class DataQualityAssessor:
     """Data quality assessor for ADRI validation with integrated audit logging.
 
-    # TEST COMMENT: Testing adaptive issue-driven workflow validation for high-risk core changes
+    Refactored to use ValidationPipeline for modular dimension assessment.
     """
 
     def __init__(self, config: Optional[Dict[str, Any]] = None):
         """Initialize the DataQualityAssessor with optional configuration."""
-        self.engine = ValidationEngine()  # Updated to use ValidationEngine
+        from .pipeline import ValidationPipeline
+
+        self.pipeline = ValidationPipeline()
+        self.engine = ValidationEngine()  # Keep for backward compatibility
         self.config = config or {}
 
         # Initialize audit logger if configured
@@ -457,16 +448,14 @@ class DataQualityAssessor:
                 self.audit_logger.verodat_logger = VerodatLogger(verodat_config)
 
     def assess(self, data, standard_path=None):
-        """Assess data quality using optional standard with audit logging."""
+        """Assess data quality using pipeline architecture with audit logging."""
         # Start timing
         start_time = time.time()
 
         # Handle different data formats
         if hasattr(data, "to_frame"):
-            # Handle pandas Series
             data = data.to_frame()
         elif not hasattr(data, "columns"):
-            # Handle dict or other data types
             import pandas as pd
 
             if isinstance(data, dict):
@@ -474,22 +463,42 @@ class DataQualityAssessor:
             else:
                 data = pd.DataFrame(data)
 
-        # Run assessment
+        # Run assessment using pipeline
         if standard_path:
-            result = self.engine.assess(data, standard_path)
-            result.standard_id = os.path.basename(standard_path).replace(".yaml", "")
+            # Load standard and use pipeline
+            try:
+                from .loaders import load_standard
+
+                standard_dict = load_standard(standard_path)
+                standard_wrapper = BundledStandardWrapper(standard_dict)
+                result = self.pipeline.execute_assessment(data, standard_wrapper)
+                result.standard_id = os.path.basename(standard_path).replace(
+                    ".yaml", ""
+                )
+            except Exception:
+                # Fallback to legacy engine if pipeline fails
+                result = self.engine.assess(data, standard_path)
+                result.standard_id = os.path.basename(standard_path).replace(
+                    ".yaml", ""
+                )
         else:
+            # Use basic assessment for backward compatibility
             result = self.engine._basic_assessment(data)
 
-        # Calculate execution time
-        duration_ms = int((time.time() - start_time) * 1000)
-
         # Log assessment if audit logger is configured
+        duration_ms = int((time.time() - start_time) * 1000)
         if self.audit_logger:
+            self._log_assessment_audit(result, data, duration_ms)
+
+        return result
+
+    def _log_assessment_audit(self, result, data, duration_ms: int) -> None:
+        """Log assessment details for audit trail."""
+        try:
             # Prepare execution context
             execution_context = {
                 "function_name": "assess",
-                "module_path": "adri.validator.engine",  # Updated module path
+                "module_path": "adri.validator.engine",
                 "environment": os.environ.get("ADRI_ENV", "PRODUCTION"),
             }
 
@@ -533,25 +542,35 @@ class DataQualityAssessor:
             if hasattr(self.audit_logger, "verodat_logger"):
                 verodat_logger = getattr(self.audit_logger, "verodat_logger", None)
                 if verodat_logger:
-                    # Add the audit record to the batch
                     verodat_logger.add_to_batch(audit_record)
 
-                # The VerodatLogger will handle batching and auto-flush at the configured batch size
-                # For immediate upload (useful for testing), we could call flush_all() here
-                # but it's better to let it batch for performance
-
-        return result
+        except Exception:
+            # Non-fatal error in audit logging
+            pass
 
 
 class ValidationEngine:
-    """Main validation engine for data quality assessment. Renamed from AssessmentEngine."""
+    """Main validation engine for data quality assessment.
+
+    Refactored to coordinate with ValidationPipeline and dimension assessors
+    while maintaining backward compatibility for existing code.
+    """
 
     def __init__(self):
-        # Warnings and explain payload are reset per assessment
+        """Initialize the validation engine with pipeline support."""
+        try:
+            from .pipeline import ValidationPipeline
+
+            self.pipeline = ValidationPipeline()
+        except Exception:
+            self.pipeline = None  # Fallback if pipeline not available
+
+        # Legacy support for explain data collection
         self._scoring_warnings: List[str] = []
         self._explain: Dict[str, Any] = {}
 
     def _reset_explain(self):
+        """Reset explain data for new assessment."""
         self._scoring_warnings = []
         self._explain = {}
 
@@ -815,6 +834,8 @@ class ValidationEngine:
         """
         Run assessment on data using the provided standard.
 
+        Refactored to use ValidationPipeline for coordination.
+
         Args:
             data: DataFrame containing the data to assess
             standard_path: Path to YAML standard file
@@ -822,33 +843,38 @@ class ValidationEngine:
         Returns:
             AssessmentResult object
         """
+        if self.pipeline:
+            try:
+                # Load standard
+                from .loaders import load_standard
+
+                yaml_dict = load_standard(standard_path)
+                standard_wrapper = BundledStandardWrapper(yaml_dict)
+
+                # Use pipeline for assessment
+                return self.pipeline.execute_assessment(data, standard_wrapper)
+
+            except Exception:
+                # Fallback to basic assessment if standard can't be loaded
+                return self._basic_assessment(data)
+        else:
+            # Legacy fallback path if pipeline not available
+            return self._legacy_assess(data, standard_path)
+
+    def _legacy_assess(
+        self, data: pd.DataFrame, standard_path: str
+    ) -> AssessmentResult:
+        """Legacy assessment method for backward compatibility."""
         # Reset explain/warnings for this run
         self._reset_explain()
-        # Load the YAML standard - prefer validator.loaders, fallback to legacy CLI path
-        load_standard_fn = None
+
+        # Load the YAML standard
         try:
-            from .loaders import load_standard as _ls  # same package
+            from .loaders import load_standard
 
-            load_standard_fn = _ls
-        except Exception:
-            try:
-                from adri.validator.loaders import load_standard as _ls2  # absolute
-
-                load_standard_fn = _ls2
-            except Exception:
-                try:
-                    # Legacy fallback (older tree)
-                    from adri.cli.commands import load_standard as _ls3
-
-                    load_standard_fn = _ls3
-                except Exception:
-                    return self._basic_assessment(data)
-
-        try:
-            yaml_dict = load_standard_fn(standard_path)
+            yaml_dict = load_standard(standard_path)
             standard = BundledStandardWrapper(yaml_dict)
         except Exception:
-            # Fallback to basic assessment if standard can't be loaded
             return self._basic_assessment(data)
 
         # Perform assessment using the standard's requirements
@@ -866,7 +892,7 @@ class ValidationEngine:
             "plausibility": DimensionScore(plausibility_score),
         }
 
-        # Calculate overall score using per-dimension weights if provided
+        # Calculate overall score using per-dimension weights
         try:
             dim_reqs = standard.get_dimension_requirements()
         except Exception:
@@ -879,7 +905,7 @@ class ValidationEngine:
             "freshness": float(dim_reqs.get("freshness", {}).get("weight", 1.0)),
             "plausibility": float(dim_reqs.get("plausibility", {}).get("weight", 1.0)),
         }
-        # Normalize and guard weights
+
         applied_weights = self._normalize_nonneg_weights(weights)
         applied_weights = self._equalize_if_zero(applied_weights, "Dimension")
 
@@ -890,7 +916,6 @@ class ValidationEngine:
             weighted_sum += w * float(ds.score)
             weight_total += w
 
-        # Weighted average on 0..20, then scale to 0..100
         overall_score = (
             ((weighted_sum / weight_total) / 20.0) * 100.0 if weight_total > 0 else 0.0
         )
@@ -900,7 +925,7 @@ class ValidationEngine:
         passed = overall_score >= min_score
 
         # Build metadata with explain and warnings
-        metadata: Dict[str, Any] = {
+        metadata = {
             "applied_dimension_weights": applied_weights,
         }
         if getattr(self, "_scoring_warnings", None):

@@ -14,7 +14,7 @@ from unittest.mock import Mock, patch, MagicMock
 from datetime import datetime
 
 # Updated imports for new src/ layout
-from adri.validator.engine import (
+from src.adri.validator.engine import (
     ValidationEngine,
     DataQualityAssessor,
     AssessmentResult,
@@ -58,7 +58,7 @@ class TestAuditLoggingIntegration(unittest.TestCase):
         """Clean up test environment."""
         shutil.rmtree(self.test_dir)
 
-    @patch('adri.validator.engine.CSVAuditLogger')
+    @patch('src.adri.validator.engine.CSVAuditLogger')
     def test_audit_logging_assessment_workflow(self, mock_csv_logger_class):
         """Test complete audit logging workflow during assessment."""
         # Set up mock audit logger
@@ -89,8 +89,8 @@ class TestAuditLoggingIntegration(unittest.TestCase):
         self.assertIn("data_info", call_args[1])
         self.assertIn("performance_metrics", call_args[1])
 
-    @patch('adri.validator.engine.CSVAuditLogger')
-    @patch('adri.validator.engine.VerodatLogger')
+    @patch('src.adri.validator.engine.CSVAuditLogger')
+    @patch('src.adri.validator.engine.VerodatLogger')
     def test_verodat_enterprise_logging_integration(self, mock_verodat_class, mock_csv_logger_class):
         """Test integration with enterprise Verodat logging."""
         # Set up mock loggers
@@ -132,7 +132,7 @@ class TestAuditLoggingIntegration(unittest.TestCase):
     def test_audit_logging_execution_context_details(self):
         """Test detailed execution context logging."""
         # Mock the audit logger to capture call details
-        with patch('adri.validator.engine.CSVAuditLogger') as mock_csv_logger_class:
+        with patch('src.adri.validator.engine.CSVAuditLogger') as mock_csv_logger_class:
             mock_audit_logger = Mock()
             mock_csv_logger_class.return_value = mock_audit_logger
 
@@ -171,7 +171,7 @@ class TestAuditLoggingIntegration(unittest.TestCase):
             "score": [85.5, None, 92.0, 78.5, None]  # Missing scores
         })
 
-        with patch('adri.validator.engine.CSVAuditLogger') as mock_csv_logger_class:
+        with patch('src.adri.validator.engine.CSVAuditLogger') as mock_csv_logger_class:
             mock_audit_logger = Mock()
             mock_csv_logger_class.return_value = mock_audit_logger
 
@@ -192,7 +192,7 @@ class TestAuditLoggingIntegration(unittest.TestCase):
 
     def test_audit_logging_performance_metrics_calculation(self):
         """Test performance metrics calculation in audit logging."""
-        with patch('adri.validator.engine.CSVAuditLogger') as mock_csv_logger_class:
+        with patch('src.adri.validator.engine.CSVAuditLogger') as mock_csv_logger_class:
             mock_audit_logger = Mock()
             mock_csv_logger_class.return_value = mock_audit_logger
 

@@ -3,7 +3,7 @@ from typing import Dict, Any, List
 
 import pandas as pd
 
-from adri.analysis.standard_generator import StandardGenerator
+from src.adri.analysis.standard_generator import StandardGenerator
 
 
 class TestStandardGeneratorRefactor(unittest.TestCase):

@@ -23,14 +23,8 @@ import yaml
 from dataclasses import dataclass
 from typing import Dict, Any, Optional, List
 
-# Import the path resolution functions from CLI
-from adri.cli import (
-    _find_adri_project_root,
-    _resolve_project_path,
-    setup_command,
-    generate_standard_command,
-    assess_command,
-)
+# Import CLI functions to avoid circular import issues
+import src.adri.cli as adri_cli
 
 
 @dataclass
@@ -86,7 +80,7 @@ class TestPathResolutionCore(unittest.TestCase):
 
     def test_find_adri_project_root_from_project_root(self):
         """Test finding project root when run from project root directory."""
-        result = _find_adri_project_root()
+        result = adri_cli._find_adri_project_root()
 
         self.assertIsNotNone(result)
         # Use resolve() to handle symlinks properly on macOS
@@ -102,7 +96,7 @@ class TestPathResolutionCore(unittest.TestCase):
         # Change to subdirectory
         os.chdir(sub_dir)
 
-        result = _find_adri_project_root()
+        result = adri_cli._find_adri_project_root()
 
         self.assertIsNotNone(result)
         # Use resolve() to handle symlinks properly on macOS
@@ -113,7 +107,7 @@ class TestPathResolutionCore(unittest.TestCase):
         """Test finding project root when run from ADRI directory itself."""
         os.chdir(self.adri_dir)
 
-        result = _find_adri_project_root()
+        result = adri_cli._find_adri_project_root()
 
         self.assertIsNotNone(result)
         # Use resolve() to handle symlinks properly on macOS
@@ -124,7 +118,7 @@ class TestPathResolutionCore(unittest.TestCase):
         # Remove config file
         os.remove(self.config_path)
 
-        result = _find_adri_project_root()
+        result = adri_cli._find_adri_project_root()
 
         self.assertIsNone(result)
 
@@ -134,7 +128,7 @@ class TestPathResolutionCore(unittest.TestCase):
         nested_dir = self.project_root / "deep" / "nested" / "structure"
         nested_dir.mkdir(parents=True, exist_ok=True)
 
-        result = _find_adri_project_root(start_path=nested_dir)
+        result = adri_cli._find_adri_project_root(start_path=nested_dir)
 
         self.assertIsNotNone(result)
         self.assertEqual(result, self.project_root)
@@ -149,7 +143,7 @@ class TestPathResolutionCore(unittest.TestCase):
 
         for input_path, expected_suffix in test_cases:
             with self.subTest(input_path=input_path):
-                result = _resolve_project_path(input_path)
+                result = adri_cli._resolve_project_path(input_path)
 
                 self.assertIsInstance(result, Path)
                 # Use cross-platform path normalization for Windows compatibility
@@ -169,7 +163,7 @@ class TestPathResolutionCore(unittest.TestCase):
 
         for input_path, expected_suffix in test_cases:
             with self.subTest(input_path=input_path):
-                result = _resolve_project_path(input_path)
+                result = adri_cli._resolve_project_path(input_path)
 
                 self.assertIsInstance(result, Path)
                 # Use cross-platform path normalization for Windows compatibility
@@ -189,7 +183,7 @@ class TestPathResolutionCore(unittest.TestCase):
 
         for input_path, expected_suffix in test_cases:
             with self.subTest(input_path=input_path):
-                result = _resolve_project_path(input_path)
+                result = adri_cli._resolve_project_path(input_path)
 
                 self.assertIsInstance(result, Path)
                 # Use cross-platform path normalization for Windows compatibility
@@ -208,7 +202,7 @@ class TestPathResolutionCore(unittest.TestCase):
 
         for input_path, expected_suffix in test_cases:
             with self.subTest(input_path=input_path):
-                result = _resolve_project_path(input_path)
+                result = adri_cli._resolve_project_path(input_path)
 
                 self.assertIsInstance(result, Path)
                 # Use cross-platform path normalization for Windows compatibility
@@ -227,7 +221,7 @@ class TestPathResolutionCore(unittest.TestCase):
 
         for input_path, expected_suffix in test_cases:
             with self.subTest(input_path=input_path):
-                result = _resolve_project_path(input_path)
+                result = adri_cli._resolve_project_path(input_path)
 
                 self.assertIsInstance(result, Path)
                 # Use cross-platform path normalization for Windows compatibility
@@ -242,7 +236,7 @@ class TestPathResolutionCore(unittest.TestCase):
         os.remove(self.config_path)
 
         input_path = "tutorials/test/data.csv"
-        result = _resolve_project_path(input_path)
+        result = adri_cli._resolve_project_path(input_path)
 
         # Should fallback to current directory
         expected_path = Path.cwd() / input_path
@@ -317,7 +311,7 @@ class TestPathResolutionCrossDirectory(unittest.TestCase):
         os.chdir(docs_dir)
 
         # Test tutorial path resolution
-        result = _resolve_project_path("tutorials/invoice_processing/invoice_data.csv")
+        result = adri_cli._resolve_project_path("tutorials/invoice_processing/invoice_data.csv")
         expected = self.project_root / "ADRI/tutorials/invoice_processing/invoice_data.csv"
 
         # Use resolve() for cross-platform symlink handling
@@ -330,7 +324,7 @@ class TestPathResolutionCrossDirectory(unittest.TestCase):
         os.chdir(nested_dir)
 
         # Test dev standards path resolution
-        result = _resolve_project_path("dev/standards/invoice_standard.yaml")
+        result = adri_cli._resolve_project_path("dev/standards/invoice_standard.yaml")
         expected = self.project_root / "ADRI/dev/standards/invoice_standard.yaml"
 
         # Use resolve() for cross-platform symlink handling
@@ -343,7 +337,7 @@ class TestPathResolutionCrossDirectory(unittest.TestCase):
         os.chdir(src_dir)
 
         # Test tutorial path resolution
-        result = _resolve_project_path("tutorials/customer_service/agent_data.csv")
+        result = adri_cli._resolve_project_path("tutorials/customer_service/agent_data.csv")
         expected = self.project_root / "ADRI/tutorials/customer_service/agent_data.csv"
 
         # Use resolve() for cross-platform symlink handling
@@ -364,7 +358,7 @@ class TestPathResolutionCrossDirectory(unittest.TestCase):
 
         for input_path, expected_suffix in test_cases:
             with self.subTest(input_path=input_path):
-                result = _resolve_project_path(input_path)
+                result = adri_cli._resolve_project_path(input_path)
                 expected = self.project_root / expected_suffix
                 # Use resolve() for cross-platform symlink handling
                 self.assertEqual(result.resolve(), expected.resolve())
@@ -375,12 +369,12 @@ class TestPathResolutionCrossDirectory(unittest.TestCase):
         os.chdir(scripts_dir)
 
         # Test that project root is still found correctly
-        project_root = _find_adri_project_root()
+        project_root = adri_cli._find_adri_project_root()
         # Use resolve() for cross-platform symlink handling
         self.assertEqual(project_root.resolve(), self.project_root.resolve())
 
         # Test path resolution
-        result = _resolve_project_path("tutorials/invoice_processing/invoice_data.csv")
+        result = adri_cli._resolve_project_path("tutorials/invoice_processing/invoice_data.csv")
         expected = self.project_root / "ADRI/tutorials/invoice_processing/invoice_data.csv"
 
         # Use resolve() for cross-platform symlink handling
@@ -401,7 +395,7 @@ class TestPathResolutionCrossDirectory(unittest.TestCase):
 
         for input_path in test_cases:
             with self.subTest(input_path=input_path):
-                result = _resolve_project_path(input_path)
+                result = adri_cli._resolve_project_path(input_path)
 
                 # Result should always be a Path object with correct resolution
                 self.assertIsInstance(result, Path)
@@ -484,7 +478,7 @@ class TestPathResolutionIntegration(unittest.TestCase):
             config_path.unlink()
 
         # Run setup command - should work from subdirectory
-        result = setup_command(force=True, project_name="test_project")
+        result = adri_cli.setup_command(force=True, project_name="test_project")
 
         self.assertEqual(result, 0)
         # Check if config was created (might be in current working directory for new setup)
@@ -492,7 +486,7 @@ class TestPathResolutionIntegration(unittest.TestCase):
         self.assertTrue(config_path.exists() or local_config.exists(),
             f"Config should exist at {config_path} or {local_config}")
 
-    @patch('adri.cli.load_data')
+    @patch('src.adri.cli.load_data')
     def test_generate_standard_command_path_resolution(self, mock_load_data):
         """Test generate-standard command works with path resolution."""
         mock_load_data.return_value = [
@@ -505,7 +499,7 @@ class TestPathResolutionIntegration(unittest.TestCase):
         os.chdir(sub_dir)
 
         # Run generate-standard with relative tutorial path
-        result = generate_standard_command("tutorials/invoice_processing/invoice_data.csv", force=True)
+        result = adri_cli.generate_standard_command("tutorials/invoice_processing/invoice_data.csv", force=True)
 
         self.assertEqual(result, 0)
 
@@ -519,9 +513,9 @@ class TestPathResolutionIntegration(unittest.TestCase):
         self.assertTrue(standard_path1.exists() or standard_path2.exists(),
             f"Standard should exist at {standard_path1} or {standard_path2}")
 
-    @patch('adri.cli.load_data')
-    @patch('adri.cli.load_standard')
-    @patch('adri.cli.DataQualityAssessor')
+    @patch('src.adri.cli.commands.assess.load_data')
+    @patch('src.adri.cli.commands.assess.load_standard')
+    @patch('src.adri.cli.commands.assess.DataQualityAssessor')
     def test_assess_command_path_resolution(self, mock_assessor_class, mock_load_standard, mock_load_data):
         """Test assess command works with path resolution."""
         # Setup mocks
@@ -553,7 +547,7 @@ class TestPathResolutionIntegration(unittest.TestCase):
         os.chdir(sub_dir)
 
         # Run assess command with relative paths
-        result = assess_command(
+        result = adri_cli.assess_command(
             "tutorials/invoice_processing/invoice_data.csv",
             "dev/standards/test_standard.yaml"
         )
@@ -572,7 +566,7 @@ class TestPathResolutionIntegration(unittest.TestCase):
         """Test path resolution edge cases and error handling."""
         # Test with paths that don't exist
         non_existent_path = "tutorials/nonexistent/data.csv"
-        result = _resolve_project_path(non_existent_path)
+        result = adri_cli._resolve_project_path(non_existent_path)
 
         # Should still resolve to correct location even if file doesn't exist
         expected_path = self.project_root / "ADRI" / "tutorials" / "nonexistent" / "data.csv"
@@ -587,7 +581,7 @@ class TestPathResolutionIntegration(unittest.TestCase):
             f.write("test,data\n1,value")
 
         # Test with absolute path
-        result = _resolve_project_path(str(test_file.absolute()))
+        result = adri_cli._resolve_project_path(str(test_file.absolute()))
 
         # Should handle absolute paths gracefully
         self.assertIsInstance(result, Path)
@@ -628,7 +622,7 @@ class TestPathResolutionPerformance(unittest.TestCase):
         import time
 
         start_time = time.time()
-        result = _find_adri_project_root()
+        result = adri_cli._find_adri_project_root()
         end_time = time.time()
 
         # Should complete quickly even from deep structure
@@ -653,7 +647,7 @@ class TestPathResolutionPerformance(unittest.TestCase):
         start_time = time.time()
         results = []
         for path in test_paths * 20:  # Test 100 calls total
-            result = _resolve_project_path(path)
+            result = adri_cli._resolve_project_path(path)
             results.append(result)
         end_time = time.time()
 

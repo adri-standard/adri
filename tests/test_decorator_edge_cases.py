@@ -13,7 +13,7 @@ import importlib
 from unittest.mock import Mock, patch, MagicMock
 
 # Test the actual decorator functions
-from adri.decorator import (
+from src.adri.decorator import (
     adri_protected,
     ProtectionError
 )
@@ -47,7 +47,7 @@ class TestDecoratorEdgeCases(unittest.TestCase):
         self.assertTrue(hasattr(decorator_module, 'logger'))
         self.assertEqual(decorator_module.logger.name, 'adri.decorator')
 
-    @patch('adri.decorator.DataProtectionEngine')
+    @patch('src.adri.decorator.DataProtectionEngine')
     def test_comprehensive_kwargs_handling(self, mock_engine_class):
         """Test @adri_protected with comprehensive kwargs handling."""
         mock_engine = Mock()
@@ -80,7 +80,7 @@ class TestDecoratorEdgeCases(unittest.TestCase):
         self.assertTrue(call_args[1]["cache_assessments"])
         self.assertTrue(call_args[1]["verbose"])
 
-    @patch('adri.decorator.DataProtectionEngine')
+    @patch('src.adri.decorator.DataProtectionEngine')
     def test_explicit_protection_patterns(self, mock_engine_class):
         """Test @adri_protected with different explicit configuration patterns."""
         mock_engine = Mock()
@@ -88,7 +88,7 @@ class TestDecoratorEdgeCases(unittest.TestCase):
         mock_engine_class.return_value = mock_engine
 
         # Test strict protection pattern (minimal parameters)
-        @adri_protected(standard="minimal_standard", min_score=90, on_failure="raise")
+        @adri_protected(standard="minimal", min_score=90, on_failure="raise")
         def minimal_strict_function(data):
             return {"minimal_strict": True}
 
@@ -102,7 +102,7 @@ class TestDecoratorEdgeCases(unittest.TestCase):
         self.assertEqual(call_args[1]["data_param"], "data")  # Default value
 
         # Test permissive protection pattern (minimal parameters)
-        @adri_protected(standard="minimal_permissive", min_score=70, on_failure="warn", verbose=True)
+        @adri_protected(standard="minimal", min_score=70, on_failure="warn", verbose=True)
         def minimal_permissive_function(data):
             return {"minimal_permissive": True}
 
@@ -117,7 +117,7 @@ class TestDecoratorEdgeCases(unittest.TestCase):
 
         # Test financial-grade protection pattern (minimal parameters)
         @adri_protected(
-            standard="minimal_financial",
+            standard="minimal",
             min_score=95,
             dimensions={"validity": 19, "completeness": 19, "consistency": 18},
             on_failure="raise"
@@ -163,7 +163,7 @@ class TestDecoratorEdgeCases(unittest.TestCase):
         # Test that DataProtectionEngine is available (imported)
         self.assertTrue(hasattr(decorator_module, 'DataProtectionEngine'))
 
-    @patch('adri.decorator.DataProtectionEngine')
+    @patch('src.adri.decorator.DataProtectionEngine')
     def test_decorator_with_unusual_function_names(self, mock_engine_class):
         """Test decorator with functions that have unusual names."""
         mock_engine = Mock()
@@ -171,7 +171,7 @@ class TestDecoratorEdgeCases(unittest.TestCase):
         mock_engine_class.return_value = mock_engine
 
         # Test with function name that includes underscores and numbers
-        @adri_protected(standard="unusual_standard")
+        @adri_protected(standard="unusual")
         def _private_function_v2(data):
             return {"private": True}
 
@@ -183,7 +183,7 @@ class TestDecoratorEdgeCases(unittest.TestCase):
         self.assertEqual(call_args[1]["function_name"], "_private_function_v2")
 
         # Test with function name that starts with uppercase
-        @adri_protected(standard="class_like_standard")
+        @adri_protected(standard="unusual")
         def ClassName_like_function(data):
             return {"class_like": True}
 
@@ -194,7 +194,7 @@ class TestDecoratorEdgeCases(unittest.TestCase):
         call_args = mock_engine.protect_function_call.call_args
         self.assertEqual(call_args[1]["function_name"], "ClassName_like_function")
 
-    @patch('adri.decorator.DataProtectionEngine')
+    @patch('src.adri.decorator.DataProtectionEngine')
     def test_decorator_attribute_setting_edge_cases(self, mock_engine_class):
         """Test decorator attribute setting with edge cases."""
         mock_engine = Mock()
@@ -203,7 +203,7 @@ class TestDecoratorEdgeCases(unittest.TestCase):
 
         # Test with None values for optional parameters
         @adri_protected(
-            standard="edge_case_standard",
+            standard="edge_case",
             data_param="data",
             min_score=None,  # Should be passed as None
             dimensions=None,  # Should be passed as None
@@ -226,18 +226,18 @@ class TestDecoratorEdgeCases(unittest.TestCase):
         self.assertIsNone(config["verbose"])
 
         # Verify non-None values are preserved
-        self.assertEqual(config["standard"], "edge_case_standard")
+        self.assertEqual(config["standard"], "edge_case")
         self.assertEqual(config["data_param"], "data")
         self.assertTrue(config["auto_generate"])  # Default value
 
-    @patch('adri.decorator.DataProtectionEngine')
+    @patch('src.adri.decorator.DataProtectionEngine')
     def test_functools_wraps_preservation(self, mock_engine_class):
         """Test that @functools.wraps preserves function metadata correctly."""
         mock_engine = Mock()
         mock_engine.protect_function_call.return_value = {"wrapped": True}
         mock_engine_class.return_value = mock_engine
 
-        @adri_protected(standard="metadata_standard")
+        @adri_protected(standard="metadata")
         def function_with_rich_metadata(data, param1="default1", param2="default2"):
             """
             A function with rich metadata for testing.

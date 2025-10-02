@@ -20,7 +20,7 @@ from unittest.mock import Mock, patch, MagicMock
 from pathlib import Path
 
 # Test the actual imports
-from adri.guard.modes import (
+from src.adri.guard.modes import (
     DataProtectionEngine,
     FailFastMode,
     SelectiveMode,
@@ -55,7 +55,7 @@ class TestProtectionModesEdgeCases(unittest.TestCase):
         self.assertIsNotNone(LocalLogger)
         self.assertIsNotNone(EnterpriseLogger)
 
-    @patch('adri.guard.modes.ConfigurationLoader')
+    @patch('src.adri.guard.modes.ConfigurationLoader')
     def test_config_loading_exception_handling(self, mock_config_class):
         """Test configuration loading exception handling (lines 204-205)."""
         # Setup mock to raise exception during get_protection_config
@@ -70,10 +70,10 @@ class TestProtectionModesEdgeCases(unittest.TestCase):
         self.assertEqual(engine.protection_config["default_min_score"], 80)
         self.assertTrue(engine.protection_config["auto_generate_standards"])
 
-    @patch('adri.guard.modes.ConfigurationLoader')
-    @patch('adri.guard.modes.LocalLogger')
-    @patch('adri.guard.modes.EnterpriseLogger')
-    @patch('adri.guard.modes.ValidationEngine')
+    @patch('src.adri.guard.modes.ConfigurationLoader')
+    @patch('src.adri.guard.modes.LocalLogger')
+    @patch('src.adri.guard.modes.EnterpriseLogger')
+    @patch('src.adri.guard.modes.ValidationEngine')
     @patch('os.path.exists')
     def test_on_failure_parameter_overrides(self, mock_exists, mock_engine_class, mock_enterprise, mock_local, mock_config):
         """Test on_failure parameter override logic (lines 264-269)."""
@@ -108,9 +108,9 @@ class TestProtectionModesEdgeCases(unittest.TestCase):
                 )
                 self.assertEqual(result["result"], "success")
 
-    @patch('adri.guard.modes.ConfigurationLoader')
-    @patch('adri.guard.modes.LocalLogger')
-    @patch('adri.guard.modes.EnterpriseLogger')
+    @patch('src.adri.guard.modes.ConfigurationLoader')
+    @patch('src.adri.guard.modes.LocalLogger')
+    @patch('src.adri.guard.modes.EnterpriseLogger')
     def test_data_parameter_extraction_edge_cases(self, mock_enterprise, mock_local, mock_config):
         """Test data parameter extraction edge cases (lines 331-332)."""
         mock_config.return_value = None
@@ -139,9 +139,9 @@ class TestProtectionModesEdgeCases(unittest.TestCase):
 
             self.assertIn("Could not find data parameter 'missing_param'", str(context.exception))
 
-    @patch('adri.guard.modes.ConfigurationLoader')
-    @patch('adri.guard.modes.LocalLogger')
-    @patch('adri.guard.modes.EnterpriseLogger')
+    @patch('src.adri.guard.modes.ConfigurationLoader')
+    @patch('src.adri.guard.modes.LocalLogger')
+    @patch('src.adri.guard.modes.EnterpriseLogger')
     def test_standard_generation_edge_cases(self, mock_enterprise, mock_local, mock_config):
         """Test standard generation edge cases (lines 372, 376-382, 389-390, 401, 442)."""
         mock_config.return_value = None
@@ -187,9 +187,9 @@ class TestProtectionModesEdgeCases(unittest.TestCase):
                     engine._ensure_standard_exists(standard_path, test_data)
                     self.assertTrue(os.path.exists(standard_path))
 
-    @patch('adri.guard.modes.ConfigurationLoader')
-    @patch('adri.guard.modes.LocalLogger')
-    @patch('adri.guard.modes.EnterpriseLogger')
+    @patch('src.adri.guard.modes.ConfigurationLoader')
+    @patch('src.adri.guard.modes.LocalLogger')
+    @patch('src.adri.guard.modes.EnterpriseLogger')
     def test_field_type_detection_edge_cases(self, mock_enterprise, mock_local, mock_config):
         """Test field type detection in standard generation (line 401)."""
         mock_config.return_value = None
@@ -221,9 +221,9 @@ class TestProtectionModesEdgeCases(unittest.TestCase):
                 self.assertIn("all_null_column", content)  # Should include our test column
                 self.assertIn("requirements", content)  # Should have requirements section
 
-    @patch('adri.guard.modes.ConfigurationLoader')
-    @patch('adri.guard.modes.LocalLogger')
-    @patch('adri.guard.modes.EnterpriseLogger')
+    @patch('src.adri.guard.modes.ConfigurationLoader')
+    @patch('src.adri.guard.modes.LocalLogger')
+    @patch('src.adri.guard.modes.EnterpriseLogger')
     def test_assessment_data_conversion_edge_cases(self, mock_enterprise, mock_local, mock_config):
         """Test assessment data conversion edge cases (lines 446-452)."""
         mock_config.return_value = None
@@ -233,7 +233,7 @@ class TestProtectionModesEdgeCases(unittest.TestCase):
         engine = DataProtectionEngine()
 
         # Test with ValidationEngine not available
-        with patch('adri.guard.modes.ValidationEngine', None):
+        with patch('src.adri.guard.modes.ValidationEngine', None):
             with self.assertRaises(ProtectionError) as context:
                 engine._assess_data_quality(self.test_data, "test_standard.yaml")
 
@@ -249,7 +249,7 @@ class TestProtectionModesEdgeCases(unittest.TestCase):
             42  # Number that can't be converted
         ]
 
-        with patch('adri.guard.modes.ValidationEngine') as mock_engine_class:
+        with patch('src.adri.guard.modes.ValidationEngine') as mock_engine_class:
             mock_engine = Mock()
             mock_result = Mock()
             mock_result.overall_score = 85.0
@@ -266,9 +266,9 @@ class TestProtectionModesEdgeCases(unittest.TestCase):
                     result = engine._assess_data_quality(test_data, "test_standard.yaml")
                     self.assertEqual(result.overall_score, 85.0)
 
-    @patch('adri.guard.modes.ConfigurationLoader')
-    @patch('adri.guard.modes.LocalLogger')
-    @patch('adri.guard.modes.EnterpriseLogger')
+    @patch('src.adri.guard.modes.ConfigurationLoader')
+    @patch('src.adri.guard.modes.LocalLogger')
+    @patch('src.adri.guard.modes.EnterpriseLogger')
     def test_dimension_requirements_edge_cases(self, mock_enterprise, mock_local, mock_config):
         """Test dimension requirements edge cases (line 463)."""
         mock_config.return_value = None
@@ -313,9 +313,9 @@ class TestProtectionModesEdgeCases(unittest.TestCase):
         mode_with_config = SelectiveMode(custom_config)
         self.assertEqual(mode_with_config.config["test_setting"], "value")
 
-    @patch('adri.guard.modes.ConfigurationLoader')
-    @patch('adri.guard.modes.LocalLogger')
-    @patch('adri.guard.modes.EnterpriseLogger')
+    @patch('src.adri.guard.modes.ConfigurationLoader')
+    @patch('src.adri.guard.modes.LocalLogger')
+    @patch('src.adri.guard.modes.EnterpriseLogger')
     def test_directory_creation_edge_case(self, mock_enterprise, mock_local, mock_config):
         """Test directory creation with empty path (edge case)."""
         mock_config.return_value = None
@@ -339,9 +339,9 @@ class TestProtectionModesEdgeCases(unittest.TestCase):
                 # Always change back to original directory before cleanup
                 os.chdir(original_cwd)
 
-    @patch('adri.guard.modes.ConfigurationLoader')
-    @patch('adri.guard.modes.LocalLogger')
-    @patch('adri.guard.modes.EnterpriseLogger')
+    @patch('src.adri.guard.modes.ConfigurationLoader')
+    @patch('src.adri.guard.modes.LocalLogger')
+    @patch('src.adri.guard.modes.EnterpriseLogger')
     def test_standard_generation_failure_handling(self, mock_enterprise, mock_local, mock_config):
         """Test standard generation failure handling."""
         mock_config.return_value = None
@@ -351,9 +351,9 @@ class TestProtectionModesEdgeCases(unittest.TestCase):
         engine = DataProtectionEngine()
 
         # Test failure during standard generation
-        with patch('builtins.open', side_effect=PermissionError("Cannot write file")):
+        with patch('os.makedirs', side_effect=PermissionError("Cannot create directory")):
             with self.assertRaises(ProtectionError) as context:
-                engine._ensure_standard_exists("test_standard.yaml", self.test_data)
+                engine._ensure_standard_exists("subdir/test_standard.yaml", self.test_data)
 
             self.assertIn("Failed to generate standard", str(context.exception))
 

@@ -12,7 +12,7 @@ import tempfile
 import os
 
 # Updated imports for new src/ layout
-from adri.guard.modes import (
+from src.adri.guard.modes import (
     ProtectionMode,
     FailFastMode,
     SelectiveMode,
@@ -578,9 +578,9 @@ class TestProtectionEngineComprehensive(unittest.TestCase):
         self.assertIn("85", str(non_verbose_msg))
         self.assertGreater(len(verbose_msg), len(non_verbose_msg))
 
-    @patch('adri.guard.modes.ConfigurationLoader')
-    @patch('adri.guard.modes.LocalLogger')
-    @patch('adri.guard.modes.EnterpriseLogger')
+    @patch('src.adri.guard.modes.ConfigurationLoader')
+    @patch('src.adri.guard.modes.LocalLogger')
+    @patch('src.adri.guard.modes.EnterpriseLogger')
     def test_protection_configuration_comprehensive(self, mock_enterprise, mock_local, mock_config):
         """Test comprehensive protection configuration scenarios."""
         mock_config.return_value = None
@@ -591,16 +591,17 @@ class TestProtectionEngineComprehensive(unittest.TestCase):
         engine = DataProtectionEngine()
         config = engine._load_protection_config()
 
-        # Should contain expected default values
+        # Should contain expected default values (from the fallback logic)
         expected_keys = [
             "default_min_score",
+            "default_failure_mode",
             "auto_generate_standards",
             "cache_duration_hours",
             "verbose_protection"
         ]
 
         for key in expected_keys:
-            self.assertIn(key, config)
+            self.assertIn(key, config, f"Missing expected key: {key} in config: {config}")
 
         # Test configuration with custom values
         custom_config = {

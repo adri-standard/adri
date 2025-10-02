@@ -16,29 +16,33 @@ from typing import Any, Dict, List, Optional
 import requests
 import yaml
 
-# Updated imports for new structure - with fallbacks during migration
-try:
-    from .local import AuditRecord
-except ImportError:
-    try:
-        from adri.core.audit_logger import AuditRecord
-    except ImportError:
-        # Fallback AuditRecord class if not available
-        class AuditRecord:
-            """Fallback AuditRecord class for when local module is not available."""
+# Clean imports for modular architecture
+from .local import AuditRecord
 
-            def __init__(
-                self, assessment_id: str, timestamp: datetime, adri_version: str
-            ):
-                """Initialize audit record with basic metadata."""
-                self.assessment_id = assessment_id
-                self.timestamp = timestamp
-                self.adri_version = adri_version
-                self.assessment_results = {}
-                self.execution_context = {}
-                self.data_fingerprint = {}
-                self.standard_applied = {}
-                self.performance_metrics = {}
+
+class LogBatch:
+    """Stub class for log batch operations."""
+
+    def __init__(self, logs: list = None):
+        """Initialize LogBatch with logs."""
+        self.logs = logs or []
+
+
+class APIClient:
+    """Stub class for API client operations."""
+
+    def __init__(self, base_url: str = "", api_key: str = ""):
+        """Initialize APIClient with connection details."""
+        self.base_url = base_url
+        self.api_key = api_key
+
+
+class AuthenticationManager:
+    """Stub class for authentication management."""
+
+    def __init__(self, auth_config: dict = None):
+        """Initialize AuthenticationManager with configuration."""
+        self.auth_config = auth_config or {}
 
 
 class EnterpriseLogger:

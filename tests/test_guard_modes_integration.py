@@ -14,7 +14,7 @@ from unittest.mock import Mock, patch, MagicMock
 from datetime import datetime
 
 # Updated imports for new src/ layout
-from adri.guard.modes import (
+from src.adri.guard.modes import (
     DataProtectionEngine,
     FailFastMode,
     SelectiveMode,
@@ -57,9 +57,9 @@ class TestProtectionModesRealScenarios(unittest.TestCase):
         """Clean up test environment."""
         shutil.rmtree(self.test_dir)
 
-    @patch('adri.guard.modes.ConfigurationLoader')
-    @patch('adri.guard.modes.LocalLogger')
-    @patch('adri.guard.modes.EnterpriseLogger')
+    @patch('src.adri.guard.modes.ConfigurationLoader')
+    @patch('src.adri.guard.modes.LocalLogger')
+    @patch('src.adri.guard.modes.EnterpriseLogger')
     def test_fail_fast_mode_real_integration(self, mock_enterprise, mock_local, mock_config):
         """Test FailFastMode with real data protection integration."""
         mock_config.return_value = None
@@ -79,7 +79,7 @@ class TestProtectionModesRealScenarios(unittest.TestCase):
             }
 
         # Test with high-quality financial data - should pass
-        with patch('adri.guard.modes.ValidationEngine') as mock_engine_class:
+        with patch('src.adri.guard.modes.ValidationEngine') as mock_engine_class:
             mock_engine = Mock()
             mock_result = Mock()
             mock_result.overall_score = 92.0  # High quality score
@@ -107,9 +107,9 @@ class TestProtectionModesRealScenarios(unittest.TestCase):
             self.assertEqual(result["risk_level"], "low")
             self.assertGreater(result["total_balance"], 1000000)
 
-    @patch('adri.guard.modes.ConfigurationLoader')
-    @patch('adri.guard.modes.LocalLogger')
-    @patch('adri.guard.modes.EnterpriseLogger')
+    @patch('src.adri.guard.modes.ConfigurationLoader')
+    @patch('src.adri.guard.modes.LocalLogger')
+    @patch('src.adri.guard.modes.EnterpriseLogger')
     def test_selective_mode_real_integration(self, mock_enterprise, mock_local, mock_config):
         """Test SelectiveMode with poor quality data that continues execution."""
         mock_config.return_value = None
@@ -133,7 +133,7 @@ class TestProtectionModesRealScenarios(unittest.TestCase):
             }
 
         # Test with poor quality data - should continue with warnings
-        with patch('adri.guard.modes.ValidationEngine') as mock_engine_class:
+        with patch('src.adri.guard.modes.ValidationEngine') as mock_engine_class:
             mock_engine = Mock()
             mock_result = Mock()
             mock_result.overall_score = 65.0  # Low quality score
@@ -163,9 +163,9 @@ class TestProtectionModesRealScenarios(unittest.TestCase):
             self.assertEqual(result["valid_products"], 3)  # 3 valid products
             self.assertGreater(result["quality_issues"], 0)
 
-    @patch('adri.guard.modes.ConfigurationLoader')
-    @patch('adri.guard.modes.LocalLogger')
-    @patch('adri.guard.modes.EnterpriseLogger')
+    @patch('src.adri.guard.modes.ConfigurationLoader')
+    @patch('src.adri.guard.modes.LocalLogger')
+    @patch('src.adri.guard.modes.EnterpriseLogger')
     def test_warn_only_mode_real_integration(self, mock_enterprise, mock_local, mock_config):
         """Test WarnOnlyMode always continues execution regardless of data quality."""
         mock_config.return_value = None
@@ -183,7 +183,7 @@ class TestProtectionModesRealScenarios(unittest.TestCase):
             }
 
         # Test with extremely poor data - should still continue
-        with patch('adri.guard.modes.ValidationEngine') as mock_engine_class:
+        with patch('src.adri.guard.modes.ValidationEngine') as mock_engine_class:
             mock_engine = Mock()
             mock_result = Mock()
             mock_result.overall_score = 25.0  # Very low quality score
@@ -234,9 +234,9 @@ class TestDataProtectionEngineComprehensive(unittest.TestCase):
         """Clean up test environment."""
         shutil.rmtree(self.test_dir)
 
-    @patch('adri.guard.modes.ConfigurationLoader')
-    @patch('adri.guard.modes.LocalLogger')
-    @patch('adri.guard.modes.EnterpriseLogger')
+    @patch('src.adri.guard.modes.ConfigurationLoader')
+    @patch('src.adri.guard.modes.LocalLogger')
+    @patch('src.adri.guard.modes.EnterpriseLogger')
     def test_auto_standard_generation_comprehensive(self, mock_enterprise, mock_local, mock_config):
         """Test comprehensive auto-standard generation scenarios."""
         mock_config.return_value = None
@@ -254,7 +254,7 @@ class TestDataProtectionEngineComprehensive(unittest.TestCase):
             }
 
         # Test auto-generation when standard doesn't exist
-        with patch('adri.guard.modes.ValidationEngine') as mock_engine_class:
+        with patch('src.adri.guard.modes.ValidationEngine') as mock_engine_class:
             with patch('os.path.exists', return_value=False):  # Standard doesn't exist
                 with patch('os.makedirs') as mock_makedirs:
                     with patch('builtins.open', create=True) as mock_open:
@@ -287,9 +287,9 @@ class TestDataProtectionEngineComprehensive(unittest.TestCase):
                                 # Note: Auto-generation might not be called due to mocking flow
                                 self.assertEqual(result["processed_patients"], 5)
 
-    @patch('adri.guard.modes.ConfigurationLoader')
-    @patch('adri.guard.modes.LocalLogger')
-    @patch('adri.guard.modes.EnterpriseLogger')
+    @patch('src.adri.guard.modes.ConfigurationLoader')
+    @patch('src.adri.guard.modes.LocalLogger')
+    @patch('src.adri.guard.modes.EnterpriseLogger')
     def test_complex_function_signatures_comprehensive(self, mock_enterprise, mock_local, mock_config):
         """Test complex function signature handling."""
         mock_config.return_value = None
@@ -314,7 +314,7 @@ class TestDataProtectionEngineComprehensive(unittest.TestCase):
             return base_result
 
         # Test with complex parameter passing
-        with patch('adri.guard.modes.ValidationEngine') as mock_engine_class:
+        with patch('src.adri.guard.modes.ValidationEngine') as mock_engine_class:
             mock_engine = Mock()
             mock_result = Mock()
             mock_result.overall_score = 88.0
@@ -343,9 +343,9 @@ class TestDataProtectionEngineComprehensive(unittest.TestCase):
             self.assertEqual(result["analysis_type"], "advanced")
             self.assertIn("summary", result)
 
-    @patch('adri.guard.modes.ConfigurationLoader')
-    @patch('adri.guard.modes.LocalLogger')
-    @patch('adri.guard.modes.EnterpriseLogger')
+    @patch('src.adri.guard.modes.ConfigurationLoader')
+    @patch('src.adri.guard.modes.LocalLogger')
+    @patch('src.adri.guard.modes.EnterpriseLogger')
     def test_protection_error_scenarios_comprehensive(self, mock_enterprise, mock_local, mock_config):
         """Test comprehensive error scenarios and edge cases."""
         mock_config.return_value = None
@@ -402,7 +402,7 @@ class TestDataProtectionEngineComprehensive(unittest.TestCase):
         def failing_function(data):
             raise ValueError("Function execution failed")
 
-        with patch('adri.guard.modes.ValidationEngine') as mock_engine_class:
+        with patch('src.adri.guard.modes.ValidationEngine') as mock_engine_class:
             mock_engine = Mock()
             mock_result = Mock()
             mock_result.overall_score = 95.0  # High score, should pass protection
@@ -421,9 +421,9 @@ class TestDataProtectionEngineComprehensive(unittest.TestCase):
 
         self.assertIn("Data protection failed", str(context.exception))
 
-    @patch('adri.guard.modes.ConfigurationLoader')
-    @patch('adri.guard.modes.LocalLogger')
-    @patch('adri.guard.modes.EnterpriseLogger')
+    @patch('src.adri.guard.modes.ConfigurationLoader')
+    @patch('src.adri.guard.modes.LocalLogger')
+    @patch('src.adri.guard.modes.EnterpriseLogger')
     def test_dimension_based_protection_comprehensive(self, mock_enterprise, mock_local, mock_config):
         """Test comprehensive dimension-based protection scenarios."""
         mock_config.return_value = None
@@ -441,7 +441,7 @@ class TestDataProtectionEngineComprehensive(unittest.TestCase):
             }
 
         # Test passing all dimension requirements
-        with patch('adri.guard.modes.ValidationEngine') as mock_engine_class:
+        with patch('src.adri.guard.modes.ValidationEngine') as mock_engine_class:
             mock_engine = Mock()
             mock_result = Mock()
             mock_result.overall_score = 85.0
@@ -478,7 +478,7 @@ class TestDataProtectionEngineComprehensive(unittest.TestCase):
         # Test failing dimension requirements
         mock_result.dimension_scores["consistency"] = Mock(score=16.0)  # Below 17.0 requirement
 
-        with patch('adri.guard.modes.ValidationEngine') as mock_engine_class:
+        with patch('src.adri.guard.modes.ValidationEngine') as mock_engine_class:
             mock_engine.assess.return_value = mock_result
             mock_engine_class.return_value = mock_engine
 
@@ -503,9 +503,9 @@ class TestDataProtectionEngineComprehensive(unittest.TestCase):
         # Verify that the protection failed due to dimension requirements
         self.assertIn("blocked", str(context.exception).lower())
 
-    @patch('adri.guard.modes.ConfigurationLoader')
-    @patch('adri.guard.modes.LocalLogger')
-    @patch('adri.guard.modes.EnterpriseLogger')
+    @patch('src.adri.guard.modes.ConfigurationLoader')
+    @patch('src.adri.guard.modes.LocalLogger')
+    @patch('src.adri.guard.modes.EnterpriseLogger')
     def test_configuration_and_logging_integration(self, mock_enterprise, mock_local, mock_config):
         """Test configuration loading and logging integration."""
         # Setup configuration mock
@@ -532,7 +532,7 @@ class TestDataProtectionEngineComprehensive(unittest.TestCase):
             return {"logged": True, "data_size": len(data)}
 
         # Test with configuration and logging
-        with patch('adri.guard.modes.ValidationEngine') as mock_engine_class:
+        with patch('src.adri.guard.modes.ValidationEngine') as mock_engine_class:
             mock_engine = Mock()
             mock_result = Mock()
             mock_result.overall_score = 87.0
