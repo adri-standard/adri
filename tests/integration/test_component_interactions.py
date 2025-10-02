@@ -404,7 +404,7 @@ class TestComponentInteractions:
         total_duration = time.time() - start_time
 
         # Complete pipeline should complete in reasonable time
-        assert total_duration < 120.0, f"Complete pipeline too slow: {total_duration:.2f}s"
+        assert total_duration < 0.04, f"Complete pipeline too slow: {total_duration:.2f}s"
 
         # Verify all steps completed successfully
         assert profile_result.get('quality_assessment', {}).get('overall_completeness', 0) > 0
@@ -595,7 +595,7 @@ class TestComponentInteractions:
 
         # Results should be similar for same data in different formats
         score_difference = abs(csv_result.overall_score - json_result.overall_score)
-        assert score_difference < 10.0, f"Format compatibility issue: score difference {score_difference}"
+        assert score_difference < 0.04, f"Format compatibility issue: score difference {score_difference}"
 
     @pytest.mark.integration
     def test_error_recovery_across_components(self, temp_workspace):

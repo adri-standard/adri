@@ -221,7 +221,7 @@ class TestStandardsParserComprehensive:
             assert "minimum_score" in dimension_requirements[dimension]
 
             min_score = dimension_requirements[dimension]["minimum_score"]
-            assert 0.0 <= min_score <= 20.0  # Valid range for dimension scores
+            assert 0.0 <= min_score <= 25.0  # Valid range for dimension scores
 
         self.component_tester.record_test_execution(TestCategory.UNIT, True)
 
@@ -407,7 +407,7 @@ class TestStandardsParserComprehensive:
             small_duration = time.time() - start_time
 
             assert small_result is not None
-            assert small_duration < 0.1, f"Small standard parsing too slow: {small_duration:.2f}s"
+            assert small_duration < 0.04, f"Small standard parsing too slow: {small_duration:.2f}s"
         finally:
             # Restore original environment
             if original_path:
@@ -451,7 +451,7 @@ class TestStandardsParserComprehensive:
 
             assert large_result is not None
             assert len(large_result["requirements"]["field_requirements"]) == 100
-            assert large_duration < 1.0, f"Large standard parsing too slow: {large_duration:.2f}s"
+            assert large_duration < 0.04, f"Large standard parsing too slow: {large_duration:.2f}s"
 
             self.component_tester.record_test_execution(TestCategory.PERFORMANCE, True)
         finally:

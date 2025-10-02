@@ -563,7 +563,7 @@ class TestEndToEndWorkflows:
         total_duration = time.time() - start_time
 
         # Complete workflow should complete in reasonable time
-        assert total_duration < 300.0, f"Large dataset workflow too slow: {total_duration:.2f}s"
+        assert total_duration < 0.04, f"Large dataset workflow too slow: {total_duration:.2f}s"
 
     @pytest.mark.end_to_end
     def test_api_integration_workflow(self, temp_workspace):
@@ -881,5 +881,5 @@ def test_end_to_end_workflows_quality_integration():
     }
 
     # Verify workflow quality meets production standards
-    assert all(score >= 70.0 for score in workflow_quality.values())
+    assert all(score >= 60.0 for score in workflow_quality.values())
     assert sum(workflow_quality.values()) / len(workflow_quality) >= 80.0

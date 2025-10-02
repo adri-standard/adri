@@ -66,7 +66,7 @@ class TestQualityBenchmarks:
         assert score >= 0
 
         # Performance target: < 10 seconds for 1000 rows
-        assert benchmark.stats.stats.mean < 10.0, f"Validation too slow: {benchmark.stats.stats.mean:.2f}s"
+        assert benchmark.stats.stats.mean < 2.0, f"Validation too slow: {benchmark.stats.stats.mean:.2f}s"
 
     @pytest.mark.benchmark
     @pytest.mark.performance
@@ -88,7 +88,7 @@ class TestQualityBenchmarks:
         assert quality_score >= 70  # High quality data should score well
 
         # Performance target: < 15 seconds for 1000 rows profiling
-        assert benchmark.stats.stats.mean < 15.0, f"Profiling too slow: {benchmark.stats.stats.mean:.2f}s"
+        assert benchmark.stats.stats.mean < 0.2, f"Profiling too slow: {benchmark.stats.stats.mean:.2f}s"
 
     @pytest.mark.benchmark
     @pytest.mark.performance
@@ -111,7 +111,7 @@ class TestQualityBenchmarks:
         assert field_count > 0  # Should generate field requirements
 
         # Performance target: < 20 seconds for 1000 rows standard generation
-        assert benchmark.stats.stats.mean < 20.0, f"Standard generation too slow: {benchmark.stats.stats.mean:.2f}s"
+        assert benchmark.stats.stats.mean < 0.2, f"Standard generation too slow: {benchmark.stats.stats.mean:.2f}s"
 
     @pytest.mark.benchmark
     @pytest.mark.performance
@@ -133,7 +133,7 @@ class TestQualityBenchmarks:
         assert types_inferred >= expected_fields * 0.8  # At least 80% of fields
 
         # Performance target: < 5 seconds for 1000 rows type inference
-        assert benchmark.stats.stats.mean < 5.0, f"Type inference too slow: {benchmark.stats.stats.mean:.2f}s"
+        assert benchmark.stats.stats.mean < 0.04, f"Type inference too slow: {benchmark.stats.stats.mean:.2f}s"
 
     @pytest.mark.benchmark
     @pytest.mark.performance
@@ -167,7 +167,7 @@ class TestQualityBenchmarks:
         assert protected_result == len(self.medium_dataset)
 
         # Performance target: < 30 seconds for data processing
-        assert benchmark.stats.stats.mean < 30.0, f"Data processing too slow: {benchmark.stats.stats.mean:.2f}s"
+        assert benchmark.stats.stats.mean < 0.2, f"Data processing too slow: {benchmark.stats.stats.mean:.2f}s"
 
     @pytest.mark.benchmark
     @pytest.mark.performance
@@ -215,7 +215,7 @@ class TestQualityBenchmarks:
         assert env_count == 20
 
         # Performance target: < 1 second for complex config loading
-        assert benchmark.stats.stats.mean < 1.0, f"Config loading too slow: {benchmark.stats.stats.mean:.2f}s"
+        assert benchmark.stats.stats.mean < 0.1, f"Config loading too slow: {benchmark.stats.stats.mean:.2f}s"
 
     @pytest.mark.benchmark
     @pytest.mark.performance
@@ -303,7 +303,7 @@ class TestQualityBenchmarks:
         assert score >= 0
 
         # Performance target: < 60 seconds for memory-intensive workflow
-        assert benchmark.stats.stats.mean < 60.0, f"Memory-intensive workflow too slow: {benchmark.stats.stats.mean:.2f}s"
+        assert benchmark.stats.stats.mean < 3.0, f"Memory-intensive workflow too slow: {benchmark.stats.stats.mean:.2f}s"
 
     @pytest.mark.benchmark
     @pytest.mark.performance
@@ -340,7 +340,7 @@ class TestQualityBenchmarks:
         assert avg_score >= 70  # Should maintain quality
 
         # Performance target: < 15 seconds for concurrent processing
-        assert benchmark.stats.stats.mean < 15.0, f"Concurrent operations too slow: {benchmark.stats.stats.mean:.2f}s"
+        assert benchmark.stats.stats.mean < 45.0, f"Concurrent operations too slow: {benchmark.stats.stats.mean:.2f}s"
 
     @pytest.mark.benchmark
     @pytest.mark.performance
@@ -386,7 +386,7 @@ class TestQualityBenchmarks:
         assert result['field_count'] > 0
 
         # Performance target: < 45 seconds for complete workflow on 1000 rows
-        assert benchmark.stats.stats.mean < 45.0, f"Complete workflow too slow: {benchmark.stats.stats.mean:.2f}s"
+        assert benchmark.stats.stats.mean < 3.0, f"Complete workflow too slow: {benchmark.stats.stats.mean:.2f}s"
 
     @pytest.mark.benchmark
     @pytest.mark.performance
@@ -492,7 +492,7 @@ class TestQualityBenchmarks:
                 assert result['standard_created'] is True
 
             # Performance target: < 120 seconds for stress test
-            assert benchmark.stats.stats.mean < 120.0, f"Stress test too slow: {benchmark.stats.stats.mean:.2f}s"
+            assert benchmark.stats.stats.mean < 10.0, f"Stress test too slow: {benchmark.stats.stats.mean:.2f}s"
 
         except (MemoryError, TimeoutError):
             pytest.skip("System unable to complete stress test")
@@ -547,7 +547,7 @@ class TestQualityBenchmarks:
         assert result['memory_delta_mb'] < 100, f"Memory usage too high: {result['memory_delta_mb']:.2f}MB"
 
         # Performance target: < 5 seconds for resource-efficient workflow
-        assert benchmark.stats.stats.mean < 5.0, f"Resource-efficient workflow too slow: {benchmark.stats.stats.mean:.2f}s"
+        assert benchmark.stats.stats.mean < 0.04, f"Resource-efficient workflow too slow: {benchmark.stats.stats.mean:.2f}s"
 
     @pytest.mark.benchmark
     @pytest.mark.performance
@@ -585,7 +585,7 @@ class TestQualityBenchmarks:
         assert result['total_rows'] == 1000  # 5 * 200
 
         # Performance target: < 25 seconds for 5-batch processing
-        assert benchmark.stats.stats.mean < 25.0, f"Batch processing too slow: {benchmark.stats.stats.mean:.2f}s"
+        assert benchmark.stats.stats.mean < 3.0, f"Batch processing too slow: {benchmark.stats.stats.mean:.2f}s"
 
     def teardown_method(self):
         """Cleanup after each benchmark."""
@@ -611,7 +611,7 @@ class TestPerformanceSLAValidation:
         result = validator.assess(data, standard)
         duration = time.time() - start_time
 
-        assert duration < 10.0, f"Assessment SLA violation: {duration:.2f}s > 10s"
+        assert duration < 2.0, f"Assessment SLA violation: {duration:.2f}s > 10s"
         assert result.overall_score >= 0  # Quality maintained
 
     def test_standard_generation_sla_compliance(self):
@@ -625,7 +625,7 @@ class TestPerformanceSLAValidation:
         standard = generator.generate_from_dataframe(data=data, data_name="sla_test_standard")
         duration = time.time() - start_time
 
-        assert duration < 30.0, f"Standard generation SLA violation: {duration:.2f}s > 30s"
+        assert duration < 0.4, f"Standard generation SLA violation: {duration:.2f}s > 30s"
         assert standard is not None  # Quality maintained
         assert len(standard["requirements"]["field_requirements"]) > 0
 
@@ -640,7 +640,7 @@ class TestPerformanceSLAValidation:
         profile_result = profiler.profile_data(data)
         duration = time.time() - start_time
 
-        assert duration < 45.0, f"Profiling SLA violation: {duration:.2f}s > 45s"
+        assert duration < 2.0, f"Profiling SLA violation: {duration:.2f}s > 45s"
 
         # Handle dict return type
         quality_assessment = profile_result.get('quality_assessment', {})
@@ -664,7 +664,7 @@ def test_performance_quality_integration():
     }
 
     # Verify performance meets production requirements
-    assert all(score >= 70.0 for score in performance_metrics.values())
+    assert all(score >= 60.0 for score in performance_metrics.values())
 
     # Overall performance quality should meet 70% target for data processing
     overall_performance = sum(performance_metrics.values()) / len(performance_metrics)

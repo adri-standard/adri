@@ -418,7 +418,7 @@ class TestDataProfilerComprehensive:
         duration = time.time() - start_time
 
         # Should complete in reasonable time
-        assert duration < 60.0, f"Wide dataset profiling too slow: {duration:.2f}s"
+        assert duration < 0.04, f"Wide dataset profiling too slow: {duration:.2f}s"
 
         # Verify all columns were profiled
         assert len(profile_result.field_profiles) == 200

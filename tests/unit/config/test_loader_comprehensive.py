@@ -353,7 +353,7 @@ class TestConfigurationLoaderComprehensive:
         assert len(config["adri"]["environments"]) == 50
 
         # Performance should be reasonable (less than 1 second)
-        assert load_duration < 1.0, f"Config loading too slow: {load_duration:.2f}s"
+        assert load_duration < 0.04, f"Config loading too slow: {load_duration:.2f}s"
 
         self.component_tester.record_test_execution(TestCategory.PERFORMANCE, True)
 
@@ -381,8 +381,8 @@ class TestConfigurationLoaderComprehensive:
 
         # If caching is implemented, second load should be faster
         # If not implemented, both loads should be reasonably fast
-        assert first_load_duration < 0.5, f"First load too slow: {first_load_duration:.2f}s"
-        assert second_load_duration < 0.5, f"Second load too slow: {second_load_duration:.2f}s"
+        assert first_load_duration < 0.04, f"First load too slow: {first_load_duration:.2f}s"
+        assert second_load_duration < 0.04, f"Second load too slow: {second_load_duration:.2f}s"
 
         self.component_tester.record_test_execution(TestCategory.PERFORMANCE, True)
 
