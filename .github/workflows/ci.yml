@@ -28,49 +28,13 @@ jobs:
         python -m pip install --upgrade pip
         pip install -e .[dev,test]
 
-    # Temporarily disabled to focus on test discovery debugging
-    # - name: Run pre-commit checks
-    #   run: |
-    #     pre-commit run --all-files
+    - name: Run pre-commit checks
+      run: |
+        pre-commit run --all-files
 
     - name: Run tests with pytest
       run: |
         python -c "import os; os.makedirs('tests/coverage', exist_ok=True)"
-        echo "🔍 Validating test discovery in CI environment..."
-
-        # First, validate test discovery - MUST find all 858 tests
-        TEST_COUNT=$(pytest --collect-only -q | grep -o '[0-9]\+ tests collected' | grep -o '[0-9]\+' | head -1 || echo "0")
-        echo "📊 Tests discovered: $TEST_COUNT"
-
-        # Diagnostic information for test discovery debugging
-        echo "🔧 Environment diagnostics:"
-        python --version
-        pytest --version
-        pip list | grep -E "pytest|adri"
-        echo "📁 Working directory: $(pwd)"
-        echo "📂 Test files found: $(find tests -name 'test_*.py' | wc -l)"
-        echo "🔢 Test functions found: $(grep -r 'def test_' tests --include='test_*.py' | wc -l)"
-
-        # CRITICAL: Ensure we find ALL 858 tests, not just 400+
-        if [ "$TEST_COUNT" -lt 858 ]; then
-          echo "❌ CRITICAL: Only found $TEST_COUNT tests, expected exactly 858"
-          echo "🔍 Detailed test discovery debugging..."
-          echo "📋 All test files:"
-          find tests -name 'test_*.py' | sort
-          echo "🔍 Collection details:"
-          pytest --collect-only -v | head -20
-          echo "🔍 Collection summary:"
-          pytest --collect-only -q | tail -5
-
-          # Show which test files may be missing
-          echo "🔍 Checking for import issues..."
-          python -c "import sys; sys.path.insert(0, 'src'); import glob; test_files = []; [test_files.extend(glob.glob(p)) for p in ['tests/test_*.py', 'tests/*/test_*.py', 'tests/*/*/test_*.py']]; print(f'Test files: {len(test_files)}'); [print(f'File: {f}') for f in test_files[:5]]"
-          exit 1
-        fi
-
-        echo "✅ Test discovery validation passed ($TEST_COUNT tests found - all 858 tests detected)"
-
-        # Run the actual tests with proper coverage (use pyproject.toml settings)
         pytest
 
     - name: Upload coverage to Codecov
