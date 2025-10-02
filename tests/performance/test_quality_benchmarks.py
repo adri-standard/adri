@@ -29,6 +29,7 @@ from src.adri.config.loader import ConfigurationLoader
 from src.adri.standards.parser import StandardsParser
 from tests.quality_framework import TestCategory, performance_monitor
 from tests.fixtures.modern_fixtures import ModernFixtures, PerformanceTester
+from tests.utils.performance_helpers import assert_performance
 
 
 class TestQualityBenchmarks:
@@ -111,7 +112,7 @@ class TestQualityBenchmarks:
         assert field_count > 0  # Should generate field requirements
 
         # Performance target: < 20 seconds for 1000 rows standard generation
-        assert benchmark.stats.stats.mean < 0.25, f"Standard generation too slow: {benchmark.stats.stats.mean:.2f}s"
+        assert_performance(benchmark.stats.stats.mean, "micro", "validation_simple", "Standard generation (1000 rows)")
 
     @pytest.mark.benchmark
     @pytest.mark.performance

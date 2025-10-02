@@ -995,7 +995,8 @@ class TestLocalLoggingPerformance(unittest.TestCase):
             end_time = time.time()
 
             self.assertIsNotNone(result)
-            self.assertLess(end_time - start_time, 0.1)  # Should complete within 100ms
+            from tests.utils.performance_helpers import assert_performance
+        assert_performance(end_time - start_time, "micro", "validation_simple", "Single assessment logging")
 
     def test_bulk_logging_performance(self):
         """Test performance with bulk logging operations."""
