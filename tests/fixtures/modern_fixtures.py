@@ -16,6 +16,10 @@ import os
 import json
 import tempfile
 import random
+import shutil
+import time
+import gc
+import platform
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Generator, Tuple
 from contextlib import contextmanager
@@ -431,10 +435,65 @@ def minimal_config():
     return ModernFixtures.create_configuration_data("minimal")
 
 
+def safe_rmtree(path):
+    """Windows-safe recursive directory removal with enhanced cleanup strategies."""
+    if not os.path.exists(path):
+        return
+
+    def handle_remove_readonly(func, path, exc):
+        """Error handler for Windows readonly file issues."""
+        if os.path.exists(path):
+            os.chmod(path, 0o777)
+            func(path)
+
+    def windows_rmdir_fallback(path):
+        """Fallback using Windows rmdir command for stubborn directories."""
+        if platform.system() == "Windows":
+            try:
+                import subprocess
+                subprocess.run(['rmdir', '/s', '/q', path],
+                              shell=True, check=False,
+                              capture_output=True, timeout=30)
+            except Exception:
+                pass  # Silent fallback failure
+
+    # Multiple cleanup attempts with different strategies
+    for attempt in range(5):
+        try:
+            if attempt > 0:
+                time.sleep(0.1 * (attempt + 1))  # Progressive delay
+                gc.collect()  # Force garbage collection to release handles
+
+            if attempt >= 2:
+                # Try to close any remaining file handles
+                try:
+                    for root, dirs, files in os.walk(path):
+                        for file in files:
+                            file_path = os.path.join(root, file)
+                            try:
+                                os.chmod(file_path, 0o777)
+                            except Exception:
+                                pass
+                except Exception:
+                    pass
+
+            # Attempt removal
+            shutil.rmtree(path, onerror=handle_remove_readonly)
+            return  # Success!
+
+        except (PermissionError, OSError) as e:
+            if attempt == 4:  # Last attempt
+                if platform.system() == "Windows":
+                    windows_rmdir_fallback(path)
+                else:
+                    raise
+
+
 @pytest.fixture
 def temp_workspace():
-    """Provide temporary workspace with proper structure."""
-    with tempfile.TemporaryDirectory() as temp_dir:
+    """Provide temporary workspace with proper structure and Windows-safe cleanup."""
+    temp_dir = tempfile.mkdtemp()
+    try:
         workspace = Path(temp_dir)
 
         # Create ADRI directory structure
@@ -450,6 +509,9 @@ def temp_workspace():
             yaml.dump(config, f)
 
         yield workspace
+    finally:
+        # Windows-safe cleanup
+        safe_rmtree(temp_dir)
 
 
 @pytest.fixture
