@@ -615,27 +615,24 @@ class TestConfigLoaderErrorHandling(unittest.TestCase):
         self.assertIsNone(result)
 
     def test_permission_error_handling(self):
-        """Test handling of file permission errors."""
-        if os.name == 'nt':  # Skip on Windows
-            self.skipTest("File permission tests not applicable on Windows")
-
+        """Test handling of file permission errors using mocking."""
         loader = ConfigurationLoader()
 
-        # Create config file and remove read permissions
-        restricted_config = "restricted_config.yaml"
-        test_config = loader.create_default_config("permission_test")
-
-        with open(restricted_config, "w") as f:
-            yaml.dump(test_config, f)
-
-        os.chmod(restricted_config, 0o000)  # No permissions
-
-        try:
-            result = loader.load_config(restricted_config)
+        # Use mocking to simulate permission errors since Docker containers run as root
+        with patch('builtins.open', side_effect=PermissionError("Permission denied")):
+            result = loader.load_config("any_file.yaml")
             self.assertIsNone(result)  # Should handle gracefully
-        finally:
-            # Restore permissions for cleanup
-            os.chmod(restricted_config, 0o644)
+
+        # Test permission error during file writing
+        test_config = loader.create_default_config("permission_test")
+        with patch('builtins.open', side_effect=PermissionError("Permission denied")):
+            # save_config should handle permission errors gracefully
+            try:
+                loader.save_config(test_config, "restricted_file.yaml")
+                # If no exception is raised, the method handled it gracefully
+            except PermissionError:
+                # If PermissionError is propagated, that's also acceptable behavior
+                pass
 
     def test_missing_environment_error_handling(self):
         """Test error handling for missing environments."""

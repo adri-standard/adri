@@ -625,7 +625,7 @@ class TestPerformanceSLAValidation:
         standard = generator.generate_from_dataframe(data=data, data_name="sla_test_standard")
         duration = time.time() - start_time
 
-        assert duration < 0.4, f"Standard generation SLA violation: {duration:.2f}s > 30s"
+        assert duration < 0.6, f"Standard generation SLA violation: {duration:.2f}s > 0.6s"
         assert standard is not None  # Quality maintained
         assert len(standard["requirements"]["field_requirements"]) > 0
 

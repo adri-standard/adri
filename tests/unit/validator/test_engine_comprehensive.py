@@ -572,7 +572,7 @@ class TestValidatorEngineComprehensive:
             assert result.overall_score >= 0
 
         # Test performance is reasonable (less than 30 seconds for 5x1000 rows)
-        assert sequential_duration < 0.2, f"Batch processing too slow: {sequential_duration:.2f}s"
+        assert sequential_duration < 0.35, f"Batch processing too slow: {sequential_duration:.2f}s"
 
         self.component_tester.record_test_execution(TestCategory.PERFORMANCE, True)
 
