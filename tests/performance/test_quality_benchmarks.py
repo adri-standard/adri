@@ -112,7 +112,7 @@ class TestQualityBenchmarks:
         assert field_count > 0  # Should generate field requirements
 
         # Performance target: < 20 seconds for 1000 rows standard generation
-        assert_performance(benchmark.stats.stats.mean, "micro", "validation_simple", "Standard generation (1000 rows)")
+        assert_performance(benchmark.stats.stats.mean, "small", "standard_generation", "Standard generation (1000 rows)")
 
     @pytest.mark.benchmark
     @pytest.mark.performance
