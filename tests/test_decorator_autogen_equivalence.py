@@ -270,14 +270,16 @@ class TestDecoratorAutoGeneration:
         # Set up environment for test project
         test_standard_name = "test_autogen_invoice"
         os.environ['ADRI_ENV'] = 'development'
-        os.environ['ADRI_CONFIG_PATH'] = str(invoice_scenario['tutorial_dir'].parent.parent / 'adri-config.yaml')
+
+        # Get project root and set absolute config path
+        project_root = invoice_scenario['tutorial_dir'].parent.parent.parent
+        config_path = (project_root / 'adri-config.yaml').resolve()
+        os.environ['ADRI_CONFIG_PATH'] = str(config_path)
 
         # Load training data
         training_data = pd.read_csv(invoice_scenario['training_data_path'])
 
         # Ensure standard doesn't exist
-        # Get the project root (which is tutorial_dir.parent.parent.parent since tutorial_dir is test_project/ADRI/tutorials/invoice_processing)
-        project_root = invoice_scenario['tutorial_dir'].parent.parent.parent
         standard_dir = project_root / 'ADRI' / 'dev' / 'standards'
         standard_path = standard_dir / f"{test_standard_name}.yaml"
         if standard_path.exists():
@@ -324,7 +326,10 @@ class TestDecoratorAutoGeneration:
 
         # Set up environment
         os.environ['ADRI_ENV'] = 'development'
-        config_path = invoice_scenario['tutorial_dir'].parent.parent / 'adri-config.yaml'
+
+        # Get project root and set absolute config path
+        project_root = invoice_scenario['tutorial_dir'].parent.parent.parent
+        config_path = (project_root / 'adri-config.yaml').resolve()
         os.environ['ADRI_CONFIG_PATH'] = str(config_path)
 
         # Load training data
@@ -339,9 +344,6 @@ class TestDecoratorAutoGeneration:
         )
 
         # Save CLI-generated standard
-        # tutorial_dir is test_project/ADRI/tutorials/invoice_processing
-        # We want test_project/ADRI/dev/standards
-        project_root = invoice_scenario['tutorial_dir'].parent.parent.parent
         standard_dir = project_root / 'ADRI' / 'dev' / 'standards'
         cli_standard_path = standard_dir / "test_cli_invoice.yaml"
         with open(cli_standard_path, 'w') as f:
@@ -403,7 +405,11 @@ class TestDecoratorAutoGeneration:
 
         # Set up environment
         os.environ['ADRI_ENV'] = 'development'
-        os.environ['ADRI_CONFIG_PATH'] = str(invoice_scenario['tutorial_dir'].parent.parent / 'adri-config.yaml')
+
+        # Set absolute config path
+        project_root = invoice_scenario['tutorial_dir'].parent.parent.parent
+        config_path = (project_root / 'adri-config.yaml').resolve()
+        os.environ['ADRI_CONFIG_PATH'] = str(config_path)
 
         # Load training data
         training_data = pd.read_csv(invoice_scenario['training_data_path'])
@@ -417,7 +423,6 @@ class TestDecoratorAutoGeneration:
         )
 
         # Auto-generate decorator standard
-        project_root = invoice_scenario['tutorial_dir'].parent.parent.parent
         standard_dir = project_root / 'ADRI' / 'dev' / 'standards'
         decorator_standard_name = "test_fields_decorator"
         decorator_standard_path = standard_dir / f"{decorator_standard_name}.yaml"
@@ -468,7 +473,11 @@ class TestDecoratorAutoGeneration:
 
         # Set up environment
         os.environ['ADRI_ENV'] = 'development'
-        os.environ['ADRI_CONFIG_PATH'] = str(invoice_scenario['tutorial_dir'].parent.parent / 'adri-config.yaml')
+
+        # Set absolute config path
+        project_root = invoice_scenario['tutorial_dir'].parent.parent.parent
+        config_path = (project_root / 'adri-config.yaml').resolve()
+        os.environ['ADRI_CONFIG_PATH'] = str(config_path)
 
         # Load training data
         training_data = pd.read_csv(invoice_scenario['training_data_path'])
@@ -482,7 +491,6 @@ class TestDecoratorAutoGeneration:
         )
 
         # Auto-generate decorator standard
-        project_root = invoice_scenario['tutorial_dir'].parent.parent.parent
         standard_dir = project_root / 'ADRI' / 'dev' / 'standards'
         decorator_standard_name = "test_rules_decorator"
         decorator_standard_path = standard_dir / f"{decorator_standard_name}.yaml"
@@ -543,7 +551,11 @@ class TestDecoratorAutoGeneration:
 
         # Set up environment
         os.environ['ADRI_ENV'] = 'development'
-        os.environ['ADRI_CONFIG_PATH'] = str(invoice_scenario['tutorial_dir'].parent.parent / 'adri-config.yaml')
+
+        # Set absolute config path
+        project_root = invoice_scenario['tutorial_dir'].parent.parent.parent
+        config_path = (project_root / 'adri-config.yaml').resolve()
+        os.environ['ADRI_CONFIG_PATH'] = str(config_path)
 
         # Load test data
         test_data = pd.read_csv(invoice_scenario['test_data_path'])
@@ -608,10 +620,13 @@ class TestDecoratorAutoGeneration:
 
         # Set up environment
         os.environ['ADRI_ENV'] = 'development'
-        os.environ['ADRI_CONFIG_PATH'] = str(invoice_scenario['tutorial_dir'].parent.parent / 'adri-config.yaml')
+
+        # Set absolute config path
+        project_root = invoice_scenario['tutorial_dir'].parent.parent.parent
+        config_path = (project_root / 'adri-config.yaml').resolve()
+        os.environ['ADRI_CONFIG_PATH'] = str(config_path)
 
         # Create a standard manually
-        project_root = invoice_scenario['tutorial_dir'].parent.parent.parent
         standard_dir = project_root / 'ADRI' / 'dev' / 'standards'
         test_standard_name = "test_reuse_standard"
         standard_path = standard_dir / f"{test_standard_name}.yaml"
@@ -659,10 +674,13 @@ class TestDecoratorAutoGeneration:
 
         # Set up environment
         os.environ['ADRI_ENV'] = 'development'
-        os.environ['ADRI_CONFIG_PATH'] = str(invoice_scenario['tutorial_dir'].parent.parent / 'adri-config.yaml')
+
+        # Set absolute config path
+        project_root = invoice_scenario['tutorial_dir'].parent.parent.parent
+        config_path = (project_root / 'adri-config.yaml').resolve()
+        os.environ['ADRI_CONFIG_PATH'] = str(config_path)
 
         # Ensure standard doesn't exist
-        project_root = invoice_scenario['tutorial_dir'].parent.parent.parent
         standard_dir = project_root / 'ADRI' / 'dev' / 'standards'
         test_standard_name = "test_disabled_autogen"
         standard_path = standard_dir / f"{test_standard_name}.yaml"
