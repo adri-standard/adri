@@ -6,7 +6,7 @@ for ADRI standards.
 """
 
 from datetime import datetime
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 
 class DimensionRequirementsBuilder:
@@ -178,19 +178,26 @@ class DimensionRequirementsBuilder:
             rule_weights["recency_window"] = 1.0
 
     def create_freshness_metadata(
-        self, date_field: str, window_days: int = 365
+        self, date_field: str, window_days: int = 365, as_of_date: Optional[Any] = None
     ) -> Dict[str, Any]:
         """Create freshness metadata configuration.
 
         Args:
             date_field: Name of the field to use for freshness checking
             window_days: Recency window in days
+            as_of_date: Optional datetime to use as reference point (defaults to now)
 
         Returns:
             Freshness metadata dictionary
         """
+        # Use provided as_of_date or default to current time
+        if as_of_date is not None:
+            as_of_str = as_of_date.isoformat() + "Z"
+        else:
+            as_of_str = datetime.now().isoformat() + "Z"
+
         return {
-            "as_of": datetime.now().isoformat() + "Z",
+            "as_of": as_of_str,
             "window_days": window_days,
             "date_field": date_field,
         }

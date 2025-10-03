@@ -564,5 +564,85 @@ class TestValidationErrorHandling(unittest.TestCase):
         self.assertGreater(len(result["errors"]), 1)  # Multiple errors
 
 
+class TestNewConstraintValidation(unittest.TestCase):
+    """Test new constraint validation features.
+
+    Consolidated from test_validator_new_constraints.py (5 tests)
+    Tests: allowed_values, length_bounds, date_bounds constraints
+    """
+
+    def test_check_allowed_values_basic(self):
+        """Test allowed_values constraint validation."""
+        from src.adri.validator.rules import check_allowed_values
+
+        req = {"allowed_values": ["A", "B", "C"]}
+        self.assertTrue(check_allowed_values("A", req))
+        self.assertFalse(check_allowed_values("D", req))
+
+        # Robustness: numeric to string comparison
+        req_nums = {"allowed_values": [1, 2, 3]}
+        self.assertTrue(check_allowed_values("2", req_nums))
+        self.assertFalse(check_allowed_values("5", req_nums))
+
+    def test_check_length_bounds_basic(self):
+        """Test length_bounds constraint validation."""
+        from src.adri.validator.rules import check_length_bounds
+
+        req = {"min_length": 2, "max_length": 5}
+        self.assertTrue(check_length_bounds("ab", req))
+        self.assertTrue(check_length_bounds("hello", req))
+        self.assertFalse(check_length_bounds("a", req))
+        self.assertFalse(check_length_bounds("toolong", req))
+
+    def test_check_date_bounds_date_only(self):
+        """Test date_bounds constraint validation."""
+        from src.adri.validator.rules import check_date_bounds
+
+        req = {"after_date": "2024-01-01", "before_date": "2024-12-31"}
+        self.assertTrue(check_date_bounds("2024-06-15", req))
+        self.assertFalse(check_date_bounds("2023-12-31", req))
+        self.assertFalse(check_date_bounds("2025-01-01", req))
+
+    def test_validate_field_with_allowed_values_and_lengths(self):
+        """Test validate_field with combined allowed_values and length constraints."""
+        field_requirements = {
+            "status": {
+                "type": "string",
+                "nullable": False,
+                "allowed_values": ["paid", "pending", "cancelled"],
+                "min_length": 3,
+                "max_length": 10,
+            }
+        }
+
+        # Pass
+        self.assertTrue(validate_field("status", "paid", field_requirements)["passed"])
+
+        # Fail allowed_values
+        res = validate_field("status", "unknown", field_requirements)
+        self.assertFalse(res["passed"])
+        self.assertTrue(any("allowed_values" in e or "allowed" in e for e in res["errors"]))
+
+        # Fail lengths
+        res2 = validate_field("status", "ok", field_requirements)
+        self.assertFalse(res2["passed"])
+        self.assertTrue(any("length" in e.lower() for e in res2["errors"]))
+
+    def test_validate_field_with_date_bounds(self):
+        """Test validate_field with date_bounds constraint."""
+        field_requirements = {
+            "event_date": {
+                "type": "date",
+                "nullable": False,
+                "after_date": "2024-01-01",
+                "before_date": "2024-12-31",
+            }
+        }
+
+        self.assertTrue(validate_field("event_date", "2024-06-01", field_requirements)["passed"])
+        self.assertFalse(validate_field("event_date", "2023-12-31", field_requirements)["passed"])
+        self.assertFalse(validate_field("event_date", "2025-01-01", field_requirements)["passed"])
+
+
 if __name__ == '__main__':
     unittest.main()

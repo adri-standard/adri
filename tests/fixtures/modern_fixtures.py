@@ -10,6 +10,32 @@ Replaces legacy patterns with modern pytest fixtures optimized for:
 - Business Critical Components (90%+ quality targets)
 - System Infrastructure Components (80%+ quality targets)
 - Data Processing Components (75%+ quality targets)
+
+# Tutorial-Based Testing Framework
+
+For realistic end-to-end testing that mirrors actual user workflows, see:
+- tests/fixtures/tutorial_scenarios.py - Tutorial-based fixtures and scenarios
+- tests/fixtures/TUTORIAL_SCENARIOS.md - Complete documentation and usage examples
+
+The tutorial framework provides:
+- Real ADRI tutorial data as test foundation
+- CLI-based standard generation (mimics user workflow)
+- Name-only standard resolution testing
+- Development environment configuration
+
+Example tutorial fixture usage:
+    def test_invoice_validation(invoice_scenario):
+        # invoice_scenario provides tutorial data and generated standards
+        @adri_protected(standard=invoice_scenario['generated_standard_name'])
+        def process_invoices(data):
+            return data
+
+        clean_data = pd.read_csv(invoice_scenario['training_data_path'])
+        result = process_invoices(clean_data)
+
+This module (modern_fixtures.py) focuses on synthetic data generation and
+component-level testing, while tutorial_scenarios.py provides realistic
+workflow testing with actual tutorial data.
 """
 
 import os
@@ -533,12 +559,24 @@ def sample_json_file(temp_workspace, high_quality_data):
 
 
 @pytest.fixture
-def sample_standard_file(temp_workspace, comprehensive_standard):
-    """Create temporary standard file."""
-    standard_file = temp_workspace / "ADRI" / "dev" / "standards" / "test_standard.yaml"
+def sample_standard_name(temp_workspace, comprehensive_standard):
+    """Create temporary standard file and return name for name-only resolution.
+
+    This fixture supports the governance model that enforces name-only standard
+    resolution. The standard file is created in the configured location, but only
+    the standard name is returned for use with the decorator and engine.
+    """
+    # Ensure standards directory exists
+    standards_dir = temp_workspace / "ADRI" / "dev" / "standards"
+    standards_dir.mkdir(parents=True, exist_ok=True)
+
+    # Create standard file in configured location
+    standard_file = standards_dir / "test_standard.yaml"
     with open(standard_file, 'w') as f:
         yaml.dump(comprehensive_standard, f)
-    return str(standard_file)
+
+    # Return name only (without .yaml extension, without path)
+    return "test_standard"
 
 
 @pytest.fixture

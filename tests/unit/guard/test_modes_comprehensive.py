@@ -107,7 +107,7 @@ class TestProtectionModesComprehensive:
 
     @pytest.mark.unit
     @pytest.mark.business_critical
-    def test_warn_mode_protection_scenarios(self, temp_workspace, sample_standard_file):
+    def test_warn_mode_protection_scenarios(self, temp_workspace, sample_standard_name):
         """Test WarnOnlyMode protection in various scenarios."""
 
         # Create engine with WarnOnlyMode
@@ -135,7 +135,7 @@ class TestProtectionModesComprehensive:
 
     @pytest.mark.unit
     @pytest.mark.business_critical
-    def test_raise_mode_protection_scenarios(self, temp_workspace, sample_standard_file):
+    def test_raise_mode_protection_scenarios(self, temp_workspace, sample_standard_name):
         """Test FailFastMode protection in various scenarios."""
 
         # Create engine with FailFastMode
@@ -164,7 +164,7 @@ class TestProtectionModesComprehensive:
 
     @pytest.mark.unit
     @pytest.mark.business_critical
-    def test_selective_mode_protection_scenarios(self, temp_workspace, sample_standard_file):
+    def test_selective_mode_protection_scenarios(self, temp_workspace, sample_standard_name):
         """Test SelectiveMode protection in various scenarios."""
 
         # Create engine with SelectiveMode
@@ -192,7 +192,7 @@ class TestProtectionModesComprehensive:
 
     @pytest.mark.integration
     @pytest.mark.business_critical
-    def test_protection_engine_validator_integration(self, temp_workspace, sample_standard_file):
+    def test_protection_engine_validator_integration(self, temp_workspace, sample_standard_name):
         """Test integration between protection engine and validator."""
 
         # Test that the protection engine can access the assessment method
@@ -213,14 +213,14 @@ class TestProtectionModesComprehensive:
             mock_assess.return_value = mock_assessment
 
             # Test that assessment method exists
-            result = engine._assess_data_quality(self.high_quality_data, str(sample_standard_file))
+            result = engine._assess_data_quality(self.high_quality_data, sample_standard_name)
             assert result.overall_score == 85.0
 
         self.component_tester.record_test_execution(TestCategory.INTEGRATION, True)
 
     @pytest.mark.integration
     @pytest.mark.business_critical
-    def test_protection_engine_decorator_integration(self, temp_workspace, sample_standard_file):
+    def test_protection_engine_decorator_integration(self, temp_workspace, sample_standard_name):
         """Test integration between protection engine and decorator system."""
 
         # Test the protect_function_call method which is the actual API
@@ -237,7 +237,7 @@ class TestProtectionModesComprehensive:
                 kwargs={"data": self.high_quality_data},
                 data_param="data",
                 function_name="test_function",
-                standard_file=str(sample_standard_file),
+                standard_name=sample_standard_name,
                 min_score=70.0,
                 on_failure="warn"
             )
@@ -287,7 +287,7 @@ class TestProtectionModesComprehensive:
 
     @pytest.mark.error_handling
     @pytest.mark.business_critical
-    def test_protection_mode_recovery_scenarios(self, temp_workspace, sample_standard_file):
+    def test_protection_mode_recovery_scenarios(self, temp_workspace, sample_standard_name):
         """Test error recovery in different protection modes."""
 
         def dummy_function(data):
@@ -332,7 +332,7 @@ class TestProtectionModesComprehensive:
 
     @pytest.mark.performance
     @pytest.mark.business_critical
-    def test_protection_mode_performance_overhead(self, temp_workspace, sample_standard_file, performance_tester):
+    def test_protection_mode_performance_overhead(self, temp_workspace, sample_standard_name, performance_tester):
         """Test performance overhead of different protection modes."""
 
         def dummy_function(data):
@@ -384,7 +384,7 @@ class TestProtectionModesComprehensive:
 
     @pytest.mark.performance
     @pytest.mark.business_critical
-    def test_protection_mode_concurrent_usage(self, temp_workspace, sample_standard_file):
+    def test_protection_mode_concurrent_usage(self, temp_workspace, sample_standard_name):
         """Test protection modes under concurrent usage."""
         import concurrent.futures
         import threading
@@ -462,7 +462,7 @@ class TestProtectionModesComprehensive:
 
     @pytest.mark.integration
     @pytest.mark.business_critical
-    def test_protection_mode_logging_integration(self, temp_workspace, sample_standard_file):
+    def test_protection_mode_logging_integration(self, temp_workspace, sample_standard_name):
         """Test integration with logging system."""
 
         def dummy_function(data):
@@ -502,7 +502,7 @@ class TestProtectionModesComprehensive:
 
     @pytest.mark.unit
     @pytest.mark.business_critical
-    def test_protection_mode_edge_cases(self, temp_workspace, sample_standard_file):
+    def test_protection_mode_edge_cases(self, temp_workspace, sample_standard_name):
         """Test edge cases and boundary conditions."""
 
         def dummy_function(data):

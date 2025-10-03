@@ -1,0 +1,228 @@
+standards:
+  id: missing_standard
+  name: Missing ADRI Standard
+  version: 1.0.0
+  authority: ADRI Framework
+  description: Auto-generated standard for missing data
+record_identification:
+  primary_key_fields:
+  - age
+  - score
+  strategy: primary_key_with_fallback
+requirements:
+  overall_minimum: 75.0
+  field_requirements:
+    name:
+      type: string
+      nullable: false
+      allowed_values:
+      - Alice
+      - Bob
+      - Charlie
+      min_length: 3
+      max_length: 7
+      pattern: ^[A-Za-z0-9\-_]+$
+    email:
+      type: string
+      nullable: false
+      allowed_values:
+      - alice@test.com
+      - bob@test.com
+      - charlie@test.com
+      min_length: 12
+      max_length: 16
+      pattern: ^[^@]+@[^@]+\.[^@]+$
+    age:
+      type: float
+      nullable: false
+      min_value: 20.0
+      max_value: 40.0
+    score:
+      type: float
+      nullable: false
+      min_value: 72.15
+      max_value: 98.95000000000002
+  dimension_requirements:
+    validity:
+      minimum_score: 15.0
+      weight: 1.0
+      scoring:
+        rule_weights:
+          type: 0.3
+          allowed_values: 0.2
+          pattern: 0.2
+          length_bounds: 0.1
+          numeric_bounds: 0.2
+        field_overrides: {}
+    completeness:
+      minimum_score: 15.0
+      weight: 1.0
+      scoring:
+        rule_weights:
+          missing_required: 1.0
+        field_overrides: {}
+    consistency:
+      minimum_score: 12.0
+      weight: 1.0
+      scoring:
+        rule_weights:
+          primary_key_uniqueness: 1.0
+        field_overrides: {}
+    freshness:
+      minimum_score: 15.0
+      weight: 1.0
+      scoring:
+        rule_weights:
+          recency_window: 0.0
+        field_overrides: {}
+    plausibility:
+      minimum_score: 12.0
+      weight: 1.0
+      scoring:
+        rule_weights:
+          statistical_outliers: 0.4
+          categorical_frequency: 0.3
+          business_logic: 0.2
+          cross_field_consistency: 0.1
+        field_overrides: {}
+metadata:
+  explanations_note: Explanations are for human review; only requirements.field_requirements
+    are enforced.
+  explanations_glossary:
+    iqr: 'Interquartile Range (Q3 - Q1): a robust measure of spread, less sensitive
+      to outliers.'
+    q1: 25th percentile of the training values.
+    q3: 75th percentile of the training values.
+    coverage: Share of non-null training values that satisfy the rule.
+    unique_count: Number of distinct non-null values observed in training.
+    mad: 'Median Absolute Deviation: robust measure of variability around the median.'
+    quantile: Statistical measure dividing data into equal-sized intervals.
+    training_pass: Guarantee that generated rules pass on the training data used for
+      generation.
+    enum_strategy: Method used for allowed values inference (coverage or tolerant).
+    margin_days: Buffer added to date ranges to allow for reasonable variations.
+  explanations:
+    name:
+      type: string
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 3
+      allowed_values:
+        values:
+        - Alice
+        - Bob
+        - Charlie
+        reason: High coverage stable set
+        stats:
+          coverage: 1.0
+          unique_count: 3
+          strategy: coverage
+      length_bounds:
+        active_min: 3
+        active_max: 7
+        stats:
+          observed_min: 3
+          observed_max: 7
+      pattern:
+        regex: ^[A-Za-z0-9\-_]+$
+        reason: 100% coverage on training non-nulls
+        stats:
+          coverage: 1.0
+    email:
+      type: string
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 3
+      allowed_values:
+        values:
+        - alice@test.com
+        - bob@test.com
+        - charlie@test.com
+        reason: High coverage stable set
+        stats:
+          coverage: 1.0
+          unique_count: 3
+          strategy: coverage
+      length_bounds:
+        active_min: 12
+        active_max: 16
+        stats:
+          observed_min: 12
+          observed_max: 16
+      pattern:
+        regex: ^[^@]+@[^@]+\.[^@]+$
+        reason: 100% coverage on training non-nulls
+        stats:
+          coverage: 1.0
+    age:
+      type: float
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 3
+      range:
+        strategy: iqr
+        active_min: 20.0
+        active_max: 40.0
+        reason: Robust range (IQR/Quantile/MAD) clamped to training min/max for pass
+          guarantee
+        stats:
+          q1: 27.5
+          q3: 32.5
+          iqr_k: 1.5
+          observed_min: 25.0
+          observed_max: 35.0
+    score:
+      type: float
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 3
+      range:
+        strategy: iqr
+        active_min: 72.15
+        active_max: 98.95000000000002
+        reason: Robust range (IQR/Quantile/MAD) clamped to training min/max for pass
+          guarantee
+        stats:
+          q1: 82.2
+          q3: 88.9
+          iqr_k: 1.5
+          observed_min: 78.9
+          observed_max: 92.3
+  freshness_scaffolding: '# freshness:
+
+    #   as_of: 2025-10-03T18:35:32.741934Z
+
+    #   window_days: 365
+
+    #   date_field: <your_date_field>
+
+    #   how_to_enable: set requirements.dimension_requirements.freshness.scoring.rule_weights.recency_window
+    to 1.0
+
+    '
+  plausibility_templates: '# plausibility:
+
+    #   scoring:
+
+    #     rule_weights:
+
+    #       numeric_sigma: 1.0      # enable if not overlapping with validity numeric_bounds
+
+    #       categorical_tail: 1.0   # enable to flag rare categories
+
+    #   notes: "Disabled by default to avoid overlap with Validity. Review before
+    enabling."
+
+    '

@@ -237,6 +237,11 @@ class StandardBuilder:
         for col in data.columns:
             series = data[col]
 
+            # Skip numeric columns - they are not date fields
+            # This prevents selecting fields like 'amount' (1250.00, 2500.00) as date candidates
+            if series.dtype in ["int64", "float64", "int32", "float32", "int", "float"]:
+                continue
+
             # Calculate non-null count
             try:
                 non_null_count = int(series.notna().sum())
@@ -246,7 +251,7 @@ class StandardBuilder:
             if non_null_count <= 0:
                 continue
 
-            # Try to parse as dates
+            # Try to parse as dates (only for date/datetime/object types)
             parsed = pd.to_datetime(series, errors="coerce")
             parsed_count = int(parsed.notna().sum())
 
@@ -262,9 +267,24 @@ class StandardBuilder:
         metadata = standard.setdefault("metadata", {})
 
         if candidate_col:
+            # Get the max date from the data to use as as_of
+            # This ensures training data always passes freshness checks
+            max_date = None
+            try:
+                parsed = pd.to_datetime(data[candidate_col], errors="coerce")
+                max_date = parsed.max()
+                if pd.notna(max_date):
+                    # Convert to datetime and add a small buffer (e.g., 1 day)
+                    max_date = max_date.to_pydatetime()
+                    from datetime import timedelta
+
+                    max_date = max_date + timedelta(days=1)
+            except Exception:
+                pass
+
             # Enable freshness checking
             freshness_metadata = self.dimension_builder.create_freshness_metadata(
-                candidate_col
+                candidate_col, as_of_date=max_date
             )
             metadata["freshness"] = freshness_metadata
 

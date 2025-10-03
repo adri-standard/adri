@@ -84,6 +84,9 @@ class ValidationPipeline:
                 # Invalid standard type, return basic assessment
                 return self._create_basic_assessment_result(data)
 
+        # Store standard wrapper for dimension assessors to use
+        self._standard_wrapper = standard
+
         # Get dimension requirements and field requirements
         try:
             dimension_requirements = standard.get_dimension_requirements()
