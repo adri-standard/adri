@@ -283,13 +283,20 @@ class TestDecoratorAutoGeneration:
         if standard_path.exists():
             standard_path.unlink()
 
-        # Use decorator with auto_generate (default)
-        @adri_protected(standard=test_standard_name)
-        def process_invoices(data):
-            return f"Processed {len(data)} invoices"
+        # Change to project root for path resolution to work correctly
+        original_cwd = os.getcwd()
+        try:
+            os.chdir(project_root)
 
-        # Execute function - should trigger auto-generation
-        result = process_invoices(training_data)
+            # Use decorator with auto_generate (default)
+            @adri_protected(standard=test_standard_name)
+            def process_invoices(data):
+                return f"Processed {len(data)} invoices"
+
+            # Execute function - should trigger auto-generation
+            result = process_invoices(training_data)
+        finally:
+            os.chdir(original_cwd)
 
         # Verify standard was created
         assert standard_path.exists(), "Standard should be auto-generated"
@@ -347,12 +354,19 @@ class TestDecoratorAutoGeneration:
             decorator_standard_path.unlink()
 
         # Step 3: Use decorator to trigger auto-generation
-        @adri_protected(standard=decorator_standard_name)
-        def process_invoices(data):
-            return f"Processed {len(data)} invoices"
+        # Change to project root for path resolution
+        original_cwd = os.getcwd()
+        try:
+            os.chdir(project_root)
 
-        # Execute to trigger auto-generation
-        result = process_invoices(training_data)
+            @adri_protected(standard=decorator_standard_name)
+            def process_invoices(data):
+                return f"Processed {len(data)} invoices"
+
+            # Execute to trigger auto-generation
+            result = process_invoices(training_data)
+        finally:
+            os.chdir(original_cwd)
 
         # Step 4: Load decorator-generated standard
         assert decorator_standard_path.exists(), "Decorator should auto-generate standard"
@@ -410,11 +424,18 @@ class TestDecoratorAutoGeneration:
         if decorator_standard_path.exists():
             decorator_standard_path.unlink()
 
-        @adri_protected(standard=decorator_standard_name)
-        def process_data(data):
-            return data
+        # Change to project root for path resolution
+        original_cwd = os.getcwd()
+        try:
+            os.chdir(project_root)
 
-        process_data(training_data)
+            @adri_protected(standard=decorator_standard_name)
+            def process_data(data):
+                return data
+
+            process_data(training_data)
+        finally:
+            os.chdir(original_cwd)
 
         with open(decorator_standard_path, 'r') as f:
             decorator_standard = yaml.safe_load(f)
@@ -468,11 +489,18 @@ class TestDecoratorAutoGeneration:
         if decorator_standard_path.exists():
             decorator_standard_path.unlink()
 
-        @adri_protected(standard=decorator_standard_name)
-        def process_data(data):
-            return data
+        # Change to project root for path resolution
+        original_cwd = os.getcwd()
+        try:
+            os.chdir(project_root)
 
-        process_data(training_data)
+            @adri_protected(standard=decorator_standard_name)
+            def process_data(data):
+                return data
+
+            process_data(training_data)
+        finally:
+            os.chdir(original_cwd)
 
         with open(decorator_standard_path, 'r') as f:
             decorator_standard = yaml.safe_load(f)
@@ -542,11 +570,18 @@ class TestDecoratorAutoGeneration:
         if decorator_standard_path.exists():
             decorator_standard_path.unlink()
 
-        @adri_protected(standard=decorator_standard_name)
-        def process_data(data):
-            return data
+        # Change to project root for path resolution
+        original_cwd = os.getcwd()
+        try:
+            os.chdir(project_root)
 
-        process_data(training_data)
+            @adri_protected(standard=decorator_standard_name)
+            def process_data(data):
+                return data
+
+            process_data(training_data)
+        finally:
+            os.chdir(original_cwd)
 
         # Assess test data with both standards (pass file paths, not dicts)
         assessor = DataQualityAssessor()
