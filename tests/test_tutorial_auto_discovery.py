@@ -429,9 +429,9 @@ def test_assessment_and_logs_are_valid(tutorial_name, tutorial_metadata, tutoria
     """Test that ADRI audit log CSV files conform to ADRI standards.
 
     This test validates that ADRI's own CSV audit outputs meet the standards:
-    - standards/adri/ADRI_audit_log.yaml (main assessment logs)
-    - standards/adri/ADRI_dimension_scores.yaml (dimension score details)
-    - standards/adri/ADRI_failed_validations.yaml (validation failures)
+    - ADRI/standards/ADRI_audit_log.yaml (main assessment logs)
+    - ADRI/standards/ADRI_dimension_scores.yaml (dimension score details)
+    - ADRI/standards/ADRI_failed_validations.yaml (validation failures)
 
     This is ADRI validating itself - ensuring audit log quality and consistency.
 
@@ -473,7 +473,7 @@ def test_assessment_and_logs_are_valid(tutorial_name, tutorial_metadata, tutoria
 
     if main_log_path.exists():
         main_log_df = pd.read_csv(main_log_path)
-        main_log_standard = Path('standards/adri/ADRI_audit_log.yaml')
+        main_log_standard = Path('ADRI/standards/ADRI_audit_log.yaml')
 
         if main_log_standard.exists() and len(main_log_df) > 0:
             # Validate most recent entry
@@ -496,7 +496,7 @@ def test_assessment_and_logs_are_valid(tutorial_name, tutorial_metadata, tutoria
 
     if dim_scores_path.exists():
         dim_scores_df = pd.read_csv(dim_scores_path)
-        dim_scores_standard = Path('standards/adri/ADRI_dimension_scores.yaml')
+        dim_scores_standard = Path('ADRI/standards/ADRI_dimension_scores.yaml')
 
         if dim_scores_standard.exists() and len(dim_scores_df) > 0:
             # Get the most recent assessment's dimension scores (last 5 entries)
@@ -527,7 +527,7 @@ def test_assessment_and_logs_are_valid(tutorial_name, tutorial_metadata, tutoria
 
     if failed_val_path.exists():
         failed_val_df = pd.read_csv(failed_val_path)
-        failed_val_standard = Path('standards/adri/ADRI_failed_validations.yaml')
+        failed_val_standard = Path('ADRI/standards/ADRI_failed_validations.yaml')
 
         if failed_val_standard.exists() and len(failed_val_df) > 0:
             # Validate a sample of recent failures
