@@ -22,6 +22,7 @@ sys.path.insert(0, str(src_path))
 # Import modern fixtures and quality framework
 from tests.quality_framework import QualityFramework, ComponentTester, quality_framework
 from tests.fixtures.modern_fixtures import *  # Import all modern fixtures
+from tests.fixtures.tutorial_scenarios import tutorial_project, invoice_scenario  # Import tutorial fixtures
 
 # Set up modern test environment
 os.environ["ADRI_ENV"] = "TEST"

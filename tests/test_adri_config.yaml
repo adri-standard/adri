@@ -1,0 +1,71 @@
+adri:
+  version: "0.1.0"
+  project_name: "adri-test-project"
+  environments:
+    development:
+      paths:
+        standards: "./ADRI/dev/standards"
+        assessments: "./ADRI/dev/assessments"
+        training_data: "./ADRI/dev/training-data"
+      protection:
+        default_failure_mode: "warn"
+        default_min_score: 75
+        cache_duration_hours: 0.5
+    production:
+      paths:
+        standards: "./ADRI/prod/standards"
+        assessments: "./ADRI/prod/assessments"
+        training_data: "./ADRI/prod/training-data"
+      protection:
+        default_failure_mode: "raise"
+        default_min_score: 85
+        cache_duration_hours: 24
+  default_environment: "development"
+  protection:
+    default_failure_mode: "raise"
+    default_min_score: 80
+    cache_duration_hours: 1
+    auto_generate_standards: true
+    data_sampling_limit: 1000
+    standard_naming_pattern: "{function_name}_{data_param}_standard.yaml"
+    verbose_protection: false
+  assessment:
+    report_template: "adri_assessment_report_standard_v0.1.0.yaml"
+    output_format: "json"
+    validation_level: "strict"
+    caching:
+      enabled: true
+      strategy: "content_hash"
+      ttl: "24h"
+    output:
+      format: "json"
+      include_recommendations: true
+      include_raw_scores: false
+    performance:
+      max_rows: 1000000
+      timeout: "5m"
+  templates:
+    directory: "adri/templates"
+    custom_templates_path: null
+  generation:
+    default_thresholds:
+      completeness_min: 85
+      validity_min: 90
+      consistency_min: 80
+      freshness_max_age: "7d"
+      plausibility_outlier_threshold: 3.0
+    comments:
+      include_domain_suggestions: true
+      include_examples: true
+      include_references: false
+  audit:
+    enabled: true
+    log_dir: "./ADRI/dev/audit-logs"
+    formats:
+      - csv
+    retention_days: 30
+  logging:
+    level: "INFO"
+    file: ".adri/logs/adri.log"
+    max_size: "10MB"
+    backup_count: 5

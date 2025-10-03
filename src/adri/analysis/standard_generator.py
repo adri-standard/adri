@@ -88,7 +88,7 @@ class StandardGenerator:
             return display_name
 
         if data_name and data_name.lower().startswith("test"):
-            # For test data, use simple naming pattern for backward compatibility
+            # For test data, use simple naming pattern
             return f"{display_name} Standard"
         else:
             # Normal naming pattern includes ADRI branding
@@ -649,159 +649,6 @@ class StandardGenerator:
             "stats": {"coverage": coverage},
         }
 
-    def generate_standard(
-        self,
-        data_profile: Dict[str, Any],
-        data_name: str,
-        generation_config: Optional[Dict[str, Any]] = None,
-        **kwargs,
-    ) -> Dict[str, Any]:
-        """
-        Generate a complete ADRI standard from a data profile.
-
-        Args:
-            data_profile: Data profile from DataProfiler
-            data_name: Name for the generated standard
-            generation_config: Configuration for generation thresholds
-            **kwargs: Additional configuration (authority, etc.)
-
-        Returns:
-            Complete ADRI standard dictionary
-        """
-        config = generation_config or {}
-        thresholds = config.get("default_thresholds", {})
-
-        # Generate standard metadata using shared naming logic
-        standard_metadata = {
-            "id": f"{data_name}_standard",
-            "name": self._generate_standard_name(data_name),
-            "version": "1.0.0",
-            "authority": kwargs.get("authority", "ADRI Framework"),
-            "description": f"Auto-generated standard for {data_name} data",
-            "effective_date": "2024-01-01T00:00:00Z",
-        }
-
-        # Generate requirements
-        requirements = self._generate_requirements(data_profile, thresholds)
-
-        # Build complete standard
-        standard = {"standards": standard_metadata, "requirements": requirements}
-
-        return standard
-
-    def generate_from_profile(
-        self,
-        data_profile: Dict[str, Any],
-        data_name: str = "generated_data",
-        generation_config: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
-        """
-        Generate a standard from a data profile (backward compatibility method).
-
-        Args:
-            data_profile: Data profile from DataProfiler
-            data_name: Name for the generated standard
-            generation_config: Configuration for generation
-
-        Returns:
-            Complete ADRI standard dictionary
-        """
-        return self.generate_standard(
-            data_profile=data_profile,
-            data_name=data_name,
-            generation_config=generation_config,
-        )
-
-    def _generate_requirements(
-        self, data_profile: Dict[str, Any], thresholds: Dict[str, Any]
-    ) -> Dict[str, Any]:
-        """Generate requirements section from data profile."""
-        requirements = {
-            "overall_minimum": thresholds.get("overall_minimum", 75.0),
-            "field_requirements": self._generate_field_requirements(data_profile),
-            "dimension_requirements": self._generate_dimension_requirements(thresholds),
-        }
-
-        return requirements
-
-    def _generate_field_requirements(
-        self, data_profile: Dict[str, Any]
-    ) -> Dict[str, Any]:
-        """Generate field requirements from profiled fields."""
-        field_requirements = {}
-        fields = data_profile.get("fields", {})
-
-        for field_name, field_profile in fields.items():
-            field_req = self._generate_single_field_requirement(field_profile)
-            field_requirements[field_name] = field_req
-
-        return field_requirements
-
-    def _generate_single_field_requirement(
-        self, field_profile: Dict[str, Any]
-    ) -> Dict[str, Any]:
-        """Generate requirements for a single field."""
-        requirement = {}
-
-        # Determine data type
-        dtype = field_profile.get("dtype", "object")
-        if "int" in dtype:
-            requirement["type"] = "integer"
-        elif "float" in dtype:
-            requirement["type"] = "float"
-        elif "bool" in dtype:
-            requirement["type"] = "boolean"
-        elif "datetime" in dtype:
-            requirement["type"] = "datetime"
-        else:
-            requirement["type"] = "string"
-
-        # Determine nullable status
-        null_percentage = field_profile.get("null_percentage", 0)
-        requirement["nullable"] = null_percentage > 5  # Allow nulls if >5% are null
-
-        # Add constraints based on data patterns
-        if requirement["type"] in ["integer", "float"]:
-            if "min_value" in field_profile and "max_value" in field_profile:
-                # Ensure native Python types for YAML serialization
-                requirement["min_value"] = float(field_profile["min_value"])
-                requirement["max_value"] = float(field_profile["max_value"])
-
-        elif requirement["type"] == "string":
-            patterns = field_profile.get("common_patterns", [])
-            if "email" in patterns:
-                requirement["pattern"] = r"^[^@]+@[^@]+\.[^@]+$"
-            elif "phone" in patterns:
-                requirement["pattern"] = r"^[\+]?[0-9\s\-\(\)]+$"
-            elif "date" in patterns:
-                requirement["pattern"] = r"^\d{4}-\d{2}-\d{2}"
-
-            # Add length constraints (emit both min_length and max_length when available)
-            if "min_length" in field_profile:
-                try:
-                    requirement["min_length"] = int(field_profile["min_length"])
-                except Exception:
-                    pass
-            if "max_length" in field_profile:
-                max_len = field_profile["max_length"]
-                try:
-                    max_len_val = int(float(max_len))
-                except Exception:
-                    max_len_val = None
-                if (
-                    max_len_val is not None and max_len_val < 1000
-                ):  # Only add if reasonable
-                    # Keep the existing 20% buffer while ensuring it's >= min_length if present
-                    widened = int(float(max_len) * 1.2)
-                    if (
-                        "min_length" in requirement
-                        and widened < requirement["min_length"]
-                    ):
-                        widened = requirement["min_length"]
-                    requirement["max_length"] = widened
-
-        return requirement
-
     # ============ Enriched field requirement generation with inference ============
     def _build_field_requirement(
         self,
@@ -1085,22 +932,32 @@ class StandardGenerator:
                         pass
         return df
 
-    def generate_from_dataframe(
+    def generate(
         self,
         data: pd.DataFrame,
         data_name: str,
         generation_config: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         """
-        Generate enriched standard using modular architecture with training-pass guarantee.
+        Generate ADRI standard from DataFrame using modern modular architecture.
+
+        This is the single, unified method for standard generation using:
+        - StandardBuilder for structure
+        - FieldInferenceEngine for field analysis
+        - Training-pass guarantee for data compatibility
+        - ExplanationGenerator for human-readable metadata
 
         Args:
             data: DataFrame to analyze
             data_name: Name for the generated standard
-            generation_config: Configuration for generation
+            generation_config: Optional configuration for generation thresholds
 
         Returns:
-            Complete ADRI standard dictionary
+            Complete ADRI standard dictionary in normalized format:
+            {
+                'standards': {...},      # Metadata
+                'requirements': {...}    # Field + dimension requirements
+            }
         """
         # Sanitize data to handle complex object types
         data = self.standard_builder.sanitize_dataframe(data)
@@ -1160,4 +1017,4 @@ def generate_standard_from_data(
         Complete ADRI standard dictionary
     """
     generator = StandardGenerator()
-    return generator.generate_from_dataframe(data, data_name, generation_config)
+    return generator.generate(data, data_name, generation_config)

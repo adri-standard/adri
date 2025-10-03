@@ -215,9 +215,7 @@ class GenerateStandardCommand(Command):
         from ...analysis.standard_generator import StandardGenerator
 
         generator = StandardGenerator()
-        return generator.generate_from_dataframe(
-            data, data_name, generation_config=None
-        )
+        return generator.generate(data, data_name, generation_config=None)
 
     def _create_lineage_metadata(
         self, data_path: str, snapshot_path: Optional[str] = None

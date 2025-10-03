@@ -13,10 +13,11 @@ from pathlib import Path
 from typing import Any, Callable, Dict, Optional
 
 import pandas as pd
+import yaml
 
 # Clean imports for modular architecture
+from ..analysis.standard_generator import StandardGenerator
 from ..config.loader import ConfigurationLoader
-from ..logging.enterprise import EnterpriseLogger
 from ..logging.local import LocalLogger
 from ..validator.engine import DataQualityAssessor
 
@@ -192,29 +193,70 @@ class DataProtectionEngine:
         """
         self.protection_mode = protection_mode or FailFastMode()
         self.config_manager = ConfigurationLoader() if ConfigurationLoader else None
-        self.protection_config = self._load_protection_config()
+        # Don't load config in __init__ - load it lazily when needed
+        # This ensures we pick up the correct working directory
+        self._protection_config = None
+        self._full_config = None
         self._assessment_cache = {}
         self.logger = logging.getLogger(__name__)
 
-        # Initialize loggers with proper configuration
+        # Initialize loggers with proper configuration (will be set up lazily)
         self.local_logger = LocalLogger() if LocalLogger else None
-        self.enterprise_logger = (
-            EnterpriseLogger(self.protection_config) if EnterpriseLogger else None
-        )
+        self.enterprise_logger = None  # Initialized lazily with config
 
         self.logger.debug(
             f"DataProtectionEngine initialized with {self.protection_mode.mode_name} mode"
         )
 
+    @property
+    def protection_config(self) -> Dict[str, Any]:
+        """Get protection config, loading lazily if needed."""
+        if self._protection_config is None:
+            self._protection_config = self._load_protection_config()
+        return self._protection_config
+
+    @property
+    def full_config(self) -> Dict[str, Any]:
+        """Get full config, loading lazily if needed."""
+        if self._full_config is None:
+            # Trigger loading via protection_config property
+            _ = self.protection_config
+        return self._full_config or {}
+
     def _load_protection_config(self) -> Dict[str, Any]:
         """Load protection configuration."""
         if self.config_manager:
             try:
-                return self.config_manager.get_protection_config()
-            except Exception:
+                # Load FULL config to include audit settings for DataQualityAssessor
+                full_config = self.config_manager.load_config()
+                if not full_config:
+                    self._full_config = {}
+                    return self._get_default_protection_config()
+
+                # Extract the 'adri' section which contains audit, protection, etc.
+                # DataQualityAssessor expects config with 'audit' at top level
+                self._full_config = full_config.get("adri", {})
+
+                # Extract protection config directly from _full_config
+                # Don't use get_protection_config() as it expects environment structure
+                protection_config = self._full_config.get("protection", {})
+
+                # Merge with defaults for any missing keys
+                default_config = self._get_default_protection_config()
+                return {**default_config, **protection_config}
+
+            except Exception as e:
+                self.logger.warning(f"Failed to load config: {e}")
+                # Don't reset _full_config on exception - keep what we have
                 pass
 
         # Return default config
+        if not self._full_config:
+            self._full_config = {}
+        return self._get_default_protection_config()
+
+    def _get_default_protection_config(self) -> Dict[str, Any]:
+        """Get default protection configuration."""
         return {
             "default_min_score": 80,
             "default_failure_mode": "raise",
@@ -230,7 +272,6 @@ class DataProtectionEngine:
         kwargs: dict,
         data_param: str,
         function_name: str,
-        standard_file: Optional[str] = None,
         standard_name: Optional[str] = None,
         min_score: Optional[float] = None,
         dimensions: Optional[Dict[str, float]] = None,
@@ -248,8 +289,7 @@ class DataProtectionEngine:
             kwargs: Function keyword arguments
             data_param: Name of parameter containing data to check
             function_name: Name of the function being protected
-            standard_file: Explicit standard file to use
-            standard_name: Custom standard name
+            standard_name: Standard name (name-only, resolved via environment config)
             min_score: Minimum quality score required
             dimensions: Specific dimension requirements
             on_failure: How to handle quality failures (overrides protection mode)
@@ -267,12 +307,19 @@ class DataProtectionEngine:
         # Use unified threshold resolution for consistency with CLI
         from ..validator.engine import ThresholdResolver
 
-        # Resolve standard file path from standard name if needed
-        resolved_standard_path = self._resolve_standard_file_path(standard_name)
+        # Resolve standard name to file path using environment configuration
+        resolved_standard_path = None
+        if standard_name:
+            resolved_standard_path = self._resolve_standard_file_path(standard_name)
 
-        # Apply unified threshold resolution
+        # Apply unified threshold resolution (same logic as CLI)
+        # Note: We don't check if file exists here - let _ensure_standard_exists handle it
         threshold_info = ThresholdResolver.resolve_assessment_threshold(
-            standard_path=resolved_standard_path,
+            standard_path=(
+                resolved_standard_path
+                if (resolved_standard_path and os.path.exists(resolved_standard_path))
+                else None
+            ),
             min_score_override=min_score,
             config=self.protection_config,
         )
@@ -280,7 +327,9 @@ class DataProtectionEngine:
 
         if verbose:
             self.logger.info(
-                f"Threshold resolved: {threshold_info.value} from {threshold_info.source}"
+                "Threshold resolved: %s from %s",
+                threshold_info.value,
+                threshold_info.source,
             )
         verbose = (
             verbose
@@ -307,15 +356,32 @@ class DataProtectionEngine:
             # Extract data from function parameters
             data = self._extract_data_parameter(func, args, kwargs, data_param)
 
-            # Resolve and ensure standard exists
-            standard = self._resolve_standard(
-                function_name, data_param, standard_file, standard_name
+            # Resolve standard name to filename
+            standard_filename = self._resolve_standard(
+                function_name, data_param, standard_name
             )
-            self._ensure_standard_exists(standard, data)
 
-            # Assess data quality
+            # Get full path using environment config
+            if not resolved_standard_path:
+                resolved_standard_path = self._resolve_standard_file_path(
+                    standard_filename.replace(".yaml", "")
+                )
+
+            # Determine if auto-generation should be enabled
+            should_auto_generate = (
+                auto_generate
+                if auto_generate is not None
+                else self.protection_config.get("auto_generate_standards", True)
+            )
+
+            # Ensure standard exists at the resolved path
+            self._ensure_standard_exists(
+                resolved_standard_path, data, auto_generate=should_auto_generate
+            )
+
+            # Assess data quality using the resolved path
             start_time = time.time()
-            assessment_result = self._assess_data_quality(data, standard)
+            assessment_result = self._assess_data_quality(data, resolved_standard_path)
             assessment_duration = time.time() - start_time
 
             if verbose:
@@ -335,12 +401,16 @@ class DataProtectionEngine:
             # Handle result based on protection mode
             if assessment_passed:
                 success_message = self._format_success_message(
-                    assessment_result, min_score, standard, function_name, verbose
+                    assessment_result,
+                    min_score,
+                    resolved_standard_path,
+                    function_name,
+                    verbose,
                 )
                 effective_mode.handle_success(assessment_result, success_message)
             else:
                 error_message = self._format_error_message(
-                    assessment_result, min_score, standard
+                    assessment_result, min_score, resolved_standard_path
                 )
                 effective_mode.handle_failure(assessment_result, error_message)
 
@@ -385,44 +455,66 @@ class DataProtectionEngine:
         self,
         function_name: str,
         data_param: str,
-        standard_file: Optional[str] = None,
         standard_name: Optional[str] = None,
     ) -> str:
-        """Resolve which standard to use for protection."""
-        if standard_file:
-            return standard_file
+        """
+        Resolve which standard to use for protection.
 
+        Uses name-only resolution for governance compliance.
+        """
         if standard_name:
             return f"{standard_name}.yaml"
 
-        # Auto-generate standard name
+        # Auto-generate standard name from function and parameter
         pattern = self.protection_config.get(
             "standard_naming_pattern", "{function_name}_{data_param}_standard.yaml"
         )
         return pattern.format(function_name=function_name, data_param=data_param)
 
-    def _ensure_standard_exists(self, standard_path: str, sample_data: Any) -> None:
-        """Ensure a standard exists, generating it if necessary."""
+    def _ensure_standard_exists(
+        self, standard_path: str, sample_data: Any, auto_generate: bool = True
+    ) -> None:
+        """Ensure a standard exists, using full StandardGenerator for rich rules.
+
+        This uses the SAME StandardGenerator as the CLI to ensure consistent,
+        high-quality standards with full profiling and rule inference.
+
+        Args:
+            standard_path: Full path to the standard file
+            sample_data: Sample data to generate standard from
+            auto_generate: Whether to auto-generate the standard if missing
+
+        Raises:
+            ProtectionError: If standard doesn't exist and auto_generate is False
+        """
+        self.logger.info("Checking if standard exists at: %s", standard_path)
         if os.path.exists(standard_path):
+            self.logger.info("Standard already exists, skipping auto-generation")
             return
 
-        if not self.protection_config.get("auto_generate_standards", True):
-            raise ProtectionError(f"Standard file not found: {standard_path}")
+        # Check if auto-generation is enabled
+        if not auto_generate:
+            raise ProtectionError(
+                f"Standard file not found at: {standard_path}\n"
+                f"Auto-generation is disabled (auto_generate=False)"
+            )
 
-        self.logger.info(f"Generating new standard: {standard_path}")
+        self.logger.info(
+            "Auto-generating standard with full profiling: %s", standard_path
+        )
 
         try:
             # Create directory if needed
             dir_path = os.path.dirname(standard_path)
-            if dir_path:  # Only create directory if there is one
+            if dir_path:
                 os.makedirs(dir_path, exist_ok=True)
+                self.logger.debug("Created directory: %s", dir_path)
 
             # Convert data to DataFrame
             if not isinstance(sample_data, pd.DataFrame):
                 if isinstance(sample_data, list):
                     df = pd.DataFrame(sample_data)
                 elif isinstance(sample_data, dict):
-                    # Handle dict with scalar values by wrapping in a list
                     df = pd.DataFrame([sample_data])
                 else:
                     raise ProtectionError(
@@ -431,61 +523,37 @@ class DataProtectionEngine:
             else:
                 df = sample_data
 
-            # Generate basic standard
-            self._generate_basic_standard(df, standard_path)
+            # Extract data name from standard path
+            data_name = Path(standard_path).stem.replace("_standard", "")
 
+            # Use SAME generator as CLI for consistency and rich rule generation
+            generator = StandardGenerator()
+
+            # Generate rich standard with full profiling and rule inference
+            # This includes: allowed_values, min/max_value, patterns, length_bounds, date_bounds, etc.
+            standard_dict = generator.generate(
+                data=df,
+                data_name=data_name,
+                generation_config={"overall_minimum": 75.0},  # Match CLI defaults
+            )
+
+            # Save to YAML
+            with open(standard_path, "w") as f:
+                yaml.dump(standard_dict, f, default_flow_style=False, sort_keys=False)
+
+            self.logger.info(
+                "Successfully generated rich standard at: %s", standard_path
+            )
+
+        except ProtectionError:
+            # Re-raise ProtectionError as-is
+            raise
         except Exception as e:
-            if "No such file or directory" in str(e):
-                raise ProtectionError("Standard file not found")
-            else:
-                raise ProtectionError(f"Failed to generate standard: {e}")
-
-    def _generate_basic_standard(self, df: pd.DataFrame, standard_path: str) -> None:
-        """Generate a basic YAML standard from DataFrame."""
-        import yaml
-
-        # Generate field requirements
-        field_requirements = {}
-        for column in df.columns:
-            non_null_data = df[column].dropna()
-            if len(non_null_data) == 0:
-                field_type = "string"
-            elif non_null_data.dtype in ["int64", "int32"]:
-                field_type = "integer"
-            elif non_null_data.dtype in ["float64", "float32"]:
-                field_type = "float"
-            else:
-                field_type = "string"
-
-            nullable = df[column].isnull().any()
-            field_requirements[column] = {"type": field_type, "nullable": nullable}
-
-        # Create standard structure
-        data_name = Path(standard_path).stem.replace("_standard", "")
-        standard = {
-            "standards": {
-                "id": f"{data_name}_standard",
-                "name": f"{data_name} ADRI Standard",
-                "version": "1.0.0",
-                "authority": "ADRI Framework",
-                "description": f"Auto-generated standard for {data_name} data",
-            },
-            "requirements": {
-                "overall_minimum": 75.0,
-                "field_requirements": field_requirements,
-                "dimension_requirements": {
-                    "validity": {"minimum_score": 15.0},
-                    "completeness": {"minimum_score": 15.0},
-                    "consistency": {"minimum_score": 12.0},
-                    "freshness": {"minimum_score": 15.0},
-                    "plausibility": {"minimum_score": 12.0},
-                },
-            },
-        }
-
-        # Save standard
-        with open(standard_path, "w") as f:
-            yaml.dump(standard, f, default_flow_style=False, sort_keys=False)
+            # Log the actual error for debugging
+            self.logger.error(
+                "Failed to generate standard at %s: %s", standard_path, e, exc_info=True
+            )
+            raise ProtectionError(f"Failed to generate standard: {e}")
 
     def _assess_data_quality(self, data: Any, standard_path: str) -> Any:
         """Assess data quality against a standard using same engine as CLI."""
@@ -502,7 +570,10 @@ class DataProtectionEngine:
             df = data
 
         # Use the same assessor as CLI for identical scoring logic
-        assessor = DataQualityAssessor()
+        # Pass FULL config (not just protection_config) to enable audit logging
+        # DataQualityAssessor needs the 'audit' section from full config
+        config_for_assessor = getattr(self, "full_config", self.protection_config)
+        assessor = DataQualityAssessor(config_for_assessor)
         result = assessor.assess(df, standard_path)
 
         # Mark the result with decorator source for debugging
@@ -552,28 +623,29 @@ class DataProtectionEngine:
     def _resolve_standard_file_path(
         self, standard_name: Optional[str]
     ) -> Optional[str]:
-        """Resolve standard name to file path for threshold resolution."""
+        """
+        Resolve standard name to file path using environment configuration.
+
+        Standard resolution is governance-controlled via adri-config.yaml.
+        Only standard names are accepted (not file paths) to ensure:
+        - Centralized control of standard locations
+        - Environment-based resolution (dev/prod)
+        - No path injection or security issues
+
+        Args:
+            standard_name: Name of the standard (e.g., "customer_data")
+
+        Returns:
+            Full path to standard file resolved via environment config
+        """
         if not standard_name:
             return None
 
-        # Check if it's already a file path
-        if standard_name.endswith(".yaml") or standard_name.endswith(".yml"):
-            if os.path.exists(standard_name):
-                return standard_name
-
-        # Try common standard directories
-        potential_paths = [
-            f"{standard_name}.yaml",
-            f"standards/{standard_name}.yaml",
-            f"ADRI/standards/{standard_name}.yaml",
-            f"examples/standards/{standard_name}.yaml",
-        ]
-
-        for path in potential_paths:
-            if os.path.exists(path):
-                return path
-
-        return None
+        loader = ConfigurationLoader()
+        # Environment-based resolution:
+        # dev -> ./ADRI/dev/standards/{name}.yaml
+        # prod -> ./ADRI/prod/standards/{name}.yaml
+        return loader.resolve_standard_path(standard_name)
 
     def _format_success_message(
         self,

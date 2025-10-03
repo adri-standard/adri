@@ -1,0 +1,143 @@
+# ADRI Failed Validations Standard
+# Defines the required structure and validation rules for failed validation audit logs
+# This standard validates the CSV file that tracks validation failures per assessment
+
+standards:
+  id: ADRI_failed_validations
+  name: ADRI Failed Validations Standard
+  version: 1.0.0
+  authority: ADRI Framework
+  description: Standard for validating ADRI failed validation audit log CSV structure
+
+record_identification:
+  primary_key_fields:
+    - assessment_id
+    - validation_id
+  strategy: primary_key_with_fallback
+
+requirements:
+  overall_minimum: 95.0  # High bar for ADRI's own audit logs
+
+  field_requirements:
+    # Core identification
+    assessment_id:
+      type: string
+      nullable: false
+      pattern: '^adri_\d{8}_\d{6}_[a-f0-9]+$'
+      description: Assessment identifier linking to main log
+
+    validation_id:
+      type: string
+      nullable: false
+      description: Unique identifier for this validation failure
+
+    # Categorization
+    dimension:
+      type: string
+      nullable: false
+      allowed_values:
+        - validity
+        - completeness
+        - consistency
+        - freshness
+        - plausibility
+      description: Quality dimension where validation failed
+
+    field_name:
+      type: string
+      nullable: true
+      description: Field that failed validation (may be empty for dataset-level rules)
+
+    issue_type:
+      type: string
+      nullable: false
+      description: Type of validation issue detected
+
+    # Impact metrics
+    affected_rows:
+      type: integer
+      nullable: false
+      min_value: 0
+      description: Number of rows affected by this failure
+
+    affected_percentage:
+      type: float
+      nullable: false
+      min_value: 0.0
+      max_value: 100.0
+      description: Percentage of dataset affected
+
+    # Details
+    sample_failures:
+      type: string
+      nullable: false
+      description: JSON array of sample failure examples
+
+    remediation:
+      type: string
+      nullable: false
+      description: Suggested fix for the validation failure
+
+  dimension_requirements:
+    validity:
+      minimum_score: 19.0
+      weight: 1.0
+      scoring:
+        rule_weights:
+          data_types: 1.0
+          value_ranges: 1.0
+        field_overrides: {}
+
+    completeness:
+      minimum_score: 19.0
+      weight: 1.0
+      scoring:
+        rule_weights:
+          required_fields: 1.0
+        field_overrides: {}
+
+    consistency:
+      minimum_score: 19.0
+      weight: 1.0
+      scoring:
+        rule_weights:
+          field_consistency: 1.0
+        field_overrides: {}
+
+    freshness:
+      minimum_score: 18.0
+      weight: 1.0
+      scoring:
+        rule_weights:
+          assessment_id_format: 1.0
+        field_overrides: {}
+
+    plausibility:
+      minimum_score: 18.0
+      weight: 1.0
+      scoring:
+        rule_weights:
+          percentage_ranges: 1.0
+          enum_values: 1.0
+        field_overrides: {}
+
+metadata:
+  purpose: Self-validation of ADRI failed validation audit logs
+  usage: |
+    This standard validates failed validation CSV logs to ensure:
+    1. All validation failures are properly categorized by dimension
+    2. Impact metrics are accurate (row counts, percentages)
+    3. Sample failures are provided for debugging
+    4. Remediation guidance is included
+    5. Assessment IDs link to main audit log
+
+  validation_notes: |
+    - assessment_id links to main audit log entry
+    - dimension must be one of 5 ADRI dimensions
+    - field_name can be null for dataset-level validations
+    - affected_percentage must be 0-100
+    - sample_failures should be valid JSON array format
+    - remediation provides actionable guidance
+
+  created_by: ADRI Framework
+  created_date: 2025-10-03

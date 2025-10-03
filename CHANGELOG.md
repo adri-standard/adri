@@ -15,6 +15,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Helper-level stability tests for validator engine and standard generator refactor
 
 ### Fixed
+- **Issue #35**: Fixed CLI vs Decorator assessment discrepancy where identical data and standards produced different quality scores (91.5 vs 69.7) and thresholds (75.0 vs 80.0)
+  - Fixed `DataProtectionEngine._resolve_standard_file_path()` to properly resolve absolute, relative, and standard name paths including test fixtures
+  - Fixed threshold resolution in `protect_function_call()` to prioritize explicit standard_file parameter and properly validate file existence before threshold resolution
+  - Fixed decorator parameter handling in `adri_protected()` to correctly detect file paths vs standard names using comprehensive path detection logic
+  - Both CLI and decorator now use identical `DataQualityAssessor` for scoring and `ThresholdResolver` for threshold determination
+  - Added comprehensive integration tests validating CLI/decorator consistency and unified threshold resolution
+
+### Changed
+- **Governance Enhancement**: Simplified standard resolution to name-only for improved governance
+  - Decorator `@adri_protected(standard="name")` now accepts only standard names, not file paths
+  - Standard file location is determined by environment configuration (dev/prod) in adri-config.yaml
+  - This ensures centralized control of standard locations and prevents path-based security issues
+  - Standard resolution: `dev → ./ADRI/dev/standards/{name}.yaml`, `prod → ./ADRI/prod/standards/{name}.yaml`
+  - Updated decorator docstring to clearly document name-only usage and environment-based resolution
 - Jekyll configuration for GitHub Pages deployment
 - Pytest configuration conflicts between multiple config files
 - Pre-commit configuration improvements

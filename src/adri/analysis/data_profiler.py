@@ -11,7 +11,20 @@ import pandas as pd
 
 
 class ProfileResult:
-    """Result of data profiling operation."""
+    """Result of data profiling operation with clean, explicit interface.
+
+    Use explicit methods for accessing profile data:
+    - profile.to_dict() - Get full profile as dictionary
+    - profile.get_field_profile('name') - Get specific field profile
+    - profile.get_field_names() - List all field names
+    - profile.has_field('name') - Check if field exists
+
+    Direct attribute access still available:
+    - profile.field_profiles
+    - profile.summary_statistics
+    - profile.data_quality_score
+    - profile.metadata
+    """
 
     def __init__(
         self,
@@ -20,35 +33,92 @@ class ProfileResult:
         data_quality_score: float,
         metadata: dict = None,
     ):
-        """Initialize ProfileResult with profiling data."""
+        """Initialize ProfileResult with profiling data.
+
+        Args:
+            field_profiles: Dictionary of field name -> FieldProfile objects
+            summary_statistics: Overall dataset statistics
+            data_quality_score: Calculated quality score (0-100)
+            metadata: Additional metadata (recommendations, config, etc.)
+        """
         self.field_profiles = field_profiles
         self.summary_statistics = summary_statistics
         self.data_quality_score = data_quality_score
         self.metadata = metadata or {}
 
-    def get(self, key, default=None):
-        """Dict-like get method for backward compatibility."""
-        return getattr(self, key, default)
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert profile to dictionary format.
 
-    def __getitem__(self, key):
-        """Dict-like access for backward compatibility."""
-        if hasattr(self, key):
-            return getattr(self, key)
-        raise KeyError(f"'{key}' not found in ProfileResult")
+        Returns complete profile data as a dictionary for serialization.
 
-    def keys(self):
-        """Return available keys for dict-like behavior."""
-        keys = [
-            "field_profiles",
-            "summary_statistics",
-            "data_quality_score",
-            "metadata",
-        ]
+        Returns:
+            Dictionary with all profile data
+        """
+        result = {
+            "field_profiles": self.field_profiles,
+            "summary_statistics": self.summary_statistics,
+            "data_quality_score": self.data_quality_score,
+            "metadata": self.metadata,
+        }
+
+        # Include optional attributes if present
         if hasattr(self, "quality_assessment"):
-            keys.append("quality_assessment")
+            result["quality_assessment"] = self.quality_assessment
         if hasattr(self, "fields"):
-            keys.append("fields")
-        return keys
+            result["fields"] = self.fields
+
+        return result
+
+    def get_field_profile(self, field_name: str) -> "FieldProfile":
+        """Get profile for a specific field.
+
+        Args:
+            field_name: Name of the field to get profile for
+
+        Returns:
+            FieldProfile object for the specified field
+
+        Raises:
+            KeyError: If field_name is not in the profile
+        """
+        if field_name not in self.field_profiles:
+            raise KeyError(f"Field '{field_name}' not found in profile")
+        return self.field_profiles[field_name]
+
+    def get_field_names(self) -> List[str]:
+        """Get list of all profiled field names.
+
+        Returns:
+            List of field names that were profiled
+        """
+        return list(self.field_profiles.keys())
+
+    def has_field(self, field_name: str) -> bool:
+        """Check if a field exists in the profile.
+
+        Args:
+            field_name: Name of the field to check
+
+        Returns:
+            True if field is in profile, False otherwise
+        """
+        return field_name in self.field_profiles
+
+    def get(self, key: str, default=None):
+        """Get attribute value (for internal code compatibility).
+
+        Args:
+            key: Attribute name
+            default: Default value if not found
+
+        Returns:
+            Attribute value or default
+
+        Note:
+            This method exists for internal code compatibility.
+            External code should use explicit methods like get_field_profile().
+        """
+        return getattr(self, key, default)
 
 
 class FieldProfile:
@@ -67,17 +137,21 @@ class FieldProfile:
             setattr(self, key, value)
 
     def get(self, key, default=None):
-        """Dict-like get method for backward compatibility."""
+        """Dict-like get method for internal code use."""
         return getattr(self, key, default)
 
+    def __contains__(self, key):
+        """Support 'in' operator for checking attributes."""
+        return hasattr(self, key)
+
     def __getitem__(self, key):
-        """Dict-like access for backward compatibility."""
+        """Dict-like access for internal code use."""
         if hasattr(self, key):
             return getattr(self, key)
         raise KeyError(f"'{key}' not found in FieldProfile")
 
     def setdefault(self, key, default=None):
-        """Dict-like setdefault method for backward compatibility."""
+        """Dict-like setdefault method for internal code use."""
         if hasattr(self, key):
             return getattr(self, key)
         else:
@@ -156,7 +230,7 @@ class DataProfiler:
         # Add quality_assessment as a top-level attribute for API compatibility
         result.quality_assessment = quality_assessment
 
-        # Add fields alias for backward compatibility
+        # Add fields alias (used by internal generation code that accesses profile.get('fields'))
         result.fields = field_profiles
 
         return result

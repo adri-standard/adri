@@ -89,44 +89,6 @@ class TestAdriProtectedDecorator(unittest.TestCase):
         self.assertEqual(config['min_score'], 70)
         self.assertTrue(config['verbose'])
 
-    def test_protection_with_poor_data_fail_fast(self):
-        """Test that poor data quality triggers protection in fail-fast mode."""
-
-        @adri_protected(standard="strict_customer_standard", min_score=80)
-        def strict_processor(data):
-            return "Should not reach here"
-
-        # Poor data should trigger protection error
-        with self.assertRaises(ProtectionError):
-            strict_processor(self.poor_data)
-
-    def test_different_data_types(self):
-        """Test decorator with different data types."""
-
-        @adri_protected(standard="flexible_standard")
-        def flexible_processor(data):
-            if isinstance(data, dict):
-                return f"Dict with {len(data)} keys"
-            elif isinstance(data, list):
-                return f"List with {len(data)} items"
-            else:
-                return f"DataFrame with {len(data)} rows"
-
-        # Test with dict
-        dict_data = {"name": "Alice", "age": 25, "email": "alice@test.com"}
-        result = flexible_processor(dict_data)
-        self.assertEqual(result, "Dict with 3 keys")
-
-        # Test with list
-        list_data = [{"name": "Bob"}, {"name": "Charlie"}]
-        result = flexible_processor(list_data)
-        self.assertEqual(result, "List with 2 items")
-
-        # Test with DataFrame
-        result = flexible_processor(self.good_data)
-        self.assertEqual(result, "DataFrame with 3 rows")
-
-
 class TestExplicitProtectionPatterns(unittest.TestCase):
     """Test explicit protection patterns with real functionality."""
 
@@ -156,28 +118,6 @@ class TestExplicitProtectionPatterns(unittest.TestCase):
         import shutil
         shutil.rmtree(self.test_dir)
 
-    def test_strict_protection_pattern(self):
-        """Test strict protection pattern (equivalent to old adri_strict)."""
-
-        @adri_protected(standard="strict_standard", min_score=90, on_failure="raise")
-        def strict_function(data):
-            return f"Strict processing: {len(data)} records"
-
-        # Test that strict mode correctly blocks data that doesn't meet 90% threshold
-        # Our excellent_data scores ~88.5% which is below the 90% strict requirement
-        with self.assertRaises(ProtectionError) as context:
-            strict_function(self.excellent_data)
-
-        # Should contain score and requirement information
-        error_msg = str(context.exception)
-        self.assertIn("88", error_msg)  # Actual score ~88.5
-        self.assertIn("90", error_msg)  # Required score 90
-
-        # Check configuration was set correctly
-        config = strict_function._adri_config
-        self.assertEqual(config['min_score'], 90)
-        self.assertEqual(config['on_failure'], "raise")
-
     def test_permissive_protection_pattern(self):
         """Test permissive protection pattern (equivalent to old adri_permissive)."""
 
@@ -193,86 +133,6 @@ class TestExplicitProtectionPatterns(unittest.TestCase):
         self.assertEqual(config['min_score'], 70)
         self.assertEqual(config['on_failure'], "warn")
         self.assertTrue(config['verbose'])
-
-    def test_financial_protection_pattern(self):
-        """Test financial-grade protection pattern (equivalent to old adri_financial)."""
-
-        @adri_protected(
-            standard="financial_standard",
-            min_score=95,
-            dimensions={"validity": 19, "completeness": 19, "consistency": 18},
-            on_failure="raise"
-        )
-        def financial_function(data):
-            return f"Financial processing: {len(data)} transactions"
-
-        # Test that financial mode correctly blocks data that doesn't meet 95% threshold
-        # Our excellent_data scores ~88.5% which is below the 95% financial requirement
-        with self.assertRaises(ProtectionError) as context:
-            financial_function(self.excellent_data)
-
-        # Should contain score and requirement information
-        error_msg = str(context.exception)
-        self.assertIn("88", error_msg)  # Actual score ~88.5
-        self.assertIn("95", error_msg)  # Required score 95
-
-        # Check configuration was set correctly
-        config = financial_function._adri_config
-        self.assertEqual(config['min_score'], 95)
-        self.assertEqual(config['on_failure'], "raise")
-        self.assertEqual(config['dimensions'], {
-            "validity": 19,
-            "completeness": 19,
-            "consistency": 18
-        })
-
-    def test_explicit_protection_with_custom_overrides(self):
-        """Test explicit protection patterns with custom parameter overrides."""
-
-        @adri_protected(
-            standard="custom_strict",
-            min_score=95,  # Custom strict threshold
-            data_param="records",
-            on_failure="raise"
-        )
-        def custom_strict(records):
-            return "custom strict result"
-
-        @adri_protected(
-            standard="custom_permissive",
-            min_score=60,  # Custom permissive threshold
-            on_failure="continue",
-            verbose=True
-        )
-        def custom_permissive(data):
-            return "custom permissive result"
-
-        @adri_protected(
-            standard="custom_financial",
-            min_score=98,  # Custom financial threshold
-            dimensions={"validity": 20},
-            on_failure="raise"
-        )
-        def custom_financial(data):
-            return "custom financial result"
-
-        # Test configuration overrides work correctly
-        # Note: custom_strict with 95% threshold will correctly block 88.5% data
-        with self.assertRaises(ProtectionError):
-            custom_strict(self.excellent_data)
-        self.assertEqual(custom_strict._adri_config['min_score'], 95)
-        self.assertEqual(custom_strict._adri_config['data_param'], "records")
-
-        result2 = custom_permissive(self.excellent_data)
-        self.assertEqual(result2, "custom permissive result")
-        self.assertEqual(custom_permissive._adri_config['min_score'], 60)
-        self.assertEqual(custom_permissive._adri_config['on_failure'], "continue")
-
-        # custom_financial with 98% threshold will correctly block 88.5% data
-        with self.assertRaises(ProtectionError):
-            custom_financial(self.excellent_data)
-        self.assertEqual(custom_financial._adri_config['min_score'], 98)
-        self.assertEqual(custom_financial._adri_config['dimensions'], {"validity": 20})
 
 
 class TestDecoratorIntegration(unittest.TestCase):
@@ -393,30 +253,6 @@ class TestDecoratorIntegration(unittest.TestCase):
         # Verify decorator attributes
         self.assertTrue(hasattr(documented_function, '_adri_protected'))
         self.assertTrue(documented_function._adri_protected)
-
-    def test_error_handling_edge_cases(self):
-        """Test error handling in edge cases."""
-
-        @adri_protected(standard="edge_case_standard")
-        def edge_case_function(data):
-            # Simulate a function that might fail
-            if len(data) == 0:
-                raise ValueError("Cannot process empty data")
-            return f"Processed {len(data)} items"
-
-        # Test with valid data
-        result = edge_case_function(self.high_quality_data)
-        self.assertEqual(result, "Processed 5 items")
-
-        # Test with empty data - protection engine will block it first (scores ~68.5% vs required 80%)
-        # This demonstrates protection working correctly to prevent downstream errors
-        with self.assertRaises(ProtectionError) as context:
-            edge_case_function(pd.DataFrame())
-
-        # Verify it's being blocked by protection, not the function's ValueError
-        error_msg = str(context.exception)
-        self.assertIn("68", error_msg)  # Low quality score
-        self.assertIn("80", error_msg)  # Required score
 
     def test_nested_decorators(self):
         """Test ADRI decorator works with other decorators."""

@@ -292,25 +292,44 @@ class ConfigurationLoader:
         self, standard_name: str, environment: Optional[str] = None
     ) -> str:
         """
-        Resolve a standard name to full path using active configuration.
+        Resolve a standard name to full absolute path using active configuration.
 
         Args:
             standard_name: Name of standard (with or without .yaml extension)
             environment: Environment to use
 
         Returns:
-            Full path to standard file (with forward slashes for cross-platform compatibility)
+            Full absolute path to standard file
         """
         config = self.get_active_config()
+
+        # Determine base directory from config file location
+        # Check environment variable first
+        config_file_path = os.environ.get("ADRI_CONFIG_PATH")
+        if not config_file_path:
+            config_file_path = self.find_config_file()
+
+        # Determine base directory - use config file location if available, else cwd
+        if config_file_path:
+            base_dir = Path(config_file_path).parent
+        else:
+            base_dir = Path.cwd()
+
+        # Determine environment
+        if environment is None and config:
+            environment = config.get("adri", {}).get(
+                "default_environment", "development"
+            )
+        elif environment is None:
+            environment = "development"
+
         if not config:
             # Fallback to default path structure
             env_dir = "dev" if environment != "production" else "prod"
             if not standard_name.endswith((".yaml", ".yml")):
                 standard_name += ".yaml"
-            # Use os.path.join but normalize separators to forward slashes
-            return os.path.join(f"./ADRI/{env_dir}/standards", standard_name).replace(
-                "\\", "/"
-            )
+            standard_path = base_dir / "ADRI" / env_dir / "standards" / standard_name
+            return str(standard_path)
 
         try:
             env_config = self.get_environment_config(config, environment)
@@ -320,16 +339,27 @@ class ConfigurationLoader:
             if not standard_name.endswith((".yaml", ".yml")):
                 standard_name += ".yaml"
 
-            # Use os.path.join for proper path construction, normalize separators
-            return os.path.join(standards_dir, standard_name).replace("\\", "/")
+            # Convert relative path to absolute based on config file location
+            # Use Path.resolve() for cross-platform path resolution
+            standards_path = Path(standards_dir)
+
+            # If relative path, resolve from config file directory
+            if not standards_path.is_absolute():
+                standards_path = (base_dir / standards_dir).resolve()
+            else:
+                standards_path = standards_path.resolve()
+
+            # Combine with standard filename and ensure absolute path
+            full_path = (standards_path / standard_name).resolve()
+            return str(full_path)
+
         except (KeyError, ValueError, AttributeError):
             # Fallback on any error
             env_dir = "dev" if environment != "production" else "prod"
             if not standard_name.endswith((".yaml", ".yml")):
                 standard_name += ".yaml"
-            return os.path.join(f"./ADRI/{env_dir}/standards", standard_name).replace(
-                "\\", "/"
-            )
+            standard_path = base_dir / "ADRI" / env_dir / "standards" / standard_name
+            return str(standard_path)
 
     def create_directory_structure(self, config: Dict[str, Any]) -> None:
         """

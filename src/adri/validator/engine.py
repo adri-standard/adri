@@ -1353,20 +1353,31 @@ class ValidationEngine:
                 if isinstance(scoring_cfg, dict)
                 else {}
             )
+
+            # Extract primary key fields with simplified, robust logic
             pk_fields = []
             try:
+                # Try primary method: get_record_identification()
                 rid = standard.get_record_identification()
-                pk_fields = (
-                    rid.get("primary_key_fields", []) if isinstance(rid, dict) else []
-                )
+                if isinstance(rid, dict):
+                    pk_fields = list(rid.get("primary_key_fields", []))
             except Exception:
-                # Fallback direct read
-                pk_fields = (
-                    (getattr(standard, "standard_dict", {}) or {})
-                    .get("record_identification", {})
-                    .get("primary_key_fields", [])
-                )
-            pk_fields = list(pk_fields) if isinstance(pk_fields, list) else []
+                pass
+
+            # Fallback: direct access to standard_dict
+            if not pk_fields:
+                try:
+                    std_dict = getattr(standard, "standard_dict", {})
+                    if isinstance(std_dict, dict):
+                        rid = std_dict.get("record_identification", {})
+                        if isinstance(rid, dict):
+                            pk_fields = list(rid.get("primary_key_fields", []))
+                except Exception:
+                    pass
+
+            # Ensure pk_fields is always a list
+            if not isinstance(pk_fields, list):
+                pk_fields = []
         except Exception:
             # Fallback to basic if standard is not usable
             return self._assess_consistency(data)

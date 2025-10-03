@@ -228,12 +228,24 @@ INV-103,CUST-203,-150.75,2024-02-17,invalid,credit_card"""
         with open(test_file, 'w') as f:
             f.write(test_data)
 
-    def create_standard_file(self, name: str, content: Dict[str, Any]):
-        """Create a standard file in the workspace."""
+    def create_standard(self, name: str, content: Dict[str, Any]) -> str:
+        """Create a standard file and return name for name-only resolution.
+
+        This method supports the governance model that enforces name-only standard
+        resolution. The standard file is created in the configured location, but only
+        the standard name is returned.
+
+        Args:
+            name: Standard name (without .yaml extension)
+            content: Standard content dictionary
+
+        Returns:
+            Standard name only (not the path)
+        """
         standard_path = self.standards_dir / f"{name}.yaml"
         with open(standard_path, 'w') as f:
             yaml.dump(content, f, default_flow_style=False)
-        return standard_path
+        return name  # Return name only, not path
 
     def create_data_file(self, name: str, content: str, directory: Path = None):
         """Create a data file in the workspace."""

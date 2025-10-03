@@ -101,13 +101,8 @@ class TestComponentInteractions:
         self.complete_config = ModernFixtures.create_configuration_data("complete")
 
     @pytest.mark.integration
-    def test_decorator_validator_guard_integration(self, temp_workspace, sample_standard_file):
+    def test_decorator_validator_guard_integration(self, temp_workspace, sample_standard_name):
         """Test integration between decorator, validator, and guard components."""
-
-        # Create the standard file first to avoid protection system file creation issues
-        standard_file = temp_workspace / "sample_standard.yaml"
-        with open(standard_file, 'w') as f:
-            yaml.dump(self.comprehensive_standard, f)
 
         # Mock the protection system to avoid file system issues
         with patch('src.adri.decorator.DataProtectionEngine') as mock_engine:
@@ -120,9 +115,9 @@ class TestComponentInteractions:
             }
             mock_engine.return_value = mock_engine_instance
 
-            # Test complete protection workflow
+            # Test complete protection workflow with name-only governance
             @adri_protected(
-                standard="sample_standard",
+                standard=sample_standard_name,
                 on_failure="warn"
             )
             def protected_data_processing(data):
@@ -199,7 +194,7 @@ class TestComponentInteractions:
 
         # Step 2: Generate standard from profile
         generator = StandardGenerator()
-        generated_standard = generator.generate_from_dataframe(
+        generated_standard = generator.generate(
             data=self.high_quality_data,
             data_name="pipeline_generated_standard"
         )
@@ -242,13 +237,14 @@ class TestComponentInteractions:
         profile_result = profiler.profile_data(mixed_data)
 
         # Verify integration produces consistent results
-        assert len(inference_result) == len(profile_result.get('fields', {}))
+        profile_dict = profile_result.to_dict()
+        assert len(inference_result) == len(profile_dict.get('fields', {}))
 
         # Check consistency between type inference and profiler
         for field_name in mixed_data.columns:
-            if field_name in inference_result and field_name in profile_result.get('fields', {}):
+            if field_name in inference_result and field_name in profile_dict.get('fields', {}):
                 inferred_rules = inference_result[field_name]
-                profiled_dtype = profile_result['fields'][field_name].get('dtype', 'object')
+                profiled_dtype = profile_dict['fields'][field_name].get('dtype', 'object')
                 inferred_type = inferred_rules.get('type', 'string')
 
                 # Map pandas dtypes to ADRI types
@@ -442,7 +438,7 @@ class TestComponentInteractions:
 
         # Step 2: Generate standard
         generator = StandardGenerator()
-        generated_standard = generator.generate_from_dataframe(
+        generated_standard = generator.generate(
             data=large_dataset,
             data_name="integration_performance_test"
         )
@@ -482,7 +478,7 @@ class TestComponentInteractions:
 
             # Profile → Generate → Validate
             profile_result = profiler.profile_data(data)
-            generated_standard = generator.generate_from_dataframe(
+            generated_standard = generator.generate(
                 data=data,
                 data_name=f"concurrent_workflow_{workflow_id}"
             )
@@ -664,7 +660,7 @@ class TestComponentInteractions:
             validator = ValidationEngine()
 
             # Generate standard without profiler (direct from data)
-            generated_standard = generator.generate_from_dataframe(
+            generated_standard = generator.generate(
                 data=self.high_quality_data,
                 data_name="error_recovery_test"
             )
@@ -696,7 +692,7 @@ class TestComponentInteractions:
             profile_result = profiler.profile_data(large_dataset)
 
             # Generate standard
-            generated_standard = generator.generate_from_dataframe(
+            generated_standard = generator.generate(
                 data=large_dataset,
                 data_name="memory_efficiency_test"
             )
@@ -718,7 +714,7 @@ class TestComponentInteractions:
 
         # Step 1: Generate standard from data
         generator = StandardGenerator()
-        generated_standard = generator.generate_from_dataframe(
+        generated_standard = generator.generate(
             data=self.high_quality_data,
             data_name="lifecycle_test_standard"
         )

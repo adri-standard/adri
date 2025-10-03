@@ -936,5 +936,163 @@ class TestValidationEngineEdgeCases(unittest.TestCase):
         self.assertEqual(metadata["adri_version"], "4.0.0")
 
 
+# ============================================================================
+# Additional Comprehensive Tests (from test_validator_engine_comprehensive.py)
+# ============================================================================
+
+
+class TestValidatorEngineErrorHandling(unittest.TestCase):
+    """Test comprehensive error handling scenarios.
+
+    Consolidated from test_validator_engine_comprehensive.py
+    """
+
+    def setUp(self):
+        """Set up test environment."""
+        self.temp_dir = tempfile.mkdtemp()
+        self.original_cwd = os.getcwd()
+        os.chdir(self.temp_dir)
+
+    def tearDown(self):
+        """Clean up test environment."""
+        os.chdir(self.original_cwd)
+        import shutil
+        shutil.rmtree(self.temp_dir)
+
+    def test_malformed_data_error_handling(self):
+        """Test handling of malformed data inputs."""
+        engine = ValidationEngine()
+
+        # Test with empty DataFrame
+        empty_df = pd.DataFrame()
+        result = engine._basic_assessment(empty_df)
+        self.assertIsInstance(result, AssessmentResult)
+        self.assertEqual(result.dimension_scores["completeness"].score, 0.0)
+
+        # Test with DataFrame containing only NaN values
+        nan_df = pd.DataFrame({
+            "col1": [None, None, None],
+            "col2": [pd.NA, pd.NA, pd.NA],
+            "col3": ["", "", ""]
+        })
+        result = engine._basic_assessment(nan_df)
+        self.assertIsInstance(result, AssessmentResult)
+
+        # Test with DataFrame containing mixed data types
+        mixed_df = pd.DataFrame({
+            "mixed_col": [1, "string", 3.14, None, True]
+        })
+        result = engine._basic_assessment(mixed_df)
+        self.assertIsInstance(result, AssessmentResult)
+
+    def test_standard_loading_error_handling(self):
+        """Test error handling when standards cannot be loaded."""
+        engine = ValidationEngine()
+        test_data = pd.DataFrame({"email": ["test@example.com"], "age": [25]})
+
+        # Test with non-existent standard file
+        result = engine.assess(test_data, "/nonexistent/standard.yaml")
+        self.assertIsInstance(result, AssessmentResult)
+
+        # Test with corrupted standard file
+        from pathlib import Path
+        corrupted_standard = Path("corrupted.yaml")
+        with open(corrupted_standard, "w") as f:
+            f.write("invalid: yaml: [unclosed")
+        result = engine.assess(test_data, str(corrupted_standard))
+        self.assertIsInstance(result, AssessmentResult)
+
+    def test_invalid_standard_structure_error_handling(self):
+        """Test handling of invalid standard structures."""
+        engine = ValidationEngine()
+        test_data = pd.DataFrame({"test_field": ["value1", "value2"]})
+
+        invalid_standards = [
+            None, {}, {"requirements": None},
+            {"requirements": "not_a_dict"},
+            {"requirements": {"field_requirements": "not_a_dict"}},
+        ]
+
+        for invalid_standard in invalid_standards:
+            try:
+                result = engine.assess_with_standard_dict(test_data, invalid_standard)
+                self.assertIsInstance(result, AssessmentResult)
+            except Exception:
+                pass  # Some may raise exceptions
+
+    def test_email_validation_error_handling(self):
+        """Test email validation error scenarios."""
+        engine = ValidationEngine()
+
+        edge_case_emails = [
+            "", " ", "@", "email@", "@domain.com",
+            "email@@domain.com", "email@domain", None, 123
+        ]
+
+        for email in edge_case_emails:
+            try:
+                is_valid = engine._is_valid_email(str(email))
+                self.assertIsInstance(is_valid, bool)
+            except (TypeError, AttributeError):
+                pass
+
+
+class TestValidatorEngineRefactor(unittest.TestCase):
+    """Stability tests for validator engine refactor.
+
+    Consolidated from test_validator_engine_refactor.py
+    """
+
+    def setUp(self):
+        self.engine = ValidationEngine()
+        self.df = pd.DataFrame({
+            "code": ["A", "B", "B"],
+            "age": [10, 20, 30],
+            "unused": ["x", "y", "z"],
+        })
+        self.field_requirements = {
+            "code": {
+                "type": "string",
+                "allowed_values": ["A", "B"],
+                "min_length": 1,
+                "max_length": 2,
+                "pattern": r"^[AB]$",
+            },
+            "age": {
+                "type": "integer",
+                "min_value": 0,
+                "max_value": 120,
+            },
+        }
+
+    def test_validity_counts_and_weights_stability(self):
+        """Test validity rule counts computation stability."""
+        # This test validates internal computation methods if they exist
+        # If methods don't exist, test will be skipped
+        if not hasattr(self.engine, '_compute_validity_rule_counts'):
+            self.skipTest("Internal method not available")
+
+        try:
+            counts, per_field_counts = self.engine._compute_validity_rule_counts(
+                self.df, self.field_requirements
+            )
+            self.assertIsInstance(counts, dict)
+            self.assertIsInstance(per_field_counts, dict)
+        except AttributeError:
+            self.skipTest("Method signature changed")
+
+    def test_explain_payload_schema_stability(self):
+        """Test that assessment produces stable explain structure."""
+        standard_dict = {
+            "requirements": {
+                "field_requirements": self.field_requirements,
+            }
+        }
+        wrapper = BundledStandardWrapper(standard_dict)
+
+        score = self.engine._assess_validity_with_standard(self.df, wrapper)
+        self.assertGreaterEqual(score, 15.0)
+
+
 if __name__ == '__main__':
     unittest.main()

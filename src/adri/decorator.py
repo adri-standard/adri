@@ -28,14 +28,16 @@ def adri_protected(
     """
     Protect agent functions with ADRI data quality checks.
 
-    This decorator:
-    1. Uses the specified standard to validate data quality
-    2. Auto-generates the standard if it doesn't exist (first run)
-    3. Guards function execution based on quality thresholds
-    4. Provides detailed error reports when quality fails
+    This decorator validates data quality using environment-based standard resolution.
+    The standard location is determined by your active environment (dev/prod) as
+    configured in adri-config.yaml, ensuring governance and consistency.
 
     Args:
-        standard: Standard name to use (REQUIRED, e.g., "customer_data_standard")
+        standard: Standard name (REQUIRED) - e.g., "customer_data" or "financial_data"
+                 NOTE: Only names are accepted, not file paths. The actual file location
+                 is determined by your environment configuration:
+                 - Dev: ./ADRI/dev/standards/{standard}.yaml
+                 - Prod: ./ADRI/prod/standards/{standard}.yaml
         data_param: Name of the parameter containing data to check (default: "data")
         min_score: Minimum quality score required (0-100, uses config default if None)
         dimensions: Specific dimension requirements (e.g., {"validity": 19, "completeness": 18})
@@ -52,17 +54,17 @@ def adri_protected(
         ValueError: If the specified data parameter is not found
 
     Examples:
-        Explicit standard usage (recommended):
+        Basic usage with standard name only:
         ```python
-        @adri_protected(standard="customer_data_standard")
+        @adri_protected(standard="customer_data")
         def process_customers(data):
             return processed_data
         ```
 
-        High-stakes workflow with strict requirements:
+        High-stakes production workflow:
         ```python
         @adri_protected(
-            standard="financial_data_standard",
+            standard="financial_data",
             min_score=90,
             dimensions={"validity": 19, "completeness": 18},
             on_failure="raise"
@@ -71,16 +73,20 @@ def adri_protected(
             return transaction_result
         ```
 
-        Custom data parameter:
+        Development with custom data parameter:
         ```python
         @adri_protected(
-            standard="user_profile_standard",
+            standard="user_profile",
             data_param="user_data",
             min_score=70
         )
         def update_profile(user_data, settings):
             return updated_profile
         ```
+
+    Note:
+        Standard files are automatically resolved based on your environment configuration.
+        To control where standards are stored, update your adri-config.yaml file.
     """
 
     # Check for missing standard parameter and provide helpful error message
@@ -115,31 +121,14 @@ def adri_protected(
                 # Initialize protection engine
                 engine = DataProtectionEngine()
 
-                # Check if standard is a file path or just a name
-                import os
-
-                if standard and (
-                    standard.endswith(".yaml")
-                    or standard.endswith(".yml")
-                    or os.path.exists(standard)
-                ):
-                    # It's a file path
-                    standard_file = standard
-                    standard_name = None
-                else:
-                    # It's a standard name
-                    standard_file = None
-                    standard_name = standard
-
-                # Protect the function call
+                # Protect the function call with name-only standard resolution
                 return engine.protect_function_call(
                     func=func,
                     args=args,
                     kwargs=kwargs,
                     data_param=data_param,
                     function_name=func.__name__,
-                    standard_file=standard_file,
-                    standard_name=standard_name,
+                    standard_name=standard,
                     min_score=min_score,
                     dimensions=dimensions,
                     on_failure=on_failure,

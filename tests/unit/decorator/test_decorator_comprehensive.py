@@ -48,11 +48,11 @@ class TestDecoratorComprehensive:
 
     @pytest.mark.unit
     @pytest.mark.business_critical
-    def test_decorator_basic_protection(self, temp_workspace, sample_standard_file):
+    def test_decorator_basic_protection(self, temp_workspace, sample_standard_name):
         """Test basic protection functionality."""
 
         @adri_protected(
-            standard=str(sample_standard_file),
+            standard=sample_standard_name,
             on_failure="warn"
         )
         def process_data(data):
@@ -66,10 +66,10 @@ class TestDecoratorComprehensive:
 
     @pytest.mark.unit
     @pytest.mark.business_critical
-    def test_decorator_basic_functionality(self, temp_workspace, sample_standard_file):
+    def test_decorator_basic_functionality(self, temp_workspace, sample_standard_name):
         """Test basic decorator functionality with actual available parameters."""
 
-        @adri_protected(standard="test_standard")
+        @adri_protected(standard=sample_standard_name)
         def process_data(data):
             return {"status": "processed", "rows": len(data)}
 
@@ -95,11 +95,11 @@ class TestDecoratorComprehensive:
 
     @pytest.mark.integration
     @pytest.mark.business_critical
-    def test_decorator_validator_engine_integration(self, temp_workspace, sample_standard_file):
+    def test_decorator_validator_engine_integration(self, temp_workspace, sample_standard_name):
         """Test integration with validator engine."""
 
         @adri_protected(
-            standard=str(sample_standard_file),
+            standard=sample_standard_name,
             on_failure="warn"
         )
         def data_processing_pipeline(data):
@@ -137,17 +137,17 @@ class TestDecoratorComprehensive:
 
         # Set environment to use config
         with patch.dict(os.environ, {"ADRI_CONFIG_PATH": str(config_file)}):
-            @adri_protected(
-                standard=str(temp_workspace / "ADRI" / "dev" / "standards" / "test.yaml"),
-                on_failure="warn"
-            )
-            def config_aware_function(data):
-                return {"config_loaded": True, "data_processed": len(data)}
-
             # Create a minimal standard file
             standard_path = temp_workspace / "ADRI" / "dev" / "standards" / "test.yaml"
             with open(standard_path, 'w') as f:
                 yaml.dump(self.comprehensive_standard, f)
+
+            @adri_protected(
+                standard="test",
+                on_failure="warn"
+            )
+            def config_aware_function(data):
+                return {"config_loaded": True, "data_processed": len(data)}
 
             result = config_aware_function(self.high_quality_data)
             assert result["config_loaded"] is True
@@ -156,11 +156,11 @@ class TestDecoratorComprehensive:
 
     @pytest.mark.error_handling
     @pytest.mark.business_critical
-    def test_decorator_error_recovery_scenarios(self, temp_workspace, sample_standard_file):
+    def test_decorator_error_recovery_scenarios(self, temp_workspace, sample_standard_name):
         """Test comprehensive error recovery scenarios."""
 
         @adri_protected(
-            standard=str(sample_standard_file),
+            standard=sample_standard_name,
             on_failure="warn"
         )
         def error_prone_function(data):
@@ -176,7 +176,7 @@ class TestDecoratorComprehensive:
 
         # Test that decorator with "warn" mode handles protection gracefully
         @adri_protected(
-            standard=str(sample_standard_file),
+            standard=sample_standard_name,
             on_failure="warn"  # Warn mode should not raise exceptions
         )
         def warn_mode_function(data):
@@ -191,13 +191,13 @@ class TestDecoratorComprehensive:
 
     @pytest.mark.integration
     @pytest.mark.business_critical
-    def test_decorator_concurrent_usage(self, temp_workspace, sample_standard_file):
+    def test_decorator_concurrent_usage(self, temp_workspace, sample_standard_name):
         """Test decorator behavior under concurrent usage."""
         import threading
         import concurrent.futures
 
         @adri_protected(
-            standard=str(sample_standard_file),
+            standard=sample_standard_name,
             on_failure="warn"
         )
         def concurrent_function(data, thread_id):
@@ -227,11 +227,11 @@ class TestDecoratorComprehensive:
 
     @pytest.mark.error_handling
     @pytest.mark.business_critical
-    def test_decorator_edge_case_handling(self, temp_workspace, sample_standard_file):
+    def test_decorator_edge_case_handling(self, temp_workspace, sample_standard_name):
         """Test handling of edge cases and unusual inputs."""
 
         @adri_protected(
-            standard=str(sample_standard_file),
+            standard=sample_standard_name,
             on_failure="warn"
         )
         def edge_case_function(data):
@@ -263,18 +263,18 @@ class TestDecoratorComprehensive:
     def test_decorator_parameter_validation(self, temp_workspace):
         """Test comprehensive parameter validation."""
 
-        # Test valid parameters
-        valid_config = {
-            "standard": str(temp_workspace / "valid.yaml"),
-            "on_failure": "warn",
-            "min_score": 75.0
-        }
-
         # Create valid standard file
-        standard_path = temp_workspace / "valid.yaml"
+        standard_path = temp_workspace / "ADRI" / "dev" / "standards" / "valid.yaml"
         with open(standard_path, 'w') as f:
             import yaml
             yaml.dump(self.comprehensive_standard, f)
+
+        # Test valid parameters
+        valid_config = {
+            "standard": "valid",
+            "on_failure": "warn",
+            "min_score": 75.0
+        }
 
         @adri_protected(**valid_config)
         def valid_function(data):
@@ -286,7 +286,7 @@ class TestDecoratorComprehensive:
         # Test that invalid parameters don't crash the decorator creation
         # The actual API may not validate parameters at decoration time
         @adri_protected(
-            standard=str(temp_workspace / "valid.yaml"),
+            standard="valid",
             on_failure="warn",
             min_score=-10  # API may accept this
         )
@@ -297,7 +297,7 @@ class TestDecoratorComprehensive:
         assert callable(test_negative_score_function)
 
         @adri_protected(
-            standard=str(temp_workspace / "valid.yaml"),
+            standard="valid",
             on_failure="warn",
             min_score=150  # API may accept this too
         )
@@ -311,11 +311,11 @@ class TestDecoratorComprehensive:
 
     @pytest.mark.integration
     @pytest.mark.business_critical
-    def test_decorator_logging_integration(self, temp_workspace, sample_standard_file):
+    def test_decorator_logging_integration(self, temp_workspace, sample_standard_name):
         """Test integration with logging system."""
 
         @adri_protected(
-            standard=str(sample_standard_file),
+            standard=sample_standard_name,
             on_failure="warn"
         )
         def logged_function(data):

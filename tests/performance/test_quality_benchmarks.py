@@ -99,7 +99,7 @@ class TestQualityBenchmarks:
         def generate_standard(data):
             """Benchmark function for standard generation."""
             generator = StandardGenerator()
-            result = generator.generate_from_dataframe(
+            result = generator.generate(
                 data=data,
                 data_name="benchmark_generated_standard"
             )
@@ -283,7 +283,7 @@ class TestQualityBenchmarks:
             profile_result = profiler.profile_data(data)
 
             generator = StandardGenerator()
-            standard = generator.generate_from_dataframe(
+            standard = generator.generate(
                 data=data,
                 data_name="memory_benchmark_standard"
             )
@@ -356,7 +356,7 @@ class TestQualityBenchmarks:
 
             # Step 2: Generate standard
             generator = StandardGenerator()
-            generated_standard = generator.generate_from_dataframe(
+            generated_standard = generator.generate(
                 data=self.medium_dataset,
                 data_name="benchmark_workflow_standard"
             )
@@ -456,7 +456,7 @@ class TestQualityBenchmarks:
                 profile_result = profiler.profile_data(stress_data)
 
                 generator = StandardGenerator()
-                standard = generator.generate_from_dataframe(
+                standard = generator.generate(
                     data=stress_data,
                     data_name="stress_test_standard"
                 )
@@ -623,7 +623,7 @@ class TestPerformanceSLAValidation:
         data = ModernFixtures.create_comprehensive_mock_data(rows=2000, quality_level="high")
 
         start_time = time.time()
-        standard = generator.generate_from_dataframe(data=data, data_name="sla_test_standard")
+        standard = generator.generate(data=data, data_name="sla_test_standard")
         duration = time.time() - start_time
 
         from tests.utils.performance_helpers import assert_performance

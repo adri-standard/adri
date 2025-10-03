@@ -197,24 +197,6 @@ class TestConfigurationLoader(unittest.TestCase):
 
         self.assertEqual(protection_config["default_min_score"], 70)  # Should be overridden
 
-    def test_resolve_standard_path_no_config(self):
-        """Test resolving standard path when no config exists."""
-        with patch.object(self.loader, 'get_active_config', return_value=None):
-            path = self.loader.resolve_standard_path("test_standard")
-
-        # Should return fallback path
-        self.assertEqual(path, "./ADRI/dev/standards/test_standard.yaml")
-
-    def test_resolve_standard_path_with_config(self):
-        """Test resolving standard path with active config."""
-        config = self.loader.create_default_config("test")
-
-        with patch.object(self.loader, 'get_active_config', return_value=config):
-            path = self.loader.resolve_standard_path("test_standard", "production")
-
-        self.assertEqual(path, "./ADRI/prod/standards/test_standard.yaml")
-
-
 class TestConfigurationConvenienceFunctions(unittest.TestCase):
     """Test convenience functions for configuration."""
 
@@ -292,6 +274,194 @@ class TestConfigurationConvenienceFunctions(unittest.TestCase):
 
         self.assertEqual(result, mock_path)
         mock_loader.resolve_standard_path.assert_called_once_with("test", "production")
+
+
+# ============================================================================
+# Consolidated Tests (from test_config_loader.py and test_config_loader_comprehensive.py)
+# ============================================================================
+
+
+def safe_rmtree(path):
+    """Windows-safe recursive directory removal."""
+    if not os.path.exists(path):
+        return
+
+    import shutil
+    import platform
+    import time
+    import gc
+
+    def handle_remove_readonly(func, path, exc):
+        """Error handler for Windows readonly file issues."""
+        if os.path.exists(path):
+            os.chmod(path, 0o777)
+            func(path)
+
+    # Multiple cleanup attempts
+    for attempt in range(3):
+        try:
+            if attempt > 0:
+                time.sleep(0.1)
+                gc.collect()
+            shutil.rmtree(path, onerror=handle_remove_readonly)
+            return
+        except (PermissionError, OSError) as e:
+            if attempt == 2:
+                if platform.system() != "Windows":
+                    raise
+
+
+def normalize_path(path_str):
+    """Normalize paths for cross-platform compatibility."""
+    return str(Path(path_str)).replace('\\', '/')
+
+
+class TestConfigLoaderIntegration(unittest.TestCase):
+    """Test complete configuration loading workflow integration."""
+
+    def setUp(self):
+        """Set up test environment."""
+        self.temp_dir = tempfile.mkdtemp()
+        self.original_cwd = os.getcwd()
+        os.chdir(self.temp_dir)
+
+    def tearDown(self):
+        """Clean up test environment."""
+        os.chdir(self.original_cwd)
+        safe_rmtree(self.temp_dir)
+
+    def test_complete_configuration_workflow(self):
+        """Test end-to-end configuration creation, saving, and loading workflow."""
+        loader = ConfigurationLoader()
+
+        # Create and validate default config
+        default_config = loader.create_default_config("integration_test_project")
+        self.assertIn("adri", default_config)
+        self.assertEqual(default_config["adri"]["project_name"], "integration_test_project")
+
+        is_valid = loader.validate_config(default_config)
+        self.assertTrue(is_valid)
+
+        # Save and load
+        config_file = "test_config.yaml"
+        loader.save_config(default_config, config_file)
+        self.assertTrue(Path(config_file).exists())
+
+        loaded_config = loader.load_config(config_file)
+        self.assertIsNotNone(loaded_config)
+        self.assertEqual(loaded_config["adri"]["project_name"], "integration_test_project")
+
+        # Create directory structure
+        loader.create_directory_structure(loaded_config)
+
+        expected_dirs = [
+            "./ADRI/dev/standards",
+            "./ADRI/dev/assessments",
+            "./ADRI/prod/standards",
+            "./ADRI/prod/assessments"
+        ]
+
+        for expected_dir in expected_dirs:
+            self.assertTrue(Path(expected_dir).exists())
+
+    def test_environment_configuration_workflow(self):
+        """Test environment-specific configuration handling."""
+        loader = ConfigurationLoader()
+
+        config = {
+            "adri": {
+                "project_name": "multi_env_test",
+                "version": "4.0.0",
+                "default_environment": "staging",
+                "environments": {
+                    "development": {
+                        "paths": {"standards": "./dev/standards", "assessments": "./dev/assessments", "training_data": "./dev/training"},
+                        "protection": {"default_min_score": 70}
+                    },
+                    "staging": {
+                        "paths": {"standards": "./staging/standards", "assessments": "./staging/assessments", "training_data": "./staging/training"},
+                        "protection": {"default_min_score": 80}
+                    },
+                    "production": {
+                        "paths": {"standards": "./prod/standards", "assessments": "./prod/assessments", "training_data": "./prod/training"},
+                        "protection": {"default_min_score": 90}
+                    }
+                }
+            }
+        }
+
+        dev_config = loader.get_environment_config(config, "development")
+        self.assertEqual(dev_config["protection"]["default_min_score"], 70)
+
+        staging_config = loader.get_environment_config(config, "staging")
+        self.assertEqual(staging_config["protection"]["default_min_score"], 80)
+
+
+class TestConfigLoaderErrorHandling(unittest.TestCase):
+    """Test comprehensive error handling scenarios."""
+
+    def setUp(self):
+        """Set up test environment."""
+        self.temp_dir = tempfile.mkdtemp()
+        self.original_cwd = os.getcwd()
+        os.chdir(self.temp_dir)
+
+    def tearDown(self):
+        """Clean up test environment."""
+        os.chdir(self.original_cwd)
+        safe_rmtree(self.temp_dir)
+
+    def test_invalid_configuration_structures(self):
+        """Test validation of invalid configuration structures."""
+        loader = ConfigurationLoader()
+
+        invalid_configs = [
+            {"project_name": "test"},  # Missing adri section
+            {"adri": {"version": "4.0.0"}},  # Missing project_name
+            {"adri": {"project_name": "test", "version": "4.0.0", "default_environment": "dev"}},  # Missing environments
+        ]
+
+        for invalid_config in invalid_configs:
+            is_valid = loader.validate_config(invalid_config)
+            self.assertFalse(is_valid)
+
+    def test_file_operation_error_handling(self):
+        """Test error handling for file operation failures."""
+        loader = ConfigurationLoader()
+
+        # Test loading non-existent file
+        result = loader.load_config("nonexistent_config.yaml")
+        self.assertIsNone(result)
+
+        # Test loading corrupted YAML
+        corrupted_file = "corrupted_config.yaml"
+        with open(corrupted_file, "w") as f:
+            f.write("invalid: yaml: content: [unclosed")
+
+        result = loader.load_config(corrupted_file)
+        self.assertIsNone(result)
+
+    def test_missing_environment_error_handling(self):
+        """Test error handling for missing environments."""
+        loader = ConfigurationLoader()
+
+        config = {
+            "adri": {
+                "project_name": "missing_env_test",
+                "version": "4.0.0",
+                "default_environment": "development",
+                "environments": {
+                    "development": {
+                        "paths": {"standards": "./dev/standards", "assessments": "./dev/assessments", "training_data": "./dev/training"}
+                    }
+                }
+            }
+        }
+
+        # Test accessing non-existent environment
+        with self.assertRaises(ValueError) as cm:
+            loader.get_environment_config(config, "nonexistent")
+        self.assertIn("Environment 'nonexistent' not found", str(cm.exception))
 
 
 if __name__ == '__main__':

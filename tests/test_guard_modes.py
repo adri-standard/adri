@@ -123,24 +123,20 @@ class TestDataProtectionEngine(unittest.TestCase):
 
     @patch('adri.guard.modes.ConfigurationLoader')
     @patch('adri.guard.modes.LocalLogger')
-    @patch('adri.guard.modes.EnterpriseLogger')
-    def test_engine_initialization_default_mode(self, mock_enterprise, mock_local, mock_config):
+    def test_engine_initialization_default_mode(self, mock_local, mock_config):
         """Test engine initialization with default protection mode."""
         mock_config.return_value = None
         mock_local.return_value = None
-        mock_enterprise.return_value = None
 
         engine = DataProtectionEngine()
         self.assertIsInstance(engine.protection_mode, FailFastMode)
 
     @patch('adri.guard.modes.ConfigurationLoader')
     @patch('adri.guard.modes.LocalLogger')
-    @patch('adri.guard.modes.EnterpriseLogger')
-    def test_engine_initialization_custom_mode(self, mock_enterprise, mock_local, mock_config):
+    def test_engine_initialization_custom_mode(self, mock_local, mock_config):
         """Test engine initialization with custom protection mode."""
         mock_config.return_value = None
         mock_local.return_value = None
-        mock_enterprise.return_value = None
 
         custom_mode = SelectiveMode()
         engine = DataProtectionEngine(custom_mode)
@@ -148,12 +144,10 @@ class TestDataProtectionEngine(unittest.TestCase):
 
     @patch('adri.guard.modes.ConfigurationLoader')
     @patch('adri.guard.modes.LocalLogger')
-    @patch('adri.guard.modes.EnterpriseLogger')
-    def test_extract_data_parameter_from_kwargs(self, mock_enterprise, mock_local, mock_config):
+    def test_extract_data_parameter_from_kwargs(self, mock_local, mock_config):
         """Test extracting data parameter from kwargs."""
         mock_config.return_value = None
         mock_local.return_value = None
-        mock_enterprise.return_value = None
 
         engine = DataProtectionEngine()
 
@@ -168,12 +162,10 @@ class TestDataProtectionEngine(unittest.TestCase):
 
     @patch('adri.guard.modes.ConfigurationLoader')
     @patch('adri.guard.modes.LocalLogger')
-    @patch('adri.guard.modes.EnterpriseLogger')
-    def test_extract_data_parameter_from_args(self, mock_enterprise, mock_local, mock_config):
+    def test_extract_data_parameter_from_args(self, mock_local, mock_config):
         """Test extracting data parameter from positional args."""
         mock_config.return_value = None
         mock_local.return_value = None
-        mock_enterprise.return_value = None
 
         engine = DataProtectionEngine()
 
@@ -188,12 +180,10 @@ class TestDataProtectionEngine(unittest.TestCase):
 
     @patch('adri.guard.modes.ConfigurationLoader')
     @patch('adri.guard.modes.LocalLogger')
-    @patch('adri.guard.modes.EnterpriseLogger')
-    def test_extract_data_parameter_not_found(self, mock_enterprise, mock_local, mock_config):
+    def test_extract_data_parameter_not_found(self, mock_local, mock_config):
         """Test error when data parameter is not found."""
         mock_config.return_value = None
         mock_local.return_value = None
-        mock_enterprise.return_value = None
 
         engine = DataProtectionEngine()
 
@@ -210,26 +200,10 @@ class TestDataProtectionEngine(unittest.TestCase):
 
     @patch('adri.guard.modes.ConfigurationLoader')
     @patch('adri.guard.modes.LocalLogger')
-    @patch('adri.guard.modes.EnterpriseLogger')
-    def test_resolve_standard_with_file(self, mock_enterprise, mock_local, mock_config):
-        """Test standard resolution with explicit file."""
-        mock_config.return_value = None
-        mock_local.return_value = None
-        mock_enterprise.return_value = None
-
-        engine = DataProtectionEngine()
-
-        standard = engine._resolve_standard("func", "data", standard_file="custom.yaml")
-        self.assertEqual(standard, "custom.yaml")
-
-    @patch('adri.guard.modes.ConfigurationLoader')
-    @patch('adri.guard.modes.LocalLogger')
-    @patch('adri.guard.modes.EnterpriseLogger')
-    def test_resolve_standard_with_name(self, mock_enterprise, mock_local, mock_config):
+    def test_resolve_standard_with_name(self, mock_local, mock_config):
         """Test standard resolution with standard name."""
         mock_config.return_value = None
         mock_local.return_value = None
-        mock_enterprise.return_value = None
 
         engine = DataProtectionEngine()
 
@@ -238,12 +212,10 @@ class TestDataProtectionEngine(unittest.TestCase):
 
     @patch('adri.guard.modes.ConfigurationLoader')
     @patch('adri.guard.modes.LocalLogger')
-    @patch('adri.guard.modes.EnterpriseLogger')
-    def test_resolve_standard_auto_generated(self, mock_enterprise, mock_local, mock_config):
+    def test_resolve_standard_auto_generated(self, mock_local, mock_config):
         """Test standard resolution with auto-generated name."""
         mock_config.return_value = None
         mock_local.return_value = None
-        mock_enterprise.return_value = None
 
         engine = DataProtectionEngine()
 
@@ -264,15 +236,13 @@ class TestProtectionEngineIntegration(unittest.TestCase):
 
     @patch('adri.guard.modes.ConfigurationLoader')
     @patch('adri.guard.modes.LocalLogger')
-    @patch('adri.guard.modes.EnterpriseLogger')
     @patch('adri.guard.modes.DataQualityAssessor')
     @patch('os.path.exists')
-    def test_protect_function_call_success(self, mock_exists, mock_engine_class, mock_enterprise, mock_local, mock_config):
+    def test_protect_function_call_success(self, mock_exists, mock_engine_class, mock_local, mock_config):
         """Test successful function protection."""
         # Setup mocks
         mock_config.return_value = None
         mock_local.return_value = None
-        mock_enterprise.return_value = None
         mock_exists.return_value = True
         mock_engine = Mock()
         mock_result = Mock()
@@ -299,12 +269,10 @@ class TestProtectionEngineIntegration(unittest.TestCase):
 
     @patch('adri.guard.modes.ConfigurationLoader')
     @patch('adri.guard.modes.LocalLogger')
-    @patch('adri.guard.modes.EnterpriseLogger')
-    def test_configuration_override_scenarios(self, mock_enterprise, mock_local, mock_config):
+    def test_configuration_override_scenarios(self, mock_local, mock_config):
         """Test configuration parameter overrides."""
         mock_config.return_value = None
         mock_local.return_value = None
-        mock_enterprise.return_value = None
 
         custom_config = {
             "default_min_score": 85,
@@ -320,12 +288,10 @@ class TestProtectionEngineIntegration(unittest.TestCase):
 
     @patch('adri.guard.modes.ConfigurationLoader')
     @patch('adri.guard.modes.LocalLogger')
-    @patch('adri.guard.modes.EnterpriseLogger')
-    def test_data_parameter_extraction_edge_cases(self, mock_enterprise, mock_local, mock_config):
+    def test_data_parameter_extraction_edge_cases(self, mock_local, mock_config):
         """Test data parameter extraction with various function signatures."""
         mock_config.return_value = None
         mock_local.return_value = None
-        mock_enterprise.return_value = None
 
         engine = DataProtectionEngine()
 
@@ -341,12 +307,10 @@ class TestProtectionEngineIntegration(unittest.TestCase):
 
     @patch('adri.guard.modes.ConfigurationLoader')
     @patch('adri.guard.modes.LocalLogger')
-    @patch('adri.guard.modes.EnterpriseLogger')
-    def test_error_message_formatting_comprehensive(self, mock_enterprise, mock_local, mock_config):
+    def test_error_message_formatting_comprehensive(self, mock_local, mock_config):
         """Test error message formatting with various scenarios."""
         mock_config.return_value = None
         mock_local.return_value = None
-        mock_enterprise.return_value = None
 
         engine = DataProtectionEngine()
 
@@ -375,18 +339,16 @@ class TestProtectionEngineComprehensive(unittest.TestCase):
 
     @patch('adri.guard.modes.ConfigurationLoader')
     @patch('adri.guard.modes.LocalLogger')
-    @patch('adri.guard.modes.EnterpriseLogger')
     @patch('adri.guard.modes.DataQualityAssessor')
     @patch('os.path.exists')
     @patch('os.makedirs')
     @patch('builtins.open', create=True)
     @patch('yaml.dump')
-    def test_comprehensive_protection_scenarios(self, mock_yaml_dump, mock_open, mock_makedirs, mock_exists, mock_engine_class, mock_enterprise, mock_local, mock_config):
+    def test_comprehensive_protection_scenarios(self, mock_yaml_dump, mock_open, mock_makedirs, mock_exists, mock_engine_class, mock_local, mock_config):
         """Test comprehensive protection scenarios to boost coverage."""
         # Setup all mocks
         mock_config.return_value = None
         mock_local.return_value = None
-        mock_enterprise.return_value = None
         mock_exists.return_value = False  # Standard doesn't exist
 
         mock_engine = Mock()
@@ -429,12 +391,10 @@ class TestProtectionEngineComprehensive(unittest.TestCase):
 
     @patch('adri.guard.modes.ConfigurationLoader')
     @patch('adri.guard.modes.LocalLogger')
-    @patch('adri.guard.modes.EnterpriseLogger')
-    def test_multiple_data_types_and_formats(self, mock_enterprise, mock_local, mock_config):
+    def test_multiple_data_types_and_formats(self, mock_local, mock_config):
         """Test handling of different data types and formats."""
         mock_config.return_value = None
         mock_local.return_value = None
-        mock_enterprise.return_value = None
 
         engine = DataProtectionEngine()
 
@@ -465,36 +425,32 @@ class TestProtectionEngineComprehensive(unittest.TestCase):
 
     @patch('adri.guard.modes.ConfigurationLoader')
     @patch('adri.guard.modes.LocalLogger')
-    @patch('adri.guard.modes.EnterpriseLogger')
-    def test_standard_resolution_patterns_comprehensive(self, mock_enterprise, mock_local, mock_config):
+    def test_standard_resolution_patterns_comprehensive(self, mock_local, mock_config):
         """Test comprehensive standard resolution patterns."""
         mock_config.return_value = None
         mock_local.return_value = None
-        mock_enterprise.return_value = None
 
         engine = DataProtectionEngine()
 
-        # Test with explicit file paths
+        # Test with name-only resolution (governance model)
         test_cases = [
-            ("func", "data", "explicit.yaml", None, "explicit.yaml"),
-            ("func", "data", None, "custom", "custom.yaml"),
-            ("process_orders", "order_data", None, None, "process_orders_order_data_standard.yaml"),
-            ("analyze_customers", "customer_info", None, None, "analyze_customers_customer_info_standard.yaml"),
-            ("validate_transactions", "txn_data", None, None, "validate_transactions_txn_data_standard.yaml")
+            ("func", "data", "custom", "custom.yaml"),
+            ("process_orders", "order_data", None, "process_orders_order_data_standard.yaml"),
+            ("analyze_customers", "customer_info", None, "analyze_customers_customer_info_standard.yaml"),
+            ("validate_transactions", "txn_data", None, "validate_transactions_txn_data_standard.yaml"),
+            ("transform_data", "input_data", "custom_transform", "custom_transform.yaml")
         ]
 
-        for func_name, data_param, standard_file, standard_name, expected in test_cases:
-            result = engine._resolve_standard(func_name, data_param, standard_file, standard_name)
+        for func_name, data_param, standard_name, expected in test_cases:
+            result = engine._resolve_standard(func_name, data_param, standard_name=standard_name)
             self.assertEqual(result, expected)
 
     @patch('adri.guard.modes.ConfigurationLoader')
     @patch('adri.guard.modes.LocalLogger')
-    @patch('adri.guard.modes.EnterpriseLogger')
-    def test_dimension_requirements_comprehensive(self, mock_enterprise, mock_local, mock_config):
+    def test_dimension_requirements_comprehensive(self, mock_local, mock_config):
         """Test comprehensive dimension requirement checking."""
         mock_config.return_value = None
         mock_local.return_value = None
-        mock_enterprise.return_value = None
 
         engine = DataProtectionEngine()
 
@@ -535,12 +491,10 @@ class TestProtectionEngineComprehensive(unittest.TestCase):
 
     @patch('adri.guard.modes.ConfigurationLoader')
     @patch('adri.guard.modes.LocalLogger')
-    @patch('adri.guard.modes.EnterpriseLogger')
-    def test_message_formatting_variations(self, mock_enterprise, mock_local, mock_config):
+    def test_message_formatting_variations(self, mock_local, mock_config):
         """Test message formatting with various scenarios."""
         mock_config.return_value = None
         mock_local.return_value = None
-        mock_enterprise.return_value = None
 
         engine = DataProtectionEngine()
 
@@ -580,12 +534,10 @@ class TestProtectionEngineComprehensive(unittest.TestCase):
 
     @patch('src.adri.guard.modes.ConfigurationLoader')
     @patch('src.adri.guard.modes.LocalLogger')
-    @patch('src.adri.guard.modes.EnterpriseLogger')
-    def test_protection_configuration_comprehensive(self, mock_enterprise, mock_local, mock_config):
+    def test_protection_configuration_comprehensive(self, mock_local, mock_config):
         """Test comprehensive protection configuration scenarios."""
         mock_config.return_value = None
         mock_local.return_value = None
-        mock_enterprise.return_value = None
 
         # Test default configuration loading
         engine = DataProtectionEngine()
@@ -616,77 +568,6 @@ class TestProtectionEngineComprehensive(unittest.TestCase):
 
         self.assertEqual(custom_engine.protection_mode.config["default_min_score"], 90)
         self.assertFalse(custom_engine.protection_mode.config["auto_generate_standards"])
-
-    @patch('adri.guard.modes.ConfigurationLoader')
-    @patch('adri.guard.modes.LocalLogger')
-    @patch('adri.guard.modes.EnterpriseLogger')
-    @patch('os.path.exists')
-    def test_standard_file_operations_comprehensive(self, mock_exists, mock_enterprise, mock_local, mock_config):
-        """Test comprehensive standard file operations."""
-        mock_config.return_value = None
-        mock_local.return_value = None
-        mock_enterprise.return_value = None
-
-        engine = DataProtectionEngine()
-
-        # Test when standard exists
-        mock_exists.return_value = True
-        engine._ensure_standard_exists("existing_standard.yaml", self.sample_data)
-        # Should not raise any exception
-
-        # Test when standard doesn't exist and auto-generation is disabled
-        mock_exists.return_value = False
-        engine.protection_config["auto_generate_standards"] = False
-
-        with self.assertRaises(ProtectionError) as context:
-            engine._ensure_standard_exists("missing_standard.yaml", self.sample_data)
-
-        self.assertIn("Standard file not found", str(context.exception))
-        self.assertIn("missing_standard.yaml", str(context.exception))
-
-    @patch('adri.guard.modes.ConfigurationLoader')
-    @patch('adri.guard.modes.LocalLogger')
-    @patch('adri.guard.modes.EnterpriseLogger')
-    def test_function_signature_analysis(self, mock_enterprise, mock_local, mock_config):
-        """Test function signature analysis for parameter extraction."""
-        mock_config.return_value = None
-        mock_local.return_value = None
-        mock_enterprise.return_value = None
-
-        engine = DataProtectionEngine()
-
-        # Test functions with various signatures
-        def simple_func(data):
-            return data
-
-        def complex_func(arg1, data, arg2="default", *args, **kwargs):
-            return data
-
-        def kwargs_only_func(**kwargs):
-            return kwargs.get("data")
-
-        def mixed_func(required, data=None, *args, optional="default", **kwargs):
-            return data or args[0] if args else None
-
-        # Test parameter extraction from different positions
-        test_data = {"test": "value"}
-
-        # Simple function - data as first parameter
-        result = engine._extract_data_parameter(simple_func, (test_data,), {}, "data")
-        self.assertEqual(result, test_data)
-
-        # Complex function - data as second parameter
-        result = engine._extract_data_parameter(complex_func, ("arg1", test_data), {}, "data")
-        self.assertEqual(result, test_data)
-
-        # Kwargs only function
-        result = engine._extract_data_parameter(kwargs_only_func, (), {"data": test_data}, "data")
-        self.assertEqual(result, test_data)
-
-        # Mixed function with default parameter
-        result = engine._extract_data_parameter(mixed_func, ("req",), {"data": test_data}, "data")
-        self.assertEqual(result, test_data)
-
 
 if __name__ == '__main__':
     unittest.main()

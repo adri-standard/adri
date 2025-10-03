@@ -1,8 +1,19 @@
-"""
-Integration tests for ADRI Validator Engine with real scenarios.
+"""Integration tests for ADRI Validator Engine.
 
-Focuses on audit logging, enterprise integration, and comprehensive real-world validation scenarios.
-These tests complement the existing unit tests to achieve Business Critical component status.
+This module consolidates integration tests for the validator engine, focusing on:
+- Audit logging integration with CSVAuditLogger and VerodatLogger
+- Real-world validation scenarios (financial, healthcare, e-commerce, IoT, social media)
+- Edge cases and error handling
+- Comprehensive method coverage
+
+Consolidates tests from:
+- test_validator_engine_integration.py (20 tests)
+
+Organization:
+- TestAuditLoggingIntegration: Audit logging and enterprise integration
+- TestComprehensiveValidationScenarios: Real-world data validation scenarios
+- TestValidationEngineEdgeCases: Edge cases and error scenarios
+- TestValidationEngineMethodCoverage: Comprehensive method coverage
 """
 
 import unittest
@@ -13,7 +24,6 @@ import shutil
 from unittest.mock import Mock, patch, MagicMock
 from datetime import datetime
 
-# Updated imports for new src/ layout
 from src.adri.validator.engine import (
     ValidationEngine,
     DataQualityAssessor,
@@ -26,7 +36,11 @@ from src.adri.validator.engine import (
 
 
 class TestAuditLoggingIntegration(unittest.TestCase):
-    """Integration tests for audit logging functionality."""
+    """Integration tests for audit logging functionality.
+
+    Tests audit logging integration with CSVAuditLogger and VerodatLogger,
+    including execution context tracking, performance metrics, and failed checks.
+    """
 
     def setUp(self):
         """Set up test environment with audit logging."""
@@ -159,16 +173,16 @@ class TestAuditLoggingIntegration(unittest.TestCase):
             performance_metrics = call_args["performance_metrics"]
             self.assertIn("duration_ms", performance_metrics)
             self.assertIn("rows_per_second", performance_metrics)
-            self.assertGreaterEqual(performance_metrics["duration_ms"], 0)  # Allow 0ms for very fast operations
+            self.assertGreaterEqual(performance_metrics["duration_ms"], 0)
 
     def test_audit_logging_failed_checks_tracking(self):
         """Test audit logging captures failed quality checks."""
         # Create data with quality issues to trigger failed checks
         poor_quality_data = pd.DataFrame({
-            "name": ["Alice", None, "Charlie", "", "Eva"],  # Missing/empty values
+            "name": ["Alice", None, "Charlie", "", "Eva"],
             "email": ["alice@test.com", "invalid-email", "charlie@test.com", "bad@", "eva@test.com"],
-            "age": [25, -5, 30, 200, 28],  # Invalid ages
-            "score": [85.5, None, 92.0, 78.5, None]  # Missing scores
+            "age": [25, -5, 30, 200, 28],
+            "score": [85.5, None, 92.0, 78.5, None]
         })
 
         with patch('src.adri.validator.engine.CSVAuditLogger') as mock_csv_logger_class:
@@ -183,7 +197,7 @@ class TestAuditLoggingIntegration(unittest.TestCase):
 
             # Should have failed checks due to poor data quality
             failed_checks = call_args.get("failed_checks")
-            if failed_checks:  # If any dimensions scored below 15
+            if failed_checks:
                 self.assertIsInstance(failed_checks, list)
                 for check in failed_checks:
                     self.assertIn("dimension", check)
@@ -224,7 +238,15 @@ class TestAuditLoggingIntegration(unittest.TestCase):
 
 
 class TestComprehensiveValidationScenarios(unittest.TestCase):
-    """Test comprehensive real-world validation scenarios."""
+    """Test comprehensive real-world validation scenarios.
+
+    Tests validator behavior with realistic datasets from different domains:
+    - Financial data (banking, credit, investments)
+    - Healthcare data (patient records, medical data)
+    - E-commerce data (products, orders, customers)
+    - IoT sensor data (time series, device readings)
+    - Social media data (user profiles, engagement metrics)
+    """
 
     def setUp(self):
         """Set up test environment."""
@@ -246,7 +268,7 @@ class TestComprehensiveValidationScenarios(unittest.TestCase):
 
         # Financial data should have high quality scores
         self.assertIsInstance(result, AssessmentResult)
-        self.assertGreater(result.overall_score, 80)  # Expect high quality
+        self.assertGreater(result.overall_score, 80)
 
         # All key dimensions should be measured
         expected_dimensions = ["validity", "completeness", "consistency", "freshness", "plausibility"]
@@ -273,15 +295,15 @@ class TestComprehensiveValidationScenarios(unittest.TestCase):
 
         # Completeness should be high (no missing critical data)
         completeness_score = result.dimension_scores["completeness"].score
-        self.assertGreater(completeness_score, 18)  # Very high completeness expected
+        self.assertGreater(completeness_score, 18)
 
     def test_ecommerce_data_validation_scenario(self):
         """Test e-commerce data validation with mixed quality."""
         ecommerce_data = pd.DataFrame({
-            "product_id": ["PROD001", "PROD002", None, "PROD004", "PROD005"],  # Missing ID
-            "customer_email": ["buyer1@shop.com", "invalid-email", "buyer3@store.org", "buyer4@market.net", ""],  # Invalid/missing emails
-            "price": [29.99, -10.50, 45.00, 1000000.00, 15.75],  # Invalid prices
-            "age": [25, 150, 30, 22, -5],  # Invalid ages
+            "product_id": ["PROD001", "PROD002", None, "PROD004", "PROD005"],
+            "customer_email": ["buyer1@shop.com", "invalid-email", "buyer3@store.org", "buyer4@market.net", ""],
+            "price": [29.99, -10.50, 45.00, 1000000.00, 15.75],
+            "age": [25, 150, 30, 22, -5],
             "rating": [4.5, 3.8, 5.0, 2.1, 4.2],
             "category": ["electronics", "clothing", "books", "home", "sports"]
         })
@@ -290,25 +312,25 @@ class TestComprehensiveValidationScenarios(unittest.TestCase):
 
         # E-commerce data with issues should have lower scores
         self.assertIsInstance(result, AssessmentResult)
-        self.assertLess(result.overall_score, 85)  # Expect lower quality due to issues
+        self.assertLess(result.overall_score, 85)
 
         # Validity should be impacted by invalid emails and values
         validity_score = result.dimension_scores["validity"].score
-        self.assertLess(validity_score, 18)  # Should be reduced due to invalid data
+        self.assertLess(validity_score, 18)
 
         # Completeness should be impacted by missing values
         completeness_score = result.dimension_scores["completeness"].score
-        self.assertLess(completeness_score, 20)  # Should be reduced due to nulls
+        self.assertLess(completeness_score, 20)
 
     def test_iot_sensor_data_validation_scenario(self):
         """Test IoT sensor data validation with time series characteristics."""
         iot_data = pd.DataFrame({
             "sensor_id": [f"SENSOR_{i:03d}" for i in range(1, 21)],
             "timestamp": [f"2024-03-{i:02d}T10:00:00Z" for i in range(1, 21)],
-            "temperature": [20.5 + (i * 0.5) for i in range(20)],  # Realistic temperature progression
-            "humidity": [45.0 + (i * 1.2) for i in range(20)],     # Realistic humidity progression
-            "pressure": [1013.25 + (i * 0.1) for i in range(20)], # Realistic pressure progression
-            "status": ["active"] * 18 + ["maintenance", "error"]   # Mostly active with some issues
+            "temperature": [20.5 + (i * 0.5) for i in range(20)],
+            "humidity": [45.0 + (i * 1.2) for i in range(20)],
+            "pressure": [1013.25 + (i * 0.1) for i in range(20)],
+            "status": ["active"] * 18 + ["maintenance", "error"]
         })
 
         result = self.assessor.assess(iot_data)
@@ -345,8 +367,17 @@ class TestComprehensiveValidationScenarios(unittest.TestCase):
             self.assertLessEqual(dim_score.score, 20)
 
 
-class TestValidationEngineEdgeCasesIntegration(unittest.TestCase):
-    """Test edge cases and error scenarios for comprehensive coverage."""
+class TestValidationEngineEdgeCases(unittest.TestCase):
+    """Test edge cases and error scenarios for comprehensive coverage.
+
+    Tests validator behavior in unusual or error conditions:
+    - Malformed standards
+    - Empty data
+    - Extreme values
+    - All-null columns
+    - Comprehensive standard structures
+    - BundledStandardWrapper edge cases
+    """
 
     def setUp(self):
         """Set up test environment."""
@@ -512,7 +543,17 @@ class TestValidationEngineEdgeCasesIntegration(unittest.TestCase):
 
 
 class TestValidationEngineMethodCoverage(unittest.TestCase):
-    """Test methods to achieve comprehensive coverage of all public methods."""
+    """Test methods to achieve comprehensive coverage of all public methods.
+
+    Tests all public assessment methods with various configurations:
+    - assess_validity with field requirements
+    - assess_completeness with mandatory fields
+    - assess_consistency with format rules
+    - assess_freshness with date fields
+    - assess_plausibility with business rules
+    - Email validation edge cases
+    - AssessmentResult comprehensive methods
+    """
 
     def setUp(self):
         """Set up test environment."""
@@ -564,7 +605,7 @@ class TestValidationEngineMethodCoverage(unittest.TestCase):
         }
         freshness_score = self.engine.assess_freshness(test_data, freshness_config)
         self.assertIsInstance(freshness_score, float)
-        self.assertEqual(freshness_score, 18.0)  # Should return good score for date fields
+        self.assertEqual(freshness_score, 18.0)
 
         # Test assess_plausibility with business rules
         plausibility_config = {
@@ -619,8 +660,6 @@ class TestValidationEngineMethodCoverage(unittest.TestCase):
 
     def test_assessment_result_comprehensive_methods(self):
         """Test all AssessmentResult methods comprehensively."""
-        from datetime import datetime
-
         # Create comprehensive assessment result
         dimension_scores = {
             "validity": DimensionScore(16.5, issues=["email format"], details={"check_count": 10}),
