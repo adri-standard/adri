@@ -456,7 +456,8 @@ def compare_csv_files(current: Path, baseline: Path) -> Optional[Dict[str, Any]]
         'process_id',
         'created_at',
         'assessment_duration_ms',  # Performance metric - varies between runs
-        'rows_per_second'          # Performance metric - varies between runs
+        'rows_per_second',         # Performance metric - varies between runs
+        'adri_version'             # Version changes with every commit - not a regression
     ]
 
     # For most recent rows (last 5), compare non-volatile values
