@@ -340,19 +340,17 @@ class ConfigurationLoader:
                 standard_name += ".yaml"
 
             # Convert relative path to absolute based on config file location
-            # This handles both absolute paths and relative paths correctly
-            if standards_dir.startswith(("./", "../")):
-                # Relative path - resolve from config file directory
-                standards_path = base_dir / standards_dir.lstrip("./")
-            elif not os.path.isabs(standards_dir):
-                # Relative path without ./ prefix
-                standards_path = base_dir / standards_dir
-            else:
-                # Absolute path
-                standards_path = Path(standards_dir)
+            # Use Path.resolve() for cross-platform path resolution
+            standards_path = Path(standards_dir)
 
-            # Combine with standard filename
-            full_path = standards_path / standard_name
+            # If relative path, resolve from config file directory
+            if not standards_path.is_absolute():
+                standards_path = (base_dir / standards_dir).resolve()
+            else:
+                standards_path = standards_path.resolve()
+
+            # Combine with standard filename and ensure absolute path
+            full_path = (standards_path / standard_name).resolve()
             return str(full_path)
 
         except (KeyError, ValueError, AttributeError):
