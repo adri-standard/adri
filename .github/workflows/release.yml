@@ -139,15 +139,15 @@ jobs:
       run: |
         python -c "
         import adri
-        print(f'✅ Successfully imported ADRI version: {adri.__version__}')
+        print(f'Successfully imported ADRI version: {adri.__version__}')
 
         # Verify version matches expectation
         expected = '${{ needs.validate-tag.outputs.version }}'
         if adri.__version__ != expected:
-            print(f'❌ Version mismatch: {adri.__version__} != {expected}')
+            print(f'Version mismatch: {adri.__version__} != {expected}')
             exit(1)
 
-        print('✅ Version verification passed')
+        print('Version verification passed')
         "
 
   publish-test-pypi:
