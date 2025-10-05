@@ -128,7 +128,7 @@ jobs:
     - name: Test wheel installation
       run: |
         python -c "import os; print('Available files:'); [print(f'  {f}') for f in os.listdir('dist')]"
-        pip install dist/adri-*.whl
+        python -c "import os, glob; wheel = glob.glob('dist/adri-*.whl')[0]; os.system(f'pip install {wheel}')"
 
     - name: Test CLI functionality
       run: |
