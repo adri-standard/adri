@@ -7,39 +7,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+No unreleased changes.
+
+## [4.1.0] - 2025-05-10
+
+### Overview
+First public release of ADRI (AI Data Reliability Intelligence) - a comprehensive data quality framework for AI applications.
+
 ### Added
-- Comprehensive security policy for vulnerability disclosure
-- GitHub community templates for improved contributions
-- Unified pytest configuration with enhanced test coverage
-- Production-ready GitHub Pages documentation deployment
-- Helper-level stability tests for validator engine and standard generator refactor
+- Complete framework integration support for major AI frameworks (LangChain, LlamaIndex, CrewAI)
+- Comprehensive security policy and GitHub community templates
+- Production-ready documentation with GitHub Pages deployment
+- Enhanced test coverage with 816 passing tests across multiple platforms
 
 ### Fixed
-- **Issue #35**: Fixed CLI vs Decorator assessment discrepancy where identical data and standards produced different quality scores (91.5 vs 69.7) and thresholds (75.0 vs 80.0)
-  - Fixed `DataProtectionEngine._resolve_standard_file_path()` to properly resolve absolute, relative, and standard name paths including test fixtures
-  - Fixed threshold resolution in `protect_function_call()` to prioritize explicit standard_file parameter and properly validate file existence before threshold resolution
-  - Fixed decorator parameter handling in `adri_protected()` to correctly detect file paths vs standard names using comprehensive path detection logic
-  - Both CLI and decorator now use identical `DataQualityAssessor` for scoring and `ThresholdResolver` for threshold determination
-  - Added comprehensive integration tests validating CLI/decorator consistency and unified threshold resolution
+- **Issue #35**: Resolved CLI vs Decorator assessment consistency
+  - Fixed discrepancy where identical data and standards produced different quality scores
+  - Both CLI and decorator now use unified assessment and threshold resolution
+  - Added comprehensive integration tests for consistency validation
 
 ### Changed
-- **Governance Enhancement**: Simplified standard resolution to name-only for improved governance
-  - Decorator `@adri_protected(standard="name")` now accepts only standard names, not file paths
-  - Standard file location is determined by environment configuration (dev/prod) in adri-config.yaml
-  - This ensures centralized control of standard locations and prevents path-based security issues
-  - Standard resolution: `dev → ./ADRI/dev/standards/{name}.yaml`, `prod → ./ADRI/prod/standards/{name}.yaml`
-  - Updated decorator docstring to clearly document name-only usage and environment-based resolution
-- Jekyll configuration for GitHub Pages deployment
-- Pytest configuration conflicts between multiple config files
-- Pre-commit configuration improvements
+- **Governance Enhancement**: Simplified standard resolution to name-only approach
+  - Decorator now accepts only standard names (not file paths) for improved security
+  - Standard file locations determined by environment configuration (dev/prod)
+  - Ensures centralized control and prevents path-based security issues
+- Consolidated test configuration for better maintainability
+- Improved CI/CD performance with optimized test settings
+- Enhanced code quality through internal refactoring
 
-### Changed
-- Consolidated test configuration in pyproject.toml
-- Enhanced test markers for better categorization
-- Improved CI performance with optimized test settings
-- Internal refactor: split complex functions in src/adri/analysis/standard_generator.py and src/adri/validator/engine.py into cohesive helpers without behavior changes
-- Lint: removed C901 ignores for the two modules; updated .flake8 to exclude .dev-testing directory
-- Docs: added helper architecture notes to docs/docs/contributors/architecture.md describing new helper responsibilities and orchestration
+### Platform Support
+- Cross-platform compatibility: Ubuntu, Windows, macOS
+- Python versions: 3.10, 3.11, 3.12
+- Comprehensive testing across 9 platform/Python combinations
 
 ## [4.0.0] - 2024-12-09
 

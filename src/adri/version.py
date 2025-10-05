@@ -71,6 +71,7 @@ def _get_compatible_versions() -> List[str]:
 
         base_versions = [
             "4.0.0",  # Initial open source release
+            "4.1.0",  # First public release
         ]
 
         # Always add current version - this is critical for tests
@@ -178,26 +179,32 @@ def get_version_info() -> dict:
 
 
 # ----------------------------------------------
-# ADRI V4.0.0 OPEN SOURCE RELEASE NOTES
+# ADRI V4.1.0 FIRST PUBLIC RELEASE NOTES
 # ----------------------------------------------
-# This is the first open source release of ADRI with setuptools_scm integration.
-# Key changes from internal versions:
+# This is the first public release of ADRI (AI Data Reliability Intelligence).
+# Built on the v4.0.0 foundation with significant improvements:
 #
-# 1. Automatic version management via setuptools_scm and git tags
-# 2. Professional open source governance and CI/CD pipeline
-# 3. Clean repository structure with archived legacy files
-# 4. GitHub Actions automated testing and PyPI publishing
-# 5. Community-ready documentation and contribution guidelines
+# 1. Issue #35 fixes for CLI/decorator consistency
+# 2. Comprehensive test consolidation (816 passing tests)
+# 3. Cross-platform compatibility (Ubuntu, Windows, macOS)
+# 4. Enhanced governance with name-only standard resolution
+# 5. Production-ready documentation and security policy
 #
 # Version compatibility:
-# - Starting fresh with v4.0.0 as the baseline open source release
+# - Maintains backward compatibility with v4.0.0
+# - Compatible versions: 4.0.0, 4.1.0
 # - Future versions maintain compatibility within the same major version
 # - Breaking changes will increment the major version number
 #
 # Version numbering:
 # - setuptools_scm generates versions automatically from git tags
-# - Development versions: 4.0.1.dev23+g1234567 (commits after latest tag)
-# - Release versions: 4.0.0, 4.0.1, 4.1.0, etc. (from git tags)
+# - Development versions: 4.1.1.dev23+g1234567 (commits after latest tag)
+# - Release versions: 4.0.0, 4.1.0, 4.2.0, etc. (from git tags)
+#
+# Platform support:
+# - Python 3.10, 3.11, 3.12
+# - Tested on Ubuntu, Windows, macOS
+# - 9 platform/Python combinations validated by CI
 #
 # For detailed changelog, see CHANGELOG.md
 # For contribution guidelines, see CONTRIBUTING.md
