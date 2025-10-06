@@ -239,16 +239,18 @@ class AssessmentResult:
                 )
 
         # Build the v2 format structure
+        # Handle assessment_date - ensure it's a datetime object
+        if self.assessment_date and hasattr(self.assessment_date, "isoformat"):
+            timestamp = self.assessment_date.isoformat() + "Z"
+        else:
+            timestamp = datetime.now().isoformat() + "Z"
+
         report = {
             "adri_assessment_report": {
                 "metadata": {
                     "assessment_id": f"adri_assessment_{datetime.now().strftime('%Y%m%d_%H%M%S')}",
                     "adri_version": adri_version,
-                    "timestamp": (
-                        (self.assessment_date.isoformat() + "Z")
-                        if self.assessment_date
-                        else (datetime.now().isoformat() + "Z")
-                    ),
+                    "timestamp": timestamp,
                     "dataset_name": dataset_name or "unknown_dataset",
                     "dataset": {  # Required field as object
                         "name": dataset_name or "unknown_dataset",
