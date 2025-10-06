@@ -9,7 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 No unreleased changes.
 
-## [4.1.1] - 2025-06-10
+## [4.1.2] - 2025-06-10
+
+**Note:** This release supersedes v4.1.1 due to release workflow issues. Functionality is identical.
 
 ### Fixed
 - **Issue #35 Regression**: Restored CLI/Decorator parity after test consolidation
