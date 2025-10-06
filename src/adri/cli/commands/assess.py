@@ -283,6 +283,10 @@ class AssessCommand(Command):
             f"Score: {result.overall_score:.1f}/100 {status_icon} {status_text} → {explanation}"
         )
 
+        # Display standard path for transparency (Issue #35 fix)
+        if hasattr(result, "standard_path") and result.standard_path:
+            click.echo(f"Standard: {result.standard_path}")
+
     def _analyze_failed_records(self, data) -> list:
         """Analyze data to identify failed records with specific issues."""
         failed_records_list = []

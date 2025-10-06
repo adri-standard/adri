@@ -199,6 +199,143 @@ class TestAssessmentParity:
             assert log_file.exists(), f"Log file not created: {log_file}"
 
 
+class TestStandardPathConsistency:
+    """Verify standard paths are consistent across Decorator, CLI, Config, and Audit logs."""
+
+    def test_standard_path_consistency(self, invoice_scenario, tmp_path):
+        """
+        Verify standard path consistency across all code paths.
+
+        This test validates the Issue #35 fix by ensuring:
+        1. Decorator uses the standard path from config
+        2. CLI uses the standard path from config
+        3. Config specifies the correct path for dev environment
+        4. All standard_path values in audit logs match
+        5. AssessmentResult.standard_path is set correctly
+
+        This prevents regressions where different code paths use different standards.
+        """
+        # Setup isolated environment
+        env = setup_isolated_environment(tmp_path / "path_consistency")
+
+        # Copy a known standard to the dev/standards directory
+        standard_source = invoice_scenario['standard_path']
+        standard_name = 'invoice_data.yaml'
+        standard_dest = env['standards_dir'] / standard_name
+        copy_standard(standard_source, standard_dest)
+
+        # Get the expected standard path from config (absolute path)
+        config_standard_path = standard_dest.resolve()
+
+        # Configure environment
+        os.environ['ADRI_CONFIG_PATH'] = str(env['config'])
+        os.environ['ADRI_ENV'] = 'development'
+
+        # Load test data
+        training_data_path = invoice_scenario['training_data_path']
+        df = pd.read_csv(training_data_path)
+
+        # === PHASE 1: Decorator Path Check ===
+        import os as os_module
+        original_cwd = os_module.getcwd()
+
+        try:
+            os_module.chdir(env['base_path'])
+
+            @adri_protected(standard='invoice_data', on_failure='warn')
+            def process_with_decorator(data):
+                return data
+
+            decorator_result = process_with_decorator(df)
+
+        finally:
+            os_module.chdir(original_cwd)
+
+        # Verify decorator executed successfully
+        assert decorator_result is not None, "Decorator processing failed"
+
+        # Read decorator audit log to get its standard_path
+        decorator_audit_file = env['logs_dir'] / 'adri_assessment_logs.csv'
+        assert decorator_audit_file.exists(), f"Decorator audit log not created: {decorator_audit_file}"
+
+        decorator_audit_df = pd.read_csv(decorator_audit_file)
+        assert len(decorator_audit_df) > 0, "Decorator audit log is empty"
+        assert 'standard_path' in decorator_audit_df.columns, "Decorator audit log missing standard_path"
+
+        decorator_paths = decorator_audit_df['standard_path'].dropna().unique()
+        assert len(decorator_paths) == 1, f"Decorator used multiple standard paths: {decorator_paths}"
+        decorator_standard_path = decorator_paths[0]
+
+        # Clear logs for CLI test
+        clear_logs(env['logs_dir'])
+
+        # === PHASE 2: CLI Path Check ===
+        from src.adri.validator.engine import DataQualityAssessor
+        from src.adri.config.loader import ConfigurationLoader
+
+        config_loader = ConfigurationLoader()
+        full_config = config_loader.load_config(str(env['config']))
+        config = full_config.get('adri', {}) if full_config else {}
+
+        assessor = DataQualityAssessor(config)
+        cli_result = assessor.assess(df, str(config_standard_path))
+
+        # Verify CLI result has standard_path
+        assert hasattr(cli_result, 'standard_path'), "CLI result missing standard_path"
+        assert cli_result.standard_path is not None, "CLI standard_path is None"
+
+        # === PHASE 3: Path Consistency Checks ===
+
+        # Check 1: Both paths are absolute (not relative)
+        assert Path(decorator_standard_path).is_absolute(), \
+            f"Decorator path is not absolute: {decorator_standard_path}"
+        assert Path(cli_result.standard_path).is_absolute(), \
+            f"CLI path is not absolute: {cli_result.standard_path}"
+
+        # Check 2: Both paths match the config-expected path
+        assert decorator_standard_path == str(config_standard_path), \
+            f"Decorator path mismatch:\n  Expected: {config_standard_path}\n  Got: {decorator_standard_path}"
+        assert cli_result.standard_path == str(config_standard_path), \
+            f"CLI path mismatch:\n  Expected: {config_standard_path}\n  Got: {cli_result.standard_path}"
+
+        # Check 3: Decorator and CLI paths match each other
+        assert decorator_standard_path == cli_result.standard_path, \
+            f"Decorator and CLI paths differ:\n  Decorator: {decorator_standard_path}\n  CLI: {cli_result.standard_path}"
+
+        # === PHASE 4: Final Audit Log Verification ===
+        audit_log_file = env['logs_dir'] / 'adri_assessment_logs.csv'
+        assert audit_log_file.exists(), f"Audit log not created: {audit_log_file}"
+
+        # Read audit logs
+        audit_df = pd.read_csv(audit_log_file)
+        assert len(audit_df) > 0, "Audit log is empty"
+
+        # Check that standard_path column exists
+        assert 'standard_path' in audit_df.columns, "Audit log missing standard_path column"
+
+        # Get all unique standard paths from audit log
+        audit_paths = audit_df['standard_path'].dropna().unique()
+
+        # Check 4: All audit log entries use the same path
+        assert len(audit_paths) > 0, "No standard_path values in audit log"
+        assert len(audit_paths) == 1, \
+            f"Multiple different standard paths in audit log: {audit_paths}"
+
+        # Check 5: Audit log path matches the expected path
+        audit_path = audit_paths[0]
+        assert audit_path == str(config_standard_path), \
+            f"Audit log path mismatch:\n  Expected: {config_standard_path}\n  Got: {audit_path}"
+
+        # === SUCCESS ===
+        # All paths match: Decorator == CLI == Config == Audit Log
+        print(f"\n✅ Path Consistency Test PASSED")
+        print(f"   Standard Path: {config_standard_path}")
+        print(f"   - Decorator (from audit): {decorator_standard_path}")
+        print(f"   - CLI (from result): {cli_result.standard_path}")
+        print(f"   - Audit Log: {audit_path}")
+        print(f"   - All paths match and are absolute ✓")
+
+
 class TestEndToEndParity:
     """Test complete workflows produce identical results."""
 

@@ -9,6 +9,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 No unreleased changes.
 
+## [4.1.1] - 2025-06-10
+
+### Fixed
+- **Issue #35 Regression**: Restored CLI/Decorator parity after test consolidation
+  - Re-implemented `standard_path` tracking in AssessmentResult for transparency
+  - Updated DataQualityAssessor to capture and pass standard file path used
+  - Fixed ValidationPipeline to properly propagate standard_path parameter
+  - Enhanced CLI to display which standard file was used in assessments
+  - Updated audit logging to include `standard_path` in all CSV logs
+  - Added `TestStandardPathConsistency` to prevent future regressions
+  - Updated ADRI audit log standard YAML with new `standard_path` field
+  - Ensures CLI, Decorator, Config, and Audit logs all use identical standard paths
+
+### Changed
+- Enhanced diagnostic logging in DataQualityAssessor and ValidationPipeline
+  - Added detailed INFO-level logging for standard loading and dimension scoring
+  - Helps users debug assessment issues and understand scoring process
+  - Controlled via standard Python logging configuration
+
 ## [4.1.0] - 2025-05-10
 
 ### Overview

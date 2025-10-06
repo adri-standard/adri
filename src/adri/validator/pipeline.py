@@ -53,11 +53,11 @@ class ValidationPipeline:
                 try:
                     # Check if already registered
                     self._registry.dimensions.get(dimension_name)
-                except Exception:
+                except Exception:  # noqa: E722
                     # Not registered, so register it
                     self._registry.dimensions.register(dimension_name, assessor)
 
-        except Exception:
+        except Exception:  # noqa: E722
             # If registration fails, the pipeline will fall back to basic assessment
             pass
 
@@ -74,14 +74,30 @@ class ValidationPipeline:
         Returns:
             AssessmentResult with dimension scores and metadata
         """
+        # DIAGNOSTIC LOGGING - Issue #35 Parity Investigation
+        import sys
+
+        diagnostic_log = []
+
         start_time = time.time()
+
+        diagnostic_log.append("=== ValidationPipeline.execute_assessment() ENTRY ===")
+        diagnostic_log.append(f"data shape: {data.shape}")
+        diagnostic_log.append(f"standard type: {type(standard).__name__}")
+        diagnostic_log.append(f"collect_explain: {collect_explain}")
 
         # Ensure we have a proper standard wrapper
         if not isinstance(standard, BundledStandardWrapper):
+            diagnostic_log.append("Converting standard to BundledStandardWrapper")
             if isinstance(standard, dict):
                 standard = BundledStandardWrapper(standard)
+                diagnostic_log.append("Converted dict to BundledStandardWrapper")
             else:
                 # Invalid standard type, return basic assessment
+                diagnostic_log.append(
+                    f"⚠️ Invalid standard type, using basic assessment"
+                )
+                print(f"\n{chr(10).join(diagnostic_log)}\n", file=sys.stderr)
                 return self._create_basic_assessment_result(data)
 
         # Store standard wrapper for dimension assessors to use
@@ -91,13 +107,24 @@ class ValidationPipeline:
         try:
             dimension_requirements = standard.get_dimension_requirements()
             field_requirements = standard.get_field_requirements()
-        except Exception:
+            diagnostic_log.append(
+                f"Dimension requirements loaded: {list(dimension_requirements.keys())}"
+            )
+            diagnostic_log.append(
+                f"Field requirements count: {len(field_requirements)}"
+            )
+        except Exception as e:
+            diagnostic_log.append(
+                f"⚠️ Failed to load requirements: {type(e).__name__}: {str(e)}"
+            )
+            print(f"\n{chr(10).join(diagnostic_log)}\n", file=sys.stderr)
             return self._create_basic_assessment_result(data)
 
         # Execute dimension assessments
         dimension_scores = {}
         explain_data = {}
 
+        diagnostic_log.append("=== DIMENSION ASSESSMENT ===")
         for dimension_name in [
             "validity",
             "completeness",
@@ -106,6 +133,7 @@ class ValidationPipeline:
             "plausibility",
         ]:
             try:
+                diagnostic_log.append(f"Assessing {dimension_name}...")
                 score, explanation = self._assess_single_dimension(
                     data,
                     dimension_name,
@@ -114,22 +142,30 @@ class ValidationPipeline:
                     collect_explain,
                 )
                 dimension_scores[dimension_name] = DimensionScore(score)
+                diagnostic_log.append(f"  {dimension_name}: {score:.2f}/20")
                 if explanation and collect_explain:
                     explain_data[dimension_name] = explanation
-            except Exception:
+            except Exception as e:
                 # If dimension assessment fails, use default score
-                dimension_scores[dimension_name] = DimensionScore(
-                    self._get_default_score(dimension_name)
+                default_score = self._get_default_score(dimension_name)
+                dimension_scores[dimension_name] = DimensionScore(default_score)
+                diagnostic_log.append(
+                    f"  {dimension_name}: {default_score:.2f}/20 (fallback due to error: {type(e).__name__})"
                 )
 
         # Calculate overall score using dimension weights
+        diagnostic_log.append("=== SCORE AGGREGATION ===")
         overall_score, applied_weights = self._calculate_overall_score(
             dimension_scores, dimension_requirements
         )
+        diagnostic_log.append(f"Applied weights: {applied_weights}")
+        diagnostic_log.append(f"Overall score: {overall_score:.2f}/100")
 
         # Determine pass/fail status
         min_score = standard.get_overall_minimum()
         passed = overall_score >= min_score
+        diagnostic_log.append(f"Threshold: {min_score:.1f}/100")
+        diagnostic_log.append(f"Passed: {passed}")
 
         # Calculate execution time
         duration_ms = int((time.time() - start_time) * 1000)
@@ -148,6 +184,7 @@ class ValidationPipeline:
             passed=passed,
             dimension_scores=dimension_scores,
             standard_id=None,
+            standard_path=None,  # Will be set by DataQualityAssessor
             assessment_date=None,
             metadata=metadata,
         )
@@ -160,6 +197,10 @@ class ValidationPipeline:
         )
 
         result.set_execution_stats(duration_ms=duration_ms)
+
+        # Write diagnostic log
+        diagnostic_output = "\n".join(diagnostic_log)
+        print(f"\n{diagnostic_output}\n", file=sys.stderr)
 
         return result
 
@@ -200,7 +241,7 @@ class ValidationPipeline:
                             dim_requirements["record_identification"][
                                 "primary_key_fields"
                             ] = pk_fields
-                except Exception:
+                except Exception:  # noqa: E722
                     pass
             elif dimension_name == "freshness":
                 # Freshness needs metadata for date field configuration
@@ -212,7 +253,7 @@ class ValidationPipeline:
                         else {}
                     )
                     dim_requirements["metadata"] = metadata
-                except Exception:
+                except Exception:  # noqa: E722
                     pass
 
             # Run the assessment
@@ -227,7 +268,7 @@ class ValidationPipeline:
 
             return score, explanation
 
-        except Exception:
+        except Exception:  # noqa: E722
             # Fallback to default score if assessment fails
             return self._get_default_score(dimension_name), None
 
@@ -258,7 +299,7 @@ class ValidationPipeline:
                 if hasattr(assessor, "get_plausibility_breakdown"):
                     return assessor.get_plausibility_breakdown(data, requirements)
 
-        except Exception:
+        except Exception:  # noqa: E722
             pass
 
         return None
@@ -309,7 +350,7 @@ class ValidationPipeline:
                 if w < 0.0:
                     w = 0.0
                 normalized[dim] = w
-            except Exception:
+            except Exception:  # noqa: E722
                 normalized[dim] = 0.0
 
         # If all weights are zero, assign equal weights
@@ -351,6 +392,8 @@ class ValidationPipeline:
             overall_score=overall_score,
             passed=passed,
             dimension_scores=dimension_scores,
+            standard_id=None,
+            standard_path=None,
         )
 
     def supports_dimension(self, dimension_name: str) -> bool:
@@ -365,7 +408,7 @@ class ValidationPipeline:
         try:
             self._registry.dimensions.get(dimension_name)
             return True
-        except Exception:
+        except Exception:  # noqa: E722
             return False
 
     def list_available_dimensions(self) -> List[str]:

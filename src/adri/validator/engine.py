@@ -79,7 +79,7 @@ class ThresholdResolver:
                         source="standard_overall_minimum",
                         standard_path=standard_path,
                     )
-            except Exception:
+            except Exception:  # noqa: E722
                 # Standard loading failed, continue to config fallback
                 pass
 
@@ -154,6 +154,7 @@ class AssessmentResult:
         passed: bool,
         dimension_scores: Dict[str, Any],
         standard_id: Optional[str] = None,
+        standard_path: Optional[str] = None,
         assessment_date=None,
         metadata: Optional[Dict[str, Any]] = None,
         assessment_source: str = "unknown",
@@ -164,6 +165,7 @@ class AssessmentResult:
         self.passed = bool(passed)  # Ensure it's a Python bool, not numpy bool
         self.dimension_scores = dimension_scores
         self.standard_id = standard_id
+        self.standard_path = standard_path  # Full absolute path to standard file used
         self.assessment_date = assessment_date
         self.metadata = metadata or {}
         self.rule_execution_log: List[Any] = []
@@ -542,19 +544,36 @@ class DataQualityAssessor:
 
     def assess(self, data, standard_path=None):
         """Assess data quality using pipeline architecture with audit logging."""
+        # DIAGNOSTIC LOGGING - Issue #35 Parity Investigation
+        import sys
+
+        diagnostic_log = []
+
         # Start timing
         start_time = time.time()
+
+        # Log entry point
+        diagnostic_log.append("=== DataQualityAssessor.assess() ENTRY ===")
+        diagnostic_log.append(f"standard_path: {standard_path}")
+        diagnostic_log.append(f"data shape: {getattr(data, 'shape', 'N/A')}")
+        diagnostic_log.append(f"data type: {type(data).__name__}")
 
         # Handle different data formats
         if hasattr(data, "to_frame"):
             data = data.to_frame()
+            diagnostic_log.append("Converted Series to DataFrame")
         elif not hasattr(data, "columns"):
             import pandas as pd
 
             if isinstance(data, dict):
                 data = pd.DataFrame([data])
+                diagnostic_log.append("Converted dict to DataFrame")
             else:
                 data = pd.DataFrame(data)
+                diagnostic_log.append("Converted to DataFrame")
+
+        diagnostic_log.append(f"Final data shape: {data.shape}")
+        diagnostic_log.append(f"Final data columns: {list(data.columns)}")
 
         # Run assessment using pipeline
         if standard_path:
@@ -562,21 +581,85 @@ class DataQualityAssessor:
             try:
                 from .loaders import load_standard
 
+                diagnostic_log.append(f"Loading standard from: {standard_path}")
+                diagnostic_log.append(
+                    f"Standard file exists: {os.path.exists(standard_path)}"
+                )
+
                 standard_dict = load_standard(standard_path)
+                diagnostic_log.append("Standard loaded successfully")
+                diagnostic_log.append(f"Standard keys: {list(standard_dict.keys())}")
+
+                # Log dimension requirements
+                dim_reqs = standard_dict.get("requirements", {}).get(
+                    "dimension_requirements", {}
+                )
+                diagnostic_log.append(
+                    f"Dimension requirements found: {list(dim_reqs.keys())}"
+                )
+                for dim, config in dim_reqs.items():
+                    weight = config.get("weight", "N/A")
+                    diagnostic_log.append(f"  {dim}: weight={weight}")
+
                 standard_wrapper = BundledStandardWrapper(standard_dict)
+                diagnostic_log.append("Using ValidationPipeline for assessment")
+
                 result = self.pipeline.execute_assessment(data, standard_wrapper)
+                diagnostic_log.append("Pipeline assessment completed")
+
+                # Set standard identifiers
                 result.standard_id = os.path.basename(standard_path).replace(
                     ".yaml", ""
                 )
-            except Exception:
+                # Resolve to absolute path for tracking
+                from pathlib import Path
+
+                result.standard_path = str(Path(standard_path).resolve())
+            except Exception as e:
                 # Fallback to legacy engine if pipeline fails
+                diagnostic_log.append(
+                    f"⚠️ PIPELINE FAILED - USING LEGACY ENGINE FALLBACK"
+                )
+                diagnostic_log.append("Pipeline error: {type(e).__name__}: {str(e)}")
+
                 result = self.engine.assess(data, standard_path)
+                diagnostic_log.append("Legacy engine assessment completed")
+
+                # Set standard identifiers
                 result.standard_id = os.path.basename(standard_path).replace(
                     ".yaml", ""
                 )
+                # Resolve to absolute path for tracking
+                from pathlib import Path
+
+                result.standard_path = str(Path(standard_path).resolve())
         else:
             # Use basic assessment for backward compatibility
+            diagnostic_log.append("No standard_path provided - using basic assessment")
             result = self.engine._basic_assessment(data)
+
+        # Log dimension scores
+        diagnostic_log.append("=== DIMENSION SCORES ===")
+        for dim, score_obj in result.dimension_scores.items():
+            score_val = score_obj.score if hasattr(score_obj, "score") else score_obj
+            diagnostic_log.append(f"  {dim}: {score_val:.2f}/20")
+
+        # Log final score calculation
+        diagnostic_log.append("=== OVERALL SCORE ===")
+        diagnostic_log.append(f"Overall score: {result.overall_score:.2f}/100")
+        diagnostic_log.append(f"Passed: {result.passed}")
+
+        # Log metadata
+        if hasattr(result, "metadata") and result.metadata:
+            diagnostic_log.append("=== METADATA ===")
+            if "applied_dimension_weights" in result.metadata:
+                diagnostic_log.append(
+                    f"Applied weights: {result.metadata['applied_dimension_weights']}"
+                )
+
+        # Write diagnostic log to stderr for debugging
+        diagnostic_output = "\n".join(diagnostic_log)
+        print(f"\n{diagnostic_output}\n", file=sys.stderr)
 
         # Log assessment if audit logger is configured
         duration_ms = int((time.time() - start_time) * 1000)
@@ -637,7 +720,7 @@ class DataQualityAssessor:
                 if verodat_logger:
                     verodat_logger.add_to_batch(audit_record)
 
-        except Exception:
+        except Exception:  # noqa: E722
             # Non-fatal error in audit logging
             pass
 
@@ -655,7 +738,7 @@ class ValidationEngine:
             from .pipeline import ValidationPipeline
 
             self.pipeline = ValidationPipeline()
-        except Exception:
+        except Exception:  # noqa: E722
             self.pipeline = None  # Fallback if pipeline not available
 
         # Legacy support for explain data collection
@@ -673,7 +756,7 @@ class ValidationEngine:
         for k, v in weights.items():
             try:
                 w = float(v)
-            except Exception:
+            except Exception:  # noqa: E722
                 w = 0.0
             if w < 0.0:
                 w = 0.0
@@ -706,7 +789,7 @@ class ValidationEngine:
                 continue
             try:
                 fw = float(w)
-            except Exception:
+            except Exception:  # noqa: E722
                 fw = 0.0
             if fw < 0.0:
                 fw = 0.0
@@ -886,7 +969,7 @@ class ValidationEngine:
                         continue
                     try:
                         fw = float(weight)
-                    except Exception:
+                    except Exception:  # noqa: E722
                         fw = 0.0
                     if fw <= 0.0:
                         if isinstance(weight, (int, float)) and weight < 0:
@@ -947,7 +1030,7 @@ class ValidationEngine:
                 # Use pipeline for assessment
                 return self.pipeline.execute_assessment(data, standard_wrapper)
 
-            except Exception:
+            except Exception:  # noqa: E722
                 # Fallback to basic assessment if standard can't be loaded
                 return self._basic_assessment(data)
         else:
@@ -967,7 +1050,7 @@ class ValidationEngine:
 
             yaml_dict = load_standard(standard_path)
             standard = BundledStandardWrapper(yaml_dict)
-        except Exception:
+        except Exception:  # noqa: E722
             return self._basic_assessment(data)
 
         # Perform assessment using the standard's requirements
@@ -988,7 +1071,7 @@ class ValidationEngine:
         # Calculate overall score using per-dimension weights
         try:
             dim_reqs = standard.get_dimension_requirements()
-        except Exception:
+        except Exception:  # noqa: E722
             dim_reqs = {}
 
         weights = {
@@ -1075,7 +1158,7 @@ class ValidationEngine:
             # Calculate overall score using per-dimension weights if provided (parity with assess())
             try:
                 dim_reqs = standard_wrapper.get_dimension_requirements()
-            except Exception:
+            except Exception:  # noqa: E722
                 dim_reqs = {}
 
             weights = {
@@ -1126,7 +1209,7 @@ class ValidationEngine:
                 overall_score, passed, dimension_scores, None, None, metadata
             )
 
-        except Exception:
+        except Exception:  # noqa: E722
             # Fallback to basic assessment if standard can't be processed
             return self._basic_assessment(data)
 
@@ -1175,7 +1258,7 @@ class ValidationEngine:
             field_overrides_cfg: Dict[str, Dict[str, float]] = scoring_cfg.get(
                 "field_overrides", {}
             )
-        except Exception:
+        except Exception:  # noqa: E722
             dim_reqs = {}
             validity_cfg = {}
             scoring_cfg = {}
@@ -1190,7 +1273,7 @@ class ValidationEngine:
         # Get field requirements from standard
         try:
             field_requirements = standard.get_field_requirements()
-        except Exception:
+        except Exception:  # noqa: E722
             # Fallback to basic validity check
             return self._assess_validity(data)
 
@@ -1286,7 +1369,7 @@ class ValidationEngine:
             if col in data.columns:
                 try:
                     per_field_missing[col] = int(data[col].isnull().sum())
-                except Exception:
+                except Exception:  # noqa: E722
                     per_field_missing[col] = 0
 
         missing_required = (
@@ -1319,7 +1402,7 @@ class ValidationEngine:
         """Assess completeness using nullable requirements from standard and attach explain payload."""
         try:
             field_requirements = standard.get_field_requirements()
-        except Exception:
+        except Exception:  # noqa: E722
             # Fallback to basic completeness check
             return self._assess_completeness(data)
 
@@ -1361,7 +1444,7 @@ class ValidationEngine:
                 rid = standard.get_record_identification()
                 if isinstance(rid, dict):
                     pk_fields = list(rid.get("primary_key_fields", []))
-            except Exception:
+            except Exception:  # noqa: E722
                 pass
 
             # Fallback: direct access to standard_dict
@@ -1372,20 +1455,20 @@ class ValidationEngine:
                         rid = std_dict.get("record_identification", {})
                         if isinstance(rid, dict):
                             pk_fields = list(rid.get("primary_key_fields", []))
-                except Exception:
+                except Exception:  # noqa: E722
                     pass
 
             # Ensure pk_fields is always a list
             if not isinstance(pk_fields, list):
                 pk_fields = []
-        except Exception:
+        except Exception:  # noqa: E722
             # Fallback to basic if standard is not usable
             return self._assess_consistency(data)
 
         # Determine if rule is active
         try:
             w = float(rule_weights_cfg.get("primary_key_uniqueness", 0.0))
-        except Exception:
+        except Exception:  # noqa: E722
             w = 0.0
         if w < 0.0:
             w = 0.0
@@ -1407,14 +1490,14 @@ class ValidationEngine:
         # Execute PK uniqueness rule
         try:
             from .rules import check_primary_key_uniqueness
-        except Exception:
+        except Exception:  # noqa: E722
             return self._assess_consistency(data)
 
         std_cfg = {"record_identification": {"primary_key_fields": pk_fields}}
         failures = []
         try:
             failures = check_primary_key_uniqueness(data, std_cfg) or []
-        except Exception:
+        except Exception:  # noqa: E722
             failures = []
 
         # Sum affected rows across duplicate groups (cap at total for safety)
@@ -1423,7 +1506,7 @@ class ValidationEngine:
         for f in failures:
             try:
                 failed_rows += int(f.get("affected_rows", 0) or 0)
-            except Exception:
+            except Exception:  # noqa: E722
                 pass
         if failed_rows > total:
             failed_rows = total
@@ -1479,14 +1562,14 @@ class ValidationEngine:
             rw = float(rw_cfg.get("recency_window", 0.0)) if rw_cfg else 0.0
             if rw < 0.0:
                 rw = 0.0
-        except Exception:
+        except Exception:  # noqa: E722
             rw = 0.0
 
         # Gate activation: if metadata not present at all -> baseline without explain.
         wd_val = None
         try:
             wd_val = float(window_days)
-        except Exception:
+        except Exception:  # noqa: E722
             wd_val = None
         has_meta = bool(as_of_str and date_field and wd_val is not None)
         if not has_meta:
@@ -1515,10 +1598,10 @@ class ValidationEngine:
             if as_of is not None and not pd.isna(as_of):
                 try:
                     as_of = as_of.tz_convert(None)
-                except Exception:
+                except Exception:  # noqa: E722
                     # already naive
                     pass
-        except Exception:
+        except Exception:  # noqa: E722
             as_of = None
 
         if as_of is None or pd.isna(as_of):
@@ -1556,7 +1639,7 @@ class ValidationEngine:
         parsed = pd.to_datetime(series, utc=True, errors="coerce")
         try:
             parsed = parsed.dt.tz_convert(None)
-        except Exception:
+        except Exception:  # noqa: E722
             pass
         total = int(parsed.notna().sum())
         if total <= 0:
@@ -1663,7 +1746,7 @@ class ValidationEngine:
                 if isinstance(scoring_cfg, dict)
                 else {}
             )
-        except Exception:
+        except Exception:  # noqa: E722
             return self._assess_plausibility(data)
 
         # Check if any rules are active
@@ -1943,7 +2026,7 @@ class ValidationEngine:
                                 failed_checks += 1
                             elif max_val is not None and numeric_value > max_val:
                                 failed_checks += 1
-                        except Exception:
+                        except Exception:  # noqa: E722
                             failed_checks += 1
 
             # Check outlier detection rules
@@ -1961,7 +2044,7 @@ class ValidationEngine:
                                     failed_checks += 1
                                 elif max_val is not None and numeric_value > max_val:
                                     failed_checks += 1
-                            except Exception:
+                            except Exception:  # noqa: E722
                                 failed_checks += 1
 
             if total_checks > 0:
