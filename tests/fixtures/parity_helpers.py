@@ -178,6 +178,7 @@ def compare_assessment_logs(cli_log_dir: Path, decorator_log_dir: Path) -> None:
         'timestamp',
         'process_id',
         'hostname',
+        'standard_path',  # Contains environment-specific temp directory paths
         'assessment_duration_ms',  # May vary slightly
         'rows_per_second'  # May vary slightly
     ]
