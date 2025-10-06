@@ -11,7 +11,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        python-version: ['3.10', '3.11', '3.12']
+        python-version: ['3.10', '3.11', '3.12', '3.13']
 
     steps:
     - uses: actions/checkout@v5
@@ -41,7 +41,7 @@ jobs:
       if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.11'
       uses: codecov/codecov-action@v5
       with:
-        file: ./tests/coverage/coverage.xml
+        files: ./tests/coverage/coverage.xml
         fail_ci_if_error: false
 
   security:
