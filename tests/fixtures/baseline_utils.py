@@ -455,6 +455,7 @@ def compare_csv_files(current: Path, baseline: Path) -> Optional[Dict[str, Any]]
         'hostname',
         'process_id',
         'created_at',
+        'standard_path',           # Environment-specific temp directory paths
         'assessment_duration_ms',  # Performance metric - varies between runs
         'rows_per_second',         # Performance metric - varies between runs
         'adri_version'             # Version changes with every commit - not a regression

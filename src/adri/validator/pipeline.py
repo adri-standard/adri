@@ -141,7 +141,7 @@ class ValidationPipeline:
                 )
                 dimension_scores[dimension_name] = DimensionScore(score)
                 diagnostic_log.append(f"  {dimension_name}: {score:.2f}/20")
-                if explanation and collect_explain:
+                if explanation is not None and collect_explain:
                     explain_data[dimension_name] = explanation
             except Exception as e:
                 # If dimension assessment fails, use default score
@@ -295,10 +295,18 @@ class ValidationPipeline:
                     return assessor.get_freshness_breakdown(data, requirements)
             elif dimension_name == "plausibility":
                 if hasattr(assessor, "get_plausibility_breakdown"):
-                    return assessor.get_plausibility_breakdown(data, requirements)
+                    breakdown = assessor.get_plausibility_breakdown(data, requirements)
+                    # Ensure we return the breakdown even if it's empty
+                    return breakdown if breakdown is not None else {}
 
-        except Exception:  # noqa: E722
-            pass
+        except Exception as e:  # noqa: E722
+            # Log exception for debugging but don't fail the assessment
+            import sys
+
+            print(
+                f"Warning: Failed to collect {dimension_name} explanation: {type(e).__name__}: {str(e)}",
+                file=sys.stderr,
+            )
 
         return None
 

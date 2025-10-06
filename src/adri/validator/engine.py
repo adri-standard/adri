@@ -1204,8 +1204,10 @@ class ValidationEngine:
             }
             if getattr(self, "_scoring_warnings", None):
                 metadata["scoring_warnings"] = list(self._scoring_warnings)
-            if getattr(self, "_explain", None):
-                metadata["explain"] = self._explain
+            # Include explain even if it's an empty dict (some dimensions may return {})
+            explain_data = getattr(self, "_explain", None)
+            if explain_data is not None:
+                metadata["explain"] = explain_data
 
             return AssessmentResult(
                 overall_score, passed, dimension_scores, None, None, metadata
