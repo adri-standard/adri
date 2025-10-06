@@ -618,9 +618,9 @@ class DataQualityAssessor:
             except Exception as e:
                 # Fallback to legacy engine if pipeline fails
                 diagnostic_log.append(
-                    f"⚠️ PIPELINE FAILED - USING LEGACY ENGINE FALLBACK"
+                    "⚠️ PIPELINE FAILED - USING LEGACY ENGINE FALLBACK"
                 )
-                diagnostic_log.append("Pipeline error: {type(e).__name__}: {str(e)}")
+                diagnostic_log.append(f"Pipeline error: {type(e).__name__}: {str(e)}")
 
                 result = self.engine.assess(data, standard_path)
                 diagnostic_log.append("Legacy engine assessment completed")

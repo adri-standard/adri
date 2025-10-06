@@ -94,9 +94,7 @@ class ValidationPipeline:
                 diagnostic_log.append("Converted dict to BundledStandardWrapper")
             else:
                 # Invalid standard type, return basic assessment
-                diagnostic_log.append(
-                    f"⚠️ Invalid standard type, using basic assessment"
-                )
+                diagnostic_log.append("⚠️ Invalid standard type, using basic assessment")
                 print(f"\n{chr(10).join(diagnostic_log)}\n", file=sys.stderr)
                 return self._create_basic_assessment_result(data)
 
