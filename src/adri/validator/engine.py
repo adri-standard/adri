@@ -1210,7 +1210,13 @@ class ValidationEngine:
                 metadata["explain"] = explain_data
 
             return AssessmentResult(
-                overall_score, passed, dimension_scores, None, None, metadata
+                overall_score,
+                passed,
+                dimension_scores,
+                standard_id=None,
+                standard_path=None,
+                assessment_date=None,
+                metadata=metadata,
             )
 
         except Exception:  # noqa: E722
@@ -1929,7 +1935,19 @@ class ValidationEngine:
 
     def _assess_plausibility(self, data: pd.DataFrame) -> float:
         """Assess data plausibility (fallback when no standard available)."""
-        # Simple plausibility check - return good score for now
+        # Set minimal explain payload for fallback case
+        self._explain["plausibility"] = {
+            "rule_counts": {
+                "statistical_outliers": {"passed": 0, "total": 0},
+                "categorical_frequency": {"passed": 0, "total": 0},
+                "business_logic": {"passed": 0, "total": 0},
+                "cross_field_consistency": {"passed": 0, "total": 0},
+            },
+            "pass_rate": 1.0,
+            "rule_weights_applied": {},
+            "score_0_20": 15.5,
+            "warnings": ["no standard provided; using baseline score 15.5/20"],
+        }
         return 15.5
 
     # Public methods for backward compatibility with tests
