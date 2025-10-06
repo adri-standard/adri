@@ -155,6 +155,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - uses: actions/checkout@v5
+      with:
+        fetch-depth: 0
+
     - name: Download build artifacts
       uses: actions/download-artifact@v5
       with:
@@ -169,9 +173,17 @@ jobs:
 
     - name: Test installation from TestPyPI
       run: |
-        sleep 60  # Wait for package to be available
+        sleep 180  # Wait for TestPyPI CDN propagation (typically 2-3 minutes)
         pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ adri==${{ needs.validate-tag.outputs.version }}
         adri --version
+
+    - name: Run tutorial tests against TestPyPI package
+      run: |
+        # Install test dependencies
+        pip install pytest pytest-cov
+
+        # Run all tutorial tests to validate real-world usage
+        pytest tests/test_tutorial_*.py -v --tb=short
 
   publish-pypi:
     needs: [validate-tag, build, test-install, publish-test-pypi]
