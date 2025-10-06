@@ -9,9 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 No unreleased changes.
 
-## [4.1.2] - 2025-06-10
+## [4.1.3] - 2025-06-10
 
-**Note:** This release supersedes v4.1.1 due to release workflow issues. Functionality is identical.
+**Note:** This release supersedes v4.1.1 and v4.1.2 due to TestPyPI tombstone restrictions preventing v4.1.2 re-upload. Core functionality is identical to v4.1.1, with Python 3.13 support added.
+
+### Added
+- **Python 3.13 Support**: Added compatibility with Python 3.13 (released October 2024)
+  - Updated CI/CD test matrices to include Python 3.13
+  - Added Python 3.13 classifier to package metadata
+  - All 822 tests passing on Python 3.13 across Ubuntu, Windows, macOS
+  - Closes #48
 
 ### Fixed
 - **Issue #35 Regression**: Restored CLI/Decorator parity after test consolidation
