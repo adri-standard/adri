@@ -9,9 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 No unreleased changes.
 
-## [4.1.3] - 2025-06-10
+## [4.1.4] - 2025-06-10
 
-**Note:** This release supersedes v4.1.1 and v4.1.2 due to TestPyPI tombstone restrictions preventing v4.1.2 re-upload. Core functionality is identical to v4.1.1, with Python 3.13 support added.
+**Note:** This release supersedes v4.1.1, v4.1.2, and v4.1.3 due to TestPyPI tombstone restrictions and release workflow fixes. Core functionality is identical to v4.1.1, with Python 3.13 support added.
 
 ### Added
 - **Python 3.13 Support**: Added compatibility with Python 3.13 (released October 2024)

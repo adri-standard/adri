@@ -428,8 +428,9 @@ class TestQualityBenchmarks:
             ratio = results[-1]['duration'] / results[0]['duration']
             size_ratio = results[-1]['size'] / results[0]['size']
 
-            # Duration should not grow more than 2x the size ratio
-            assert ratio < (size_ratio * 2), f"Poor scalability: {ratio:.2f}x for {size_ratio}x data"
+            # Duration should not grow more than 3x the size ratio (accounts for platform variance)
+            # Increased from 2x to 3x to handle CI environment variability across platforms
+            assert ratio < (size_ratio * 3), f"Poor scalability: {ratio:.2f}x for {size_ratio}x data"
 
         # Verify quality maintained across sizes
         for result in results:

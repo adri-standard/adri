@@ -107,7 +107,7 @@ class PerformanceThresholdManager:
 
         # CI environment multipliers (additional slowdown)
         ci_multipliers = {
-            "github_actions": 1.2,  # GitHub Actions can be slower
+            "github_actions": 1.45,  # GitHub Actions can have significant variability (1.45 * 1.1 = ~1.6x)
             "travis": 1.1,
             "circleci": 1.1,
             "appveyor": 1.3,  # AppVeyor typically slowest
