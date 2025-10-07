@@ -202,7 +202,7 @@ class TestLocalLoggingComprehensive:
         # Read and verify content from CSV files
         total_content = ""
         for log_file in log_files:
-            with open(log_file, 'r') as f:
+            with open(log_file, 'r', encoding='utf-8') as f:
                 total_content += f.read()
 
         # Verify assessment IDs are present
@@ -256,7 +256,7 @@ class TestLocalLoggingComprehensive:
         # Verify content exists across files
         total_content = ""
         for log_file in log_files:
-            with open(log_file, 'r') as f:
+            with open(log_file, 'r', encoding='utf-8') as f:
                 total_content += f.read()
 
         # Should contain assessment records
@@ -331,7 +331,7 @@ class TestLocalLoggingComprehensive:
         # Verify assessment data was logged correctly
         total_content = ""
         for log_file in log_files:
-            with open(log_file, 'r') as f:
+            with open(log_file, 'r', encoding='utf-8') as f:
                 total_content += f.read()
 
         assert "customer_data_standard" in total_content
@@ -473,7 +473,7 @@ class TestLocalLoggingComprehensive:
 
         for log_file in log_files:
             try:
-                with open(log_file, 'r') as f:
+                with open(log_file, 'r', encoding='utf-8') as f:
                     content = f.read()
                     if "recovery_test_standard" in content:
                         new_content_found = True
@@ -532,7 +532,7 @@ class TestLocalLoggingComprehensive:
         # Count total records in logs
         total_records = 0
         for log_file in log_files:
-            with open(log_file, 'r') as f:
+            with open(log_file, 'r', encoding='utf-8') as f:
                 content = f.read()
                 total_records += content.count("performance_test_standard")
 
@@ -609,7 +609,7 @@ class TestLocalLoggingComprehensive:
 
         total_found = 0
         for log_file in log_files:
-            with open(log_file, 'r') as f:
+            with open(log_file, 'r', encoding='utf-8') as f:
                 content = f.read()
                 total_found += content.count("concurrent_test_thread_")
 
@@ -667,7 +667,7 @@ class TestLocalLoggingComprehensive:
         # Verify content exists across files
         total_content = ""
         for log_file in log_files:
-            with open(log_file, 'r') as f:
+            with open(log_file, 'r', encoding='utf-8') as f:
                 total_content += f.read()
 
         assert "rotator_integration_test" in total_content
@@ -686,7 +686,7 @@ class TestLocalLoggingComprehensive:
         old_files = []
         for i in range(5):
             old_file = log_dir / f"old_log_{i}.log"
-            with open(old_file, 'w') as f:
+            with open(old_file, 'w', encoding='utf-8') as f:
                 f.write(f"Old log content {i}\n")
             old_files.append(old_file)
 
@@ -733,7 +733,7 @@ class TestLocalLoggingComprehensive:
         new_content_found = False
 
         for log_file in all_files:
-            with open(log_file, 'r') as f:
+            with open(log_file, 'r', encoding='utf-8') as f:
                 content = f.read()
                 if "post_cleanup_test_standard" in content:
                     new_content_found = True

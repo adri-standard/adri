@@ -141,7 +141,7 @@ class ConfigurationLoader:
             config: Configuration dictionary to save
             config_path: Path to save the configuration file
         """
-        with open(config_path, "w") as f:
+        with open(config_path, "w", encoding="utf-8") as f:
             yaml.dump(config, f, default_flow_style=False, indent=2)
 
     def load_config(
@@ -160,7 +160,7 @@ class ConfigurationLoader:
             return None
 
         try:
-            with open(config_path, "r") as f:
+            with open(config_path, "r", encoding="utf-8") as f:
                 config_data = yaml.safe_load(f)
                 return config_data if isinstance(config_data, dict) else None
         except (yaml.YAMLError, IOError):

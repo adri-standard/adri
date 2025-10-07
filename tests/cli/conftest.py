@@ -203,7 +203,7 @@ class TestWorkspace:
             }
         }
 
-        with open(self.adri_config, 'w') as f:
+        with open(self.adri_config, 'w', encoding='utf-8') as f:
             yaml.dump(config, f, default_flow_style=False)
 
     def _create_sample_files(self):
@@ -215,7 +215,7 @@ INV-002,CUST-102,875.50,2024-01-16,paid,bank_transfer
 INV-003,CUST-103,2100.75,2024-01-17,paid,credit_card"""
 
         training_file = self.tutorials_dir / "invoice_data.csv"
-        with open(training_file, 'w') as f:
+        with open(training_file, 'w', encoding='utf-8') as f:
             f.write(training_data)
 
         # Create test data with quality issues
@@ -225,7 +225,7 @@ INV-102,,925.50,2024-02-16,paid,bank_transfer
 INV-103,CUST-203,-150.75,2024-02-17,invalid,credit_card"""
 
         test_file = self.tutorials_dir / "test_invoice_data.csv"
-        with open(test_file, 'w') as f:
+        with open(test_file, 'w', encoding='utf-8') as f:
             f.write(test_data)
 
     def create_standard(self, name: str, content: Dict[str, Any]) -> str:
@@ -243,7 +243,7 @@ INV-103,CUST-203,-150.75,2024-02-17,invalid,credit_card"""
             Standard name only (not the path)
         """
         standard_path = self.standards_dir / f"{name}.yaml"
-        with open(standard_path, 'w') as f:
+        with open(standard_path, 'w', encoding='utf-8') as f:
             yaml.dump(content, f, default_flow_style=False)
         return name  # Return name only, not path
 
@@ -254,6 +254,6 @@ INV-103,CUST-203,-150.75,2024-02-17,invalid,credit_card"""
 
         data_path = directory / name
         data_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(data_path, 'w') as f:
+        with open(data_path, 'w', encoding='utf-8') as f:
             f.write(content)
         return data_path

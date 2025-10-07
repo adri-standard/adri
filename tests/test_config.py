@@ -117,7 +117,7 @@ class TestConfigurationLoader(unittest.TestCase):
     def test_find_config_file_current_directory(self):
         """Test finding config file in current directory."""
         # Create config file
-        with open("adri-config.yaml", 'w') as f:
+        with open("adri-config.yaml", 'w', encoding='utf-8') as f:
             f.write("test: config")
 
         found_path = self.loader.find_config_file()
@@ -435,7 +435,7 @@ class TestConfigLoaderErrorHandling(unittest.TestCase):
 
         # Test loading corrupted YAML
         corrupted_file = "corrupted_config.yaml"
-        with open(corrupted_file, "w") as f:
+        with open(corrupted_file, 'w', encoding='utf-8') as f:
             f.write("invalid: yaml: content: [unclosed")
 
         result = loader.load_config(corrupted_file)

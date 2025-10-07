@@ -189,7 +189,7 @@ class TestEndToEndWorkflows:
 
         # Step 2: Create production configuration
         if Path('adri-config.yaml').exists():
-            with open('adri-config.yaml', 'r') as f:
+            with open('adri-config.yaml', 'r', encoding='utf-8') as f:
                 config = yaml.load(f, Loader=yaml.SafeLoader)
 
             # Modify for production settings
@@ -202,7 +202,7 @@ class TestEndToEndWorkflows:
                         }
                     }
 
-            with open('adri-config.yaml', 'w') as f:
+            with open('adri-config.yaml', 'w', encoding='utf-8') as f:
                 yaml.dump(config, f)
 
         # Step 3: Test production data processing with protection
@@ -251,7 +251,7 @@ class TestEndToEndWorkflows:
         standards_dir.mkdir(parents=True, exist_ok=True)
         standard_file = standards_dir / "pipeline_standard.yaml"
         standard_data = ModernFixtures.create_standards_data("comprehensive")
-        with open(standard_file, 'w') as f:
+        with open(standard_file, 'w', encoding='utf-8') as f:
             yaml.dump(standard_data, f)
 
         # Simulate data pipeline functions with ADRI protection
@@ -479,7 +479,7 @@ class TestEndToEndWorkflows:
 
         # Scenario 1: User provides malformed data
         malformed_data = Path('malformed_data.csv')
-        with open(malformed_data, 'w') as f:
+        with open(malformed_data, 'w', encoding='utf-8') as f:
             f.write('header1,header2,header3\n')
             f.write('value1,value2,value3\n')
             f.write('incomplete,row\n')  # Missing column
@@ -503,7 +503,7 @@ class TestEndToEndWorkflows:
         self.customer_data.to_csv(good_data, index=False)
 
         malformed_standard = Path('malformed_standard.yaml')
-        with open(malformed_standard, 'w') as f:
+        with open(malformed_standard, 'w', encoding='utf-8') as f:
             f.write('invalid: yaml: structure: [unclosed')
 
         # Assessment should handle malformed standard gracefully
@@ -660,7 +660,7 @@ class TestEndToEndWorkflows:
             }
 
             config_file = Path(f'{env_name}_config.yaml')
-            with open(config_file, 'w') as f:
+            with open(config_file, 'w', encoding='utf-8') as f:
                 yaml.dump(config_data, f)
 
             # Set environment variable
@@ -684,7 +684,7 @@ class TestEndToEndWorkflows:
                 # Should adapt to environment configuration (CLI returns exit codes)
                 if generate_result == 0 and standard_file.exists():
                     # Verify standard reflects environment settings
-                    with open(standard_file, 'r') as f:
+                    with open(standard_file, 'r', encoding='utf-8') as f:
                         standard_content = yaml.load(f, Loader=yaml.SafeLoader)
 
                     if env_name == 'production':
@@ -751,7 +751,7 @@ class TestEndToEndWorkflows:
                 assert audit_file.stat().st_size > 0
 
                 # Verify audit content
-                with open(audit_file, 'r') as f:
+                with open(audit_file, 'r', encoding='utf-8') as f:
                     audit_content = json.load(f)
                     assert "overall_score" in audit_content
                     assert "timestamp" in audit_content or "assessment_timestamp" in audit_content
@@ -857,7 +857,7 @@ class TestEndToEndWorkflows:
             # Check assessment result format for CI parsing
             result_file = Path('ci_assessment_result.json')
             if result_file.exists():
-                with open(result_file, 'r') as f:
+                with open(result_file, 'r', encoding='utf-8') as f:
                     ci_result = json.load(f)
                     # Should have machine-readable format
                     assert "overall_score" in ci_result

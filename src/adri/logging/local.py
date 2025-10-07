@@ -158,6 +158,9 @@ class AuditRecord:
             ],
             "rows_per_second": self.performance_metrics["rows_per_second"],
             "cache_used": "TRUE" if self.performance_metrics["cache_used"] else "FALSE",
+            "execution_id": getattr(self, "execution_id", ""),
+            "prompt_id": getattr(self, "prompt_id", ""),
+            "response_id": getattr(self, "response_id", ""),
         }
 
         # Dimension records for adri_dimension_scores
@@ -239,6 +242,9 @@ class LocalLogger:
         "assessment_duration_ms",
         "rows_per_second",
         "cache_used",
+        "execution_id",
+        "prompt_id",
+        "response_id",
     ]
 
     DIMENSION_SCORE_HEADERS = [
@@ -326,19 +332,25 @@ class LocalLogger:
 
             # Initialize assessment log file
             if not self.assessment_log_path.exists():
-                with open(self.assessment_log_path, "w", newline="") as f:
+                with open(
+                    self.assessment_log_path, "w", encoding="utf-8", newline=""
+                ) as f:
                     writer = csv.DictWriter(f, fieldnames=self.ASSESSMENT_LOG_HEADERS)
                     writer.writeheader()
 
             # Initialize dimension score file
             if not self.dimension_score_path.exists():
-                with open(self.dimension_score_path, "w", newline="") as f:
+                with open(
+                    self.dimension_score_path, "w", encoding="utf-8", newline=""
+                ) as f:
                     writer = csv.DictWriter(f, fieldnames=self.DIMENSION_SCORE_HEADERS)
                     writer.writeheader()
 
             # Initialize failed validation file
             if not self.failed_validation_path.exists():
-                with open(self.failed_validation_path, "w", newline="") as f:
+                with open(
+                    self.failed_validation_path, "w", encoding="utf-8", newline=""
+                ) as f:
                     writer = csv.DictWriter(
                         f, fieldnames=self.FAILED_VALIDATION_HEADERS
                     )
@@ -351,6 +363,9 @@ class LocalLogger:
         data_info: Optional[Dict[str, Any]] = None,
         performance_metrics: Optional[Dict[str, Any]] = None,
         failed_checks: Optional[List[Dict[str, Any]]] = None,
+        execution_id: Optional[str] = None,
+        prompt_id: Optional[str] = None,
+        response_id: Optional[str] = None,
     ) -> Optional[AuditRecord]:
         """
         Log an assessment directly to CSV files.
@@ -361,6 +376,9 @@ class LocalLogger:
             data_info: Information about the data assessed
             performance_metrics: Performance metrics
             failed_checks: List of failed validation checks
+            execution_id: Optional workflow execution ID for linking
+            prompt_id: Optional reasoning prompt ID for linking
+            response_id: Optional reasoning response ID for linking
 
         Returns:
             AuditRecord if logging is enabled, None otherwise
@@ -468,6 +486,11 @@ class LocalLogger:
                     record.performance_metrics["rows_per_second"] = (
                         data_info["row_count"] / duration_seconds
                     )
+
+        # Store workflow and reasoning linking IDs
+        record.execution_id = execution_id or ""
+        record.prompt_id = prompt_id or ""
+        record.response_id = response_id or ""
 
         # Write to CSV files
         self._write_to_csv_files(record)

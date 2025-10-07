@@ -132,14 +132,14 @@ class TestDecoratorComprehensive:
         # Create config file
         config_file = temp_workspace / "adri-config.yaml"
         import yaml
-        with open(config_file, 'w') as f:
+        with open(config_file, 'w', encoding='utf-8') as f:
             yaml.dump(complete_config, f)
 
         # Set environment to use config
         with patch.dict(os.environ, {"ADRI_CONFIG_PATH": str(config_file)}):
             # Create a minimal standard file
             standard_path = temp_workspace / "ADRI" / "dev" / "standards" / "test.yaml"
-            with open(standard_path, 'w') as f:
+            with open(standard_path, 'w', encoding='utf-8') as f:
                 yaml.dump(self.comprehensive_standard, f)
 
             @adri_protected(
@@ -265,7 +265,7 @@ class TestDecoratorComprehensive:
 
         # Create valid standard file
         standard_path = temp_workspace / "ADRI" / "dev" / "standards" / "valid.yaml"
-        with open(standard_path, 'w') as f:
+        with open(standard_path, 'w', encoding='utf-8') as f:
             import yaml
             yaml.dump(self.comprehensive_standard, f)
 

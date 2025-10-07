@@ -143,7 +143,7 @@ class TestDataQualityAssessor(unittest.TestCase):
 
         try:
             # Create a valid YAML file
-            with open(standard_path, 'w') as f:
+            with open(standard_path, 'w', encoding='utf-8') as f:
                 f.write("standards:\n  id: test_standard\n  name: Test Standard\n")
 
             result = self.assessor.assess(self.sample_data, standard_path)
@@ -997,7 +997,7 @@ class TestValidatorEngineErrorHandling(unittest.TestCase):
         # Test with corrupted standard file
         from pathlib import Path
         corrupted_standard = Path("corrupted.yaml")
-        with open(corrupted_standard, "w") as f:
+        with open(corrupted_standard, 'w', encoding='utf-8') as f:
             f.write("invalid: yaml: [unclosed")
         result = engine.assess(test_data, str(corrupted_standard))
         self.assertIsInstance(result, AssessmentResult)

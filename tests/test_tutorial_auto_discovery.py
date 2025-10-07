@@ -151,7 +151,7 @@ def test_standard_generation_succeeds(tutorial_name, tutorial_metadata, tutorial
     )
 
     # Load and validate standard structure
-    with open(scenario['standard_path'], 'r') as f:
+    with open(scenario['standard_path'], 'r', encoding='utf-8') as f:
         standard = yaml.safe_load(f)
 
     # Verify required top-level fields (actual ADRI standard structure)
@@ -338,7 +338,7 @@ def test_generated_standard_is_valid(tutorial_name, tutorial_metadata, tutorial_
     )
 
     # Load the generated standard
-    with open(scenario['standard_path'], 'r') as f:
+    with open(scenario['standard_path'], 'r', encoding='utf-8') as f:
         standard = yaml.safe_load(f)
 
     # === VALIDATION 1: Structure ===
@@ -599,7 +599,7 @@ def test_baseline_regression(tutorial_name, tutorial_metadata, tutorial_project)
     # Load config to enable audit logging
     import yaml
     config_path = tutorial_project / 'adri-config.yaml'
-    with open(config_path, 'r') as f:
+    with open(config_path, 'r', encoding='utf-8') as f:
         config = yaml.safe_load(f)
 
     # FIX: Convert relative audit log path to absolute path in test project

@@ -521,7 +521,7 @@ class ScoringPresetApplyCommand(Command):
             out_path.parent.mkdir(parents=True, exist_ok=True)
 
             # Save modified standard
-            with open(out_path, "w") as f:
+            with open(out_path, "w", encoding="utf-8") as f:
                 yaml.dump(std, f, default_flow_style=False, sort_keys=False)
 
             # Display results

@@ -304,7 +304,7 @@ class TestDecoratorAutoGeneration:
         assert standard_path.exists(), "Standard should be auto-generated"
 
         # Verify it's a valid standard (new schema format)
-        with open(standard_path, 'r') as f:
+        with open(standard_path, 'r', encoding='utf-8') as f:
             standard_content = yaml.safe_load(f)
 
         # New schema has requirements.field_requirements instead of fields
@@ -346,7 +346,7 @@ class TestDecoratorAutoGeneration:
         # Save CLI-generated standard
         standard_dir = project_root / 'ADRI' / 'dev' / 'standards'
         cli_standard_path = standard_dir / "test_cli_invoice.yaml"
-        with open(cli_standard_path, 'w') as f:
+        with open(cli_standard_path, 'w', encoding='utf-8') as f:
             yaml.dump(cli_standard, f, default_flow_style=False, sort_keys=False)
 
         # Step 2: Delete standard to force decorator auto-generation
@@ -373,7 +373,7 @@ class TestDecoratorAutoGeneration:
         # Step 4: Load decorator-generated standard
         assert decorator_standard_path.exists(), "Decorator should auto-generate standard"
 
-        with open(decorator_standard_path, 'r') as f:
+        with open(decorator_standard_path, 'r', encoding='utf-8') as f:
             decorator_standard = yaml.safe_load(f)
 
         # Step 5: Deep comparison
@@ -442,7 +442,7 @@ class TestDecoratorAutoGeneration:
         finally:
             os.chdir(original_cwd)
 
-        with open(decorator_standard_path, 'r') as f:
+        with open(decorator_standard_path, 'r', encoding='utf-8') as f:
             decorator_standard = yaml.safe_load(f)
 
         # Compare fields (new schema: requirements.field_requirements)
@@ -510,7 +510,7 @@ class TestDecoratorAutoGeneration:
         finally:
             os.chdir(original_cwd)
 
-        with open(decorator_standard_path, 'r') as f:
+        with open(decorator_standard_path, 'r', encoding='utf-8') as f:
             decorator_standard = yaml.safe_load(f)
 
         # Compare validation rules for each field (new schema: requirements.field_requirements)
@@ -573,7 +573,7 @@ class TestDecoratorAutoGeneration:
         project_root = invoice_scenario['tutorial_dir'].parent.parent.parent
         standard_dir = project_root / 'ADRI' / 'dev' / 'standards'
         cli_standard_path = standard_dir / "test_assessment_cli.yaml"
-        with open(cli_standard_path, 'w') as f:
+        with open(cli_standard_path, 'w', encoding='utf-8') as f:
             yaml.dump(cli_standard, f, default_flow_style=False, sort_keys=False)
 
         # Auto-generate decorator standard
@@ -641,7 +641,7 @@ class TestDecoratorAutoGeneration:
             }
         }
 
-        with open(standard_path, 'w') as f:
+        with open(standard_path, 'w', encoding='utf-8') as f:
             yaml.dump(existing_standard, f)
 
         # Record modification time

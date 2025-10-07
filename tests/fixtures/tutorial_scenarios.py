@@ -205,7 +205,7 @@ class TutorialScenarios:
 
         # Write standard to file
         standard_path = output_dir / f"{config['output_name']}.yaml"
-        with open(standard_path, 'w') as f:
+        with open(standard_path, 'w', encoding='utf-8') as f:
             yaml.dump(standard_dict, f, default_flow_style=False, sort_keys=False)
 
         return config['output_name']
@@ -559,7 +559,7 @@ class StandardTemplates:
                 "Ensure scenario setup has completed."
             )
 
-        with open(standard_path, 'r') as f:
+        with open(standard_path, 'r', encoding='utf-8') as f:
             return yaml.safe_load(f)
 
     @staticmethod

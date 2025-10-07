@@ -177,7 +177,7 @@ def _get_threshold_from_standard(standard_path: Path) -> float:
     try:
         std = load_standard(str(standard_path)) if load_standard else None
         if std is None:
-            with open(standard_path, "r") as f:
+            with open(standard_path, "r", encoding="utf-8") as f:
                 std = yaml.safe_load(f) or {}
         req = std.get("requirements", {}) if isinstance(std, dict) else {}
         thr = float(req.get("overall_minimum", 75.0))
@@ -248,7 +248,7 @@ def show_standard_command(standard_path: str, verbose: bool = False) -> int:
         if load_standard:
             standard = load_standard(standard_path)
         else:
-            with open(standard_file, "r") as f:
+            with open(standard_file, "r", encoding="utf-8") as f:
                 standard = yaml.safe_load(f)
 
         if standard:
@@ -592,7 +592,7 @@ def _save_assessment_report(guide, data_path, result):
     data_name = Path(data_path).stem
     auto_output_path = assessments_dir / f"{data_name}_assessment_{timestamp}.json"
     report_data = result.to_standard_dict()
-    with open(auto_output_path, "w") as f:
+    with open(auto_output_path, "w", encoding="utf-8") as f:
         json.dump(report_data, f, indent=2)
 
 
@@ -805,7 +805,7 @@ def _parse_assessment_files(assessment_files: List[Path]) -> List[Dict[str, Any]
     table_data: List[Dict[str, Any]] = []
     for file_path in assessment_files:
         try:
-            with open(file_path, "r") as f:
+            with open(file_path, "r", encoding="utf-8") as f:
                 assessment_data = json.load(f)
             adri_report = assessment_data.get("adri_assessment_report", {})
             summary = adri_report.get("summary", {})
@@ -852,7 +852,7 @@ def _load_audit_entries() -> List[Dict[str, Any]]:
         import csv
         from datetime import datetime
 
-        with open(main_log_file, "r") as f:
+        with open(main_log_file, "r", encoding="utf-8") as f:
             reader = csv.DictReader(f)
             for row in reader:
                 try:
@@ -951,7 +951,7 @@ def _parse_audit_log_entries(main_log_file: Path, today: bool):
     from datetime import date, datetime
 
     log_entries = []
-    with open(main_log_file, "r") as f:
+    with open(main_log_file, "r", encoding="utf-8") as f:
         reader = csv.DictReader(f)
         for row in reader:
             try:

@@ -112,7 +112,7 @@ class ViewLogsCommand(Command):
 
         log_entries = []
 
-        with open(main_log_file, "r") as f:
+        with open(main_log_file, "r", encoding="utf-8") as f:
             reader = csv.DictReader(f)
             for row in reader:
                 try:

@@ -85,7 +85,7 @@ class TestStandardsParserComprehensive:
 
             # Test comprehensive standard parsing (use standard name, not full path)
             comprehensive_file = temp_workspace / "comprehensive_standard.yaml"
-            with open(comprehensive_file, 'w') as f:
+            with open(comprehensive_file, 'w', encoding='utf-8') as f:
                 yaml.dump(self.comprehensive_standard, f)
 
             parsed_standard = test_parser.parse_standard("comprehensive_standard")
@@ -95,7 +95,7 @@ class TestStandardsParserComprehensive:
 
             # Test minimal standard parsing (use standard name, not full path)
             minimal_file = temp_workspace / "minimal_standard.yaml"
-            with open(minimal_file, 'w') as f:
+            with open(minimal_file, 'w', encoding='utf-8') as f:
                 yaml.dump(self.minimal_standard, f)
 
             parsed_minimal = test_parser.parse_standard("minimal_standard")
@@ -117,7 +117,7 @@ class TestStandardsParserComprehensive:
 
         # Test valid standard passes validation (use actual API: validate_standard_file method)
         valid_file = temp_workspace / "valid_standard.yaml"
-        with open(valid_file, 'w') as f:
+        with open(valid_file, 'w', encoding='utf-8') as f:
             yaml.dump(self.comprehensive_standard, f)
 
         validation_result = self.parser.validate_standard_file(str(valid_file))
@@ -132,7 +132,7 @@ class TestStandardsParserComprehensive:
         }
 
         invalid_file = temp_workspace / "invalid_standard.yaml"
-        with open(invalid_file, 'w') as f:
+        with open(invalid_file, 'w', encoding='utf-8') as f:
             yaml.dump(invalid_standard, f)
 
         validation_result = self.parser.validate_standard_file(str(invalid_file))
@@ -154,7 +154,7 @@ class TestStandardsParserComprehensive:
             test_parser = StandardsParser()
 
             standard_file = temp_workspace / "field_requirements_test.yaml"
-            with open(standard_file, 'w') as f:
+            with open(standard_file, 'w', encoding='utf-8') as f:
                 yaml.dump(self.comprehensive_standard, f)
 
             parsed_standard = test_parser.parse_standard("field_requirements_test")
@@ -204,7 +204,7 @@ class TestStandardsParserComprehensive:
             test_parser = StandardsParser()
 
             standard_file = temp_workspace / "dimension_requirements_test.yaml"
-            with open(standard_file, 'w') as f:
+            with open(standard_file, 'w', encoding='utf-8') as f:
                 yaml.dump(self.comprehensive_standard, f)
 
             parsed_standard = test_parser.parse_standard("dimension_requirements_test")
@@ -242,7 +242,7 @@ class TestStandardsParserComprehensive:
 
             # Test invalid YAML syntax
             malformed_file = temp_workspace / "malformed.yaml"
-            with open(malformed_file, 'w') as f:
+            with open(malformed_file, 'w', encoding='utf-8') as f:
                 f.write("standards:\n  id: test\n  invalid_yaml: [unclosed\n  structure")
 
             with pytest.raises((ValidationError, Exception)):
@@ -258,7 +258,7 @@ class TestStandardsParserComprehensive:
             # Test YAML with wrong root structure
             wrong_structure = {"not_standards": {"id": "wrong"}}
             wrong_file = temp_workspace / "wrong_structure.yaml"
-            with open(wrong_file, 'w') as f:
+            with open(wrong_file, 'w', encoding='utf-8') as f:
                 yaml.dump(wrong_structure, f)
 
             with pytest.raises((ValidationError, Exception)):
@@ -287,7 +287,7 @@ class TestStandardsParserComprehensive:
 
             # Create a valid standard file for testing
             test_file = temp_workspace / "fs_test_standard.yaml"
-            with open(test_file, 'w') as f:
+            with open(test_file, 'w', encoding='utf-8') as f:
                 yaml.dump(self.comprehensive_standard, f)
 
             # Test file not found (standard name that doesn't exist)
@@ -324,7 +324,7 @@ class TestStandardsParserComprehensive:
 
         # Test validation using the actual validation method that exists
         test_file = temp_workspace / "schema_integration_test.yaml"
-        with open(test_file, 'w') as f:
+        with open(test_file, 'w', encoding='utf-8') as f:
             yaml.dump(self.comprehensive_standard, f)
 
         # Use actual validation method that exists in StandardsParser
@@ -356,7 +356,7 @@ class TestStandardsParserComprehensive:
 
             # Create standard file
             standard_file = temp_workspace / "integration_test.yaml"
-            with open(standard_file, 'w') as f:
+            with open(standard_file, 'w', encoding='utf-8') as f:
                 yaml.dump(self.comprehensive_standard, f)
 
             # Parse standard (use standard name, not full path)
@@ -401,7 +401,7 @@ class TestStandardsParserComprehensive:
 
             # Test small standard
             small_file = temp_workspace / "small_standard.yaml"
-            with open(small_file, 'w') as f:
+            with open(small_file, 'w', encoding='utf-8') as f:
                 yaml.dump(self.minimal_standard, f)
 
             start_time = time.time()
@@ -445,7 +445,7 @@ class TestStandardsParserComprehensive:
                 }
 
             large_file = temp_workspace / "large_standard.yaml"
-            with open(large_file, 'w') as f:
+            with open(large_file, 'w', encoding='utf-8') as f:
                 yaml.dump(large_standard, f)
 
             start_time = time.time()
@@ -490,7 +490,7 @@ class TestStandardsParserComprehensive:
                 }
 
                 standard_file = temp_workspace / f"concurrent_test_{i}.yaml"
-                with open(standard_file, 'w') as f:
+                with open(standard_file, 'w', encoding='utf-8') as f:
                     yaml.dump(standard, f)
                 standard_names.append(f"concurrent_test_{i}")
 
@@ -549,7 +549,7 @@ class TestStandardsParserComprehensive:
             test_parser = StandardsParser()
 
             standard_file = temp_workspace / "metadata_test.yaml"
-            with open(standard_file, 'w') as f:
+            with open(standard_file, 'w', encoding='utf-8') as f:
                 yaml.dump(self.comprehensive_standard, f)
 
             # Use actual parsing method instead of non-existent extract_metadata
@@ -599,7 +599,7 @@ class TestStandardsParserComprehensive:
             }
 
             extra_fields_file = temp_workspace / "extra_fields.yaml"
-            with open(extra_fields_file, 'w') as f:
+            with open(extra_fields_file, 'w', encoding='utf-8') as f:
                 yaml.dump(extra_fields_standard, f)
 
             # Should either pass (if extensions allowed) or fail gracefully
@@ -628,7 +628,7 @@ class TestStandardsParserComprehensive:
         }
 
         null_file = temp_workspace / "null_values.yaml"
-        with open(null_file, 'w') as f:
+        with open(null_file, 'w', encoding='utf-8') as f:
             yaml.dump(null_values_standard, f)
 
         # Check validation result - may pass or fail depending on validator strictness
@@ -654,7 +654,7 @@ class TestStandardsParserComprehensive:
         }
 
         invalid_types_file = temp_workspace / "invalid_types.yaml"
-        with open(invalid_types_file, 'w') as f:
+        with open(invalid_types_file, 'w', encoding='utf-8') as f:
             yaml.dump(invalid_types_standard, f)
 
         # Check validation result - may pass or fail depending on validator strictness
@@ -687,7 +687,7 @@ class TestStandardsParserComprehensive:
             }
 
             current_file = temp_workspace / "current_version.yaml"
-            with open(current_file, 'w') as f:
+            with open(current_file, 'w', encoding='utf-8') as f:
                 yaml.dump(current_version_standard, f)
 
             result = test_parser.parse_standard("current_version")
@@ -703,7 +703,7 @@ class TestStandardsParserComprehensive:
             }
 
             older_file = temp_workspace / "older_version.yaml"
-            with open(older_file, 'w') as f:
+            with open(older_file, 'w', encoding='utf-8') as f:
                 yaml.dump(older_version_standard, f)
 
             # Should either parse successfully or provide clear version mismatch error
@@ -735,7 +735,7 @@ class TestStandardsParserComprehensive:
         try:
             # Create standard file
             standard_file = temp_workspace / "config_integration.yaml"
-            with open(standard_file, 'w') as f:
+            with open(standard_file, 'w', encoding='utf-8') as f:
                 yaml.dump(self.comprehensive_standard, f)
 
             # Test parser (StandardsParser constructor takes no config parameter)
@@ -795,7 +795,7 @@ class TestStandardsParserComprehensive:
             }
 
             custom_rules_file = temp_workspace / "custom_rules.yaml"
-            with open(custom_rules_file, 'w') as f:
+            with open(custom_rules_file, 'w', encoding='utf-8') as f:
                 yaml.dump(custom_rules_standard, f)
 
             result = test_parser.parse_standard("custom_rules")

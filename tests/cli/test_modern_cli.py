@@ -47,7 +47,7 @@ class TestModernCLICommands(ModernCLITestBase):
         assert Path("ADRI/dev/assessments").exists()
 
         # Verify config content
-        with open("ADRI/config.yaml", 'r') as f:
+        with open("ADRI/config.yaml", 'r', encoding='utf-8') as f:
             config = yaml.safe_load(f)
 
         assert config["adri"]["project_name"] == "test_project"
@@ -70,7 +70,7 @@ class TestModernCLICommands(ModernCLITestBase):
         assert Path("ADRI/tutorials/invoice_processing/test_invoice_data.csv").exists()
 
         # Verify tutorial data content
-        with open("ADRI/tutorials/invoice_processing/invoice_data.csv", 'r') as f:
+        with open("ADRI/tutorials/invoice_processing/invoice_data.csv", 'r', encoding='utf-8') as f:
             content = f.read()
             assert "invoice_id,customer_id,amount" in content
             assert "INV-001,CUST-101,1250.00" in content
@@ -104,7 +104,7 @@ class TestModernCLICommands(ModernCLITestBase):
         assert result3 == 0
 
         # Verify config was updated
-        with open("ADRI/config.yaml", 'r') as f:
+        with open("ADRI/config.yaml", 'r', encoding='utf-8') as f:
             config = yaml.safe_load(f)
         assert config["adri"]["project_name"] == "new_project"
 
@@ -136,7 +136,7 @@ class TestModernCLICommands(ModernCLITestBase):
         assert expected_standard_path.exists()
 
         # Verify standard content
-        with open(expected_standard_path, 'r') as f:
+        with open(expected_standard_path, 'r', encoding='utf-8') as f:
             standard = yaml.safe_load(f)
 
         assert "standards" in standard
@@ -172,7 +172,7 @@ class TestModernCLICommands(ModernCLITestBase):
 
         standard_content = create_sample_standard()
         standard_path = Path("ADRI/dev/standards/test_standard.yaml")
-        with open(standard_path, 'w') as f:
+        with open(standard_path, 'w', encoding='utf-8') as f:
             yaml.dump(standard_content, f)
 
         # Execute assess command
@@ -223,7 +223,7 @@ class TestModernCLICommands(ModernCLITestBase):
         # Create valid standard file
         standard_content = create_sample_standard()
         standard_path = Path("ADRI/dev/standards/valid_standard.yaml")
-        with open(standard_path, 'w') as f:
+        with open(standard_path, 'w', encoding='utf-8') as f:
             yaml.dump(standard_content, f)
 
         validate_command = get_command("validate-standard")
@@ -238,7 +238,7 @@ class TestModernCLICommands(ModernCLITestBase):
         # Create invalid standard file
         invalid_content = {"invalid": "structure"}
         invalid_path = Path("invalid_standard.yaml")
-        with open(invalid_path, 'w') as f:
+        with open(invalid_path, 'w', encoding='utf-8') as f:
             yaml.dump(invalid_content, f)
 
         validate_command = get_command("validate-standard")
@@ -258,7 +258,7 @@ class TestModernCLICommands(ModernCLITestBase):
         for i in range(3):
             standard_content = create_sample_standard(f"standard_{i}")
             standard_path = Path(f"ADRI/dev/standards/standard_{i}.yaml")
-            with open(standard_path, 'w') as f:
+            with open(standard_path, 'w', encoding='utf-8') as f:
                 yaml.dump(standard_content, f)
 
         list_standards_command = get_command("list-standards")
@@ -292,7 +292,7 @@ class TestModernCLICommands(ModernCLITestBase):
         # Create standard file
         standard_content = create_sample_standard()
         standard_path = Path("ADRI/dev/standards/test_standard.yaml")
-        with open(standard_path, 'w') as f:
+        with open(standard_path, 'w', encoding='utf-8') as f:
             yaml.dump(standard_content, f)
 
         show_standard_command = get_command("show-standard")
@@ -326,7 +326,7 @@ class TestModernCLICommands(ModernCLITestBase):
                 "timestamp": "2024-01-01T00:00:00Z"
             }
             assessment_path = Path(f"ADRI/dev/assessments/assessment_{i}.json")
-            with open(assessment_path, 'w') as f:
+            with open(assessment_path, 'w', encoding='utf-8') as f:
                 json.dump(assessment_content, f)
 
         list_assessments_command = get_command("list-assessments")
@@ -360,7 +360,7 @@ class TestModernCLICommands(ModernCLITestBase):
         # Create log file
         log_content = "timestamp,action,result\n2024-01-01T00:00:00Z,setup,success"
         log_path = Path("ADRI/dev/audit-logs/adri_test.log")
-        with open(log_path, 'w') as f:
+        with open(log_path, 'w', encoding='utf-8') as f:
             f.write(log_content)
 
         view_logs_command = get_command("view-logs")
@@ -441,7 +441,7 @@ class TestCLIPathResolution(ModernCLITestBase):
             # Create a standard to show
             standard_content = create_sample_standard()
             standard_path = Path("standards/test_standard.yaml")
-            with open(standard_path, 'w') as f:
+            with open(standard_path, 'w', encoding='utf-8') as f:
                 yaml.dump(standard_content, f)
 
             result = show_standard_command.execute({

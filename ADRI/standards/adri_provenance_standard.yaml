@@ -1,0 +1,315 @@
+standards:
+  id: adri_provenance_standard
+  name: ADRI Provenance Standard
+  version: 1.0.0
+  authority: ADRI Framework
+  description: |
+    Standard for validating data provenance metadata.
+    Tracks the origin and lineage of data being validated by ADRI, enabling
+    complete audit trails in workflow orchestration scenarios.
+
+    ADRI validates data provenance information using this standard before logging,
+    demonstrating recursive application of the ADRI validation principle.
+
+record_identification:
+  primary_key_fields:
+    - source_type
+  strategy: primary_key_with_fallback
+
+requirements:
+  overall_minimum: 90.0
+
+  field_requirements:
+    # Core provenance - source type classification
+    source_type:
+      type: string
+      nullable: false
+      valid_values:
+        - verodat_query
+        - file
+        - previous_step
+        - api
+        - manual
+        - other
+      description: "Type of data source"
+
+    # Verodat query source fields
+    verodat_query_id:
+      type: integer
+      nullable: true
+      min_value: 1
+      description: "Verodat query ID (required when source_type=verodat_query)"
+
+    verodat_account_id:
+      type: integer
+      nullable: true
+      min_value: 1
+      description: "Verodat account ID"
+
+    verodat_workspace_id:
+      type: integer
+      nullable: true
+      min_value: 1
+      description: "Verodat workspace ID"
+
+    verodat_run_at_utc:
+      type: string
+      nullable: true
+      pattern: '^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}'
+      description: "ISO 8601 timestamp when query was executed"
+
+    verodat_query_sql:
+      type: string
+      nullable: true
+      min_length: 10
+      max_length: 10000
+      description: "SQL query text for audit trail"
+
+    # File source fields
+    file_path:
+      type: string
+      nullable: true
+      min_length: 1
+      max_length: 500
+      description: "Path to source file (required when source_type=file)"
+
+    file_hash:
+      type: string
+      nullable: true
+      pattern: '^[a-f0-9]{8,64}$'
+      description: "SHA256 hash (full or prefix) of file for integrity verification"
+
+    file_size_bytes:
+      type: integer
+      nullable: true
+      min_value: 0
+      description: "Size of source file in bytes"
+
+    # API source fields
+    api_endpoint:
+      type: string
+      nullable: true
+      min_length: 10
+      max_length: 500
+      description: "API endpoint URL (required when source_type=api)"
+
+    api_response_hash:
+      type: string
+      nullable: true
+      pattern: '^[a-f0-9]{8,64}$'
+      description: "SHA256 hash of API response for integrity verification"
+
+    api_http_method:
+      type: string
+      nullable: true
+      valid_values:
+        - GET
+        - POST
+        - PUT
+        - PATCH
+        - DELETE
+      description: "HTTP method used for API call"
+
+    # Previous step source fields
+    previous_step_id:
+      type: string
+      nullable: true
+      min_length: 1
+      max_length: 100
+      description: "Step ID that produced this data (required when source_type=previous_step)"
+
+    previous_execution_id:
+      type: string
+      nullable: true
+      min_length: 1
+      max_length: 100
+      description: "Execution ID from previous step"
+
+    # General metadata
+    data_retrieved_at_utc:
+      type: string
+      nullable: true
+      pattern: '^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}'
+      description: "ISO 8601 timestamp when data was retrieved from source"
+
+    record_count:
+      type: integer
+      nullable: true
+      min_value: 0
+      description: "Number of records retrieved from source"
+
+    notes:
+      type: string
+      nullable: true
+      max_length: 1000
+      description: "Additional provenance notes or metadata"
+
+metadata:
+  created_by: ADRI Development Team
+  created_date: 2025-01-07
+  purpose: data_lineage_tracking
+  tags:
+    - workflow_orchestration
+    - data_provenance
+    - audit_trail
+    - adri_internal
+
+  usage_guidelines: |
+    This standard validates data provenance metadata for workflow audit trails.
+
+    USAGE IN WORKFLOW ORCHESTRATION:
+
+    The workflow runner passes provenance to ADRI via the data_provenance parameter:
+
+    ```python
+    from adri import adri_protected
+
+    # Example: Verodat query source
+    data_provenance = {
+        "source_type": "verodat_query",
+        "verodat_query_id": 12345,
+        "verodat_account_id": 91,
+        "verodat_workspace_id": 161,
+        "verodat_run_at_utc": "2025-01-07T14:25:00Z",
+        "verodat_query_sql": "SELECT * FROM customers WHERE risk_level='HIGH'",
+        "record_count": 150
+    }
+
+    @adri_protected(
+        standard="ai_decision_step_standard",
+        data_param="customer_data",
+        workflow_context=workflow_context,
+        data_provenance=data_provenance  # Validated against THIS standard
+    )
+    def assess_high_risk_customers(customer_data):
+        # Process data from Verodat query
+        return assessment_results
+    ```
+
+    SOURCE TYPE EXAMPLES:
+
+    1. VERODAT_QUERY Source:
+    ```python
+    data_provenance = {
+        "source_type": "verodat_query",
+        "verodat_query_id": 12345,
+        "verodat_account_id": 91,
+        "verodat_workspace_id": 161,
+        "verodat_run_at_utc": "2025-01-07T14:25:00Z",
+        "verodat_query_sql": "SELECT customer_id, risk_score FROM risk_assessment",
+        "record_count": 500
+    }
+    ```
+
+    2. FILE Source:
+    ```python
+    data_provenance = {
+        "source_type": "file",
+        "file_path": "/data/inputs/customers_2025_01_07.csv",
+        "file_hash": "a1b2c3d4e5f67890",
+        "file_size_bytes": 524288,
+        "data_retrieved_at_utc": "2025-01-07T14:20:00Z",
+        "record_count": 1000
+    }
+    ```
+
+    3. PREVIOUS_STEP Source:
+    ```python
+    data_provenance = {
+        "source_type": "previous_step",
+        "previous_step_id": "customer_enrichment",
+        "previous_execution_id": "exec_20250107_142000_xyz",
+        "data_retrieved_at_utc": "2025-01-07T14:30:00Z",
+        "record_count": 250
+    }
+    ```
+
+    4. API Source:
+    ```python
+    data_provenance = {
+        "source_type": "api",
+        "api_endpoint": "https://api.example.com/v1/credit-scores",
+        "api_http_method": "POST",
+        "api_response_hash": "abc123def456",
+        "data_retrieved_at_utc": "2025-01-07T14:28:00Z",
+        "record_count": 75
+    }
+    ```
+
+    FIELD REQUIREMENTS BY SOURCE TYPE:
+
+    verodat_query:
+      - REQUIRED: verodat_query_id, verodat_account_id, verodat_workspace_id
+      - RECOMMENDED: verodat_run_at_utc, verodat_query_sql, record_count
+
+    file:
+      - REQUIRED: file_path
+      - RECOMMENDED: file_hash, file_size_bytes, data_retrieved_at_utc
+
+    previous_step:
+      - REQUIRED: previous_step_id
+      - RECOMMENDED: previous_execution_id, data_retrieved_at_utc
+
+    api:
+      - REQUIRED: api_endpoint
+      - RECOMMENDED: api_http_method, api_response_hash, data_retrieved_at_utc
+
+    manual / other:
+      - OPTIONAL: notes (to describe the manual source or other type)
+
+    VALIDATION FLOW:
+
+    1. Workflow runner creates data_provenance dict
+    2. ADRI receives data_provenance parameter
+    3. ADRI validates provenance against adri_provenance_standard
+    4. If valid: ADRI logs provenance linked to workflow execution
+    5. If invalid: ADRI raises error with specific field violations
+
+    INTEGRATION WITH WORKFLOW CONTEXT:
+
+    Data provenance complements workflow context:
+    - workflow_context: WHERE in the workflow (run_id, step_id)
+    - data_provenance: WHERE the DATA came from (source details)
+    - Together: Complete lineage from data source → workflow → assessment
+
+    CSV LOGGING:
+
+    ADRI logs provenance to adri_provenance.csv with:
+    - execution_id: Links to workflow execution
+    - All provenance fields from this standard
+    - Enables querying: "What data was used in run X?"
+
+    BENEFITS FOR COMPLIANCE:
+
+    - Data Lineage: Trace data from source to decision
+    - Reproducibility: Re-run with same data source
+    - Audit Trail: Prove which data informed decisions
+    - Change Detection: File/API hashes detect data changes
+    - Verodat Integration: Direct link to query execution
+
+    RECURSIVE VALIDATION PRINCIPLE:
+
+    ADRI validates its own provenance metadata using ADRI standards!
+
+    This demonstrates:
+    - No hardcoded validation in Python
+    - Provenance structure defined in YAML
+    - Extensible by adding source-specific fields
+    - Self-documenting and testable
+
+    BACKWARD COMPATIBILITY:
+
+    data_provenance parameter is OPTIONAL:
+    - If not provided: ADRI works as before (no provenance logging)
+    - If provided: ADRI validates and logs data source information
+    - Existing code continues working unchanged
+
+    BEST PRACTICES:
+
+    1. Always include source_type (required field)
+    2. Populate source-specific required fields
+    3. Include hashes for file/API sources (integrity verification)
+    4. Track record_count for data volume monitoring
+    5. Use ISO 8601 timestamps for all temporal fields
+    6. Keep notes concise but informative
+    7. Link to previous_step when data flows between steps

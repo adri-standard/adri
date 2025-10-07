@@ -70,7 +70,7 @@ class TestConfigurationLoaderComprehensive:
 
         # Test discovery in current directory
         config_file = temp_workspace / "adri-config.yaml"
-        with open(config_file, 'w') as f:
+        with open(config_file, 'w', encoding='utf-8') as f:
             yaml.dump(self.complete_config, f)
 
         # Change to temp directory and test discovery
@@ -94,7 +94,7 @@ class TestConfigurationLoaderComprehensive:
 
         # Create config file with multiple environments
         config_file = temp_workspace / "adri-config.yaml"
-        with open(config_file, 'w') as f:
+        with open(config_file, 'w', encoding='utf-8') as f:
             yaml.dump(self.complete_config, f)
 
         # Test development environment loading
@@ -135,7 +135,7 @@ class TestConfigurationLoaderComprehensive:
         }
 
         config_file = temp_workspace / "path-config.yaml"
-        with open(config_file, 'w') as f:
+        with open(config_file, 'w', encoding='utf-8') as f:
             yaml.dump(config_with_paths, f)
 
         # Test path resolution using the standard resolution method
@@ -161,7 +161,7 @@ class TestConfigurationLoaderComprehensive:
         """Test integration with environment variables."""
 
         config_file = temp_workspace / "env-config.yaml"
-        with open(config_file, 'w') as f:
+        with open(config_file, 'w', encoding='utf-8') as f:
             yaml.dump(self.complete_config, f)
 
         # Test ADRI_CONFIG_PATH environment variable
@@ -212,7 +212,7 @@ class TestConfigurationLoaderComprehensive:
 
         # Test invalid YAML syntax - should return None for malformed files
         malformed_yaml = temp_workspace / "malformed.yaml"
-        with open(malformed_yaml, 'w') as f:
+        with open(malformed_yaml, 'w', encoding='utf-8') as f:
             f.write("invalid: yaml: content: [unclosed")
 
         config = self.loader.load_config(config_path=str(malformed_yaml))
@@ -221,7 +221,7 @@ class TestConfigurationLoaderComprehensive:
         # Test missing required keys - should fail validation
         incomplete_config = {"version": "4.0.0"}  # Missing 'adri' key
         incomplete_file = temp_workspace / "incomplete.yaml"
-        with open(incomplete_file, 'w') as f:
+        with open(incomplete_file, 'w', encoding='utf-8') as f:
             yaml.dump(incomplete_config, f)
 
         config = self.loader.load_config(config_path=str(incomplete_file))
@@ -237,7 +237,7 @@ class TestConfigurationLoaderComprehensive:
             }
         }
         invalid_file = temp_workspace / "invalid.yaml"
-        with open(invalid_file, 'w') as f:
+        with open(invalid_file, 'w', encoding='utf-8') as f:
             yaml.dump(invalid_structure, f)
 
         config = self.loader.load_config(config_path=str(invalid_file))
@@ -253,7 +253,7 @@ class TestConfigurationLoaderComprehensive:
         """Test handling of file system errors."""
 
         config_file = temp_workspace / "fs-test.yaml"
-        with open(config_file, 'w') as f:
+        with open(config_file, 'w', encoding='utf-8') as f:
             yaml.dump(self.complete_config, f)
 
         # Test permission denied error - ConfigurationLoader returns None on errors
@@ -276,7 +276,7 @@ class TestConfigurationLoaderComprehensive:
 
         # Test valid configuration passes validation
         config_file = temp_workspace / "valid-config.yaml"
-        with open(config_file, 'w') as f:
+        with open(config_file, 'w', encoding='utf-8') as f:
             yaml.dump(self.complete_config, f)
 
         config = self.loader.load_config(config_path=str(config_file))
@@ -342,7 +342,7 @@ class TestConfigurationLoaderComprehensive:
             }
 
         large_config_file = temp_workspace / "large-config.yaml"
-        with open(large_config_file, 'w') as f:
+        with open(large_config_file, 'w', encoding='utf-8') as f:
             yaml.dump(large_config, f)
 
         # Benchmark loading time
@@ -365,7 +365,7 @@ class TestConfigurationLoaderComprehensive:
         """Test configuration caching performance."""
 
         config_file = temp_workspace / "cache-test.yaml"
-        with open(config_file, 'w') as f:
+        with open(config_file, 'w', encoding='utf-8') as f:
             yaml.dump(self.complete_config, f)
 
         # First load (should read from file)
@@ -481,11 +481,11 @@ class TestConfigurationLoaderComprehensive:
 
         # Test that we can load and validate different configurations
         base_file = temp_workspace / "base.yaml"
-        with open(base_file, 'w') as f:
+        with open(base_file, 'w', encoding='utf-8') as f:
             yaml.dump(base_config, f)
 
         override_file = temp_workspace / "override.yaml"
-        with open(override_file, 'w') as f:
+        with open(override_file, 'w', encoding='utf-8') as f:
             yaml.dump(override_config, f)
 
         # Load and verify each config separately
@@ -524,7 +524,7 @@ class TestConfigurationLoaderComprehensive:
                 }
             }
 
-            with open(config_file, 'w') as f:
+            with open(config_file, 'w', encoding='utf-8') as f:
                 yaml.dump(config, f)
 
         # Test search by finding config file from first location
@@ -556,7 +556,7 @@ class TestConfigurationLoaderComprehensive:
             }
         }
         null_file = temp_workspace / "null.yaml"
-        with open(null_file, 'w') as f:
+        with open(null_file, 'w', encoding='utf-8') as f:
             yaml.dump(null_config, f)
 
         config = self.loader.load_config(config_path=str(null_file))

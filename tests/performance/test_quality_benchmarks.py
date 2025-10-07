@@ -199,7 +199,7 @@ class TestQualityBenchmarks:
             }
 
         config_file = temp_workspace / "complex_config.yaml"
-        with open(config_file, 'w') as f:
+        with open(config_file, 'w', encoding='utf-8') as f:
             import yaml
             yaml.dump(complex_config, f)
 
@@ -243,7 +243,7 @@ class TestQualityBenchmarks:
             }
 
         standard_file = temp_workspace / "complex_standard.yaml"
-        with open(standard_file, 'w') as f:
+        with open(standard_file, 'w', encoding='utf-8') as f:
             import yaml
             yaml.dump(complex_standard, f)
 

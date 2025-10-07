@@ -112,7 +112,7 @@ class TestInvoiceTutorialFlowValidation:
             f"Standard file should exist at {standard_path}"
 
         # Load and validate content
-        with open(standard_path, 'r') as f:
+        with open(standard_path, 'r', encoding='utf-8') as f:
             loaded_standard = yaml.safe_load(f)
 
         # Validate loaded standard structure
@@ -207,7 +207,7 @@ class TestInvoiceTutorialFlowValidation:
         )
 
         # === PATHWAY 2: Load persisted standard (used by Decorator) ===
-        with open(invoice_scenario['standard_path'], 'r') as f:
+        with open(invoice_scenario['standard_path'], 'r', encoding='utf-8') as f:
             file_standard = yaml.safe_load(f)
 
         # === COMPARISON 1: Structure ===
@@ -280,7 +280,7 @@ class TestInvoiceTutorialFlowValidation:
         direct_standard = generator.generate(training_data, 'invoice_data')
 
         # === Method 2: Load from file ===
-        with open(invoice_scenario['standard_path'], 'r') as f:
+        with open(invoice_scenario['standard_path'], 'r', encoding='utf-8') as f:
             file_standard = yaml.safe_load(f)
 
         # === Method 3: Decorator pathway ===
@@ -550,7 +550,7 @@ class TestInvoiceTutorialFlowValidation:
         standard_dir = invoice_scenario['tutorial_dir'].parent.parent / 'ADRI' / 'dev' / 'standards'
         standard_dir.mkdir(parents=True, exist_ok=True)  # Ensure directory exists
         cli_standard_path = standard_dir / "autogen_test_cli.yaml"
-        with open(cli_standard_path, 'w') as f:
+        with open(cli_standard_path, 'w', encoding='utf-8') as f:
             yaml.dump(cli_standard, f, default_flow_style=False, sort_keys=False)
 
         # === STEP 2: Delete standard to force decorator auto-generation ===
@@ -577,7 +577,7 @@ class TestInvoiceTutorialFlowValidation:
         assert decorator_standard_path.exists(), \
             "Decorator should have auto-generated the standard"
 
-        with open(decorator_standard_path, 'r') as f:
+        with open(decorator_standard_path, 'r', encoding='utf-8') as f:
             decorator_standard = yaml.safe_load(f)
 
         # === STEP 5: Deep structural comparison ===
