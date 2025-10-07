@@ -188,7 +188,14 @@ adri:
         # Initialize LocalLogger explicitly to ensure audit logging works
         from adri.logging.local import LocalLogger
         audit_dir = integrated_workspace / "ADRI" / "dev" / "audit-logs"
-        logger = LocalLogger({
+        local_logger = LocalLogger({
+            "enabled": True,
+            "log_dir": str(audit_dir),
+        })
+
+        # Initialize ReasoningLogger to create CSV files
+        from adri.logging.reasoning import ReasoningLogger
+        reasoning_logger = ReasoningLogger({
             "enabled": True,
             "log_dir": str(audit_dir),
         })
@@ -532,7 +539,14 @@ class TestEndToEndVerification:
         # Initialize LocalLogger explicitly to ensure audit logging works
         from adri.logging.local import LocalLogger
         audit_dir = adri_dir / "audit-logs"
-        logger = LocalLogger({
+        local_logger = LocalLogger({
+            "enabled": True,
+            "log_dir": str(audit_dir),
+        })
+
+        # Initialize ReasoningLogger to create CSV files
+        from adri.logging.reasoning import ReasoningLogger
+        reasoning_logger = ReasoningLogger({
             "enabled": True,
             "log_dir": str(audit_dir),
         })
