@@ -141,7 +141,7 @@ def analyze_project_risks(projects):
 
 The CLI validates data that already exists. Reasoning mode requires capturing prompts **before** AI execution and responses **after** AI execution. This only makes sense when wrapping the function that performs the AI call, not when checking data quality post-facto.
 
-For complete details, examples, and best practices, see the [Reasoning Mode Guide](../reasoning-mode-guide.md).
+For complete details, examples, and best practices, see the [Reasoning Mode Guide](./reasoning-mode-guide.md).
 
 ---
 
