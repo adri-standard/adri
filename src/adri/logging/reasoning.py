@@ -50,6 +50,7 @@ class ReasoningPrompt:
     system_prompt: str
     user_prompt: str
     timestamp: str  # ISO format string
+    execution_id: str = ""
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary for CSV writing."""
@@ -66,6 +67,7 @@ class ReasoningPrompt:
             "system_prompt": self.system_prompt,
             "user_prompt": self.user_prompt,
             "timestamp": self.timestamp,
+            "execution_id": self.execution_id,
         }
 
 
@@ -81,6 +83,7 @@ class ReasoningResponse:
     processing_time_ms: int
     token_count: Optional[int]
     timestamp: str  # ISO format string
+    execution_id: str = ""
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary for CSV writing."""
@@ -93,6 +96,7 @@ class ReasoningResponse:
             "processing_time_ms": self.processing_time_ms,
             "token_count": self.token_count if self.token_count is not None else "",
             "timestamp": self.timestamp,
+            "execution_id": self.execution_id,
         }
 
 
@@ -113,6 +117,7 @@ class ReasoningLogger:
         "system_prompt",
         "user_prompt",
         "timestamp",
+        "execution_id",
     ]
 
     RESPONSE_LOG_HEADERS = [
@@ -124,6 +129,7 @@ class ReasoningLogger:
         "processing_time_ms",
         "token_count",
         "timestamp",
+        "execution_id",
     ]
 
     def __init__(self, config: Optional[Dict[str, Any]] = None):
@@ -212,6 +218,7 @@ class ReasoningLogger:
         system_prompt: str,
         user_prompt: str,
         llm_config: LLMConfig,
+        execution_id: Optional[str] = None,
     ) -> str:
         """
         Log reasoning prompt to CSV and return prompt_id.
@@ -223,6 +230,7 @@ class ReasoningLogger:
             system_prompt: System/instruction prompt
             user_prompt: User/context prompt
             llm_config: LLM configuration
+            execution_id: Optional workflow execution ID for linking
 
         Returns:
             prompt_id for referencing this prompt
@@ -249,6 +257,7 @@ class ReasoningLogger:
             system_prompt=system_prompt,
             user_prompt=user_prompt,
             timestamp=timestamp,
+            execution_id=execution_id or "",
         )
 
         # Write to CSV
@@ -263,6 +272,7 @@ class ReasoningLogger:
         response_text: str,
         processing_time_ms: int,
         token_count: Optional[int] = None,
+        execution_id: Optional[str] = None,
     ) -> str:
         """
         Log reasoning response to CSV and return response_id.
@@ -273,6 +283,7 @@ class ReasoningLogger:
             response_text: AI-generated response
             processing_time_ms: Processing time in milliseconds
             token_count: Number of tokens in response
+            execution_id: Optional workflow execution ID for linking
 
         Returns:
             response_id for referencing this response
@@ -295,6 +306,7 @@ class ReasoningLogger:
             processing_time_ms=processing_time_ms,
             token_count=token_count,
             timestamp=timestamp,
+            execution_id=execution_id or "",
         )
 
         # Write to CSV

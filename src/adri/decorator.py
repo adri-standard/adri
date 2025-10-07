@@ -28,6 +28,8 @@ def adri_protected(
     store_prompt: bool = True,
     store_response: bool = True,
     llm_config: Optional[Dict] = None,
+    workflow_context: Optional[Dict] = None,
+    data_provenance: Optional[Dict] = None,
 ):
     """
     Protect agent functions with ADRI data quality checks.
@@ -53,6 +55,10 @@ def adri_protected(
         store_prompt: Store AI prompts to CSV audit logs (default: True, only if reasoning_mode=True)
         store_response: Store AI responses to CSV audit logs (default: True, only if reasoning_mode=True)
         llm_config: LLM configuration dict with keys: model, temperature, seed, max_tokens (optional)
+        workflow_context: Workflow execution metadata dict with keys: run_id, workflow_id, workflow_version,
+                         step_id, step_sequence, run_at_utc (optional, for workflow orchestration)
+        data_provenance: Data source provenance dict with keys: source_type, and source-specific fields
+                        (optional, for data lineage tracking)
 
     Returns:
         Decorated function that includes data quality protection
@@ -110,6 +116,37 @@ def adri_protected(
             # AI reasoning logic here
             enhanced_data = ai_model.analyze(projects)
             return enhanced_data
+        ```
+
+        Workflow orchestration with context and provenance tracking:
+        ```python
+        workflow_context = {
+            "run_id": "run_20250107_143022_a1b2c3d4",
+            "workflow_id": "credit_approval_workflow",
+            "workflow_version": "2.1.0",
+            "step_id": "risk_assessment",
+            "step_sequence": 3,
+            "run_at_utc": "2025-01-07T14:30:22Z"
+        }
+
+        data_provenance = {
+            "source_type": "verodat_query",
+            "verodat_query_id": 12345,
+            "verodat_account_id": 91,
+            "verodat_workspace_id": 161,
+            "record_count": 150
+        }
+
+        @adri_protected(
+            standard="ai_decision_step",
+            data_param="customer_data",
+            workflow_context=workflow_context,
+            data_provenance=data_provenance,
+            on_failure="raise"
+        )
+        def assess_credit_risk(customer_data):
+            # AI decision logic
+            return risk_assessment
         ```
 
     Note:
@@ -171,6 +208,8 @@ def adri_protected(
                     store_prompt=store_prompt,
                     store_response=store_response,
                     llm_config=llm_config,
+                    workflow_context=workflow_context,
+                    data_provenance=data_provenance,
                 )
 
             except ProtectionError:
@@ -204,6 +243,8 @@ def adri_protected(
                 "auto_generate": auto_generate,
                 "cache_assessments": cache_assessments,
                 "verbose": verbose,
+                "workflow_context": workflow_context,
+                "data_provenance": data_provenance,
             },
         )
 
