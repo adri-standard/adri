@@ -76,7 +76,7 @@ def main():
             errors.append((pyfile, issues))
 
     if errors:
-        print("❌ Found open() calls without encoding='utf-8':")
+        print("[ERROR] Found open() calls without encoding='utf-8':")
         print("\nTo fix, add encoding='utf-8' parameter:")
         print("  with open(file, 'r', encoding='utf-8') as f:")
         print()
@@ -86,10 +86,10 @@ def main():
                 print(f"  Line {line_num}: {line}")
             if len(issues) > 3:
                 print(f"  ... and {len(issues) - 3} more issues")
-        print("\n⚠️  This causes Windows CI failures (cp1252 vs UTF-8)")
+        print("\n[WARNING] This causes Windows CI failures (cp1252 vs UTF-8)")
         sys.exit(1)
 
-    print("✅ All open() calls specify encoding")
+    print("[PASS] All open() calls specify encoding")
     sys.exit(0)
 
 
