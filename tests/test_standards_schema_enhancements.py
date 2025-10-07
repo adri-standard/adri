@@ -474,7 +474,7 @@ class TestExampleStandardCompliance(unittest.TestCase):
                 with self.subTest(file=yaml_file.name):
                     try:
                         # Use direct YAML loading since StandardsParser requires specific environment setup
-                        with open(yaml_file, 'r') as f:
+                        with open(yaml_file, 'r', encoding='utf-8') as f:
                             standard = yaml.safe_load(f)
 
                         # Basic validation - must have required sections
