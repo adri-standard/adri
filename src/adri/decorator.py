@@ -24,6 +24,10 @@ def adri_protected(
     auto_generate: bool = True,
     cache_assessments: Optional[bool] = None,
     verbose: Optional[bool] = None,
+    reasoning_mode: bool = False,
+    store_prompt: bool = True,
+    store_response: bool = True,
+    llm_config: Optional[Dict] = None,
 ):
     """
     Protect agent functions with ADRI data quality checks.
@@ -45,6 +49,10 @@ def adri_protected(
         auto_generate: Whether to auto-generate missing standards (default: True)
         cache_assessments: Whether to cache assessment results (uses config default if None)
         verbose: Whether to show detailed protection logs (uses config default if None)
+        reasoning_mode: Enable AI/LLM reasoning step validation (default: False)
+        store_prompt: Store AI prompts to CSV audit logs (default: True, only if reasoning_mode=True)
+        store_response: Store AI responses to CSV audit logs (default: True, only if reasoning_mode=True)
+        llm_config: LLM configuration dict with keys: model, temperature, seed, max_tokens (optional)
 
     Returns:
         Decorated function that includes data quality protection
@@ -84,9 +92,33 @@ def adri_protected(
             return updated_profile
         ```
 
+        AI/LLM workflow with reasoning validation:
+        ```python
+        @adri_protected(
+            standard="ai_reasoning_standard",
+            data_param="projects",
+            reasoning_mode=True,
+            store_prompt=True,
+            store_response=True,
+            llm_config={
+                "model": "claude-3-5-sonnet",
+                "temperature": 0.1,
+                "seed": 42
+            }
+        )
+        def analyze_project_risks(projects):
+            # AI reasoning logic here
+            enhanced_data = ai_model.analyze(projects)
+            return enhanced_data
+        ```
+
     Note:
         Standard files are automatically resolved based on your environment configuration.
         To control where standards are stored, update your adri-config.yaml file.
+
+        When reasoning_mode=True, prompts and responses are logged to separate CSV files
+        (adri_reasoning_prompts.csv and adri_reasoning_responses.csv) with relational
+        links to the main assessment logs via prompt_id and response_id fields.
     """
 
     # Check for missing standard parameter and provide helpful error message
@@ -135,6 +167,10 @@ def adri_protected(
                     auto_generate=auto_generate,
                     cache_assessments=cache_assessments,
                     verbose=verbose,
+                    reasoning_mode=reasoning_mode,
+                    store_prompt=store_prompt,
+                    store_response=store_response,
+                    llm_config=llm_config,
                 )
 
             except ProtectionError:

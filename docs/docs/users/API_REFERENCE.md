@@ -52,6 +52,10 @@ adri_protected(
     auto_generate: bool = True,
     cache_assessments: bool | None = None,
     verbose: bool | None = None,
+    reasoning_mode: bool = False,
+    store_prompt: bool = True,
+    store_response: bool = True,
+    llm_config: dict | None = None,
 )
 ```
 
@@ -65,6 +69,10 @@ adri_protected(
 | `auto_generate` | `bool` | `True` | Allow ADRI to create a standard automatically if the referenced file does not exist. |
 | `cache_assessments` | `bool` | config default | Toggle short-term caching of assessment results for identical inputs. |
 | `verbose` | `bool` | config default | Emit detailed protection logs for debugging. |
+| `reasoning_mode` | `bool` | `False` | Enable AI/LLM reasoning workflow with prompt and response logging. See [Reasoning Mode](#reasoning-mode) below. |
+| `store_prompt` | `bool` | `True` | When `reasoning_mode=True`, log AI prompts to CSV audit logs. |
+| `store_response` | `bool` | `True` | When `reasoning_mode=True`, log AI responses to CSV audit logs. |
+| `llm_config` | `dict` | `None` | LLM configuration dict with keys: `model` (required), `temperature` (required), `seed` (optional), `max_tokens` (optional, default: 4000). |
 
 Returns the wrapped function. Raises `ProtectionError` when `on_failure="raise"` and the data does not pass requirements.
 
@@ -95,7 +103,45 @@ def summarize_tickets(tickets):
 )
 def update_profiles(rows):
     ...
+
+# Enable AI reasoning mode with prompt/response logging
+@adri_protected(
+    standard="ai_risk_analysis",
+    data_param="projects",
+    reasoning_mode=True,
+    llm_config={
+        "model": "claude-3-5-sonnet",
+        "temperature": 0.1,
+        "seed": 42
+    }
+)
+def analyze_project_risks(projects):
+    # AI reasoning logic here
+    enhanced_data = ai_model.analyze(projects)
+    return enhanced_data
 ```
+
+### Reasoning Mode
+
+**Reasoning mode** extends ADRI's quality validation to AI/LLM workflows by capturing prompts and responses to CSV audit logs. This feature is **decorator-only by design** — it wraps functions that execute AI calls, not CLI commands that validate existing data.
+
+**Key Features:**
+- Automatic prompt and response logging to `adri_reasoning_prompts.csv` and `adri_reasoning_responses.csv`
+- SHA-256 hash verification for content integrity
+- Relational linking to quality assessments via `prompt_id` and `response_id`
+- Thread-safe CSV operations for production use
+
+**When to Use:**
+- Wrapping functions that make AI/LLM calls
+- Capturing AI reasoning steps for audit trails
+- Validating AI-generated outputs (confidence scores, risk levels, etc.)
+- Ensuring reproducibility with LLM configuration tracking
+
+**Why Decorator-Only:**
+
+The CLI validates data that already exists. Reasoning mode requires capturing prompts **before** AI execution and responses **after** AI execution. This only makes sense when wrapping the function that performs the AI call, not when checking data quality post-facto.
+
+For complete details, examples, and best practices, see the [Reasoning Mode Guide](./reasoning-mode-guide.md).
 
 ---
 

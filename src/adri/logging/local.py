@@ -56,8 +56,8 @@ class AuditRecord:
         self.standard_applied = {
             "standard_id": "unknown",
             "standard_version": "unknown",
-            "standard_path": "",
             "standard_checksum": "",
+            "standard_path": "",  # Full absolute path to standard file
         }
 
         self.data_fingerprint = {
@@ -140,6 +140,7 @@ class AuditRecord:
             "standard_id": self.standard_applied["standard_id"],
             "standard_version": self.standard_applied["standard_version"],
             "standard_checksum": self.standard_applied["standard_checksum"],
+            "standard_path": self.standard_applied["standard_path"],
             "data_row_count": self.data_fingerprint["row_count"],
             "data_column_count": self.data_fingerprint["column_count"],
             "data_columns": json.dumps(self.data_fingerprint["columns"]),
@@ -224,6 +225,7 @@ class LocalLogger:
         "standard_id",
         "standard_version",
         "standard_checksum",
+        "standard_path",
         "data_row_count",
         "data_column_count",
         "data_columns",
@@ -296,6 +298,14 @@ class LocalLogger:
         )
         self.failed_validation_path = (
             self.log_dir / f"{self.log_prefix}_failed_validations.csv"
+        )
+
+        # File paths for reasoning CSV files (managed by ReasoningLogger)
+        self.reasoning_prompts_path = (
+            self.log_dir / f"{self.log_prefix}_reasoning_prompts.csv"
+        )
+        self.reasoning_responses_path = (
+            self.log_dir / f"{self.log_prefix}_reasoning_responses.csv"
         )
 
         # Thread safety
@@ -380,6 +390,10 @@ class LocalLogger:
         if hasattr(assessment_result, "standard_id"):
             record.standard_applied["standard_id"] = (
                 assessment_result.standard_id or "unknown"
+            )
+        if hasattr(assessment_result, "standard_path"):
+            record.standard_applied["standard_path"] = (
+                assessment_result.standard_path or ""
             )
 
         # Update data fingerprint
@@ -552,6 +566,8 @@ class LocalLogger:
             "assessment_logs": self.assessment_log_path,
             "dimension_scores": self.dimension_score_path,
             "failed_validations": self.failed_validation_path,
+            "reasoning_prompts": self.reasoning_prompts_path,
+            "reasoning_responses": self.reasoning_responses_path,
         }
 
     def clear_logs(self) -> None:

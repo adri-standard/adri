@@ -94,6 +94,11 @@ requirements:
       nullable: true
       description: Checksum of standard file (optional)
 
+    standard_path:
+      type: string
+      nullable: false
+      description: Full absolute path to standard file used for assessment
+
     # Dataset information
     data_row_count:
       type: integer

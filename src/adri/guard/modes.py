@@ -18,7 +18,6 @@ import yaml
 # Clean imports for modular architecture
 from ..analysis.standard_generator import StandardGenerator
 from ..config.loader import ConfigurationLoader
-from ..logging.local import LocalLogger
 from ..validator.engine import DataQualityAssessor
 
 logger = logging.getLogger(__name__)
@@ -200,9 +199,9 @@ class DataProtectionEngine:
         self._assessment_cache = {}
         self.logger = logging.getLogger(__name__)
 
-        # Initialize loggers with proper configuration (will be set up lazily)
-        self.local_logger = LocalLogger() if LocalLogger else None
-        self.enterprise_logger = None  # Initialized lazily with config
+        # Initialize loggers (will be configured when config is loaded)
+        self.local_logger = None
+        self.enterprise_logger = None
 
         self.logger.debug(
             f"DataProtectionEngine initialized with {self.protection_mode.mode_name} mode"
@@ -279,6 +278,10 @@ class DataProtectionEngine:
         auto_generate: Optional[bool] = None,
         cache_assessments: Optional[bool] = None,
         verbose: Optional[bool] = None,
+        reasoning_mode: bool = False,
+        store_prompt: bool = True,
+        store_response: bool = True,
+        llm_config: Optional[Dict] = None,
     ) -> Any:
         """
         Protect a function call with data quality checks.
@@ -296,6 +299,10 @@ class DataProtectionEngine:
             auto_generate: Whether to auto-generate missing standards
             cache_assessments: Whether to cache assessment results
             verbose: Whether to show verbose output
+            reasoning_mode: Enable AI/LLM reasoning step validation
+            store_prompt: Store AI prompts to CSV audit logs
+            store_response: Store AI responses to CSV audit logs
+            llm_config: LLM configuration dict
 
         Returns:
             Result of the protected function call
@@ -414,8 +421,21 @@ class DataProtectionEngine:
                 )
                 effective_mode.handle_failure(assessment_result, error_message)
 
-            # Execute the protected function
-            return func(*args, **kwargs)
+            # Execute the protected function with reasoning coordination if enabled
+            if reasoning_mode:
+                return self._execute_with_reasoning(
+                    func=func,
+                    args=args,
+                    kwargs=kwargs,
+                    assessment_result=assessment_result,
+                    standard_path=resolved_standard_path,
+                    llm_config=llm_config,
+                    store_prompt=store_prompt,
+                    store_response=store_response,
+                )
+            else:
+                # Standard execution without reasoning
+                return func(*args, **kwargs)
 
         except ProtectionError:
             # Re-raise protection errors (from fail-fast mode)
@@ -670,6 +690,145 @@ class DataProtectionEngine:
                 f"🛡️ ADRI Protection: ALLOWED ✅\n"
                 f"📊 Score: {assessment_result.overall_score:.1f}/100 | Standard: {standard_name}"
             )
+
+    def _execute_with_reasoning(
+        self,
+        func: Callable,
+        args: tuple,
+        kwargs: dict,
+        assessment_result: Any,
+        standard_path: str,
+        llm_config: Optional[Dict] = None,
+        store_prompt: bool = True,
+        store_response: bool = True,
+    ) -> Any:
+        """
+        Execute function with reasoning workflow coordination.
+
+        Coordinates:
+        1. Prompt capture and logging
+        2. Function execution (AI processing)
+        3. Response capture and logging
+        4. Linking to assessment via metadata
+
+        Args:
+            func: Function to execute
+            args: Function arguments
+            kwargs: Function keyword arguments
+            assessment_result: Quality assessment result
+            standard_path: Path to standard used
+            llm_config: LLM configuration
+            store_prompt: Whether to log prompts
+            store_response: Whether to log responses
+
+        Returns:
+            Function result
+        """
+        from ..guard.reasoning_mode import ReasoningProtectionMode
+
+        # Initialize reasoning coordinator
+        reasoning_mode = ReasoningProtectionMode(self.full_config)
+
+        # Generate run and step IDs for tracking
+        run_id = reasoning_mode.generate_run_id()
+        step_id = reasoning_mode.generate_step_id(1)
+
+        # Get assessment ID for linking
+        assessment_id = getattr(assessment_result, "assessment_id", "unknown")
+
+        # Capture reasoning context from function parameters
+        context = reasoning_mode.capture_reasoning_context(func, args, kwargs)
+
+        # Create LLM config
+        llm_cfg = reasoning_mode.create_llm_config(llm_config)
+
+        # Log prompt if enabled
+        prompt_id = ""
+        if store_prompt:
+            prompt_id = reasoning_mode.log_prompt(
+                assessment_id=assessment_id,
+                run_id=run_id,
+                step_id=step_id,
+                system_prompt=context.get("system_prompt", ""),
+                user_prompt=context.get("user_prompt", ""),
+                llm_config=llm_cfg,
+            )
+            self.logger.debug(f"Logged reasoning prompt: {prompt_id}")
+
+        # Execute the function and capture timing
+        start_time = time.time()
+        try:
+            result = func(*args, **kwargs)
+            processing_time_ms = int((time.time() - start_time) * 1000)
+        except Exception as e:
+            processing_time_ms = int((time.time() - start_time) * 1000)
+
+            # Log failed response if enabled
+            if store_response and prompt_id:
+                reasoning_mode.log_response(
+                    assessment_id=assessment_id,
+                    prompt_id=prompt_id,
+                    response_text=f"ERROR: {str(e)}",
+                    processing_time_ms=processing_time_ms,
+                    token_count=0,
+                )
+            raise
+
+        # Log response if enabled
+        response_id = ""
+        if store_response and prompt_id:
+            # Extract response text from result
+            response_text = self._extract_response_text(result)
+
+            # Estimate token count (rough approximation)
+            token_count = len(str(response_text).split())
+
+            response_id = reasoning_mode.log_response(
+                assessment_id=assessment_id,
+                prompt_id=prompt_id,
+                response_text=response_text,
+                processing_time_ms=processing_time_ms,
+                token_count=token_count,
+            )
+            self.logger.debug(f"Logged reasoning response: {response_id}")
+
+        # Update assessment result with reasoning metadata
+        if hasattr(assessment_result, "metadata"):
+            if not isinstance(assessment_result.metadata, dict):
+                assessment_result.metadata = {}
+            assessment_result.metadata["reasoning"] = {
+                "prompt_id": prompt_id,
+                "response_id": response_id,
+                "run_id": run_id,
+                "step_id": step_id,
+                "step_type": "REASONING",
+            }
+
+        return result
+
+    def _extract_response_text(self, result: Any) -> str:
+        """
+        Extract response text from function result.
+
+        Args:
+            result: Function result
+
+        Returns:
+            String representation of response
+        """
+        # Handle different result types
+        if isinstance(result, str):
+            return result
+        elif isinstance(result, dict):
+            # Try to find response-like keys
+            for key in ["response", "text", "output", "result", "answer"]:
+                if key in result:
+                    return str(result[key])
+            return str(result)
+        elif isinstance(result, pd.DataFrame):
+            return f"DataFrame with {len(result)} rows, {len(result.columns)} columns"
+        else:
+            return str(result)
 
 
 # Mode factory functions

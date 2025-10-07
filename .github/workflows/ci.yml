@@ -6,12 +6,70 @@ on:
   workflow_dispatch:
 
 jobs:
+  # Detect if this is a documentation-only change
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      docs-only: ${{ steps.filter.outputs.docs-only }}
+    steps:
+    - uses: actions/checkout@v5
+      with:
+        fetch-depth: 0  # Need full history to compare commits
+    - name: Check changed files
+      id: filter
+      run: |
+        # Get list of changed files
+        if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+          FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.sha }})
+        else
+          FILES=$(git diff --name-only HEAD^)
+        fi
+
+        echo "Changed files:"
+        echo "$FILES"
+
+        # Check if ONLY documentation files changed
+        DOCS_ONLY=true
+        while IFS= read -r file; do
+          # Allow these documentation-only files (excluding .github/ workflows)
+          if [[ ! "$file" =~ ^(CHANGELOG\.md|README\.md|docs/.*|LICENSE|NOTICE|CONTRIBUTING\.md|SECURITY\.md|TRADEMARK\.md)$ ]]; then
+            DOCS_ONLY=false
+            echo "Non-docs file changed: $file"
+            break
+          fi
+        done <<< "$FILES"
+
+        echo "docs-only=$DOCS_ONLY" >> $GITHUB_OUTPUT
+        echo "Documentation-only PR: $DOCS_ONLY"
+
+  # Lightweight validation for docs-only changes
+  validate-docs:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.docs-only == 'true'
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v5
+    - name: Validate documentation
+      run: |
+        echo "✅ Documentation-only change detected"
+        echo "Running lightweight validation..."
+
+        # Check markdown files are valid
+        if command -v markdownlint >/dev/null 2>&1; then
+          markdownlint . || echo "Markdown linting skipped (markdownlint not required)"
+        fi
+
+        echo "✅ Validation complete for documentation changes"
+
+  # Full test suite for code changes
   test:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.docs-only == 'false'
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        python-version: ['3.10', '3.11', '3.12']
+        python-version: ['3.10', '3.11', '3.12', '3.13']
 
     steps:
     - uses: actions/checkout@v5
@@ -41,10 +99,12 @@ jobs:
       if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.11'
       uses: codecov/codecov-action@v5
       with:
-        file: ./tests/coverage/coverage.xml
+        files: ./tests/coverage/coverage.xml
         fail_ci_if_error: false
 
   security:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.docs-only == 'false'
     runs-on: ubuntu-latest
 
     steps:
@@ -77,6 +137,8 @@ jobs:
         pip-audit || echo "pip-audit completed with warnings (known pip build tool vulnerability)"
 
   build-test:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.docs-only == 'false'
     runs-on: ubuntu-latest
 
     steps:
@@ -122,8 +184,8 @@ jobs:
 
   validate-root-structure:
     runs-on: ubuntu-latest
-    needs: [test, security, build-test]
-    if: always()  # Run even if other jobs had issues
+    needs: [detect-changes]
+    if: always()  # Run for both docs and code changes
 
     steps:
     - uses: actions/checkout@v5
@@ -274,8 +336,8 @@ jobs:
 
   validate-gitignore-protection:
     runs-on: ubuntu-latest
-    needs: [test, security, build-test]
-    if: always()  # Run even if other jobs had issues
+    needs: [detect-changes]
+    if: always()  # Run for both docs and code changes
 
     steps:
     - uses: actions/checkout@v5
