@@ -185,10 +185,13 @@ adri:
         """Test complete reasoning workflow end-to-end."""
         monkeypatch.chdir(integrated_workspace)
 
-        # Explicitly set audit logging config environment variables
+        # Initialize LocalLogger explicitly to ensure audit logging works
+        from adri.logging.local import LocalLogger
         audit_dir = integrated_workspace / "ADRI" / "dev" / "audit-logs"
-        monkeypatch.setenv("ADRI_AUDIT_ENABLED", "true")
-        monkeypatch.setenv("ADRI_AUDIT_LOG_DIR", str(audit_dir))
+        logger = LocalLogger({
+            "enabled": True,
+            "log_dir": str(audit_dir),
+        })
 
         test_data = pd.DataFrame([
             {
@@ -526,10 +529,13 @@ class TestEndToEndVerification:
         (adri_dir / "standards").mkdir()
         (adri_dir / "audit-logs").mkdir()
 
-        # Explicitly enable audit logging via environment variables
+        # Initialize LocalLogger explicitly to ensure audit logging works
+        from adri.logging.local import LocalLogger
         audit_dir = adri_dir / "audit-logs"
-        monkeypatch.setenv("ADRI_AUDIT_ENABLED", "true")
-        monkeypatch.setenv("ADRI_AUDIT_LOG_DIR", str(audit_dir))
+        logger = LocalLogger({
+            "enabled": True,
+            "log_dir": str(audit_dir),
+        })
 
         # Create comprehensive standard
         standard = adri_dir / "standards" / "e2e_test_standard.yaml"
