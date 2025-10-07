@@ -300,6 +300,14 @@ class LocalLogger:
             self.log_dir / f"{self.log_prefix}_failed_validations.csv"
         )
 
+        # File paths for reasoning CSV files (managed by ReasoningLogger)
+        self.reasoning_prompts_path = (
+            self.log_dir / f"{self.log_prefix}_reasoning_prompts.csv"
+        )
+        self.reasoning_responses_path = (
+            self.log_dir / f"{self.log_prefix}_reasoning_responses.csv"
+        )
+
         # Thread safety
         self._lock = threading.Lock()
 
@@ -558,6 +566,8 @@ class LocalLogger:
             "assessment_logs": self.assessment_log_path,
             "dimension_scores": self.dimension_score_path,
             "failed_validations": self.failed_validation_path,
+            "reasoning_prompts": self.reasoning_prompts_path,
+            "reasoning_responses": self.reasoning_responses_path,
         }
 
     def clear_logs(self) -> None:

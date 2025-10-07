@@ -1,0 +1,143 @@
+# ADRI Reasoning Responses Standard
+# Defines the required structure and validation rules for ADRI reasoning responses CSV files
+# This standard validates that AI/LLM responses are properly logged and traceable
+
+standards:
+  id: adri_reasoning_responses
+  name: ADRI Reasoning Responses Standard
+  version: 1.0.0
+  authority: ADRI Framework
+  description: Standard for validating ADRI reasoning responses CSV structure and content
+
+record_identification:
+  primary_key_fields:
+    - response_id
+  strategy: primary_key_with_fallback
+
+requirements:
+  overall_minimum: 95.0  # High bar for ADRI's own reasoning logs
+
+  field_requirements:
+    # Core identification fields
+    response_id:
+      type: string
+      nullable: false
+      pattern: '^response_\d{8}_\d{6}_[a-f0-9]+$'
+      description: Unique response identifier
+
+    assessment_id:
+      type: string
+      nullable: false
+      pattern: '^adri_\d{8}_\d{6}_[a-f0-9]+$'
+      description: Associated assessment identifier
+
+    prompt_id:
+      type: string
+      nullable: false
+      pattern: '^prompt_\d{8}_\d{6}_[a-f0-9]+$'
+      description: Reference to prompt that generated this response
+
+    # Response content and metrics
+    response_hash:
+      type: string
+      nullable: false
+      pattern: '^[a-f0-9]{16}$'
+      description: SHA-256 hash (first 16 chars) of response content
+
+    response_text:
+      type: string
+      nullable: false
+      description: AI-generated response text
+
+    processing_time_ms:
+      type: integer
+      nullable: false
+      min_value: 0
+      description: Processing time in milliseconds
+
+    token_count:
+      type: integer
+      nullable: true
+      min_value: 0
+      description: Number of tokens in response (optional)
+
+    timestamp:
+      type: string
+      nullable: false
+      pattern: '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+$'
+      description: ISO 8601 timestamp of response creation
+
+  dimension_requirements:
+    validity:
+      minimum_score: 19.0
+      weight: 1.0
+      scoring:
+        rule_weights:
+          data_types: 1.0
+          value_ranges: 1.0
+        field_overrides: {}
+
+    completeness:
+      minimum_score: 19.0
+      weight: 1.0
+      scoring:
+        rule_weights:
+          required_fields: 1.0
+        field_overrides: {}
+
+    consistency:
+      minimum_score: 19.0
+      weight: 1.0
+      scoring:
+        rule_weights:
+          field_consistency: 1.0
+        field_overrides: {}
+
+    freshness:
+      minimum_score: 18.0
+      weight: 1.0
+      scoring:
+        rule_weights:
+          timestamp_validity: 1.0
+        field_overrides: {}
+
+    plausibility:
+      minimum_score: 18.0
+      weight: 1.0
+      scoring:
+        rule_weights:
+          hash_format: 1.0
+          id_patterns: 1.0
+          performance_metrics: 1.0
+        field_overrides: {}
+
+metadata:
+  purpose: Validation of ADRI reasoning response logging
+  usage: |
+    This standard validates that ADRI reasoning responses CSV files contain:
+    1. All required response tracking fields with correct types
+    2. Valid identifiers and timestamps
+    3. Proper performance metrics
+    4. Complete response content
+    5. Cryptographic hashes for content verification
+    6. Proper linkage to prompts and assessments
+
+  validation_notes: |
+    - response_id must follow pattern: response_YYYYMMDD_HHMMSS_hexhash
+    - assessment_id links to main ADRI assessment log
+    - prompt_id links to the prompt that generated this response
+    - response_hash is SHA-256 truncated to 16 hex characters
+    - processing_time_ms must be non-negative
+    - token_count is optional (may be empty)
+    - timestamp must be valid ISO 8601 format
+    - response_text must not be empty
+    - Responses must be traceable back to prompts via prompt_id
+
+  relational_integrity: |
+    - Each response_id must be unique
+    - Each prompt_id must exist in adri_reasoning_prompts.csv
+    - Each assessment_id must exist in adri_assessment_logs.csv
+    - Timestamps should be >= corresponding prompt timestamp
+
+  created_by: ADRI Framework
+  created_date: 2025-06-10
