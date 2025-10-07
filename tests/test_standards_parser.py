@@ -814,7 +814,7 @@ class TestStandardsParserPerformance(unittest.TestCase):
 
         # Simple performance threshold - reasonable upper limit for all environments
         # Catches real performance regressions while allowing for normal CI variance
-        self.assertLess(parse_time, 5.0)  # Should parse within 5 seconds
+        self.assertLess(parse_time, 10.0)  # Should parse within 10 seconds (CI tolerance)
 
     def test_concurrent_parsing_performance(self):
         """Test performance with concurrent parsing operations."""

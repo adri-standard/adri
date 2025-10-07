@@ -716,6 +716,11 @@ class DataQualityAssessor:
                 failed_checks=failed_checks if failed_checks else None,
             )
 
+            # Store assessment_id on result for reasoning workflow linking
+            # (Note: This is NOT stored in the assessment CSV - reasoning logs link to assessment)
+            if audit_record and hasattr(audit_record, "assessment_id"):
+                result.assessment_id = audit_record.assessment_id
+
             # Send to Verodat if configured
             if hasattr(self.audit_logger, "verodat_logger"):
                 verodat_logger = getattr(self.audit_logger, "verodat_logger", None)
