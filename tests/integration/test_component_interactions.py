@@ -150,14 +150,14 @@ class TestComponentInteractions:
 
         # Create comprehensive configuration
         config_file = temp_workspace / "integration_config.yaml"
-        with open(config_file, 'w') as f:
+        with open(config_file, 'w', encoding='utf-8') as f:
             yaml.dump(self.complete_config, f)
 
         # Create standard file in configured location
         standards_dir = temp_workspace / "standards"
         standards_dir.mkdir(parents=True, exist_ok=True)
         standard_file = standards_dir / "integration_standard.yaml"
-        with open(standard_file, 'w') as f:
+        with open(standard_file, 'w', encoding='utf-8') as f:
             yaml.dump(self.comprehensive_standard, f)
 
         # Test integration workflow
@@ -316,7 +316,7 @@ class TestComponentInteractions:
 
         # Create standard file
         standard_file = temp_workspace / "cli_integration_standard.yaml"
-        with open(standard_file, 'w') as f:
+        with open(standard_file, 'w', encoding='utf-8') as f:
             yaml.dump(self.comprehensive_standard, f)
 
         # Test CLI assessment integration with backend
@@ -358,7 +358,7 @@ class TestComponentInteractions:
         }
 
         malformed_file = temp_workspace / "malformed_test.yaml"
-        with open(malformed_file, 'w') as f:
+        with open(malformed_file, 'w', encoding='utf-8') as f:
             yaml.dump(malformed_standard, f)
 
         # Mock the protection system to avoid directory change issues
@@ -556,7 +556,7 @@ class TestComponentInteractions:
         }
 
         config_file = temp_workspace / "integration_config.yaml"
-        with open(config_file, 'w') as f:
+        with open(config_file, 'w', encoding='utf-8') as f:
             yaml.dump(integration_config, f)
 
         # Test configuration loading and propagation
@@ -721,7 +721,7 @@ class TestComponentInteractions:
 
         # Step 2: Store standard to file
         standard_file = temp_workspace / "lifecycle_standard.yaml"
-        with open(standard_file, 'w') as f:
+        with open(standard_file, 'w', encoding='utf-8') as f:
             yaml.dump(generated_standard, f)
 
         # Step 3: Load standard using parser (mock for test isolation)

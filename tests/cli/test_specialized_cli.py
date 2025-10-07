@@ -100,7 +100,7 @@ class TestCatalogCommands(ModernCLITestBase):
         # Simulate having fetched a standard from catalog
         catalog_standard = create_sample_standard("catalog_standard")
         standard_path = Path("ADRI/dev/standards/catalog_standard.yaml")
-        with open(standard_path, 'w') as f:
+        with open(standard_path, 'w', encoding='utf-8') as f:
             yaml.dump(catalog_standard, f)
 
         # Should be able to validate the catalog standard
@@ -146,12 +146,12 @@ class TestEnhancedCommands(ModernCLITestBase):
         assert test_file.exists()
 
         # Verify content includes expected data
-        with open(training_file, 'r') as f:
+        with open(training_file, 'r', encoding='utf-8') as f:
             content = f.read()
             assert "invoice_id,customer_id,amount" in content
             assert "INV-001,CUST-101,1250.00" in content
 
-        with open(test_file, 'r') as f:
+        with open(test_file, 'r', encoding='utf-8') as f:
             content = f.read()
             assert "invoice_id,customer_id,amount" in content
             # Should include quality issues for testing
@@ -219,7 +219,7 @@ class TestEnhancedCommands(ModernCLITestBase):
         standard_path = Path("ADRI/dev/standards/lineage_test_ADRI_standard.yaml")
         assert standard_path.exists()
 
-        with open(standard_path, 'r') as f:
+        with open(standard_path, 'r', encoding='utf-8') as f:
             standard = yaml.safe_load(f)
 
         # Check for enhanced sections (these would be added by enhanced generation)
@@ -269,7 +269,7 @@ class TestEnhancedCommands(ModernCLITestBase):
         }
 
         standard_path = Path("ADRI/dev/standards/record_id_test.yaml")
-        with open(standard_path, 'w') as f:
+        with open(standard_path, 'w', encoding='utf-8') as f:
             yaml.dump(standard_content, f)
 
         # Validate the standard
@@ -365,7 +365,7 @@ class TestFunctionalWorkflows(ModernCLITestBase):
         # Create standard in development
         dev_standard = create_sample_standard("dev_standard")
         dev_path = Path("ADRI/dev/standards/dev_standard.yaml")
-        with open(dev_path, 'w') as f:
+        with open(dev_path, 'w', encoding='utf-8') as f:
             yaml.dump(dev_standard, f)
 
         # Validate in development environment
@@ -378,7 +378,7 @@ class TestFunctionalWorkflows(ModernCLITestBase):
         # Copy to production (simulated)
         prod_path = Path("ADRI/prod/standards/prod_standard.yaml")
         prod_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(prod_path, 'w') as f:
+        with open(prod_path, 'w', encoding='utf-8') as f:
             yaml.dump(dev_standard, f)
 
         # Validate in production
@@ -411,7 +411,7 @@ class TestFunctionalWorkflows(ModernCLITestBase):
         # Create invalid standard file
         invalid_content = {"invalid": "structure"}
         invalid_path = Path("ADRI/dev/standards/invalid.yaml")
-        with open(invalid_path, 'w') as f:
+        with open(invalid_path, 'w', encoding='utf-8') as f:
             yaml.dump(invalid_content, f)
 
         # Attempt to validate - should fail
@@ -423,7 +423,7 @@ class TestFunctionalWorkflows(ModernCLITestBase):
 
         # Fix the standard
         valid_content = create_sample_standard("fixed_standard")
-        with open(invalid_path, 'w') as f:
+        with open(invalid_path, 'w', encoding='utf-8') as f:
             yaml.dump(valid_content, f)
 
         # Validate again - should succeed
@@ -530,7 +530,7 @@ class TestPathResolutionIntegration(ModernCLITestBase):
             # Should be able to reference standards with relative path
             standard_content = create_sample_standard()
             standard_path = Path("standards/relative_test.yaml")
-            with open(standard_path, 'w') as f:
+            with open(standard_path, 'w', encoding='utf-8') as f:
                 yaml.dump(standard_content, f)
 
             # Validate using relative path
@@ -664,7 +664,7 @@ class TestSpecializedErrorHandling(ModernCLITestBase):
 
         # Create invalid YAML file
         invalid_yaml_path = Path("ADRI/dev/standards/invalid.yaml")
-        with open(invalid_yaml_path, 'w') as f:
+        with open(invalid_yaml_path, 'w', encoding='utf-8') as f:
             f.write("invalid: yaml: content: [unclosed")
 
         # Attempt to validate - should handle YAML error gracefully

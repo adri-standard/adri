@@ -111,7 +111,7 @@ class TestReasoningLogger:
         assert len(prompt_id) > 10
 
         # Check CSV file has content (correct attribute name)
-        with open(logger.prompts_log_path, 'r') as f:
+        with open(logger.prompts_log_path, 'r', encoding='utf-8') as f:
             content = f.read()
             assert "test_assess_001" in content
             assert "run_001" in content
@@ -146,7 +146,7 @@ class TestReasoningLogger:
         assert len(response_id) > 10
 
         # Check CSV file has content (correct attribute name)
-        with open(logger.responses_log_path, 'r') as f:
+        with open(logger.responses_log_path, 'r', encoding='utf-8') as f:
             content = f.read()
             assert "test_assess_002" in content
             assert prompt_id in content
@@ -212,7 +212,7 @@ class TestReasoningLogger:
         )
 
         # Read CSV and check for hash (correct attribute name)
-        with open(logger.prompts_log_path, 'r') as f:
+        with open(logger.prompts_log_path, 'r', encoding='utf-8') as f:
             content = f.read()
             # Hash should be present (16 hex characters for truncated hash)
             assert len([c for c in content if c in '0123456789abcdef']) >= 16
@@ -238,7 +238,7 @@ class TestReasoningLogger:
         )
 
         # Read CSV and check for hash (correct attribute name)
-        with open(logger.responses_log_path, 'r') as f:
+        with open(logger.responses_log_path, 'r', encoding='utf-8') as f:
             content = f.read()
             # Hash should be present (16 hex characters for truncated hash)
             assert len([c for c in content if c in '0123456789abcdef']) >= 16
@@ -246,7 +246,7 @@ class TestReasoningLogger:
     def test_csv_headers(self, logger):
         """Test that CSV files have correct headers."""
         # Check prompts CSV (correct attribute name)
-        with open(logger.prompts_log_path, 'r') as f:
+        with open(logger.prompts_log_path, 'r', encoding='utf-8') as f:
             first_line = f.readline().strip()
             expected_headers = [
                 "prompt_id", "assessment_id", "run_id", "step_id",
@@ -257,7 +257,7 @@ class TestReasoningLogger:
                 assert header in first_line
 
         # Check responses CSV (correct attribute name)
-        with open(logger.responses_log_path, 'r') as f:
+        with open(logger.responses_log_path, 'r', encoding='utf-8') as f:
             first_line = f.readline().strip()
             expected_headers = [
                 "response_id", "assessment_id", "prompt_id",
@@ -292,7 +292,7 @@ class TestReasoningLogger:
             t.join()
 
         # Count lines in CSV (should be header + 15 prompts) (correct attribute name)
-        with open(logger.prompts_log_path, 'r') as f:
+        with open(logger.prompts_log_path, 'r', encoding='utf-8') as f:
             lines = f.readlines()
             assert len(lines) == 16  # header + 15 prompts
 
@@ -320,7 +320,7 @@ class TestReasoningLogger:
 
         # Verify file exists and has content
         assert logger.prompts_log_path.exists()
-        with open(logger.prompts_log_path, 'r') as f:
+        with open(logger.prompts_log_path, 'r', encoding='utf-8') as f:
             lines = f.readlines()
             assert len(lines) > 1  # header + at least one record
 
@@ -331,6 +331,6 @@ class TestReasoningLogger:
         assert logger.prompts_log_path.exists()
         assert logger.responses_log_path.exists()
 
-        with open(logger.prompts_log_path, 'r') as f:
+        with open(logger.prompts_log_path, 'r', encoding='utf-8') as f:
             lines = f.readlines()
             assert len(lines) == 1  # only header

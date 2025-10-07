@@ -258,7 +258,7 @@ class TestEnterpriseLoggingIntegration(unittest.TestCase):
         }
 
         standard_file = standard_dir / "test_standard.yaml"
-        with open(standard_file, "w") as f:
+        with open(standard_file, 'w', encoding='utf-8') as f:
             import yaml
             yaml.dump(standard_content, f)
 
@@ -545,7 +545,7 @@ class TestEnterpriseLoggingErrorHandling(unittest.TestCase):
         standard_dir.mkdir(parents=True, exist_ok=True)
 
         corrupted_file = standard_dir / "corrupted_standard.yaml"
-        with open(corrupted_file, "w") as f:
+        with open(corrupted_file, 'w', encoding='utf-8') as f:
             f.write("invalid: yaml: content: [unclosed")
 
         # Should handle corrupted file gracefully by catching the YAML error
@@ -1117,7 +1117,7 @@ class TestEnterpriseLoggingEdgeCases(unittest.TestCase):
         for path in paths_to_create:
             path_obj = Path(path)
             path_obj.parent.mkdir(parents=True, exist_ok=True)
-            with open(path_obj, "w") as f:
+            with open(path_obj, 'w', encoding='utf-8') as f:
                 import yaml
                 yaml.dump({"fields": [{"name": "test", "type": "string"}]}, f)
 

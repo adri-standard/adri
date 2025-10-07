@@ -420,13 +420,13 @@ class ProjectFixtureManager:
         for file_path, content in project_structure.files.items():
             full_path = project_root / file_path
             full_path.parent.mkdir(parents=True, exist_ok=True)
-            with open(full_path, 'w') as f:
+            with open(full_path, 'w', encoding='utf-8') as f:
                 f.write(content)
 
         # Create config.yaml
         config_path = project_root / "ADRI" / "config.yaml"
         config_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(config_path, 'w') as f:
+        with open(config_path, 'w', encoding='utf-8') as f:
             yaml.dump(project_structure.config, f, default_flow_style=False)
 
         return project_root

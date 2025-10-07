@@ -64,12 +64,12 @@ class TestWorkflowLogger:
         assert workflow_logger.provenance_log_path.exists()
 
         # Verify headers in execution log
-        with open(workflow_logger.execution_log_path, "r") as f:
+        with open(workflow_logger.execution_log_path, 'r', encoding='utf-8') as f:
             reader = csv.DictReader(f)
             assert reader.fieldnames == workflow_logger.EXECUTION_LOG_HEADERS
 
         # Verify headers in provenance log
-        with open(workflow_logger.provenance_log_path, "r") as f:
+        with open(workflow_logger.provenance_log_path, 'r', encoding='utf-8') as f:
             reader = csv.DictReader(f)
             assert reader.fieldnames == workflow_logger.PROVENANCE_LOG_HEADERS
 
@@ -108,7 +108,7 @@ class TestWorkflowLogger:
         assert len(execution_id) > 20  # exec_YYYYMMDD_HHMMSS_hex
 
         # Read the CSV file
-        with open(workflow_logger.execution_log_path, "r") as f:
+        with open(workflow_logger.execution_log_path, 'r', encoding='utf-8') as f:
             reader = csv.DictReader(f)
             rows = list(reader)
 
@@ -145,7 +145,7 @@ class TestWorkflowLogger:
         workflow_logger.log_data_provenance(execution_id, provenance_data)
 
         # Read the CSV file
-        with open(workflow_logger.provenance_log_path, "r") as f:
+        with open(workflow_logger.provenance_log_path, 'r', encoding='utf-8') as f:
             reader = csv.DictReader(f)
             rows = list(reader)
 
@@ -178,7 +178,7 @@ class TestWorkflowLogger:
         workflow_logger.log_data_provenance(execution_id, provenance_data)
 
         # Read the CSV file
-        with open(workflow_logger.provenance_log_path, "r") as f:
+        with open(workflow_logger.provenance_log_path, 'r', encoding='utf-8') as f:
             reader = csv.DictReader(f)
             rows = list(reader)
 
@@ -209,7 +209,7 @@ class TestWorkflowLogger:
         workflow_logger.log_data_provenance(execution_id, provenance_data)
 
         # Read the CSV file
-        with open(workflow_logger.provenance_log_path, "r") as f:
+        with open(workflow_logger.provenance_log_path, 'r', encoding='utf-8') as f:
             reader = csv.DictReader(f)
             rows = list(reader)
 
@@ -239,7 +239,7 @@ class TestWorkflowLogger:
         workflow_logger.log_data_provenance(execution_id, provenance_data)
 
         # Read the CSV file
-        with open(workflow_logger.provenance_log_path, "r") as f:
+        with open(workflow_logger.provenance_log_path, 'r', encoding='utf-8') as f:
             reader = csv.DictReader(f)
             rows = list(reader)
 
@@ -299,7 +299,7 @@ class TestWorkflowLogger:
         assert len(set(execution_ids)) == len(execution_ids)  # All unique
 
         # Verify CSV contains all records
-        with open(workflow_logger.execution_log_path, "r") as f:
+        with open(workflow_logger.execution_log_path, 'r', encoding='utf-8') as f:
             reader = csv.DictReader(f)
             rows = list(reader)
 
@@ -324,7 +324,7 @@ class TestWorkflowLogger:
         )
 
         # Verify data exists
-        with open(workflow_logger.execution_log_path, "r") as f:
+        with open(workflow_logger.execution_log_path, 'r', encoding='utf-8') as f:
             reader = csv.DictReader(f)
             rows = list(reader)
         assert len(rows) == 1
@@ -333,7 +333,7 @@ class TestWorkflowLogger:
         workflow_logger.clear_logs()
 
         # Verify files are recreated with only headers
-        with open(workflow_logger.execution_log_path, "r") as f:
+        with open(workflow_logger.execution_log_path, 'r', encoding='utf-8') as f:
             reader = csv.DictReader(f)
             rows = list(reader)
         assert len(rows) == 0
@@ -430,7 +430,7 @@ class TestWorkflowLogger:
         assert execution_id  # Should succeed
 
         # Verify in CSV
-        with open(workflow_logger.execution_log_path, "r") as f:
+        with open(workflow_logger.execution_log_path, 'r', encoding='utf-8') as f:
             reader = csv.DictReader(f)
             rows = list(reader)
 
@@ -479,7 +479,7 @@ class TestWorkflowLoggerIntegration:
             execution_ids.append(exec_id)
 
         # Verify all three executions were logged
-        with open(logger.execution_log_path, "r") as f:
+        with open(logger.execution_log_path, 'r', encoding='utf-8') as f:
             reader = csv.DictReader(f)
             rows = list(reader)
 
@@ -540,7 +540,7 @@ class TestWorkflowLoggerIntegration:
         )
 
         # Verify provenance chain
-        with open(logger.provenance_log_path, "r") as f:
+        with open(logger.provenance_log_path, 'r', encoding='utf-8') as f:
             reader = csv.DictReader(f)
             rows = list(reader)
 

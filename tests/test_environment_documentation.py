@@ -65,7 +65,7 @@ class TestEnvironmentDocumentation(unittest.TestCase):
 
             if project_config_path.exists():
                 # Read config file content as text to check documentation
-                with open(project_config_path, 'r') as f:
+                with open(project_config_path, 'r', encoding='utf-8') as f:
                     config_content = f.read()
 
                 # Check for major documentation sections
@@ -99,7 +99,7 @@ class TestEnvironmentDocumentation(unittest.TestCase):
             project_config_path = Path("ADRI/config.yaml")
 
             if project_config_path.exists():
-                with open(project_config_path, 'r') as f:
+                with open(project_config_path, 'r', encoding='utf-8') as f:
                     config_content = f.read()
 
                 # Check for all three switching methods
@@ -140,7 +140,7 @@ class TestEnvironmentDocumentation(unittest.TestCase):
             project_config_path = Path("ADRI/config.yaml")
 
             if project_config_path.exists():
-                with open(project_config_path, 'r') as f:
+                with open(project_config_path, 'r', encoding='utf-8') as f:
                     config_content = f.read()
 
                 # Development environment purpose documentation
@@ -182,7 +182,7 @@ class TestEnvironmentDocumentation(unittest.TestCase):
             project_config_path = Path("ADRI/config.yaml")
 
             if project_config_path.exists():
-                with open(project_config_path, 'r') as f:
+                with open(project_config_path, 'r', encoding='utf-8') as f:
                     config_content = f.read()
 
                 # Check for workflow steps
@@ -213,7 +213,7 @@ class TestEnvironmentDocumentation(unittest.TestCase):
             project_config_path = Path("ADRI/config.yaml")
 
             if project_config_path.exists():
-                with open(project_config_path, 'r') as f:
+                with open(project_config_path, 'r', encoding='utf-8') as f:
                     config_content = f.read()
 
                 # Check for directory structure explanation
@@ -244,7 +244,7 @@ class TestEnvironmentDocumentation(unittest.TestCase):
             project_config_path = Path("ADRI/config.yaml")
 
             if project_config_path.exists():
-                with open(project_config_path, 'r') as f:
+                with open(project_config_path, 'r', encoding='utf-8') as f:
                     config_content = f.read()
 
                 # Check for audit configuration explanations
@@ -276,7 +276,7 @@ class TestEnvironmentDocumentation(unittest.TestCase):
             project_config_path = Path("ADRI/config.yaml")
 
             if project_config_path.exists():
-                with open(project_config_path, 'r') as f:
+                with open(project_config_path, 'r', encoding='utf-8') as f:
                     config_content = f.read()
 
                 # Check for path explanations
@@ -325,7 +325,7 @@ class TestConfigurationValidation(unittest.TestCase):
         self.assertEqual(result, 0)
 
         config_path = self.adri_dir / "config.yaml"
-        with open(config_path, 'r') as f:
+        with open(config_path, 'r', encoding='utf-8') as f:
             config = yaml.safe_load(f)
 
         # Verify top-level structure
@@ -357,7 +357,7 @@ class TestConfigurationValidation(unittest.TestCase):
         self.assertEqual(result, 0)
 
         config_path = self.adri_dir / "config.yaml"
-        with open(config_path, 'r') as f:
+        with open(config_path, 'r', encoding='utf-8') as f:
             config = yaml.safe_load(f)
 
         environments = config["adri"]["environments"]
@@ -386,7 +386,7 @@ class TestConfigurationValidation(unittest.TestCase):
         self.assertEqual(result, 0)
 
         config_path = self.adri_dir / "config.yaml"
-        with open(config_path, 'r') as f:
+        with open(config_path, 'r', encoding='utf-8') as f:
             config = yaml.safe_load(f)
 
         environments = config["adri"]["environments"]
@@ -414,7 +414,7 @@ class TestConfigurationValidation(unittest.TestCase):
         self.assertEqual(result, 0)
 
         config_path = self.adri_dir / "config.yaml"
-        with open(config_path, 'r') as f:
+        with open(config_path, 'r', encoding='utf-8') as f:
             config = yaml.safe_load(f)
 
         adri_config = config["adri"]
@@ -427,7 +427,7 @@ class TestConfigurationValidation(unittest.TestCase):
         self.assertEqual(result, 0)
 
         config_path = self.adri_dir / "config.yaml"
-        with open(config_path, 'r') as f:
+        with open(config_path, 'r', encoding='utf-8') as f:
             config = yaml.safe_load(f)
 
         adri_config = config["adri"]
@@ -610,7 +610,7 @@ class TestEnvironmentDocumentationIntegration(unittest.TestCase):
 
         # Read config documentation to extract expected directories
         config_path = Path("ADRI/config.yaml")
-        with open(config_path, 'r') as f:
+        with open(config_path, 'r', encoding='utf-8') as f:
             config = yaml.safe_load(f)
 
         # Verify directories exist as documented
@@ -636,17 +636,17 @@ class TestEnvironmentDocumentationIntegration(unittest.TestCase):
         config_path = Path("ADRI/config.yaml")
 
         # Test configuration method (documented in config.yaml)
-        with open(config_path, 'r') as f:
+        with open(config_path, 'r', encoding='utf-8') as f:
             config = yaml.safe_load(f)
 
         # Change default environment as documented
         config["adri"]["default_environment"] = "production"
 
-        with open(config_path, 'w') as f:
+        with open(config_path, 'w', encoding='utf-8') as f:
             yaml.dump(config, f)
 
         # Verify the change worked
-        with open(config_path, 'r') as f:
+        with open(config_path, 'r', encoding='utf-8') as f:
             updated_config = yaml.safe_load(f)
 
         self.assertEqual(updated_config["adri"]["default_environment"], "production")
@@ -667,7 +667,7 @@ class TestEnvironmentDocumentationIntegration(unittest.TestCase):
         # Create test standard in dev
         test_standard = dev_standards / "test_standard.yaml"
         standard_content = {"standards": {"name": "Test Standard"}}
-        with open(test_standard, 'w') as f:
+        with open(test_standard, 'w', encoding='utf-8') as f:
             yaml.dump(standard_content, f)
 
         # Copy to prod as documented workflow recommends
@@ -707,7 +707,7 @@ class TestDocumentationConsistency(unittest.TestCase):
 
         # Read config documentation
         config_path = Path("ADRI/config.yaml")
-        with open(config_path, 'r') as f:
+        with open(config_path, 'r', encoding='utf-8') as f:
             config_content = f.read()
 
         # Check that key concepts are consistent between sources
@@ -744,7 +744,7 @@ class TestDocumentationConsistency(unittest.TestCase):
 
         # Read actual config
         config_path = Path("ADRI/config.yaml")
-        with open(config_path, 'r') as f:
+        with open(config_path, 'r', encoding='utf-8') as f:
             config = yaml.safe_load(f)
 
         # Check that show-config displays match actual config values

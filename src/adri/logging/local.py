@@ -332,19 +332,25 @@ class LocalLogger:
 
             # Initialize assessment log file
             if not self.assessment_log_path.exists():
-                with open(self.assessment_log_path, "w", newline="") as f:
+                with open(
+                    self.assessment_log_path, "w", encoding="utf-8", newline=""
+                ) as f:
                     writer = csv.DictWriter(f, fieldnames=self.ASSESSMENT_LOG_HEADERS)
                     writer.writeheader()
 
             # Initialize dimension score file
             if not self.dimension_score_path.exists():
-                with open(self.dimension_score_path, "w", newline="") as f:
+                with open(
+                    self.dimension_score_path, "w", encoding="utf-8", newline=""
+                ) as f:
                     writer = csv.DictWriter(f, fieldnames=self.DIMENSION_SCORE_HEADERS)
                     writer.writeheader()
 
             # Initialize failed validation file
             if not self.failed_validation_path.exists():
-                with open(self.failed_validation_path, "w", newline="") as f:
+                with open(
+                    self.failed_validation_path, "w", encoding="utf-8", newline=""
+                ) as f:
                     writer = csv.DictWriter(
                         f, fieldnames=self.FAILED_VALIDATION_HEADERS
                     )

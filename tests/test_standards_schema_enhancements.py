@@ -34,7 +34,7 @@ class TestEnhancedMetaSchema(unittest.TestCase):
         """Test that meta-schema includes all enhanced sections."""
         # Load the actual meta-schema
         schema_path = Path(__file__).parent.parent / "src" / "adri" / "standards" / "schema.yaml"
-        with open(schema_path, 'r') as f:
+        with open(schema_path, 'r', encoding='utf-8') as f:
             schema = yaml.safe_load(f)
 
         schema_def = schema["schema_definition"]
@@ -53,7 +53,7 @@ class TestEnhancedMetaSchema(unittest.TestCase):
     def test_record_identification_section_definition(self):
         """Test record_identification section is properly defined."""
         schema_path = Path(__file__).parent.parent / "src" / "adri" / "standards" / "schema.yaml"
-        with open(schema_path, 'r') as f:
+        with open(schema_path, 'r', encoding='utf-8') as f:
             schema = yaml.safe_load(f)
 
         record_id_section = schema["schema_definition"]["record_identification_section"]
@@ -80,7 +80,7 @@ class TestEnhancedMetaSchema(unittest.TestCase):
     def test_training_data_lineage_section_definition(self):
         """Test training_data_lineage section is properly defined."""
         schema_path = Path(__file__).parent.parent / "src" / "adri" / "standards" / "schema.yaml"
-        with open(schema_path, 'r') as f:
+        with open(schema_path, 'r', encoding='utf-8') as f:
             schema = yaml.safe_load(f)
 
         lineage_section = schema["schema_definition"]["training_data_lineage_section"]
@@ -113,7 +113,7 @@ class TestEnhancedMetaSchema(unittest.TestCase):
     def test_metadata_section_definition(self):
         """Test metadata section is properly defined."""
         schema_path = Path(__file__).parent.parent / "src" / "adri" / "standards" / "schema.yaml"
-        with open(schema_path, 'r') as f:
+        with open(schema_path, 'r', encoding='utf-8') as f:
             schema = yaml.safe_load(f)
 
         metadata_section = schema["schema_definition"]["metadata_section"]
@@ -225,13 +225,13 @@ class TestStandardValidationWithEnhancements(unittest.TestCase):
 
         # Save as YAML file
         standard_path = Path("minimal_standard.yaml")
-        with open(standard_path, 'w') as f:
+        with open(standard_path, 'w', encoding='utf-8') as f:
             yaml.dump(minimal_standard, f)
 
         # Should still be valid (optional sections are optional)
         # Note: Since StandardsParser requires ADRI_STANDARDS_PATH, we'll use direct YAML loading
         try:
-            with open(standard_path, 'r') as f:
+            with open(standard_path, 'r', encoding='utf-8') as f:
                 loaded_standard = yaml.safe_load(f)
             self.assertIn("standards", loaded_standard)
             self.assertIn("requirements", loaded_standard)
@@ -270,12 +270,12 @@ class TestStandardValidationWithEnhancements(unittest.TestCase):
                 # For now, just test that the structure can be saved and loaded as valid YAML
                 # Meta-schema validation would require more complex parser integration
                 standard_path = Path(f"test_{len(primary_keys)}.yaml")
-                with open(standard_path, 'w') as f:
+                with open(standard_path, 'w', encoding='utf-8') as f:
                     yaml.dump(standard, f)
 
                 # Basic YAML validation
                 try:
-                    with open(standard_path, 'r') as f:
+                    with open(standard_path, 'r', encoding='utf-8') as f:
                         loaded_standard = yaml.safe_load(f)
 
                     # Verify basic structure
@@ -318,7 +318,7 @@ class TestStandardGeneration(unittest.TestCase):
             }
         }
 
-        with open("ADRI/config.yaml", 'w') as f:
+        with open("ADRI/config.yaml", 'w', encoding='utf-8') as f:
             yaml.dump(config_content, f)
 
     def tearDown(self):
@@ -335,7 +335,7 @@ class TestStandardGeneration(unittest.TestCase):
         # Create test data file in current directory
         data_file = Path("products.csv")
         test_data_content = "product_id,name,price\nP001,Widget,19.99\nP002,Gadget,29.99"
-        with open(data_file, 'w') as f:
+        with open(data_file, 'w', encoding='utf-8') as f:
             f.write(test_data_content)
 
         # Mock load_data to return our test data
@@ -358,7 +358,7 @@ class TestStandardGeneration(unittest.TestCase):
 
         # Load generated standard
         standard_path = Path("ADRI/dev/standards/products_ADRI_standard.yaml")
-        with open(standard_path, 'r') as f:
+        with open(standard_path, 'r', encoding='utf-8') as f:
             standard = yaml.safe_load(f)
 
         # Verify compliance with enhanced meta-schema
@@ -396,7 +396,7 @@ class TestStandardGeneration(unittest.TestCase):
         # Create test file and generate hash
         test_content = "id,value\n1,test\n2,data"
         test_file = Path("test.csv")
-        with open(test_file, 'w') as f:
+        with open(test_file, 'w', encoding='utf-8') as f:
             f.write(test_content)
 
         from adri.cli import _generate_file_hash
@@ -413,7 +413,7 @@ class TestStandardGeneration(unittest.TestCase):
         from adri.cli import _create_lineage_metadata
 
         # Create test file
-        with open("test.csv", 'w') as f:
+        with open("test.csv", 'w', encoding='utf-8') as f:
             f.write("id,value\n1,test")
 
         metadata = _create_lineage_metadata("test.csv")
@@ -438,7 +438,7 @@ class TestExampleStandardCompliance(unittest.TestCase):
         customer_std_path = Path(__file__).parent.parent / "examples" / "standards" / "customer_data_standard.yaml"
 
         if customer_std_path.exists():
-            with open(customer_std_path, 'r') as f:
+            with open(customer_std_path, 'r', encoding='utf-8') as f:
                 standard = yaml.safe_load(f)
 
             # Verify required sections

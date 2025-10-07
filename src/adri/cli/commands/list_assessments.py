@@ -113,7 +113,7 @@ class ListAssessmentsCommand(Command):
 
         for file_path in assessment_files:
             try:
-                with open(file_path, "r") as f:
+                with open(file_path, "r", encoding="utf-8") as f:
                     assessment_data = json.load(f)
 
                 adri_report = assessment_data.get("adri_assessment_report", {})
@@ -166,7 +166,7 @@ class ListAssessmentsCommand(Command):
             import csv
             from datetime import datetime
 
-            with open(main_log_file, "r") as f:
+            with open(main_log_file, "r", encoding="utf-8") as f:
                 reader = csv.DictReader(f)
                 for row in reader:
                     try:

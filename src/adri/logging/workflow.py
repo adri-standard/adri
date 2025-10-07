@@ -192,13 +192,17 @@ class WorkflowLogger:
 
             # Initialize execution log file
             if not self.execution_log_path.exists():
-                with open(self.execution_log_path, "w", newline="") as f:
+                with open(
+                    self.execution_log_path, "w", encoding="utf-8", newline=""
+                ) as f:
                     writer = csv.DictWriter(f, fieldnames=self.EXECUTION_LOG_HEADERS)
                     writer.writeheader()
 
             # Initialize provenance log file
             if not self.provenance_log_path.exists():
-                with open(self.provenance_log_path, "w", newline="") as f:
+                with open(
+                    self.provenance_log_path, "w", encoding="utf-8", newline=""
+                ) as f:
                     writer = csv.DictWriter(f, fieldnames=self.PROVENANCE_LOG_HEADERS)
                     writer.writeheader()
 
@@ -373,11 +377,11 @@ class WorkflowLogger:
             self.log_dir.mkdir(parents=True, exist_ok=True)
 
             # Initialize execution log file
-            with open(self.execution_log_path, "w", newline="") as f:
+            with open(self.execution_log_path, "w", encoding="utf-8", newline="") as f:
                 writer = csv.DictWriter(f, fieldnames=self.EXECUTION_LOG_HEADERS)
                 writer.writeheader()
 
             # Initialize provenance log file
-            with open(self.provenance_log_path, "w", newline="") as f:
+            with open(self.provenance_log_path, "w", encoding="utf-8", newline="") as f:
                 writer = csv.DictWriter(f, fieldnames=self.PROVENANCE_LOG_HEADERS)
                 writer.writeheader()

@@ -62,7 +62,7 @@ class TestStandardGenerationParity:
         # Save CLI standard
         cli_standard_path = cli_env['standards_dir'] / 'invoice_data.yaml'
         import yaml
-        with open(cli_standard_path, 'w') as f:
+        with open(cli_standard_path, 'w', encoding='utf-8') as f:
             yaml.dump(cli_standard_dict, f, default_flow_style=False, sort_keys=False)
 
         # 2. Generate via Decorator auto-generation
@@ -368,7 +368,7 @@ class TestEndToEndParity:
 
         cli_standard_path = cli_env['standards_dir'] / 'invoice_data.yaml'
         import yaml
-        with open(cli_standard_path, 'w') as f:
+        with open(cli_standard_path, 'w', encoding='utf-8') as f:
             yaml.dump(cli_standard_dict, f, default_flow_style=False, sort_keys=False)
 
         # Step 2: Assess data
@@ -442,7 +442,7 @@ class TestEndToEndParity:
 
         cli_standard_path = cli_env['standards_dir'] / 'test_invoice_data.yaml'
         import yaml
-        with open(cli_standard_path, 'w') as f:
+        with open(cli_standard_path, 'w', encoding='utf-8') as f:
             yaml.dump(cli_standard_dict, f, default_flow_style=False, sort_keys=False)
 
         # Step 2: Assess data

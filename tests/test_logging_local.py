@@ -135,7 +135,7 @@ class TestLocalLoggingIntegration(unittest.TestCase):
         log_files = logger.get_log_files()
 
         # CRITICAL TEST: Verify exactly ONE main assessment log entry
-        with open(log_files["assessment_logs"], "r", newline="") as f:
+        with open(log_files["assessment_logs"], 'r', encoding='utf-8', newline="") as f:
             reader = csv.DictReader(f)
             main_rows = list(reader)
 
@@ -152,7 +152,7 @@ class TestLocalLoggingIntegration(unittest.TestCase):
             self.assertEqual(main_row["standard_id"], "duplicate_prevention_test_standard")
 
         # CRITICAL TEST: Verify exactly 5 dimension score entries (one per dimension)
-        with open(log_files["dimension_scores"], "r", newline="") as f:
+        with open(log_files["dimension_scores"], 'r', encoding='utf-8', newline="") as f:
             reader = csv.DictReader(f)
             dim_rows = list(reader)
 
@@ -180,7 +180,7 @@ class TestLocalLoggingIntegration(unittest.TestCase):
             self.assertEqual(completeness_row["dimension_score"], "20.0")
 
         # CRITICAL TEST: Verify exactly 1 failed validation entry
-        with open(log_files["failed_validations"], "r", newline="") as f:
+        with open(log_files["failed_validations"], 'r', encoding='utf-8', newline="") as f:
             reader = csv.DictReader(f)
             validation_rows = list(reader)
 
@@ -200,19 +200,19 @@ class TestLocalLoggingIntegration(unittest.TestCase):
         all_assessment_ids = []
 
         # Check main log
-        with open(log_files["assessment_logs"], "r", newline="") as f:
+        with open(log_files["assessment_logs"], 'r', encoding='utf-8', newline="") as f:
             reader = csv.DictReader(f)
             for row in reader:
                 all_assessment_ids.append(row["assessment_id"])
 
         # Check dimension scores
-        with open(log_files["dimension_scores"], "r", newline="") as f:
+        with open(log_files["dimension_scores"], 'r', encoding='utf-8', newline="") as f:
             reader = csv.DictReader(f)
             for row in reader:
                 all_assessment_ids.append(row["assessment_id"])
 
         # Check failed validations
-        with open(log_files["failed_validations"], "r", newline="") as f:
+        with open(log_files["failed_validations"], 'r', encoding='utf-8', newline="") as f:
             reader = csv.DictReader(f)
             for row in reader:
                 all_assessment_ids.append(row["assessment_id"])
@@ -322,7 +322,7 @@ class TestLocalLoggingIntegration(unittest.TestCase):
         self.assertTrue(audit_record.assessment_results["passed"])
 
         # Verify main assessment log
-        with open(log_files["assessment_logs"], "r", newline="") as f:
+        with open(log_files["assessment_logs"], 'r', encoding='utf-8', newline="") as f:
             reader = csv.DictReader(f)
             rows = list(reader)
             self.assertEqual(len(rows), 1)
@@ -334,7 +334,7 @@ class TestLocalLoggingIntegration(unittest.TestCase):
             self.assertEqual(main_row["passed"], "TRUE")
 
         # Verify dimension scores
-        with open(log_files["dimension_scores"], "r", newline="") as f:
+        with open(log_files["dimension_scores"], 'r', encoding='utf-8', newline="") as f:
             reader = csv.DictReader(f)
             dim_rows = list(reader)
             self.assertEqual(len(dim_rows), 2)
@@ -344,7 +344,7 @@ class TestLocalLoggingIntegration(unittest.TestCase):
             self.assertEqual(validity_row["dimension_passed"], "TRUE")
 
         # Verify failed validations
-        with open(log_files["failed_validations"], "r", newline="") as f:
+        with open(log_files["failed_validations"], 'r', encoding='utf-8', newline="") as f:
             reader = csv.DictReader(f)
             validation_rows = list(reader)
             self.assertEqual(len(validation_rows), 2)
@@ -391,7 +391,7 @@ class TestLocalLoggingIntegration(unittest.TestCase):
 
         # Verify all assessments logged
         log_files = logger.get_log_files()
-        with open(log_files["assessment_logs"], "r", newline="") as f:
+        with open(log_files["assessment_logs"], 'r', encoding='utf-8', newline="") as f:
             reader = csv.DictReader(f)
             rows = list(reader)
             self.assertEqual(len(rows), 3)
@@ -749,7 +749,7 @@ class TestLocalLoggingErrorHandling(unittest.TestCase):
 
         # Corrupt the assessment log file
         log_files = logger.get_log_files()
-        with open(log_files["assessment_logs"], "w") as f:
+        with open(log_files["assessment_logs"], 'w', encoding='utf-8') as f:
             f.write("corrupted,invalid,csv,data\n")
             f.write("missing,fields,in,this,row\n")
 
@@ -1043,7 +1043,7 @@ class TestLocalLoggingPerformance(unittest.TestCase):
 
         # Verify all assessments logged
         log_files = logger.get_log_files()
-        with open(log_files["assessment_logs"], "r", newline="") as f:
+        with open(log_files["assessment_logs"], 'r', encoding='utf-8', newline="") as f:
             reader = csv.DictReader(f)
             rows = list(reader)
             self.assertEqual(len(rows), 100)

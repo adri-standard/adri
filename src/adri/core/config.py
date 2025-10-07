@@ -362,7 +362,7 @@ class ConfigurationManager:
             )
 
         try:
-            with open(self.config_path, "r") as f:
+            with open(self.config_path, "r", encoding="utf-8") as f:
                 config_data = yaml.safe_load(f) or {}
 
             # Extract ADRI configuration section

@@ -64,7 +64,7 @@ class TestPathResolutionCore(unittest.TestCase):
 
         # Create config.yaml to establish project root
         self.config_path = self.adri_dir / "config.yaml"
-        with open(self.config_path, 'w') as f:
+        with open(self.config_path, 'w', encoding='utf-8') as f:
             yaml.dump({
                 "adri": {
                     "project_name": "test_project",
@@ -279,7 +279,7 @@ class TestPathResolutionCrossDirectory(unittest.TestCase):
 
         # Create config.yaml
         config_path = self.project_root / "ADRI" / "config.yaml"
-        with open(config_path, 'w') as f:
+        with open(config_path, 'w', encoding='utf-8') as f:
             yaml.dump({
                 "adri": {
                     "project_name": "complex_test_project",
@@ -297,7 +297,7 @@ class TestPathResolutionCrossDirectory(unittest.TestCase):
 
         for file_path in test_files:
             full_path = self.project_root / file_path
-            with open(full_path, 'w') as f:
+            with open(full_path, 'w', encoding='utf-8') as f:
                 f.write("test,data\n1,value")
 
     def tearDown(self):
@@ -456,13 +456,13 @@ class TestPathResolutionIntegration(unittest.TestCase):
         }
 
         config_path = self.project_root / "ADRI" / "config.yaml"
-        with open(config_path, 'w') as f:
+        with open(config_path, 'w', encoding='utf-8') as f:
             yaml.dump(config, f)
 
         # Create sample data file
         sample_data = "invoice_id,amount,status\nINV-001,1250.00,paid\nINV-002,875.50,pending"
         data_file = self.project_root / "ADRI" / "tutorials" / "invoice_processing" / "invoice_data.csv"
-        with open(data_file, 'w') as f:
+        with open(data_file, 'w', encoding='utf-8') as f:
             f.write(sample_data)
 
     def test_setup_command_path_resolution(self):
@@ -538,7 +538,7 @@ class TestPathResolutionIntegration(unittest.TestCase):
             "requirements": {"overall_minimum": 75.0}
         }
         standard_path = self.project_root / "ADRI" / "dev" / "standards" / "test_standard.yaml"
-        with open(standard_path, 'w') as f:
+        with open(standard_path, 'w', encoding='utf-8') as f:
             yaml.dump(standard_content, f)
 
         # Move to subdirectory
@@ -577,7 +577,7 @@ class TestPathResolutionIntegration(unittest.TestCase):
         """Test behavior with absolute paths."""
         # Create test file
         test_file = self.project_root / "test_data.csv"
-        with open(test_file, 'w') as f:
+        with open(test_file, 'w', encoding='utf-8') as f:
             f.write("test,data\n1,value")
 
         # Test with absolute path
@@ -606,7 +606,7 @@ class TestPathResolutionPerformance(unittest.TestCase):
         adri_dir = self.project_root / "ADRI"
         adri_dir.mkdir(exist_ok=True)
         config_path = adri_dir / "config.yaml"
-        with open(config_path, 'w') as f:
+        with open(config_path, 'w', encoding='utf-8') as f:
             yaml.dump({"adri": {"project_name": "perf_test"}}, f)
 
         # Set working directory to deepest level

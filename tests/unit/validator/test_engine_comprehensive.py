@@ -100,7 +100,7 @@ class TestValidatorEngineComprehensive:
         # Create standard file for testing
         standard_file = temp_workspace / "test_standard.yaml"
         import yaml
-        with open(standard_file, 'w') as f:
+        with open(standard_file, 'w', encoding='utf-8') as f:
             yaml.dump(self.comprehensive_standard, f)
 
         # Load CSV data as DataFrame and assess
@@ -196,7 +196,7 @@ class TestValidatorEngineComprehensive:
 
         # Create standard file
         standard_file = temp_workspace / "test_standard.yaml"
-        with open(standard_file, 'w') as f:
+        with open(standard_file, 'w', encoding='utf-8') as f:
             yaml.dump(self.comprehensive_standard, f)
 
         # Test bundled wrapper (constructor takes dictionary, not file path)
@@ -268,12 +268,12 @@ class TestValidatorEngineComprehensive:
 
         # Test with malformed data file (ValidationEngine.assess() expects path, not dict)
         malformed_file = temp_workspace / "malformed.csv"
-        with open(malformed_file, 'w') as f:
+        with open(malformed_file, 'w', encoding='utf-8') as f:
             f.write("invalid,csv,content\nwith,missing,quotes\"and,broken,structure")
 
         # Create a standard file for path-based testing
         standard_file = temp_workspace / "error_test_standard.yaml"
-        with open(standard_file, 'w') as f:
+        with open(standard_file, 'w', encoding='utf-8') as f:
             yaml.dump(self.comprehensive_standard, f)
 
         # ValidationEngine.assess() expects DataFrame, not file path - this should raise AttributeError
@@ -530,7 +530,7 @@ class TestValidatorEngineComprehensive:
         }
 
         standard_file = temp_workspace / "complex_standard.yaml"
-        with open(standard_file, 'w') as f:
+        with open(standard_file, 'w', encoding='utf-8') as f:
             yaml.dump(complex_standard, f)
 
         # Test engine with complex standard (BundledStandardWrapper constructor takes dict, not path)

@@ -293,6 +293,46 @@ output = "tests/coverage/coverage.xml"
 [tool.coverage.json]
 output = "tests/coverage/coverage.json"
 
+# Ruff configuration for modern Python linting
+[tool.ruff]
+line-length = 88
+target-version = "py310"
+exclude = [
+    ".eggs",
+    ".git",
+    ".mypy_cache",
+    ".pytest_cache",
+    ".tox",
+    ".venv",
+    "build",
+    "dist",
+    "venv",
+    "__pycache__",
+]
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle errors
+    "F",    # pyflakes
+    "UP",   # pyupgrade
+    "B",    # flake8-bugbear
+    "SIM",  # flake8-simplify
+    "I",    # isort
+    "N",    # pep8-naming
+    "PL",   # pylint
+]
+ignore = [
+    "E501",   # line too long (handled by black)
+    "B008",   # do not perform function calls in argument defaults
+    "PLR0913", # too many arguments
+    "PLR0912", # too many branches
+    "PLR0915", # too many statements
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["PLR2004", "S101", "PLR0913"]
+"examples/*" = ["PLR2004", "S101"]
+
 # setuptools_scm configuration
 [tool.setuptools_scm]
 version_scheme = "post-release"

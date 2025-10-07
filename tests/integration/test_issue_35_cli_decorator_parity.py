@@ -236,7 +236,7 @@ requirements:
         # Save standard
         import yaml
         standard_path = tmp_path / "bug_report_standard.yaml"
-        with open(standard_path, 'w') as f:
+        with open(standard_path, 'w', encoding='utf-8') as f:
             yaml.dump({
                 "metadata": {
                     "name": "Bug Report Standard",

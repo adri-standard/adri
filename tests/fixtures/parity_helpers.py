@@ -66,7 +66,7 @@ def setup_isolated_environment(base_path: Path) -> Dict[str, Path]:
         }
     }
 
-    with open(config_path, 'w') as f:
+    with open(config_path, 'w', encoding='utf-8') as f:
         yaml.dump(config, f, default_flow_style=False, sort_keys=False)
 
     return {
@@ -90,9 +90,9 @@ def compare_standards(cli_standard_path: Path, decorator_standard_path: Path) ->
         AssertionError: If standards differ beyond allowed fields
     """
     # Load both standards
-    with open(cli_standard_path, 'r') as f:
+    with open(cli_standard_path, 'r', encoding='utf-8') as f:
         cli_std = yaml.safe_load(f)
-    with open(decorator_standard_path, 'r') as f:
+    with open(decorator_standard_path, 'r', encoding='utf-8') as f:
         dec_std = yaml.safe_load(f)
 
     # Remove non-deterministic metadata fields

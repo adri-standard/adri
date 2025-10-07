@@ -597,7 +597,7 @@ class DataProtectionEngine:
             )
 
             # Save to YAML
-            with open(standard_path, "w") as f:
+            with open(standard_path, "w", encoding="utf-8") as f:
                 yaml.dump(standard_dict, f, default_flow_style=False, sort_keys=False)
 
             self.logger.info(

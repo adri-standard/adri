@@ -318,7 +318,7 @@ class TestDataLoaderErrorHandling(unittest.TestCase):
         """Test unsupported file format error handling."""
         # Create file with unsupported extension
         unsupported_file = Path("data.txt")
-        with open(unsupported_file, "w") as f:
+        with open(unsupported_file, 'w', encoding='utf-8') as f:
             f.write("some content")
 
         with self.assertRaises(ValueError) as cm:
@@ -337,7 +337,7 @@ class TestDataLoaderErrorHandling(unittest.TestCase):
 
         # Test CSV with only headers
         header_only_csv = Path("header_only.csv")
-        with open(header_only_csv, "w", newline="") as f:
+        with open(header_only_csv, 'w', encoding='utf-8', newline="") as f:
             writer = csv.writer(f)
             writer.writerow(["id", "name", "value"])
 
@@ -354,7 +354,7 @@ class TestDataLoaderErrorHandling(unittest.TestCase):
         """Test malformed JSON error handling."""
         # Test invalid JSON syntax
         invalid_json = Path("invalid.json")
-        with open(invalid_json, "w") as f:
+        with open(invalid_json, 'w', encoding='utf-8') as f:
             f.write('{"invalid": json syntax}')
 
         with self.assertRaises(json.JSONDecodeError):
@@ -362,7 +362,7 @@ class TestDataLoaderErrorHandling(unittest.TestCase):
 
         # Test JSON that's not a list
         non_list_json = Path("non_list.json")
-        with open(non_list_json, "w") as f:
+        with open(non_list_json, 'w', encoding='utf-8') as f:
             json.dump({"not": "a list"}, f)
 
         with self.assertRaises(ValueError) as cm:
@@ -412,7 +412,7 @@ class TestDataLoaderErrorHandling(unittest.TestCase):
         """Test YAML loading error scenarios."""
         # Test invalid YAML syntax
         invalid_yaml = Path("invalid.yaml")
-        with open(invalid_yaml, "w") as f:
+        with open(invalid_yaml, 'w', encoding='utf-8') as f:
             f.write("invalid: yaml: content: [\n  - unclosed list")
 
         with self.assertRaises(Exception) as cm:
@@ -432,7 +432,7 @@ class TestDataLoaderErrorHandling(unittest.TestCase):
         # Create a file and remove read permissions (Unix-like systems)
         if os.name != 'nt':  # Skip on Windows
             restricted_file = Path("restricted.csv")
-            with open(restricted_file, "w") as f:
+            with open(restricted_file, 'w', encoding='utf-8') as f:
                 f.write("id,name\n1,test\n")
 
             # Remove read permissions
@@ -465,7 +465,7 @@ class TestDataLoaderErrorHandling(unittest.TestCase):
         """Test handling of corrupted file data."""
         # Create CSV with mixed field counts
         corrupted_csv = Path("corrupted.csv")
-        with open(corrupted_csv, "w") as f:
+        with open(corrupted_csv, 'w', encoding='utf-8') as f:
             f.write("id,name,email\n")
             f.write("1,John\n")  # Missing field
             f.write("2,Jane,jane@example.com,extra_field\n")  # Extra field
@@ -499,7 +499,7 @@ class TestDataLoaderPerformance(unittest.TestCase):
         """Benchmark CSV loading performance."""
         # Create medium-sized CSV for benchmarking
         csv_file = Path("benchmark.csv")
-        with open(csv_file, "w", newline="") as f:
+        with open(csv_file, 'w', encoding='utf-8', newline="") as f:
             writer = csv.writer(f)
             writer.writerow(["id", "name", "email", "age", "balance", "status"])
 
@@ -544,7 +544,7 @@ class TestDataLoaderPerformance(unittest.TestCase):
             })
 
         json_file = Path("benchmark.json")
-        with open(json_file, "w") as f:
+        with open(json_file, 'w', encoding='utf-8') as f:
             json.dump(json_data, f)
 
         if benchmark:
@@ -564,7 +564,7 @@ class TestDataLoaderPerformance(unittest.TestCase):
         """Test performance of file info extraction on large files."""
         # Create large CSV
         large_csv = Path("large_info_test.csv")
-        with open(large_csv, "w", newline="") as f:
+        with open(large_csv, 'w', encoding='utf-8', newline="") as f:
             writer = csv.writer(f)
             writer.writerow(["col_" + str(i) for i in range(20)])  # 20 columns
 
@@ -593,7 +593,7 @@ class TestDataLoaderPerformance(unittest.TestCase):
         test_files = []
         for i in range(3):
             csv_file = Path(f"concurrent_{i}.csv")
-            with open(csv_file, "w", newline="") as f:
+            with open(csv_file, 'w', encoding='utf-8', newline="") as f:
                 writer = csv.writer(f)
                 writer.writerow(["id", "data", "value"])
                 for j in range(100):
@@ -637,7 +637,7 @@ class TestDataLoaderPerformance(unittest.TestCase):
         """Test memory efficiency with large datasets."""
         # Create large dataset
         large_csv = Path("memory_test.csv")
-        with open(large_csv, "w", newline="") as f:
+        with open(large_csv, 'w', encoding='utf-8', newline="") as f:
             writer = csv.writer(f)
             writer.writerow(["id", "data_field", "numeric_value", "category"])
 
@@ -744,7 +744,7 @@ class TestDataLoaderEdgeCases(unittest.TestCase):
             }
         ]
 
-        with open(nested_json, "w") as f:
+        with open(nested_json, 'w', encoding='utf-8') as f:
             json.dump(nested_data, f)
 
         loaded_data = load_json(nested_json)
@@ -755,7 +755,7 @@ class TestDataLoaderEdgeCases(unittest.TestCase):
     def test_csv_with_quoted_fields(self):
         """Test CSV loading with quoted fields containing special characters."""
         quoted_csv = Path("quoted.csv")
-        with open(quoted_csv, "w", newline="") as f:
+        with open(quoted_csv, 'w', encoding='utf-8', newline="") as f:
             writer = csv.writer(f)
             writer.writerow(["id", "text", "notes"])
             writer.writerow(["1", "Text with, comma", "Notes with \"quotes\""])
@@ -771,7 +771,7 @@ class TestDataLoaderEdgeCases(unittest.TestCase):
     def test_empty_and_null_values(self):
         """Test handling of empty and null values in data."""
         null_csv = Path("null_values.csv")
-        with open(null_csv, "w", newline="") as f:
+        with open(null_csv, 'w', encoding='utf-8', newline="") as f:
             writer = csv.writer(f)
             writer.writerow(["id", "value", "optional"])
             writer.writerow(["1", "", "present"])
@@ -787,7 +787,7 @@ class TestDataLoaderEdgeCases(unittest.TestCase):
     def test_single_row_files(self):
         """Test edge case of single row data files."""
         single_csv = Path("single.csv")
-        with open(single_csv, "w", newline="") as f:
+        with open(single_csv, 'w', encoding='utf-8', newline="") as f:
             writer = csv.writer(f)
             writer.writerow(["id", "name", "value"])
             writer.writerow(["1", "Single Row", "42"])
@@ -798,7 +798,7 @@ class TestDataLoaderEdgeCases(unittest.TestCase):
 
         # Test single item JSON
         single_json = Path("single.json")
-        with open(single_json, "w") as f:
+        with open(single_json, 'w', encoding='utf-8') as f:
             json.dump([{"id": "1", "name": "Single Item", "value": 42}], f)
 
         loaded_data = load_json(single_json)
@@ -810,7 +810,7 @@ class TestDataLoaderEdgeCases(unittest.TestCase):
         long_csv = Path("long_values.csv")
         long_text = "x" * 10000  # 10KB of text
 
-        with open(long_csv, "w", newline="") as f:
+        with open(long_csv, 'w', encoding='utf-8', newline="") as f:
             writer = csv.writer(f)
             writer.writerow(["id", "long_field", "normal"])
             writer.writerow(["1", long_text, "normal_value"])
@@ -824,7 +824,7 @@ class TestDataLoaderEdgeCases(unittest.TestCase):
         """Test file info extraction edge cases."""
         # Test file info with error handling
         error_csv = Path("error_info.csv")
-        with open(error_csv, "w") as f:
+        with open(error_csv, 'w', encoding='utf-8') as f:
             f.write("invalid,csv,format\n")
             f.write("with\tinconsistent\tdelimiters\n")
 
@@ -879,7 +879,7 @@ class TestDataLoaderEdgeCases(unittest.TestCase):
             }
         }
 
-        with open(complex_yaml, "w") as f:
+        with open(complex_yaml, 'w', encoding='utf-8') as f:
             yaml.dump(complex_data, f)
 
         loaded_standard = load_standard(str(complex_yaml))
@@ -891,7 +891,7 @@ class TestDataLoaderEdgeCases(unittest.TestCase):
         """Test edge cases with file paths."""
         # Test with relative paths
         rel_csv = Path("./relative.csv")
-        with open(rel_csv, "w", newline="") as f:
+        with open(rel_csv, 'w', encoding='utf-8', newline="") as f:
             writer = csv.writer(f)
             writer.writerow(["id", "value"])
             writer.writerow(["1", "test"])
@@ -901,7 +901,7 @@ class TestDataLoaderEdgeCases(unittest.TestCase):
 
         # Test with absolute paths
         abs_csv = Path(self.temp_dir) / "absolute.csv"
-        with open(abs_csv, "w", newline="") as f:
+        with open(abs_csv, 'w', encoding='utf-8', newline="") as f:
             writer = csv.writer(f)
             writer.writerow(["id", "value"])
             writer.writerow(["1", "test"])

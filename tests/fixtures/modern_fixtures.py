@@ -531,7 +531,7 @@ def temp_workspace():
         # Create config file
         config = ModernFixtures.create_configuration_data("complete")
         config_file = workspace / "adri-config.yaml"
-        with open(config_file, 'w') as f:
+        with open(config_file, 'w', encoding='utf-8') as f:
             yaml.dump(config, f)
 
         yield workspace
@@ -553,7 +553,7 @@ def sample_json_file(temp_workspace, high_quality_data):
     """Create temporary JSON file with high-quality test data."""
     json_file = temp_workspace / "test_data.json"
     high_quality_data.to_dict('records')
-    with open(json_file, 'w') as f:
+    with open(json_file, 'w', encoding='utf-8') as f:
         json.dump(high_quality_data.to_dict('records'), f)
     return str(json_file)
 
@@ -572,7 +572,7 @@ def sample_standard_name(temp_workspace, comprehensive_standard):
 
     # Create standard file in configured location
     standard_file = standards_dir / "test_standard.yaml"
-    with open(standard_file, 'w') as f:
+    with open(standard_file, 'w', encoding='utf-8') as f:
         yaml.dump(comprehensive_standard, f)
 
     # Return name only (without .yaml extension, without path)

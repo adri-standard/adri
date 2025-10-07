@@ -158,9 +158,9 @@ def validate_tutorial_structure(tutorial_dir: Path) -> Tuple[bool, Optional[Tuto
             return False, None
 
         # Try to read first line to ensure files are accessible
-        with open(training_file, 'r') as f:
+        with open(training_file, 'r', encoding='utf-8') as f:
             f.readline()
-        with open(test_file, 'r') as f:
+        with open(test_file, 'r', encoding='utf-8') as f:
             f.readline()
     except (OSError, IOError):
         return False, None
