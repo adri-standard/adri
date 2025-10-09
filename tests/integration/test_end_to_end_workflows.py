@@ -31,9 +31,6 @@ class TestEndToEndWorkflows:
 
     def setup_method(self):
         """Setup for each test method."""
-        # Save original working directory for restoration
-        self.original_cwd = os.getcwd()
-
         # Test data
         self.customer_data = pd.DataFrame({
             'customer_id': range(1, 101),
@@ -54,22 +51,6 @@ class TestEndToEndWorkflows:
 
         # No longer need CliRunner - using command registry
         pass
-
-    def teardown_method(self):
-        """Teardown for each test method - restore working directory."""
-        try:
-            if hasattr(self, 'original_cwd') and os.path.exists(self.original_cwd):
-                os.chdir(self.original_cwd)
-            else:
-                # Fallback to test directory if original doesn't exist
-                os.chdir(str(Path(__file__).parent.parent.absolute()))
-        except (OSError, FileNotFoundError):
-            # Final fallback to a safe directory
-            try:
-                os.chdir(str(Path(__file__).parent.parent.absolute()))
-            except (OSError, FileNotFoundError):
-                # If all else fails, go to project root
-                os.chdir("/tmp" if os.path.exists("/tmp") else ".")
 
     @pytest.mark.end_to_end
     def test_new_user_complete_workflow(self, temp_workspace):
