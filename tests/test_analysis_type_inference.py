@@ -81,11 +81,19 @@ class TestTypeInferenceIntegration(unittest.TestCase):
 
     def setUp(self):
         """Set up test environment."""
+        self.original_cwd = os.getcwd()
         self.temp_dir = tempfile.mkdtemp()
         os.chdir(self.temp_dir)
 
     def tearDown(self):
         """Clean up test environment."""
+        try:
+            if hasattr(self, 'original_cwd') and os.path.exists(self.original_cwd):
+                os.chdir(self.original_cwd)
+            else:
+                os.chdir(str(Path(__file__).parent.parent.absolute()))
+        except (OSError, FileNotFoundError):
+            os.chdir(str(Path(__file__).parent.parent.absolute()))
         safe_rmtree(self.temp_dir)
 
     def test_complete_type_inference_workflow(self):
@@ -396,11 +404,19 @@ class TestTypeInferenceErrorHandling(unittest.TestCase):
 
     def setUp(self):
         """Set up test environment."""
+        self.original_cwd = os.getcwd()
         self.temp_dir = tempfile.mkdtemp()
         os.chdir(self.temp_dir)
 
     def tearDown(self):
         """Clean up test environment."""
+        try:
+            if hasattr(self, 'original_cwd') and os.path.exists(self.original_cwd):
+                os.chdir(self.original_cwd)
+            else:
+                os.chdir(str(Path(__file__).parent.parent.absolute()))
+        except (OSError, FileNotFoundError):
+            os.chdir(str(Path(__file__).parent.parent.absolute()))
         safe_rmtree(self.temp_dir)
 
     def test_empty_data_error_handling(self):
@@ -607,11 +623,19 @@ class TestTypeInferencePerformance(unittest.TestCase):
 
     def setUp(self):
         """Set up test environment."""
+        self.original_cwd = os.getcwd()
         self.temp_dir = tempfile.mkdtemp()
         os.chdir(self.temp_dir)
 
     def tearDown(self):
         """Clean up test environment."""
+        try:
+            if hasattr(self, 'original_cwd') and os.path.exists(self.original_cwd):
+                os.chdir(self.original_cwd)
+            else:
+                os.chdir(str(Path(__file__).parent.parent.absolute()))
+        except (OSError, FileNotFoundError):
+            os.chdir(str(Path(__file__).parent.parent.absolute()))
         safe_rmtree(self.temp_dir)
 
     @pytest.mark.benchmark(group="type_inference")
@@ -799,11 +823,19 @@ class TestTypeInferenceEdgeCases(unittest.TestCase):
 
     def setUp(self):
         """Set up test environment."""
+        self.original_cwd = os.getcwd()
         self.temp_dir = tempfile.mkdtemp()
         os.chdir(self.temp_dir)
 
     def tearDown(self):
         """Clean up test environment."""
+        try:
+            if hasattr(self, 'original_cwd') and os.path.exists(self.original_cwd):
+                os.chdir(self.original_cwd)
+            else:
+                os.chdir(str(Path(__file__).parent.parent.absolute()))
+        except (OSError, FileNotFoundError):
+            os.chdir(str(Path(__file__).parent.parent.absolute()))
         safe_rmtree(self.temp_dir)
 
     def test_single_value_series_edge_cases(self):
