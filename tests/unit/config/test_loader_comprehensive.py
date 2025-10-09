@@ -435,7 +435,8 @@ class TestConfigurationLoaderComprehensive:
                         "paths": {
                             "standards": "./standards",
                             "assessments": "./assessments",
-                            "training_data": "./training-data"
+                            "training_data": "./training-data",
+                            "audit_logs": "./audit-logs"
                         },
                         "protection": {
                             "default_failure_mode": "warn",
@@ -457,7 +458,8 @@ class TestConfigurationLoaderComprehensive:
                         "paths": {
                             "standards": "./standards",
                             "assessments": "./assessments",
-                            "training_data": "./training-data"
+                            "training_data": "./training-data",
+                            "audit_logs": "./audit-logs"
                         },
                         "protection": {
                             "default_failure_mode": "warn",
@@ -468,7 +470,8 @@ class TestConfigurationLoaderComprehensive:
                         "paths": {
                             "standards": "./prod-standards",
                             "assessments": "./prod-assessments",
-                            "training_data": "./prod-training-data"
+                            "training_data": "./prod-training-data",
+                            "audit_logs": "./prod-audit-logs"
                         },
                         "protection": {
                             "default_failure_mode": "raise",
