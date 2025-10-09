@@ -84,6 +84,9 @@ class StandardBuilder:
             "metadata": self._build_base_metadata(),
         }
 
+        # Populate rule weights dynamically based on detected rules
+        self._populate_rule_weights(standard)
+
         return standard
 
     def _build_standards_metadata(self, data_name: str) -> Dict[str, Any]:
@@ -154,6 +157,120 @@ class StandardBuilder:
             },
             "explanations": {},  # Will be populated by ExplanationGenerator
         }
+
+    def _populate_rule_weights(self, standard: Dict[str, Any]) -> None:
+        """Populate rule weights dynamically based on detected rules.
+
+        Only creates weight entries for rule types that have actual rules,
+        then normalizes weights to sum to 1.0.
+
+        Args:
+            standard: Standard dictionary to populate
+        """
+        try:
+            dimension_reqs = standard["requirements"]["dimension_requirements"]
+            field_reqs = standard["requirements"]["field_requirements"]
+            pk_fields = standard["record_identification"]["primary_key_fields"]
+
+            # Populate validity rule weights based on field_requirements
+            validity_weights = dimension_reqs["validity"]["scoring"]["rule_weights"]
+            for field_name, field_req in field_reqs.items():
+                if not isinstance(field_req, dict):
+                    continue
+
+                # Type rule
+                if "type" in field_req:
+                    validity_weights["type"] = validity_weights.get("type", 0) + 1
+
+                # Allowed values rule
+                if "allowed_values" in field_req:
+                    validity_weights["allowed_values"] = (
+                        validity_weights.get("allowed_values", 0) + 1
+                    )
+
+                # Pattern rule
+                if "pattern" in field_req:
+                    validity_weights["pattern"] = validity_weights.get("pattern", 0) + 1
+
+                # Length bounds rule
+                if "min_length" in field_req or "max_length" in field_req:
+                    validity_weights["length_bounds"] = (
+                        validity_weights.get("length_bounds", 0) + 1
+                    )
+
+                # Numeric bounds rule
+                if "min_value" in field_req or "max_value" in field_req:
+                    validity_weights["numeric_bounds"] = (
+                        validity_weights.get("numeric_bounds", 0) + 1
+                    )
+
+                # Date bounds rule
+                if "after_date" in field_req or "before_date" in field_req:
+                    validity_weights["date_bounds"] = (
+                        validity_weights.get("date_bounds", 0) + 1
+                    )
+
+            # Normalize validity weights
+            self.dimension_builder.normalize_rule_weights(dimension_reqs, "validity")
+
+            # Populate consistency rule weights based on detected patterns
+            consistency_weights = dimension_reqs["consistency"]["scoring"][
+                "rule_weights"
+            ]
+
+            # Primary key uniqueness: Add if PK fields detected
+            if pk_fields:
+                consistency_weights["primary_key_uniqueness"] = 1.0
+
+            # Format consistency: Add if string fields exist (format patterns matter)
+            has_string_fields = any(
+                field_req.get("type") == "string"
+                for field_req in field_reqs.values()
+                if isinstance(field_req, dict)
+            )
+            if has_string_fields:
+                consistency_weights["format_consistency"] = 1.0
+
+            # Cross-field logic: Add if multiple fields exist (enables date range, total checks)
+            if len(field_reqs) >= 2:
+                consistency_weights["cross_field_logic"] = 1.0
+
+            # Normalize consistency weights
+            self.dimension_builder.normalize_rule_weights(dimension_reqs, "consistency")
+
+            # Populate plausibility rule weights based on field types
+            plausibility_weights = dimension_reqs["plausibility"]["scoring"][
+                "rule_weights"
+            ]
+            has_numeric = False
+            has_categorical = False
+
+            for field_name, field_req in field_reqs.items():
+                if not isinstance(field_req, dict):
+                    continue
+                field_type = field_req.get("type", "")
+                if field_type in ["number", "integer"]:
+                    has_numeric = True
+                elif field_type == "string":
+                    has_categorical = True
+
+            # Add plausibility rule types that are applicable
+            if has_numeric:
+                plausibility_weights["statistical_outliers"] = 0.4
+            if has_categorical:
+                plausibility_weights["categorical_frequency"] = 0.3
+            if has_numeric or has_categorical:
+                plausibility_weights["business_logic"] = 0.2
+                plausibility_weights["cross_field_consistency"] = 0.1
+
+            # Normalize plausibility weights
+            self.dimension_builder.normalize_rule_weights(
+                dimension_reqs, "plausibility"
+            )
+
+        except Exception:
+            # Non-fatal - dimension weights will remain empty or with default values
+            pass
 
     def enforce_training_pass_guarantee(
         self, data: pd.DataFrame, standard: Dict[str, Any]
@@ -252,7 +369,7 @@ class StandardBuilder:
                 continue
 
             # Try to parse as dates (only for date/datetime/object types)
-            parsed = pd.to_datetime(series, errors="coerce")
+            parsed = pd.to_datetime(series, errors="coerce", format="ISO8601")
             parsed_count = int(parsed.notna().sum())
 
             # Calculate coverage (what percentage of non-null values are valid dates)
@@ -271,7 +388,9 @@ class StandardBuilder:
             # This ensures training data always passes freshness checks
             max_date = None
             try:
-                parsed = pd.to_datetime(data[candidate_col], errors="coerce")
+                parsed = pd.to_datetime(
+                    data[candidate_col], errors="coerce", format="ISO8601"
+                )
                 max_date = parsed.max()
                 if pd.notna(max_date):
                     # Convert to datetime and add a small buffer (e.g., 1 day)
