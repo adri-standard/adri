@@ -6,7 +6,6 @@ Captures comprehensive audit logs for all ADRI assessments directly in
 Verodat-compatible CSV format with three linked datasets.
 """
 
-import csv
 import hashlib
 import json
 import os
@@ -280,6 +279,7 @@ class LocalLogger:
                 - log_level: Logging level (INFO, DEBUG, ERROR)
                 - include_data_samples: Whether to include data samples
                 - max_log_size_mb: Maximum log file size before rotation
+                - sync_writes: Whether to flush after each write (default: True)
         """
         config = config or {}
 
@@ -294,25 +294,30 @@ class LocalLogger:
         self.log_level = config.get("log_level", "INFO")
         self.include_data_samples = config.get("include_data_samples", True)
         self.max_log_size_mb = config.get("max_log_size_mb", 100)
+        self.sync_writes = config.get("sync_writes", True)
 
-        # File paths for the three CSV files
+        # File paths for the three JSONL files
         self.assessment_log_path = (
-            self.log_dir / f"{self.log_prefix}_assessment_logs.csv"
+            self.log_dir / f"{self.log_prefix}_assessment_logs.jsonl"
         )
         self.dimension_score_path = (
-            self.log_dir / f"{self.log_prefix}_dimension_scores.csv"
+            self.log_dir / f"{self.log_prefix}_dimension_scores.jsonl"
         )
         self.failed_validation_path = (
-            self.log_dir / f"{self.log_prefix}_failed_validations.csv"
+            self.log_dir / f"{self.log_prefix}_failed_validations.jsonl"
         )
 
-        # File paths for reasoning CSV files (managed by ReasoningLogger)
+        # File paths for reasoning JSONL files (managed by ReasoningLogger)
         self.reasoning_prompts_path = (
-            self.log_dir / f"{self.log_prefix}_reasoning_prompts.csv"
+            self.log_dir / f"{self.log_prefix}_reasoning_prompts.jsonl"
         )
         self.reasoning_responses_path = (
-            self.log_dir / f"{self.log_prefix}_reasoning_responses.csv"
+            self.log_dir / f"{self.log_prefix}_reasoning_responses.jsonl"
         )
+
+        # Write sequence tracking for stable ordering
+        self.write_seq_file = self.log_dir / f"{self.log_prefix}_write_seq.txt"
+        self.write_seq_counter = 0
 
         # Thread safety
         self._lock = threading.Lock()
@@ -320,41 +325,62 @@ class LocalLogger:
         # Optional Verodat logger for external integration
         self.verodat_logger: Optional["VerodatLogger"] = None
 
-        # Initialize CSV files if enabled
+        # Initialize CSV files and load write sequence if enabled
         if self.enabled:
             self._initialize_csv_files()
+            self._load_write_seq()
 
     def _initialize_csv_files(self) -> None:
-        """Initialize CSV files with headers if they don't exist."""
+        """Initialize JSONL files (create empty files if they don't exist)."""
         with self._lock:
             # Ensure log directory exists
             self.log_dir.mkdir(parents=True, exist_ok=True)
 
-            # Initialize assessment log file
+            # Initialize assessment log file (JSONL doesn't need headers)
             if not self.assessment_log_path.exists():
-                with open(
-                    self.assessment_log_path, "w", encoding="utf-8", newline=""
-                ) as f:
-                    writer = csv.DictWriter(f, fieldnames=self.ASSESSMENT_LOG_HEADERS)
-                    writer.writeheader()
+                self.assessment_log_path.touch()
 
             # Initialize dimension score file
             if not self.dimension_score_path.exists():
-                with open(
-                    self.dimension_score_path, "w", encoding="utf-8", newline=""
-                ) as f:
-                    writer = csv.DictWriter(f, fieldnames=self.DIMENSION_SCORE_HEADERS)
-                    writer.writeheader()
+                self.dimension_score_path.touch()
 
             # Initialize failed validation file
             if not self.failed_validation_path.exists():
-                with open(
-                    self.failed_validation_path, "w", encoding="utf-8", newline=""
-                ) as f:
-                    writer = csv.DictWriter(
-                        f, fieldnames=self.FAILED_VALIDATION_HEADERS
-                    )
-                    writer.writeheader()
+                self.failed_validation_path.touch()
+
+    def _load_write_seq(self) -> None:
+        """Load write sequence counter from persistent file."""
+        with self._lock:
+            if self.write_seq_file.exists():
+                try:
+                    with open(self.write_seq_file, "r", encoding="utf-8") as f:
+                        self.write_seq_counter = int(f.read().strip())
+                except (ValueError, IOError):
+                    self.write_seq_counter = 0
+            else:
+                self.write_seq_counter = 0
+
+    def _get_next_write_seq(self) -> int:
+        """Get next write sequence number and persist it (must be called with lock held)."""
+        self.write_seq_counter += 1
+        # Persist to file for continuation across restarts
+        try:
+            with open(self.write_seq_file, "w", encoding="utf-8") as f:
+                f.write(str(self.write_seq_counter))
+                if self.sync_writes:
+                    f.flush()
+                    os.fsync(f.fileno())
+        except (IOError, OSError):
+            # If write fails, counter is still in memory
+            pass
+        return self.write_seq_counter
+
+    def _write_with_flush(self, file_handle, data: str) -> None:
+        """Write data with immediate flush when sync_writes is enabled."""
+        file_handle.write(data)
+        if self.sync_writes:
+            file_handle.flush()
+            os.fsync(file_handle.fileno())
 
     def log_assessment(
         self,
@@ -498,35 +524,84 @@ class LocalLogger:
         return record
 
     def _write_to_csv_files(self, record: AuditRecord) -> None:
-        """Write audit record to the three CSV files."""
+        """Write audit record to the three JSONL files."""
         verodat_data = record.to_verodat_format()
 
         with self._lock:
+            # Get next write sequence
+            write_seq = self._get_next_write_seq()
+
             # Check for file rotation
             self._check_rotation()
 
-            # Write main record to assessment log
-            with open(self.assessment_log_path, "a", newline="", encoding="utf-8") as f:
-                writer = csv.DictWriter(f, fieldnames=self.ASSESSMENT_LOG_HEADERS)
-                writer.writerow(verodat_data["main_record"])
+            # Write main record to assessment log as JSONL
+            with open(self.assessment_log_path, "a", encoding="utf-8") as f:
+                # Convert string boolean values back to actual booleans for JSONL
+                main_record = verodat_data["main_record"].copy()
+                main_record["write_seq"] = write_seq
+                main_record["passed"] = main_record["passed"] == "TRUE"
+                main_record["function_executed"] = (
+                    main_record["function_executed"] == "TRUE"
+                )
+                main_record["cache_used"] = main_record["cache_used"] == "TRUE"
+                # Convert JSON string back to list for data_columns
+                if isinstance(main_record.get("data_columns"), str):
+                    try:
+                        main_record["data_columns"] = json.loads(
+                            main_record["data_columns"]
+                        )
+                    except (json.JSONDecodeError, TypeError):
+                        main_record["data_columns"] = []
 
-            # Write dimension records
+                self._write_with_flush(
+                    f, json.dumps(main_record, default=str, ensure_ascii=False) + "\n"
+                )
+
+            # Write dimension records as JSONL
             if verodat_data["dimension_records"]:
-                with open(
-                    self.dimension_score_path, "a", newline="", encoding="utf-8"
-                ) as f:
-                    writer = csv.DictWriter(f, fieldnames=self.DIMENSION_SCORE_HEADERS)
-                    writer.writerows(verodat_data["dimension_records"])
+                with open(self.dimension_score_path, "a", encoding="utf-8") as f:
+                    for dim_record in verodat_data["dimension_records"]:
+                        # Convert string boolean back to actual boolean
+                        dim_record_copy = dim_record.copy()
+                        dim_record_copy["write_seq"] = write_seq
+                        dim_record_copy["dimension_passed"] = (
+                            dim_record["dimension_passed"] == "TRUE"
+                        )
+                        # Convert JSON string back to dict for details
+                        if isinstance(dim_record_copy.get("details"), str):
+                            try:
+                                dim_record_copy["details"] = json.loads(
+                                    dim_record_copy["details"]
+                                )
+                            except (json.JSONDecodeError, TypeError):
+                                dim_record_copy["details"] = {}
 
-            # Write failed validation records
+                        self._write_with_flush(
+                            f,
+                            json.dumps(dim_record_copy, default=str, ensure_ascii=False)
+                            + "\n",
+                        )
+
+            # Write failed validation records as JSONL
             if verodat_data["failed_validation_records"]:
-                with open(
-                    self.failed_validation_path, "a", newline="", encoding="utf-8"
-                ) as f:
-                    writer = csv.DictWriter(
-                        f, fieldnames=self.FAILED_VALIDATION_HEADERS
-                    )
-                    writer.writerows(verodat_data["failed_validation_records"])
+                with open(self.failed_validation_path, "a", encoding="utf-8") as f:
+                    for val_record in verodat_data["failed_validation_records"]:
+                        # Convert JSON string back to list for sample_failures
+                        val_record_copy = val_record.copy()
+                        val_record_copy["write_seq"] = write_seq
+                        if isinstance(val_record_copy.get("sample_failures"), str):
+                            try:
+                                val_record_copy["sample_failures"] = json.loads(
+                                    val_record_copy["sample_failures"]
+                                )
+                            except (json.JSONDecodeError, TypeError):
+                                val_record_copy["sample_failures"] = []
+
+                        self._write_with_flush(
+                            f,
+                            json.dumps(val_record_copy, default=str, ensure_ascii=False)
+                            + "\n",
+                        )
 
     def _check_rotation(self) -> None:
         """Check if log files need rotation."""
@@ -546,7 +621,7 @@ class LocalLogger:
             if file_size_mb >= self.max_log_size_mb:
                 # Rotate log file with Windows-safe handling
                 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                rotated_path = file_path.with_suffix(f".{timestamp}.csv")
+                rotated_path = file_path.with_suffix(f".{timestamp}.jsonl")
 
                 # Windows-safe file rotation
                 try:
@@ -556,7 +631,7 @@ class LocalLogger:
                     while rotated_path.exists():
                         counter += 1
                         rotated_path = original_rotated_path.with_suffix(
-                            f".{timestamp}_{counter:03d}.csv"
+                            f".{timestamp}_{counter:03d}.jsonl"
                         )
 
                     # Small delay to ensure file handles are released on Windows
@@ -567,18 +642,9 @@ class LocalLogger:
                     # This prevents blocking the logging process
                     continue
 
-                # Recreate file with headers
+                # Recreate JSONL file (no headers needed)
                 try:
-                    if file_path == self.assessment_log_path:
-                        headers = self.ASSESSMENT_LOG_HEADERS
-                    elif file_path == self.dimension_score_path:
-                        headers = self.DIMENSION_SCORE_HEADERS
-                    else:
-                        headers = self.FAILED_VALIDATION_HEADERS
-
-                    with open(file_path, "w", newline="", encoding="utf-8") as f:
-                        writer = csv.DictWriter(f, fieldnames=headers)
-                        writer.writeheader()
+                    file_path.touch()
                 except (OSError, PermissionError):
                     # If recreation fails, continue - file will be recreated on next write
                     pass
@@ -592,6 +658,91 @@ class LocalLogger:
             "reasoning_prompts": self.reasoning_prompts_path,
             "reasoning_responses": self.reasoning_responses_path,
         }
+
+    def to_verodat_format(self, log_type: str) -> Dict[str, Any]:
+        """
+        Export logs in Verodat-compatible format with headers and rows.
+
+        Args:
+            log_type: Type of log to export ("assessment_logs", "dimension_scores", "failed_validations")
+
+        Returns:
+            Dictionary with "data" containing header and rows arrays
+        """
+        # Map log type to file path
+        log_file_map = {
+            "assessment_logs": self.assessment_log_path,
+            "dimension_scores": self.dimension_score_path,
+            "failed_validations": self.failed_validation_path,
+        }
+
+        if log_type not in log_file_map:
+            raise ValueError(
+                f"Invalid log_type: {log_type}. Must be one of {list(log_file_map.keys())}"
+            )
+
+        log_file = log_file_map[log_type]
+
+        if not log_file.exists():
+            # Return empty structure if file doesn't exist
+            return {"data": [{"header": []}, {"rows": []}]}
+
+        # Read all JSONL records
+        records = []
+        with open(log_file, "r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if line:
+                    try:
+                        records.append(json.loads(line))
+                    except json.JSONDecodeError:
+                        continue
+
+        if not records:
+            return {"data": [{"header": []}, {"rows": []}]}
+
+        # Build header from first record's keys
+        first_record = records[0]
+        header = []
+        for key in first_record.keys():
+            # Determine type based on value
+            value = first_record[key]
+            if isinstance(value, bool):
+                field_type = "string"  # Verodat uses string for booleans
+            elif isinstance(value, int):
+                field_type = "integer"
+            elif isinstance(value, float):
+                field_type = "number"
+            elif isinstance(value, list):
+                field_type = "string"  # Arrays stored as JSON strings
+            elif isinstance(value, dict):
+                field_type = "string"  # Objects stored as JSON strings
+            else:
+                field_type = "string"
+
+            header.append({"name": key, "type": field_type})
+
+        # Build rows - convert each record to array of values matching header order
+        rows = []
+        for record in records:
+            row = []
+            for header_field in header:
+                key = header_field["name"]
+                value = record.get(key)
+
+                # Convert types for Verodat format
+                if isinstance(value, bool):
+                    row.append("TRUE" if value else "FALSE")
+                elif isinstance(value, (list, dict)):
+                    row.append(json.dumps(value))
+                elif value is None:
+                    row.append("")
+                else:
+                    row.append(value)
+
+            rows.append(row)
+
+        return {"data": [{"header": header}, {"rows": rows}]}
 
     def clear_logs(self) -> None:
         """Clear all log files (useful for testing)."""

@@ -164,6 +164,59 @@ def isolated_working_directory(safe_temp_directory):
 
 
 @pytest.fixture
+def isolated_working_dir(tmp_path):
+    """Provide isolated working directory with automatic cleanup.
+
+    This fixture ensures working directory changes are always cleaned up,
+    even if tests fail. Uses pytest's built-in tmp_path for isolation.
+    """
+    original_cwd = os.getcwd()
+    try:
+        os.chdir(tmp_path)
+        yield tmp_path
+    finally:
+        try:
+            os.chdir(original_cwd)
+        except Exception:
+            pass
+
+
+@pytest.fixture(autouse=True)
+def ensure_valid_cwd():
+    """Ensure working directory is valid before and after each test.
+
+    This fixture prevents test pollution from os.chdir() usage across the suite.
+    """
+    # Get project root as a safe fallback
+    project_root = Path(__file__).parent.parent.absolute()
+
+    # Before test: ensure we're in a valid directory
+    try:
+        os.getcwd()
+    except (OSError, FileNotFoundError):
+        os.chdir(str(project_root))
+
+    original_cwd = os.getcwd()
+
+    yield
+
+    # After test: restore to a valid directory
+    try:
+        os.getcwd()
+    except (OSError, FileNotFoundError):
+        os.chdir(str(project_root))
+    else:
+        # Try to restore original, but don't fail if it doesn't exist
+        try:
+            if os.path.exists(original_cwd):
+                os.chdir(original_cwd)
+            else:
+                os.chdir(str(project_root))
+        except (OSError, FileNotFoundError):
+            os.chdir(str(project_root))
+
+
+@pytest.fixture
 def ci_environment_detector():
     """Detect and adapt to CI environment characteristics."""
     def is_ci():

@@ -156,7 +156,7 @@ def test_plausibility_no_active_rules():
     plaus = explain.get("plausibility", {})
 
     assert isinstance(plaus, dict)
-    assert plaus.get("score_0_20") == 15.5  # Baseline score
+    assert plaus.get("score_0_20") == 20.0  # Perfect baseline score
     assert "no active rules configured" in plaus.get("warnings", [""])[0]
 
     # All rule counts should be zero

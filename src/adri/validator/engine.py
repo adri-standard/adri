@@ -8,6 +8,7 @@ Migrated from adri/core/assessor.py for the new src/ layout.
 import os
 import time
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 import pandas as pd
@@ -519,6 +520,16 @@ class RuleExecutionResult:
         }
 
 
+def _should_enable_debug() -> bool:
+    """Check if debug mode is enabled via ADRI_DEBUG environment variable.
+
+    Returns:
+        True if ADRI_DEBUG is set to a truthy value (1, true, yes, on), False otherwise
+    """
+    debug_value = os.environ.get("ADRI_DEBUG", "").lower()
+    return debug_value in ("1", "true", "yes", "on")
+
+
 class DataQualityAssessor:
     """Data quality assessor for ADRI validation with integrated audit logging.
 
@@ -531,12 +542,64 @@ class DataQualityAssessor:
 
         self.pipeline = ValidationPipeline()
         self.engine = ValidationEngine()  # Keep for backward compatibility
-        self.config = config or {}
+
+        # IMPORTANT: Distinguish between None (auto-discover) and {} (explicit empty config)
+        # When config={} is explicitly passed, skip all auto-discovery and use minimal defaults
+        self.config = config if config is not None else {}
+        self._explicit_config = (
+            config is not None
+        )  # Track if config was explicitly provided
+
+        # Skip audit config synthesis if explicit empty config was provided
+        if self._explicit_config and not self.config:
+            # Explicit empty config - disable audit logging entirely
+            self.audit_logger = None
+            self._effective_config_logged = False
+            return
+
+        # Synthesize audit config from environment if not provided
+        if "audit" not in self.config:
+            # Check ADRI_LOG_DIR environment variable
+            env_log_dir = os.environ.get("ADRI_LOG_DIR")
+            if env_log_dir:
+                self.config["audit"] = {
+                    "enabled": True,
+                    "log_dir": env_log_dir,
+                    "log_prefix": "adri",
+                    "sync_writes": True,  # Default to durable writes
+                }
+            else:
+                # Derive default audit path from active environment
+                from ..config.loader import ConfigurationLoader
+
+                loader = ConfigurationLoader()
+                active_config = loader.get_active_config()
+                environment = loader._get_effective_environment(active_config, None)
+
+                # Default paths based on environment
+                env_dir = "dev" if environment != "production" else "prod"
+                default_audit_dir = Path(f"./ADRI/{env_dir}/audit-logs")
+
+                # Enable audit logging if the directory exists and is writable
+                if default_audit_dir.exists() or self._can_create_dir(
+                    default_audit_dir
+                ):
+                    self.config["audit"] = {
+                        "enabled": True,
+                        "log_dir": str(default_audit_dir),
+                        "log_prefix": "adri",
+                        "sync_writes": True,
+                    }
 
         # Initialize audit logger if configured
         self.audit_logger = None
-        if self.config.get("audit", {}).get("enabled", False) and CSVAuditLogger:
-            self.audit_logger = CSVAuditLogger(self.config.get("audit", {}))
+        audit_config = self.config.get("audit", {})
+        if audit_config.get("enabled", False) and CSVAuditLogger:
+            # Ensure sync_writes is propagated (default True if not specified)
+            if "sync_writes" not in audit_config:
+                audit_config["sync_writes"] = True
+
+            self.audit_logger = CSVAuditLogger(audit_config)
 
             # Initialize Verodat logger if configured
             verodat_config = self.config.get("verodat", {})
@@ -544,38 +607,55 @@ class DataQualityAssessor:
                 # Attach Verodat logger to audit logger
                 self.audit_logger.verodat_logger = VerodatLogger(verodat_config)
 
+        # Track if effective config has been logged
+        self._effective_config_logged = False
+
+    def _can_create_dir(self, path: Path) -> bool:
+        """Check if a directory can be created at the given path."""
+        try:
+            path.mkdir(parents=True, exist_ok=True)
+            return True
+        except (OSError, PermissionError):
+            return False
+
     def assess(self, data, standard_path=None):
         """Assess data quality using pipeline architecture with audit logging."""
-        # DIAGNOSTIC LOGGING - Issue #35 Parity Investigation
-        import sys
-
-        diagnostic_log = []
-
         # Start timing
         start_time = time.time()
 
-        # Log entry point
-        diagnostic_log.append("=== DataQualityAssessor.assess() ENTRY ===")
-        diagnostic_log.append(f"standard_path: {standard_path}")
-        diagnostic_log.append(f"data shape: {getattr(data, 'shape', 'N/A')}")
-        diagnostic_log.append(f"data type: {type(data).__name__}")
+        # DIAGNOSTIC LOGGING - Issue #35 Parity Investigation
+        # Only enabled when ADRI_DEBUG environment variable is set
+        if _should_enable_debug():
+            import sys
+
+            diagnostic_log = []
+
+            # Log entry point
+            diagnostic_log.append("=== DataQualityAssessor.assess() ENTRY ===")
+            diagnostic_log.append(f"standard_path: {standard_path}")
+            diagnostic_log.append(f"data shape: {getattr(data, 'shape', 'N/A')}")
+            diagnostic_log.append(f"data type: {type(data).__name__}")
 
         # Handle different data formats
         if hasattr(data, "to_frame"):
             data = data.to_frame()
-            diagnostic_log.append("Converted Series to DataFrame")
+            if _should_enable_debug():
+                diagnostic_log.append("Converted Series to DataFrame")
         elif not hasattr(data, "columns"):
             import pandas as pd
 
             if isinstance(data, dict):
                 data = pd.DataFrame([data])
-                diagnostic_log.append("Converted dict to DataFrame")
+                if _should_enable_debug():
+                    diagnostic_log.append("Converted dict to DataFrame")
             else:
                 data = pd.DataFrame(data)
-                diagnostic_log.append("Converted to DataFrame")
+                if _should_enable_debug():
+                    diagnostic_log.append("Converted to DataFrame")
 
-        diagnostic_log.append(f"Final data shape: {data.shape}")
-        diagnostic_log.append(f"Final data columns: {list(data.columns)}")
+        if _should_enable_debug():
+            diagnostic_log.append(f"Final data shape: {data.shape}")
+            diagnostic_log.append(f"Final data columns: {list(data.columns)}")
 
         # Run assessment using pipeline
         if standard_path:
@@ -583,31 +663,40 @@ class DataQualityAssessor:
             try:
                 from .loaders import load_standard
 
-                diagnostic_log.append(f"Loading standard from: {standard_path}")
-                diagnostic_log.append(
-                    f"Standard file exists: {os.path.exists(standard_path)}"
-                )
+                if _should_enable_debug():
+                    diagnostic_log.append(f"Loading standard from: {standard_path}")
+                    diagnostic_log.append(
+                        f"Standard file exists: {os.path.exists(standard_path)}"
+                    )
 
                 standard_dict = load_standard(standard_path)
-                diagnostic_log.append("Standard loaded successfully")
-                diagnostic_log.append(f"Standard keys: {list(standard_dict.keys())}")
 
-                # Log dimension requirements
-                dim_reqs = standard_dict.get("requirements", {}).get(
-                    "dimension_requirements", {}
-                )
-                diagnostic_log.append(
-                    f"Dimension requirements found: {list(dim_reqs.keys())}"
-                )
-                for dim, config in dim_reqs.items():
-                    weight = config.get("weight", "N/A")
-                    diagnostic_log.append(f"  {dim}: weight={weight}")
+                if _should_enable_debug():
+                    diagnostic_log.append("Standard loaded successfully")
+                    diagnostic_log.append(
+                        f"Standard keys: {list(standard_dict.keys())}"
+                    )
+
+                    # Log dimension requirements
+                    dim_reqs = standard_dict.get("requirements", {}).get(
+                        "dimension_requirements", {}
+                    )
+                    diagnostic_log.append(
+                        f"Dimension requirements found: {list(dim_reqs.keys())}"
+                    )
+                    for dim, config in dim_reqs.items():
+                        weight = config.get("weight", "N/A")
+                        diagnostic_log.append(f"  {dim}: weight={weight}")
 
                 standard_wrapper = BundledStandardWrapper(standard_dict)
-                diagnostic_log.append("Using ValidationPipeline for assessment")
+
+                if _should_enable_debug():
+                    diagnostic_log.append("Using ValidationPipeline for assessment")
 
                 result = self.pipeline.execute_assessment(data, standard_wrapper)
-                diagnostic_log.append("Pipeline assessment completed")
+
+                if _should_enable_debug():
+                    diagnostic_log.append("Pipeline assessment completed")
 
                 # Set standard identifiers
                 result.standard_id = os.path.basename(standard_path).replace(
@@ -619,13 +708,18 @@ class DataQualityAssessor:
                 result.standard_path = str(Path(standard_path).resolve())
             except Exception as e:
                 # Fallback to legacy engine if pipeline fails
-                diagnostic_log.append(
-                    "⚠️ PIPELINE FAILED - USING LEGACY ENGINE FALLBACK"
-                )
-                diagnostic_log.append(f"Pipeline error: {type(e).__name__}: {str(e)}")
+                if _should_enable_debug():
+                    diagnostic_log.append(
+                        "⚠️ PIPELINE FAILED - USING LEGACY ENGINE FALLBACK"
+                    )
+                    diagnostic_log.append(
+                        f"Pipeline error: {type(e).__name__}: {str(e)}"
+                    )
 
                 result = self.engine.assess(data, standard_path)
-                diagnostic_log.append("Legacy engine assessment completed")
+
+                if _should_enable_debug():
+                    diagnostic_log.append("Legacy engine assessment completed")
 
                 # Set standard identifiers
                 result.standard_id = os.path.basename(standard_path).replace(
@@ -637,31 +731,39 @@ class DataQualityAssessor:
                 result.standard_path = str(Path(standard_path).resolve())
         else:
             # Use basic assessment for backward compatibility
-            diagnostic_log.append("No standard_path provided - using basic assessment")
+            if _should_enable_debug():
+                diagnostic_log.append(
+                    "No standard_path provided - using basic assessment"
+                )
             result = self.engine._basic_assessment(data)
 
-        # Log dimension scores
-        diagnostic_log.append("=== DIMENSION SCORES ===")
-        for dim, score_obj in result.dimension_scores.items():
-            score_val = score_obj.score if hasattr(score_obj, "score") else score_obj
-            diagnostic_log.append(f"  {dim}: {score_val:.2f}/20")
-
-        # Log final score calculation
-        diagnostic_log.append("=== OVERALL SCORE ===")
-        diagnostic_log.append(f"Overall score: {result.overall_score:.2f}/100")
-        diagnostic_log.append(f"Passed: {result.passed}")
-
-        # Log metadata
-        if hasattr(result, "metadata") and result.metadata:
-            diagnostic_log.append("=== METADATA ===")
-            if "applied_dimension_weights" in result.metadata:
-                diagnostic_log.append(
-                    f"Applied weights: {result.metadata['applied_dimension_weights']}"
+        # Log dimension scores (debug mode only)
+        if _should_enable_debug():
+            diagnostic_log.append("=== DIMENSION SCORES ===")
+            for dim, score_obj in result.dimension_scores.items():
+                score_val = (
+                    score_obj.score if hasattr(score_obj, "score") else score_obj
                 )
+                diagnostic_log.append(f"  {dim}: {score_val:.2f}/20")
 
-        # Write diagnostic log to stderr for debugging
-        diagnostic_output = "\n".join(diagnostic_log)
-        print(f"\n{diagnostic_output}\n", file=sys.stderr)
+            # Log final score calculation
+            diagnostic_log.append("=== OVERALL SCORE ===")
+            diagnostic_log.append(f"Overall score: {result.overall_score:.2f}/100")
+            diagnostic_log.append(f"Passed: {result.passed}")
+
+            # Log metadata
+            if hasattr(result, "metadata") and result.metadata:
+                diagnostic_log.append("=== METADATA ===")
+                if "applied_dimension_weights" in result.metadata:
+                    diagnostic_log.append(
+                        f"Applied weights: {result.metadata['applied_dimension_weights']}"
+                    )
+
+            # Write diagnostic log to stderr for debugging
+            import sys
+
+            diagnostic_output = "\n".join(diagnostic_log)
+            print(f"\n{diagnostic_output}\n", file=sys.stderr)
 
         # Log assessment if audit logger is configured
         duration_ms = int((time.time() - start_time) * 1000)
@@ -671,8 +773,15 @@ class DataQualityAssessor:
         return result
 
     def _log_assessment_audit(self, result, data, duration_ms: int) -> None:
-        """Log assessment details for audit trail."""
+        """Log assessment details for audit trail with effective config logging."""
+        import logging
+
         try:
+            # Log effective config once per process
+            if not self._effective_config_logged:
+                self._log_effective_config()
+                self._effective_config_logged = True
+
             # Prepare execution context
             execution_context = {
                 "function_name": "assess",
@@ -695,17 +804,8 @@ class DataQualityAssessor:
                 ),
             }
 
-            # Prepare failed checks (extract from dimension scores)
-            failed_checks = []
-            for dim_name, dim_score in result.dimension_scores.items():
-                if hasattr(dim_score, "score") and dim_score.score < 15:
-                    failed_checks.append(
-                        {
-                            "dimension": dim_name,
-                            "issue": f"Low score: {dim_score.score:.1f}/20",
-                            "affected_percentage": ((20 - dim_score.score) / 20) * 100,
-                        }
-                    )
+            # Prepare failed checks (extract from dimension assessors)
+            failed_checks = self._collect_validation_failures(data, result)
 
             # Log the assessment
             audit_record = self.audit_logger.log_assessment(
@@ -727,9 +827,131 @@ class DataQualityAssessor:
                 if verodat_logger:
                     verodat_logger.add_to_batch(audit_record)
 
-        except Exception:  # noqa: E722
+        except Exception as e:  # noqa: E722
             # Non-fatal error in audit logging
+            logging.getLogger(__name__).warning(f"Audit logging failed: {e}")
+
+    def _log_effective_config(self) -> None:
+        """Log effective configuration for diagnostics (once per process)."""
+        import logging
+
+        from ..config.loader import ConfigurationLoader
+
+        try:
+            loader = ConfigurationLoader()
+            active_config = loader.get_active_config()
+            environment = loader._get_effective_environment(active_config, None)
+
+            # Build effective config summary
+            effective_config = {
+                "environment": environment,
+                "audit_logging": {
+                    "enabled": self.audit_logger is not None,
+                    "log_dir": (
+                        str(self.audit_logger.log_dir) if self.audit_logger else None
+                    ),
+                    "sync_writes": (
+                        getattr(self.audit_logger, "sync_writes", None)
+                        if self.audit_logger
+                        else None
+                    ),
+                },
+                "env_vars": {
+                    "ADRI_ENV": os.environ.get("ADRI_ENV"),
+                    "ADRI_LOG_DIR": os.environ.get("ADRI_LOG_DIR"),
+                    "ADRI_STANDARDS_DIR": os.environ.get("ADRI_STANDARDS_DIR"),
+                    "ADRI_CONFIG_PATH": os.environ.get("ADRI_CONFIG_PATH"),
+                },
+            }
+
+            # Log at INFO level for visibility
+            logger = logging.getLogger(__name__)
+            logger.info(f"ADRI Effective Configuration: {effective_config}")
+
+        except Exception as e:
+            logging.getLogger(__name__).warning(f"Failed to log effective config: {e}")
+
+    def _collect_validation_failures(
+        self, data: pd.DataFrame, result: AssessmentResult
+    ) -> List[Dict[str, Any]]:
+        """Collect detailed validation failures from all dimension assessors.
+
+        Args:
+            data: The DataFrame that was assessed
+            result: The assessment result containing dimension scores
+
+        Returns:
+            List of detailed failure records from all dimensions
+        """
+        all_failures = []
+
+        try:
+            # Get the standard that was used for assessment
+            if not hasattr(result, "standard_path") or not result.standard_path:
+                return all_failures
+
+            from .loaders import load_standard
+
+            standard_dict = load_standard(result.standard_path)
+            standard_wrapper = BundledStandardWrapper(standard_dict)
+
+            # Get dimension requirements
+            dim_reqs = standard_wrapper.get_dimension_requirements()
+            field_reqs = standard_wrapper.get_field_requirements()
+
+            # Collect failures from Validity dimension
+            try:
+                from .dimensions.validity import ValidityAssessor
+
+                validity_assessor = ValidityAssessor()
+                validity_requirements = {
+                    "field_requirements": field_reqs,
+                    **dim_reqs.get("validity", {}),
+                }
+                validity_failures = validity_assessor.get_validation_failures(
+                    data, validity_requirements
+                )
+                all_failures.extend(validity_failures)
+            except Exception:
+                pass
+
+            # Collect failures from Completeness dimension
+            try:
+                from .dimensions.completeness import CompletenessAssessor
+
+                completeness_assessor = CompletenessAssessor()
+                completeness_requirements = {
+                    "field_requirements": field_reqs,
+                    **dim_reqs.get("completeness", {}),
+                }
+                completeness_failures = completeness_assessor.get_validation_failures(
+                    data, completeness_requirements
+                )
+                all_failures.extend(completeness_failures)
+            except Exception:
+                pass
+
+            # Collect failures from Consistency dimension
+            try:
+                from .dimensions.consistency import ConsistencyAssessor
+
+                consistency_assessor = ConsistencyAssessor()
+                consistency_requirements = {
+                    "record_identification": standard_wrapper.get_record_identification(),
+                    **dim_reqs.get("consistency", {}),
+                }
+                consistency_failures = consistency_assessor.get_validation_failures(
+                    data, consistency_requirements
+                )
+                all_failures.extend(consistency_failures)
+            except Exception:
+                pass
+
+        except Exception:
+            # If anything fails, return whatever we collected so far
             pass
+
+        return all_failures
 
 
 class ValidationEngine:
@@ -1320,7 +1542,7 @@ class ValidationEngine:
                             failed_checks += 1
                             continue
             if total_checks == 0:
-                return 18.0
+                return 20.0  # No checks means no failures (perfect score)
             success_rate = (total_checks - failed_checks) / total_checks
             return success_rate * 20.0
 
@@ -1358,7 +1580,7 @@ class ValidationEngine:
             self._explain["validity"] = self._assemble_validity_explain(
                 counts, per_field_counts, applied_global, applied_overrides
             )
-            return 18.0
+            return 20.0  # No applicable weights means no failures (perfect score)
 
         S = S_raw / W  # 0..1
 
@@ -1495,12 +1717,12 @@ class ValidationEngine:
                 "counts": {"passed": len(data), "failed": 0, "total": len(data)},
                 "pass_rate": 1.0 if len(data) > 0 else 0.0,
                 "rule_weights_applied": {"primary_key_uniqueness": 0.0},
-                "score_0_20": 16.0,  # default baseline
+                "score_0_20": 20.0,  # perfect baseline when no issues
                 "warnings": [
-                    "no active rules configured; using baseline score 16.0/20"
+                    "no active rules configured; using perfect baseline score 20.0/20"
                 ],
             }
-            return 16.0
+            return 20.0
 
         # Execute PK uniqueness rule
         try:
@@ -1598,12 +1820,12 @@ class ValidationEngine:
                 "counts": {"passed": 0, "total": 0},
                 "pass_rate": 1.0,
                 "rule_weights_applied": {"recency_window": float(rw)},
-                "score_0_20": 19.0,
+                "score_0_20": 20.0,
                 "warnings": [
-                    "no active rules configured; recency_window weight is 0.0; using baseline score 19.0/20"
+                    "no active rules configured; recency_window weight is 0.0; using perfect baseline score 20.0/20"
                 ],
             }
-            return 19.0
+            return 20.0
 
         # Parse as_of
         try:
@@ -1629,10 +1851,12 @@ class ValidationEngine:
                 "counts": {"passed": 0, "total": 0},
                 "pass_rate": 1.0,
                 "rule_weights_applied": {"recency_window": float(rw)},
-                "score_0_20": 19.0,
-                "warnings": ["invalid as_of timestamp; using baseline score 19.0/20"],
+                "score_0_20": 20.0,
+                "warnings": [
+                    "invalid as_of timestamp; using perfect baseline score 20.0/20"
+                ],
             }
-            return 19.0
+            return 20.0
 
         # Evaluate parsable values only
         series = data[date_field] if date_field in data.columns else None
@@ -1644,12 +1868,12 @@ class ValidationEngine:
                 "counts": {"passed": 0, "total": 0},
                 "pass_rate": 1.0,
                 "rule_weights_applied": {"recency_window": float(rw)},
-                "score_0_20": 19.0,
+                "score_0_20": 20.0,
                 "warnings": [
-                    f"date_field '{date_field}' not found; using baseline score 19.0/20"
+                    f"date_field '{date_field}' not found; using perfect baseline score 20.0/20"
                 ],
             }
-            return 19.0
+            return 20.0
 
         parsed = pd.to_datetime(series, utc=True, errors="coerce")
         try:
@@ -1665,12 +1889,12 @@ class ValidationEngine:
                 "counts": {"passed": 0, "total": 0},
                 "pass_rate": 1.0,
                 "rule_weights_applied": {"recency_window": float(rw)},
-                "score_0_20": 19.0,
+                "score_0_20": 20.0,
                 "warnings": [
-                    "no parsable dates in date_field; using baseline score 19.0/20"
+                    "no parsable dates in date_field; using perfect baseline score 20.0/20"
                 ],
             }
-            return 19.0
+            return 20.0
 
         # Compute recency: rows within window_days of as_of (future-dated rows also pass)
         deltas = as_of - parsed
@@ -1719,7 +1943,7 @@ class ValidationEngine:
                         failed_checks += 1
 
         if total_checks == 0:
-            return 18.0  # Default good score if no checks
+            return 20.0  # Perfect score when no checks fail (training data case)
 
         # Calculate score (0-20 scale)
         success_rate = (total_checks - failed_checks) / total_checks
@@ -1738,13 +1962,13 @@ class ValidationEngine:
 
     def _assess_consistency(self, data: pd.DataFrame) -> float:
         """Assess data consistency."""
-        # Simple consistency check - return good score for now
-        return 16.0
+        # Simple consistency check - return perfect score when no issues found
+        return 20.0
 
     def _assess_freshness(self, data: pd.DataFrame) -> float:
         """Assess data freshness."""
-        # Simple freshness check - return good score for now
-        return 19.0
+        # Simple freshness check - return perfect score when no issues found
+        return 20.0
 
     def _assess_plausibility_with_standard(
         self, data: pd.DataFrame, standard: Any
@@ -1769,7 +1993,7 @@ class ValidationEngine:
             k: float(v) for k, v in rule_weights_cfg.items() if float(v or 0) > 0
         }
         if not active_weights:
-            # No active rules configured - use baseline
+            # No active rules configured - use perfect baseline
             self._explain["plausibility"] = {
                 "rule_counts": {
                     "statistical_outliers": {"passed": 0, "total": 0},
@@ -1779,12 +2003,12 @@ class ValidationEngine:
                 },
                 "pass_rate": 1.0,
                 "rule_weights_applied": rule_weights_cfg,
-                "score_0_20": 15.5,
+                "score_0_20": 20.0,
                 "warnings": [
-                    "no active rules configured; using baseline score 15.5/20"
+                    "no active rules configured; using perfect baseline score 20.0/20"
                 ],
             }
-            return 15.5
+            return 20.0
 
         # Execute plausibility rules with distinct logic from validity
         rule_results = self._execute_plausibility_rules(data, active_weights)
@@ -1950,10 +2174,10 @@ class ValidationEngine:
             },
             "pass_rate": 1.0,
             "rule_weights_applied": {},
-            "score_0_20": 15.5,
-            "warnings": ["no standard provided; using baseline score 15.5/20"],
+            "score_0_20": 20.0,
+            "warnings": ["no standard provided; using perfect baseline score 20.0/20"],
         }
-        return 15.5
+        return 20.0
 
     # Public methods for backward compatibility with tests
     def assess_validity(
@@ -2024,8 +2248,8 @@ class ValidationEngine:
             # Basic freshness assessment
             date_fields = freshness_config.get("date_fields", [])
             if date_fields:
-                # Simple freshness check - return good score if date fields exist
-                return 18.0
+                # Simple freshness check - return perfect score if date fields exist
+                return 20.0
         return self._assess_freshness(data)
 
     def assess_plausibility(

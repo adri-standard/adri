@@ -44,7 +44,7 @@ class ValidityAssessor(DimensionAssessor):
             A score between 0.0 and 20.0 representing the validity quality
         """
         if not isinstance(data, pd.DataFrame):
-            return 18.0  # Default score for non-DataFrame data
+            return 20.0  # Perfect score for non-DataFrame data
 
         # Get field requirements and scoring configuration
         field_requirements = requirements.get("field_requirements", {})
@@ -55,8 +55,13 @@ class ValidityAssessor(DimensionAssessor):
         rule_weights_cfg = scoring_cfg.get("rule_weights", {})
         field_overrides_cfg = scoring_cfg.get("field_overrides", {})
 
-        # If no rule weights provided, fall back to simple method
-        if not isinstance(rule_weights_cfg, dict) or len(rule_weights_cfg) == 0:
+        # If no rule weights provided OR scoring config empty, fall back to simple method
+        # This ensures parity between CLI and decorator when standards lack explicit weights
+        if (
+            not isinstance(rule_weights_cfg, dict)
+            or len(rule_weights_cfg) == 0
+            or not scoring_cfg  # Also check if scoring config itself is empty
+        ):
             return self._assess_validity_simple(data, field_requirements)
 
         # Use weighted rule-type scoring
@@ -89,7 +94,7 @@ class ValidityAssessor(DimensionAssessor):
                         failed_checks += 1
 
         if total_checks == 0:
-            return 18.0
+            return 20.0
 
         success_rate = (total_checks - failed_checks) / total_checks
         return success_rate * 20.0
@@ -126,7 +131,7 @@ class ValidityAssessor(DimensionAssessor):
                         continue
 
         if total_checks == 0:
-            return 18.0
+            return 20.0
 
         success_rate = (total_checks - failed_checks) / total_checks
         return success_rate * 20.0
@@ -166,7 +171,7 @@ class ValidityAssessor(DimensionAssessor):
         W = W_global + W_overrides
 
         if W <= 0.0:
-            return 18.0
+            return 20.0
 
         S = S_raw / W
         return S * 20.0
@@ -358,3 +363,181 @@ class ValidityAssessor(DimensionAssessor):
 
         pattern = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
         return bool(re.match(pattern, email))
+
+    def get_validation_failures(
+        self, data: pd.DataFrame, requirements: Dict[str, Any]
+    ) -> List[Dict[str, Any]]:
+        """Extract detailed validation failures for audit logging.
+
+        Args:
+            data: DataFrame to analyze
+            requirements: Field requirements from standard
+
+        Returns:
+            List of failure records with details about each validation failure
+        """
+        failures = []
+        field_requirements = requirements.get("field_requirements", {})
+
+        if not field_requirements:
+            return failures
+
+        # Track failures by field and rule type
+        failure_tracking = defaultdict(
+            lambda: defaultdict(lambda: {"count": 0, "samples": [], "row_indices": []})
+        )
+
+        for column in data.columns:
+            if column not in field_requirements:
+                continue
+
+            field_req = field_requirements[column]
+            series = data[column]
+
+            for idx, value in series.items():
+                # Skip null values (handled by completeness dimension)
+                if pd.isna(value):
+                    continue
+
+                # Check each validation rule
+                # 1. Type check
+                if not check_field_type(value, field_req):
+                    failure_tracking[column]["type"]["count"] += 1
+                    if len(failure_tracking[column]["type"]["samples"]) < 3:
+                        failure_tracking[column]["type"]["samples"].append(
+                            str(value)[:50]
+                        )
+                    failure_tracking[column]["type"]["row_indices"].append(idx)
+                    continue
+
+                # 2. Allowed values
+                if "allowed_values" in field_req and not check_allowed_values(
+                    value, field_req
+                ):
+                    failure_tracking[column]["allowed_values"]["count"] += 1
+                    if len(failure_tracking[column]["allowed_values"]["samples"]) < 3:
+                        failure_tracking[column]["allowed_values"]["samples"].append(
+                            str(value)[:50]
+                        )
+                    failure_tracking[column]["allowed_values"]["row_indices"].append(
+                        idx
+                    )
+                    continue
+
+                # 3. Length bounds
+                if (
+                    ("min_length" in field_req) or ("max_length" in field_req)
+                ) and not check_length_bounds(value, field_req):
+                    failure_tracking[column]["length_bounds"]["count"] += 1
+                    if len(failure_tracking[column]["length_bounds"]["samples"]) < 3:
+                        failure_tracking[column]["length_bounds"]["samples"].append(
+                            str(value)[:50]
+                        )
+                    failure_tracking[column]["length_bounds"]["row_indices"].append(idx)
+                    continue
+
+                # 4. Pattern
+                if "pattern" in field_req and not check_field_pattern(value, field_req):
+                    failure_tracking[column]["pattern"]["count"] += 1
+                    if len(failure_tracking[column]["pattern"]["samples"]) < 3:
+                        failure_tracking[column]["pattern"]["samples"].append(
+                            str(value)[:50]
+                        )
+                    failure_tracking[column]["pattern"]["row_indices"].append(idx)
+                    continue
+
+                # 5. Numeric bounds
+                if (
+                    ("min_value" in field_req) or ("max_value" in field_req)
+                ) and not check_field_range(value, field_req):
+                    failure_tracking[column]["numeric_bounds"]["count"] += 1
+                    if len(failure_tracking[column]["numeric_bounds"]["samples"]) < 3:
+                        failure_tracking[column]["numeric_bounds"]["samples"].append(
+                            str(value)[:50]
+                        )
+                    failure_tracking[column]["numeric_bounds"]["row_indices"].append(
+                        idx
+                    )
+                    continue
+
+                # 6. Date bounds
+                date_keys = [
+                    "after_date",
+                    "before_date",
+                    "after_datetime",
+                    "before_datetime",
+                ]
+                if any(k in field_req for k in date_keys) and not check_date_bounds(
+                    value, field_req
+                ):
+                    failure_tracking[column]["date_bounds"]["count"] += 1
+                    if len(failure_tracking[column]["date_bounds"]["samples"]) < 3:
+                        failure_tracking[column]["date_bounds"]["samples"].append(
+                            str(value)[:50]
+                        )
+                    failure_tracking[column]["date_bounds"]["row_indices"].append(idx)
+
+        # Convert tracking to failure records
+        total_rows = len(data)
+        for field_name, rule_failures in failure_tracking.items():
+            for rule_type, failure_info in rule_failures.items():
+                if failure_info["count"] > 0:
+                    failures.append(
+                        {
+                            "dimension": "validity",
+                            "field": field_name,
+                            "issue": f"{rule_type}_failed",
+                            "affected_rows": failure_info["count"],
+                            "affected_percentage": (failure_info["count"] / total_rows)
+                            * 100.0,
+                            "samples": failure_info["samples"],
+                            "remediation": self._get_remediation_text(
+                                rule_type, field_name, field_requirements[field_name]
+                            ),
+                        }
+                    )
+
+        return failures
+
+    def _get_remediation_text(
+        self, rule_type: str, field_name: str, field_req: Dict[str, Any]
+    ) -> str:
+        """Generate remediation text for a specific validation failure."""
+        if rule_type == "type":
+            expected_type = field_req.get("type", "unknown")
+            return f"Fix {field_name} to match expected type: {expected_type}"
+        elif rule_type == "allowed_values":
+            allowed = field_req.get("allowed_values", [])
+            return f"Use only allowed values for {field_name}: {', '.join(str(v) for v in allowed[:5])}"
+        elif rule_type == "length_bounds":
+            min_len = field_req.get("min_length")
+            max_len = field_req.get("max_length")
+            if min_len and max_len:
+                return f"Ensure {field_name} length is between {min_len} and {max_len} characters"
+            elif min_len:
+                return f"Ensure {field_name} length is at least {min_len} characters"
+            else:
+                return f"Ensure {field_name} length is at most {max_len} characters"
+        elif rule_type == "pattern":
+            pattern = field_req.get("pattern", "")
+            return f"Ensure {field_name} matches required pattern: {pattern}"
+        elif rule_type == "numeric_bounds":
+            min_val = field_req.get("min_value")
+            max_val = field_req.get("max_value")
+            if min_val is not None and max_val is not None:
+                return f"Ensure {field_name} is between {min_val} and {max_val}"
+            elif min_val is not None:
+                return f"Ensure {field_name} is at least {min_val}"
+            else:
+                return f"Ensure {field_name} is at most {max_val}"
+        elif rule_type == "date_bounds":
+            after = field_req.get("after_date") or field_req.get("after_datetime")
+            before = field_req.get("before_date") or field_req.get("before_datetime")
+            if after and before:
+                return f"Ensure {field_name} is between {after} and {before}"
+            elif after:
+                return f"Ensure {field_name} is after {after}"
+            else:
+                return f"Ensure {field_name} is before {before}"
+        else:
+            return f"Fix validation issue with {field_name}"
