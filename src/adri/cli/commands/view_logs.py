@@ -370,7 +370,7 @@ class ViewLogsCommand(Command):
             click.echo()
             click.echo("🔍 Recent Validation Failures:")
             try:
-                with open(failed_val_path, "r") as f:
+                with open(failed_val_path, "r", encoding="utf-8") as f:
                     lines = f.readlines()
                     # Show last 5 failures
                     for line in lines[-5:]:

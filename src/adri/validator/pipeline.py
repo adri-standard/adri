@@ -5,6 +5,7 @@ of dimension assessors and aggregates results into a comprehensive assessment.
 """
 
 import os
+import sys
 import time
 from typing import Any, Dict, List, Optional
 
@@ -90,8 +91,6 @@ class ValidationPipeline:
         # DIAGNOSTIC LOGGING - Issue #35 Parity Investigation
         # Only enabled when ADRI_DEBUG environment variable is set
         if _should_enable_debug():
-            import sys
-
             diagnostic_log = []
 
             diagnostic_log.append(
@@ -112,8 +111,6 @@ class ValidationPipeline:
             else:
                 # Invalid standard type, return basic assessment
                 if _should_enable_debug():
-                    import sys
-
                     diagnostic_log.append(
                         "⚠️ Invalid standard type, using basic assessment"
                     )
@@ -136,8 +133,6 @@ class ValidationPipeline:
                 )
         except Exception as e:
             if _should_enable_debug():
-                import sys
-
                 diagnostic_log.append(
                     f"⚠️ Failed to load requirements: {type(e).__name__}: {str(e)}"
                 )
@@ -232,8 +227,6 @@ class ValidationPipeline:
 
         # Write diagnostic log (debug mode only)
         if _should_enable_debug():
-            import sys
-
             diagnostic_output = "\n".join(diagnostic_log)
             print(f"\n{diagnostic_output}\n", file=sys.stderr)
 
@@ -338,8 +331,6 @@ class ValidationPipeline:
 
         except Exception as e:  # noqa: E722
             # Log exception for debugging but don't fail the assessment
-            import sys
-
             print(
                 f"Warning: Failed to collect {dimension_name} explanation: {type(e).__name__}: {str(e)}",
                 file=sys.stderr,

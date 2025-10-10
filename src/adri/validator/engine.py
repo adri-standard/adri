@@ -760,8 +760,6 @@ class DataQualityAssessor:
                     )
 
             # Write diagnostic log to stderr for debugging
-            import sys
-
             diagnostic_output = "\n".join(diagnostic_log)
             print(f"\n{diagnostic_output}\n", file=sys.stderr)
 

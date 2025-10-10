@@ -115,7 +115,7 @@ class TestJSONLLoggingDurability:
 
             # Read all records
             log_file = Path(tmpdir) / "test_assessment_logs.jsonl"
-            with open(log_file, "r") as f:
+            with open(log_file, "r", encoding="utf-8") as f:
                 records = [json.loads(line) for line in f]
 
             assert len(records) == 4
