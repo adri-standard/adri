@@ -158,7 +158,7 @@ class TestLocalLoggingComprehensive:
         assert record.assessment_id is not None
 
         # Verify log files were created
-        log_files = list(log_dir.glob("*.csv"))
+        log_files = list(log_dir.glob("*.jsonl"))
         assert len(log_files) > 0
 
         self.component_tester.record_test_execution(TestCategory.UNIT, True)
@@ -196,13 +196,13 @@ class TestLocalLoggingComprehensive:
             assert record is not None
 
         # Verify all assessments were logged
-        log_files = list(log_dir.glob("*.csv"))
+        log_files = list(log_dir.glob("*.jsonl"))
         assert len(log_files) > 0
 
-        # Read and verify content from CSV files
+        # Read and verify content from JSONL files
         total_content = ""
         for log_file in log_files:
-            with open(log_file, 'r') as f:
+            with open(log_file, 'r', encoding='utf-8') as f:
                 total_content += f.read()
 
         # Verify assessment IDs are present
@@ -248,15 +248,15 @@ class TestLocalLoggingComprehensive:
             assert record is not None
 
         # Verify log files exist (rotation may have occurred)
-        log_files = list(log_dir.glob("*.csv"))
+        log_files = list(log_dir.glob("*.jsonl"))
 
-        # Should have created at least one CSV file
+        # Should have created at least one JSONL file
         assert len(log_files) >= 1
 
         # Verify content exists across files
         total_content = ""
         for log_file in log_files:
-            with open(log_file, 'r') as f:
+            with open(log_file, 'r', encoding='utf-8') as f:
                 total_content += f.read()
 
         # Should contain assessment records
@@ -325,13 +325,13 @@ class TestLocalLoggingComprehensive:
             assert record is not None
 
         # Verify integration worked
-        log_files = list(log_dir.glob("*.csv"))
+        log_files = list(log_dir.glob("*.jsonl"))
         assert len(log_files) > 0
 
         # Verify assessment data was logged correctly
         total_content = ""
         for log_file in log_files:
-            with open(log_file, 'r') as f:
+            with open(log_file, 'r', encoding='utf-8') as f:
                 total_content += f.read()
 
         assert "customer_data_standard" in total_content
@@ -468,12 +468,12 @@ class TestLocalLoggingComprehensive:
         assert record is not None
 
         # Verify new logging still works
-        log_files = list(log_dir.glob("*.csv"))
+        log_files = list(log_dir.glob("*.jsonl"))
         new_content_found = False
 
         for log_file in log_files:
             try:
-                with open(log_file, 'r') as f:
+                with open(log_file, 'r', encoding='utf-8') as f:
                     content = f.read()
                     if "recovery_test_standard" in content:
                         new_content_found = True
@@ -526,13 +526,13 @@ class TestLocalLoggingComprehensive:
         assert_performance(duration, "small", "file_processing_small", f"High volume logging ({num_records} records)")
 
         # Verify all records were logged
-        log_files = list(log_dir.glob("*.csv"))
+        log_files = list(log_dir.glob("*.jsonl"))
         assert len(log_files) > 0
 
         # Count total records in logs
         total_records = 0
         for log_file in log_files:
-            with open(log_file, 'r') as f:
+            with open(log_file, 'r', encoding='utf-8') as f:
                 content = f.read()
                 total_records += content.count("performance_test_standard")
 
@@ -603,13 +603,13 @@ class TestLocalLoggingComprehensive:
         # Verify all records were logged
         total_expected = sum(r["records_logged"] for r in results)
 
-        # Look for CSV files since we're using log_assessment method
-        log_files = list(log_dir.glob("*.csv"))
+        # Look for JSONL files since we're using log_assessment method
+        log_files = list(log_dir.glob("*.jsonl"))
         assert len(log_files) > 0
 
         total_found = 0
         for log_file in log_files:
-            with open(log_file, 'r') as f:
+            with open(log_file, 'r', encoding='utf-8') as f:
                 content = f.read()
                 total_found += content.count("concurrent_test_thread_")
 
@@ -658,16 +658,16 @@ class TestLocalLoggingComprehensive:
             )
             assert record is not None
 
-        # Verify logging worked (look for CSV files since we're using log_assessment method)
-        log_files = list(log_dir.glob("*.csv"))
+        # Verify logging worked (look for JSONL files since we're using log_assessment method)
+        log_files = list(log_dir.glob("*.jsonl"))
 
-        # Should have at least one CSV file
+        # Should have at least one JSONL file
         assert len(log_files) >= 1
 
         # Verify content exists across files
         total_content = ""
         for log_file in log_files:
-            with open(log_file, 'r') as f:
+            with open(log_file, 'r', encoding='utf-8') as f:
                 total_content += f.read()
 
         assert "rotator_integration_test" in total_content
@@ -686,7 +686,7 @@ class TestLocalLoggingComprehensive:
         old_files = []
         for i in range(5):
             old_file = log_dir / f"old_log_{i}.log"
-            with open(old_file, 'w') as f:
+            with open(old_file, 'w', encoding='utf-8') as f:
                 f.write(f"Old log content {i}\n")
             old_files.append(old_file)
 
@@ -728,12 +728,12 @@ class TestLocalLoggingComprehensive:
         )
         assert record is not None
 
-        # Verify new logging still works (look for CSV files)
-        all_files = list(log_dir.glob("*.csv"))
+        # Verify new logging still works (look for JSONL files)
+        all_files = list(log_dir.glob("*.jsonl"))
         new_content_found = False
 
         for log_file in all_files:
-            with open(log_file, 'r') as f:
+            with open(log_file, 'r', encoding='utf-8') as f:
                 content = f.read()
                 if "post_cleanup_test_standard" in content:
                     new_content_found = True
@@ -776,8 +776,8 @@ class TestLocalLoggingComprehensive:
             )
             assert record is not None
 
-        # Verify all records were logged with consistent format (look for CSV files)
-        log_files = list(log_dir.glob("*.csv"))
+        # Verify all records were logged with consistent format (look for JSONL files)
+        log_files = list(log_dir.glob("*.jsonl"))
         assert len(log_files) > 0
 
         total_content = ""
@@ -791,9 +791,9 @@ class TestLocalLoggingComprehensive:
         assert "complex_test" in total_content
         assert "unicode_test" in total_content
 
-        # Verify consistent CSV format
-        csv_lines = [line for line in total_content.strip().split('\n') if line.strip()]
-        assert len(csv_lines) >= len(test_standards), "All assessment results should be logged"
+        # Verify consistent JSONL format
+        jsonl_lines = [line for line in total_content.strip().split('\n') if line.strip()]
+        assert len(jsonl_lines) >= len(test_standards), "All assessment results should be logged"
 
         self.component_tester.record_test_execution(TestCategory.UNIT, True)
 
@@ -836,9 +836,9 @@ class TestLocalLoggingComprehensive:
         )
         assert record is not None
 
-        # Verify logging worked (look for CSV files)
+        # Verify logging worked (look for JSONL files)
         config_log_dir = Path(config["log_dir"])
-        log_files = list(config_log_dir.glob("*.csv"))
+        log_files = list(config_log_dir.glob("*.jsonl"))
         assert len(log_files) > 0
 
         self.component_tester.record_test_execution(TestCategory.INTEGRATION, True)

@@ -18,6 +18,7 @@ import yaml
 # Clean imports for modular architecture
 from ..analysis.standard_generator import StandardGenerator
 from ..config.loader import ConfigurationLoader
+from ..logging.workflow import WorkflowLogger
 from ..validator.engine import DataQualityAssessor
 
 logger = logging.getLogger(__name__)
@@ -282,6 +283,8 @@ class DataProtectionEngine:
         store_prompt: bool = True,
         store_response: bool = True,
         llm_config: Optional[Dict] = None,
+        workflow_context: Optional[Dict] = None,
+        data_provenance: Optional[Dict] = None,
     ) -> Any:
         """
         Protect a function call with data quality checks.
@@ -303,6 +306,8 @@ class DataProtectionEngine:
             store_prompt: Store AI prompts to CSV audit logs
             store_response: Store AI responses to CSV audit logs
             llm_config: LLM configuration dict
+            workflow_context: Workflow execution metadata for orchestration tracking (optional)
+            data_provenance: Data source provenance for lineage tracking (optional)
 
         Returns:
             Result of the protected function call
@@ -395,6 +400,40 @@ class DataProtectionEngine:
                 self.logger.info(
                     f"Assessment completed in {assessment_duration:.2f}s, score: {assessment_result.overall_score:.1f}"
                 )
+
+            # Log workflow execution and provenance if workflow_context provided
+            execution_id = ""
+            if workflow_context:
+                try:
+                    # Get assessment ID and data checksum for linking
+                    assessment_id = getattr(
+                        assessment_result, "assessment_id", "unknown"
+                    )
+                    data_checksum = getattr(assessment_result, "data_checksum", "")
+
+                    # Initialize workflow logger with audit config
+                    audit_config = self.full_config.get("audit", {})
+                    workflow_logger = WorkflowLogger(audit_config)
+
+                    # Log workflow execution
+                    execution_id = workflow_logger.log_workflow_execution(
+                        workflow_context=workflow_context,
+                        assessment_id=assessment_id,
+                        data_checksum=data_checksum,
+                    )
+
+                    # Log data provenance if provided
+                    if data_provenance and execution_id:
+                        workflow_logger.log_data_provenance(
+                            execution_id=execution_id,
+                            data_provenance=data_provenance,
+                        )
+
+                    if verbose:
+                        self.logger.info(f"Logged workflow execution: {execution_id}")
+
+                except Exception as e:
+                    self.logger.warning(f"Failed to log workflow context: {e}")
 
             # Check if assessment passed
             assessment_passed = assessment_result.overall_score >= min_score
@@ -558,7 +597,7 @@ class DataProtectionEngine:
             )
 
             # Save to YAML
-            with open(standard_path, "w") as f:
+            with open(standard_path, "w", encoding="utf-8") as f:
                 yaml.dump(standard_dict, f, default_flow_style=False, sort_keys=False)
 
             self.logger.info(

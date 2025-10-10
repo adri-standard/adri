@@ -144,7 +144,7 @@ def create_test_workspace() -> Path:
     }
 
     config_path = workspace_root / "ADRI" / "config.yaml"
-    with open(config_path, 'w') as f:
+    with open(config_path, 'w', encoding='utf-8') as f:
         yaml.dump(config, f, default_flow_style=False)
 
     # Create sample data files
@@ -169,7 +169,7 @@ INV-003,CUST-103,2100.75,2024-01-17,paid,credit_card
 INV-004,CUST-104,450.00,2024-01-18,pending,cash
 INV-005,CUST-105,1800.25,2024-01-19,paid,bank_transfer"""
 
-    with open(invoice_dir / "invoice_data.csv", 'w') as f:
+    with open(invoice_dir / "invoice_data.csv", 'w', encoding='utf-8') as f:
         f.write(training_data)
 
     # Create test data with quality issues
@@ -180,7 +180,7 @@ INV-103,CUST-203,-150.75,2024-02-17,invalid,credit_card
 INV-104,CUST-204,0,invalid_date,pending,cash
 ,CUST-205,1950.25,,paid,unknown_method"""
 
-    with open(invoice_dir / "test_invoice_data.csv", 'w') as f:
+    with open(invoice_dir / "test_invoice_data.csv", 'w', encoding='utf-8') as f:
         f.write(test_data)
 
     # Create customer service tutorial data
@@ -190,7 +190,7 @@ CUST-001,John Doe,john@example.com,555-0123,2024-01-01
 CUST-002,Jane Smith,jane@example.com,555-0124,2024-01-02
 CUST-003,Bob Johnson,bob@example.com,555-0125,2024-01-03"""
 
-    with open(customer_dir / "customer_data.csv", 'w') as f:
+    with open(customer_dir / "customer_data.csv", 'w', encoding='utf-8') as f:
         f.write(customer_data)
 
 

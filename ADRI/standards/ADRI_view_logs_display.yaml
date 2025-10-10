@@ -1,0 +1,258 @@
+# ADRI View-Logs Display Standard
+# Defines the expected structure and presentation for the view-logs CLI command
+# This standard specifies what information should be displayed and how it should be formatted
+
+standards:
+  id: ADRI_view_logs_display
+  name: ADRI View-Logs Display Standard
+  version: 1.0.0
+  authority: ADRI Framework
+  description: Standard defining the expected display format for the view-logs CLI summary table
+
+display_requirements:
+  summary_table:
+    description: Main summary table showing recent assessments
+    required_columns:
+      - name: data_packet
+        display_name: "Data Packet"
+        width: 13
+        alignment: left
+        description: Dataset or standard name (shortened for display)
+        data_source: assessment_logs.standard_id
+        format: "Truncate to 12 chars with '...' if longer"
+
+      - name: score
+        display_name: "Score"
+        width: 10
+        alignment: left
+        description: Overall quality score out of 100
+        data_source: assessment_logs.overall_score
+        format: "X.X/100 (one decimal place)"
+
+      - name: status
+        display_name: "Status"
+        width: 10
+        alignment: left
+        description: Pass/fail status with icon
+        data_source: assessment_logs.passed
+        format: "✅ PASSED or ❌ FAILED"
+
+      - name: rows
+        display_name: "Rows"
+        width: 7
+        alignment: right
+        description: Total number of rows assessed
+        data_source: assessment_logs.data_row_count
+        format: "Comma-separated thousands (e.g., '1,500')"
+        validation:
+          min_value: 0
+          max_display: 999999
+
+      - name: errors
+        display_name: "Errors"
+        width: 10
+        alignment: left
+        description: Failed rows with percentage
+        data_source: failed_validations.affected_rows (aggregated by assessment_id)
+        format: "N (X%) where N is count and X is percentage"
+        calculation: |
+          1. Sum affected_rows from all failed_validations for this assessment_id
+          2. Calculate percentage: (total_failed / data_row_count) * 100
+          3. Format as "count (pct%)" - e.g., "2 (20%)" or "0 (0%)"
+        edge_cases:
+          no_failures: "0 (0%)"
+          missing_file: "0 (0%)"
+          calculation_error: "N/A"
+
+      - name: mode
+        display_name: "Mode"
+        width: 11
+        alignment: left
+        description: How assessment was triggered
+        data_source: assessment_logs.function_name
+        format: |
+          - "CLI Direct" if function_name == "assess"
+          - "CLI Guide" if function_name == "assess" and "guide" in assessment_id
+          - "Decorator" otherwise
+        max_length: 11
+
+      - name: date
+        display_name: "Date"
+        width: 14
+        alignment: left
+        description: Assessment timestamp
+        data_source: assessment_logs.timestamp
+        format: "MM-DD HH:MM (e.g., '10-08 23:23')"
+
+    column_order:
+      - data_packet
+      - score
+      - status
+      - rows
+      - errors
+      - mode
+      - date
+
+    table_formatting:
+      border_style: box_drawing
+      header_separator: true
+      row_separator: false
+      total_width: ~90  # Approximate, fits standard terminal
+      alignment_marks: true
+
+  verbose_mode:
+    description: Additional details shown when --verbose flag is used
+    includes:
+      - assessment_id
+      - data_row_count
+      - assessment_duration_ms
+      - execution_decision
+      - function_name (if available)
+      - module_path (if available)
+      - recent_validation_failures (up to 5)
+
+    failure_details:
+      - field_name
+      - issue_type
+      - affected_rows
+      - affected_percentage
+      - sample_failures (up to 2 samples)
+      - remediation
+
+  file_summary:
+    description: List of audit log files shown at bottom
+    required_files:
+      - path: adri_assessment_logs.jsonl
+        icon: "📄"
+        description: "Main assessment log"
+
+      - path: adri_dimension_scores.jsonl
+        icon: "📊"
+        description: "Dimension score details"
+
+      - path: adri_failed_validations.jsonl
+        icon: "✅ or ⚪"
+        description: "Validation failures (shows count if present)"
+        conditional_display: |
+          - If failures exist: "✅ filename (N validation failures)"
+          - If no failures: "⚪ filename (no failures - data passed all checks)"
+
+requirements:
+  overall_minimum: 95.0  # High bar for display standard compliance
+
+  field_requirements:
+    # These validate that the display implementation meets requirements
+    column_count:
+      type: integer
+      nullable: false
+      min_value: 7
+      max_value: 7
+      description: Must display exactly 7 columns in summary table
+
+    rows_column_present:
+      type: boolean
+      nullable: false
+      allowed_values: [true]
+      description: Rows column must be present
+
+    errors_column_present:
+      type: boolean
+      nullable: false
+      allowed_values: [true]
+      description: Errors column must be present
+
+    error_format_valid:
+      type: string
+      nullable: false
+      pattern: '^\d+ \(\d+(\.\d+)?%\)$'
+      description: Errors must be formatted as "N (X%)"
+
+    row_count_format_valid:
+      type: string
+      nullable: false
+      pattern: '^(\d{1,3}(,\d{3})*|\d+)$'
+      description: Row counts must use comma separators for thousands
+
+  dimension_requirements:
+    validity:
+      minimum_score: 19.0
+      weight: 1.0
+      scoring:
+        rule_weights:
+          format_compliance: 1.0
+        field_overrides: {}
+
+    completeness:
+      minimum_score: 19.0
+      weight: 1.0
+      scoring:
+        rule_weights:
+          required_columns: 1.0
+        field_overrides: {}
+
+    consistency:
+      minimum_score: 19.0
+      weight: 1.0
+      scoring:
+        rule_weights:
+          column_alignment: 1.0
+        field_overrides: {}
+
+metadata:
+  purpose: Define expected display format for view-logs CLI command
+  usage: |
+    This standard defines what the view-logs command should display and how.
+    It ensures consistent, informative output that serves the command's purpose:
+
+    1. Quick status checks
+    2. Demo presentations
+    3. Onboarding new users
+    4. Troubleshooting recent assessments
+
+    The display is intentionally summary-focused, not comprehensive analysis.
+    For detailed analysis, users should query the JSONL audit logs directly.
+
+  design_principles: |
+    1. Actionable at a glance - users should quickly understand volume and impact
+    2. Demo-friendly - clear, visual, easy to explain
+    3. Fits standard terminals - ~90 character width
+    4. Consistent formatting - predictable column widths and alignment
+    5. Graceful degradation - handles missing data without crashing
+
+  integration_notes: |
+    - Reads from: adri_assessment_logs.jsonl (primary source)
+    - Reads from: adri_failed_validations.jsonl (for error counts)
+    - Links to: ADRI_audit_log.yaml (defines assessment log structure)
+    - Links to: ADRI_failed_validations.yaml (defines failure structure)
+
+    Error counting algorithm:
+    1. For each assessment_id in summary
+    2. Read failed_validations.jsonl
+    3. Filter rows where assessment_id matches
+    4. Sum affected_rows across all matching failures
+    5. Calculate percentage vs. data_row_count from assessment
+    6. Format as "count (percentage%)"
+
+  example_output: |
+    📊 ADRI Audit Log Summary (3 recent)
+    ┌─────────────┬──────────┬──────────┬───────┬──────────┬───────────┬──────────────┐
+    │ Data Packet │ Score    │ Status   │ Rows  │ Errors   │ Mode      │ Date         │
+    ├─────────────┼──────────┼──────────┼───────┼──────────┼───────────┼──────────────┤
+    │ invoice_data│ 91.4/100 │ ✅ PASSED │    10 │ 2 (20%)  │ CLI Direct│ 10-08 23:23  │
+    │ customer_db │ 100/100  │ ✅ PASSED │ 1,500 │ 0 (0%)   │ Decorator │ 10-08 18:45  │
+    │ product_cat │ 68.2/100 │ ❌ FAILED │   500 │ 187 (37%)│ API       │ 10-07 14:30  │
+    └─────────────┴──────────┴──────────┴───────┴──────────┴───────────┴──────────────┘
+
+    💡 Use --verbose for detailed audit information
+
+    📁 Audit Log Files:
+       📄 ADRI/dev/audit-logs/adri_assessment_logs.jsonl
+       📊 ADRI/dev/audit-logs/adri_dimension_scores.jsonl
+       ✅ ADRI/dev/audit-logs/adri_failed_validations.jsonl (14 validation failures)
+
+  created_by: ADRI Framework
+  created_date: 2025-01-09
+  version_history:
+    - version: 1.0.0
+      date: 2025-01-09
+      changes: Initial standard creation with rows and errors columns

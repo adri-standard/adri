@@ -34,7 +34,7 @@ class CompletenessAssessor(DimensionAssessor):
             A score between 0.0 and 20.0 representing the completeness quality
         """
         if not isinstance(data, pd.DataFrame):
-            return 18.0  # Default score for non-DataFrame data
+            return 20.0  # Perfect score for non-DataFrame data
 
         if data.empty:
             return 0.0
@@ -169,3 +169,77 @@ class CompletenessAssessor(DimensionAssessor):
                 return float(completeness_rate * 20.0)
 
         return self._assess_completeness_basic(data)
+
+    def get_validation_failures(
+        self, data: pd.DataFrame, requirements: Dict[str, Any]
+    ) -> list:
+        """Extract detailed completeness failures for audit logging.
+
+        Args:
+            data: DataFrame to analyze
+            requirements: Field requirements from standard
+
+        Returns:
+            List of failure records with details about missing required values
+        """
+        from typing import List
+
+        failures: List[Dict[str, Any]] = []
+        field_requirements = requirements.get("field_requirements", {})
+
+        if not field_requirements:
+            return failures
+
+        # Identify required (non-nullable) fields
+        required_fields = [
+            col
+            for col, cfg in field_requirements.items()
+            if isinstance(cfg, dict) and not cfg.get("nullable", True)
+        ]
+
+        if not required_fields:
+            return failures
+
+        total_rows = len(data)
+
+        # Check each required field for missing values
+        for field_name in required_fields:
+            if field_name not in data.columns:
+                # Field completely missing from data
+                failures.append(
+                    {
+                        "dimension": "completeness",
+                        "field": field_name,
+                        "issue": "field_missing",
+                        "affected_rows": total_rows,
+                        "affected_percentage": 100.0,
+                        "samples": ["<entire field missing>"],
+                        "remediation": f"Add {field_name} column to dataset",
+                    }
+                )
+            else:
+                # Count null values in this field
+                null_mask = data[field_name].isnull()
+                null_count = int(null_mask.sum())
+
+                if null_count > 0:
+                    # Collect sample row indices (up to 3)
+                    null_indices = data[null_mask].index.tolist()[:3]
+
+                    failures.append(
+                        {
+                            "dimension": "completeness",
+                            "field": field_name,
+                            "issue": "missing_required",
+                            "affected_rows": null_count,
+                            "affected_percentage": (
+                                (null_count / total_rows) * 100.0
+                                if total_rows > 0
+                                else 0.0
+                            ),
+                            "samples": [f"Row {idx}" for idx in null_indices],
+                            "remediation": f"Fill missing {field_name} values",
+                        }
+                    )
+
+        return failures

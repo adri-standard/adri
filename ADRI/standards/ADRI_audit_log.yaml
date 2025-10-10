@@ -245,5 +245,29 @@ metadata:
     - All performance metrics must be non-negative
     - data_columns should be valid JSON array format
 
+  integration_notes: |
+    This assessment log is the anchor for ADRI's audit trail and integrates with:
+
+    1. Dimension Scores (adri_dimension_scores.csv):
+       - Links via assessment_id
+       - Provides detailed breakdown of overall_score by dimension
+
+    2. Failed Validations (adri_failed_validations.csv):
+       - Links via assessment_id
+       - Details specific validation failures
+
+    3. View-Logs Display (see ADRI_view_logs_display.yaml):
+       - Uses data_row_count to show assessment volume in CLI summary
+       - Aggregates failed_validations.affected_rows to show error counts
+       - Provides quick status view for demos and troubleshooting
+
+    The data_row_count field is particularly important for:
+    - Understanding assessment scale and context
+    - Calculating error rates (failed_rows / total_rows)
+    - Performance metrics (rows_per_second calculation)
+    - Capacity planning and optimization
+
   created_by: ADRI Framework
   created_date: 2025-10-03
+  last_updated: 2025-01-09
+  update_notes: Added integration notes documenting view-logs display usage

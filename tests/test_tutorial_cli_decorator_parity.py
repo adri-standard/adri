@@ -62,7 +62,7 @@ class TestStandardGenerationParity:
         # Save CLI standard
         cli_standard_path = cli_env['standards_dir'] / 'invoice_data.yaml'
         import yaml
-        with open(cli_standard_path, 'w') as f:
+        with open(cli_standard_path, 'w', encoding='utf-8') as f:
             yaml.dump(cli_standard_dict, f, default_flow_style=False, sort_keys=False)
 
         # 2. Generate via Decorator auto-generation
@@ -140,9 +140,9 @@ class TestAssessmentParity:
         # Verify logs were created
         assert result is not None, "Processing failed"
         log_files = [
-            env['logs_dir'] / 'adri_assessment_logs.csv',
-            env['logs_dir'] / 'adri_dimension_scores.csv',
-            env['logs_dir'] / 'adri_failed_validations.csv'
+            env['logs_dir'] / 'adri_assessment_logs.jsonl',
+            env['logs_dir'] / 'adri_dimension_scores.jsonl',
+            env['logs_dir'] / 'adri_failed_validations.jsonl'
         ]
 
         for log_file in log_files:
@@ -190,9 +190,9 @@ class TestAssessmentParity:
         # Verify logs were created
         assert result is not None, "Processing should succeed in warn mode"
         log_files = [
-            env['logs_dir'] / 'adri_assessment_logs.csv',
-            env['logs_dir'] / 'adri_dimension_scores.csv',
-            env['logs_dir'] / 'adri_failed_validations.csv'
+            env['logs_dir'] / 'adri_assessment_logs.jsonl',
+            env['logs_dir'] / 'adri_dimension_scores.jsonl',
+            env['logs_dir'] / 'adri_failed_validations.jsonl'
         ]
 
         for log_file in log_files:
@@ -255,10 +255,18 @@ class TestStandardPathConsistency:
         assert decorator_result is not None, "Decorator processing failed"
 
         # Read decorator audit log to get its standard_path
-        decorator_audit_file = env['logs_dir'] / 'adri_assessment_logs.csv'
+        decorator_audit_file = env['logs_dir'] / 'adri_assessment_logs.jsonl'
         assert decorator_audit_file.exists(), f"Decorator audit log not created: {decorator_audit_file}"
 
-        decorator_audit_df = pd.read_csv(decorator_audit_file)
+        # Load JSONL file
+        import json
+        decorator_records = []
+        with open(decorator_audit_file, 'r', encoding='utf-8') as f:
+            for line in f:
+                if line.strip():
+                    decorator_records.append(json.loads(line))
+
+        decorator_audit_df = pd.DataFrame(decorator_records)
         assert len(decorator_audit_df) > 0, "Decorator audit log is empty"
         assert 'standard_path' in decorator_audit_df.columns, "Decorator audit log missing standard_path"
 
@@ -303,11 +311,18 @@ class TestStandardPathConsistency:
             f"Decorator and CLI paths differ:\n  Decorator: {decorator_standard_path}\n  CLI: {cli_result.standard_path}"
 
         # === PHASE 4: Final Audit Log Verification ===
-        audit_log_file = env['logs_dir'] / 'adri_assessment_logs.csv'
+        audit_log_file = env['logs_dir'] / 'adri_assessment_logs.jsonl'
         assert audit_log_file.exists(), f"Audit log not created: {audit_log_file}"
 
-        # Read audit logs
-        audit_df = pd.read_csv(audit_log_file)
+        # Read audit logs from JSONL
+        import json
+        audit_records = []
+        with open(audit_log_file, 'r', encoding='utf-8') as f:
+            for line in f:
+                if line.strip():
+                    audit_records.append(json.loads(line))
+
+        audit_df = pd.DataFrame(audit_records)
         assert len(audit_df) > 0, "Audit log is empty"
 
         # Check that standard_path column exists
@@ -368,7 +383,7 @@ class TestEndToEndParity:
 
         cli_standard_path = cli_env['standards_dir'] / 'invoice_data.yaml'
         import yaml
-        with open(cli_standard_path, 'w') as f:
+        with open(cli_standard_path, 'w', encoding='utf-8') as f:
             yaml.dump(cli_standard_dict, f, default_flow_style=False, sort_keys=False)
 
         # Step 2: Assess data
@@ -442,7 +457,7 @@ class TestEndToEndParity:
 
         cli_standard_path = cli_env['standards_dir'] / 'test_invoice_data.yaml'
         import yaml
-        with open(cli_standard_path, 'w') as f:
+        with open(cli_standard_path, 'w', encoding='utf-8') as f:
             yaml.dump(cli_standard_dict, f, default_flow_style=False, sort_keys=False)
 
         # Step 2: Assess data

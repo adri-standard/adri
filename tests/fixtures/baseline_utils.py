@@ -300,10 +300,10 @@ def compare_yaml_files(current: Path, baseline: Path) -> Optional[Dict[str, Any]
         if diff:
             print(f"Found {len(diff['changed_fields'])} differences")
     """
-    with open(current, 'r') as f:
+    with open(current, 'r', encoding='utf-8') as f:
         current_data = yaml.safe_load(f)
 
-    with open(baseline, 'r') as f:
+    with open(baseline, 'r', encoding='utf-8') as f:
         baseline_data = yaml.safe_load(f)
 
     # Fields to ignore in comparison (volatile)
@@ -419,12 +419,12 @@ def compare_csv_files(current: Path, baseline: Path) -> Optional[Dict[str, Any]]
             print(f"Row count changed: {diff['row_count_diff']}")
     """
     # Read both CSVs
-    with open(current, 'r') as f:
+    with open(current, 'r', encoding='utf-8') as f:
         current_reader = csv.DictReader(f)
         current_rows = list(current_reader)
         current_headers = current_reader.fieldnames
 
-    with open(baseline, 'r') as f:
+    with open(baseline, 'r', encoding='utf-8') as f:
         baseline_reader = csv.DictReader(f)
         baseline_rows = list(baseline_reader)
         baseline_headers = baseline_reader.fieldnames

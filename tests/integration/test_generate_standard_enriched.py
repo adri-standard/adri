@@ -33,7 +33,7 @@ def test_generate_standard_enriched_and_training_pass_guarantee():
         assert std_path.exists(), "Expected generated standard at ADRI/dev/standards/"
 
         # Load standard YAML
-        with open(std_path, "r") as f:
+        with open(std_path, 'r', encoding='utf-8') as f:
             std = yaml.safe_load(f)
 
         # Assert: record_identification populated

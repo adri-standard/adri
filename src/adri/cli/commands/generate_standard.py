@@ -104,7 +104,7 @@ class GenerateStandardCommand(Command):
             self._add_generation_metadata(std_dict, data_name)
 
             # Save standard
-            with open(output_path, "w") as f:
+            with open(output_path, "w", encoding="utf-8") as f:
                 yaml.dump(std_dict, f, default_flow_style=False, sort_keys=False)
 
             # Display results

@@ -21,6 +21,7 @@ from pathlib import Path
 import yaml
 from dataclasses import dataclass
 from typing import Dict, Any, Optional, List
+import pytest
 
 # Import CLI functions for testing environment documentation integration
 import src.adri.cli as adri_cli
@@ -65,7 +66,7 @@ class TestEnvironmentDocumentation(unittest.TestCase):
 
             if project_config_path.exists():
                 # Read config file content as text to check documentation
-                with open(project_config_path, 'r') as f:
+                with open(project_config_path, 'r', encoding='utf-8') as f:
                     config_content = f.read()
 
                 # Check for major documentation sections
@@ -99,7 +100,7 @@ class TestEnvironmentDocumentation(unittest.TestCase):
             project_config_path = Path("ADRI/config.yaml")
 
             if project_config_path.exists():
-                with open(project_config_path, 'r') as f:
+                with open(project_config_path, 'r', encoding='utf-8') as f:
                     config_content = f.read()
 
                 # Check for all three switching methods
@@ -140,7 +141,7 @@ class TestEnvironmentDocumentation(unittest.TestCase):
             project_config_path = Path("ADRI/config.yaml")
 
             if project_config_path.exists():
-                with open(project_config_path, 'r') as f:
+                with open(project_config_path, 'r', encoding='utf-8') as f:
                     config_content = f.read()
 
                 # Development environment purpose documentation
@@ -182,7 +183,7 @@ class TestEnvironmentDocumentation(unittest.TestCase):
             project_config_path = Path("ADRI/config.yaml")
 
             if project_config_path.exists():
-                with open(project_config_path, 'r') as f:
+                with open(project_config_path, 'r', encoding='utf-8') as f:
                     config_content = f.read()
 
                 # Check for workflow steps
@@ -213,7 +214,7 @@ class TestEnvironmentDocumentation(unittest.TestCase):
             project_config_path = Path("ADRI/config.yaml")
 
             if project_config_path.exists():
-                with open(project_config_path, 'r') as f:
+                with open(project_config_path, 'r', encoding='utf-8') as f:
                     config_content = f.read()
 
                 # Check for directory structure explanation
@@ -244,7 +245,7 @@ class TestEnvironmentDocumentation(unittest.TestCase):
             project_config_path = Path("ADRI/config.yaml")
 
             if project_config_path.exists():
-                with open(project_config_path, 'r') as f:
+                with open(project_config_path, 'r', encoding='utf-8') as f:
                     config_content = f.read()
 
                 # Check for audit configuration explanations
@@ -276,7 +277,7 @@ class TestEnvironmentDocumentation(unittest.TestCase):
             project_config_path = Path("ADRI/config.yaml")
 
             if project_config_path.exists():
-                with open(project_config_path, 'r') as f:
+                with open(project_config_path, 'r', encoding='utf-8') as f:
                     config_content = f.read()
 
                 # Check for path explanations
@@ -325,7 +326,7 @@ class TestConfigurationValidation(unittest.TestCase):
         self.assertEqual(result, 0)
 
         config_path = self.adri_dir / "config.yaml"
-        with open(config_path, 'r') as f:
+        with open(config_path, 'r', encoding='utf-8') as f:
             config = yaml.safe_load(f)
 
         # Verify top-level structure
@@ -357,7 +358,7 @@ class TestConfigurationValidation(unittest.TestCase):
         self.assertEqual(result, 0)
 
         config_path = self.adri_dir / "config.yaml"
-        with open(config_path, 'r') as f:
+        with open(config_path, 'r', encoding='utf-8') as f:
             config = yaml.safe_load(f)
 
         environments = config["adri"]["environments"]
@@ -386,7 +387,7 @@ class TestConfigurationValidation(unittest.TestCase):
         self.assertEqual(result, 0)
 
         config_path = self.adri_dir / "config.yaml"
-        with open(config_path, 'r') as f:
+        with open(config_path, 'r', encoding='utf-8') as f:
             config = yaml.safe_load(f)
 
         environments = config["adri"]["environments"]
@@ -414,7 +415,7 @@ class TestConfigurationValidation(unittest.TestCase):
         self.assertEqual(result, 0)
 
         config_path = self.adri_dir / "config.yaml"
-        with open(config_path, 'r') as f:
+        with open(config_path, 'r', encoding='utf-8') as f:
             config = yaml.safe_load(f)
 
         adri_config = config["adri"]
@@ -427,7 +428,7 @@ class TestConfigurationValidation(unittest.TestCase):
         self.assertEqual(result, 0)
 
         config_path = self.adri_dir / "config.yaml"
-        with open(config_path, 'r') as f:
+        with open(config_path, 'r', encoding='utf-8') as f:
             config = yaml.safe_load(f)
 
         adri_config = config["adri"]
@@ -525,33 +526,44 @@ class TestShowConfigEnvironmentDisplay(unittest.TestCase):
         os.chdir(self.original_cwd)
         shutil.rmtree(self.temp_dir)
 
-    @patch('click.echo')
-    def test_show_config_displays_environment_paths(self, mock_echo):
-        """Test that show-config correctly displays environment paths."""
-        result = adri_cli.show_config_command()
-        self.assertEqual(result, 0)
-
-        # Safe handling of mock call arguments
+    def _safe_get_mock_output(self, mock_echo):
+        """Safely extract all output from mock echo calls."""
         echo_calls = []
         for call in mock_echo.call_args_list:
-            if call.args and len(call.args) > 0:
-                echo_calls.append(str(call.args[0]))
-        all_output = ' '.join(echo_calls)
+            try:
+                if call and hasattr(call, 'args') and call.args and len(call.args) > 0:
+                    echo_calls.append(str(call.args[0]))
+            except (AttributeError, IndexError, TypeError):
+                continue
+        return ' '.join(echo_calls)
 
-        # Check for both environments
-        environment_indicators = [
-            "Development Environment:",
-            "Production Environment:",
-            "standards:",
-            "assessments:",
-            "training_data:",
-            "audit_logs:",
-        ]
+    @patch('click.echo')
+    @patch.dict(os.environ, {}, clear=True)
+    def test_show_config_displays_environment_paths(self, mock_echo):
+        """Test that show-config correctly displays environment paths."""
+        # Set config path to local test config to prevent upward search
+        local_config = str(Path(self.temp_dir) / "ADRI" / "config.yaml")
+        with patch.dict(os.environ, {"ADRI_CONFIG_PATH": local_config}):
+            result = adri_cli.show_config_command()
+            self.assertEqual(result, 0)
 
-        for indicator in environment_indicators:
-            with self.subTest(indicator=indicator):
-                self.assertIn(indicator, all_output,
-                    f"show-config missing environment indicator: {indicator}")
+            # Safe handling of mock call arguments
+            all_output = self._safe_get_mock_output(mock_echo)
+
+            # Check for both environments
+            environment_indicators = [
+                "Development Environment:",
+                "Production Environment:",
+                "standards:",
+                "assessments:",
+                "training_data:",
+                "audit_logs:",
+            ]
+
+            for indicator in environment_indicators:
+                with self.subTest(indicator=indicator):
+                    self.assertIn(indicator, all_output,
+                        f"show-config missing environment indicator: {indicator}")
 
     @patch('click.echo')
     def test_show_config_specific_environment_display(self, mock_echo):
@@ -560,11 +572,7 @@ class TestShowConfigEnvironmentDisplay(unittest.TestCase):
         self.assertEqual(result, 0)
 
         # Safe handling of mock call arguments
-        echo_calls = []
-        for call in mock_echo.call_args_list:
-            if call.args and len(call.args) > 0:
-                echo_calls.append(str(call.args[0]))
-        all_output = ' '.join(echo_calls)
+        all_output = self._safe_get_mock_output(mock_echo)
 
         # Should show development environment
         self.assertIn("Development Environment:", all_output)
@@ -578,11 +586,7 @@ class TestShowConfigEnvironmentDisplay(unittest.TestCase):
         self.assertEqual(result, 0)
 
         # Safe handling of mock call arguments
-        echo_calls = []
-        for call in mock_echo.call_args_list:
-            if call.args and len(call.args) > 0:
-                echo_calls.append(str(call.args[0]))
-        all_output = ' '.join(echo_calls)
+        all_output = self._safe_get_mock_output(mock_echo)
 
         # Should show paths but not project metadata
         self.assertIn("Environment:", all_output)
@@ -610,7 +614,7 @@ class TestEnvironmentDocumentationIntegration(unittest.TestCase):
 
         # Read config documentation to extract expected directories
         config_path = Path("ADRI/config.yaml")
-        with open(config_path, 'r') as f:
+        with open(config_path, 'r', encoding='utf-8') as f:
             config = yaml.safe_load(f)
 
         # Verify directories exist as documented
@@ -636,17 +640,17 @@ class TestEnvironmentDocumentationIntegration(unittest.TestCase):
         config_path = Path("ADRI/config.yaml")
 
         # Test configuration method (documented in config.yaml)
-        with open(config_path, 'r') as f:
+        with open(config_path, 'r', encoding='utf-8') as f:
             config = yaml.safe_load(f)
 
         # Change default environment as documented
         config["adri"]["default_environment"] = "production"
 
-        with open(config_path, 'w') as f:
+        with open(config_path, 'w', encoding='utf-8') as f:
             yaml.dump(config, f)
 
         # Verify the change worked
-        with open(config_path, 'r') as f:
+        with open(config_path, 'r', encoding='utf-8') as f:
             updated_config = yaml.safe_load(f)
 
         self.assertEqual(updated_config["adri"]["default_environment"], "production")
@@ -667,7 +671,7 @@ class TestEnvironmentDocumentationIntegration(unittest.TestCase):
         # Create test standard in dev
         test_standard = dev_standards / "test_standard.yaml"
         standard_content = {"standards": {"name": "Test Standard"}}
-        with open(test_standard, 'w') as f:
+        with open(test_standard, 'w', encoding='utf-8') as f:
             yaml.dump(standard_content, f)
 
         # Copy to prod as documented workflow recommends
@@ -697,17 +701,27 @@ class TestDocumentationConsistency(unittest.TestCase):
         os.chdir(self.original_cwd)
         shutil.rmtree(self.temp_dir)
 
+    def _safe_get_mock_output(self, mock_echo):
+        """Safely extract all output from mock echo calls."""
+        echo_calls = []
+        for call in mock_echo.call_args_list:
+            try:
+                if call and hasattr(call, 'args') and call.args and len(call.args) > 0:
+                    echo_calls.append(str(call.args[0]))
+            except (AttributeError, IndexError, TypeError):
+                continue
+        return ' '.join(echo_calls)
+
     @patch('click.echo')
     def test_help_guide_config_consistency(self, mock_echo):
         """Test consistency between help guide and config.yaml documentation."""
         # Get help guide output
         adri_cli.show_help_guide()
-        echo_calls = [call.args[0] for call in mock_echo.call_args_list]
-        help_output = ' '.join(echo_calls)
+        help_output = self._safe_get_mock_output(mock_echo)
 
         # Read config documentation
         config_path = Path("ADRI/config.yaml")
-        with open(config_path, 'r') as f:
+        with open(config_path, 'r', encoding='utf-8') as f:
             config_content = f.read()
 
         # Check that key concepts are consistent between sources
@@ -731,33 +745,33 @@ class TestDocumentationConsistency(unittest.TestCase):
                     f"Config documentation missing concept: {concept}")
 
     @patch('click.echo')
+    @patch.dict(os.environ, {}, clear=True)
     def test_show_config_documentation_consistency(self, mock_echo):
         """Test consistency between show-config output and actual config."""
-        adri_cli.show_config_command()
+        # Set config path to local test config to prevent upward search
+        local_config = str(Path(self.temp_dir) / "ADRI" / "config.yaml")
+        with patch.dict(os.environ, {"ADRI_CONFIG_PATH": local_config}):
+            adri_cli.show_config_command()
 
-        # Safe handling of mock call arguments
-        echo_calls = []
-        for call in mock_echo.call_args_list:
-            if call.args and len(call.args) > 0:
-                echo_calls.append(str(call.args[0]))
-        show_config_output = ' '.join(echo_calls)
+            # Safe handling of mock call arguments
+            show_config_output = self._safe_get_mock_output(mock_echo)
 
-        # Read actual config
-        config_path = Path("ADRI/config.yaml")
-        with open(config_path, 'r') as f:
-            config = yaml.safe_load(f)
+            # Read actual config
+            config_path = Path("ADRI/config.yaml")
+            with open(config_path, 'r', encoding='utf-8') as f:
+                config = yaml.safe_load(f)
 
-        # Check that show-config displays match actual config values
-        adri_config = config["adri"]
+            # Check that show-config displays match actual config values
+            adri_config = config["adri"]
 
-        # Project name consistency
-        self.assertIn(adri_config["project_name"], show_config_output)
+            # Project name consistency
+            self.assertIn(adri_config["project_name"], show_config_output)
 
-        # Version consistency
-        self.assertIn(adri_config["version"], show_config_output)
+            # Version consistency
+            self.assertIn(adri_config["version"], show_config_output)
 
-        # Default environment consistency
-        self.assertIn(adri_config["default_environment"], show_config_output)
+            # Default environment consistency
+            self.assertIn(adri_config["default_environment"], show_config_output)
 
 
 if __name__ == '__main__':

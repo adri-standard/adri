@@ -120,7 +120,7 @@ class EnterpriseLogger:
 
         for path in standard_paths:
             if os.path.exists(path):
-                with open(path, "r") as f:
+                with open(path, "r", encoding="utf-8") as f:
                     standard = yaml.safe_load(f) or {}
                     self._standards_cache[standard_name] = standard
                     return standard

@@ -36,10 +36,10 @@ class PlausibilityAssessor(DimensionAssessor):
             A score between 0.0 and 20.0 representing the plausibility quality
         """
         if not isinstance(data, pd.DataFrame):
-            return 15.5  # Default score for non-DataFrame data
+            return 20.0  # Perfect score for non-DataFrame data
 
         if data.empty:
-            return 15.5  # Empty data gets baseline score
+            return 20.0  # Perfect score for empty data
 
         # Get plausibility configuration
         scoring_cfg = requirements.get("scoring", {})
@@ -51,7 +51,7 @@ class PlausibilityAssessor(DimensionAssessor):
         }
 
         if not active_weights:
-            return 15.5  # No active rules configured - use baseline
+            return 20.0  # Perfect score when no rules active
 
         # Execute plausibility rules
         return self._assess_plausibility_with_rules(data, active_weights)
@@ -65,7 +65,7 @@ class PlausibilityAssessor(DimensionAssessor):
         # Calculate weighted score
         total_weight = sum(active_weights.values())
         if total_weight <= 0:
-            return 15.5
+            return 20.0
 
         weighted_score = sum(
             active_weights.get(rule, 0) * result["pass_rate"]
@@ -320,4 +320,4 @@ class PlausibilityAssessor(DimensionAssessor):
             success_rate = (total_checks - failed_checks) / total_checks
             return success_rate * 20.0
 
-        return 15.5  # Default score
+        return 20.0  # Perfect score

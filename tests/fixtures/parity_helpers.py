@@ -66,7 +66,7 @@ def setup_isolated_environment(base_path: Path) -> Dict[str, Path]:
         }
     }
 
-    with open(config_path, 'w') as f:
+    with open(config_path, 'w', encoding='utf-8') as f:
         yaml.dump(config, f, default_flow_style=False, sort_keys=False)
 
     return {
@@ -90,9 +90,9 @@ def compare_standards(cli_standard_path: Path, decorator_standard_path: Path) ->
         AssertionError: If standards differ beyond allowed fields
     """
     # Load both standards
-    with open(cli_standard_path, 'r') as f:
+    with open(cli_standard_path, 'r', encoding='utf-8') as f:
         cli_std = yaml.safe_load(f)
-    with open(decorator_standard_path, 'r') as f:
+    with open(decorator_standard_path, 'r', encoding='utf-8') as f:
         dec_std = yaml.safe_load(f)
 
     # Remove non-deterministic metadata fields
@@ -158,12 +158,12 @@ def compare_standards(cli_standard_path: Path, decorator_standard_path: Path) ->
 
 def compare_assessment_logs(cli_log_dir: Path, decorator_log_dir: Path) -> None:
     """
-    Compare assessment CSV logs, excluding non-deterministic fields.
+    Compare assessment JSONL logs, excluding non-deterministic fields.
 
-    Compares all three CSV log files:
-    - adri_assessment_logs.csv
-    - adri_dimension_scores.csv
-    - adri_failed_validations.csv
+    Compares all three JSONL log files:
+    - adri_assessment_logs.jsonl
+    - adri_dimension_scores.jsonl
+    - adri_failed_validations.jsonl
 
     Args:
         cli_log_dir: Directory containing CLI assessment logs
@@ -172,6 +172,8 @@ def compare_assessment_logs(cli_log_dir: Path, decorator_log_dir: Path) -> None:
     Raises:
         AssertionError: If logs differ in deterministic fields
     """
+    import json
+
     # Fields to exclude from comparison (non-deterministic)
     EXCLUDE_FIELDS = [
         'assessment_id',
@@ -180,70 +182,72 @@ def compare_assessment_logs(cli_log_dir: Path, decorator_log_dir: Path) -> None:
         'hostname',
         'standard_path',  # Contains environment-specific temp directory paths
         'assessment_duration_ms',  # May vary slightly
-        'rows_per_second'  # May vary slightly
+        'rows_per_second',  # May vary slightly
+        'write_seq'  # Sequence number may vary
     ]
 
     # Log files to compare
     log_files = [
-        'adri_assessment_logs.csv',
-        'adri_dimension_scores.csv',
-        'adri_failed_validations.csv'
+        'adri_assessment_logs.jsonl',
+        'adri_dimension_scores.jsonl',
+        'adri_failed_validations.jsonl'
     ]
 
     for log_file in log_files:
-        cli_csv = cli_log_dir / log_file
-        dec_csv = decorator_log_dir / log_file
+        cli_jsonl = cli_log_dir / log_file
+        dec_jsonl = decorator_log_dir / log_file
 
         # Check both files exist
-        if not cli_csv.exists():
-            raise AssertionError(f"CLI log file not found: {cli_csv}")
-        if not dec_csv.exists():
-            raise AssertionError(f"Decorator log file not found: {dec_csv}")
+        if not cli_jsonl.exists():
+            raise AssertionError(f"CLI log file not found: {cli_jsonl}")
+        if not dec_jsonl.exists():
+            raise AssertionError(f"Decorator log file not found: {dec_jsonl}")
 
-        # Load CSVs
-        cli_df = pd.read_csv(cli_csv)
-        dec_df = pd.read_csv(dec_csv)
+        # Load JSONL files
+        cli_records = []
+        with open(cli_jsonl, 'r', encoding='utf-8') as f:
+            for line in f:
+                if line.strip():
+                    cli_records.append(json.loads(line))
 
-        # Check same number of rows
-        assert len(cli_df) == len(dec_df), (
+        dec_records = []
+        with open(dec_jsonl, 'r', encoding='utf-8') as f:
+            for line in f:
+                if line.strip():
+                    dec_records.append(json.loads(line))
+
+        # Check same number of records
+        assert len(cli_records) == len(dec_records), (
             f"{log_file}: Different number of records\n"
-            f"CLI: {len(cli_df)} records\n"
-            f"Decorator: {len(dec_df)} records"
+            f"CLI: {len(cli_records)} records\n"
+            f"Decorator: {len(dec_records)} records"
         )
 
-        # Drop excluded fields
-        for field in EXCLUDE_FIELDS:
-            if field in cli_df.columns:
-                cli_df = cli_df.drop(columns=[field])
-            if field in dec_df.columns:
-                dec_df = dec_df.drop(columns=[field])
+        # Remove excluded fields from records
+        for record in cli_records + dec_records:
+            for field in EXCLUDE_FIELDS:
+                if field in record:
+                    del record[field]
+                # Also check nested fields
+                if 'assessment_metadata' in record:
+                    for nested_field in EXCLUDE_FIELDS:
+                        if nested_field in record['assessment_metadata']:
+                            del record['assessment_metadata'][nested_field]
 
-        # Sort by remaining fields for consistent comparison
-        # Avoid sorting by JSON/text fields that may have varying formats
-        sort_cols = [
-            c for c in cli_df.columns
-            if c not in ['details', 'sample_failures', 'data_columns', 'remediation']
-        ]
+        # Compare records (order may vary, so compare as sets)
+        # Convert to JSON strings for comparison
+        cli_set = {json.dumps(r, sort_keys=True) for r in cli_records}
+        dec_set = {json.dumps(r, sort_keys=True) for r in dec_records}
 
-        if sort_cols:
-            cli_df = cli_df.sort_values(sort_cols).reset_index(drop=True)
-            dec_df = dec_df.sort_values(sort_cols).reset_index(drop=True)
-
-        # Compare DataFrames
-        try:
-            pd.testing.assert_frame_equal(
-                cli_df,
-                dec_df,
-                check_dtype=False,  # Allow dtype differences (int vs float)
-                check_exact=False,  # Allow small numerical differences
-                rtol=1e-3,  # Relative tolerance for floats
-                atol=1e-5   # Absolute tolerance for floats
-            )
-        except AssertionError as e:
-            raise AssertionError(
-                f"{log_file}: Logs differ in deterministic fields\n"
-                f"Comparison error: {str(e)}"
-            )
+        if cli_set != dec_set:
+            missing_in_dec = cli_set - dec_set
+            missing_in_cli = dec_set - cli_set
+            error_msg = f"{log_file}: Logs differ in deterministic fields\n"
+            if missing_in_dec:
+                error_msg += f"Records in CLI but not Decorator: {len(missing_in_dec)}\n"
+            if missing_in_cli:
+                error_msg += f"Records in Decorator but not CLI: {len(missing_in_cli)}\n"
+            raise AssertionError(error_msg)
 
 
 def copy_standard(source_path: Path, dest_path: Path) -> None:
@@ -260,10 +264,10 @@ def copy_standard(source_path: Path, dest_path: Path) -> None:
 
 def clear_logs(log_dir: Path) -> None:
     """
-    Clear all CSV log files in the specified directory.
+    Clear all JSONL log files in the specified directory.
 
     Args:
         log_dir: Directory containing log files
     """
-    for csv_file in log_dir.glob("adri_*.csv"):
-        csv_file.unlink()
+    for jsonl_file in log_dir.glob("adri_*.jsonl"):
+        jsonl_file.unlink()

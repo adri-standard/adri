@@ -75,7 +75,7 @@ class TestConfigTemplate:
         """Test that config template is valid YAML."""
         config_path = tutorial_project / "adri-config.yaml"
 
-        with open(config_path, 'r') as f:
+        with open(config_path, 'r', encoding='utf-8') as f:
             config = yaml.safe_load(f)
 
         assert config is not None
@@ -85,7 +85,7 @@ class TestConfigTemplate:
         """Test that config contains required sections."""
         config_path = tutorial_project / "adri-config.yaml"
 
-        with open(config_path, 'r') as f:
+        with open(config_path, 'r', encoding='utf-8') as f:
             config = yaml.safe_load(f)
 
         assert 'adri' in config
@@ -96,7 +96,7 @@ class TestConfigTemplate:
         """Test that config includes development environment."""
         config_path = tutorial_project / "adri-config.yaml"
 
-        with open(config_path, 'r') as f:
+        with open(config_path, 'r', encoding='utf-8') as f:
             config = yaml.safe_load(f)
 
         environments = config['adri']['environments']
@@ -112,7 +112,7 @@ class TestConfigTemplate:
         """Test that config includes production environment."""
         config_path = tutorial_project / "adri-config.yaml"
 
-        with open(config_path, 'r') as f:
+        with open(config_path, 'r', encoding='utf-8') as f:
             config = yaml.safe_load(f)
 
         environments = config['adri']['environments']
@@ -126,7 +126,7 @@ class TestConfigTemplate:
         """Test that default environment is set to development."""
         config_path = tutorial_project / "adri-config.yaml"
 
-        with open(config_path, 'r') as f:
+        with open(config_path, 'r', encoding='utf-8') as f:
             config = yaml.safe_load(f)
 
         assert config['adri']['default_environment'] == 'development'
@@ -219,7 +219,7 @@ class TestInvoiceScenarioSetup:
 
     def test_invoice_scenario_standard_valid(self, invoice_scenario):
         """Test that generated standard is valid YAML."""
-        with open(invoice_scenario['standard_path'], 'r') as f:
+        with open(invoice_scenario['standard_path'], 'r', encoding='utf-8') as f:
             standard = yaml.safe_load(f)
 
         assert standard is not None
@@ -410,7 +410,7 @@ class TestDecoratorIntegration:
         # ==== STEP 1: Standard Loading ====
         # Load standard directly from YAML
         standard_path = invoice_scenario['standard_path']
-        with open(standard_path, 'r') as f:
+        with open(standard_path, 'r', encoding='utf-8') as f:
             direct_standard = yaml.safe_load(f)
 
         # Verify standard has expected structure and contains the data name

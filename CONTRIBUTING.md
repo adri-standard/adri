@@ -271,8 +271,30 @@ We follow the [Conventional Commits](https://www.conventionalcommits.org/) speci
 
 - Follow [PEP 8](https://www.python.org/dev/peps/pep-0008/)
 - Use type hints for function parameters and return values
-- Maximum line length: 100 characters
+- Maximum line length: 88 characters (enforced by Black)
 - Use descriptive variable and function names
+
+### Cross-Platform Compatibility ⚠️ CRITICAL
+
+**ADRI runs on Windows, macOS, and Linux.** Always specify `encoding='utf-8'` when opening text files:
+
+```python
+# ✅ CORRECT - Works on all platforms
+with open('file.yaml', 'r', encoding='utf-8') as f:
+    content = f.read()
+
+# ❌ WRONG - Fails on Windows (uses cp1252 instead of UTF-8)
+with open('file.yaml', 'r') as f:
+    content = f.read()
+```
+
+**Why this matters**: Windows uses cp1252 encoding by default, while macOS/Linux use UTF-8. Code that works on your Mac will fail on Windows CI if you don't specify encoding.
+
+**VS Code Snippets**: Type `openr`, `openw`, `yamlload`, etc. for auto-completion with correct encoding.
+
+**Pre-commit Hook**: Our encoding check will catch missing encoding parameters before commit.
+
+**See**: [Cross-Platform Best Practices Guide](docs/development/CROSS_PLATFORM_BEST_PRACTICES.md)
 
 ### Code Quality Tools
 

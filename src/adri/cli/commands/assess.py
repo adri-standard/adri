@@ -98,7 +98,7 @@ class AssessCommand(Command):
             # Save output if requested
             if output_path:
                 report_data = result.to_standard_dict()
-                with open(output_path, "w") as f:
+                with open(output_path, "w", encoding="utf-8") as f:
                     json.dump(report_data, f, indent=2)
                 click.echo(f"📄 Report saved: {output_path}")
 
@@ -199,7 +199,7 @@ class AssessCommand(Command):
             )
 
             report_data = result.to_standard_dict()
-            with open(auto_output_path, "w") as f:
+            with open(auto_output_path, "w", encoding="utf-8") as f:
                 json.dump(report_data, f, indent=2)
 
         except Exception:

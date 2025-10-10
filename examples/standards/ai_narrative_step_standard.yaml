@@ -1,0 +1,219 @@
+standards:
+  id: ai_narrative_step_standard
+  name: AI Narrative Step Standard
+  version: 1.0.0
+  authority: ADRI Framework
+  description: |
+    Standard for validating AI narrative/content generation step outputs in workflows.
+    Designed for AI steps that produce text, summaries, or content consumed by subsequent
+    workflow steps. Uses only structural constraints - validates presence and length,
+    not semantic content.
+
+requirements:
+  overall_minimum: 75.0
+
+  field_requirements:
+    # Primary narrative content fields - structural validation only
+    - name: generated_content
+      type: string
+      mandatory: true
+      constraints:
+        - type: min_length
+          value: 100
+          description: "Content must be substantive (at least 100 characters)"
+        - type: max_length
+          value: 10000
+          description: "Content must be reasonable length (max 10000 characters)"
+
+    - name: content_type
+      type: string
+      mandatory: true
+      constraints:
+        - type: allowed_values
+          values: ["summary", "analysis", "report", "email", "description", "recommendation", "translation"]
+          description: "Type of content generated"
+
+    - name: source_reference
+      type: string
+      mandatory: false
+      nullable: true
+      constraints:
+        - type: min_length
+          value: 10
+          description: "Reference to source material if applicable"
+
+    # Quality and metadata indicators
+    - name: word_count
+      type: integer
+      mandatory: false
+      nullable: true
+      constraints:
+        - type: min_value
+          value: 10
+        - type: max_value
+          value: 5000
+
+    - name: estimated_reading_time_minutes
+      type: integer
+      mandatory: false
+      nullable: true
+      constraints:
+        - type: min_value
+          value: 1
+        - type: max_value
+          value: 60
+
+    - name: language
+      type: string
+      mandatory: false
+      nullable: true
+      constraints:
+        - type: allowed_values
+          values: ["en", "es", "fr", "de", "pt", "zh", "ja", "other"]
+          description: "Language code for generated content"
+
+    - name: confidence_score
+      type: float
+      mandatory: false
+      nullable: true
+      constraints:
+        - type: min_value
+          value: 0.0
+        - type: max_value
+          value: 1.0
+          description: "AI's confidence in generated content quality"
+
+    # Workflow context fields with exact constraints
+    - name: generation_timestamp
+      type: datetime
+      mandatory: true
+
+    - name: workflow_run_id
+      type: string
+      mandatory: true
+      constraints:
+        - type: pattern
+          value: "^run_[0-9]{8}_[0-9]{6}_[a-f0-9]{8}$"
+          description: "Must follow workflow run ID format"
+
+    - name: step_id
+      type: string
+      mandatory: true
+      constraints:
+        - type: min_length
+          value: 1
+
+    - name: previous_step_id
+      type: string
+      mandatory: false
+      nullable: true
+      constraints:
+        - type: min_length
+          value: 1
+          description: "ID of step that provided input for this generation"
+
+metadata:
+  created_by: ADRI Development Team
+  created_date: 2025-01-07
+  purpose: narrative_content_validation
+  tags:
+    - workflow_orchestration
+    - ai_content_generation
+    - narrative_validation
+    - content_quality
+
+  usage_guidelines: |
+    This standard is specifically for AI workflow steps that generate narrative content
+    or text that becomes input to subsequent workflow steps.
+
+    NARRATIVE CONTENT VALIDATION APPROACH:
+
+    1. STRUCTURAL ONLY - No Semantic Validation:
+       - Validates that content exists and has appropriate length
+       - Does NOT validate what the content says
+       - AI can generate any appropriate narrative within length bounds
+
+    2. Content Type Classification:
+       - Categorizes the type of content generated (summary, analysis, etc.)
+       - Helps downstream steps understand what they're consuming
+       - Uses exact validation (allowed_values) for clear categorization
+
+    3. Optional Quality Indicators:
+       - word_count, reading_time, confidence_score are optional
+       - Help assess content without constraining creativity
+       - Useful for monitoring and analytics
+
+    4. Workflow Traceability:
+       - run_id, step_id, previous_step_id maintain lineage
+       - Links generated content back to source steps
+       - Essential for debugging and auditing
+
+    COMMON USE CASES:
+
+    - Document Summarization:
+      * AI reads lengthy documents
+      * Generates concise summaries for review
+      * Summary becomes input to decision step
+
+    - Report Generation:
+      * AI analyzes data and creates narrative reports
+      * Reports consumed by business users
+      * Content flows to presentation/distribution steps
+
+    - Email/Communication Generation:
+      * AI drafts emails, notifications, or messages
+      * Content reviewed and sent by subsequent steps
+      * Maintains professional communication standards
+
+    - Data Analysis Narratives:
+      * AI converts numbers into insights
+      * Generates textual analysis of trends
+      * Analysis feeds into strategic decision steps
+
+    - Content Translation/Transformation:
+      * AI converts format or translates language
+      * Transformed content used by next process
+      * Preserves information while changing form
+
+    BEST PRACTICES:
+
+    1. Set Appropriate Length Bounds:
+       - min_length ensures substantive content (100+ chars)
+       - max_length prevents excessively verbose output (10K chars)
+       - Adjust based on your specific content needs
+
+    2. Use content_type for Routing:
+       - Downstream steps can handle different content types
+       - Enables conditional workflow logic
+       - Improves workflow transparency
+
+    3. Track Confidence When Available:
+       - AI confidence scores help identify uncertain outputs
+       - Can trigger human review for low-confidence content
+       - Useful for quality monitoring over time
+
+    4. Maintain Workflow Lineage:
+       - Always populate run_id and step_id
+       - Link to previous_step_id when content derives from prior step
+       - Essential for debugging content quality issues
+
+    5. No Semantic Constraints on Content:
+       - Never add pattern or allowed_values to generated_content
+       - Let AI generate natural, variable text
+       - Only constrain structure (presence, length)
+
+    ANTI-PATTERNS TO AVOID:
+
+    - ❌ Adding pattern constraints to narrative fields
+    - ❌ Using allowed_values for free-form content
+    - ❌ Over-constraining with tight length limits
+    - ❌ Omitting workflow context fields (run_id, step_id)
+    - ❌ Making optional quality fields mandatory
+
+    INTEGRATION WITH WORKFLOW ORCHESTRATION:
+
+    This standard works with workflow_context parameter (FR-1):
+    - Workflow runner passes context to ADRI
+    - ADRI validates generated content structure
+    - ADRI logs assessment linked to workflow execution
+    - Next step consumes validated content with confidence

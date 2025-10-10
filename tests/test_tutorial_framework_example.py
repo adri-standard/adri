@@ -183,7 +183,7 @@ class TestComparisonWithLegacyPattern:
 
         # 3. Write standard to file with full path
         standard_file = temp_workspace / "ADRI" / "dev" / "standards" / "legacy_standard.yaml"
-        with open(standard_file, 'w') as f:
+        with open(standard_file, 'w', encoding='utf-8') as f:
             yaml.dump(standard_dict, f)
 
         # 4. Use decorator with full path (less user-friendly)
@@ -331,7 +331,7 @@ class TestMigrationGuidelines:
         standard = ModernFixtures.create_standards_data("minimal")
 
         standard_file = temp_workspace / "ADRI" / "dev" / "standards" / "test.yaml"
-        with open(standard_file, 'w') as f:
+        with open(standard_file, 'w', encoding='utf-8') as f:
             yaml.dump(standard, f)
 
         # Complex setup that could be simplified

@@ -27,6 +27,9 @@ const sidebars: SidebarsConfig = {
       },
       items: [
         'users/getting-started',
+        'users/onboarding-guide',
+        'users/feature-benefits',
+        'users/flip-to-enterprise',
         'users/core-concepts',
         'users/faq',
         'users/frameworks',

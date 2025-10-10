@@ -93,7 +93,7 @@ class TestStandardsParserIntegration(unittest.TestCase):
 
         # Write standard to file
         standard_file = self.standards_dir / "customer_data_standard.yaml"
-        with open(standard_file, "w") as f:
+        with open(standard_file, 'w', encoding='utf-8') as f:
             yaml.dump(standard_content, f, default_flow_style=False)
 
         # Test complete parsing workflow
@@ -189,7 +189,7 @@ class TestStandardsParserIntegration(unittest.TestCase):
         # Write all standards to files
         for standard_name, content in standards_data.items():
             standard_file = self.standards_dir / f"{standard_name}.yaml"
-            with open(standard_file, "w") as f:
+            with open(standard_file, 'w', encoding='utf-8') as f:
                 yaml.dump(content, f)
 
         parser = StandardsParser()
@@ -230,7 +230,7 @@ class TestStandardsParserIntegration(unittest.TestCase):
         }
 
         standard_file = self.standards_dir / "cache_test.yaml"
-        with open(standard_file, "w") as f:
+        with open(standard_file, 'w', encoding='utf-8') as f:
             yaml.dump(standard_content, f)
 
         parser = StandardsParser()
@@ -277,7 +277,7 @@ class TestStandardsParserIntegration(unittest.TestCase):
         }
 
         standard_file = self.standards_dir / "convenience_test.yaml"
-        with open(standard_file, "w") as f:
+        with open(standard_file, 'w', encoding='utf-8') as f:
             yaml.dump(standard_content, f)
 
         # Test load_bundled_standard function
@@ -372,7 +372,7 @@ class TestStandardsParserIntegration(unittest.TestCase):
         }
 
         standard_file = self.standards_dir / "complex_standard.yaml"
-        with open(standard_file, "w") as f:
+        with open(standard_file, 'w', encoding='utf-8') as f:
             yaml.dump(complex_standard, f, default_flow_style=False)
 
         parser = StandardsParser()
@@ -466,7 +466,7 @@ class TestStandardsParserErrorHandling(unittest.TestCase):
 
         # Create file with invalid YAML
         invalid_yaml_file = self.standards_dir / "invalid_syntax.yaml"
-        with open(invalid_yaml_file, "w") as f:
+        with open(invalid_yaml_file, 'w', encoding='utf-8') as f:
             f.write("invalid: yaml: content: [\n  - unclosed list\n  - another: item")
 
         parser = StandardsParser()
@@ -504,7 +504,7 @@ class TestStandardsParserErrorHandling(unittest.TestCase):
 
         for standard_name, invalid_content in test_cases:
             standard_file = self.standards_dir / f"{standard_name}.yaml"
-            with open(standard_file, "w") as f:
+            with open(standard_file, 'w', encoding='utf-8') as f:
                 yaml.dump(invalid_content, f)
 
             with self.assertRaises(InvalidStandardError):
@@ -516,7 +516,7 @@ class TestStandardsParserErrorHandling(unittest.TestCase):
 
         # Create YAML file with list instead of dict
         list_yaml_file = self.standards_dir / "list_content.yaml"
-        with open(list_yaml_file, "w") as f:
+        with open(list_yaml_file, 'w', encoding='utf-8') as f:
             yaml.dump(["item1", "item2", "item3"], f)
 
         parser = StandardsParser()
@@ -540,7 +540,7 @@ class TestStandardsParserErrorHandling(unittest.TestCase):
             "requirements": {"overall_minimum": 80.0}
         }
 
-        with open(restricted_file, "w") as f:
+        with open(restricted_file, 'w', encoding='utf-8') as f:
             yaml.dump(standard_content, f)
 
         # Remove read permissions
@@ -567,7 +567,7 @@ class TestStandardsParserErrorHandling(unittest.TestCase):
 
         # Test validation of file with invalid YAML
         invalid_file = self.standards_dir / "invalid_for_validation.yaml"
-        with open(invalid_file, "w") as f:
+        with open(invalid_file, 'w', encoding='utf-8') as f:
             f.write("invalid: yaml: [unclosed")
 
         validation_result = parser.validate_standard_file(str(invalid_file))
@@ -585,7 +585,7 @@ class TestStandardsParserErrorHandling(unittest.TestCase):
         }
 
         standard_file = self.standards_dir / "concurrent_test.yaml"
-        with open(standard_file, "w") as f:
+        with open(standard_file, 'w', encoding='utf-8') as f:
             yaml.dump(standard_content, f)
 
         parser = StandardsParser()
@@ -664,7 +664,7 @@ class TestStandardsParserPerformance(unittest.TestCase):
         }
 
         standard_file = self.standards_dir / "performance_test.yaml"
-        with open(standard_file, "w") as f:
+        with open(standard_file, 'w', encoding='utf-8') as f:
             yaml.dump(standard_content, f, default_flow_style=False)
 
         parser = StandardsParser()
@@ -690,7 +690,7 @@ class TestStandardsParserPerformance(unittest.TestCase):
         }
 
         standard_file = self.standards_dir / "cache_perf_test.yaml"
-        with open(standard_file, "w") as f:
+        with open(standard_file, 'w', encoding='utf-8') as f:
             yaml.dump(standard_content, f)
 
         parser = StandardsParser()
@@ -741,7 +741,7 @@ class TestStandardsParserPerformance(unittest.TestCase):
             }
 
             standard_file = self.standards_dir / f"multi_standard_{i}.yaml"
-            with open(standard_file, "w") as f:
+            with open(standard_file, 'w', encoding='utf-8') as f:
                 yaml.dump(standard_content, f)
 
         parser = StandardsParser()
@@ -799,7 +799,7 @@ class TestStandardsParserPerformance(unittest.TestCase):
             }
 
         large_file = self.standards_dir / "large_standard.yaml"
-        with open(large_file, "w") as f:
+        with open(large_file, 'w', encoding='utf-8') as f:
             yaml.dump(large_standard, f, default_flow_style=False)
 
         parser = StandardsParser()
@@ -825,7 +825,7 @@ class TestStandardsParserPerformance(unittest.TestCase):
         }
 
         standard_file = self.standards_dir / "concurrent_perf_test.yaml"
-        with open(standard_file, "w") as f:
+        with open(standard_file, 'w', encoding='utf-8') as f:
             yaml.dump(standard_content, f)
 
         parser = StandardsParser()
@@ -872,7 +872,7 @@ class TestStandardsParserPerformance(unittest.TestCase):
             }
 
             standard_file = self.standards_dir / f"memory_test_{i}.yaml"
-            with open(standard_file, "w") as f:
+            with open(standard_file, 'w', encoding='utf-8') as f:
                 yaml.dump(standard_content, f)
 
         parser = StandardsParser()
@@ -983,7 +983,7 @@ class TestStandardsParserEdgeCases(unittest.TestCase):
         }
 
         yml_file = self.standards_dir / "yml_test.yml"
-        with open(yml_file, "w") as f:
+        with open(yml_file, 'w', encoding='utf-8') as f:
             yaml.dump(yml_content, f)
 
         # Create files with .yaml extension
@@ -993,7 +993,7 @@ class TestStandardsParserEdgeCases(unittest.TestCase):
         }
 
         yaml_file = self.standards_dir / "yaml_test.yaml"
-        with open(yaml_file, "w") as f:
+        with open(yaml_file, 'w', encoding='utf-8') as f:
             yaml.dump(yaml_content, f)
 
         parser = StandardsParser()
@@ -1017,7 +1017,7 @@ class TestStandardsParserEdgeCases(unittest.TestCase):
         }
 
         standard_file = self.standards_dir / "minimal.yaml"
-        with open(standard_file, "w") as f:
+        with open(standard_file, 'w', encoding='utf-8') as f:
             yaml.dump(minimal_standard, f)
 
         parser = StandardsParser()
@@ -1044,7 +1044,7 @@ class TestStandardsParserEdgeCases(unittest.TestCase):
         }
 
         standard_file = self.standards_dir / f"{long_name}.yaml"
-        with open(standard_file, "w") as f:
+        with open(standard_file, 'w', encoding='utf-8') as f:
             yaml.dump(long_standard, f)
 
         parser = StandardsParser()
@@ -1091,7 +1091,7 @@ class TestStandardsParserEdgeCases(unittest.TestCase):
         }
 
         standard_file = self.standards_dir / "numeric_test.yaml"
-        with open(standard_file, "w") as f:
+        with open(standard_file, 'w', encoding='utf-8') as f:
             yaml.dump(numeric_standard, f)
 
         parser = StandardsParser()
@@ -1126,7 +1126,7 @@ class TestStandardsParserEdgeCases(unittest.TestCase):
         }
 
         standard_file = self.standards_dir / "deeply_nested.yaml"
-        with open(standard_file, "w") as f:
+        with open(standard_file, 'w', encoding='utf-8') as f:
             yaml.dump(nested_standard, f)
 
         parser = StandardsParser()
@@ -1157,7 +1157,7 @@ class TestStandardsParserEdgeCases(unittest.TestCase):
         }
 
         standard_file = self.standards_dir / "thread_safety_test.yaml"
-        with open(standard_file, "w") as f:
+        with open(standard_file, 'w', encoding='utf-8') as f:
             yaml.dump(standard_content, f)
 
         parser = StandardsParser()
@@ -1240,7 +1240,7 @@ class TestStandardsParserEdgeCases(unittest.TestCase):
         }
 
         standard_file = self.standards_dir / "warning_test.yaml"
-        with open(standard_file, "w") as f:
+        with open(standard_file, 'w', encoding='utf-8') as f:
             yaml.dump(warning_standard, f)
 
         parser = StandardsParser()

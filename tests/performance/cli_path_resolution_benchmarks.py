@@ -164,7 +164,7 @@ class TestProjectRootFindingPerformance(unittest.TestCase):
         adri_dir = self.project_root / "ADRI"
         adri_dir.mkdir(exist_ok=True)
         config_path = adri_dir / "config.yaml"
-        with open(config_path, 'w') as f:
+        with open(config_path, 'w', encoding='utf-8') as f:
             yaml.dump({
                 "adri": {
                     "project_name": "performance_test",
