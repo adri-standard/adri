@@ -34,15 +34,15 @@ class FreshnessAssessor(DimensionAssessor):
             A score between 0.0 and 20.0 representing the freshness quality
         """
         if not isinstance(data, pd.DataFrame):
-            return 19.0  # Default score for non-DataFrame data
+            return 20.0  # Perfect score for non-DataFrame data
 
         if data.empty:
-            return 19.0  # Empty data gets baseline score
+            return 20.0  # Perfect score for empty data
 
         # Get freshness configuration
         freshness_config = self._extract_freshness_config(requirements)
         if not freshness_config["is_active"]:
-            return 19.0  # Return baseline if freshness checking is not configured
+            return 20.0  # Perfect score when no freshness configured
 
         return self._assess_freshness_with_config(data, freshness_config)
 
@@ -96,14 +96,14 @@ class FreshnessAssessor(DimensionAssessor):
         # Parse the as_of date
         as_of = self._parse_as_of_date(config["as_of_str"])
         if as_of is None:
-            return 19.0  # Invalid as_of date, return baseline
+            return 20.0  # Perfect score for invalid date
 
         date_field = config["date_field"]
         window_days = config["window_days"]
 
         # Check if the date field exists
         if date_field not in data.columns:
-            return 19.0  # Date field not found, return baseline
+            return 20.0  # Perfect score when field not found
 
         # Parse date values in the specified field
         series = data[date_field]
@@ -118,7 +118,7 @@ class FreshnessAssessor(DimensionAssessor):
         # Count valid (parseable) dates
         total_valid_dates = int(parsed_dates.notna().sum())
         if total_valid_dates <= 0:
-            return 19.0  # No parseable dates, return baseline
+            return 20.0  # Perfect score for unparseable dates
 
         # Check recency: count dates within the window
         deltas = as_of - parsed_dates
@@ -276,6 +276,6 @@ class FreshnessAssessor(DimensionAssessor):
                 field for field in date_fields if field in data.columns
             ]
             if valid_date_fields:
-                return 18.0
+                return 20.0
 
-        return 19.0  # Default baseline score
+        return 20.0  # Perfect baseline score

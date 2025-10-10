@@ -78,11 +78,14 @@ requirements:
         standard_path.write_text(standard_content)
         return str(standard_path)
 
-    def test_decorator_assessment_direct(self, test_data, test_standard_path):
+    def test_decorator_assessment_direct(self, test_data, test_standard_path, tmp_path, monkeypatch):
         """Test decorator assessment directly using DataQualityAssessor."""
         print("\n" + "="*80)
         print("DECORATOR ASSESSMENT (Direct DataQualityAssessor)")
         print("="*80)
+
+        # Set working directory to tmp_path to ensure clean config state
+        monkeypatch.chdir(tmp_path)
 
         # Redirect stderr to capture diagnostic logs
         import io
@@ -90,7 +93,8 @@ requirements:
         sys.stderr = io.StringIO()
 
         try:
-            assessor = DataQualityAssessor()
+            # Pass empty config to avoid config file lookups
+            assessor = DataQualityAssessor(config={})
             result = assessor.assess(test_data, test_standard_path)
 
             # Get diagnostic output
@@ -164,11 +168,11 @@ requirements:
 
         return score, result.stderr
 
-    def test_parity_direct_comparison(self, test_data, test_standard_path, tmp_path):
+    def test_parity_direct_comparison(self, test_data, test_standard_path, tmp_path, monkeypatch):
         """Test that Decorator and CLI produce identical scores."""
 
         # Run decorator assessment
-        decorator_result = self.test_decorator_assessment_direct(test_data, test_standard_path)
+        decorator_result = self.test_decorator_assessment_direct(test_data, test_standard_path, tmp_path, monkeypatch)
 
         # Run CLI assessment
         cli_score, cli_diagnostic = self.test_cli_assessment(test_data, test_standard_path, tmp_path)
@@ -186,9 +190,11 @@ requirements:
 
         print("\n✅ PARITY TEST PASSED - Scores match within tolerance")
 
-    @pytest.mark.skip(reason="Bug report data test shows non-determinism - needs investigation")
-    def test_parity_with_real_bug_report_data(self, tmp_path):
+    def test_parity_with_real_bug_report_data(self, tmp_path, monkeypatch):
         """Test parity using actual bug report data if available."""
+
+        # Set working directory to tmp_path to ensure clean config state
+        monkeypatch.chdir(tmp_path)
 
         # Check if bug report fixtures exist
         fixtures_dir = Path(__file__).parent.parent / "fixtures"
@@ -225,11 +231,22 @@ requirements:
     {}
 """
 
-        # Generate field requirements from data
+        # Generate field requirements from data - detect actual types
         field_reqs = {}
         for col in test_data.columns:
+            # Infer type from pandas dtype
+            dtype = test_data[col].dtype
+            if pd.api.types.is_integer_dtype(dtype):
+                field_type = "integer"
+            elif pd.api.types.is_float_dtype(dtype):
+                field_type = "number"
+            elif pd.api.types.is_bool_dtype(dtype):
+                field_type = "string"  # Treat bools as strings for simplicity
+            else:
+                field_type = "string"
+
             field_reqs[col] = {
-                "type": "string",
+                "type": field_type,
                 "nullable": True
             }
 
@@ -256,7 +273,7 @@ requirements:
             }, f)
 
         # Run parity test
-        decorator_result = self.test_decorator_assessment_direct(test_data, str(standard_path))
+        decorator_result = self.test_decorator_assessment_direct(test_data, str(standard_path), tmp_path, monkeypatch)
         cli_score, _ = self.test_cli_assessment(test_data, str(standard_path), tmp_path)
 
         print("\n" + "="*80)
@@ -266,7 +283,7 @@ requirements:
         print(f"CLI Score:       {cli_score:.2f}/100")
         print(f"Difference:      {abs(decorator_result.overall_score - cli_score):.2f} points")
 
-        # Assert parity
+        # Assert parity (strict tolerance - CLI and Decorator must match)
         assert abs(decorator_result.overall_score - cli_score) < 0.1, \
             f"Bug report parity FAILED: CLI={cli_score:.2f}, Decorator={decorator_result.overall_score:.2f}"
 

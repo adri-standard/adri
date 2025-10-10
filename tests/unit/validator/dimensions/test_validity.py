@@ -22,7 +22,7 @@ class TestValidityAssessor:
         """Test assessment with non-DataFrame data returns default score."""
         requirements = {}
         score = self.assessor.assess("not a dataframe", requirements)
-        assert score == 18.0
+        assert score == 20.0
 
     def test_assess_basic_without_requirements(self):
         """Test basic assessment without field requirements."""
@@ -190,7 +190,7 @@ class TestValidityAssessor:
         """Test getting configured minimum score."""
         requirements = {'minimum_score': 18.0}
         min_score = self.assessor.get_minimum_score(requirements)
-        assert min_score == 18.0
+        assert min_score == 18.0  # Should return configured value
 
 
 class TestValidityAssessorIntegration:

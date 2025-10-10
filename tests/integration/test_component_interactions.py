@@ -606,12 +606,12 @@ class TestComponentInteractions:
         # Verify integration worked
         assert assessment_result.overall_score > 0
 
-        # Verify logging occurred (LocalLogger writes CSV files)
-        csv_files = list(log_dir.glob("*.csv"))
-        assert len(csv_files) > 0, "Expected CSV audit log files"
+        # Verify logging occurred (LocalLogger writes JSONL files)
+        jsonl_files = list(log_dir.glob("*.jsonl"))
+        assert len(jsonl_files) > 0, "Expected JSONL audit log files"
 
-        # Verify log directory was created with CSV files
-        assert (log_dir / "adri_assessment_logs.csv").exists()
+        # Verify log directory was created with JSONL files
+        assert (log_dir / "adri_assessment_logs.jsonl").exists()
 
     @pytest.mark.integration
     def test_data_format_compatibility_across_components(self, temp_workspace):

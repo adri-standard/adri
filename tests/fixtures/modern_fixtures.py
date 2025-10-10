@@ -243,7 +243,8 @@ class ModernFixtures:
                     "paths": {
                         "standards": "/tmp/test/standards",
                         "assessments": "/tmp/test/assessments",
-                        "training_data": "/tmp/test/training-data"
+                        "training_data": "/tmp/test/training-data",
+                        "audit_logs": "/tmp/test/audit-logs"
                     },
                     "protection": {
                         "default_failure_mode": "warn",
@@ -258,7 +259,8 @@ class ModernFixtures:
                     "paths": {
                         "standards": "/prod/standards",
                         "assessments": "/prod/assessments",
-                        "training_data": "/prod/training-data"
+                        "training_data": "/prod/training-data",
+                        "audit_logs": "/prod/audit-logs"
                     },
                     "protection": {
                         "default_failure_mode": "raise",

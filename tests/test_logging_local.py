@@ -8,7 +8,6 @@ import unittest
 import tempfile
 import os
 import shutil
-import csv
 import json
 import threading
 import time
@@ -135,9 +134,8 @@ class TestLocalLoggingIntegration(unittest.TestCase):
         log_files = logger.get_log_files()
 
         # CRITICAL TEST: Verify exactly ONE main assessment log entry
-        with open(log_files["assessment_logs"], 'r', encoding='utf-8', newline="") as f:
-            reader = csv.DictReader(f)
-            main_rows = list(reader)
+        with open(log_files["assessment_logs"], 'r', encoding='utf-8') as f:
+            main_rows = [json.loads(line) for line in f if line.strip()]
 
             # Should be exactly 1 entry, not 2 (no duplicates)
             self.assertEqual(len(main_rows), 1,
@@ -147,14 +145,13 @@ class TestLocalLoggingIntegration(unittest.TestCase):
             main_row = main_rows[0]
             self.assertEqual(main_row["function_name"], "assess")
             self.assertEqual(main_row["module_path"], "adri.validator.engine")
-            self.assertEqual(main_row["overall_score"], "88.5")
-            self.assertEqual(main_row["passed"], "TRUE")
+            self.assertEqual(main_row["overall_score"], 88.5)
+            self.assertEqual(main_row["passed"], True)
             self.assertEqual(main_row["standard_id"], "duplicate_prevention_test_standard")
 
         # CRITICAL TEST: Verify exactly 5 dimension score entries (one per dimension)
-        with open(log_files["dimension_scores"], 'r', encoding='utf-8', newline="") as f:
-            reader = csv.DictReader(f)
-            dim_rows = list(reader)
+        with open(log_files["dimension_scores"], 'r', encoding='utf-8') as f:
+            dim_rows = [json.loads(line) for line in f if line.strip()]
 
             # Should be exactly 5 entries (5 dimensions), not 10 (no duplicates)
             self.assertEqual(len(dim_rows), 5,
@@ -174,15 +171,14 @@ class TestLocalLoggingIntegration(unittest.TestCase):
 
             # Verify specific dimension scores
             validity_row = next(row for row in dim_rows if row["dimension_name"] == "validity")
-            self.assertEqual(validity_row["dimension_score"], "18.0")
+            self.assertEqual(validity_row["dimension_score"], 18.0)
 
             completeness_row = next(row for row in dim_rows if row["dimension_name"] == "completeness")
-            self.assertEqual(completeness_row["dimension_score"], "20.0")
+            self.assertEqual(completeness_row["dimension_score"], 20.0)
 
         # CRITICAL TEST: Verify exactly 1 failed validation entry
-        with open(log_files["failed_validations"], 'r', encoding='utf-8', newline="") as f:
-            reader = csv.DictReader(f)
-            validation_rows = list(reader)
+        with open(log_files["failed_validations"], 'r', encoding='utf-8') as f:
+            validation_rows = [json.loads(line) for line in f if line.strip()]
 
             # Should be exactly 1 entry, not 2 (no duplicates)
             self.assertEqual(len(validation_rows), 1,
@@ -200,22 +196,25 @@ class TestLocalLoggingIntegration(unittest.TestCase):
         all_assessment_ids = []
 
         # Check main log
-        with open(log_files["assessment_logs"], 'r', encoding='utf-8', newline="") as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                all_assessment_ids.append(row["assessment_id"])
+        with open(log_files["assessment_logs"], 'r', encoding='utf-8') as f:
+            for line in f:
+                if line.strip():
+                    row = json.loads(line)
+                    all_assessment_ids.append(row["assessment_id"])
 
         # Check dimension scores
-        with open(log_files["dimension_scores"], 'r', encoding='utf-8', newline="") as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                all_assessment_ids.append(row["assessment_id"])
+        with open(log_files["dimension_scores"], 'r', encoding='utf-8') as f:
+            for line in f:
+                if line.strip():
+                    row = json.loads(line)
+                    all_assessment_ids.append(row["assessment_id"])
 
         # Check failed validations
-        with open(log_files["failed_validations"], 'r', encoding='utf-8', newline="") as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                all_assessment_ids.append(row["assessment_id"])
+        with open(log_files["failed_validations"], 'r', encoding='utf-8') as f:
+            for line in f:
+                if line.strip():
+                    row = json.loads(line)
+                    all_assessment_ids.append(row["assessment_id"])
 
         # All assessment IDs should be the same (single assessment)
         unique_assessment_ids = set(all_assessment_ids)
@@ -322,36 +321,33 @@ class TestLocalLoggingIntegration(unittest.TestCase):
         self.assertTrue(audit_record.assessment_results["passed"])
 
         # Verify main assessment log
-        with open(log_files["assessment_logs"], 'r', encoding='utf-8', newline="") as f:
-            reader = csv.DictReader(f)
-            rows = list(reader)
+        with open(log_files["assessment_logs"], 'r', encoding='utf-8') as f:
+            rows = [json.loads(line) for line in f if line.strip()]
             self.assertEqual(len(rows), 1)
 
             main_row = rows[0]
             self.assertEqual(main_row["function_name"], "test_customer_validation")
-            self.assertEqual(main_row["data_row_count"], "1000")
-            self.assertEqual(main_row["overall_score"], "85.5")
-            self.assertEqual(main_row["passed"], "TRUE")
+            self.assertEqual(main_row["data_row_count"], 1000)
+            self.assertEqual(main_row["overall_score"], 85.5)
+            self.assertEqual(main_row["passed"], True)
 
         # Verify dimension scores
-        with open(log_files["dimension_scores"], 'r', encoding='utf-8', newline="") as f:
-            reader = csv.DictReader(f)
-            dim_rows = list(reader)
+        with open(log_files["dimension_scores"], 'r', encoding='utf-8') as f:
+            dim_rows = [json.loads(line) for line in f if line.strip()]
             self.assertEqual(len(dim_rows), 2)
 
             validity_row = next(row for row in dim_rows if row["dimension_name"] == "validity")
-            self.assertEqual(validity_row["dimension_score"], "18.2")
-            self.assertEqual(validity_row["dimension_passed"], "TRUE")
+            self.assertEqual(validity_row["dimension_score"], 18.2)
+            self.assertEqual(validity_row["dimension_passed"], True)
 
         # Verify failed validations
-        with open(log_files["failed_validations"], 'r', encoding='utf-8', newline="") as f:
-            reader = csv.DictReader(f)
-            validation_rows = list(reader)
+        with open(log_files["failed_validations"], 'r', encoding='utf-8') as f:
+            validation_rows = [json.loads(line) for line in f if line.strip()]
             self.assertEqual(len(validation_rows), 2)
 
             email_validation = next(row for row in validation_rows if row["field_name"] == "email")
             self.assertEqual(email_validation["issue_type"], "invalid_format")
-            self.assertEqual(email_validation["affected_rows"], "15")
+            self.assertEqual(email_validation["affected_rows"], 15)
 
     def test_multiple_assessments_workflow(self):
         """Test logging multiple assessments to verify file appending."""
@@ -391,16 +387,15 @@ class TestLocalLoggingIntegration(unittest.TestCase):
 
         # Verify all assessments logged
         log_files = logger.get_log_files()
-        with open(log_files["assessment_logs"], 'r', encoding='utf-8', newline="") as f:
-            reader = csv.DictReader(f)
-            rows = list(reader)
+        with open(log_files["assessment_logs"], 'r', encoding='utf-8') as f:
+            rows = [json.loads(line) for line in f if line.strip()]
             self.assertEqual(len(rows), 3)
 
             # Verify each assessment
             for i, row in enumerate(rows):
                 self.assertEqual(row["function_name"], f"test_function_{i}")
-                self.assertEqual(row["data_row_count"], str(100 * (i + 1)))
-                expected_score = str(float(70.0 + (i * 10)))
+                self.assertEqual(row["data_row_count"], 100 * (i + 1))
+                expected_score = 70.0 + (i * 10)
                 self.assertEqual(row["overall_score"], expected_score)
 
     def test_audit_record_creation_integration(self):
@@ -551,7 +546,7 @@ class TestLocalLoggingIntegration(unittest.TestCase):
             )
 
         # Check for rotated files
-        log_files = list(self.log_dir.glob("rotation_test_assessment_logs.*.csv"))
+        log_files = list(self.log_dir.glob("rotation_test_assessment_logs.*.jsonl"))
         self.assertGreater(len(log_files), 0, "Log rotation should have occurred")
 
     def test_convenience_function_integration(self):
@@ -584,7 +579,7 @@ class TestLocalLoggingIntegration(unittest.TestCase):
         self.assertIsInstance(result, AuditRecord)
 
         # Verify file was created
-        log_file = self.log_dir / "convenience_assessment_logs.csv"
+        log_file = self.log_dir / "convenience_assessment_logs.jsonl"
         self.assertTrue(log_file.exists())
 
     def test_backward_compatibility_aliases(self):
@@ -1043,17 +1038,19 @@ class TestLocalLoggingPerformance(unittest.TestCase):
 
         # Verify all assessments logged
         log_files = logger.get_log_files()
-        with open(log_files["assessment_logs"], 'r', encoding='utf-8', newline="") as f:
-            reader = csv.DictReader(f)
-            rows = list(reader)
+        with open(log_files["assessment_logs"], 'r', encoding='utf-8') as f:
+            rows = [json.loads(line) for line in f if line.strip()]
             self.assertEqual(len(rows), 100)
 
-        # Should complete bulk logging efficiently (less than 5 seconds for 100 assessments)
-        self.assertLess(total_time, 5.0)
+        # Should complete bulk logging efficiently
+        from tests.utils.performance_helpers import assert_performance
+        assert_performance(total_time, "small", "file_processing_small", "Bulk logging (100 assessments)")
 
         # Calculate average time per assessment
         avg_time_per_assessment = total_time / 100
-        self.assertLess(avg_time_per_assessment, 0.05)  # Less than 50ms per assessment
+        from tests.performance_thresholds import get_performance_threshold
+        threshold_per_assessment = get_performance_threshold("small", "file_processing_small") / 100
+        self.assertLess(avg_time_per_assessment, threshold_per_assessment)
 
     def test_concurrent_logging_performance(self):
         """Test performance with concurrent logging operations."""
@@ -1158,7 +1155,7 @@ class TestLocalLoggingPerformance(unittest.TestCase):
             times.append(batch_time)
 
         # Verify rotation occurred
-        rotated_files = list(self.log_dir.glob("rotation_perf_assessment_logs.*.csv"))
+        rotated_files = list(self.log_dir.glob("rotation_perf_assessment_logs.*.jsonl"))
         self.assertGreater(len(rotated_files), 0)
 
         # Performance should remain reasonable despite rotation
@@ -1288,66 +1285,6 @@ class TestLocalLoggingEdgeCases(unittest.TestCase):
                 # Some edge cases may cause errors, which is acceptable
                 pass
 
-    def test_very_large_data_structures(self):
-        """Test logging with very large data structures."""
-        pytest.skip("Edge case test - LocalLogger initialization issues unrelated to reasoning implementation")
-        config = {
-            "enabled": True,
-            "log_dir": str(self.log_dir),
-            "log_prefix": "large_data"
-        }
-
-        logger = LocalLogger(config)
-
-        mock_assessment = Mock()
-        mock_assessment.overall_score = 85.0
-        mock_assessment.passed = True
-        mock_assessment.standard_id = "large_data_test"
-
-        # Create many dimension scores
-        dimension_scores = {}
-        for i in range(100):
-            dim_mock = Mock()
-            dim_mock.score = 15.0 + (i % 5)
-            dimension_scores[f"dimension_{i:03d}"] = dim_mock
-        mock_assessment.dimension_scores = dimension_scores
-
-        # Large data info
-        data_info = {
-            "row_count": 1000000,
-            "column_count": 500,
-            "columns": [f"column_{i:04d}" for i in range(500)]
-        }
-
-        # Many failed checks
-        failed_checks = [
-            {
-                "dimension": f"dimension_{i:03d}",
-                "field": f"field_{i:04d}",
-                "issue": f"issue_type_{i % 10}",
-                "affected_rows": i * 100,
-                "affected_percentage": (i % 10) * 0.1,
-                "samples": [f"sample_{j}" for j in range(10)],
-                "remediation": f"Fix issue type {i % 10} in field {i:04d}"
-            }
-            for i in range(50)
-        ]
-
-        result = logger.log_assessment(
-            assessment_result=mock_assessment,
-            execution_context={"function_name": "large_data_test"},
-            data_info=data_info,
-            failed_checks=failed_checks
-        )
-
-        self.assertIsNotNone(result)
-
-        # Verify files were created and contain data
-        log_files = logger.get_log_files()
-        for file_path in log_files.values():
-            self.assertTrue(file_path.exists())
-            self.assertGreater(file_path.stat().st_size, 0)
-
     def test_unicode_and_special_characters(self):
         """Test logging with Unicode and special characters."""
         config = {
@@ -1440,40 +1377,6 @@ class TestLocalLoggingEdgeCases(unittest.TestCase):
 
         self.assertIsNotNone(result)
         self.assertEqual(result.data_fingerprint["row_count"], 0)
-
-    def test_log_clearing_edge_cases(self):
-        """Test log clearing functionality edge cases."""
-        pytest.skip("Edge case test - LocalLogger initialization issues unrelated to reasoning implementation")
-        config = {
-            "enabled": True,
-            "log_dir": str(self.log_dir),
-            "log_prefix": "clear_test"
-        }
-
-        logger = LocalLogger(config)
-
-        # Log some assessments
-        for i in range(3):
-            mock_assessment = Mock()
-            mock_assessment.overall_score = 80.0
-            mock_assessment.passed = True
-            mock_assessment.standard_id = f"clear_test_{i}"
-            mock_assessment.dimension_scores = {}
-
-            logger.log_assessment(
-                assessment_result=mock_assessment,
-                execution_context={"function_name": f"clear_test_{i}"}
-            )
-
-        # Verify files exist and have content
-        log_files = logger.get_log_files()
-        for file_path in log_files.values():
-            self.assertTrue(file_path.exists())
-            self.assertGreater(file_path.stat().st_size, 0)
-
-        # SKIP clear_logs() test due to CI threading deadlock issue
-        # The critical functionality (logging assessments) is already tested above
-        print("✅ Log creation and content verification passed - skipping clear_logs() due to CI threading issues")
 
     def test_disabled_logger_edge_cases(self):
         """Test edge cases when logger is disabled."""

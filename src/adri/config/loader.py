@@ -45,6 +45,7 @@ class ConfigurationLoader:
                             "standards": "./ADRI/dev/standards",
                             "assessments": "./ADRI/dev/assessments",
                             "training_data": "./ADRI/dev/training-data",
+                            "audit_logs": "./ADRI/dev/audit-logs",
                         },
                         "protection": {
                             "default_failure_mode": "warn",
@@ -57,6 +58,7 @@ class ConfigurationLoader:
                             "standards": "./ADRI/prod/standards",
                             "assessments": "./ADRI/prod/assessments",
                             "training_data": "./ADRI/prod/training-data",
+                            "audit_logs": "./ADRI/prod/audit-logs",
                         },
                         "protection": {
                             "default_failure_mode": "raise",
@@ -121,7 +123,12 @@ class ConfigurationLoader:
                     return False
 
                 paths = env_config["paths"]
-                required_paths = ["standards", "assessments", "training_data"]
+                required_paths = [
+                    "standards",
+                    "assessments",
+                    "training_data",
+                    "audit_logs",
+                ]
                 for path_key in required_paths:
                     if path_key not in paths:
                         return False
@@ -200,7 +207,14 @@ class ConfigurationLoader:
         self, config_path: Optional[str] = None
     ) -> Optional[Dict[str, Any]]:
         """
-        Get the active configuration, searching for config file if not specified.
+        Get the active configuration with environment variable precedence.
+
+        Precedence order (highest to lowest):
+        1. ADRI_CONFIG (inline YAML string)
+        2. ADRI_CONFIG_PATH or ADRI_CONFIG_FILE (explicit file path)
+        3. config_path parameter
+        4. Auto-discovered config file
+        5. None (no config)
 
         Args:
             config_path: Specific config file path, or None to search
@@ -208,19 +222,79 @@ class ConfigurationLoader:
         Returns:
             Configuration dictionary or None if no config found
         """
-        if config_path is None:
-            config_path = self.find_config_file()
+        # Highest precedence: ADRI_CONFIG environment variable (inline YAML)
+        inline_config = os.environ.get("ADRI_CONFIG")
+        if inline_config:
+            try:
+                config_data = yaml.safe_load(inline_config)
+                if isinstance(config_data, dict):
+                    return config_data
+            except yaml.YAMLError:
+                # Invalid YAML, fall through to next option
+                pass
 
-        if config_path is None:
-            return None
+        # Second precedence: ADRI_CONFIG_PATH or ADRI_CONFIG_FILE
+        env_config_path = os.environ.get("ADRI_CONFIG_PATH") or os.environ.get(
+            "ADRI_CONFIG_FILE"
+        )
+        if env_config_path:
+            config = self.load_config(env_config_path)
+            if config:
+                return config
 
-        return self.load_config(config_path)
+        # Third precedence: Explicit config_path parameter
+        if config_path:
+            config = self.load_config(config_path)
+            if config:
+                return config
+
+        # Fourth precedence: Auto-discovery
+        discovered_path = self.find_config_file()
+        if discovered_path:
+            return self.load_config(discovered_path)
+
+        return None
+
+    def _get_effective_environment(
+        self, config: Optional[Dict[str, Any]], environment: Optional[str] = None
+    ) -> str:
+        """
+        Get the effective environment with ADRI_ENV override support.
+
+        Precedence:
+        1. environment parameter (explicit, when provided)
+        2. ADRI_ENV environment variable
+        3. config default_environment
+        4. "development" (fallback)
+
+        Args:
+            config: Configuration dictionary, or None
+            environment: Explicit environment name, or None
+
+        Returns:
+            Effective environment name
+        """
+        # Highest precedence: explicit parameter
+        if environment:
+            return environment
+
+        # Second: ADRI_ENV environment variable
+        env_var = os.environ.get("ADRI_ENV")
+        if env_var:
+            return env_var
+
+        # Third: config default
+        if config:
+            return config.get("adri", {}).get("default_environment", "development")
+
+        # Fallback
+        return "development"
 
     def get_environment_config(
         self, config: Dict[str, Any], environment: Optional[str] = None
     ) -> Dict[str, Any]:
         """
-        Get configuration for a specific environment.
+        Get configuration for a specific environment with ADRI_ENV override.
 
         Args:
             config: Full configuration dictionary
@@ -234,11 +308,30 @@ class ConfigurationLoader:
         """
         adri_config = config["adri"]
 
-        if environment is None:
-            environment = adri_config.get("default_environment", "development")
+        # Track if environment came from ADRI_ENV to enable fallback only for that case
+        from_adri_env = False
+        if not environment and os.environ.get("ADRI_ENV"):
+            from_adri_env = True
 
+        # Use effective environment (respects ADRI_ENV)
+        requested_env = environment  # Store original request
+        environment = self._get_effective_environment(config, environment)
+
+        # If effective environment doesn't exist, only fall back if it came from ADRI_ENV
         if environment not in adri_config["environments"]:
-            raise ValueError(f"Environment '{environment}' not found in configuration")
+            # Only fall back to default if the invalid environment came from ADRI_ENV (not explicit request)
+            if from_adri_env and not requested_env:
+                default_env = adri_config.get("default_environment", "development")
+                if default_env in adri_config["environments"]:
+                    environment = default_env
+                else:
+                    raise ValueError(
+                        f"Environment '{environment}' not found in configuration"
+                    )
+            else:
+                raise ValueError(
+                    f"Environment '{environment}' not found in configuration"
+                )
 
         env_config = adri_config["environments"][environment]
         if not isinstance(env_config, dict):
@@ -276,9 +369,8 @@ class ConfigurationLoader:
         if not isinstance(protection_config, dict):
             protection_config = {}
 
-        # Override with environment-specific settings
-        if environment is None:
-            environment = adri_config.get("default_environment", "development")
+        # Use effective environment (respects ADRI_ENV)
+        environment = self._get_effective_environment(config, environment)
 
         if environment in adri_config["environments"]:
             env_config = adri_config["environments"][environment]
@@ -292,7 +384,12 @@ class ConfigurationLoader:
         self, standard_name: str, environment: Optional[str] = None
     ) -> str:
         """
-        Resolve a standard name to full absolute path using active configuration.
+        Resolve a standard name to full absolute path with ADRI_STANDARDS_DIR override.
+
+        Precedence for standards directory:
+        1. ADRI_STANDARDS_DIR environment variable (if set)
+        2. Config file paths
+        3. Default ADRI/{env}/standards structure
 
         Args:
             standard_name: Name of standard (with or without .yaml extension)
@@ -301,10 +398,22 @@ class ConfigurationLoader:
         Returns:
             Full absolute path to standard file
         """
+        # Add .yaml extension if not present
+        if not standard_name.endswith((".yaml", ".yml")):
+            standard_name += ".yaml"
+
+        # Highest precedence: ADRI_STANDARDS_DIR environment variable
+        env_standards_dir = os.environ.get("ADRI_STANDARDS_DIR")
+        if env_standards_dir:
+            standards_path = Path(env_standards_dir)
+            if not standards_path.is_absolute():
+                standards_path = Path.cwd() / standards_path
+            full_path = (standards_path / standard_name).resolve()
+            return str(full_path)
+
         config = self.get_active_config()
 
         # Determine base directory from config file location
-        # Check environment variable first
         config_file_path = os.environ.get("ADRI_CONFIG_PATH")
         if not config_file_path:
             config_file_path = self.find_config_file()
@@ -315,19 +424,12 @@ class ConfigurationLoader:
         else:
             base_dir = Path.cwd()
 
-        # Determine environment
-        if environment is None and config:
-            environment = config.get("adri", {}).get(
-                "default_environment", "development"
-            )
-        elif environment is None:
-            environment = "development"
+        # Use effective environment (respects ADRI_ENV)
+        environment = self._get_effective_environment(config, environment)
 
         if not config:
             # Fallback to default path structure
             env_dir = "dev" if environment != "production" else "prod"
-            if not standard_name.endswith((".yaml", ".yml")):
-                standard_name += ".yaml"
             standard_path = base_dir / "ADRI" / env_dir / "standards" / standard_name
             return str(standard_path)
 
@@ -335,12 +437,7 @@ class ConfigurationLoader:
             env_config = self.get_environment_config(config, environment)
             standards_dir = env_config["paths"]["standards"]
 
-            # Add .yaml extension if not present
-            if not standard_name.endswith((".yaml", ".yml")):
-                standard_name += ".yaml"
-
             # Convert relative path to absolute based on config file location
-            # Use Path.resolve() for cross-platform path resolution
             standards_path = Path(standards_dir)
 
             # If relative path, resolve from config file directory
@@ -356,8 +453,6 @@ class ConfigurationLoader:
         except (KeyError, ValueError, AttributeError):
             # Fallback on any error
             env_dir = "dev" if environment != "production" else "prod"
-            if not standard_name.endswith((".yaml", ".yml")):
-                standard_name += ".yaml"
             standard_path = base_dir / "ADRI" / env_dir / "standards" / standard_name
             return str(standard_path)
 
@@ -379,7 +474,7 @@ class ConfigurationLoader:
 
     def get_assessments_dir(self, environment: Optional[str] = None) -> str:
         """
-        Get the assessments directory for an environment.
+        Get the assessments directory for an environment with ADRI_ENV override.
 
         Args:
             environment: Environment to use
@@ -388,6 +483,10 @@ class ConfigurationLoader:
             Path to assessments directory
         """
         config = self.get_active_config()
+
+        # Use effective environment (respects ADRI_ENV)
+        environment = self._get_effective_environment(config, environment)
+
         if not config:
             env_dir = "dev" if environment != "production" else "prod"
             return f"./ADRI/{env_dir}/assessments"
@@ -401,7 +500,7 @@ class ConfigurationLoader:
 
     def get_training_data_dir(self, environment: Optional[str] = None) -> str:
         """
-        Get the training data directory for an environment.
+        Get the training data directory for an environment with ADRI_ENV override.
 
         Args:
             environment: Environment to use
@@ -410,6 +509,10 @@ class ConfigurationLoader:
             Path to training data directory
         """
         config = self.get_active_config()
+
+        # Use effective environment (respects ADRI_ENV)
+        environment = self._get_effective_environment(config, environment)
+
         if not config:
             env_dir = "dev" if environment != "production" else "prod"
             return f"./ADRI/{env_dir}/training-data"

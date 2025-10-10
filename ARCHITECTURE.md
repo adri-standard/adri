@@ -161,6 +161,9 @@ Think of ADRI as a **quality bouncer** for your AI functions:
 - `data_profiler.py` - DataProfiler for analyzing data patterns and structure
 - `standard_generator.py` - StandardGenerator for creating YAML standards from analysis
 - `type_inference.py` - TypeInference for inferring data types and validation rules
+- `generation/dimension_builder.py` - Creates dimension structure templates
+- `generation/standard_builder.py` - Orchestrates standard assembly with dynamic weights
+- `generation/field_inference.py` - Infers field-level validation rules
 
 **What it does:** Analyzes your data patterns and creates quality standards automatically.
 
@@ -170,7 +173,66 @@ Think of ADRI as a **quality bouncer** for your AI functions:
 - Profiles incoming data structure, patterns, and quality characteristics
 - Infers appropriate data types and validation constraints
 - Generates complete YAML standards with field requirements and dimension thresholds
+- **Dynamically populates rule weights** based on detected rules (no hardcoded assumptions)
 - Provides recommendations for data quality improvement
+
+#### **Dynamic Rule Weights Pattern** ✨ NEW
+
+**Problem Solved:** Previously, dimension_builder created hardcoded rule type weights even when no rules of that type existed, creating "ghost" rules that affected scoring but didn't enforce validation.
+
+**Solution Architecture:**
+
+1. **Separation of Concerns**
+   - `DimensionRequirementsBuilder` creates structure templates with **empty** rule_weights dicts
+   - `StandardBuilder` populates weights dynamically by analyzing field_requirements
+   - Clean separation between template creation and content population
+
+2. **Dynamic Population**
+   ```python
+   # StandardBuilder._populate_rule_weights()
+   # Scans field_requirements to detect which rule types exist
+   for field_name, field_req in field_reqs.items():
+       if "type" in field_req:
+           validity_weights["type"] += 1
+       if "pattern" in field_req:
+           validity_weights["pattern"] += 1
+       # ... etc for other rule types
+
+   # Normalize weights to sum to 1.0
+   self.dimension_builder.normalize_rule_weights(dimension_reqs, "validity")
+   ```
+
+3. **Weight Normalization**
+   - All active rule weights sum to exactly 1.0
+   - Mathematical guarantee ensures balanced scoring
+   - No arbitrary fractional weights
+
+**Benefits:**
+- ✅ **Self-Documenting**: If a rule_weight key exists, rules of that type exist
+- ✅ **No Ghost Rules**: Only active rule types have weights
+- ✅ **Mathematically Correct**: Weights always sum to 1.0
+- ✅ **Maintainable**: Adding new rule types requires only detection logic
+- ✅ **Extensible**: Pattern scales to new dimensions and rule types
+
+**Example:**
+```python
+# Before (Hardcoded - Technical Debt)
+"rule_weights": {
+    "primary_key_uniqueness": 0.2,
+    "referential_integrity": 0.3,  # Ghost rule!
+    "cross_field_logic": 0.3,      # Ghost rule!
+    "format_consistency": 0.2       # Ghost rule!
+}
+
+# After (Dynamic - Clean)
+"rule_weights": {
+    "primary_key_uniqueness": 1.0  # Only if PK detected, normalized
+}
+```
+
+**Implementation Status:** ✅ Complete (Jan 2025)
+**Documentation:** See `DYNAMIC_RULE_WEIGHTS_IMPLEMENTATION_SUMMARY.md`
+**Tests:** 39/39 passing (test_dimension_scoring_integrity.py, test_consistency_dimension_expansion.py)
 
 ---
 

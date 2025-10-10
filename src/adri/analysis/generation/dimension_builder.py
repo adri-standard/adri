@@ -55,14 +55,7 @@ class DimensionRequirementsBuilder:
             "minimum_score": thresholds.get("validity_min", 15.0),
             "weight": 1.0,
             "scoring": {
-                "rule_weights": {
-                    "type": 0.30,  # Type correctness (highest priority)
-                    "allowed_values": 0.20,  # Enum constraints
-                    "pattern": 0.20,  # Regex pattern matching
-                    "length_bounds": 0.10,  # String length constraints
-                    "numeric_bounds": 0.20,  # Numeric range constraints
-                    # date_bounds can be added here if needed for date fields
-                },
+                "rule_weights": {},  # Populated dynamically by StandardGenerator
                 "field_overrides": {},  # Placeholder for field-specific rule weights
             },
         }
@@ -104,10 +97,7 @@ class DimensionRequirementsBuilder:
             "minimum_score": thresholds.get("consistency_min", 12.0),
             "weight": 1.0,
             "scoring": {
-                "rule_weights": {
-                    "primary_key_uniqueness": 1.0,  # Main consistency rule
-                    # "referential_integrity": 0.0   # Placeholder for future
-                },
+                "rule_weights": {},  # Populated dynamically by StandardGenerator
                 "field_overrides": {},
             },
         }
@@ -150,16 +140,33 @@ class DimensionRequirementsBuilder:
             "minimum_score": thresholds.get("plausibility_min", 12.0),
             "weight": 1.0,
             "scoring": {
-                "rule_weights": {
-                    # Active by default with rule types distinct from Validity
-                    "statistical_outliers": 0.4,  # IQR/MAD outlier detection
-                    "categorical_frequency": 0.3,  # Rare category detection
-                    "business_logic": 0.2,  # Domain-specific rules
-                    "cross_field_consistency": 0.1,  # Inter-field relationships
-                },
+                "rule_weights": {},  # Populated dynamically by StandardGenerator
                 "field_overrides": {},
             },
         }
+
+    def normalize_rule_weights(
+        self, dimension_config: Dict[str, Any], dimension_name: str
+    ) -> None:
+        """Normalize rule weights so active rules sum to 1.0.
+
+        Args:
+            dimension_config: Full dimension requirements dict
+            dimension_name: Name of dimension (validity, consistency, etc.)
+        """
+        if dimension_name not in dimension_config:
+            return
+
+        rule_weights = dimension_config[dimension_name]["scoring"]["rule_weights"]
+        active_weights = {k: v for k, v in rule_weights.items() if v > 0}
+
+        if not active_weights:
+            return  # No active rules - dimension returns perfect score
+
+        total = sum(active_weights.values())
+        if total > 0:
+            for rule_type in active_weights:
+                rule_weights[rule_type] = active_weights[rule_type] / total
 
     def enable_freshness_checking(
         self, dimension_reqs: Dict[str, Any], date_field: str, window_days: int = 365
@@ -315,6 +322,7 @@ class DimensionRequirementsBuilder:
                     "pattern": 0.20,
                     "length_bounds": 0.10,
                     "numeric_bounds": 0.20,
+                    "date_bounds": 0.20,
                 },
             },
             "strict": {
@@ -338,6 +346,7 @@ class DimensionRequirementsBuilder:
                     "pattern": 0.25,
                     "length_bounds": 0.10,
                     "numeric_bounds": 0.25,
+                    "date_bounds": 0.25,
                 },
             },
             "lenient": {
@@ -361,6 +370,7 @@ class DimensionRequirementsBuilder:
                     "pattern": 0.15,
                     "length_bounds": 0.10,
                     "numeric_bounds": 0.25,
+                    "date_bounds": 0.25,
                 },
             },
         }

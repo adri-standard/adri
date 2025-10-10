@@ -4,6 +4,8 @@
 
 ## 5-Minute Quickstart
 
+Install → Generate Standard → Assess → Decorate
+
 ```bash
 pip install adri
 
@@ -31,6 +33,12 @@ from adri import adri_protected
 def your_agent_function(invoice_rows):
     # Your existing code - now protected!
     return result
+```
+
+Start warn-first, then switch to raise when confident:
+
+```python
+@adri_protected(standard="invoice_data_standard", data_param="invoice_rows", on_failure="warn")
 ```
 
 **ADRI automatically creates standards from your data patterns and blocks bad data before it reaches your agents.**
@@ -95,6 +103,8 @@ See [docs/docs/users/frameworks.md](docs/docs/users/frameworks.md) for copy-past
 ## ADRI Adoption Path
 
 See the Adoption Journey for next steps: [docs/docs/users/adoption-journey.md](docs/docs/users/adoption-journey.md)
+
+When to scale up to Verodat MCP: [docs/docs/users/flip-to-enterprise.md](docs/docs/users/flip-to-enterprise.md)
 
 ---
 
