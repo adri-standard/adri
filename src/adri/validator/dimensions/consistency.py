@@ -634,7 +634,9 @@ class ConsistencyAssessor(DimensionAssessor):
                                     "affected_rows": int(mismatch_count),
                                     "affected_percentage": (mismatch_count / total_rows)
                                     * 100.0,
-                                    "samples": [f"Row {idx}" for idx in mismatch_indices],
+                                    "samples": [
+                                        f"Row {idx}" for idx in mismatch_indices
+                                    ],
                                     "remediation": f"Ensure {total_col} = {part1_col} + {part2_col}",
                                 }
                             )
