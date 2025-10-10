@@ -208,7 +208,10 @@ class TestConfigPrecedence:
             os.environ["ADRI_STANDARDS_DIR"] = tmpdir
             try:
                 path = loader.resolve_standard_path("test_standard")
-                assert tmpdir in path, "ADRI_STANDARDS_DIR should override config"
+                # Normalize paths to handle Windows short path vs long path names
+                normalized_tmpdir = os.path.normpath(os.path.realpath(tmpdir))
+                normalized_path = os.path.normpath(os.path.realpath(path))
+                assert normalized_tmpdir in normalized_path, "ADRI_STANDARDS_DIR should override config"
                 assert path.endswith("test_standard.yaml")
             finally:
                 del os.environ["ADRI_STANDARDS_DIR"]

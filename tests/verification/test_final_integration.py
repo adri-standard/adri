@@ -242,16 +242,16 @@ adri:
         # Verify log files created
         audit_dir = integrated_workspace / "ADRI" / "dev" / "audit-logs"
 
-        assessment_csv = audit_dir / "adri_assessment_logs.jsonl"
+        assessment_log = audit_dir / "adri_assessment_logs.jsonl"
         prompts_csv = audit_dir / "adri_reasoning_prompts.csv"
         responses_csv = audit_dir / "adri_reasoning_responses.csv"
 
-        assert assessment_csv.exists(), "Assessment log should exist"
+        assert assessment_log.exists(), "Assessment log should exist"
         assert prompts_csv.exists(), "Prompts log should exist"
         assert responses_csv.exists(), "Responses log should exist"
 
         # Verify CSV/JSONL content (assessment logs are JSONL, others are CSV)
-        assessment_df = pd.read_json(assessment_csv, lines=True)
+        assessment_df = pd.read_json(assessment_log, lines=True)
         prompts_df = pd.read_csv(prompts_csv)
         responses_df = pd.read_csv(responses_csv)
 
