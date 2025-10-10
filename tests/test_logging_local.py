@@ -1042,12 +1042,15 @@ class TestLocalLoggingPerformance(unittest.TestCase):
             rows = [json.loads(line) for line in f if line.strip()]
             self.assertEqual(len(rows), 100)
 
-        # Should complete bulk logging efficiently (less than 5 seconds for 100 assessments)
-        self.assertLess(total_time, 5.0)
+        # Should complete bulk logging efficiently
+        from tests.utils.performance_helpers import assert_performance
+        assert_performance(total_time, "small", "file_processing_small", "Bulk logging (100 assessments)")
 
         # Calculate average time per assessment
         avg_time_per_assessment = total_time / 100
-        self.assertLess(avg_time_per_assessment, 0.05)  # Less than 50ms per assessment
+        from tests.performance_thresholds import get_performance_threshold
+        threshold_per_assessment = get_performance_threshold("small", "file_processing_small") / 100
+        self.assertLess(avg_time_per_assessment, threshold_per_assessment)
 
     def test_concurrent_logging_performance(self):
         """Test performance with concurrent logging operations."""
