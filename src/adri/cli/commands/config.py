@@ -686,9 +686,9 @@ class ExplainThresholdsCommand(Command):
 
             # What-if scenarios
             click.echo("What-if scenarios:")
-            click.echo(f"  • If min_score = 85: Would require higher average quality")
+            click.echo("  • If min_score = 85: Would require higher average quality")
             click.echo(
-                f"  • If row_threshold = 0.9: Would require 90% of rows instead of 80%"
+                "  • If row_threshold = 0.9: Would require 90% of rows instead of 80%"
             )
             click.echo("  • If guard.mode = block: Would halt execution on failures")
             click.echo("")
