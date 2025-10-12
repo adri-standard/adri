@@ -1,0 +1,11 @@
+invoice_id,invoice_date,customer_name,amount,status,payment_method
+INV001,2024-01-15,Acme Corp,1500.00,paid,credit_card
+INV002,2024-01-16,Global Tech,2300.50,paid,wire_transfer
+INV003,2024-01-17,StartUp Inc,890.00,pending,check
+INV004,2024-01-18,Enterprise LLC,4200.00,paid,credit_card
+INV005,2024-01-19,Small Business,320.00,paid,paypal
+INV006,2024-01-20,Mid Corp,1750.00,pending,credit_card
+INV007,2024-01-21,Large Enterprise,8900.00,paid,wire_transfer
+INV008,2024-01-22,,125.00,paid,cash
+INV009,2024-01-23,,3400.00,pending,check
+INV010,2024-01-24,National Corp,-6700.00,paid,wire_transfer

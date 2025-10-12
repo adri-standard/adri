@@ -31,6 +31,8 @@ const sidebars: SidebarsConfig = {
         'users/feature-benefits',
         'users/flip-to-enterprise',
         'users/core-concepts',
+        'users/audit-and-logging',
+        'users/config-precedence-and-logging',
         'users/faq',
         'users/frameworks',
         'users/adoption-journey',

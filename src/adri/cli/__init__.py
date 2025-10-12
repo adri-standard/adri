@@ -18,7 +18,14 @@ from ..version import __version__
 
 # Import command classes for clean modular access
 from .commands.assess import AssessCommand
-from .commands.config import ListStandardsCommand, ShowConfigCommand
+from .commands.config import (
+    ConfigGetCommand,
+    ConfigSetCommand,
+    ExplainThresholdsCommand,
+    ListStandardsCommand,
+    ShowConfigCommand,
+    WhatIfCommand,
+)
 from .commands.generate_standard import GenerateStandardCommand
 from .commands.list_assessments import ListAssessmentsCommand
 from .commands.scoring import ScoringExplainCommand
@@ -1337,6 +1344,58 @@ def standards_catalog_fetch(name_or_id, dest, filename, overwrite, json_output):
 
 # Attach the group to the main CLI
 cli.add_command(standards_catalog)
+
+
+# ---------------- New Configuration Management Commands -----------------
+
+
+@cli.command("config")
+@click.argument("action", type=click.Choice(["set", "get"]))
+@click.argument("setting")
+@click.option("--standard", "standard_path", required=True, help="Path to YAML standard file")
+def config(action, setting, standard_path):
+    """Get or set configuration values in YAML standard files.
+    
+    Examples:
+      adri config set min_score=80 --standard dev/standards/invoice.yaml
+      adri config get min_score --standard dev/standards/invoice.yaml
+    """
+    if action == "set":
+        command = ConfigSetCommand()
+        args = {"setting": setting, "standard_path": standard_path}
+    else:  # get
+        command = ConfigGetCommand()
+        args = {"setting": setting, "standard_path": standard_path}
+    sys.exit(command.execute(args))
+
+
+@cli.command("explain-thresholds")
+@click.option("--standard", "standard_path", required=True, help="Path to YAML standard file")
+def explain_thresholds(standard_path):
+    """Explain threshold configurations and their implications."""
+    command = ExplainThresholdsCommand()
+    args = {"standard_path": standard_path}
+    sys.exit(command.execute(args))
+
+
+@cli.command("what-if")
+@click.argument("changes", nargs=-1, required=True)
+@click.option("--standard", "standard_path", required=True, help="Path to YAML standard file")
+@click.option("--data", "data_path", required=True, help="Path to data file to assess")
+def what_if(changes, standard_path, data_path):
+    """Simulate threshold changes and show projected impact.
+    
+    Examples:
+      adri what-if min_score=85 --standard dev/standards/invoice.yaml --data test.csv
+      adri what-if min_score=85 readiness.row_threshold=0.9 --standard dev/standards/invoice.yaml --data test.csv
+    """
+    command = WhatIfCommand()
+    args = {
+        "changes": list(changes),
+        "standard_path": standard_path,
+        "data_path": data_path,
+    }
+    sys.exit(command.execute(args))
 
 
 # Standalone functions for testing (extracted from Click commands above)

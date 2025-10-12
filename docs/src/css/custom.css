@@ -1,6 +1,7 @@
 /**
  * ADRI Documentation - Black & White Theme
  * Professional, clean design focused on readability and accessibility
+ * Subtle Verodat brand acknowledgment via green underline on Verodat link
  */
 
 /* Light Mode - Black & White Theme */
@@ -34,6 +35,9 @@
   --ifm-button-background-color: #ffffff;
   --ifm-button-border-color: #000000;
   --ifm-button-color: #000000;
+
+  /* Verodat subtle accent - used sparingly */
+  --verodat-green: #8FD14F;
 }
 
 /* Dark Mode - Inverted Black & White */
@@ -61,6 +65,12 @@
   /* Hero banner customization */
   --ifm-hero-background-color: #ffffff;
   --ifm-hero-text-color: #000000;
+
+  /* Footer contrast fix for dark mode */
+  --ifm-footer-background-color: #1a1a1a;
+  --ifm-footer-color: #ffffff;
+  --ifm-footer-link-color: #ffffff;
+  --ifm-footer-link-hover-color: #ffffff;
 }
 
 /* Custom hero banner styling */
@@ -102,4 +112,34 @@ a {
 a:hover {
   color: var(--ifm-color-primary-dark);
   text-decoration: underline;
+}
+
+/* Footer contrast fix - Light background in light mode */
+.footer--dark {
+  --ifm-footer-background-color: #f8f9fa;
+  --ifm-footer-color: #1a1a1a;
+  --ifm-footer-link-color: #000000;
+  --ifm-footer-link-hover-color: #000000;
+  --ifm-footer-title-color: #000000;
+}
+
+/* Subtle Verodat brand acknowledgment - ONLY on Verodat link */
+.footer__copyright a[href*="verodat"] {
+  text-decoration: none;
+  border-bottom: 1px solid var(--verodat-green);
+  padding-bottom: 1px;
+}
+
+.footer__copyright a[href*="verodat"]:hover {
+  border-bottom-width: 2px;
+  padding-bottom: 0px;
+}
+
+/* Ensure footer links have proper contrast in dark mode */
+[data-theme='dark'] .footer--dark {
+  --ifm-footer-background-color: #1a1a1a;
+  --ifm-footer-color: #ffffff;
+  --ifm-footer-link-color: #ffffff;
+  --ifm-footer-link-hover-color: #ffffff;
+  --ifm-footer-title-color: #ffffff;
 }

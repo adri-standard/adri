@@ -5,6 +5,8 @@ operations using ADRI standards.
 """
 
 import json
+import sys
+import time
 from pathlib import Path
 from typing import Any, Dict, Optional
 
@@ -19,6 +21,18 @@ from ...utils.path_utils import (
 )
 from ...validator.engine import DataQualityAssessor
 from ...validator.loaders import load_data, load_standard
+
+
+def _progressive_echo(text: str, delay: float = 0.0) -> None:
+    """Print text with optional delay for progressive output in guide mode.
+    
+    Args:
+        text: Text to print
+        delay: Delay in seconds after printing (only in interactive terminals)
+    """
+    click.echo(text)
+    if delay > 0 and sys.stdout.isatty():
+        time.sleep(delay)
 
 
 class AssessCommand(Command):
@@ -237,36 +251,61 @@ class AssessCommand(Command):
         actual_failed_records = len(failed_records_list)
         actual_passed_records = total_records - actual_failed_records
 
-        click.echo("📊 Quality Assessment Results:")
-        click.echo("==============================")
-        click.echo(
-            f"🎯 Agent System Health: {result.overall_score:.1f}/100 {status_icon} {status_text}"
+        # Calculate readiness status
+        readiness_pct = (
+            (actual_passed_records / total_records * 100) if total_records > 0 else 0
         )
-        click.echo(f"Threshold = {threshold:.1f}/100 (set in your standard)")
-        click.echo("   → Overall reliability for AI agent workflows")
-        click.echo(
-            "   → Use for: monitoring agent performance, framework integration health"
+        if readiness_pct >= 80:
+            readiness_status = "✅ READY"
+        elif readiness_pct >= 40:
+            readiness_status = "⚠️  READY WITH BLOCKERS"
+        else:
+            readiness_status = "❌ NOT READY"
+
+        _progressive_echo("📊 Step 3 of 4: ADRI Assessment", 0.4)
+        _progressive_echo("===============================", 0.0)
+        _progressive_echo("", 0.0)
+        _progressive_echo(
+            f"System Health (Score): {result.overall_score:.1f}/100  {status_icon} {status_text}", 0.0
         )
-        click.echo("")
-        click.echo(
-            f"⚙️  Execution Readiness: {actual_passed_records}/{total_records} records safe for agents"
+        _progressive_echo("  • Dataset-level quality across all 5 dimensions.", 0.0)
+        _progressive_echo("  • Use for: monitoring, integration confidence, and trend tracking.", 0.5)
+        _progressive_echo("", 0.0)
+        _progressive_echo(
+            f"Batch Readiness (Gate): {actual_passed_records}/{total_records} rows  {readiness_status}", 0.0
         )
-        click.echo("   → Immediate agent execution safety assessment")
-        click.echo(
-            "   → Use for: pre-flight checks, error handling capacity, data preprocessing needs"
-        )
+        _progressive_echo("  • Row-level safety: records passing every required rule.", 0.0)
+        _progressive_echo("  • Use for: pre-flight checks before agent execution.", 0.5)
+        _progressive_echo("", 0.0)
+        _progressive_echo("─" * 58, 0.0)
+        _progressive_echo("💬 Why two numbers?", 0.0)
+        _progressive_echo("─" * 58, 0.0)
+        _progressive_echo(f"  • Health = average dataset quality (meets {int(threshold)}/100 threshold).", 0.0)
+        _progressive_echo("  • Readiness = how many records are agent-safe right now.", 0.0)
+        if result.passed and actual_passed_records < total_records:
+            _progressive_echo(f"  • You passed health, but {actual_failed_records} row(s) need fixes.", 0.6)
+        else:
+            _progressive_echo("", 0.6)
+        _progressive_echo("", 0.0)
 
         if actual_failed_records > 0:
-            click.echo("")
-            click.echo("🔍 Records Requiring Attention:")
+            _progressive_echo("🔍 Records Requiring Attention:", 0.0)
             for failure in failed_records_list[:3]:
-                click.echo(failure)
+                _progressive_echo(failure, 0.0)
             if actual_failed_records > 3:
                 remaining = actual_failed_records - 3
-                click.echo(f"   • ... and {remaining} more records with issues")
+                _progressive_echo(f"   • ... and {remaining} more record(s)", 0.5)
+            else:
+                _progressive_echo("", 0.5)
+            _progressive_echo("", 0.0)
 
-        click.echo("")
-        click.echo("▶ Next: adri view-logs")
+        _progressive_echo("─" * 58, 0.0)
+        _progressive_echo("▶ Next (Step 4): Review your audit trail", 0.0)
+        _progressive_echo("─" * 58, 0.0)
+        _progressive_echo("   adri view-logs", 0.0)
+        _progressive_echo("", 0.0)
+        _progressive_echo("This shows your complete lineage trail and validation details.", 0.0)
+        _progressive_echo("─" * 58, 0.0)
 
     def _display_simple_results(
         self, result, status_icon: str, status_text: str, total_records: int

@@ -6,6 +6,8 @@ sidebar_position: 6
 
 This guide explains ADRI's configuration precedence rules, environment variable overrides, and the new JSONL-based durable logging system for headless/CI workflows.
 
+> **📝 Note:** This page covers **how** to configure logging. For details on **what** gets logged (log file contents, schemas, and query examples), see [Audit Trail & Logging](audit-and-logging.md).
+
 ## Configuration Precedence
 
 ADRI resolves configuration from multiple sources with a clear precedence order (highest to lowest):
@@ -121,11 +123,18 @@ ADRI now uses JSONL (JSON Lines) format for audit logging, providing:
 
 ### File Structure
 
-Three JSONL files are created:
+ADRI creates five log files for each assessment:
 
+**Audit Logs (JSONL format):**
 1. `adri_assessment_logs.jsonl` - Main assessment records with write_seq
 2. `adri_dimension_scores.jsonl` - Dimension breakdown per assessment
 3. `adri_failed_validations.jsonl` - Validation failures per assessment
+
+**AI Reasoning Logs (CSV format):**
+4. `adri_reasoning_prompts.csv` - AI prompts sent to LLM with cryptographic hashes
+5. `adri_reasoning_responses.csv` - AI responses with performance metrics
+
+> For detailed field descriptions and query examples, see [Audit Trail & Logging](audit-and-logging.md).
 
 ### Synchronous Writes (Default)
 
@@ -354,4 +363,8 @@ config = {
 | **Verodat Export** | On-demand conversion to required format |
 | **Effective Config Logging** | Easy debugging and governance |
 
-For more details, see the [Feature Benefits](./feature-benefits.md) guide.
+## Related Documentation
+
+- **[Audit Trail & Logging](audit-and-logging.md)** - Detailed documentation on all 5 log files, schemas, query examples, and use cases
+- **[Core Concepts](core-concepts.md)** - Overview of ADRI's core concepts including audit trails
+- **[Feature Benefits](feature-benefits.md)** - High-level feature overview
