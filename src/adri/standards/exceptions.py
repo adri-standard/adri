@@ -225,7 +225,7 @@ class SchemaValidationError(Exception):
         self.standard_path = standard_path
 
     def __str__(self) -> str:
-        """Provide string representation with validation details."""  # noqa: D401
+        """Return string representation with exception details."""
         parts = [super().__str__()]
 
         if self.standard_path:
@@ -239,7 +239,7 @@ class SchemaValidationError(Exception):
 
 
 class InvalidStandardError(SchemaValidationError):
-    """Raised when a standard file is structurally invalid."""
+    """Raise exception when standard file is structurally invalid."""
 
     pass
 
