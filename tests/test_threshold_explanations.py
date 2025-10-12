@@ -43,7 +43,7 @@ class TestThresholdExplanationAccuracy:
                     }
                 }
             }
-            with open(standard_path, 'w') as f:
+            with open(standard_path, encoding='utf-8') as f:
                 yaml.dump(standard, f)
 
             yield str(standard_path)
@@ -67,7 +67,7 @@ class TestThresholdExplanationAccuracy:
     def test_required_fields_list_matches_standard(self, standard_with_min_score_75):
         """Verify required fields list is accurate."""
         # Load standard and verify fields
-        with open(standard_with_min_score_75) as f:
+        with open(standard_with_min_score_75, encoding='utf-8') as f:
             standard = yaml.safe_load(f)
 
         field_reqs = standard["requirements"]["field_requirements"]
@@ -102,7 +102,7 @@ class TestExplanationWithDifferentStandards:
                     "readiness": {"row_threshold": 0.95}
                 }
             }
-            with open(standard_path, 'w') as f:
+            with open(standard_path, encoding='utf-8') as f:
                 yaml.dump(standard, f)
 
             cmd = ExplainThresholdsCommand()
@@ -129,7 +129,7 @@ class TestExplanationWithDifferentStandards:
                     }
                 }
             }
-            with open(standard_path, 'w') as f:
+            with open(standard_path, encoding='utf-8') as f:
                 yaml.dump(standard, f)
 
             cmd = ExplainThresholdsCommand()
@@ -160,7 +160,7 @@ class TestExplanationWithDifferentStandards:
                     }
                 }
             }
-            with open(standard_path, 'w') as f:
+            with open(standard_path, encoding='utf-8') as f:
                 yaml.dump(standard, f)
 
             cmd = ExplainThresholdsCommand()
@@ -184,7 +184,7 @@ class TestExplanationWithDifferentStandards:
                     "readiness": {"row_threshold": 0.50}
                 }
             }
-            with open(standard_path, 'w') as f:
+            with open(standard_path, encoding='utf-8') as f:
                 yaml.dump(standard, f)
 
             cmd = ExplainThresholdsCommand()
@@ -327,7 +327,7 @@ class TestExplanationErrorHandling:
                 }
                 # Missing requirements section
             }
-            with open(standard_path, 'w') as f:
+            with open(standard_path, encoding='utf-8') as f:
                 yaml.dump(standard, f)
 
             cmd = ExplainThresholdsCommand()

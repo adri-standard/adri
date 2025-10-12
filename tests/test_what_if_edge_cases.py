@@ -41,7 +41,7 @@ class TestWhatIfBoundaryValues:
                     }
                 }
             }
-            with open(standard_path, 'w') as f:
+            with open(standard_path, encoding='utf-8') as f:
                 yaml.dump(standard, f)
 
             # Create test data
@@ -184,7 +184,7 @@ class TestWhatIfDataEdgeCases:
                 "standards": {"id": "test", "name": "Test", "version": "1.0.0", "authority": "Test"},
                 "requirements": {"overall_minimum": 75}
             }
-            with open(standard_path, 'w') as f:
+            with open(standard_path, encoding='utf-8') as f:
                 yaml.dump(standard, f)
 
             # Empty data file
@@ -209,7 +209,7 @@ class TestWhatIfDataEdgeCases:
                 "standards": {"id": "test", "name": "Test", "version": "1.0.0", "authority": "Test"},
                 "requirements": {"overall_minimum": 75}
             }
-            with open(standard_path, 'w') as f:
+            with open(standard_path, encoding='utf-8') as f:
                 yaml.dump(standard, f)
 
             data_path = Path(tmpdir) / "single.csv"
@@ -290,7 +290,7 @@ class TestWhatIfInvalidInputs:
                 "standards": {"id": "test", "name": "Test", "version": "1.0.0", "authority": "Test"},
                 "requirements": {"overall_minimum": 75}
             }
-            with open(standard_path, 'w') as f:
+            with open(standard_path, encoding='utf-8') as f:
                 yaml.dump(standard, f)
 
             data_path = Path(tmpdir) / "data.csv"

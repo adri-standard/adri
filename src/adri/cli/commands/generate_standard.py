@@ -401,7 +401,7 @@ class GenerateStandardCommand(Command):
                 0.0,
             )
         else:
-            _progressive_echo(f"   adri assess your_test_data.csv \\", 0.0)
+            _progressive_echo("   adri assess your_test_data.csv \\", 0.0)
             _progressive_echo(
                 f"        --standard {rel_to_project_root(output_path)} --guide", 0.0
             )
