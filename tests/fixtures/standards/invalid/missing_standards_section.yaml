@@ -1,0 +1,6 @@
+# Missing 'standards' section - should fail validation
+requirements:
+  dimension_requirements:
+    validity:
+      weight: 3
+  overall_minimum: 70

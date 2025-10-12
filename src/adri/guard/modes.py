@@ -604,6 +604,32 @@ class DataProtectionEngine:
                 "Successfully generated rich standard at: %s", standard_path
             )
 
+            # Validate the generated standard to ensure it's valid
+            try:
+                from adri.standards.validator import get_validator
+
+                validator = get_validator()
+                result = validator.validate_standard_file(
+                    standard_path, use_cache=False
+                )
+
+                if not result.is_valid:
+                    self.logger.error(
+                        "Generated standard failed validation: %s",
+                        result.format_errors(),
+                    )
+                    raise ProtectionError(
+                        f"Generated standard is invalid:\n{result.format_errors()}"
+                    )
+
+                self.logger.debug("Generated standard passed validation")
+
+            except ImportError:
+                # Validator not available, skip validation
+                self.logger.debug(
+                    "StandardValidator not available, skipping validation"
+                )
+
         except ProtectionError:
             # Re-raise ProtectionError as-is
             raise
