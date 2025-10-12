@@ -43,7 +43,7 @@ class StandardSchema:
 
     # Top-level sections
     REQUIRED_SECTIONS = ["standards", "requirements"]
-    OPTIONAL_SECTIONS: List[str] = []
+    OPTIONAL_SECTIONS: List[str] = ["record_identification", "metadata"]
 
     # Standards section required fields
     STANDARDS_REQUIRED_FIELDS = ["id", "name", "version", "description"]
