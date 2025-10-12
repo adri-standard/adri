@@ -26,10 +26,10 @@ class TestProgressiveOutputTiming:
         """Verify timing delays work in interactive terminals."""
         # Check if running in interactive terminal
         is_interactive = sys.stdout.isatty()
-        
+
         if not is_interactive:
             pytest.skip("Not running in interactive terminal")
-        
+
         # In interactive mode, there should be timing delays
         # This test just verifies the check works
         assert is_interactive
@@ -38,7 +38,7 @@ class TestProgressiveOutputTiming:
         """Verify no delays in non-interactive mode (CI/automation)."""
         # When stdout is not a TTY, delays should be skipped
         is_interactive = sys.stdout.isatty()
-        
+
         if is_interactive:
             # Can't fully test non-interactive in interactive terminal
             # But we can verify the detection works
@@ -68,7 +68,7 @@ class TestVisualFormatting:
     def test_box_drawing_characters_valid(self):
         """Verify box drawing characters are valid Unicode."""
         box_chars = ["┌", "─", "┐", "│", "└", "┘", "├", "┤"]
-        
+
         for char in box_chars:
             # Should be valid Unicode
             assert len(char) == 1
@@ -77,7 +77,7 @@ class TestVisualFormatting:
     def test_emoji_icons_display(self):
         """Verify emoji/icons are valid."""
         icons = ["✅", "❌", "📊", "🎯", "💡", "⚠️", "🔍"]
-        
+
         for icon in icons:
             # Should be valid Unicode
             assert len(icon) >= 1
@@ -88,7 +88,7 @@ class TestVisualFormatting:
         # Headers and data should align
         header = "Column1  Column2  Column3"
         data   = "Value1   Value2   Value3 "
-        
+
         # Should have same length for proper alignment
         # (This is a simplified test; real tables would need more validation)
         assert len(header) == len(data)
@@ -96,7 +96,7 @@ class TestVisualFormatting:
     def test_no_text_overflow(self):
         """Verify text doesn't overflow expected widths."""
         max_width = 80  # Standard terminal width
-        
+
         sample_line = "This is a sample line that should not exceed the terminal width"
         assert len(sample_line) <= max_width
 
@@ -105,7 +105,7 @@ class TestVisualFormatting:
         # Long text should break at word boundaries, not mid-word
         long_text = "This is a very long sentence that needs to be broken into multiple lines"
         words = long_text.split()
-        
+
         # Each word should be intact
         for word in words:
             assert " " not in word
@@ -118,11 +118,11 @@ class TestContentCompleteness:
         """Verify all 4 guide steps are present."""
         expected_steps = [
             "Step 1",
-            "Step 2", 
+            "Step 2",
             "Step 3",
             "Step 4"
         ]
-        
+
         assert len(expected_steps) == 4
 
     def test_each_step_has_title(self):
@@ -133,7 +133,7 @@ class TestContentCompleteness:
             3: "Running Assessment",
             4: "Next Steps"
         }
-        
+
         assert len(step_titles) == 4
         for step_num, title in step_titles.items():
             assert title is not None
@@ -161,7 +161,7 @@ class TestContentCompleteness:
             "step4",
             "footer"
         ]
-        
+
         assert len(required_sections) == 6
 
 
@@ -184,10 +184,10 @@ class TestCrossTerminalCompatibility:
         """Test behavior with different TERM environment variables."""
         # Get current TERM setting
         term = os.environ.get("TERM", "")
-        
+
         # Should work with common TERM values
         common_terms = ["xterm", "xterm-256color", "screen", "dumb"]
-        
+
         # Verify TERM is set to something
         assert term != "" or True  # OK if TERM not set
 
@@ -200,7 +200,7 @@ class TestCrossTerminalCompatibility:
             unicode_supported = True
         except:
             unicode_supported = False
-        
+
         # Modern terminals should support Unicode
         assert unicode_supported or True  # Soft assertion
 
@@ -208,7 +208,7 @@ class TestCrossTerminalCompatibility:
         """Test detection of color support."""
         # Check if terminal supports colors
         supports_color = sys.stdout.isatty()
-        
+
         # Should be able to detect color support
         assert isinstance(supports_color, bool)
 
@@ -232,7 +232,7 @@ class TestNonInteractiveMode:
         """Verify no problematic control codes in redirected output."""
         # ANSI codes should be handled appropriately
         sample_output = "Sample output without control codes"
-        
+
         # Should not contain raw ANSI escape sequences
         assert "\x1b" not in sample_output or True  # Soft check
 
@@ -322,7 +322,7 @@ class TestGuideModeIntegration:
             # Create minimal test files
             data_path = Path(tmpdir) / "test.csv"
             data_path.write_text("id,value\n1,100\n")
-            
+
             standard_path = Path(tmpdir) / "standard.yaml"
             standard_path.write_text("""
 standards:
@@ -333,7 +333,7 @@ standards:
 requirements:
   overall_minimum: 75
 """)
-            
+
             # Guide mode should work with valid inputs
             # (We're not actually executing to avoid complexity,
             #  just verifying structure is sound)
@@ -344,12 +344,12 @@ requirements:
         """Verify guide mode doesn't slow down execution significantly."""
         # Even with delays, should complete reasonably fast
         max_acceptable_time = 10.0  # seconds
-        
+
         # Simulate timing check
         start = time.time()
         time.sleep(0.001)  # Minimal delay
         elapsed = time.time() - start
-        
+
         assert elapsed < max_acceptable_time
 
 

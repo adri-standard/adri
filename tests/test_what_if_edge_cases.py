@@ -58,118 +58,118 @@ class TestWhatIfBoundaryValues:
         """Test what-if with min_score=0."""
         standard_path, data_path = temp_files
         cmd = WhatIfCommand()
-        
+
         # Should not error, but should show that threshold is very lenient
         result = cmd.execute({
             "changes": ["min_score=0"],
             "standard_path": standard_path,
             "data_path": data_path
         })
-        
+
         assert result == 0  # Should succeed
 
     def test_min_score_fifty(self, temp_files):
         """Test what-if with min_score=50."""
         standard_path, data_path = temp_files
         cmd = WhatIfCommand()
-        
+
         result = cmd.execute({
             "changes": ["min_score=50"],
             "standard_path": standard_path,
             "data_path": data_path
         })
-        
+
         assert result == 0
 
     def test_min_score_seventy_five(self, temp_files):
         """Test what-if with min_score=75 (default)."""
         standard_path, data_path = temp_files
         cmd = WhatIfCommand()
-        
+
         result = cmd.execute({
             "changes": ["min_score=75"],
             "standard_path": standard_path,
             "data_path": data_path
         })
-        
+
         assert result == 0
 
     def test_min_score_hundred(self, temp_files):
         """Test what-if with min_score=100 (maximum)."""
         standard_path, data_path = temp_files
         cmd = WhatIfCommand()
-        
+
         result = cmd.execute({
             "changes": ["min_score=100"],
             "standard_path": standard_path,
             "data_path": data_path
         })
-        
+
         assert result == 0
 
     def test_row_threshold_zero(self, temp_files):
         """Test what-if with readiness.row_threshold=0.0."""
         standard_path, data_path = temp_files
         cmd = WhatIfCommand()
-        
+
         result = cmd.execute({
             "changes": ["readiness.row_threshold=0.0"],
             "standard_path": standard_path,
             "data_path": data_path
         })
-        
+
         assert result == 0
 
     def test_row_threshold_forty_percent(self, temp_files):
         """Test what-if with readiness.row_threshold=0.4."""
         standard_path, data_path = temp_files
         cmd = WhatIfCommand()
-        
+
         result = cmd.execute({
             "changes": ["readiness.row_threshold=0.4"],
             "standard_path": standard_path,
             "data_path": data_path
         })
-        
+
         assert result == 0
 
     def test_row_threshold_eighty_percent(self, temp_files):
         """Test what-if with readiness.row_threshold=0.8 (default)."""
         standard_path, data_path = temp_files
         cmd = WhatIfCommand()
-        
+
         result = cmd.execute({
             "changes": ["readiness.row_threshold=0.8"],
             "standard_path": standard_path,
             "data_path": data_path
         })
-        
+
         assert result == 0
 
     def test_row_threshold_one_hundred_percent(self, temp_files):
         """Test what-if with readiness.row_threshold=1.0 (maximum)."""
         standard_path, data_path = temp_files
         cmd = WhatIfCommand()
-        
+
         result = cmd.execute({
             "changes": ["readiness.row_threshold=1.0"],
             "standard_path": standard_path,
             "data_path": data_path
         })
-        
+
         assert result == 0
 
     def test_multiple_changes(self, temp_files):
         """Test what-if with multiple simultaneous changes."""
         standard_path, data_path = temp_files
         cmd = WhatIfCommand()
-        
+
         result = cmd.execute({
             "changes": ["min_score=85", "readiness.row_threshold=0.9"],
             "standard_path": standard_path,
             "data_path": data_path
         })
-        
+
         assert result == 0
 
 
@@ -197,7 +197,7 @@ class TestWhatIfDataEdgeCases:
                 "standard_path": str(standard_path),
                 "data_path": str(data_path)
             })
-            
+
             # Should handle gracefully
             assert result in [0, 1]  # Either succeed with warning or fail gracefully
 
@@ -224,14 +224,14 @@ class TestWhatIfDataEdgeCases:
                 "standard_path": str(standard_path),
                 "data_path": str(data_path)
             })
-            
+
             assert result == 0
 
     def test_perfect_pass_rate(self):
         """Test what-if with 100% pass rate data."""
         fixture_path = Path("tests/fixtures/validation/test_invoice_perfect.csv")
         standard_path = Path("tests/fixtures/validation/standard_default.yaml")
-        
+
         if not fixture_path.exists() or not standard_path.exists():
             pytest.skip("Test fixtures not available")
 
@@ -241,14 +241,14 @@ class TestWhatIfDataEdgeCases:
             "standard_path": str(standard_path),
             "data_path": str(fixture_path)
         })
-        
+
         assert result == 0
 
     def test_zero_pass_rate(self):
         """Test what-if with 0% pass rate data."""
         fixture_path = Path("tests/fixtures/validation/test_invoice_fail.csv")
         standard_path = Path("tests/fixtures/validation/standard_default.yaml")
-        
+
         if not fixture_path.exists() or not standard_path.exists():
             pytest.skip("Test fixtures not available")
 
@@ -258,14 +258,14 @@ class TestWhatIfDataEdgeCases:
             "standard_path": str(standard_path),
             "data_path": str(fixture_path)
         })
-        
+
         assert result == 0
 
     def test_exact_threshold_boundary_eighty(self):
         """Test what-if with data exactly at 80% pass rate."""
         fixture_path = Path("tests/fixtures/validation/test_invoice_boundary_80.csv")
         standard_path = Path("tests/fixtures/validation/standard_default.yaml")
-        
+
         if not fixture_path.exists() or not standard_path.exists():
             pytest.skip("Test fixtures not available")
 
@@ -275,7 +275,7 @@ class TestWhatIfDataEdgeCases:
             "standard_path": str(standard_path),
             "data_path": str(fixture_path)
         })
-        
+
         assert result == 0
 
 
@@ -302,7 +302,7 @@ class TestWhatIfInvalidInputs:
                 "standard_path": str(standard_path),
                 "data_path": str(data_path)
             })
-            
+
             assert result == 1  # Should fail
 
     def test_nonexistent_standard_file(self):
@@ -313,7 +313,7 @@ class TestWhatIfInvalidInputs:
             "standard_path": "/nonexistent/path/standard.yaml",
             "data_path": "tests/fixtures/validation/good_invoice_data.csv"
         })
-        
+
         assert result == 1
 
     def test_nonexistent_data_file(self):
@@ -324,7 +324,7 @@ class TestWhatIfInvalidInputs:
             "standard_path": "tests/fixtures/validation/standard_default.yaml",
             "data_path": "/nonexistent/path/data.csv"
         })
-        
+
         assert result == 1
 
     def test_malformed_standard_file(self):
@@ -342,7 +342,7 @@ class TestWhatIfInvalidInputs:
                 "standard_path": str(standard_path),
                 "data_path": str(data_path)
             })
-            
+
             assert result == 1
 
 
@@ -353,7 +353,7 @@ class TestWhatIfCalculationAccuracy:
         """Verify readiness percentage calculation is accurate."""
         fixture_path = Path("tests/fixtures/validation/test_invoice_boundary_80.csv")
         standard_path = Path("tests/fixtures/validation/standard_default.yaml")
-        
+
         if not fixture_path.exists() or not standard_path.exists():
             pytest.skip("Test fixtures not available")
 
@@ -364,7 +364,7 @@ class TestWhatIfCalculationAccuracy:
             "standard_path": str(standard_path),
             "data_path": str(fixture_path)
         })
-        
+
         assert result == 0
 
     def test_percentage_precision_two_decimals(self):
@@ -373,7 +373,7 @@ class TestWhatIfCalculationAccuracy:
         # For now, we verify the command runs successfully
         fixture_path = Path("tests/fixtures/validation/good_invoice_data.csv")
         standard_path = Path("tests/fixtures/validation/standard_default.yaml")
-        
+
         if not fixture_path.exists() or not standard_path.exists():
             pytest.skip("Test fixtures not available")
 
@@ -383,7 +383,7 @@ class TestWhatIfCalculationAccuracy:
             "standard_path": str(standard_path),
             "data_path": str(fixture_path)
         })
-        
+
         assert result == 0
 
     def test_rounding_edge_case_79_vs_80(self):
@@ -391,25 +391,25 @@ class TestWhatIfCalculationAccuracy:
         fixture_79 = Path("tests/fixtures/validation/test_invoice_boundary_79.csv")
         fixture_80 = Path("tests/fixtures/validation/test_invoice_boundary_80.csv")
         standard_path = Path("tests/fixtures/validation/standard_default.yaml")
-        
+
         if not all([fixture_79.exists(), fixture_80.exists(), standard_path.exists()]):
             pytest.skip("Test fixtures not available")
 
         cmd = WhatIfCommand()
-        
+
         # Both should succeed but produce different readiness assessments
         result_79 = cmd.execute({
             "changes": ["readiness.row_threshold=0.80"],
             "standard_path": str(standard_path),
             "data_path": str(fixture_79)
         })
-        
+
         result_80 = cmd.execute({
             "changes": ["readiness.row_threshold=0.80"],
             "standard_path": str(standard_path),
             "data_path": str(fixture_80)
         })
-        
+
         assert result_79 == 0
         assert result_80 == 0
 
@@ -420,15 +420,15 @@ class TestWhatIfPerformance:
     def test_simulation_completes_quickly(self):
         """Verify what-if simulation completes in reasonable time (<1s)."""
         import time
-        
+
         fixture_path = Path("tests/fixtures/validation/good_invoice_data.csv")
         standard_path = Path("tests/fixtures/validation/standard_default.yaml")
-        
+
         if not fixture_path.exists() or not standard_path.exists():
             pytest.skip("Test fixtures not available")
 
         cmd = WhatIfCommand()
-        
+
         start = time.time()
         result = cmd.execute({
             "changes": ["min_score=80", "readiness.row_threshold=0.85"],
@@ -436,7 +436,7 @@ class TestWhatIfPerformance:
             "data_path": str(fixture_path)
         })
         elapsed = time.time() - start
-        
+
         assert result == 0
         assert elapsed < 1.0, f"What-if took {elapsed:.2f}s, should be <1.0s"
 

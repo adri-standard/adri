@@ -45,14 +45,14 @@ class TestThresholdExplanationAccuracy:
             }
             with open(standard_path, 'w') as f:
                 yaml.dump(standard, f)
-            
+
             yield str(standard_path)
 
     def test_min_score_explanation_matches_value(self, standard_with_min_score_75):
         """Verify MIN_SCORE explanation shows correct value."""
         cmd = ExplainThresholdsCommand()
         result = cmd.execute({"standard_path": standard_with_min_score_75})
-        
+
         assert result == 0
         # In real implementation, would capture output and verify it mentions "75"
 
@@ -60,7 +60,7 @@ class TestThresholdExplanationAccuracy:
         """Verify readiness threshold explanation shows 80%."""
         cmd = ExplainThresholdsCommand()
         result = cmd.execute({"standard_path": standard_with_min_score_75})
-        
+
         assert result == 0
         # Should mention 80% or 0.80
 
@@ -69,13 +69,13 @@ class TestThresholdExplanationAccuracy:
         # Load standard and verify fields
         with open(standard_with_min_score_75) as f:
             standard = yaml.safe_load(f)
-        
+
         field_reqs = standard["requirements"]["field_requirements"]
         required_fields = [
             name for name, config in field_reqs.items()
             if not config.get("nullable", True)
         ]
-        
+
         # Should have 3 required fields
         assert len(required_fields) == 3
         assert "invoice_id" in required_fields
@@ -104,10 +104,10 @@ class TestExplanationWithDifferentStandards:
             }
             with open(standard_path, 'w') as f:
                 yaml.dump(standard, f)
-            
+
             cmd = ExplainThresholdsCommand()
             result = cmd.execute({"standard_path": str(standard_path)})
-            
+
             assert result == 0
 
     def test_no_required_fields(self):
@@ -131,10 +131,10 @@ class TestExplanationWithDifferentStandards:
             }
             with open(standard_path, 'w') as f:
                 yaml.dump(standard, f)
-            
+
             cmd = ExplainThresholdsCommand()
             result = cmd.execute({"standard_path": str(standard_path)})
-            
+
             assert result == 0
             # Should indicate no required fields
 
@@ -162,10 +162,10 @@ class TestExplanationWithDifferentStandards:
             }
             with open(standard_path, 'w') as f:
                 yaml.dump(standard, f)
-            
+
             cmd = ExplainThresholdsCommand()
             result = cmd.execute({"standard_path": str(standard_path)})
-            
+
             assert result == 0
 
     def test_custom_row_threshold_50_percent(self):
@@ -186,10 +186,10 @@ class TestExplanationWithDifferentStandards:
             }
             with open(standard_path, 'w') as f:
                 yaml.dump(standard, f)
-            
+
             cmd = ExplainThresholdsCommand()
             result = cmd.execute({"standard_path": str(standard_path)})
-            
+
             assert result == 0
 
 
@@ -201,13 +201,13 @@ class TestCalculationExamples:
         # If min_score = 75, then:
         # - What passes: weighted_average >= 75
         # - What fails: weighted_average < 75
-        
+
         min_score = 75
-        
+
         # Example that should pass
         score_pass = 80.0
         assert score_pass >= min_score
-        
+
         # Example that should fail
         score_fail = 70.0
         assert score_fail < min_score
@@ -218,19 +218,19 @@ class TestCalculationExamples:
         # - READY: passed_rows / total_rows >= 0.80
         # - NOT READY: passed_rows / total_rows < 0.40
         # - READY WITH BLOCKERS: 0.40 <= ratio < 0.80
-        
+
         total_rows = 100
         threshold = 0.80
-        
+
         # READY example
         passed_ready = 85
         assert (passed_ready / total_rows) >= threshold
-        
+
         # READY WITH BLOCKERS example
         passed_blockers = 60
         ratio_blockers = passed_blockers / total_rows
         assert 0.40 <= ratio_blockers < threshold
-        
+
         # NOT READY example
         passed_not_ready = 30
         assert (passed_not_ready / total_rows) < 0.40
@@ -241,7 +241,7 @@ class TestCalculationExamples:
         assert (80 / 100) * 100 == 80.0
         assert (79 / 100) * 100 == 79.0
         assert (40 / 100) * 100 == 40.0
-        
+
         # Edge cases
         assert (100 / 100) * 100 == 100.0
         assert (0 / 100) * 100 == 0.0
@@ -252,7 +252,7 @@ class TestCalculationExamples:
         min_score = 75
         assert 75 >= min_score  # Should pass
         assert not (74.9 >= min_score)  # Should fail
-        
+
         # Readiness: passed_pct >= threshold * 100 (inclusive)
         threshold = 0.80
         assert 80.0 >= (threshold * 100)  # Should pass
@@ -300,7 +300,7 @@ class TestExplanationErrorHandling:
         """Test explanation with missing standard file."""
         cmd = ExplainThresholdsCommand()
         result = cmd.execute({"standard_path": "/nonexistent/standard.yaml"})
-        
+
         assert result == 1  # Should fail gracefully
 
     def test_malformed_standard_file(self):
@@ -308,10 +308,10 @@ class TestExplanationErrorHandling:
         with tempfile.TemporaryDirectory() as tmpdir:
             standard_path = Path(tmpdir) / "bad.yaml"
             standard_path.write_text("not valid yaml: {[")
-            
+
             cmd = ExplainThresholdsCommand()
             result = cmd.execute({"standard_path": str(standard_path)})
-            
+
             assert result == 1
 
     def test_standard_missing_requirements(self):
@@ -329,10 +329,10 @@ class TestExplanationErrorHandling:
             }
             with open(standard_path, 'w') as f:
                 yaml.dump(standard, f)
-            
+
             cmd = ExplainThresholdsCommand()
             result = cmd.execute({"standard_path": str(standard_path)})
-            
+
             # Should handle gracefully, possibly with defaults
             assert result in [0, 1]
 
@@ -343,37 +343,37 @@ class TestThresholdExplanationWithRealFixtures:
     def test_explanation_default_standard(self):
         """Test explanation with default test standard."""
         standard_path = Path("tests/fixtures/validation/standard_default.yaml")
-        
+
         if not standard_path.exists():
             pytest.skip("Test fixture not available")
-        
+
         cmd = ExplainThresholdsCommand()
         result = cmd.execute({"standard_path": str(standard_path)})
-        
+
         assert result == 0
 
     def test_explanation_strict_standard(self):
         """Test explanation with strict test standard."""
         standard_path = Path("tests/fixtures/validation/standard_strict.yaml")
-        
+
         if not standard_path.exists():
             pytest.skip("Test fixture not available")
-        
+
         cmd = ExplainThresholdsCommand()
         result = cmd.execute({"standard_path": str(standard_path)})
-        
+
         assert result == 0
 
     def test_explanation_lenient_standard(self):
         """Test explanation with lenient test standard."""
         standard_path = Path("tests/fixtures/validation/standard_lenient.yaml")
-        
+
         if not standard_path.exists():
             pytest.skip("Test fixture not available")
-        
+
         cmd = ExplainThresholdsCommand()
         result = cmd.execute({"standard_path": str(standard_path)})
-        
+
         assert result == 0
 
 
@@ -384,15 +384,15 @@ class TestReadinessStatusTiers:
         """Test READY status requires >= 80% pass rate."""
         total = 100
         threshold = 0.80
-        
+
         # Exactly at threshold should be READY
         passed_at_threshold = int(total * threshold)
         assert (passed_at_threshold / total) >= threshold
-        
+
         # Just above threshold should be READY
         passed_above = passed_at_threshold + 1
         assert (passed_above / total) >= threshold
-        
+
         # Just below threshold should not be READY
         passed_below = passed_at_threshold - 1
         assert (passed_below / total) < threshold
@@ -400,17 +400,17 @@ class TestReadinessStatusTiers:
     def test_ready_with_blockers_range(self):
         """Test READY WITH BLOCKERS is between 40% and 80%."""
         total = 100
-        
+
         # At 40% should be READY WITH BLOCKERS
         passed_40 = 40
         ratio_40 = passed_40 / total
         assert 0.40 <= ratio_40 < 0.80
-        
+
         # At 79% should be READY WITH BLOCKERS
         passed_79 = 79
         ratio_79 = passed_79 / total
         assert 0.40 <= ratio_79 < 0.80
-        
+
         # At 80% should be READY (not READY WITH BLOCKERS)
         passed_80 = 80
         ratio_80 = passed_80 / total
@@ -419,15 +419,15 @@ class TestReadinessStatusTiers:
     def test_not_ready_status_threshold(self):
         """Test NOT READY status is < 40% pass rate."""
         total = 100
-        
+
         # At 39% should be NOT READY
         passed_39 = 39
         assert (passed_39 / total) < 0.40
-        
+
         # At 0% should be NOT READY
         passed_0 = 0
         assert (passed_0 / total) < 0.40
-        
+
         # At 40% should not be NOT READY (should be READY WITH BLOCKERS)
         passed_40 = 40
         assert (passed_40 / total) >= 0.40

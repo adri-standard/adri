@@ -432,6 +432,7 @@ class ConfigSetCommand(Command):
         """Set a configuration value in a YAML standard file."""
         try:
             import shutil
+
             import yaml
 
             # Parse setting
@@ -640,7 +641,9 @@ class ExplainThresholdsCommand(Command):
             click.echo(
                 f"  • Meaning: Dataset must average ≥{min_score}% quality across all dimensions"
             )
-            click.echo(f"  • What passes: Weighted average of dimension scores ≥ {min_score}")
+            click.echo(
+                f"  • What passes: Weighted average of dimension scores ≥ {min_score}"
+            )
             click.echo(f"  • What fails: Weighted average < {min_score}")
             click.echo("")
 
@@ -662,7 +665,9 @@ class ExplainThresholdsCommand(Command):
                     required_fields_str += f", ... ({len(required_fields)} total)"
                 click.echo(f"  • Required fields: [{required_fields_str}]")
             else:
-                click.echo("  • Required fields: (none specified - all fields optional)")
+                click.echo(
+                    "  • Required fields: (none specified - all fields optional)"
+                )
 
             click.echo(
                 "  • Meaning: At least 80% of rows must have ALL required fields valid"
@@ -688,7 +693,9 @@ class ExplainThresholdsCommand(Command):
             click.echo("  • If guard.mode = block: Would halt execution on failures")
             click.echo("")
 
-            click.echo("💡 Use 'adri what-if' to simulate changes without modifying the standard")
+            click.echo(
+                "💡 Use 'adri what-if' to simulate changes without modifying the standard"
+            )
 
             return 0
 
@@ -730,14 +737,13 @@ class WhatIfCommand(Command):
 
         return self._what_if(changes, standard_path, data_path)
 
-    def _what_if(
-        self, changes: List[str], standard_path: str, data_path: str
-    ) -> int:
+    def _what_if(self, changes: List[str], standard_path: str, data_path: str) -> int:
         """Simulate threshold changes and show impact."""
         try:
             import yaml
-            from ...validator.loaders import load_data
+
             from ...validator.engine import DataQualityAssessor
+            from ...validator.loaders import load_data
 
             # Load standard and data
             standard_file = Path(standard_path)
@@ -768,7 +774,9 @@ class WhatIfCommand(Command):
 
             # Calculate current readiness
             current_passed_rows = self._calculate_passed_rows(data)
-            current_readiness_pct = (current_passed_rows / total_rows * 100) if total_rows > 0 else 0
+            current_readiness_pct = (
+                (current_passed_rows / total_rows * 100) if total_rows > 0 else 0
+            )
 
             click.echo("🔮 What-If Analysis")
             click.echo("==================")
@@ -778,12 +786,18 @@ class WhatIfCommand(Command):
 
             click.echo("Current Configuration:")
             click.echo(f"  • MIN_SCORE: {current_min_score}/100")
-            click.echo(f"  • Row Threshold: {int(current_row_threshold*100)}% ({int(total_rows*current_row_threshold)}/{total_rows} rows)")
-            
-            current_health_status = "✅ PASSED" if current_result.passed else "❌ FAILED"
+            click.echo(
+                f"  • Row Threshold: {int(current_row_threshold*100)}% ({int(total_rows*current_row_threshold)}/{total_rows} rows)"
+            )
+
+            current_health_status = (
+                "✅ PASSED" if current_result.passed else "❌ FAILED"
+            )
             current_readiness_status = self._get_readiness_status(current_readiness_pct)
-            
-            click.echo(f"  • Status: Health {current_health_status} ({current_result.overall_score:.1f}/100), Readiness {current_readiness_status} ({current_passed_rows}/{total_rows})")
+
+            click.echo(
+                f"  • Status: Health {current_health_status} ({current_result.overall_score:.1f}/100), Readiness {current_readiness_status} ({current_passed_rows}/{total_rows})"
+            )
             click.echo("")
 
             # Parse proposed changes
@@ -805,29 +819,45 @@ class WhatIfCommand(Command):
                     click.echo(f"  • MIN_SCORE: {current_min_score} → {value}")
                 elif key == "readiness.row_threshold":
                     new_threshold = float(value)
-                    click.echo(f"  • Row Threshold: {current_row_threshold} → {new_threshold} ({int(total_rows*new_threshold)}/{total_rows} rows required)")
+                    click.echo(
+                        f"  • Row Threshold: {current_row_threshold} → {new_threshold} ({int(total_rows*new_threshold)}/{total_rows} rows required)"
+                    )
             click.echo("")
 
             # Project results
             new_min_score = proposed_changes.get("min_score", current_min_score)
-            new_row_threshold = float(proposed_changes.get("readiness.row_threshold", current_row_threshold))
+            new_row_threshold = float(
+                proposed_changes.get("readiness.row_threshold", current_row_threshold)
+            )
 
             new_health_passed = current_result.overall_score >= new_min_score
             new_health_status = "✅ PASSED" if new_health_passed else "❌ FAILED"
-            
-            new_readiness_pct = current_readiness_pct  # Same data, percentage doesn't change
-            new_readiness_status = self._get_readiness_status(new_readiness_pct, new_row_threshold)
+
+            new_readiness_pct = (
+                current_readiness_pct  # Same data, percentage doesn't change
+            )
+            new_readiness_status = self._get_readiness_status(
+                new_readiness_pct, new_row_threshold
+            )
 
             click.echo("Projected Results:")
-            click.echo(f"  • Health: {current_health_status} → {new_health_status} ({current_result.overall_score:.1f}/100 vs threshold {new_min_score})")
-            click.echo(f"  • Readiness: {current_readiness_status} → {new_readiness_status} ({current_passed_rows}/{total_rows}, need {int(total_rows*new_row_threshold)}/{total_rows})")
+            click.echo(
+                f"  • Health: {current_health_status} → {new_health_status} ({current_result.overall_score:.1f}/100 vs threshold {new_min_score})"
+            )
+            click.echo(
+                f"  • Readiness: {current_readiness_status} → {new_readiness_status} ({current_passed_rows}/{total_rows}, need {int(total_rows*new_row_threshold)}/{total_rows})"
+            )
             click.echo("")
 
             # Impact summary
             click.echo("Impact Summary:")
-            
+
             if new_health_passed != current_result.passed:
-                health_impact = "Would change from PASSED to FAILED" if current_result.passed else "Would change from FAILED to PASSED"
+                health_impact = (
+                    "Would change from PASSED to FAILED"
+                    if current_result.passed
+                    else "Would change from FAILED to PASSED"
+                )
                 click.echo(f"  • Health threshold: {health_impact}")
             else:
                 click.echo("  • Health threshold: No change in pass/fail")
@@ -835,11 +865,15 @@ class WhatIfCommand(Command):
             rows_needed = int(total_rows * new_row_threshold)
             if current_passed_rows < rows_needed:
                 rows_to_fix = rows_needed - current_passed_rows
-                click.echo(f"  • Readiness: Would require {rows_to_fix} more row(s) to pass")
+                click.echo(
+                    f"  • Readiness: Would require {rows_to_fix} more row(s) to pass"
+                )
             elif current_passed_rows >= rows_needed:
                 click.echo("  • Readiness: Currently meets new threshold")
-            
-            click.echo(f"  • Recommendation: Fix {max(0, rows_needed - current_passed_rows)} more row(s) to meet new readiness gate")
+
+            click.echo(
+                f"  • Recommendation: Fix {max(0, rows_needed - current_passed_rows)} more row(s) to meet new readiness gate"
+            )
             click.echo("")
 
             click.echo("💡 Use 'adri config set' to apply these changes permanently")
@@ -870,11 +904,11 @@ class WhatIfCommand(Command):
         passed = 0
         for _, row in data.iterrows():
             has_issues = False
-            
+
             # Check for missing values
             if row.isnull().any():
                 has_issues = True
-            
+
             # Check for negative amounts
             if "amount" in row and pd.notna(row["amount"]):
                 try:
@@ -882,13 +916,15 @@ class WhatIfCommand(Command):
                         has_issues = True
                 except (ValueError, TypeError):
                     has_issues = True
-            
+
             if not has_issues:
                 passed += 1
-        
+
         return passed
 
-    def _get_readiness_status(self, readiness_pct: float, threshold: float = 0.80) -> str:
+    def _get_readiness_status(
+        self, readiness_pct: float, threshold: float = 0.80
+    ) -> str:
         """Get readiness status string based on percentage."""
         required_pct = threshold * 100
         if readiness_pct >= required_pct:

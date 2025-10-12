@@ -7,23 +7,23 @@ standards:
 
 requirements:
   overall_minimum: 75
-  
+
   field_requirements:
     invoice_id:
       type: string
       nullable: false
       description: Unique invoice identifier
-    
+
     invoice_date:
       type: string
       nullable: false
       description: Date of invoice
-    
+
     customer_name:
       type: string
       nullable: false
       description: Customer name
-    
+
     amount:
       type: number
       nullable: false
@@ -32,7 +32,7 @@ requirements:
         - name: amount_positive
           expression: "value > 0"
           severity: critical
-    
+
     status:
       type: string
       nullable: false
@@ -41,7 +41,7 @@ requirements:
         - name: valid_status
           expression: "value in ['paid', 'pending', 'overdue', 'cancelled']"
           severity: critical
-    
+
     payment_method:
       type: string
       nullable: true
@@ -51,15 +51,15 @@ requirements:
     completeness:
       minimum_score: 15
       weight: 0.25
-    
+
     consistency:
       minimum_score: 15
       weight: 0.25
-    
+
     accuracy:
       minimum_score: 15
       weight: 0.25
-    
+
     timeliness:
       minimum_score: 15
       weight: 0.25

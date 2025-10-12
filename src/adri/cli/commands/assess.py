@@ -25,7 +25,7 @@ from ...validator.loaders import load_data, load_standard
 
 def _progressive_echo(text: str, delay: float = 0.0) -> None:
     """Print text with optional delay for progressive output in guide mode.
-    
+
     Args:
         text: Text to print
         delay: Delay in seconds after printing (only in interactive terminals)
@@ -266,24 +266,38 @@ class AssessCommand(Command):
         _progressive_echo("===============================", 0.0)
         _progressive_echo("", 0.0)
         _progressive_echo(
-            f"System Health (Score): {result.overall_score:.1f}/100  {status_icon} {status_text}", 0.0
+            f"System Health (Score): {result.overall_score:.1f}/100  {status_icon} {status_text}",
+            0.0,
         )
         _progressive_echo("  • Dataset-level quality across all 5 dimensions.", 0.0)
-        _progressive_echo("  • Use for: monitoring, integration confidence, and trend tracking.", 0.5)
+        _progressive_echo(
+            "  • Use for: monitoring, integration confidence, and trend tracking.", 0.5
+        )
         _progressive_echo("", 0.0)
         _progressive_echo(
-            f"Batch Readiness (Gate): {actual_passed_records}/{total_records} rows  {readiness_status}", 0.0
+            f"Batch Readiness (Gate): {actual_passed_records}/{total_records} rows  {readiness_status}",
+            0.0,
         )
-        _progressive_echo("  • Row-level safety: records passing every required rule.", 0.0)
+        _progressive_echo(
+            "  • Row-level safety: records passing every required rule.", 0.0
+        )
         _progressive_echo("  • Use for: pre-flight checks before agent execution.", 0.5)
         _progressive_echo("", 0.0)
         _progressive_echo("─" * 58, 0.0)
         _progressive_echo("💬 Why two numbers?", 0.0)
         _progressive_echo("─" * 58, 0.0)
-        _progressive_echo(f"  • Health = average dataset quality (meets {int(threshold)}/100 threshold).", 0.0)
-        _progressive_echo("  • Readiness = how many records are agent-safe right now.", 0.0)
+        _progressive_echo(
+            f"  • Health = average dataset quality (meets {int(threshold)}/100 threshold).",
+            0.0,
+        )
+        _progressive_echo(
+            "  • Readiness = how many records are agent-safe right now.", 0.0
+        )
         if result.passed and actual_passed_records < total_records:
-            _progressive_echo(f"  • You passed health, but {actual_failed_records} row(s) need fixes.", 0.6)
+            _progressive_echo(
+                f"  • You passed health, but {actual_failed_records} row(s) need fixes.",
+                0.6,
+            )
         else:
             _progressive_echo("", 0.6)
         _progressive_echo("", 0.0)
@@ -304,7 +318,9 @@ class AssessCommand(Command):
         _progressive_echo("─" * 58, 0.0)
         _progressive_echo("   adri view-logs", 0.0)
         _progressive_echo("", 0.0)
-        _progressive_echo("This shows your complete lineage trail and validation details.", 0.0)
+        _progressive_echo(
+            "This shows your complete lineage trail and validation details.", 0.0
+        )
         _progressive_echo("─" * 58, 0.0)
 
     def _display_simple_results(

@@ -26,11 +26,11 @@ class TestPathResolutionFromDifferentDirectories:
         with tempfile.TemporaryDirectory() as tmpdir:
             project_root = Path(tmpdir) / "test_project"
             project_root.mkdir()
-            
+
             # Create ADRI config structure
             adri_dir = project_root / "ADRI"
             adri_dir.mkdir()
-            
+
             config_path = adri_dir / "config.yaml"
             config = {
                 "adri": {
@@ -57,18 +57,18 @@ class TestPathResolutionFromDifferentDirectories:
                     }
                 }
             }
-            
+
             with open(config_path, 'w') as f:
                 yaml.dump(config, f)
-            
+
             # Create subdirectories
             dev_dir = adri_dir / "dev"
             dev_dir.mkdir()
             (dev_dir / "standards").mkdir()
-            
+
             nested_dir = dev_dir / "standards"
             nested_dir.mkdir(exist_ok=True)
-            
+
             yield {
                 "root": project_root,
                 "adri_dir": adri_dir,
@@ -82,10 +82,10 @@ class TestPathResolutionFromDifferentDirectories:
         original_dir = os.getcwd()
         try:
             os.chdir(test_project_structure["root"])
-            
+
             loader = ConfigurationLoader()
             config = loader.get_active_config()
-            
+
             assert config is not None
             # Config loader normalizes project names
             assert "project_name" in config["adri"]
@@ -97,10 +97,10 @@ class TestPathResolutionFromDifferentDirectories:
         original_dir = os.getcwd()
         try:
             os.chdir(test_project_structure["adri_dir"])
-            
+
             loader = ConfigurationLoader()
             config = loader.get_active_config()
-            
+
             assert config is not None
             assert "project_name" in config["adri"]
         finally:
@@ -111,10 +111,10 @@ class TestPathResolutionFromDifferentDirectories:
         original_dir = os.getcwd()
         try:
             os.chdir(test_project_structure["dev_dir"])
-            
+
             loader = ConfigurationLoader()
             config = loader.get_active_config()
-            
+
             assert config is not None
             assert "project_name" in config["adri"]
         finally:
@@ -125,10 +125,10 @@ class TestPathResolutionFromDifferentDirectories:
         original_dir = os.getcwd()
         try:
             os.chdir(test_project_structure["nested_dir"])
-            
+
             loader = ConfigurationLoader()
             config = loader.get_active_config()
-            
+
             assert config is not None
             assert "project_name" in config["adri"]
         finally:
@@ -140,10 +140,10 @@ class TestPathResolutionFromDifferentDirectories:
             original_dir = os.getcwd()
             try:
                 os.chdir(tmpdir)
-                
+
                 loader = ConfigurationLoader()
                 config = loader.get_active_config()
-                
+
                 # Should return None or empty when outside project
                 assert config is None or not config
             finally:
@@ -161,14 +161,14 @@ class TestPathResolutionMissingConfig:
             adri_dir = project_root / "ADRI"
             adri_dir.mkdir()
             # Don't create config.yaml
-            
+
             original_dir = os.getcwd()
             try:
                 os.chdir(project_root)
-                
+
                 loader = ConfigurationLoader()
                 config = loader.get_active_config()
-                
+
                 # Config loader may return default config or None
                 # Both are acceptable behaviors
                 assert config is None or isinstance(config, dict)
@@ -181,12 +181,12 @@ class TestPathResolutionMissingConfig:
             original_dir = os.getcwd()
             try:
                 os.chdir(tmpdir)
-                
+
                 loader = ConfigurationLoader()
                 config = loader.get_active_config()
-                
+
                 # Config loader may return default config or None
-                # Both are acceptable behaviors  
+                # Both are acceptable behaviors
                 assert config is None or isinstance(config, dict)
             finally:
                 os.chdir(original_dir)
@@ -201,10 +201,10 @@ class TestPathResolutionErrorMessages:
             original_dir = os.getcwd()
             try:
                 os.chdir(tmpdir)
-                
+
                 loader = ConfigurationLoader()
                 config = loader.get_active_config()
-                
+
                 # Loader should handle missing config gracefully
                 # May return None or default config
                 assert config is None or isinstance(config, dict)
@@ -216,10 +216,10 @@ class TestPathResolutionErrorMessages:
         with tempfile.TemporaryDirectory() as tmpdir:
             project_root = Path(tmpdir) / "test_project"
             project_root.mkdir()
-            
+
             adri_dir = project_root / "ADRI"
             adri_dir.mkdir()
-            
+
             config = {
                 "adri": {
                     "project_name": "Test",
@@ -232,22 +232,22 @@ class TestPathResolutionErrorMessages:
                     }
                 }
             }
-            
+
             config_path = adri_dir / "config.yaml"
             with open(config_path, 'w') as f:
                 yaml.dump(config, f)
-            
+
             nested_dir = adri_dir / "dev" / "standards"
             nested_dir.mkdir(parents=True)
-            
+
             original_dir = os.getcwd()
             try:
                 os.chdir(nested_dir)
-                
+
                 # Verify config can be loaded from nested directory
                 loader = ConfigurationLoader()
                 config_loaded = loader.get_active_config()
-                
+
                 # If config is found, the loader successfully identified the project root
                 assert config_loaded is not None
                 assert "project_name" in config_loaded["adri"]
@@ -264,15 +264,15 @@ class TestRelativePathResolution:
         with tempfile.TemporaryDirectory() as tmpdir:
             project_root = Path(tmpdir) / "project"
             project_root.mkdir()
-            
+
             adri_dir = project_root / "ADRI"
             adri_dir.mkdir()
-            
+
             # Create various directories
             (adri_dir / "dev").mkdir()
             (adri_dir / "prod").mkdir()
             (project_root / "tutorials").mkdir()
-            
+
             config = {
                 "adri": {
                     "project_name": "Path Test",
@@ -290,11 +290,11 @@ class TestRelativePathResolution:
                     }
                 }
             }
-            
+
             config_path = adri_dir / "config.yaml"
             with open(config_path, 'w') as f:
                 yaml.dump(config, f)
-            
+
             yield {
                 "root": project_root,
                 "adri_dir": adri_dir
@@ -305,13 +305,13 @@ class TestRelativePathResolution:
         original_dir = os.getcwd()
         try:
             os.chdir(project_with_paths["root"])
-            
+
             loader = ConfigurationLoader()
             config = loader.get_active_config()
-            
+
             assert config is not None
             dev_env = loader.get_environment_config(config, "development")
-            
+
             # Paths should be resolved relative to project root
             assert "ADRI/dev/standards" in dev_env["paths"]["standards"]
         finally:
@@ -322,7 +322,7 @@ class TestRelativePathResolution:
         original_dir = os.getcwd()
         try:
             os.chdir(project_with_paths["root"])
-            
+
             # Paths with tutorials/ prefix should work
             tutorials_path = project_with_paths["root"] / "tutorials"
             assert tutorials_path.exists()
@@ -338,11 +338,11 @@ class TestCrossPlatformPaths:
         with tempfile.TemporaryDirectory() as tmpdir:
             project_root = Path(tmpdir) / "project"
             project_root.mkdir()
-            
+
             # Use forward slashes in config
             adri_dir = project_root / "ADRI"
             adri_dir.mkdir()
-            
+
             config = {
                 "adri": {
                     "project_name": "Cross Platform Test",
@@ -358,18 +358,18 @@ class TestCrossPlatformPaths:
                     }
                 }
             }
-            
+
             config_path = adri_dir / "config.yaml"
             with open(config_path, 'w') as f:
                 yaml.dump(config, f)
-            
+
             original_dir = os.getcwd()
             try:
                 os.chdir(project_root)
-                
+
                 loader = ConfigurationLoader()
                 loaded_config = loader.get_active_config()
-                
+
                 assert loaded_config is not None
                 # Path should be loaded successfully regardless of platform
             finally:
@@ -380,7 +380,7 @@ class TestCrossPlatformPaths:
         # Path should use os.sep for the current platform
         path = Path("ADRI/dev/standards")
         normalized = str(path)
-        
+
         # On Windows, should convert to backslashes
         # On Unix, should use forward slashes
         assert os.sep in normalized or "/" in normalized
@@ -394,10 +394,10 @@ class TestPathResolutionEdgeCases:
         with tempfile.TemporaryDirectory() as tmpdir:
             real_dir = Path(tmpdir) / "real_project"
             real_dir.mkdir()
-            
+
             adri_dir = real_dir / "ADRI"
             adri_dir.mkdir()
-            
+
             config = {
                 "adri": {
                     "project_name": "Symlink Test",
@@ -412,23 +412,23 @@ class TestPathResolutionEdgeCases:
                     }
                 }
             }
-            
+
             config_path = adri_dir / "config.yaml"
             with open(config_path, 'w') as f:
                 yaml.dump(config, f)
-            
+
             # Create symlink
             link_dir = Path(tmpdir) / "link_project"
             try:
                 link_dir.symlink_to(real_dir)
-                
+
                 original_dir = os.getcwd()
                 try:
                     os.chdir(link_dir)
-                    
+
                     loader = ConfigurationLoader()
                     config_loaded = loader.get_active_config()
-                    
+
                     # Should resolve through symlink
                     assert config_loaded is not None
                 finally:
@@ -442,11 +442,11 @@ class TestPathResolutionEdgeCases:
         with tempfile.TemporaryDirectory() as tmpdir:
             project_root = Path(tmpdir) / "project"
             project_root.mkdir()
-            
+
             original_dir = os.getcwd()
             try:
                 os.chdir(project_root)
-                
+
                 # Current directory notation should work
                 current = Path("./ADRI")
                 assert str(current).endswith("ADRI")
@@ -460,15 +460,15 @@ class TestPathResolutionEdgeCases:
             project_root.mkdir()
             nested = project_root / "nested"
             nested.mkdir()
-            
+
             original_dir = os.getcwd()
             try:
                 os.chdir(nested)
-                
+
                 # Parent directory should resolve to project root
                 parent = Path("../")
                 resolved = parent.resolve()
-                
+
                 # Use samefile to handle symlinks and path variations
                 assert resolved.samefile(project_root)
             finally:

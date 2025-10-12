@@ -17,7 +17,7 @@ from ...core.protocols import Command
 
 def _progressive_echo(text: str, delay: float = 0.0) -> None:
     """Print text with optional delay for progressive output in guide mode.
-    
+
     Args:
         text: Text to print
         delay: Delay in seconds after printing (only in interactive terminals)
@@ -277,7 +277,7 @@ class ViewLogsCommand(Command):
             # Calculate readiness (passed rows)
             affected_rows = min(failed_count, total_rows) if failed_count > 0 else 0
             passed_rows = total_rows - affected_rows
-            
+
             # Determine readiness status
             if total_rows > 0:
                 readiness_pct = (passed_rows / total_rows) * 100
@@ -289,7 +289,7 @@ class ViewLogsCommand(Command):
                     readiness_label = "NOT READY"
             else:
                 readiness_label = "N/A"
-            
+
             # Format readiness string
             readiness_str = f"{passed_rows}/{total_rows} {readiness_label}"
 
@@ -336,13 +336,16 @@ class ViewLogsCommand(Command):
         _progressive_echo("======================================", 0.0)
         _progressive_echo("", 0.0)
         _progressive_echo(
-            "┌─────────────┬──────────┬─────────────────────┬──────────────┬───────┬───────────┬──────────────┐", 0.0
+            "┌─────────────┬──────────┬─────────────────────┬──────────────┬───────┬───────────┬──────────────┐",
+            0.0,
         )
         _progressive_echo(
-            "│ Data Packet │ Health   │ Readiness           │ Health Status│ Rows  │ Mode      │ Date         │", 0.0
+            "│ Data Packet │ Health   │ Readiness           │ Health Status│ Rows  │ Mode      │ Date         │",
+            0.0,
         )
         _progressive_echo(
-            "├─────────────┼──────────┼─────────────────────┼──────────────┼───────┼───────────┼──────────────┤", 0.0
+            "├─────────────┼──────────┼─────────────────────┼──────────────┼───────┼───────────┼──────────────┤",
+            0.0,
         )
 
         for entry in table_data:
@@ -354,18 +357,24 @@ class ViewLogsCommand(Command):
             mode = entry["mode"].ljust(9)
             date = entry["date"].ljust(12)
             _progressive_echo(
-                f"│ {data_packet} │ {health} │ {readiness} │ {status} │ {rows} │ {mode} │ {date} │", 0.0
+                f"│ {data_packet} │ {health} │ {readiness} │ {status} │ {rows} │ {mode} │ {date} │",
+                0.0,
             )
 
         _progressive_echo(
-            "└─────────────┴──────────┴─────────────────────┴──────────────┴───────┴───────────┴──────────────┘", 0.6
+            "└─────────────┴──────────┴─────────────────────┴──────────────┴───────┴───────────┴──────────────┘",
+            0.6,
         )
         _progressive_echo("", 0.0)
         _progressive_echo("─" * 58, 0.0)
         _progressive_echo("💡 Why this step", 0.0)
         _progressive_echo("─" * 58, 0.0)
-        _progressive_echo("   This log is your record of lineage — it shows every check,", 0.0)
-        _progressive_echo("   validation failure, and audit trail for reproducibility.", 0.5)
+        _progressive_echo(
+            "   This log is your record of lineage — it shows every check,", 0.0
+        )
+        _progressive_echo(
+            "   validation failure, and audit trail for reproducibility.", 0.5
+        )
         _progressive_echo("", 0.0)
 
         if verbose:

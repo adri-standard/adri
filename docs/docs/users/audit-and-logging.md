@@ -351,7 +351,7 @@ import json
 # Load assessment
 with open('adri_assessment_logs.jsonl') as f:
     assessment = json.loads(f.readline())
-    
+
 # Load dimension scores
 dims = pd.read_json('adri_dimension_scores.jsonl', lines=True)
 dims = dims[dims['assessment_id'] == assessment['assessment_id']]
@@ -408,7 +408,7 @@ with open('adri_assessment_logs.jsonl') as f:
         if record['assessment_id'] == 'problematic_assessment_id':
             print(f"Overall Score: {record['overall_score']}")
             print(f"Execution Decision: {record['execution_decision']}")
-            
+
 # Get specific failures
 import pandas as pd
 failures = pd.read_json('adri_failed_validations.jsonl', lines=True)
@@ -435,7 +435,7 @@ assessment_prompts = prompts[prompts['assessment_id'] == 'target_assessment_id']
 
 for _, prompt in assessment_prompts.iterrows():
     response = responses[responses['prompt_id'] == prompt['prompt_id']].iloc[0]
-    
+
     print(f"\nPrompt Type: {prompt['prompt_type']}")
     print(f"Question: {prompt['user_prompt'][:100]}...")
     print(f"AI Response: {response['response_text'][:200]}...")
@@ -538,7 +538,7 @@ jq -s 'map(.overall_score) | add / length' adri_assessment_logs.jsonl
 
 ```sql
 -- Load JSONL files into DuckDB
-CREATE TABLE assessments AS 
+CREATE TABLE assessments AS
 SELECT * FROM read_json_auto('adri_assessment_logs.jsonl', format='newline_delimited');
 
 CREATE TABLE dimension_scores AS
@@ -552,19 +552,19 @@ CREATE TABLE prompts AS SELECT * FROM 'adri_reasoning_prompts.csv';
 CREATE TABLE responses AS SELECT * FROM 'adri_reasoning_responses.csv';
 
 -- Query: Find assessments with low completeness scores
-SELECT 
+SELECT
     a.assessment_id,
     a.overall_score,
     d.dimension_score as completeness_score,
     a.ai_recommendation
 FROM assessments a
 JOIN dimension_scores d ON a.assessment_id = d.assessment_id
-WHERE d.dimension_name = 'completeness' 
+WHERE d.dimension_name = 'completeness'
   AND d.dimension_score < 80
 ORDER BY d.dimension_score ASC;
 
 -- Query: Analyze AI response performance
-SELECT 
+SELECT
     p.prompt_type,
     COUNT(*) as prompt_count,
     AVG(r.processing_time_ms) as avg_response_time,
@@ -718,13 +718,13 @@ import json
 def get_log_stats(filepath):
     """Get file size and record count"""
     size_mb = os.path.getsize(filepath) / (1024 * 1024)
-    
+
     with open(filepath) as f:
         if filepath.endswith('.jsonl'):
             count = sum(1 for _ in f)
         else:  # CSV
             count = sum(1 for _ in f) - 1  # Exclude header
-    
+
     return {'size_mb': size_mb, 'records': count}
 
 logs = [
