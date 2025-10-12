@@ -225,7 +225,7 @@ class SchemaValidationError(Exception):
         self.standard_path = standard_path
 
     def __str__(self) -> str:
-        """Convert exception to string with validation details."""
+        """Provide string representation with validation details."""  # noqa: D401
         parts = [super().__str__()]
 
         if self.standard_path:
