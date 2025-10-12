@@ -58,7 +58,7 @@ class TestPathResolutionFromDifferentDirectories:
                 }
             }
 
-            with open(config_path, encoding='utf-8') as f:
+            with open(config_path, 'w', encoding='utf-8') as f:
                 yaml.dump(config, f)
 
             # Create subdirectories
@@ -234,7 +234,7 @@ class TestPathResolutionErrorMessages:
             }
 
             config_path = adri_dir / "config.yaml"
-            with open(config_path, encoding='utf-8') as f:
+            with open(config_path, 'w', encoding='utf-8') as f:
                 yaml.dump(config, f)
 
             nested_dir = adri_dir / "dev" / "standards"
@@ -292,7 +292,7 @@ class TestRelativePathResolution:
             }
 
             config_path = adri_dir / "config.yaml"
-            with open(config_path, encoding='utf-8') as f:
+            with open(config_path, 'w', encoding='utf-8') as f:
                 yaml.dump(config, f)
 
             yield {
@@ -360,7 +360,7 @@ class TestCrossPlatformPaths:
             }
 
             config_path = adri_dir / "config.yaml"
-            with open(config_path, encoding='utf-8') as f:
+            with open(config_path, 'w', encoding='utf-8') as f:
                 yaml.dump(config, f)
 
             original_dir = os.getcwd()
@@ -414,7 +414,7 @@ class TestPathResolutionEdgeCases:
             }
 
             config_path = adri_dir / "config.yaml"
-            with open(config_path, encoding='utf-8') as f:
+            with open(config_path, 'w', encoding='utf-8') as f:
                 yaml.dump(config, f)
 
             # Create symlink

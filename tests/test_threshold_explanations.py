@@ -43,7 +43,7 @@ class TestThresholdExplanationAccuracy:
                     }
                 }
             }
-            with open(standard_path, encoding='utf-8') as f:
+            with open(standard_path, 'w', encoding='utf-8') as f:
                 yaml.dump(standard, f)
 
             yield str(standard_path)
@@ -102,7 +102,7 @@ class TestExplanationWithDifferentStandards:
                     "readiness": {"row_threshold": 0.95}
                 }
             }
-            with open(standard_path, encoding='utf-8') as f:
+            with open(standard_path, 'w', encoding='utf-8') as f:
                 yaml.dump(standard, f)
 
             cmd = ExplainThresholdsCommand()
@@ -129,7 +129,7 @@ class TestExplanationWithDifferentStandards:
                     }
                 }
             }
-            with open(standard_path, encoding='utf-8') as f:
+            with open(standard_path, 'w', encoding='utf-8') as f:
                 yaml.dump(standard, f)
 
             cmd = ExplainThresholdsCommand()
@@ -160,7 +160,7 @@ class TestExplanationWithDifferentStandards:
                     }
                 }
             }
-            with open(standard_path, encoding='utf-8') as f:
+            with open(standard_path, 'w', encoding='utf-8') as f:
                 yaml.dump(standard, f)
 
             cmd = ExplainThresholdsCommand()
@@ -184,7 +184,7 @@ class TestExplanationWithDifferentStandards:
                     "readiness": {"row_threshold": 0.50}
                 }
             }
-            with open(standard_path, encoding='utf-8') as f:
+            with open(standard_path, 'w', encoding='utf-8') as f:
                 yaml.dump(standard, f)
 
             cmd = ExplainThresholdsCommand()
@@ -327,7 +327,7 @@ class TestExplanationErrorHandling:
                 }
                 # Missing requirements section
             }
-            with open(standard_path, encoding='utf-8') as f:
+            with open(standard_path, 'w', encoding='utf-8') as f:
                 yaml.dump(standard, f)
 
             cmd = ExplainThresholdsCommand()
