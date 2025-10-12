@@ -403,7 +403,8 @@ class GenerateStandardCommand(Command):
         else:
             _progressive_echo("   adri assess your_test_data.csv \\", 0.0)
             _progressive_echo(
-                f"        --standard {rel_to_project_root(output_path)} --guide", 0.0
+                f"        --standard {rel_to_project_root(output_path)} --guide",
+                0.0,
             )
         _progressive_echo("", 0.0)
         _progressive_echo("Why do this:", 0.0)
