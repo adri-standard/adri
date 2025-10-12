@@ -177,6 +177,8 @@ class ConfigurationLoader:
         """
         Find ADRI config file by searching up the directory tree.
 
+        Stops at the user's home directory.
+
         Args:
             start_path: Directory to start searching from
 
@@ -184,8 +186,9 @@ class ConfigurationLoader:
             Path to config file or None if not found
         """
         current_path = Path(start_path).resolve()
+        home_path = Path.home().resolve()
 
-        # Search up the directory tree
+        # Search up the directory tree, stopping at home directory
         for path in [current_path] + list(current_path.parents):
             # Check common config file locations (new location first)
             config_names = [
@@ -200,6 +203,10 @@ class ConfigurationLoader:
                 config_path = path / config_name
                 if config_path.exists():
                     return str(config_path)
+
+            # Stop after checking home directory - don't search above it
+            if path == home_path:
+                break
 
         return None
 

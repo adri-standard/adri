@@ -5,12 +5,26 @@ viewing and analysis operations.
 """
 
 import json
+import sys
+import time
 from pathlib import Path
 from typing import Any, Dict, List
 
 import click
 
 from ...core.protocols import Command
+
+
+def _progressive_echo(text: str, delay: float = 0.0) -> None:
+    """Print text with optional delay for progressive output in guide mode.
+
+    Args:
+        text: Text to print
+        delay: Delay in seconds after printing (only in interactive terminals)
+    """
+    click.echo(text)
+    if delay > 0 and sys.stdout.isatty():
+        time.sleep(delay)
 
 
 class ViewLogsCommand(Command):
@@ -251,14 +265,33 @@ class ViewLogsCommand(Command):
             if len(data_packet) > 12:
                 data_packet = data_packet[:9] + "..."
 
-            # Get row count and error count
+            # Get row count and validation count
             total_rows = entry.get("data_row_count", 0)
             assessment_id = entry.get("assessment_id", "")
 
-            # Count errors for this assessment
+            # Count validations for this assessment
             failed_count, failed_pct = self._count_failed_rows(
                 assessment_id, total_rows, audit_logs_dir
             )
+
+            # Calculate readiness (passed rows)
+            affected_rows = min(failed_count, total_rows) if failed_count > 0 else 0
+            passed_rows = total_rows - affected_rows
+
+            # Determine readiness status
+            if total_rows > 0:
+                readiness_pct = (passed_rows / total_rows) * 100
+                if readiness_pct >= 80:
+                    readiness_label = "READY"
+                elif readiness_pct >= 40:
+                    readiness_label = "WITH BLOCKERS"
+                else:
+                    readiness_label = "NOT READY"
+            else:
+                readiness_label = "N/A"
+
+            # Format readiness string
+            readiness_str = f"{passed_rows}/{total_rows} {readiness_label}"
 
             # Format row count with commas for thousands
             if total_rows >= 1000:
@@ -266,25 +299,24 @@ class ViewLogsCommand(Command):
             else:
                 rows_str = str(total_rows)
 
-            # Format error count as "N (X%)"
-            if failed_pct >= 10.0:
-                errors_str = f"{failed_count} ({failed_pct:.0f}%)"
-            elif failed_pct > 0:
-                errors_str = f"{failed_count} ({failed_pct:.1f}%)"
+            # Format validation count as "N checks (M rows)"
+            if failed_count > 0:
+                validations_str = f"{failed_count} checks ({affected_rows} rows)"
             else:
-                errors_str = "0 (0%)"
+                validations_str = "0 checks"
 
             date_str = entry["timestamp"].strftime("%m-%d %H:%M")
-            score = f"{entry['overall_score']:.1f}/100"
+            health = f"{entry['overall_score']:.1f}/100"
             status = "✅ PASSED" if entry["passed"] else "❌ FAILED"
 
             table_data.append(
                 {
                     "data_packet": data_packet,
-                    "score": score,
+                    "health": health,
+                    "readiness": readiness_str,
                     "status": status,
                     "rows": rows_str,
-                    "errors": errors_str,
+                    "validations": validations_str,
                     "mode": mode,
                     "date": date_str,
                 }
@@ -300,32 +332,50 @@ class ViewLogsCommand(Command):
         verbose: bool,
     ) -> None:
         """Display audit logs in a formatted table."""
-        click.echo(f"📊 ADRI Audit Log Summary ({len(table_data)} recent)")
-        click.echo(
-            "┌─────────────┬──────────┬──────────┬───────┬──────────┬───────────┬──────────────┐"
+        _progressive_echo("📊 Step 4 of 4: ADRI Audit Log Summary", 0.4)
+        _progressive_echo("======================================", 0.0)
+        _progressive_echo("", 0.0)
+        _progressive_echo(
+            "┌─────────────┬──────────┬─────────────────────┬──────────────┬───────┬───────────┬──────────────┐",
+            0.0,
         )
-        click.echo(
-            "│ Data Packet │ Score    │ Status   │ Rows  │ Errors   │ Mode      │ Date         │"
+        _progressive_echo(
+            "│ Data Packet │ Health   │ Readiness           │ Health Status│ Rows  │ Mode      │ Date         │",
+            0.0,
         )
-        click.echo(
-            "├─────────────┼──────────┼──────────┼───────┼──────────┼───────────┼──────────────┤"
+        _progressive_echo(
+            "├─────────────┼──────────┼─────────────────────┼──────────────┼───────┼───────────┼──────────────┤",
+            0.0,
         )
 
         for entry in table_data:
             data_packet = entry["data_packet"].ljust(11)
-            score = entry["score"].ljust(8)
-            status = entry["status"].ljust(8)
+            health = entry["health"].ljust(8)
+            readiness = entry["readiness"].ljust(19)
+            status = entry["status"].ljust(12)
             rows = entry["rows"].rjust(5)
-            errors = entry["errors"].ljust(8)
             mode = entry["mode"].ljust(9)
             date = entry["date"].ljust(12)
-            click.echo(
-                f"│ {data_packet} │ {score} │ {status} │ {rows} │ {errors} │ {mode} │ {date} │"
+            _progressive_echo(
+                f"│ {data_packet} │ {health} │ {readiness} │ {status} │ {rows} │ {mode} │ {date} │",
+                0.0,
             )
 
-        click.echo(
-            "└─────────────┴──────────┴──────────┴───────┴──────────┴───────────┴──────────────┘"
+        _progressive_echo(
+            "└─────────────┴──────────┴─────────────────────┴──────────────┴───────┴───────────┴──────────────┘",
+            0.6,
         )
+        _progressive_echo("", 0.0)
+        _progressive_echo("─" * 58, 0.0)
+        _progressive_echo("💡 Why this step", 0.0)
+        _progressive_echo("─" * 58, 0.0)
+        _progressive_echo(
+            "   This log is your record of lineage — it shows every check,", 0.0
+        )
+        _progressive_echo(
+            "   validation failure, and audit trail for reproducibility.", 0.5
+        )
+        _progressive_echo("", 0.0)
 
         if verbose:
             click.echo()

@@ -1,5 +1,16 @@
 # ADRI Assessment Log - Complete Explanation
 
+> **📝 IMPORTANT:** This document provides detailed field-level documentation for the assessment logs. For the most current and comprehensive logging documentation covering all 5 log files (including AI reasoning logs), see:
+>
+> **[Audit Trail & Logging](docs/users/audit-and-logging.md)** - Complete guide to ADRI's logging system
+>
+> The new documentation includes:
+> - All 5 log files (3 JSONL + 2 CSV)
+> - AI reasoning logs (prompts & responses)
+> - Query examples (Python, SQL, jq)
+> - Integration patterns
+> - Use cases and best practices
+
 **Date:** January 8, 2025
 **Purpose:** Comprehensive guide to understanding ADRI's assessment audit logs
 

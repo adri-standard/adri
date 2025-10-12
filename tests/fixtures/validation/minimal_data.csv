@@ -1,0 +1,2 @@
+invoice_id,invoice_date,customer_name,amount,status,payment_method
+INV001,2024-01-15,Acme Corp,1500.00,paid,credit_card

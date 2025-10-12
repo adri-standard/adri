@@ -4,6 +4,8 @@ This module contains the GenerateStandardCommand class that handles automatic
 ADRI standard generation from data analysis.
 """
 
+import sys
+import time
 from pathlib import Path
 from typing import Any, Dict, Optional
 
@@ -18,6 +20,18 @@ from ...utils.path_utils import (
     resolve_project_path,
 )
 from ...validator.loaders import load_data
+
+
+def _progressive_echo(text: str, delay: float = 0.0) -> None:
+    """Print text with optional delay for progressive output in guide mode.
+
+    Args:
+        text: Text to print
+        delay: Delay in seconds after printing (only in interactive terminals)
+    """
+    click.echo(text)
+    if delay > 0 and sys.stdout.isatty():
+        time.sleep(delay)
 
 
 class GenerateStandardCommand(Command):
@@ -281,40 +295,185 @@ class GenerateStandardCommand(Command):
         data_path: str,
     ) -> None:
         """Display detailed success message for guide mode."""
-        click.echo("✅ Standard Generated Successfully!")
-        click.echo("==================================")
+        _progressive_echo("📊 Step 2 of 4: Generate ADRI Standard", 0.4)
+        _progressive_echo("======================================", 0.0)
+        _progressive_echo("", 0.0)
 
+        _progressive_echo("✅ Standard created successfully!", 0.0)
         try:
             std_name = std_dict["standards"]["name"]
         except Exception:
             std_name = standard_filename
 
-        click.echo(f"📄 Standard: {std_name}")
-        click.echo(f"📁 Saved to: {rel_to_project_root(output_path)}")
-        click.echo("")
+        _progressive_echo(f"📄 Name: {std_name}", 0.0)
+        _progressive_echo(f"📁 Saved to: {rel_to_project_root(output_path)}", 0.0)
 
-        click.echo("📋 What the standard contains:")
-        try:
-            field_reqs = (
-                std_dict.get("requirements", {}).get("field_requirements", {}) or {}
+        # Display snapshot info if available
+        lineage = std_dict.get("training_data_lineage", {})
+        if lineage and lineage.get("snapshot_filename"):
+            _progressive_echo(
+                f"📦 Snapshot: {lineage['snapshot_filename']}  (for lineage tracking)",
+                0.5,
             )
-            click.echo(f"   • {len(field_reqs)} field requirements")
+        else:
+            _progressive_echo("", 0.5)
+
+        _progressive_echo("", 0.0)
+        _progressive_echo("─" * 58, 0.0)
+        _progressive_echo("📘 What this step does", 0.0)
+        _progressive_echo("─" * 58, 0.0)
+        _progressive_echo(
+            'ADRI analyzed your good dataset and built a "standard" —', 0.0
+        )
+        _progressive_echo(
+            "a simple contract defining what *good enough data* looks like.", 0.0
+        )
+        _progressive_echo("", 0.0)
+        _progressive_echo("It includes:", 0.0)
+        _progressive_echo("  • Required fields and allowed values", 0.0)
+        _progressive_echo("  • Five quality dimensions:", 0.0)
+        _progressive_echo(
+            "      validity, completeness, consistency, freshness, plausibility", 0.0
+        )
+        _progressive_echo("And defines two checks for your agent's data supply:", 0.0)
+        _progressive_echo(
+            "  1️⃣  System Health → MIN_SCORE (overall dataset quality)", 0.0
+        )
+        _progressive_echo(
+            "  2️⃣  Batch Readiness → GATE (rows that fully pass all rules)", 0.6
+        )
+        _progressive_echo("", 0.0)
+
+        # Extract controls from standard
+        controls = self._extract_controls_preview(std_dict)
+
+        _progressive_echo("─" * 58, 0.0)
+        _progressive_echo("📈 Defaults learned from this dataset", 0.0)
+        _progressive_echo("─" * 58, 0.0)
+        _progressive_echo(
+            f"  • MIN_SCORE:      {controls['min_score']}/100   → Health passes if ≥ {controls['min_score']}",
+            0.0,
+        )
+        _progressive_echo(
+            f"  • READINESS.GATE: {controls['row_threshold']:.2f}     → {int(controls['row_threshold']*100)}% of rows must fully pass",
+            0.0,
+        )
+        _progressive_echo(f"  • Guard mode:     {controls['guard_mode']}", 0.0)
+
+        required_fields_str = ", ".join(controls["required_fields"])
+        _progressive_echo(f"  • Required fields: [{required_fields_str}]", 0.0)
+        _progressive_echo("", 0.0)
+        _progressive_echo("💡 Why this step", 0.0)
+        _progressive_echo(
+            '   You\'ve now defined what "good data" means for your agent.', 0.0
+        )
+        _progressive_echo(
+            "   Every future dataset will be compared to this standard.", 0.6
+        )
+        _progressive_echo("", 0.0)
+
+        # Display YAML controls preview
+        _progressive_echo("─" * 58, 0.0)
+        _progressive_echo("📄 Snapshot of the standard (key controls only)", 0.0)
+        _progressive_echo("─" * 58, 0.0)
+        _progressive_echo(f"# Path: {rel_to_project_root(output_path)}", 0.0)
+        _progressive_echo(
+            f"# (preview — view full file with: less {rel_to_project_root(output_path)})",
+            0.0,
+        )
+        _progressive_echo("", 0.0)
+        _progressive_echo(self._format_yaml_controls(controls), 0.0)
+        _progressive_echo("─" * 58, 0.5)
+        _progressive_echo("", 0.0)
+
+        # Next step guidance
+        _progressive_echo("▶ Next step (takes seconds)", 0.0)
+        _progressive_echo("─" * 58, 0.0)
+        _progressive_echo("Run your first data quality check:", 0.0)
+        _progressive_echo("", 0.0)
+        if "invoice_data" in data_path:
+            _progressive_echo(
+                "   adri assess tutorials/invoice_processing/test_invoice_data.csv \\",
+                0.0,
+            )
+            _progressive_echo(
+                "        --standard dev/standards/invoice_data_ADRI_standard.yaml --guide",
+                0.0,
+            )
+        else:
+            _progressive_echo("   adri assess your_test_data.csv \\", 0.0)
+            _progressive_echo(
+                f"        --standard {rel_to_project_root(output_path)} --guide",  # noqa: E221
+                0.0,
+            )
+        _progressive_echo("", 0.0)
+        _progressive_echo("Why do this:", 0.0)
+        _progressive_echo(
+            "   This tests real-world data against your new standard and shows:", 0.0
+        )
+        _progressive_echo(
+            f"     • System Health — overall dataset quality (vs MIN_SCORE {controls['min_score']})",
+            0.0,
+        )
+        _progressive_echo(
+            "     • Batch Readiness — which rows are agent-safe right now", 0.0
+        )
+        _progressive_echo("─" * 58, 0.0)
+
+    def _extract_controls_preview(self, std_dict: Dict[str, Any]) -> Dict[str, Any]:
+        """Extract control values from standard for display."""
+        controls = {
+            "min_score": 75,
+            "row_threshold": 0.80,
+            "guard_mode": "warn",
+            "required_fields": [],
+        }
+
+        try:
+            # Get min_score from requirements
+            req = std_dict.get("requirements", {})
+            controls["min_score"] = int(req.get("overall_minimum", 75))
+
+            # Get required fields from field_requirements
+            field_reqs = req.get("field_requirements", {}) or {}
+            controls["required_fields"] = [
+                field_name
+                for field_name, config in field_reqs.items()
+                if not config.get("nullable", True)
+            ][
+                :3
+            ]  # Limit to first 3 for display
+
+            # If no required fields found, use first 3 fields
+            if not controls["required_fields"]:
+                controls["required_fields"] = list(field_reqs.keys())[:3]
+
         except Exception:
-            click.echo("   • Field requirements summary unavailable")
+            pass
 
-        click.echo(
-            "   • 5 quality dimensions (validity, completeness, consistency, freshness, plausibility)"
-        )
-        click.echo("   • Overall minimum score: 75.0/100")
-        click.echo("")
+        return controls
 
-        # Generate next command suggestion
-        next_cmd = (
-            "adri assess tutorials/invoice_processing/test_invoice_data.csv --standard dev/standards/invoice_data_ADRI_standard.yaml --guide"
-            if "invoice_data" in data_path
-            else f"adri assess your_test_data.csv --standard {rel_to_project_root(output_path)} --guide"
-        )
-        click.echo(f"▶ Next: {next_cmd}")
+    def _format_yaml_controls(self, controls: Dict[str, Any]) -> str:
+        """Format controls as YAML preview."""
+        weights_section = """weights:
+  validity: 0.35
+  completeness: 0.20
+  consistency: 0.20
+  freshness: 0.15
+  plausibility: 0.10"""
+
+        required_fields_yaml = ", ".join(controls["required_fields"])
+
+        yaml_preview = f"""controls:
+  min_score: {controls['min_score']}            # dataset-level pass/fail for health
+  readiness:
+    row_threshold: {controls['row_threshold']:.2f}    # % of rows that must fully pass for \"READY\"
+    required_fields: [{required_fields_yaml}]
+  guard:
+    mode: {controls['guard_mode']}             # warn | block
+{weights_section}"""
+
+        return yaml_preview
 
     def _display_generation_success_simple(
         self, standard_filename: str, output_path: Path

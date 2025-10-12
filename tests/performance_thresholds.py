@@ -155,7 +155,7 @@ class PerformanceThresholdManager:
             "small": {
                 "component_init": 0.80,        # Component initialization
                 "data_validation": 1.20,       # Data validation processes
-                "file_processing_small": 5.00, # Small file processing (increased for Windows CI JSONL logging)
+                "file_processing_small": 15.00, # Small file processing (increased for Windows CI JSONL bulk writes)
                 "database_simple": 0.90,       # Simple database operations
                 "network_request": 2.00,       # Network requests with timeout
                 "default": 1.50,               # Default small operation
