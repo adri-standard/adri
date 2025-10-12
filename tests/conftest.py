@@ -216,6 +216,35 @@ def ensure_valid_cwd():
             os.chdir(str(project_root))
 
 
+@pytest.fixture(autouse=True)
+def clean_adri_env_vars():
+    """Clean up ADRI environment variables after each test.
+
+    This fixture prevents environment variable pollution across tests
+    by removing any ADRI_* variables that tests may have set.
+    Preserves the test environment variables set in conftest.py.
+    """
+    # Store initial test environment variables
+    preserved_vars = {
+        'ADRI_ENV': os.environ.get('ADRI_ENV'),
+        'ADRI_LOG_LEVEL': os.environ.get('ADRI_LOG_LEVEL'),
+        'ADRI_STANDARDS_PATH': os.environ.get('ADRI_STANDARDS_PATH'),
+        'ADRI_COVERAGE_TARGET': os.environ.get('ADRI_COVERAGE_TARGET'),
+    }
+
+    yield
+
+    # Cleanup: Remove all ADRI_* environment variables
+    for key in list(os.environ.keys()):
+        if key.startswith('ADRI_'):
+            os.environ.pop(key, None)
+
+    # Restore preserved test environment variables
+    for key, value in preserved_vars.items():
+        if value is not None:
+            os.environ[key] = value
+
+
 @pytest.fixture
 def ci_environment_detector():
     """Detect and adapt to CI environment characteristics."""
