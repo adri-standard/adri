@@ -225,16 +225,24 @@ class TestAuditLoggingIntegration(unittest.TestCase):
             call_args = mock_audit_logger.log_assessment.call_args[1]
             performance_metrics = call_args["performance_metrics"]
 
-            # Verify performance calculations
-            duration_ms = performance_metrics["duration_ms"]
-            rows_per_second = performance_metrics["rows_per_second"]
+        # Verify performance calculations
+        duration_ms = performance_metrics["duration_ms"]
+        rows_per_second = performance_metrics["rows_per_second"]
 
-            self.assertGreater(duration_ms, 0)
+        # Duration can be 0ms for sub-millisecond operations on fast machines (int truncates < 1ms to 0)
+        # This is valid - the test validates metrics calculation, not minimum execution time
+        self.assertGreaterEqual(duration_ms, 0)
+
+        # When duration is 0ms, rows_per_second will also be 0 (or very large, depending on implementation)
+        # Only verify > 0 if we have measurable duration
+        if duration_ms > 0:
             self.assertGreater(rows_per_second, 0)
-
             # Verify calculation accuracy
-            expected_rps = 1000 / (duration_ms / 1000.0) if duration_ms > 0 else 0
+            expected_rps = 1000 / (duration_ms / 1000.0)
             self.assertAlmostEqual(rows_per_second, expected_rps, delta=1.0)
+        else:
+            # For 0ms duration, just verify the metric exists and is non-negative
+            self.assertGreaterEqual(rows_per_second, 0)
 
 
 class TestComprehensiveValidationScenarios(unittest.TestCase):
