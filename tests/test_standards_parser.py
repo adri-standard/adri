@@ -278,6 +278,9 @@ class TestStandardsParserIntegration(unittest.TestCase):
 
         parser = StandardsParser()
 
+        # Clear any cache activity from parser initialization
+        parser.clear_cache()
+
         # Test initial cache state
         initial_cache_info = parser.get_cache_info()
         self.assertEqual(initial_cache_info.hits, 0)
