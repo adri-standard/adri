@@ -130,9 +130,9 @@ ADRI creates five log files for each assessment:
 2. `adri_dimension_scores.jsonl` - Dimension breakdown per assessment
 3. `adri_failed_validations.jsonl` - Validation failures per assessment
 
-**AI Reasoning Logs (CSV format):**
-4. `adri_reasoning_prompts.csv` - AI prompts sent to LLM with cryptographic hashes
-5. `adri_reasoning_responses.csv` - AI responses with performance metrics
+**AI Reasoning Logs (JSONL format):**
+4. `adri_reasoning_prompts.jsonl` - AI prompts sent to LLM with cryptographic hashes
+5. `adri_reasoning_responses.jsonl` - AI responses with performance metrics
 
 > For detailed field descriptions and query examples, see [Audit Trail & Logging](audit-and-logging.md).
 

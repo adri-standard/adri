@@ -7,7 +7,7 @@ The Reasoning Mode enhancement adds AI/LLM reasoning step validation support to 
 ## Key Features
 
 ### 1. **Prompt & Response Logging**
-- Automatic capture of AI prompts and responses to CSV audit logs
+- Automatic capture of AI prompts and responses to JSONL audit logs
 - SHA-256 hash verification for content integrity
 - Thread-safe operations with unique ID generation
 - Relational linking to quality assessments
@@ -61,9 +61,9 @@ result = analyze_project_risks(projects)
 ### What Happens
 
 1. **Quality Assessment**: Input data assessed against standard
-2. **Prompt Logging**: AI prompt captured to `adri_reasoning_prompts.csv`
+2. **Prompt Logging**: AI prompt captured to `adri_reasoning_prompts.jsonl`
 3. **Function Execution**: Your AI processing runs
-4. **Response Logging**: AI response captured to `adri_reasoning_responses.csv`
+4. **Response Logging**: AI response captured to `adri_reasoning_responses.jsonl`
 5. **Assessment Linking**: All logs linked via `assessment_id`, `prompt_id`, `response_id`
 
 ## Configuration
@@ -79,8 +79,8 @@ result = analyze_project_risks(projects)
 
     # New reasoning parameters
     reasoning_mode=False,        # Enable reasoning workflow
-    store_prompt=True,           # Log prompts to CSV
-    store_response=True,          # Log responses to CSV
+    store_prompt=True,           # Log prompts to JSONL
+    store_response=True,          # Log responses to JSONL
     llm_config={                 # LLM configuration
         "model": "model-name",
         "temperature": 0.1,
@@ -110,8 +110,8 @@ ADRI/dev/audit-logs/
 ├── adri_assessment_logs.csv          # Quality assessments (extended)
 ├── adri_dimension_scores.csv         # Dimension scores (existing)
 ├── adri_failed_validations.csv       # Failed validations (existing)
-├── adri_reasoning_prompts.csv        # NEW: AI prompts
-└── adri_reasoning_responses.csv      # NEW: AI responses
+├── adri_reasoning_prompts.jsonl        # NEW: AI prompts
+└── adri_reasoning_responses.jsonl      # NEW: AI responses
 ```
 
 ### Reasoning Prompts CSV Schema
@@ -308,7 +308,7 @@ from adri import adri_protected
 import pandas as pd
 
 # Read reasoning prompts log
-prompts_df = pd.read_csv("ADRI/dev/audit-logs/adri_reasoning_prompts.csv")
+prompts_df = pd.read_csv("ADRI/dev/audit-logs/adri_reasoning_prompts.jsonl")
 
 # Validate against meta-standard
 @adri_protected(
@@ -532,8 +532,8 @@ def custom_extraction(data):
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
 | `reasoning_mode` | bool | False | Enable reasoning workflow |
-| `store_prompt` | bool | True | Store prompts to CSV |
-| `store_response` | bool | True | Store responses to CSV |
+| `store_prompt` | bool | True | Store prompts to JSONL |
+| `store_response` | bool | True | Store responses to JSONL |
 | `llm_config` | dict | None | LLM configuration |
 
 ### LLM Config Schema

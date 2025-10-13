@@ -23,8 +23,8 @@ ADRI generates five log files for each assessment, organized into two categories
 | `adri_assessment_logs.jsonl` | JSONL | Main audit trail | 1 |
 | `adri_dimension_scores.jsonl` | JSONL | Quality dimension breakdown | 5 (one per dimension) |
 | `adri_failed_validations.jsonl` | JSONL | Specific validation failures | N (variable) |
-| `adri_reasoning_prompts.csv` | CSV | AI prompts sent to LLM | M (variable) |
-| `adri_reasoning_responses.csv` | CSV | AI responses from LLM | M (matches prompts) |
+| `adri_reasoning_prompts.jsonl` | JSONL | AI prompts sent to LLM | M (variable) |
+| `adri_reasoning_responses.jsonl` | JSONL | AI responses from LLM | M (matches prompts) |
 
 All files are linked via `assessment_id`, creating a complete lineage from assessment to dimension scores to specific failures to AI reasoning.
 
@@ -207,7 +207,7 @@ Each assessment generates **exactly 5 records** (one per dimension):
 
 ---
 
-## 4. AI Reasoning Prompts (adri_reasoning_prompts.csv)
+## 4. AI Reasoning Prompts (adri_reasoning_prompts.jsonl)
 
 **Purpose:** Complete transparency into AI decision-making by logging every prompt sent to the LLM.
 
@@ -256,7 +256,7 @@ The `prompt_hash` field contains a SHA-256 hash of the complete prompt (system +
 
 ---
 
-## 5. AI Reasoning Responses (adri_reasoning_responses.csv)
+## 5. AI Reasoning Responses (adri_reasoning_responses.jsonl)
 
 **Purpose:** Complete record of AI-generated responses with performance metrics and cryptographic verification.
 
@@ -329,15 +329,15 @@ adri_assessment_logs.jsonl (PARENT)
     │
     └─→ adri_reasoning_prompts.csv (CHILDREN)
         ├── prompt_001: "Explain overall score..."
-        │   └─→ adri_reasoning_responses.csv
+        │   └─→ adri_reasoning_responses.jsonl
         │       └── response_001: "Dataset demonstrates strong quality..."
         │
         ├── prompt_002: "Suggest remediation for tax_id..."
-        │   └─→ adri_reasoning_responses.csv
+        │   └─→ adri_reasoning_responses.jsonl
         │       └── response_002: "Implement tax_id collection..."
         │
         └── prompt_003: "Analyze freshness issues..."
-            └─→ adri_reasoning_responses.csv
+            └─→ adri_reasoning_responses.jsonl
                 └── response_003: "Invoice dates are outdated..."
 ```
 
@@ -364,7 +364,7 @@ failures = failures[failures['assessment_id'] == assessment['assessment_id']]
 prompts = pd.read_csv('adri_reasoning_prompts.csv')
 prompts = prompts[prompts['assessment_id'] == assessment['assessment_id']]
 
-responses = pd.read_csv('adri_reasoning_responses.csv')
+responses = pd.read_csv('adri_reasoning_responses.jsonl')
 responses = responses[responses['prompt_id'].isin(prompts['prompt_id'])]
 ```
 
@@ -429,7 +429,7 @@ for _, f in failures.iterrows():
 ```python
 # Load AI reasoning for an assessment
 prompts = pd.read_csv('adri_reasoning_prompts.csv')
-responses = pd.read_csv('adri_reasoning_responses.csv')
+responses = pd.read_csv('adri_reasoning_responses.jsonl')
 
 assessment_prompts = prompts[prompts['assessment_id'] == 'target_assessment_id']
 
@@ -511,7 +511,7 @@ df_assessments = pd.DataFrame(assessments)
 
 # CSV files (AI reasoning)
 df_prompts = pd.read_csv('adri_reasoning_prompts.csv')
-df_responses = pd.read_csv('adri_reasoning_responses.csv')
+df_responses = pd.read_csv('adri_reasoning_responses.jsonl')
 
 # Filter and analyze
 high_quality = df_assessments[df_assessments['overall_score'] >= 90]
@@ -549,7 +549,7 @@ SELECT * FROM read_json_auto('adri_failed_validations.jsonl', format='newline_de
 
 -- Load CSV files
 CREATE TABLE prompts AS SELECT * FROM 'adri_reasoning_prompts.csv';
-CREATE TABLE responses AS SELECT * FROM 'adri_reasoning_responses.csv';
+CREATE TABLE responses AS SELECT * FROM 'adri_reasoning_responses.jsonl';
 
 -- Query: Find assessments with low completeness scores
 SELECT
@@ -583,10 +583,10 @@ ORDER BY total_cost DESC;
 csvcut -c prompt_type adri_reasoning_prompts.csv | sort | uniq -c
 
 # Calculate average response time
-csvstat adri_reasoning_responses.csv -c processing_time_ms
+csvstat adri_reasoning_responses.jsonl -c processing_time_ms
 
 # Filter high-cost responses
-csvgrep -c cost_estimate_usd -r "^0\.[1-9]" adri_reasoning_responses.csv
+csvgrep -c cost_estimate_usd -r "^0\.[1-9]" adri_reasoning_responses.jsonl
 ```
 
 ---
@@ -604,7 +604,7 @@ ADRI/
       adri_dimension_scores.jsonl
       adri_failed_validations.jsonl
       adri_reasoning_prompts.csv
-      adri_reasoning_responses.csv
+      adri_reasoning_responses.jsonl
 ```
 
 ### Customizing Log Paths
@@ -732,7 +732,7 @@ logs = [
     'adri_dimension_scores.jsonl',
     'adri_failed_validations.jsonl',
     'adri_reasoning_prompts.csv',
-    'adri_reasoning_responses.csv'
+    'adri_reasoning_responses.jsonl'
 ]
 
 for log in logs:

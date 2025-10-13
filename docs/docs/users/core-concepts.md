@@ -144,8 +144,8 @@ ADRI logs every assessment in 5 interconnected files, creating a complete audit 
 | adri_assessment_logs.jsonl | JSONL | Main audit trail with overall results |
 | adri_dimension_scores.jsonl | JSONL | Breakdown across 5 quality dimensions |
 | adri_failed_validations.jsonl | JSONL | Specific validation failures with remediation suggestions |
-| adri_reasoning_prompts.csv | CSV | AI prompts sent to LLM with cryptographic hashes |
-| adri_reasoning_responses.csv | CSV | AI responses with performance metrics |
+| adri_reasoning_prompts.jsonl | JSONL | AI prompts sent to LLM with cryptographic hashes |
+| adri_reasoning_responses.jsonl | JSONL | AI responses with performance metrics |
 
 All files are linked via `assessment_id`, providing complete lineage from assessment → dimensions → failures → AI reasoning.
 
@@ -178,4 +178,4 @@ See [Audit Trail & Logging](audit-and-logging.md) for detailed documentation on 
 - Canonical example variable: `invoice_rows`.
 - Dimensions: validity, completeness, consistency, plausibility, freshness.
 - Protection modes: raise | warn | continue.
-- Audit logs: 5 files (3 JSONL + 2 CSV) linked via `assessment_id`.
+- Audit logs: 5 files (all JSONL format) linked via `assessment_id`.
