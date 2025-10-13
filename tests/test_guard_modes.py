@@ -325,7 +325,53 @@ class TestProtectionEngineComprehensive(unittest.TestCase):
         """Test comprehensive protection scenarios to boost coverage."""
         # Setup all mocks
         mock_config.return_value = None
-        mock_exists.return_value = False  # Standard doesn't exist
+
+        # Mock path checking to simulate ADRI directory structure
+        # Track if standard file has been created
+        standard_created = {'value': False}
+
+        def exists_side_effect(path):
+            path_str = str(path)
+            # ADRI directory exists
+            if 'ADRI' in path_str and not path_str.endswith('.yaml'):
+                return True
+            # After first call to open/yaml.dump, standard file exists
+            if path_str.endswith('customer_standard.yaml') and standard_created['value']:
+                return True
+            return False
+
+        mock_exists.side_effect = exists_side_effect
+
+        # Create a proper mock file object that can be read
+        from unittest.mock import mock_open as create_mock_open
+        mock_file_content = """standards:
+  id: customer_standard
+  name: Customer Standard
+  version: 1.0.0
+  description: Test customer data standard
+requirements:
+  overall_minimum: 80.0
+  dimension_requirements:
+    validity:
+      weight: 1.0
+      minimum_score: 75.0
+  field_requirements:
+    name:
+      type: string
+      nullable: false
+"""
+
+        def open_side_effect(*args, **kwargs):
+            if args and 'customer_standard.yaml' in str(args[0]):
+                standard_created['value'] = True
+                if 'r' in str(kwargs.get('mode', 'r')):
+                    # Reading the file - return mock with content
+                    return create_mock_open(read_data=mock_file_content)()
+                # Writing the file
+                return create_mock_open()()
+            return create_mock_open()()
+
+        mock_open.side_effect = open_side_effect
 
         mock_engine = Mock()
         mock_result = Mock()

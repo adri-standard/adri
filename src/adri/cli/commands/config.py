@@ -125,45 +125,55 @@ class ValidateStandardCommand(Command):
         return self._validate_standard(standard_path)
 
     def _validate_standard(self, standard_path: str) -> int:
-        """Validate YAML standard file (basic structural checks)."""
+        """Validate YAML standard file using comprehensive StandardValidator."""
         try:
-            from ...validator.loaders import load_standard
+            from ...standards.exceptions import SchemaValidationError
+            from ...standards.validator import get_validator
 
-            standard = load_standard(standard_path)
-            errors = []
+            # Use the comprehensive validator
+            validator = get_validator()
+            result = validator.validate_standard_file(standard_path, use_cache=False)
 
-            # Check for required top-level sections
-            if "standards" not in standard or not isinstance(
-                standard["standards"], dict
-            ):
-                errors.append("'standards' section missing or invalid")
+            if result.is_valid:
+                # Display success with summary
+                click.echo("✅ Standard validation PASSED")
+
+                # Load and display standard info
+                from ...validator.loaders import load_standard
+
+                standard = load_standard(
+                    standard_path, validate=False
+                )  # Already validated
+                std_info = standard.get("standards", {})
+
+                click.echo(f"📄 Name: {std_info.get('name', 'Unknown')}")
+                click.echo(f"🆔 ID: {std_info.get('id', 'Unknown')}")
+                click.echo(f"📦 Version: {std_info.get('version', 'Unknown')}")
+
+                # Show warnings if any
+                if result.has_warnings:
+                    click.echo(f"\n⚠️  {result.warning_count} warning(s):")
+                    for warning in result.warnings:
+                        click.echo(f"  • {warning.path}: {warning.message}")
+
+                return 0
             else:
-                std_section = standard["standards"]
-                # Check for required fields in standards section
-                for field in ["id", "name", "version", "authority"]:
-                    if not std_section.get(field):
-                        errors.append(f"Missing required field in standards: '{field}'")
-
-            if "requirements" not in standard or not isinstance(
-                standard["requirements"], dict
-            ):
-                errors.append("'requirements' section missing or invalid")
-
-            if errors:
+                # Display validation errors
                 click.echo("❌ Standard validation FAILED")
-                for error in errors:
-                    click.echo(f"  • {error}")
+                click.echo(f"\n{result.format_errors()}")
+
+                # Show warnings if any
+                if result.has_warnings:
+                    click.echo(f"\n⚠️  {result.warning_count} warning(s):")
+                    for warning in result.warnings:
+                        click.echo(f"  • {warning.path}: {warning.message}")
+
                 return 1
 
-            # Display success with summary
-            click.echo("✅ Standard validation PASSED")
-            std_info = standard.get("standards", {})
-            click.echo(f"📄 Name: {std_info.get('name', 'Unknown')}")
-            click.echo(f"🆔 ID: {std_info.get('id', 'Unknown')}")
-            click.echo(f"📦 Version: {std_info.get('version', 'Unknown')}")
-
-            return 0
-
+        except SchemaValidationError as e:
+            click.echo("❌ Standard validation FAILED")
+            click.echo(f"\n{str(e)}")
+            return 1
         except Exception as e:
             click.echo(f"❌ Validation failed: {e}")
             return 1

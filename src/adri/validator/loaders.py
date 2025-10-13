@@ -138,12 +138,13 @@ def load_parquet(file_path: Path) -> List[Dict[str, Any]]:
             raise
 
 
-def load_standard(file_path: str) -> Dict[str, Any]:
+def load_standard(file_path: str, validate: bool = True) -> Dict[str, Any]:
     """
-    Load YAML standard from file.
+    Load YAML standard from file with optional validation.
 
     Args:
         file_path: Path to YAML standard file
+        validate: Whether to validate the standard schema (default: True)
 
     Returns:
         Standard dictionary
@@ -151,6 +152,7 @@ def load_standard(file_path: str) -> Dict[str, Any]:
     Raises:
         FileNotFoundError: If file doesn't exist
         yaml.YAMLError: If YAML is invalid
+        Exception: If standard validation fails (when validate=True)
     """
     if not os.path.exists(file_path):
         raise FileNotFoundError(f"Standard file not found: {file_path}")
@@ -158,10 +160,31 @@ def load_standard(file_path: str) -> Dict[str, Any]:
     try:
         with open(file_path, "r", encoding="utf-8") as f:
             yaml_content: Dict[Any, Any] = yaml.safe_load(f)
+
+        # Validate standard if requested
+        if validate:
+            from adri.standards.exceptions import SchemaValidationError
+            from adri.standards.validator import get_validator
+
+            validator = get_validator()
+            result = validator.validate_standard(
+                yaml_content, file_path, use_cache=True
+            )
+
+            if not result.is_valid:
+                raise SchemaValidationError(
+                    f"Standard validation failed: {file_path}",
+                    validation_result=result,
+                    standard_path=file_path,
+                )
+
         return yaml_content
 
     except yaml.YAMLError as e:
         raise Exception(f"Invalid YAML format: {e}")
+    except SchemaValidationError:
+        # Re-raise schema validation errors as-is
+        raise
     except Exception as e:
         raise Exception(f"Failed to load standard: {e}")
 

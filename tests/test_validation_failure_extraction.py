@@ -206,6 +206,13 @@ class TestEndToEndFailureLogging:
 
             # Create standard
             std_content = {
+                "standards": {
+                    "id": "test_failure_extraction_standard",
+                    "name": "Test Failure Extraction Standard",
+                    "version": "1.0.0",
+                    "authority": "ADRI Framework",
+                    "description": "Standard for testing failure extraction and logging"
+                },
                 "requirements": {
                     "overall_minimum": 75.0,
                     "field_requirements": {
@@ -216,6 +223,7 @@ class TestEndToEndFailureLogging:
                     "dimension_requirements": {
                         "validity": {
                             "weight": 1.0,
+                            "minimum_score": 70.0,
                             "scoring": {
                                 "rule_weights": {
                                     "type": 0.3,
@@ -226,6 +234,7 @@ class TestEndToEndFailureLogging:
                         },
                         "completeness": {
                             "weight": 1.0,
+                            "minimum_score": 70.0,
                             "scoring": {"rule_weights": {"missing_required": 1.0}}
                         }
                     }

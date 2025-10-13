@@ -154,7 +154,7 @@ class StandardsParser:
         self, standard: Dict[str, Any], standard_name: str
     ):
         """
-        Validate that a standard has the required structure.
+        Validate that a standard has the required structure using StandardValidator.
 
         Args:
             standard: The standard dictionary to validate
@@ -163,44 +163,36 @@ class StandardsParser:
         Raises:
             InvalidStandardError: If the standard structure is invalid
         """
+        try:
+            from adri.standards.exceptions import SchemaValidationError
+            from adri.standards.validator import get_validator
 
-        if not isinstance(standard, dict):
-            raise InvalidStandardError("Standard must be a dictionary", standard_name)
+            validator = get_validator()
+            result = validator.validate_standard(standard, use_cache=False)
 
-        # Check for required top-level sections
-        required_sections = ["standards", "requirements"]
-        for section in required_sections:
-            if section not in standard:
+            if not result.is_valid:
+                # Collect all error messages
+                error_messages = [err.message for err in result.errors]
                 raise InvalidStandardError(
-                    f"Missing required section: {section}", standard_name
-                )
-
-        # Validate standards section
-        standards_section = standard["standards"]
-        if not isinstance(standards_section, dict):
-            raise InvalidStandardError(
-                "'standards' section must be a dictionary", standard_name
-            )
-
-        required_standards_fields = ["id", "name", "version"]
-        for field in required_standards_fields:
-            if field not in standards_section:
-                raise InvalidStandardError(
-                    f"Missing required field in standards section: {field}",
+                    f"Standard validation failed: {'; '.join(error_messages)}",
                     standard_name,
                 )
+        except SchemaValidationError as e:
+            raise InvalidStandardError(str(e), standard_name)
+        except ImportError:
+            # Fallback to basic validation if new validator not available
+            if not isinstance(standard, dict):
+                raise InvalidStandardError(
+                    "Standard must be a dictionary", standard_name
+                )
 
-        # Validate requirements section
-        requirements_section = standard["requirements"]
-        if not isinstance(requirements_section, dict):
-            raise InvalidStandardError(
-                "'requirements' section must be a dictionary", standard_name
-            )
-
-        if "overall_minimum" not in requirements_section:
-            raise InvalidStandardError(
-                "Missing 'overall_minimum' in requirements section", standard_name
-            )
+            # Check for required top-level sections
+            required_sections = ["standards", "requirements"]
+            for section in required_sections:
+                if section not in standard:
+                    raise InvalidStandardError(
+                        f"Missing required section: {section}", standard_name
+                    )
 
     def list_available_standards(self) -> List[str]:
         """

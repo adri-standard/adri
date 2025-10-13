@@ -40,6 +40,8 @@ per-file-ignores =
     src/adri/validator/engine.py:D107,E702
     # CLI: minor style relaxations for user output formatting and long docstring headers
     src/adri/cli.py:E221,D205
+    # Standards exceptions: __str__ methods use descriptive rather than imperative mood
+    src/adri/standards/exceptions.py:D401
 max-complexity = 25
 import-order-style = google
 application-import-names = adri

@@ -189,11 +189,11 @@ class ModernFixtures:
                     }
                 },
                 "dimension_requirements": {
-                    "validity": {"minimum_score": 15.0},
-                    "completeness": {"minimum_score": 15.0},
-                    "consistency": {"minimum_score": 12.0},
-                    "freshness": {"minimum_score": 15.0},
-                    "plausibility": {"minimum_score": 12.0}
+                    "validity": {"minimum_score": 15.0, "weight": 3},
+                    "completeness": {"minimum_score": 15.0, "weight": 3},
+                    "consistency": {"minimum_score": 12.0, "weight": 3},
+                    "freshness": {"minimum_score": 15.0, "weight": 3},
+                    "plausibility": {"minimum_score": 12.0, "weight": 3}
                 }
             }
 
@@ -201,7 +201,9 @@ class ModernFixtures:
             base_standard["requirements"] = {
                 "overall_minimum": 50.0,
                 "field_requirements": {},
-                "dimension_requirements": {}
+                "dimension_requirements": {
+                    "validity": {"minimum_score": 10.0, "weight": 1}
+                }
             }
 
         elif standard_type == "strict":
@@ -215,11 +217,11 @@ class ModernFixtures:
                     }
                 },
                 "dimension_requirements": {
-                    "validity": {"minimum_score": 19.0},
-                    "completeness": {"minimum_score": 19.0},
-                    "consistency": {"minimum_score": 19.0},
-                    "freshness": {"minimum_score": 19.0},
-                    "plausibility": {"minimum_score": 19.0}
+                    "validity": {"minimum_score": 19.0, "weight": 5},
+                    "completeness": {"minimum_score": 19.0, "weight": 5},
+                    "consistency": {"minimum_score": 19.0, "weight": 5},
+                    "freshness": {"minimum_score": 19.0, "weight": 5},
+                    "plausibility": {"minimum_score": 19.0, "weight": 5}
                 }
             }
 

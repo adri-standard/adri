@@ -20,6 +20,16 @@ record_identification:
 requirements:
   overall_minimum: 90.0
 
+  dimension_requirements:
+    validity:
+      weight: 1.0
+      minimum_score: 85.0
+      scoring:
+        rule_weights:
+          type: 0.2
+          pattern: 0.4
+          numeric_bounds: 0.4
+
   field_requirements:
     # Core workflow identification
     run_id:
