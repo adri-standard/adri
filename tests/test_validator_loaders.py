@@ -195,6 +195,13 @@ class TestDataLoaderIntegration(unittest.TestCase):
                     "consistency": 80.0,
                     "freshness": 70.0,
                     "plausibility": 75.0
+                },
+                "dimension_requirements": {
+                    "validity": {"weight": 0.25},
+                    "completeness": {"weight": 0.25},
+                    "consistency": {"weight": 0.20},
+                    "freshness": {"weight": 0.15},
+                    "plausibility": {"weight": 0.15}
                 }
             },
             "dimensions": {
@@ -860,6 +867,11 @@ class TestDataLoaderEdgeCases(unittest.TestCase):
         complex_yaml = Path("complex.yaml")
         complex_data = {
             "standards": {
+                "id": "complex_standard",
+                "name": "Complex Standard",
+                "version": "1.0.0",
+                "authority": "ADRI Framework",
+                "description": "Test standard with complex structures",
                 "multi_line": """
                 This is a multi-line
                 string in YAML
@@ -875,6 +887,17 @@ class TestDataLoaderEdgeCases(unittest.TestCase):
                             "value": True
                         }
                     }
+                }
+            },
+            "requirements": {
+                "overall_minimum": 75.0,
+                "dimensions": {
+                    "validity": 80.0,
+                    "completeness": 85.0
+                },
+                "dimension_requirements": {
+                    "validity": {"weight": 0.5},
+                    "completeness": {"weight": 0.5}
                 }
             }
         }

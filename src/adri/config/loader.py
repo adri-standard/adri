@@ -428,6 +428,9 @@ class ConfigurationLoader:
         # Determine base directory - use config file location if available, else cwd
         if config_file_path:
             base_dir = Path(config_file_path).parent
+            # If config is in ADRI/config.yaml, go up to project root
+            if base_dir.name == "ADRI":
+                base_dir = base_dir.parent
         else:
             base_dir = Path.cwd()
 
