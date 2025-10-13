@@ -1,9 +1,9 @@
 """
-ADRI Local Logging - CSV-based Audit Logging.
+ADRI Local Logging - JSONL-based Audit Logging.
 
-Enhanced audit logger module with CSV output, migrated from core/audit_logger_csv.py.
+Enhanced audit logger module with JSONL output, migrated from core/audit_logger_csv.py.
 Captures comprehensive audit logs for all ADRI assessments directly in
-Verodat-compatible CSV format with three linked datasets.
+Verodat-compatible JSONL format with three linked datasets.
 """
 
 import hashlib
@@ -211,9 +211,9 @@ class AuditRecord:
 
 
 class LocalLogger:
-    """Local CSV-based audit logger for ADRI assessments. Renamed from CSVAuditLogger."""
+    """Local JSONL-based audit logger for ADRI assessments. Renamed from CSVAuditLogger."""
 
-    # Define CSV headers for each dataset
+    # Define field names for each dataset
     ASSESSMENT_LOG_HEADERS = [
         "assessment_id",
         "timestamp",
@@ -325,12 +325,12 @@ class LocalLogger:
         # Optional Verodat logger for external integration
         self.verodat_logger: Optional["VerodatLogger"] = None
 
-        # Initialize CSV files and load write sequence if enabled
+        # Initialize JSONL files and load write sequence if enabled
         if self.enabled:
-            self._initialize_csv_files()
+            self._initialize_jsonl_files()
             self._load_write_seq()
 
-    def _initialize_csv_files(self) -> None:
+    def _initialize_jsonl_files(self) -> None:
         """Initialize JSONL files (create empty files if they don't exist)."""
         with self._lock:
             # Ensure log directory exists
@@ -394,7 +394,7 @@ class LocalLogger:
         response_id: Optional[str] = None,
     ) -> Optional[AuditRecord]:
         """
-        Log an assessment directly to CSV files.
+        Log an assessment directly to JSONL files.
 
         Args:
             assessment_result: The assessment result object
@@ -521,12 +521,12 @@ class LocalLogger:
         record.prompt_id = prompt_id or ""
         record.response_id = response_id or ""
 
-        # Write to CSV files
-        self._write_to_csv_files(record)
+        # Write to JSONL files
+        self._write_to_jsonl_files(record)
 
         return record
 
-    def _write_to_csv_files(self, record: AuditRecord) -> None:
+    def _write_to_jsonl_files(self, record: AuditRecord) -> None:
         """Write audit record to the three JSONL files."""
         verodat_data = record.to_verodat_format()
 
@@ -645,7 +645,7 @@ class LocalLogger:
                     # This prevents blocking the logging process
                     continue
 
-                # Recreate JSONL file (no headers needed)
+                # Recreate empty JSONL file
                 try:
                     file_path.touch()
                 except (OSError, PermissionError):
@@ -761,12 +761,12 @@ class LocalLogger:
                 if file_path.exists():
                     file_path.unlink()
 
-            # Reinitialize with headers
-            self._initialize_csv_files()
+            # Reinitialize JSONL files
+            self._initialize_jsonl_files()
 
 
 # Helper function for backward compatibility
-def log_to_csv(
+def log_to_jsonl(
     assessment_result: Any,
     execution_context: Dict[str, Any],
     data_info: Optional[Dict[str, Any]] = None,
@@ -775,7 +775,7 @@ def log_to_csv(
     config: Optional[Dict[str, Any]] = None,
 ) -> Optional[AuditRecord]:
     """
-    Log an assessment to CSV.
+    Log an assessment to JSONL files.
 
     Args:
         assessment_result: Assessment result object
@@ -799,8 +799,9 @@ def log_to_csv(
 
 
 # Backward compatibility aliases
-CSVAuditLogger = LocalLogger
-AuditLoggerCSV = LocalLogger
+CSVAuditLogger = LocalLogger  # Historical name - now uses JSONL format
+AuditLoggerCSV = LocalLogger  # Historical name - now uses JSONL format
+log_to_csv = log_to_jsonl  # Historical function name - now writes JSONL
 
 
 class LogRotator:

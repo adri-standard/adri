@@ -1,5 +1,5 @@
 # ADRI Reasoning Prompts Standard
-# Defines the required structure and validation rules for ADRI reasoning prompts CSV files
+# Defines the required structure and validation rules for ADRI reasoning prompts JSONL files
 # This standard validates that AI/LLM prompts are properly logged and traceable
 
 standards:
@@ -7,7 +7,7 @@ standards:
   name: ADRI Reasoning Prompts Standard
   version: 1.0.0
   authority: ADRI Framework
-  description: Standard for validating ADRI reasoning prompts CSV structure and content
+  description: Standard for validating ADRI reasoning prompts JSONL structure and content
 
 record_identification:
   primary_key_fields:
@@ -134,7 +134,7 @@ requirements:
 metadata:
   purpose: Validation of ADRI reasoning prompt logging
   usage: |
-    This standard validates that ADRI reasoning prompts CSV files contain:
+    This standard validates that ADRI reasoning prompts JSONL files contain:
     1. All required prompt tracking fields with correct types
     2. Valid identifiers and timestamps
     3. Proper LLM configuration parameters

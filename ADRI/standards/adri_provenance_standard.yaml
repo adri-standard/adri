@@ -272,9 +272,9 @@ metadata:
     - data_provenance: WHERE the DATA came from (source details)
     - Together: Complete lineage from data source → workflow → assessment
 
-    CSV LOGGING:
+    JSONL LOGGING:
 
-    ADRI logs provenance to adri_provenance.csv with:
+    ADRI logs provenance to adri_data_provenance.jsonl with:
     - execution_id: Links to workflow execution
     - All provenance fields from this standard
     - Enables querying: "What data was used in run X?"

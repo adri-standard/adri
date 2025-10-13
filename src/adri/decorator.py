@@ -52,8 +52,8 @@ def adri_protected(
         cache_assessments: Whether to cache assessment results (uses config default if None)
         verbose: Whether to show detailed protection logs (uses config default if None)
         reasoning_mode: Enable AI/LLM reasoning step validation (default: False)
-        store_prompt: Store AI prompts to CSV audit logs (default: True, only if reasoning_mode=True)
-        store_response: Store AI responses to CSV audit logs (default: True, only if reasoning_mode=True)
+        store_prompt: Store AI prompts to JSONL audit logs (default: True, only if reasoning_mode=True)
+        store_response: Store AI responses to JSONL audit logs (default: True, only if reasoning_mode=True)
         llm_config: LLM configuration dict with keys: model, temperature, seed, max_tokens (optional)
         workflow_context: Workflow execution metadata dict with keys: run_id, workflow_id, workflow_version,
                          step_id, step_sequence, run_at_utc (optional, for workflow orchestration)
@@ -153,8 +153,8 @@ def adri_protected(
         Standard files are automatically resolved based on your environment configuration.
         To control where standards are stored, update your adri-config.yaml file.
 
-        When reasoning_mode=True, prompts and responses are logged to separate CSV files
-        (adri_reasoning_prompts.csv and adri_reasoning_responses.csv) with relational
+        When reasoning_mode=True, prompts and responses are logged to separate JSONL files
+        (adri_reasoning_prompts.jsonl and adri_reasoning_responses.jsonl) with relational
         links to the main assessment logs via prompt_id and response_id fields.
     """
 

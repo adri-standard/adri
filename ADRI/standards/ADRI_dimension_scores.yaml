@@ -1,13 +1,13 @@
 # ADRI Dimension Scores Standard
 # Defines the required structure and validation rules for dimension score audit logs
-# This standard validates the CSV file that tracks individual dimension scores per assessment
+# This standard validates the JSONL file that tracks individual dimension scores per assessment
 
 standards:
   id: ADRI_dimension_scores
   name: ADRI Dimension Scores Standard
   version: 1.0.0
   authority: ADRI Framework
-  description: Standard for validating ADRI dimension score audit log CSV structure
+  description: Standard for validating ADRI dimension score audit log JSONL structure
 
 record_identification:
   primary_key_fields:
@@ -108,7 +108,7 @@ requirements:
 metadata:
   purpose: Self-validation of ADRI dimension score audit logs
   usage: |
-    This standard validates dimension score CSV logs to ensure:
+    This standard validates dimension score JSONL logs to ensure:
     1. All 5 ADRI dimensions are properly logged
     2. Scores are within valid ranges (0-20)
     3. Assessment IDs properly link to main audit log

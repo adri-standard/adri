@@ -198,8 +198,8 @@ adri:
         # Reasoning overhead should be < 10ms for small datasets
         assert reasoning_overhead_ms < 50, f"Reasoning overhead {reasoning_overhead_ms:.2f}ms too high"
 
-    def test_csv_write_performance(self, temp_config):
-        """Test CSV write performance."""
+    def test_jsonl_write_performance(self, temp_config):
+        """Test JSONL write performance."""
         from adri.logging.reasoning import ReasoningLogger, LLMConfig
 
         logger = ReasoningLogger({
@@ -229,7 +229,7 @@ adri:
         print(f"Average per prompt: {avg_per_prompt:.2f}ms")
 
         # Should be < 5ms per prompt
-        assert avg_per_prompt < 10, f"CSV write too slow: {avg_per_prompt:.2f}ms per prompt"
+        assert avg_per_prompt < 10, f"JSONL write too slow: {avg_per_prompt:.2f}ms per prompt"
 
     def test_large_dataset_performance(self, temp_config, monkeypatch):
         """Test performance with large datasets."""
@@ -298,9 +298,12 @@ adri:
 
         print(f"\nConcurrent logging (5 threads, 10 prompts each) took {duration*1000:.2f}ms")
 
-        # Read CSV to verify all prompts logged
-        prompts_csv = temp_config["audit"] / "concurrent_test_reasoning_prompts.csv"
-        prompts_df = pd.read_csv(prompts_csv)
+        # Read JSONL to verify all prompts logged
+        prompts_jsonl = temp_config["audit"] / "concurrent_test_reasoning_prompts.jsonl"
+        import json
+        with open(prompts_jsonl, 'r', encoding='utf-8') as f:
+            prompts_records = [json.loads(line) for line in f]
+        prompts_df = pd.DataFrame(prompts_records)
 
         # Should have 50 prompts (5 threads * 10 prompts)
         assert len(prompts_df) == 50, f"Expected 50 prompts, got {len(prompts_df)}"

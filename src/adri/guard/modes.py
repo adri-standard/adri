@@ -303,8 +303,8 @@ class DataProtectionEngine:
             cache_assessments: Whether to cache assessment results
             verbose: Whether to show verbose output
             reasoning_mode: Enable AI/LLM reasoning step validation
-            store_prompt: Store AI prompts to CSV audit logs
-            store_response: Store AI responses to CSV audit logs
+            store_prompt: Store AI prompts to JSONL audit logs
+            store_response: Store AI responses to JSONL audit logs
             llm_config: LLM configuration dict
             workflow_context: Workflow execution metadata for orchestration tracking (optional)
             data_provenance: Data source provenance for lineage tracking (optional)
