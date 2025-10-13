@@ -1,11 +1,11 @@
 """
-ADRI Workflow Logging - CSV-based Workflow Execution and Data Provenance Logging.
+ADRI Workflow Logging - JSONL-based Workflow Execution and Data Provenance Logging.
 
 Logs workflow execution context and data provenance for compliance-grade audit trails
 in workflow orchestration scenarios.
 """
 
-import csv
+import json
 import os
 import threading
 from dataclasses import dataclass
@@ -107,9 +107,9 @@ class DataProvenance:
 
 
 class WorkflowLogger:
-    """CSV-based logger for workflow execution metadata and data provenance."""
+    """JSONL-based logger for workflow execution metadata and data provenance."""
 
-    # CSV headers for workflow executions
+    # Field names for reference (no headers needed in JSONL files)
     EXECUTION_LOG_HEADERS = [
         "execution_id",
         "run_id",
@@ -124,7 +124,7 @@ class WorkflowLogger:
         "data_checksum",
     ]
 
-    # CSV headers for data provenance
+    # Field names for reference (no headers needed in JSONL files)
     PROVENANCE_LOG_HEADERS = [
         "execution_id",
         "source_type",
@@ -169,42 +169,34 @@ class WorkflowLogger:
         self.log_prefix = config.get("log_prefix", "adri")
         self.max_log_size_mb = config.get("max_log_size_mb", 100)
 
-        # File paths for CSV files
+        # File paths for JSONL files
         self.execution_log_path = (
-            self.log_dir / f"{self.log_prefix}_workflow_executions.csv"
+            self.log_dir / f"{self.log_prefix}_workflow_executions.jsonl"
         )
         self.provenance_log_path = (
-            self.log_dir / f"{self.log_prefix}_data_provenance.csv"
+            self.log_dir / f"{self.log_prefix}_data_provenance.jsonl"
         )
 
         # Thread safety
         self._lock = threading.Lock()
 
-        # Initialize CSV files if enabled
+        # Initialize JSONL files if enabled
         if self.enabled:
-            self._initialize_csv_files()
+            self._initialize_jsonl_files()
 
-    def _initialize_csv_files(self) -> None:
-        """Initialize CSV files with headers if they don't exist."""
+    def _initialize_jsonl_files(self) -> None:
+        """Initialize JSONL files if they don't exist."""
         with self._lock:
             # Ensure log directory exists
             self.log_dir.mkdir(parents=True, exist_ok=True)
 
-            # Initialize execution log file
+            # Initialize execution log file (empty JSONL file, no headers)
             if not self.execution_log_path.exists():
-                with open(
-                    self.execution_log_path, "w", encoding="utf-8", newline=""
-                ) as f:
-                    writer = csv.DictWriter(f, fieldnames=self.EXECUTION_LOG_HEADERS)
-                    writer.writeheader()
+                self.execution_log_path.touch()
 
-            # Initialize provenance log file
+            # Initialize provenance log file (empty JSONL file, no headers)
             if not self.provenance_log_path.exists():
-                with open(
-                    self.provenance_log_path, "w", encoding="utf-8", newline=""
-                ) as f:
-                    writer = csv.DictWriter(f, fieldnames=self.PROVENANCE_LOG_HEADERS)
-                    writer.writeheader()
+                self.provenance_log_path.touch()
 
     def _generate_execution_id(self) -> str:
         """Generate unique execution ID."""
@@ -250,12 +242,11 @@ class WorkflowLogger:
             data_checksum=data_checksum,
         )
 
-        # Write to CSV
+        # Write to JSONL
         with self._lock:
             self._check_rotation()
-            with open(self.execution_log_path, "a", newline="", encoding="utf-8") as f:
-                writer = csv.DictWriter(f, fieldnames=self.EXECUTION_LOG_HEADERS)
-                writer.writerow(execution.to_dict())
+            with open(self.execution_log_path, "a", encoding="utf-8") as f:
+                f.write(json.dumps(execution.to_dict()) + "\n")
 
         return execution_id
 
@@ -302,12 +293,11 @@ class WorkflowLogger:
             notes=data_provenance.get("notes"),
         )
 
-        # Write to CSV
+        # Write to JSONL
         with self._lock:
             self._check_rotation()
-            with open(self.provenance_log_path, "a", newline="", encoding="utf-8") as f:
-                writer = csv.DictWriter(f, fieldnames=self.PROVENANCE_LOG_HEADERS)
-                writer.writerow(provenance.to_dict())
+            with open(self.provenance_log_path, "a", encoding="utf-8") as f:
+                f.write(json.dumps(provenance.to_dict()) + "\n")
 
     def _check_rotation(self) -> None:
         """Check if log files need rotation."""
@@ -323,7 +313,7 @@ class WorkflowLogger:
             if file_size_mb >= self.max_log_size_mb:
                 # Rotate log file
                 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                rotated_path = file_path.with_suffix(f".{timestamp}.csv")
+                rotated_path = file_path.with_suffix(f".{timestamp}.jsonl")
 
                 try:
                     # Ensure unique filename
@@ -332,7 +322,7 @@ class WorkflowLogger:
                     while rotated_path.exists():
                         counter += 1
                         rotated_path = original_rotated_path.with_suffix(
-                            f".{timestamp}_{counter:03d}.csv"
+                            f".{timestamp}_{counter:03d}.jsonl"
                         )
 
                     # Small delay for Windows
@@ -342,16 +332,9 @@ class WorkflowLogger:
                     # Continue without rotating on Windows if file is locked
                     continue
 
-                # Recreate file with headers
+                # Recreate empty JSONL file (no headers needed)
                 try:
-                    if file_path == self.execution_log_path:
-                        headers = self.EXECUTION_LOG_HEADERS
-                    else:
-                        headers = self.PROVENANCE_LOG_HEADERS
-
-                    with open(file_path, "w", newline="", encoding="utf-8") as f:
-                        writer = csv.DictWriter(f, fieldnames=headers)
-                        writer.writeheader()
+                    file_path.touch()
                 except (OSError, PermissionError):
                     # File will be recreated on next write
                     pass
@@ -373,15 +356,11 @@ class WorkflowLogger:
                 if file_path.exists():
                     file_path.unlink()
 
-            # Reinitialize with headers (inline to avoid deadlock)
+            # Reinitialize empty JSONL files (inline to avoid deadlock)
             self.log_dir.mkdir(parents=True, exist_ok=True)
 
-            # Initialize execution log file
-            with open(self.execution_log_path, "w", encoding="utf-8", newline="") as f:
-                writer = csv.DictWriter(f, fieldnames=self.EXECUTION_LOG_HEADERS)
-                writer.writeheader()
+            # Initialize execution log file (empty JSONL file, no headers)
+            self.execution_log_path.touch()
 
-            # Initialize provenance log file
-            with open(self.provenance_log_path, "w", encoding="utf-8", newline="") as f:
-                writer = csv.DictWriter(f, fieldnames=self.PROVENANCE_LOG_HEADERS)
-                writer.writeheader()
+            # Initialize provenance log file (empty JSONL file, no headers)
+            self.provenance_log_path.touch()

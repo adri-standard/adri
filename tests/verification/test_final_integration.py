@@ -4,10 +4,11 @@ Final integration verification for reasoning mode.
 Comprehensive verification that:
 1. All components work together correctly
 2. Backward compatibility is 100% maintained
-3. CSV audit logs are properly created and linked
+3. JSONL audit logs are properly created and linked
 4. No regressions in existing functionality
 """
 
+import json
 import os
 import tempfile
 from pathlib import Path
@@ -87,8 +88,8 @@ adri:
         assert len(result) == 2
         assert all(result["id"] == test_data["id"])
 
-    def test_no_reasoning_csvs_when_disabled(self, temp_workspace, monkeypatch):
-        """Test that reasoning CSVs are not created when reasoning_mode=False."""
+    def test_no_reasoning_logs_when_disabled(self, temp_workspace, monkeypatch):
+        """Test that reasoning JSONL files are not created when reasoning_mode=False."""
         monkeypatch.chdir(temp_workspace)
 
         test_data = pd.DataFrame([{"id": "1", "value": "test"}])
@@ -103,14 +104,15 @@ adri:
 
         result = test_function(test_data)
 
-        # Reasoning CSVs should NOT be created or empty
+        # Reasoning JSONL files should NOT be created or be empty
         audit_dir = temp_workspace / "ADRI" / "dev" / "audit-logs"
-        prompts_csv = audit_dir / "adri_reasoning_prompts.csv"
+        prompts_jsonl = audit_dir / "adri_reasoning_prompts.jsonl"
 
-        if prompts_csv.exists():
-            # If file exists, it should be empty (just headers)
-            prompts_df = pd.read_csv(prompts_csv)
-            assert len(prompts_df) == 0, "Prompts CSV should be empty when reasoning disabled"
+        if prompts_jsonl.exists():
+            # If file exists, it should be empty (no records)
+            with open(prompts_jsonl, 'r', encoding='utf-8') as f:
+                lines = f.readlines()
+            assert len(lines) == 0, "Prompts JSONL should be empty when reasoning disabled"
 
     def test_parameter_defaults_backward_compatible(self):
         """Test that new parameters have backward-compatible defaults."""
@@ -243,8 +245,8 @@ adri:
         audit_dir = integrated_workspace / "ADRI" / "dev" / "audit-logs"
 
         assessment_log = audit_dir / "adri_assessment_logs.jsonl"
-        prompts_csv = audit_dir / "adri_reasoning_prompts.csv"
-        responses_csv = audit_dir / "adri_reasoning_responses.csv"
+        prompts_jsonl = audit_dir / "adri_reasoning_prompts.jsonl"
+        responses_jsonl = audit_dir / "adri_reasoning_responses.jsonl"
 
         # NOTE: These tests are for reasoning mode which is currently disabled
         # Skip log file verification if audit logging didn't occur
@@ -254,15 +256,25 @@ adri:
         if assessment_log.stat().st_size == 0:
             pytest.skip("Audit log file is empty - logging not triggered")
 
-        # Verify CSV/JSONL content (assessment logs are JSONL, others are CSV)
+        # Verify JSONL content
         assessment_df = pd.read_json(assessment_log, lines=True)
 
         # Skip if no data was logged
         if len(assessment_df) == 0:
             pytest.skip("No assessment records logged - reasoning mode not fully functional")
 
-        prompts_df = pd.read_csv(prompts_csv) if prompts_csv.exists() else pd.DataFrame()
-        responses_df = pd.read_csv(responses_csv) if responses_csv.exists() else pd.DataFrame()
+        # Read JSONL files
+        prompts_df = pd.DataFrame()
+        if prompts_jsonl.exists():
+            with open(prompts_jsonl, 'r', encoding='utf-8') as f:
+                prompts_records = [json.loads(line) for line in f if line.strip()]
+            prompts_df = pd.DataFrame(prompts_records) if prompts_records else pd.DataFrame()
+
+        responses_df = pd.DataFrame()
+        if responses_jsonl.exists():
+            with open(responses_jsonl, 'r', encoding='utf-8') as f:
+                responses_records = [json.loads(line) for line in f if line.strip()]
+            responses_df = pd.DataFrame(responses_records) if responses_records else pd.DataFrame()
 
         assert len(assessment_df) > 0, "Should have assessment records"
         assert len(prompts_df) > 0, "Should have prompt records"
@@ -317,12 +329,17 @@ adri:
             token_count=50,
         )
 
-        # Read the CSVs
-        prompts_csv = audit_dir / "integration_test_reasoning_prompts.csv"
-        responses_csv = audit_dir / "integration_test_reasoning_responses.csv"
+        # Read the JSONL files
+        prompts_jsonl = audit_dir / "integration_test_reasoning_prompts.jsonl"
+        responses_jsonl = audit_dir / "integration_test_reasoning_responses.jsonl"
 
-        prompts_df = pd.read_csv(prompts_csv)
-        responses_df = pd.read_csv(responses_csv)
+        with open(prompts_jsonl, 'r', encoding='utf-8') as f:
+            prompts_records = [json.loads(line) for line in f]
+        prompts_df = pd.DataFrame(prompts_records)
+
+        with open(responses_jsonl, 'r', encoding='utf-8') as f:
+            responses_records = [json.loads(line) for line in f]
+        responses_df = pd.DataFrame(responses_records)
 
         # Create validator
         validator = ReasoningValidator()
@@ -345,21 +362,21 @@ adri:
         assert response_completeness.score == 20.0, "All response fields should be complete"
 
 
-class TestCSVIntegrity:
-    """Verify CSV audit log integrity."""
+class TestJSONLIntegrity:
+    """Verify JSONL audit log integrity."""
 
     @pytest.fixture
-    def csv_workspace(self, tmp_path):
-        """Create workspace for CSV testing."""
+    def jsonl_workspace(self, tmp_path):
+        """Create workspace for JSONL testing."""
         audit_dir = tmp_path / "audit-logs"
         audit_dir.mkdir()
         return audit_dir
 
-    def test_csv_schema_compliance(self, csv_workspace):
-        """Test that CSVs comply with expected schema."""
+    def test_jsonl_schema_compliance(self, jsonl_workspace):
+        """Test that JSONL files comply with expected schema."""
         logger = ReasoningLogger({
             "enabled": True,
-            "log_dir": str(csv_workspace),
+            "log_dir": str(jsonl_workspace),
             "log_prefix": "schema_test",
         })
 
@@ -384,8 +401,13 @@ class TestCSVIntegrity:
         )
 
         # Read and verify schemas
-        prompts_df = pd.read_csv(csv_workspace / "schema_test_reasoning_prompts.csv")
-        responses_df = pd.read_csv(csv_workspace / "schema_test_reasoning_responses.csv")
+        with open(jsonl_workspace / "schema_test_reasoning_prompts.jsonl", 'r', encoding='utf-8') as f:
+            prompts_records = [json.loads(line) for line in f]
+        prompts_df = pd.DataFrame(prompts_records)
+
+        with open(jsonl_workspace / "schema_test_reasoning_responses.jsonl", 'r', encoding='utf-8') as f:
+            responses_records = [json.loads(line) for line in f]
+        responses_df = pd.DataFrame(responses_records)
 
         # Verify prompt schema
         expected_prompt_cols = [
@@ -394,7 +416,7 @@ class TestCSVIntegrity:
             "model", "temperature", "seed", "max_tokens", "prompt_hash"
         ]
         for col in expected_prompt_cols:
-            assert col in prompts_df.columns, f"Prompt CSV missing column: {col}"
+            assert col in prompts_df.columns, f"Prompt JSONL missing column: {col}"
 
         # Verify response schema
         expected_response_cols = [
@@ -403,7 +425,7 @@ class TestCSVIntegrity:
             "token_count", "response_hash"
         ]
         for col in expected_response_cols:
-            assert col in responses_df.columns, f"Response CSV missing column: {col}"
+            assert col in responses_df.columns, f"Response JSONL missing column: {col}"
 
         # Verify data types
         assert prompts_df.iloc[0]["temperature"] == 0.1
@@ -412,13 +434,13 @@ class TestCSVIntegrity:
         assert responses_df.iloc[0]["processing_time_ms"] == 1000
         assert responses_df.iloc[0]["token_count"] == 10
 
-    def test_hash_integrity(self, csv_workspace):
+    def test_hash_integrity(self, jsonl_workspace):
         """Test that SHA-256 hashes are correctly generated."""
         import hashlib
 
         logger = ReasoningLogger({
             "enabled": True,
-            "log_dir": str(csv_workspace),
+            "log_dir": str(jsonl_workspace),
             "log_prefix": "hash_test",
         })
 
@@ -436,8 +458,10 @@ class TestCSVIntegrity:
             llm_config=llm_config,
         )
 
-        # Read CSV
-        prompts_df = pd.read_csv(csv_workspace / "hash_test_reasoning_prompts.csv")
+        # Read JSONL
+        with open(jsonl_workspace / "hash_test_reasoning_prompts.jsonl", 'r', encoding='utf-8') as f:
+            prompts_records = [json.loads(line) for line in f]
+        prompts_df = pd.DataFrame(prompts_records)
 
         # Verify hash
         stored_hash = prompts_df.iloc[0]["prompt_hash"]
@@ -656,35 +680,45 @@ adri:
         # Verify all log files
         audit_dir = adri_dir / "audit-logs"
 
-        assessment_csv = audit_dir / "adri_assessment_logs.jsonl"
-        dimension_csv = audit_dir / "adri_dimension_scores.jsonl"
-        prompts_csv = audit_dir / "adri_reasoning_prompts.csv"
-        responses_csv = audit_dir / "adri_reasoning_responses.csv"
+        assessment_jsonl = audit_dir / "adri_assessment_logs.jsonl"
+        dimension_jsonl = audit_dir / "adri_dimension_scores.jsonl"
+        prompts_jsonl = audit_dir / "adri_reasoning_prompts.jsonl"
+        responses_jsonl = audit_dir / "adri_reasoning_responses.jsonl"
 
         # NOTE: These tests are for reasoning mode which is currently disabled
         # Skip log file verification if audit logging didn't occur
-        if not assessment_csv.exists():
+        if not assessment_jsonl.exists():
             pytest.skip("Audit logging not enabled - reasoning mode tests require audit logs")
 
-        if assessment_csv.stat().st_size == 0:
+        if assessment_jsonl.stat().st_size == 0:
             pytest.skip("Audit log file is empty - logging not triggered")
 
-        # Verify comprehensive CSV/JSONL content (assessment logs are JSONL, others are CSV)
-        assessment_df = pd.read_json(assessment_csv, lines=True)
+        # Verify comprehensive JSONL content
+        assessment_df = pd.read_json(assessment_jsonl, lines=True)
 
         # Skip if no data was logged
         if len(assessment_df) == 0:
             pytest.skip("No assessment records logged - reasoning mode not fully functional")
 
-        prompts_df = pd.read_csv(prompts_csv) if prompts_csv.exists() else pd.DataFrame()
-        responses_df = pd.read_csv(responses_csv) if responses_csv.exists() else pd.DataFrame()
+        # Read JSONL files
+        prompts_df = pd.DataFrame()
+        if prompts_jsonl.exists():
+            with open(prompts_jsonl, 'r', encoding='utf-8') as f:
+                prompts_records = [json.loads(line) for line in f if line.strip()]
+            prompts_df = pd.DataFrame(prompts_records) if prompts_records else pd.DataFrame()
+
+        responses_df = pd.DataFrame()
+        if responses_jsonl.exists():
+            with open(responses_jsonl, 'r', encoding='utf-8') as f:
+                responses_records = [json.loads(line) for line in f if line.strip()]
+            responses_df = pd.DataFrame(responses_records) if responses_records else pd.DataFrame()
 
         # Check assessment JSONL has standard fields (NO prompt_id/response_id)
         assert "assessment_id" in assessment_df.columns
         assert "overall_score" in assessment_df.columns
         assert "passed" in assessment_df.columns
 
-        # Check model configuration captured in prompts CSV
+        # Check model configuration captured in prompts JSONL
         assert prompts_df.iloc[0]["model"] == "e2e-test-model"
         assert prompts_df.iloc[0]["temperature"] == 0.2
         assert prompts_df.iloc[0]["seed"] == 123

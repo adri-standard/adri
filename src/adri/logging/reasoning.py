@@ -1,12 +1,12 @@
 """
-ADRI Reasoning Logger - CSV-based Logging for AI/LLM Reasoning Steps.
+ADRI Reasoning Logger - JSONL-based Logging for AI/LLM Reasoning Steps.
 
 Captures comprehensive audit logs for AI reasoning prompts and responses
-in structured CSV format with relational linking to main assessments.
+in structured JSONL (JSON Lines) format with relational linking to main assessments.
 """
 
-import csv
 import hashlib
+import json
 import os
 import threading
 from dataclasses import dataclass
@@ -101,9 +101,9 @@ class ReasoningResponse:
 
 
 class ReasoningLogger:
-    """CSV-based logger for AI reasoning prompts and responses."""
+    """JSONL-based logger for AI reasoning prompts and responses."""
 
-    # Define CSV headers for reasoning datasets
+    # Field names for reference (no headers needed in JSONL files)
     PROMPT_LOG_HEADERS = [
         "prompt_id",
         "assessment_id",
@@ -154,42 +154,34 @@ class ReasoningLogger:
         self.log_prefix = config.get("log_prefix", "adri")
         self.max_log_size_mb = config.get("max_log_size_mb", 100)
 
-        # File paths for reasoning CSV files
+        # File paths for reasoning JSONL files
         self.prompts_log_path = (
-            self.log_dir / f"{self.log_prefix}_reasoning_prompts.csv"
+            self.log_dir / f"{self.log_prefix}_reasoning_prompts.jsonl"
         )
         self.responses_log_path = (
-            self.log_dir / f"{self.log_prefix}_reasoning_responses.csv"
+            self.log_dir / f"{self.log_prefix}_reasoning_responses.jsonl"
         )
 
         # Thread safety
         self._lock = threading.Lock()
 
-        # Initialize CSV files if enabled
+        # Initialize JSONL files if enabled
         if self.enabled:
-            self._initialize_csv_files()
+            self._initialize_jsonl_files()
 
-    def _initialize_csv_files(self) -> None:
-        """Initialize reasoning CSV files with headers if they don't exist."""
+    def _initialize_jsonl_files(self) -> None:
+        """Initialize reasoning JSONL files if they don't exist."""
         with self._lock:
             # Ensure log directory exists
             self.log_dir.mkdir(parents=True, exist_ok=True)
 
-            # Initialize prompts log file
+            # Initialize prompts log file (empty JSONL file, no headers)
             if not self.prompts_log_path.exists():
-                with open(
-                    self.prompts_log_path, "w", newline="", encoding="utf-8"
-                ) as f:
-                    writer = csv.DictWriter(f, fieldnames=self.PROMPT_LOG_HEADERS)
-                    writer.writeheader()
+                self.prompts_log_path.touch()
 
-            # Initialize responses log file
+            # Initialize responses log file (empty JSONL file, no headers)
             if not self.responses_log_path.exists():
-                with open(
-                    self.responses_log_path, "w", newline="", encoding="utf-8"
-                ) as f:
-                    writer = csv.DictWriter(f, fieldnames=self.RESPONSE_LOG_HEADERS)
-                    writer.writeheader()
+                self.responses_log_path.touch()
 
     def _generate_prompt_hash(self, system_prompt: str, user_prompt: str) -> str:
         """Generate hash for a prompt."""
@@ -221,7 +213,7 @@ class ReasoningLogger:
         execution_id: Optional[str] = None,
     ) -> str:
         """
-        Log reasoning prompt to CSV and return prompt_id.
+        Log reasoning prompt to JSONL and return prompt_id.
 
         Args:
             assessment_id: Associated assessment ID
@@ -260,8 +252,8 @@ class ReasoningLogger:
             execution_id=execution_id or "",
         )
 
-        # Write to CSV
-        self._write_prompt_to_csv(prompt)
+        # Write to JSONL
+        self._write_prompt_to_jsonl(prompt)
 
         return prompt_id
 
@@ -275,7 +267,7 @@ class ReasoningLogger:
         execution_id: Optional[str] = None,
     ) -> str:
         """
-        Log reasoning response to CSV and return response_id.
+        Log reasoning response to JSONL and return response_id.
 
         Args:
             assessment_id: Associated assessment ID
@@ -309,34 +301,32 @@ class ReasoningLogger:
             execution_id=execution_id or "",
         )
 
-        # Write to CSV
-        self._write_response_to_csv(response)
+        # Write to JSONL
+        self._write_response_to_jsonl(response)
 
         return response_id
 
-    def _write_prompt_to_csv(self, prompt: ReasoningPrompt) -> None:
-        """Write prompt record to CSV file."""
+    def _write_prompt_to_jsonl(self, prompt: ReasoningPrompt) -> None:
+        """Write prompt record to JSONL file."""
         with self._lock:
             # Check for file rotation
-            self._check_rotation(self.prompts_log_path, self.PROMPT_LOG_HEADERS)
+            self._check_rotation(self.prompts_log_path)
 
-            # Write prompt record
-            with open(self.prompts_log_path, "a", newline="", encoding="utf-8") as f:
-                writer = csv.DictWriter(f, fieldnames=self.PROMPT_LOG_HEADERS)
-                writer.writerow(prompt.to_dict())
+            # Write prompt record as JSON line
+            with open(self.prompts_log_path, "a", encoding="utf-8") as f:
+                f.write(json.dumps(prompt.to_dict()) + "\n")
 
-    def _write_response_to_csv(self, response: ReasoningResponse) -> None:
-        """Write response record to CSV file."""
+    def _write_response_to_jsonl(self, response: ReasoningResponse) -> None:
+        """Write response record to JSONL file."""
         with self._lock:
             # Check for file rotation
-            self._check_rotation(self.responses_log_path, self.RESPONSE_LOG_HEADERS)
+            self._check_rotation(self.responses_log_path)
 
-            # Write response record
-            with open(self.responses_log_path, "a", newline="", encoding="utf-8") as f:
-                writer = csv.DictWriter(f, fieldnames=self.RESPONSE_LOG_HEADERS)
-                writer.writerow(response.to_dict())
+            # Write response record as JSON line
+            with open(self.responses_log_path, "a", encoding="utf-8") as f:
+                f.write(json.dumps(response.to_dict()) + "\n")
 
-    def _check_rotation(self, file_path: Path, headers: list) -> None:
+    def _check_rotation(self, file_path: Path) -> None:
         """Check if log file needs rotation."""
         import time
 
@@ -349,7 +339,7 @@ class ReasoningLogger:
         if file_size_mb >= self.max_log_size_mb:
             # Rotate log file with Windows-safe handling
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            rotated_path = file_path.with_suffix(f".{timestamp}.csv")
+            rotated_path = file_path.with_suffix(f".{timestamp}.jsonl")
 
             # Windows-safe file rotation
             try:
@@ -359,7 +349,7 @@ class ReasoningLogger:
                 while rotated_path.exists():
                     counter += 1
                     rotated_path = original_rotated_path.with_suffix(
-                        f".{timestamp}_{counter:03d}.csv"
+                        f".{timestamp}_{counter:03d}.jsonl"
                     )
 
                 # Small delay to ensure file handles are released on Windows
@@ -369,11 +359,9 @@ class ReasoningLogger:
                 # If rotation fails on Windows, continue without rotating
                 return
 
-            # Recreate file with headers
+            # Recreate empty JSONL file (no headers needed)
             try:
-                with open(file_path, "w", newline="", encoding="utf-8") as f:
-                    writer = csv.DictWriter(f, fieldnames=headers)
-                    writer.writeheader()
+                file_path.touch()
             except (OSError, PermissionError):
                 # If recreation fails, file will be recreated on next write
                 pass
@@ -395,15 +383,11 @@ class ReasoningLogger:
                 if file_path.exists():
                     file_path.unlink()
 
-            # Reinitialize with headers (inline to avoid deadlock)
+            # Reinitialize empty JSONL files (inline to avoid deadlock)
             self.log_dir.mkdir(parents=True, exist_ok=True)
 
-            # Initialize prompts log file
-            with open(self.prompts_log_path, "w", newline="", encoding="utf-8") as f:
-                writer = csv.DictWriter(f, fieldnames=self.PROMPT_LOG_HEADERS)
-                writer.writeheader()
+            # Initialize prompts log file (empty JSONL file, no headers)
+            self.prompts_log_path.touch()
 
-            # Initialize responses log file
-            with open(self.responses_log_path, "w", newline="", encoding="utf-8") as f:
-                writer = csv.DictWriter(f, fieldnames=self.RESPONSE_LOG_HEADERS)
-                writer.writeheader()
+            # Initialize responses log file (empty JSONL file, no headers)
+            self.responses_log_path.touch()

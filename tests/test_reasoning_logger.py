@@ -1,9 +1,10 @@
 """
 Unit tests for ReasoningLogger.
 
-Tests CSV-based logging of AI reasoning prompts and responses.
+Tests JSONL-based logging of AI reasoning prompts and responses.
 """
 
+import json
 import tempfile
 from datetime import datetime
 from pathlib import Path
@@ -73,9 +74,11 @@ class TestReasoningLogger:
         assert logger.log_dir == temp_log_dir
         assert logger.log_prefix == "test_adri"
 
-        # Check CSV files were created (correct attribute names)
+        # Check JSONL files were created
         assert logger.prompts_log_path.exists()
         assert logger.responses_log_path.exists()
+        assert logger.prompts_log_path.suffix == ".jsonl"
+        assert logger.responses_log_path.suffix == ".jsonl"
 
     def test_logger_disabled(self, temp_log_dir):
         """Test logger when disabled."""
@@ -110,14 +113,16 @@ class TestReasoningLogger:
         assert prompt_id.startswith("prompt_")
         assert len(prompt_id) > 10
 
-        # Check CSV file has content (correct attribute name)
+        # Check JSONL file has content
         with open(logger.prompts_log_path, 'r', encoding='utf-8') as f:
-            content = f.read()
-            assert "test_assess_001" in content
-            assert "run_001" in content
-            assert "step_001" in content
-            assert "You are a risk analyst" in content
-            assert "claude-3-5-sonnet" in content
+            lines = f.readlines()
+            assert len(lines) == 1  # One JSON line
+            record = json.loads(lines[0])
+            assert record["assessment_id"] == "test_assess_001"
+            assert record["run_id"] == "run_001"
+            assert record["step_id"] == "step_001"
+            assert record["system_prompt"] == "You are a risk analyst"
+            assert record["model"] == "claude-3-5-sonnet"
 
     def test_log_response(self, logger):
         """Test logging a response."""
@@ -145,13 +150,15 @@ class TestReasoningLogger:
         assert response_id.startswith("response_")
         assert len(response_id) > 10
 
-        # Check CSV file has content (correct attribute name)
+        # Check JSONL file has content
         with open(logger.responses_log_path, 'r', encoding='utf-8') as f:
-            content = f.read()
-            assert "test_assess_002" in content
-            assert prompt_id in content
-            assert "Risk level: HIGH" in content
-            assert "2000" in content
+            lines = f.readlines()
+            assert len(lines) == 1  # One JSON line
+            record = json.loads(lines[0])
+            assert record["assessment_id"] == "test_assess_002"
+            assert record["prompt_id"] == prompt_id
+            assert record["response_text"] == "Risk level: HIGH"
+            assert record["processing_time_ms"] == 2000
 
     def test_prompt_id_uniqueness(self, logger):
         """Test that prompt IDs are unique."""
@@ -211,11 +218,15 @@ class TestReasoningLogger:
             llm_config=llm_config,
         )
 
-        # Read CSV and check for hash (correct attribute name)
+        # Read JSONL and check for hash
         with open(logger.prompts_log_path, 'r', encoding='utf-8') as f:
-            content = f.read()
+            lines = f.readlines()
+            record = json.loads(lines[0])
             # Hash should be present (16 hex characters for truncated hash)
-            assert len([c for c in content if c in '0123456789abcdef']) >= 16
+            assert "prompt_hash" in record
+            assert len(record["prompt_hash"]) == 16
+            # Verify it's a hex string
+            int(record["prompt_hash"], 16)
 
     def test_response_hash_generation(self, logger):
         """Test that response hashes are generated."""
@@ -237,35 +248,54 @@ class TestReasoningLogger:
             token_count=50,
         )
 
-        # Read CSV and check for hash (correct attribute name)
+        # Read JSONL and check for hash
         with open(logger.responses_log_path, 'r', encoding='utf-8') as f:
-            content = f.read()
+            lines = f.readlines()
+            record = json.loads(lines[0])
             # Hash should be present (16 hex characters for truncated hash)
-            assert len([c for c in content if c in '0123456789abcdef']) >= 16
+            assert "response_hash" in record
+            assert len(record["response_hash"]) == 16
+            # Verify it's a hex string
+            int(record["response_hash"], 16)
 
-    def test_csv_headers(self, logger):
-        """Test that CSV files have correct headers."""
-        # Check prompts CSV (correct attribute name)
+    def test_jsonl_format(self, logger):
+        """Test that files use JSONL format (no headers, valid JSON per line)."""
+        llm_config = LLMConfig(model="test", temperature=0.1)
+
+        # Log a prompt
+        prompt_id = logger.log_prompt(
+            assessment_id="test_assess",
+            run_id="run_001",
+            step_id="step_001",
+            system_prompt="System",
+            user_prompt="User",
+            llm_config=llm_config,
+        )
+
+        # Log a response
+        logger.log_response(
+            assessment_id="test_assess",
+            prompt_id=prompt_id,
+            response_text="Response text",
+            processing_time_ms=1000,
+            token_count=50,
+        )
+
+        # Verify prompts file has valid JSON lines (no headers)
         with open(logger.prompts_log_path, 'r', encoding='utf-8') as f:
-            first_line = f.readline().strip()
-            expected_headers = [
-                "prompt_id", "assessment_id", "run_id", "step_id",
-                "prompt_hash", "model", "temperature", "seed",
-                "max_tokens", "system_prompt", "user_prompt", "timestamp"
-            ]
-            for header in expected_headers:
-                assert header in first_line
+            lines = f.readlines()
+            assert len(lines) == 1
+            record = json.loads(lines[0])  # Should not raise exception
+            assert "prompt_id" in record
+            assert "assessment_id" in record
 
-        # Check responses CSV (correct attribute name)
+        # Verify responses file has valid JSON lines (no headers)
         with open(logger.responses_log_path, 'r', encoding='utf-8') as f:
-            first_line = f.readline().strip()
-            expected_headers = [
-                "response_id", "assessment_id", "prompt_id",
-                "response_hash", "response_text", "processing_time_ms",
-                "token_count", "timestamp"
-            ]
-            for header in expected_headers:
-                assert header in first_line
+            lines = f.readlines()
+            assert len(lines) == 1
+            record = json.loads(lines[0])  # Should not raise exception
+            assert "response_id" in record
+            assert "prompt_id" in record
 
     def test_thread_safety(self, logger):
         """Test that logger is thread-safe."""
@@ -291,10 +321,10 @@ class TestReasoningLogger:
         for t in threads:
             t.join()
 
-        # Count lines in CSV (should be header + 15 prompts) (correct attribute name)
+        # Count lines in JSONL (should be 15 prompts, no header)
         with open(logger.prompts_log_path, 'r', encoding='utf-8') as f:
             lines = f.readlines()
-            assert len(lines) == 16  # header + 15 prompts
+            assert len(lines) == 15  # 15 prompts (no header in JSONL)
 
     def test_get_log_files(self, logger):
         """Test getting log file paths."""
@@ -322,15 +352,15 @@ class TestReasoningLogger:
         assert logger.prompts_log_path.exists()
         with open(logger.prompts_log_path, 'r', encoding='utf-8') as f:
             lines = f.readlines()
-            assert len(lines) > 1  # header + at least one record
+            assert len(lines) >= 1  # At least one record
 
         # Clear logs
         logger.clear_logs()
 
-        # Files should still exist but only have headers
+        # Files should still exist but be empty (no headers in JSONL)
         assert logger.prompts_log_path.exists()
         assert logger.responses_log_path.exists()
 
         with open(logger.prompts_log_path, 'r', encoding='utf-8') as f:
             lines = f.readlines()
-            assert len(lines) == 1  # only header
+            assert len(lines) == 0  # Empty file (no headers in JSONL)

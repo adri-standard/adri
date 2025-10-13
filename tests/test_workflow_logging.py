@@ -2,10 +2,10 @@
 Tests for ADRI Workflow Logging functionality.
 
 Tests the WorkflowLogger class for logging workflow execution context
-and data provenance to CSV audit trails.
+and data provenance to JSONL audit trails.
 """
 
-import csv
+import json
 import os
 import tempfile
 import threading
@@ -59,19 +59,20 @@ class TestWorkflowLogger:
         assert workflow_logger.log_dir == temp_log_dir
         assert workflow_logger.log_prefix == "test_adri"
 
-        # Check CSV files were created with headers
+        # Check JSONL files were created
         assert workflow_logger.execution_log_path.exists()
         assert workflow_logger.provenance_log_path.exists()
+        assert workflow_logger.execution_log_path.suffix == ".jsonl"
+        assert workflow_logger.provenance_log_path.suffix == ".jsonl"
 
-        # Verify headers in execution log
+        # Verify files are empty (no headers in JSONL)
         with open(workflow_logger.execution_log_path, 'r', encoding='utf-8') as f:
-            reader = csv.DictReader(f)
-            assert reader.fieldnames == workflow_logger.EXECUTION_LOG_HEADERS
+            content = f.read()
+            assert content == ""
 
-        # Verify headers in provenance log
         with open(workflow_logger.provenance_log_path, 'r', encoding='utf-8') as f:
-            reader = csv.DictReader(f)
-            assert reader.fieldnames == workflow_logger.PROVENANCE_LOG_HEADERS
+            content = f.read()
+            assert content == ""
 
     def test_disabled_logger(self, temp_log_dir):
         """Test that disabled logger doesn't create files or log."""
@@ -107,13 +108,12 @@ class TestWorkflowLogger:
         assert execution_id.startswith("exec_")
         assert len(execution_id) > 20  # exec_YYYYMMDD_HHMMSS_hex
 
-        # Read the CSV file
+        # Read the JSONL file
         with open(workflow_logger.execution_log_path, 'r', encoding='utf-8') as f:
-            reader = csv.DictReader(f)
-            rows = list(reader)
+            lines = f.readlines()
 
-        assert len(rows) == 1
-        row = rows[0]
+        assert len(lines) == 1
+        row = json.loads(lines[0])
 
         # Verify all fields
         assert row["execution_id"] == execution_id
@@ -121,7 +121,7 @@ class TestWorkflowLogger:
         assert row["workflow_id"] == "test_workflow"
         assert row["workflow_version"] == "1.0.0"
         assert row["step_id"] == "step_001"
-        assert row["step_sequence"] == "1"
+        assert row["step_sequence"] == 1
         assert row["run_at_utc"] == "2025-01-07T14:30:22Z"
         assert row["data_source_type"] == "verodat_query"
         assert row["assessment_id"] == "test_assessment_001"
@@ -144,22 +144,21 @@ class TestWorkflowLogger:
 
         workflow_logger.log_data_provenance(execution_id, provenance_data)
 
-        # Read the CSV file
+        # Read the JSONL file
         with open(workflow_logger.provenance_log_path, 'r', encoding='utf-8') as f:
-            reader = csv.DictReader(f)
-            rows = list(reader)
+            lines = f.readlines()
 
-        assert len(rows) == 1
-        row = rows[0]
+        assert len(lines) == 1
+        row = json.loads(lines[0])
 
         assert row["execution_id"] == execution_id
         assert row["source_type"] == "verodat_query"
-        assert row["verodat_query_id"] == "12345"
-        assert row["verodat_account_id"] == "91"
-        assert row["verodat_workspace_id"] == "161"
+        assert row["verodat_query_id"] == 12345
+        assert row["verodat_account_id"] == 91
+        assert row["verodat_workspace_id"] == 161
         assert row["verodat_run_at_utc"] == "2025-01-07T14:25:00Z"
         assert row["verodat_query_sql"] == "SELECT * FROM customers WHERE risk='HIGH'"
-        assert row["record_count"] == "150"
+        assert row["record_count"] == 150
         assert row["timestamp"]
 
     def test_log_data_provenance_file(self, workflow_logger):
@@ -177,21 +176,20 @@ class TestWorkflowLogger:
 
         workflow_logger.log_data_provenance(execution_id, provenance_data)
 
-        # Read the CSV file
+        # Read the JSONL file
         with open(workflow_logger.provenance_log_path, 'r', encoding='utf-8') as f:
-            reader = csv.DictReader(f)
-            rows = list(reader)
+            lines = f.readlines()
 
-        assert len(rows) == 1
-        row = rows[0]
+        assert len(lines) == 1
+        row = json.loads(lines[0])
 
         assert row["execution_id"] == execution_id
         assert row["source_type"] == "file"
         assert row["file_path"] == "/data/customers.csv"
         assert row["file_hash"] == "a1b2c3d4e5f67890"
-        assert row["file_size_bytes"] == "524288"
+        assert row["file_size_bytes"] == 524288
         assert row["data_retrieved_at_utc"] == "2025-01-07T14:20:00Z"
-        assert row["record_count"] == "1000"
+        assert row["record_count"] == 1000
 
     def test_log_data_provenance_api(self, workflow_logger):
         """Test logging API source provenance."""
@@ -208,20 +206,19 @@ class TestWorkflowLogger:
 
         workflow_logger.log_data_provenance(execution_id, provenance_data)
 
-        # Read the CSV file
+        # Read the JSONL file
         with open(workflow_logger.provenance_log_path, 'r', encoding='utf-8') as f:
-            reader = csv.DictReader(f)
-            rows = list(reader)
+            lines = f.readlines()
 
-        assert len(rows) == 1
-        row = rows[0]
+        assert len(lines) == 1
+        row = json.loads(lines[0])
 
         assert row["execution_id"] == execution_id
         assert row["source_type"] == "api"
         assert row["api_endpoint"] == "https://api.example.com/v1/credit-scores"
         assert row["api_http_method"] == "POST"
         assert row["api_response_hash"] == "abc123def456"
-        assert row["record_count"] == "75"
+        assert row["record_count"] == 75
 
     def test_log_data_provenance_previous_step(self, workflow_logger):
         """Test logging previous step provenance."""
@@ -238,19 +235,18 @@ class TestWorkflowLogger:
 
         workflow_logger.log_data_provenance(execution_id, provenance_data)
 
-        # Read the CSV file
+        # Read the JSONL file
         with open(workflow_logger.provenance_log_path, 'r', encoding='utf-8') as f:
-            reader = csv.DictReader(f)
-            rows = list(reader)
+            lines = f.readlines()
 
-        assert len(rows) == 1
-        row = rows[0]
+        assert len(lines) == 1
+        row = json.loads(lines[0])
 
         assert row["execution_id"] == execution_id
         assert row["source_type"] == "previous_step"
         assert row["previous_step_id"] == "enrichment_step"
         assert row["previous_execution_id"] == "exec_20250107_142000_xyz"
-        assert row["record_count"] == "250"
+        assert row["record_count"] == 250
         assert row["notes"] == "Data passed from enrichment step after transformation"
 
     def test_execution_id_uniqueness(self, workflow_logger, sample_workflow_context):
@@ -298,12 +294,11 @@ class TestWorkflowLogger:
         assert len(execution_ids) == num_threads * executions_per_thread
         assert len(set(execution_ids)) == len(execution_ids)  # All unique
 
-        # Verify CSV contains all records
+        # Verify JSONL contains all records
         with open(workflow_logger.execution_log_path, 'r', encoding='utf-8') as f:
-            reader = csv.DictReader(f)
-            rows = list(reader)
+            lines = f.readlines()
 
-        assert len(rows) == num_threads * executions_per_thread
+        assert len(lines) == num_threads * executions_per_thread
 
     def test_get_log_files(self, workflow_logger, temp_log_dir):
         """Test getting log file paths."""
@@ -325,18 +320,16 @@ class TestWorkflowLogger:
 
         # Verify data exists
         with open(workflow_logger.execution_log_path, 'r', encoding='utf-8') as f:
-            reader = csv.DictReader(f)
-            rows = list(reader)
-        assert len(rows) == 1
+            lines = f.readlines()
+        assert len(lines) == 1
 
         # Clear logs
         workflow_logger.clear_logs()
 
-        # Verify files are recreated with only headers
+        # Verify files are recreated empty (no headers in JSONL)
         with open(workflow_logger.execution_log_path, 'r', encoding='utf-8') as f:
-            reader = csv.DictReader(f)
-            rows = list(reader)
-        assert len(rows) == 0
+            lines = f.readlines()
+        assert len(lines) == 0
 
     def test_file_rotation(self, workflow_logger, sample_workflow_context):
         """Test log file rotation when size limit is reached."""
@@ -355,7 +348,7 @@ class TestWorkflowLogger:
 
         # Check if rotated files exist
         log_dir = workflow_logger.log_dir
-        rotated_files = list(log_dir.glob("test_adri_workflow_executions.*.csv"))
+        rotated_files = list(log_dir.glob("test_adri_workflow_executions.*.jsonl"))
 
         # May have rotated (depends on exact size)
         # At minimum, current file should exist
@@ -429,10 +422,10 @@ class TestWorkflowLogger:
 
         assert execution_id  # Should succeed
 
-        # Verify in CSV
+        # Verify in JSONL
         with open(workflow_logger.execution_log_path, 'r', encoding='utf-8') as f:
-            reader = csv.DictReader(f)
-            rows = list(reader)
+            lines = f.readlines()
+            rows = [json.loads(line) for line in lines]
 
         assert len(rows) == 1
         assert rows[0]["data_source_type"] == ""  # Empty for optional field
@@ -480,8 +473,8 @@ class TestWorkflowLoggerIntegration:
 
         # Verify all three executions were logged
         with open(logger.execution_log_path, 'r', encoding='utf-8') as f:
-            reader = csv.DictReader(f)
-            rows = list(reader)
+            lines = f.readlines()
+            rows = [json.loads(line) for line in lines]
 
         assert len(rows) == 3
 
@@ -490,9 +483,9 @@ class TestWorkflowLoggerIntegration:
             assert row["run_id"] == run_id
 
         # Step sequences should be 1, 2, 3
-        assert rows[0]["step_sequence"] == "1"
-        assert rows[1]["step_sequence"] == "2"
-        assert rows[2]["step_sequence"] == "3"
+        assert rows[0]["step_sequence"] == 1
+        assert rows[1]["step_sequence"] == 2
+        assert rows[2]["step_sequence"] == 3
 
     def test_provenance_chain(self, temp_log_dir):
         """Test logging a chain of data provenance across steps."""
@@ -541,8 +534,8 @@ class TestWorkflowLoggerIntegration:
 
         # Verify provenance chain
         with open(logger.provenance_log_path, 'r', encoding='utf-8') as f:
-            reader = csv.DictReader(f)
-            rows = list(reader)
+            lines = f.readlines()
+            rows = [json.loads(line) for line in lines]
 
         assert len(rows) == 3
         assert rows[0]["source_type"] == "file"

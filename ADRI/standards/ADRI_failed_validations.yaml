@@ -1,13 +1,13 @@
 # ADRI Failed Validations Standard
 # Defines the required structure and validation rules for failed validation audit logs
-# This standard validates the CSV file that tracks validation failures per assessment
+# This standard validates the JSONL file that tracks validation failures per assessment
 
 standards:
   id: ADRI_failed_validations
   name: ADRI Failed Validations Standard
   version: 1.0.0
   authority: ADRI Framework
-  description: Standard for validating ADRI failed validation audit log CSV structure
+  description: Standard for validating ADRI failed validation audit log JSONL structure
 
 record_identification:
   primary_key_fields:
@@ -124,7 +124,7 @@ requirements:
 metadata:
   purpose: Self-validation of ADRI failed validation audit logs
   usage: |
-    This standard validates failed validation CSV logs to ensure:
+    This standard validates failed validation JSONL logs to ensure:
     1. All validation failures are properly categorized by dimension
     2. Impact metrics are accurate (row counts, percentages)
     3. Sample failures are provided for debugging

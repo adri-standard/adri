@@ -1,5 +1,5 @@
 # ADRI Audit Log Standard
-# Defines the required structure and validation rules for ADRI audit log CSV files
+# Defines the required structure and validation rules for ADRI audit log JSONL files
 # This standard is used to validate that ADRI's audit trail is consistent and complete
 
 standards:
@@ -7,7 +7,7 @@ standards:
   name: ADRI Audit Log Standard
   version: 1.0.0
   authority: ADRI Framework
-  description: Standard for validating ADRI audit log CSV structure and content
+  description: Standard for validating ADRI audit log JSONL structure and content
 
 record_identification:
   primary_key_fields:
@@ -230,7 +230,7 @@ requirements:
 metadata:
   purpose: Self-validation of ADRI audit log outputs
   usage: |
-    This standard validates that ADRI audit log CSV files contain:
+    This standard validates that ADRI audit log JSONL files contain:
     1. All required tracking fields with correct types
     2. Valid timestamps and identifiers
     3. Proper score ranges and boolean flags
@@ -248,11 +248,11 @@ metadata:
   integration_notes: |
     This assessment log is the anchor for ADRI's audit trail and integrates with:
 
-    1. Dimension Scores (adri_dimension_scores.csv):
+    1. Dimension Scores (adri_dimension_scores.jsonl):
        - Links via assessment_id
        - Provides detailed breakdown of overall_score by dimension
 
-    2. Failed Validations (adri_failed_validations.csv):
+    2. Failed Validations (adri_failed_validations.jsonl):
        - Links via assessment_id
        - Details specific validation failures
 
