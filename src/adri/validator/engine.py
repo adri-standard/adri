@@ -149,6 +149,23 @@ class BundledStandardWrapper:
 class AssessmentResult:
     """Represents the result of a data quality assessment."""
 
+    @staticmethod
+    def _generate_assessment_id() -> str:
+        """
+        Generate a unique assessment ID.
+
+        Format: adri_{timestamp}_{random_hex}
+        Example: adri_20250113_114200_a3f5e9
+
+        Returns:
+            str: Unique assessment ID
+        """
+        from datetime import datetime
+
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        random_hex = os.urandom(3).hex()
+        return f"adri_{timestamp}_{random_hex}"
+
     def __init__(
         self,
         overall_score: float,
@@ -160,8 +177,12 @@ class AssessmentResult:
         metadata: Optional[Dict[str, Any]] = None,
         assessment_source: str = "unknown",
         threshold_info: Optional[ThresholdInfo] = None,
+        assessment_id: Optional[str] = None,
     ):
         """Initialize assessment result with scores and metadata."""
+        # Generate assessment_id immediately if not provided
+        self.assessment_id = assessment_id or self._generate_assessment_id()
+
         self.overall_score = overall_score
         self.passed = bool(passed)  # Ensure it's a Python bool, not numpy bool
         self.dimension_scores = dimension_scores
@@ -805,7 +826,7 @@ class DataQualityAssessor:
             # Prepare failed checks (extract from dimension assessors)
             failed_checks = self._collect_validation_failures(data, result)
 
-            # Log the assessment
+            # Log the assessment (using pre-generated assessment_id from result)
             audit_record = self.audit_logger.log_assessment(
                 assessment_result=result,
                 execution_context=execution_context,
@@ -814,10 +835,9 @@ class DataQualityAssessor:
                 failed_checks=failed_checks if failed_checks else None,
             )
 
-            # Store assessment_id on result for reasoning workflow linking
-            # (Note: This is NOT stored in the assessment CSV - reasoning logs link to assessment)
-            if audit_record and hasattr(audit_record, "assessment_id"):
-                result.assessment_id = audit_record.assessment_id
+            # Note: assessment_id is now generated at AssessmentResult creation time
+            # and passed to the logger, ensuring it's available for workflow logging
+            # before audit logging occurs
 
             # Send to Verodat if configured
             if hasattr(self.audit_logger, "verodat_logger"):

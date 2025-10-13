@@ -412,11 +412,14 @@ class LocalLogger:
         if not self.enabled:
             return None
 
-        # Generate assessment ID
+        # Use pre-generated assessment ID from result if available, otherwise generate one
         timestamp = datetime.now()
-        assessment_id = (
-            f"adri_{timestamp.strftime('%Y%m%d_%H%M%S')}_{os.urandom(3).hex()}"
-        )
+        assessment_id = getattr(assessment_result, "assessment_id", None)
+        if not assessment_id:
+            # Fallback: generate assessment ID if not present (backward compatibility)
+            assessment_id = (
+                f"adri_{timestamp.strftime('%Y%m%d_%H%M%S')}_{os.urandom(3).hex()}"
+            )
 
         # Create audit record
         record = AuditRecord(
