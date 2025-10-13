@@ -9,13 +9,93 @@ slug: /
 
 ADRI is an open-source data quality validation framework built for AI agents. Generate a standard from good data once, wrap your functions with `@adri_protected`, and block dirty payloads before they crash your agents.
 
+## ADRI System Overview
+
+ADRI provides a complete data quality validation system with two entry points: CLI commands for standalone use and the `@adri_protected` decorator for function protection.
+
+```mermaid
+flowchart TB
+    subgraph Entry["🚪 Entry Points"]
+        CLI[CLI Commands<br/>assess, generate, setup]
+        DEC[@adri_protected<br/>Decorator]
+    end
+
+    subgraph Data["📊 Data Ingestion"]
+        LOAD[Data Loaders<br/>CSV, JSON, Parquet]
+        PROF[Data Profiler<br/>Pattern Analysis]
+    end
+
+    subgraph Standards["📋 Standards System"]
+        PARSE[Standards Parser<br/>YAML Loading]
+        VALID[StandardValidator<br/>Schema Validation]
+        GEN[Standard Generator<br/>Auto-Creation]
+        CACHE[Standards Cache]
+    end
+
+    subgraph Validation["🔍 Validation Engine"]
+        RULES[Validation Rules<br/>Field-Level Checks]
+        ENGINE[Assessment Engine<br/>5-Dimension Scoring]
+        RESULT[Assessment Result<br/>Score + Failures]
+    end
+
+    subgraph Protection["🛡️ Protection Layer"]
+        MODES[Protection Modes<br/>raise/warn/continue]
+        DECIDE{Decision<br/>Allow or Block?}
+    end
+
+    subgraph Output["📝 Output & Logging"]
+        LOGS[Audit Logs<br/>5-File Trail]
+        REPORT[Assessment Reports<br/>JSON/CSV]
+    end
+
+    %% CLI Flow
+    CLI --> LOAD
+    CLI --> GEN
+    LOAD --> PROF
+    PROF --> GEN
+    GEN --> PARSE
+
+    %% Decorator Flow
+    DEC --> LOAD
+    DEC --> PARSE
+
+    %% Common Flow
+    PARSE --> VALID
+    VALID --> CACHE
+    CACHE --> RULES
+    LOAD --> ENGINE
+    RULES --> ENGINE
+    ENGINE --> RESULT
+
+    %% Protection Decision
+    RESULT --> MODES
+    MODES --> DECIDE
+    DECIDE -->|Score ≥ min| ALLOW[✅ Function Runs]
+    DECIDE -->|Score < min| BLOCK[❌ Protection Error]
+
+    %% Logging
+    RESULT --> LOGS
+    RESULT --> REPORT
+    ALLOW --> LOGS
+    BLOCK --> LOGS
+
+    style Entry fill:#e3f2fd,stroke:#2196f3,stroke-width:2px
+    style Data fill:#f3e5f5,stroke:#9c27b0,stroke-width:2px
+    style Standards fill:#fff3e0,stroke:#ff9800,stroke-width:2px
+    style Validation fill:#e8f5e9,stroke:#4caf50,stroke-width:2px
+    style Protection fill:#ffebee,stroke:#f44336,stroke-width:2px
+    style Output fill:#fafafa,stroke:#757575,stroke-width:2px
+    style ALLOW fill:#c8e6c9,stroke:#4caf50,stroke-width:3px
+    style BLOCK fill:#ffcdd2,stroke:#f44336,stroke-width:3px
+```
+
 ## ADRI in your stack
 
 ADRI is a data quality gate for agent workflows. It complements related standards you may already use:
 
-- ADRI: Validate inputs and enforce a quality contract before tools/actions run (fail-fast, warn, or continue).
-- MCP: Agent-to-tool connectivity (standard way to connect agents to tools, APIs, and resources). See https://modelcontextprotocol.io/
-- A2A: Agent-to-agent interoperability (standard messaging between agents across frameworks/vendors). See https://a2a-protocol.org/latest/
+- **ADRI**: Validate inputs and enforce a quality contract before tools/actions run (fail-fast, warn, or continue)
+- **MCP**: Agent-to-tool connectivity (standard way to connect agents to tools, APIs, and resources). See https://modelcontextprotocol.io/
+- **A2A**: Agent-to-agent interoperability (standard messaging between agents across frameworks/vendors). See https://a2a-protocol.org/latest/
 
 Use ADRI with or without MCP/A2A — the goal is to stop bad data from breaking agents right at the boundary.
 

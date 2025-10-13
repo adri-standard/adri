@@ -43,6 +43,34 @@ Start warn-first, then switch to raise when confident:
 
 **ADRI automatically creates standards from your data patterns and blocks bad data before it reaches your agents.**
 
+## How ADRI Works
+
+ADRI acts as a quality gate for your AI functions - intercepting calls, checking data quality across 5 dimensions, and deciding whether to allow or block execution.
+
+```mermaid
+flowchart LR
+    A[Your Function Called] --> B[🛡️ ADRI Intercepts]
+    B --> C{Quality Check<br/>5 Dimensions}
+    C -->|Score ≥ 75| D[✅ ALLOW<br/>Function Runs]
+    C -->|Score < 75| E[❌ BLOCK<br/>Error Raised]
+    D --> F[📋 Log Results]
+    E --> F
+
+    style A fill:#e3f2fd,stroke:#2196f3,stroke-width:2px
+    style B fill:#fff3e0,stroke:#ff9800,stroke-width:3px
+    style C fill:#f3e5f5,stroke:#9c27b0,stroke-width:2px
+    style D fill:#e8f5e9,stroke:#4caf50,stroke-width:2px
+    style E fill:#ffebee,stroke:#f44336,stroke-width:2px
+    style F fill:#fafafa,stroke:#757575,stroke-width:1px
+```
+
+**The 5 Quality Dimensions:**
+- ✅ **Validity** - Correct formats (emails, dates, types)
+- ✅ **Completeness** - No missing required fields
+- ✅ **Consistency** - Same format across records
+- ✅ **Plausibility** - Realistic values (age 0-120, not -5)
+- ✅ **Freshness** - Data recency and relevance
+
 ## Key Features
 
 - **🛡️ One-Decorator Protection** - Add `@adri_protected` to any function

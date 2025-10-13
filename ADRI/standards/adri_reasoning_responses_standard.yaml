@@ -1,5 +1,5 @@
 # ADRI Reasoning Responses Standard
-# Defines the required structure and validation rules for ADRI reasoning responses CSV files
+# Defines the required structure and validation rules for ADRI reasoning responses JSONL files
 # This standard validates that AI/LLM responses are properly logged and traceable
 
 standards:
@@ -7,7 +7,7 @@ standards:
   name: ADRI Reasoning Responses Standard
   version: 1.0.0
   authority: ADRI Framework
-  description: Standard for validating ADRI reasoning responses CSV structure and content
+  description: Standard for validating ADRI reasoning responses JSONL structure and content
 
 record_identification:
   primary_key_fields:
@@ -114,7 +114,7 @@ requirements:
 metadata:
   purpose: Validation of ADRI reasoning response logging
   usage: |
-    This standard validates that ADRI reasoning responses CSV files contain:
+    This standard validates that ADRI reasoning responses JSONL files contain:
     1. All required response tracking fields with correct types
     2. Valid identifiers and timestamps
     3. Proper performance metrics
@@ -135,8 +135,8 @@ metadata:
 
   relational_integrity: |
     - Each response_id must be unique
-    - Each prompt_id must exist in adri_reasoning_prompts.csv
-    - Each assessment_id must exist in adri_assessment_logs.csv
+    - Each prompt_id must exist in adri_reasoning_prompts.jsonl
+    - Each assessment_id must exist in adri_assessment_logs.jsonl
     - Timestamps should be >= corresponding prompt timestamp
 
   created_by: ADRI Framework

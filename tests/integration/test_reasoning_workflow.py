@@ -1,9 +1,10 @@
 """
 Integration tests for reasoning workflow.
 
-Tests end-to-end workflow: decorator → prompt → execution → response → validation → CSV logs.
+Tests end-to-end workflow: decorator → prompt → execution → response → validation → JSONL logs.
 """
 
+import json
 import os
 import tempfile
 from pathlib import Path
@@ -155,25 +156,29 @@ adri:
         assert "processing_status" in result.columns
         assert all(result["processing_status"] == "completed")
 
-        # Verify CSV files were created
+        # Verify JSONL files were created
         audit_dir = temp_adri_dir["audit"]
 
-        assessment_log = audit_dir / "adri_assessment_logs.csv"
+        assessment_log = audit_dir / "adri_assessment_logs.jsonl"
         assert assessment_log.exists(), "Assessment log should be created"
 
-        prompts_log = audit_dir / "adri_reasoning_prompts.csv"
+        prompts_log = audit_dir / "adri_reasoning_prompts.jsonl"
         assert prompts_log.exists(), "Prompts log should be created"
 
-        responses_log = audit_dir / "adri_reasoning_responses.csv"
+        responses_log = audit_dir / "adri_reasoning_responses.jsonl"
         assert responses_log.exists(), "Responses log should be created"
 
         # Verify assessment log content
-        assessment_df = pd.read_csv(assessment_log)
+        with open(assessment_log, 'r', encoding='utf-8') as f:
+            assessment_records = [json.loads(line) for line in f]
+        assessment_df = pd.DataFrame(assessment_records)
         assert len(assessment_df) > 0, "Assessment log should have records"
         assert "assessment_id" in assessment_df.columns
 
         # Verify prompts log content
-        prompts_df = pd.read_csv(prompts_log)
+        with open(prompts_log, 'r', encoding='utf-8') as f:
+            prompts_records = [json.loads(line) for line in f]
+        prompts_df = pd.DataFrame(prompts_records)
         assert len(prompts_df) > 0, "Prompts log should have records"
         assert "prompt_id" in prompts_df.columns
         assert "assessment_id" in prompts_df.columns
@@ -181,7 +186,9 @@ adri:
         assert prompts_df.iloc[0]["model"] == "test-model"
 
         # Verify responses log content
-        responses_df = pd.read_csv(responses_log)
+        with open(responses_log, 'r', encoding='utf-8') as f:
+            responses_records = [json.loads(line) for line in f]
+        responses_df = pd.DataFrame(responses_records)
         assert len(responses_df) > 0, "Responses log should have records"
         assert "response_id" in responses_df.columns
         assert "prompt_id" in responses_df.columns
@@ -224,18 +231,19 @@ adri:
         # Should execute successfully
         assert result is not None
 
-        # Reasoning CSV files should NOT be created
+        # Reasoning JSONL files should NOT be created
         audit_dir = temp_adri_dir["audit"]
 
         # Only assessment log should exist
-        assessment_log = audit_dir / "adri_assessment_logs.csv"
+        assessment_log = audit_dir / "adri_assessment_logs.jsonl"
         assert assessment_log.exists()
 
         # No reasoning logs (or they're empty)
-        prompts_log = audit_dir / "adri_reasoning_prompts.csv"
+        prompts_log = audit_dir / "adri_reasoning_prompts.jsonl"
         if prompts_log.exists():
-            prompts_df = pd.read_csv(prompts_log)
-            assert len(prompts_df) == 0, "Prompts log should be empty when reasoning disabled"
+            with open(prompts_log, 'r', encoding='utf-8') as f:
+                lines = f.readlines()
+            assert len(lines) == 0, "Prompts log should be empty when reasoning disabled"
 
     def test_reasoning_with_store_flags(self, temp_adri_dir, reasoning_standard, config_file):
         """Test selective storage of prompts and responses."""
@@ -262,8 +270,8 @@ adri:
         assert result is not None
 
 
-class TestReasoningCSVMetaValidation:
-    """Test that reasoning CSV logs validate against meta-standards."""
+class TestReasoningJSONLMetaValidation:
+    """Test that reasoning JSONL logs validate against meta-standards."""
 
     @pytest.fixture
     def temp_adri_dir(self):
@@ -283,8 +291,8 @@ class TestReasoningCSVMetaValidation:
                 "audit": audit_dir,
             }
 
-    def test_prompts_csv_validates(self, temp_adri_dir):
-        """Test that prompts CSV validates against its meta-standard."""
+    def test_prompts_jsonl_validates(self, temp_adri_dir):
+        """Test that prompts JSONL validates against its meta-standard."""
         from adri.logging.reasoning import ReasoningLogger, LLMConfig
 
         # Create logger and log some prompts
@@ -310,11 +318,13 @@ class TestReasoningCSVMetaValidation:
             llm_config=llm_config,
         )
 
-        # Read the CSV
-        prompts_csv = temp_adri_dir["audit"] / "adri_reasoning_prompts.csv"
-        assert prompts_csv.exists()
+        # Read the JSONL
+        prompts_jsonl = temp_adri_dir["audit"] / "adri_reasoning_prompts.jsonl"
+        assert prompts_jsonl.exists()
 
-        prompts_df = pd.read_csv(prompts_csv)
+        with open(prompts_jsonl, 'r', encoding='utf-8') as f:
+            prompts_records = [json.loads(line) for line in f]
+        prompts_df = pd.DataFrame(prompts_records)
 
         # Verify required fields exist
         required_fields = [
@@ -330,8 +340,8 @@ class TestReasoningCSVMetaValidation:
         assert prompts_df.iloc[0]["model"] == "test-model"
         assert prompts_df.iloc[0]["temperature"] == 0.1
 
-    def test_responses_csv_validates(self, temp_adri_dir):
-        """Test that responses CSV validates against its meta-standard."""
+    def test_responses_jsonl_validates(self, temp_adri_dir):
+        """Test that responses JSONL validates against its meta-standard."""
         from adri.logging.reasoning import ReasoningLogger, LLMConfig
 
         logger = ReasoningLogger({
@@ -361,11 +371,13 @@ class TestReasoningCSVMetaValidation:
             token_count=100,
         )
 
-        # Read the CSV
-        responses_csv = temp_adri_dir["audit"] / "adri_reasoning_responses.csv"
-        assert responses_csv.exists()
+        # Read the JSONL
+        responses_jsonl = temp_adri_dir["audit"] / "adri_reasoning_responses.jsonl"
+        assert responses_jsonl.exists()
 
-        responses_df = pd.read_csv(responses_csv)
+        with open(responses_jsonl, 'r', encoding='utf-8') as f:
+            responses_records = [json.loads(line) for line in f]
+        responses_df = pd.DataFrame(responses_records)
 
         # Verify required fields
         required_fields = [
