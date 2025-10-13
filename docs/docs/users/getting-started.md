@@ -73,7 +73,31 @@ def process_invoices(invoice_rows):
     return ai_agent(invoice_rows)
 ```
 
-Key parameters:
+### What Happens at Runtime
+
+When you call your protected function, ADRI automatically intercepts and validates the data:
+
+```mermaid
+flowchart LR
+    A[Function Called] --> B[🛡️ ADRI Intercepts]
+    B --> C[Load Standard]
+    C --> D[Assess Data<br/>5 Dimensions]
+    D --> E{Score Check}
+    E -->|Pass| F[✅ Run Function]
+    E -->|Fail| G[❌ Block/Warn]
+    F --> H[Log Result]
+    G --> H
+
+    style A fill:#e3f2fd,stroke:#2196f3,stroke-width:2px
+    style B fill:#fff3e0,stroke:#ff9800,stroke-width:2px
+    style D fill:#f3e5f5,stroke:#9c27b0,stroke-width:2px
+    style E fill:#fff9c4,stroke:#fbc02d,stroke-width:2px
+    style F fill:#e8f5e9,stroke:#4caf50,stroke-width:2px
+    style G fill:#ffebee,stroke:#f44336,stroke-width:2px
+```
+
+### Key Parameters
+
 - `standard` – Name of the YAML standard (without `.yaml`) you generated or stored in `ADRI/**/standards`
 - `data_param` – The function argument that contains the data you want ADRI to validate
 - `min_score` (optional) – Override the required score (default comes from config)

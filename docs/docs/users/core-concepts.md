@@ -56,23 +56,48 @@ Examples:
 
 ADRI computes scores across five complementary dimensions. Together they roll up into an overall quality signal.
 
-- Validity: values conform to declared types and formats
-- Completeness: required fields are present and populated
-- Consistency: values respect relationships and invariants across rows/fields
-- Plausibility: values fall within reasonable real‑world ranges or patterns
-- Freshness: data is timely relative to expectations
-
 ```mermaid
 flowchart TB
-  Q[Overall Data Quality] --> V[Validity]
-  Q --> C[Completeness]
-  Q --> S[Consistency]
-  Q --> P[Plausibility]
-  Q --> F[Freshness]
-  style Q fill:#eef,stroke:#88f,stroke-width:1px
+    DATA[Your Data] --> ASSESS[ADRI Assessment]
+
+    ASSESS --> V[✅ Validity<br/>Correct Formats]
+    ASSESS --> C[✅ Completeness<br/>No Missing Fields]
+    ASSESS --> S[✅ Consistency<br/>Same Format]
+    ASSESS --> P[✅ Plausibility<br/>Realistic Values]
+    ASSESS --> F[✅ Freshness<br/>Recent Data]
+
+    V --> SCORE[Overall Quality Score<br/>0-100]
+    C --> SCORE
+    S --> SCORE
+    P --> SCORE
+    F --> SCORE
+
+    SCORE --> DECISION{Score ≥ Threshold?}
+    DECISION -->|Yes| ALLOW[✅ Allow Function]
+    DECISION -->|No| BLOCK[❌ Block/Warn]
+
+    style DATA fill:#e3f2fd,stroke:#2196f3,stroke-width:2px
+    style ASSESS fill:#fff3e0,stroke:#ff9800,stroke-width:2px
+    style V fill:#e8f5e9,stroke:#4caf50,stroke-width:2px
+    style C fill:#e8f5e9,stroke:#4caf50,stroke-width:2px
+    style S fill:#e8f5e9,stroke:#4caf50,stroke-width:2px
+    style P fill:#e8f5e9,stroke:#4caf50,stroke-width:2px
+    style F fill:#e8f5e9,stroke:#4caf50,stroke-width:2px
+    style SCORE fill:#f3e5f5,stroke:#9c27b0,stroke-width:3px
+    style DECISION fill:#fff9c4,stroke:#fbc02d,stroke-width:2px
+    style ALLOW fill:#c8e6c9,stroke:#4caf50,stroke-width:3px
+    style BLOCK fill:#ffcdd2,stroke:#f44336,stroke-width:3px
 ```
 
-Tip:
+### What Each Dimension Checks
+
+- **Validity**: Values conform to declared types and formats (emails, dates, enumerations)
+- **Completeness**: Required fields are present and populated (no missing critical data)
+- **Consistency**: Values respect relationships and invariants across rows/fields
+- **Plausibility**: Values fall within reasonable real-world ranges or patterns (age 0-120, not -5)
+- **Freshness**: Data is timely relative to expectations (not stale or outdated)
+
+**Tip:**
 - Start with validity and completeness for a fast Day‑0 win.
 - Expand to consistency, plausibility, and freshness as you harden your pipelines.
 
