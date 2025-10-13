@@ -21,6 +21,7 @@ def adri_protected(
     min_score: Optional[float] = None,
     dimensions: Optional[Dict[str, float]] = None,
     on_failure: Optional[str] = None,
+    on_assessment: Optional[Callable] = None,
     auto_generate: bool = True,
     cache_assessments: Optional[bool] = None,
     verbose: Optional[bool] = None,
@@ -48,6 +49,10 @@ def adri_protected(
         min_score: Minimum quality score required (0-100, uses config default if None)
         dimensions: Specific dimension requirements (e.g., {"validity": 19, "completeness": 18})
         on_failure: How to handle quality failures ("raise", "warn", "continue", uses config default if None)
+        on_assessment: Optional callback function to receive AssessmentResult after assessment completes.
+                      Signature: Callable[[AssessmentResult], None]. Useful for capturing assessment IDs
+                      and results in workflow runners. Callback exceptions are logged as warnings without
+                      disrupting the protection flow. (default: None)
         auto_generate: Whether to auto-generate missing standards (default: True)
         cache_assessments: Whether to cache assessment results (uses config default if None)
         verbose: Whether to show detailed protection logs (uses config default if None)
@@ -149,6 +154,32 @@ def adri_protected(
             return risk_assessment
         ```
 
+        Capturing assessment results with callback:
+        ```python
+        # Workflow runner tracking assessments
+        assessment_log = []
+
+        def capture_assessment(result):
+            assessment_log.append({
+                "assessment_id": result.assessment_id,
+                "score": result.overall_score,
+                "passed": result.passed
+            })
+
+        @adri_protected(
+            standard="transaction_data",
+            on_assessment=capture_assessment,
+            on_failure="raise"
+        )
+        def process_transaction(data):
+            # Process validated data
+            return transaction_result
+
+        # Assessment ID and results are captured without breaking decorator transparency
+        result = process_transaction(transaction_data)
+        # assessment_log now contains the assessment details
+        ```
+
     Note:
         Standard files are automatically resolved based on your environment configuration.
         To control where standards are stored, update your adri-config.yaml file.
@@ -201,6 +232,7 @@ def adri_protected(
                     min_score=min_score,
                     dimensions=dimensions,
                     on_failure=on_failure,
+                    on_assessment=on_assessment,
                     auto_generate=auto_generate,
                     cache_assessments=cache_assessments,
                     verbose=verbose,
@@ -240,6 +272,7 @@ def adri_protected(
                 "min_score": min_score,
                 "dimensions": dimensions,
                 "on_failure": on_failure,
+                "on_assessment": on_assessment,
                 "auto_generate": auto_generate,
                 "cache_assessments": cache_assessments,
                 "verbose": verbose,

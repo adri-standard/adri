@@ -332,5 +332,247 @@ class TestDecoratorErrorScenarios(unittest.TestCase):
         self.assertIn("Could not find data parameter 'missing_param'", str(context.exception))
 
 
+class TestAssessmentCallback(unittest.TestCase):
+    """Test assessment callback functionality."""
+
+    def setUp(self):
+        """Set up test environment."""
+        self.test_dir = tempfile.mkdtemp()
+        self.original_cwd = os.getcwd()
+        os.chdir(self.test_dir)
+
+        # Create high-quality test data
+        self.test_data = pd.DataFrame([
+            {"id": i, "name": f"Item_{i}", "value": 100.0 + i * 10, "status": "active"}
+            for i in range(1, 6)
+        ])
+
+        # Storage for callback results
+        self.callback_results = []
+
+    def tearDown(self):
+        """Clean up."""
+        os.chdir(self.original_cwd)
+        import shutil
+        shutil.rmtree(self.test_dir)
+
+    def test_callback_receives_assessment_result(self):
+        """Test that callback receives correct assessment result."""
+        captured_result = []
+
+        def capture_assessment(result):
+            captured_result.append(result)
+
+        @adri_protected(standard="callback_test", on_assessment=capture_assessment)
+        def process_data(data):
+            return f"Processed {len(data)} items"
+
+        result = process_data(self.test_data)
+
+        # Verify function executed
+        self.assertEqual(result, "Processed 5 items")
+
+        # Verify callback was invoked
+        self.assertEqual(len(captured_result), 1)
+
+        # Verify assessment result has expected attributes
+        assessment = captured_result[0]
+        self.assertTrue(hasattr(assessment, 'overall_score'))
+        self.assertTrue(hasattr(assessment, 'passed'))
+        self.assertTrue(hasattr(assessment, 'dimension_scores'))
+        self.assertIsInstance(assessment.overall_score, (int, float))
+
+    def test_callback_captures_assessment_id(self):
+        """Test capturing assessment ID via callback."""
+        captured_ids = []
+
+        def capture_id(result):
+            if hasattr(result, 'assessment_id'):
+                captured_ids.append(result.assessment_id)
+
+        @adri_protected(standard="id_test", on_assessment=capture_id)
+        def process_with_id(data):
+            return "processed"
+
+        process_with_id(self.test_data)
+
+        # Verify assessment ID was captured
+        self.assertEqual(len(captured_ids), 1)
+        self.assertIsNotNone(captured_ids[0])
+        self.assertIsInstance(captured_ids[0], str)
+        # Assessment ID should follow expected format
+        self.assertGreater(len(captured_ids[0]), 0)
+
+    def test_callback_is_optional(self):
+        """Test backward compatibility - callback is optional."""
+
+        @adri_protected(standard="no_callback_test")
+        def process_without_callback(data):
+            return f"Processed {len(data)} items"
+
+        # Should work without callback
+        result = process_without_callback(self.test_data)
+        self.assertEqual(result, "Processed 5 items")
+
+    def test_callback_exception_handling(self):
+        """Test that callback exceptions don't break decorator."""
+
+        def failing_callback(result):
+            raise ValueError("Intentional callback error")
+
+        @adri_protected(standard="error_test", on_assessment=failing_callback)
+        def process_with_failing_callback(data):
+            return f"Processed {len(data)} items"
+
+        # Function should still execute despite callback failure
+        result = process_with_failing_callback(self.test_data)
+        self.assertEqual(result, "Processed 5 items")
+
+    def test_callback_with_different_modes(self):
+        """Test callback works with different protection modes."""
+        callback_invocations = []
+
+        def track_callback(result):
+            callback_invocations.append({
+                'score': result.overall_score,
+                'passed': result.passed
+            })
+
+        # Test with fail-fast mode (on_failure="raise")
+        @adri_protected(standard="mode_test_raise", on_failure="raise", on_assessment=track_callback)
+        def process_failfast(data):
+            return "failfast"
+
+        process_failfast(self.test_data)
+        self.assertEqual(len(callback_invocations), 1)
+
+        # Test with warn mode
+        @adri_protected(standard="mode_test_warn", on_failure="warn", on_assessment=track_callback)
+        def process_warn(data):
+            return "warn"
+
+        process_warn(self.test_data)
+        self.assertEqual(len(callback_invocations), 2)
+
+        # Test with continue mode
+        @adri_protected(standard="mode_test_continue", on_failure="continue", on_assessment=track_callback)
+        def process_continue(data):
+            return "continue"
+
+        process_continue(self.test_data)
+        self.assertEqual(len(callback_invocations), 3)
+
+    def test_callback_receives_full_result_object(self):
+        """Test callback receives complete AssessmentResult with all fields."""
+        captured_results = []
+
+        def capture_full_result(result):
+            captured_results.append({
+                'has_overall_score': hasattr(result, 'overall_score'),
+                'has_passed': hasattr(result, 'passed'),
+                'has_dimension_scores': hasattr(result, 'dimension_scores'),
+                'has_assessment_id': hasattr(result, 'assessment_id'),
+                'has_standard_id': hasattr(result, 'standard_id'),
+                'has_standard_path': hasattr(result, 'standard_path'),
+                'overall_score': getattr(result, 'overall_score', None),
+                'passed': getattr(result, 'passed', None)
+            })
+
+        @adri_protected(standard="full_result_test", on_assessment=capture_full_result)
+        def process_full(data):
+            return "full result test"
+
+        process_full(self.test_data)
+
+        # Verify callback was invoked
+        self.assertEqual(len(captured_results), 1)
+
+        # Verify all expected fields are present
+        result_info = captured_results[0]
+        self.assertTrue(result_info['has_overall_score'])
+        self.assertTrue(result_info['has_passed'])
+        self.assertTrue(result_info['has_dimension_scores'])
+        self.assertTrue(result_info['has_assessment_id'])
+        self.assertIsNotNone(result_info['overall_score'])
+        self.assertIsInstance(result_info['passed'], bool)
+
+    def test_callback_invoked_before_pass_fail_check(self):
+        """Test that callback is invoked even if assessment would fail."""
+        callback_invoked = []
+
+        def track_invocation(result):
+            callback_invoked.append(True)
+
+        # Create data that might not meet high standards
+        marginal_data = pd.DataFrame([
+            {"id": 1, "name": "Item", "value": 100.0},
+            {"id": None, "name": "", "value": -50.0}  # Some issues
+        ])
+
+        @adri_protected(
+            standard="fail_test",
+            min_score=95,  # Very high threshold
+            on_failure="warn",  # Don't raise error
+            on_assessment=track_invocation
+        )
+        def process_marginal(data):
+            return "processed"
+
+        process_marginal(marginal_data)
+
+        # Callback should be invoked regardless of pass/fail
+        self.assertTrue(len(callback_invoked) > 0)
+
+    def test_callback_with_workflow_context(self):
+        """Test callback works alongside workflow context tracking."""
+        captured_assessments = []
+
+        def capture_with_context(result):
+            captured_assessments.append({
+                'assessment_id': getattr(result, 'assessment_id', None),
+                'score': result.overall_score
+            })
+
+        workflow_context = {
+            "run_id": "test_run_123",
+            "workflow_id": "test_workflow",
+            "step_id": "callback_test_step"
+        }
+
+        @adri_protected(
+            standard="workflow_callback_test",
+            workflow_context=workflow_context,
+            on_assessment=capture_with_context
+        )
+        def process_with_workflow(data):
+            return "workflow test"
+
+        process_with_workflow(self.test_data)
+
+        # Verify callback was invoked
+        self.assertEqual(len(captured_assessments), 1)
+        self.assertIsNotNone(captured_assessments[0]['assessment_id'])
+        self.assertIsInstance(captured_assessments[0]['score'], (int, float))
+
+    def test_multiple_invocations_separate_callbacks(self):
+        """Test that each function invocation triggers callback separately."""
+        invocation_count = []
+
+        def count_invocations(result):
+            invocation_count.append(result.overall_score)
+
+        @adri_protected(standard="multi_invoke_test", on_assessment=count_invocations)
+        def process_multiple(data):
+            return f"Processed {len(data)}"
+
+        # Invoke multiple times
+        process_multiple(self.test_data)
+        process_multiple(self.test_data)
+        process_multiple(self.test_data)
+
+        # Should have three separate callback invocations
+        self.assertEqual(len(invocation_count), 3)
+
+
 if __name__ == '__main__':
     unittest.main()
