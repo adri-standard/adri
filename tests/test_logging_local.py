@@ -1159,8 +1159,10 @@ class TestLocalLoggingPerformance(unittest.TestCase):
         self.assertGreater(len(rotated_files), 0)
 
         # Performance should remain reasonable despite rotation
+        # Use 3.0 second threshold to account for slower CI environments (Windows)
+        # while still catching real performance regressions
         for batch_time in times:
-            self.assertLess(batch_time, 2.0)  # Each batch should complete within 2 seconds
+            self.assertLess(batch_time, 3.0)  # Each batch should complete within 3 seconds
 
     def test_memory_usage_performance(self):
         """Test memory efficiency during logging operations."""
