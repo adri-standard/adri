@@ -64,3 +64,4 @@ __description__ = (
     "Stop Your AI Agents Breaking on Bad Data - Data Quality Assessment Framework"
 )
 __url__ = "https://github.com/adri-framework/adri"
+# Release v4.3.0
