@@ -2,6 +2,171 @@
 
 *Simple, clear explanations of how ADRI works and why each piece matters*
 
+## Complete Technical Architecture
+
+This comprehensive architecture diagram shows all ADRI components and their relationships. Each component maps to actual source code files.
+
+```mermaid
+flowchart TB
+    subgraph CLI["💻 CLI Layer (src/adri/cli.py)"]
+        CLI_SETUP[adri setup]
+        CLI_GEN[adri generate-standard]
+        CLI_ASSESS[adri assess]
+        CLI_LIST[adri list-standards]
+        CLI_VALIDATE[adri validate-standard]
+        CLI_SHOW_STD[adri show-standard]
+        CLI_SHOW_CFG[adri show-config]
+        CLI_LIST_ASSESS[adri list-assessments]
+    end
+
+    subgraph Guard["🛡️ Guard Decorator (src/adri/decorator.py)"]
+        DECORATOR[@adri_protected<br/>Main Entry Point]
+        PARAM_EXTRACT[Parameter Extraction]
+        DATA_RESOLVE[Data Resolution]
+    end
+
+    subgraph Config["⚙️ Configuration (src/adri/config/)"]
+        CONFIG_LOADER[ConfigurationLoader<br/>loader.py]
+        ENV_DETECT[Environment Detection]
+        PATH_RESOLVE[Path Resolution]
+    end
+
+    subgraph Loaders["📥 Data Loaders (src/adri/validator/loaders.py)"]
+        LOAD_CSV[load_csv]
+        LOAD_JSON[load_json]
+        LOAD_PARQUET[load_parquet]
+        LOAD_STANDARD[load_standard]
+        TYPE_DETECT[Type Detection]
+    end
+
+    subgraph Analysis["🧠 Analysis Engine (src/adri/analysis/)"]
+        PROFILER[DataProfiler<br/>data_profiler.py]
+        TYPE_INFER[TypeInference<br/>type_inference.py]
+        STD_GEN[StandardGenerator<br/>standard_generator.py]
+        DIM_BUILDER[DimensionBuilder<br/>dimension_builder.py]
+        STD_BUILDER[StandardBuilder<br/>standard_builder.py]
+        FIELD_INFER[FieldInference<br/>field_inference.py]
+    end
+
+    subgraph Standards["📋 Standards System (src/adri/standards/)"]
+        STD_PARSER[StandardsParser<br/>parser.py]
+        STD_VALIDATOR[StandardValidator<br/>validator.py]
+        STD_SCHEMA[StandardSchema<br/>schema.py]
+        STD_CACHE[Standards Cache<br/>In-Memory]
+        STD_EXCEPTIONS[ValidationResult<br/>exceptions.py]
+    end
+
+    subgraph Validator["🔍 Validation Engine (src/adri/validator/)"]
+        VAL_ENGINE[ValidationEngine<br/>engine.py]
+        DATA_ASSESSOR[DataQualityAssessor<br/>engine.py]
+        VAL_RULES[Validation Rules<br/>rules.py]
+        ASSESS_RESULT[AssessmentResult<br/>engine.py]
+        FIELD_VAL[Field Validators<br/>rules.py]
+    end
+
+    subgraph Protection["🛡️ Protection System (src/adri/guard/modes.py)"]
+        PROT_ENGINE[DataProtectionEngine]
+        FAIL_FAST[FailFastMode]
+        SELECTIVE[SelectiveMode]
+        WARN_ONLY[WarnOnlyMode]
+        PROT_RESULT[ProtectionResult]
+    end
+
+    subgraph Logging["📝 Logging System (src/adri/logging/)"]
+        LOCAL_LOG[LocalLogger<br/>local.py]
+        ENT_LOG[EnterpriseLogger<br/>enterprise.py]
+        AUDIT_LOGS[Audit Logs<br/>5-File Trail]
+        LOG_ROTATION[File Rotation]
+    end
+
+    %% CLI Flows
+    CLI_SETUP --> CONFIG_LOADER
+    CLI_GEN --> LOAD_CSV
+    CLI_GEN --> LOAD_JSON
+    CLI_GEN --> LOAD_PARQUET
+    CLI_ASSESS --> LOAD_STANDARD
+    CLI_VALIDATE --> STD_VALIDATOR
+    CLI_LIST --> CONFIG_LOADER
+    CLI_SHOW_STD --> STD_PARSER
+
+    %% Decorator Flow
+    DECORATOR --> PARAM_EXTRACT
+    PARAM_EXTRACT --> DATA_RESOLVE
+    DATA_RESOLVE --> LOAD_CSV
+    DATA_RESOLVE --> LOAD_JSON
+    DATA_RESOLVE --> LOAD_PARQUET
+    DECORATOR --> CONFIG_LOADER
+
+    %% Configuration Flow
+    CONFIG_LOADER --> ENV_DETECT
+    CONFIG_LOADER --> PATH_RESOLVE
+
+    %% Data Loading Flow
+    LOAD_CSV --> TYPE_DETECT
+    LOAD_JSON --> TYPE_DETECT
+    LOAD_PARQUET --> TYPE_DETECT
+    TYPE_DETECT --> PROFILER
+
+    %% Analysis Flow
+    PROFILER --> TYPE_INFER
+    TYPE_INFER --> FIELD_INFER
+    FIELD_INFER --> DIM_BUILDER
+    DIM_BUILDER --> STD_BUILDER
+    STD_BUILDER --> STD_GEN
+    STD_GEN --> STD_PARSER
+
+    %% Standards Flow - WITH VALIDATOR
+    LOAD_STANDARD --> STD_PARSER
+    STD_PARSER --> STD_VALIDATOR
+    STD_VALIDATOR --> STD_SCHEMA
+    STD_VALIDATOR --> STD_EXCEPTIONS
+    STD_VALIDATOR --> STD_CACHE
+    STD_CACHE --> VAL_RULES
+
+    %% Validation Flow
+    TYPE_DETECT --> VAL_ENGINE
+    VAL_RULES --> VAL_ENGINE
+    VAL_ENGINE --> DATA_ASSESSOR
+    DATA_ASSESSOR --> FIELD_VAL
+    FIELD_VAL --> ASSESS_RESULT
+
+    %% Protection Flow
+    ASSESS_RESULT --> PROT_ENGINE
+    PROT_ENGINE --> FAIL_FAST
+    PROT_ENGINE --> SELECTIVE
+    PROT_ENGINE --> WARN_ONLY
+    FAIL_FAST --> PROT_RESULT
+    SELECTIVE --> PROT_RESULT
+    WARN_ONLY --> PROT_RESULT
+
+    %% Logging Flow
+    ASSESS_RESULT --> LOCAL_LOG
+    ASSESS_RESULT --> ENT_LOG
+    PROT_RESULT --> LOCAL_LOG
+    PROT_RESULT --> ENT_LOG
+    LOCAL_LOG --> AUDIT_LOGS
+    LOCAL_LOG --> LOG_ROTATION
+    ENT_LOG --> AUDIT_LOGS
+
+    style CLI fill:#e3f2fd,stroke:#2196f3,stroke-width:2px
+    style Guard fill:#fff3e0,stroke:#ff9800,stroke-width:2px
+    style Config fill:#f3e5f5,stroke:#9c27b0,stroke-width:2px
+    style Loaders fill:#e1f5fe,stroke:#0288d1,stroke-width:2px
+    style Analysis fill:#f1f8e9,stroke:#7cb342,stroke-width:2px
+    style Standards fill:#fff8e1,stroke:#ffa726,stroke-width:3px
+    style Validator fill:#e8f5e9,stroke:#4caf50,stroke-width:2px
+    style Protection fill:#ffebee,stroke:#f44336,stroke-width:2px
+    style Logging fill:#fafafa,stroke:#757575,stroke-width:2px
+    style STD_VALIDATOR fill:#ffe0b2,stroke:#ff6f00,stroke-width:4px
+```
+
+**Navigate the Architecture:**
+- **For Users**: See the simple flow in [README.md](README.md)
+- **For Integrators**: See the system overview in [docs/docs/intro.md](docs/docs/intro.md)
+- **For Contributors**: Continue reading this complete technical guide
+
+---
+
 ## ADRI in 30 Seconds
 
 **The Problem:** AI agents break when you feed them bad data. A customer record with `age: -5` or `email: "not-an-email"` crashes your expensive AI calls.
@@ -140,7 +305,9 @@ Think of ADRI as a **quality bouncer** for your AI functions:
 
 **Components:**
 - `parser.py` - StandardsParser for YAML loading and validation
-- `schema.yaml` - Meta-schema defining valid standard structure
+- `validator.py` - StandardValidator for schema validation ⭐ **NEW**
+- `schema.py` - StandardSchema for meta-schema definitions
+- `exceptions.py` - ValidationResult and exception classes
 
 **What it does:** Loads and manages data quality rules (standards) from YAML files.
 
@@ -151,6 +318,80 @@ Think of ADRI as a **quality bouncer** for your AI functions:
 - Loads custom standards from YAML files with caching
 - Validates standard structure against meta-schema
 - Supports offline-first operation for enterprise environments
+
+#### **StandardValidator Component** ⭐ **NEW IN DOCUMENTATION**
+
+*File: `src/adri/standards/validator.py`*
+
+**What it does:** Thread-safe validator for ADRI standard files with intelligent caching.
+
+**Why it matters:** Ensures YAML standards conform to schema before use, preventing runtime errors from malformed standards.
+
+**Key Features:**
+1. **Comprehensive Schema Validation**
+   - Structure validation (required sections, fields)
+   - Type validation (correct Python types)
+   - Range validation (weights 0-5, scores 0-100)
+   - Cross-field consistency checks
+
+2. **Smart Caching**
+   - Caches validation results with mtime-based invalidation
+   - Prevents repeated validation of unchanged files
+   - Thread-safe cache operations with RLock
+
+3. **Thread-Safe Operation**
+   - Supports concurrent validation requests
+   - Singleton pattern with double-checked locking
+   - Safe for multi-threaded applications
+
+4. **Detailed Error Reporting**
+   - Returns `ValidationResult` objects with errors and warnings
+   - Clear error messages with suggestions
+   - Path-based error reporting for precise debugging
+
+**Flow Position:**
+```
+load_standard() → StandardsParser.parse()
+                        ↓
+                 StandardValidator.validate_standard()
+                        ↓
+                 StandardSchema.validate_*()
+                        ↓
+                 ValidationResult (cached)
+                        ↓
+                 StandardsCache → ValidationRules
+```
+
+**Usage Example:**
+```python
+from adri.standards.validator import get_validator
+
+# Get singleton instance
+validator = get_validator()
+
+# Validate a standard file
+result = validator.validate_standard_file("path/to/standard.yaml")
+
+if result.is_valid:
+    print("✅ Standard is valid")
+else:
+    print("❌ Validation errors:")
+    for error in result.errors:
+        print(f"  - {error.path}: {error.message}")
+```
+
+**Why This Component Was Missing:**
+The `StandardValidator` existed in the codebase since its creation but was not documented in the architecture. This created a gap in understanding the complete standard validation flow. This component is critical because:
+- It prevents runtime errors from malformed standards
+- It provides early feedback to standard authors
+- It ensures quality gates are properly configured
+- It optimizes performance through smart caching
+
+**Integration Points:**
+- **CLI**: `adri validate-standard` command uses StandardValidator directly
+- **Parser**: StandardsParser delegates validation to StandardValidator
+- **Cache**: Valid standards are cached to avoid repeated validation
+- **Schema**: StandardValidator enforces StandardSchema rules
 
 ---
 
