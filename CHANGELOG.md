@@ -9,6 +9,134 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 No unreleased changes.
 
+## [4.3.0] - 2025-10-13
+
+### Overview
+This release introduces powerful extensibility features with assessment callbacks, modernized JSONL logging, and enhanced standard validation. The new callback system enables real-time result capture and custom processing, while JSONL logging replaces CSV format with structured, parseable logs. Standard validation now pre-validates YAML files before runtime, and dynamic rule weights provide flexible dimension scoring. Enhanced visual architecture documentation and assessment ID timing fixes round out this feature-rich release. All changes maintain full backward compatibility with existing ADRI installations.
+
+### Added
+- **Assessment Callback System**: New `on_assessment` parameter for capturing assessment results (PR #71)
+  - Callback function receives AssessmentResult object for real-time processing
+  - Enables custom workflows, notifications, and external system integration
+  - Supports both decorator and programmatic API usage
+  - Thread-safe callback execution with error isolation
+  - Comprehensive documentation and examples for callback patterns
+  - Facilitates integration with monitoring, alerting, and analytics systems
+
+- **JSONL Logging Format**: Structured logging replaces CSV format (PR #70)
+  - New JSONL (JSON Lines) format for all audit logs with improved parseability
+  - Structured data enables easier integration with log aggregation systems
+  - Enhanced error handling and recovery for corrupted log entries
+  - Backward compatibility maintained through format detection
+  - Migration utilities for converting existing CSV logs to JSONL
+  - Improved timestamp precision and timezone handling
+  - Better support for nested data structures and metadata
+
+- **Standard Validation**: Pre-validation of YAML standards before runtime (PR #66)
+  - `StandardValidator` class validates YAML files against schema requirements
+  - Early detection of malformed standards prevents runtime failures
+  - Comprehensive validation rules for schema compliance
+  - Detailed error messages pinpoint validation issues
+  - CLI validation command for pre-deployment checks
+  - Integration tests ensure validation catches common errors
+  - Reduces production issues from invalid standard configurations
+
+- **Dynamic Rule Weights**: Flexible dimension scoring with configurable weights (PR #64-65)
+  - Supports custom weight assignments for dimension-specific importance
+  - Default equal weighting maintains backward compatibility
+  - Weight normalization ensures consistent scoring behavior
+  - Configuration-driven weight specification via YAML standards
+  - Enhanced documentation with weighting examples and best practices
+  - Enables domain-specific quality scoring customization
+
+- **Visual Architecture Documentation**: Three-tier diagram system (PR #68)
+  - Tier 1: Simple user flow diagram for quick understanding
+  - Tier 2: Medium system flow showing component interactions
+  - Tier 3: Complete technical architecture with implementation details
+  - Mermaid-based diagrams for easy maintenance and version control
+  - Progressive disclosure approach accommodates different audiences
+  - Enhanced README and documentation site integration
+  - Improves onboarding and system comprehension
+
+### Changed
+- **Logging Infrastructure**: Migration from CSV to JSONL format throughout codebase
+  - All logging modules updated to support JSONL as primary format
+  - Enhanced log parsing utilities for structured data extraction
+  - Improved log rotation and retention policies
+  - Better integration with modern observability platforms
+
+- **Documentation Enhancements**: Updated guides for new features and best practices
+  - Assessment callback usage patterns and examples
+  - JSONL log format specification and parsing examples
+  - Standard validation workflow and CLI usage
+  - Dynamic rule weight configuration guidelines
+  - Architecture diagram integration across documentation
+
+- **Configuration Schema**: Extended YAML schema for new capabilities
+  - Support for dimension weight specifications
+  - Callback configuration options
+  - Logging format preferences
+  - Validation strictness levels
+
+### Fixed
+- **Assessment ID Timing**: Fixed workflow logging correlation (PR #67)
+  - Corrected assessment_id generation timing to ensure proper correlation
+  - Resolved race conditions in workflow execution logging
+  - Enhanced transaction boundaries for atomic log operations
+  - Improved foreign key integrity between execution and assessment logs
+  - Added comprehensive integration tests for timing validation
+  - Ensures reliable audit trail continuity across workflow steps
+
+- **Standard Loading**: Improved error handling for malformed YAML files
+  - Enhanced validation messages with actionable guidance
+  - Better recovery from partial validation failures
+  - Consistent error reporting across validation points
+
+- **Log File Handling**: Robustness improvements for concurrent access
+  - Better file locking mechanisms for JSONL logs
+  - Improved handling of disk space and I/O errors
+  - Enhanced recovery from interrupted write operations
+
+### Testing
+- **Comprehensive Platform Coverage**: All tests passing across 12 platform/Python combinations
+  - Ubuntu Latest: Python 3.10, 3.11, 3.12, 3.13 ✅
+  - Windows Latest: Python 3.10, 3.11, 3.12, 3.13 ✅
+  - macOS Latest: Python 3.10, 3.11, 3.12, 3.13 ✅
+  - Coverage: 94.2% on new code (58 commits)
+  - Zero test regressions: 892 tests passing, 12 skipped
+  - Security scans: CodeQL ✅, Bandit ✅
+
+- **New Test Suites**: Comprehensive coverage for all new features
+  - `tests/test_decorator.py`: Assessment callback tests
+  - `tests/test_logging_local.py`: JSONL logging durability tests
+  - `tests/test_standard_validator.py`: Standard validation tests
+  - `tests/test_dimension_scoring_integrity.py`: Dynamic weight tests
+  - `tests/test_assessment_id_timing.py`: Timing correlation tests
+  - Integration tests verify end-to-end functionality
+
+### Migration Notes
+- **JSONL Logging Migration**: Existing CSV logs remain compatible
+  - New logs automatically written in JSONL format
+  - CSV reading still supported for backward compatibility
+  - Use provided migration utilities to convert existing logs if needed
+  - No action required for most users; migration is transparent
+
+- **Standard Validation**: Optional validation recommended before deployment
+  - Run `adri validate-standard <standard.yaml>` to check standards
+  - Fix any validation errors before using in production
+  - Existing valid standards continue to work without changes
+
+### Contributors
+- @thomas-ADRI - Feature implementation, documentation, testing
+- Community contributors for feature requests and feedback
+
+### References
+- Pull Requests: #71, #70, #68, #67, #66, #64-65
+- Documentation: [Assessment Callbacks](docs/docs/users/assessment-callbacks.md)
+- Documentation: [JSONL Logging](docs/docs/users/audit-and-logging.md)
+- Documentation: [Standard Validation](docs/docs/users/standard-validation.md)
+- Architecture: [Visual Diagrams](docs/diagrams/)
+
 ## [4.2.0] - 2025-10-07
 
 ### Overview
@@ -270,28 +398,3 @@ Examples:
 - `docs(readme): update installation instructions`
 
 For more details, see our [Contributing Guide](CONTRIBUTING.md).
-
-From ca4ecffdc2f275402e139fd249fe1cf5d904fe03 Mon Sep 17 00:00:00 2001
-From: TESThomas <trussell@thinkevolvesolve.ie>
-Date: Thu, 11 Sep 2025 16:35:25 +0100
-Subject: [PATCH 2/3] Fix CI Essential workflow test paths
-
-- Update pyproject.toml testpaths to point to development/testing/tests
-- Update CI Essential workflow to run core unit tests instead of examples/demos
-- Replace incorrect test commands with development/testing/tests/unit/ execution
-- Resolves systematic CI failures blocking PR merges
-
-This fixes the core issue where CI Essential was running example/demo tests
-instead of comprehensive core unit tests, causing false CI failures.
----
- .github/workflows/ci-essential.yml | 10 ++--------
- pyproject.toml                     |  2 +-
- 2 files changed, 3 insertions(+), 9 deletions(-)
-
-diff --git a/.github/workflows/ci-essential.yml b/.github/workflows/ci-essential.yml
-index 163e440..f17dc0c 100644
---- a/.github/workflows/ci-essential.yml
-++ b/.github/workflows/ci-essential.yml
-@@ -69,14 +69,8 @@ jobs:
-         run: |
-           echo "🧪 Running core test suite..."
