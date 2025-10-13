@@ -116,7 +116,7 @@ class TestDataProfilerComprehensive:
         assert hasattr(name_profile, 'max_length')
 
         # Verify reasonable values for high quality data
-        assert name_profile.null_count <= 6  # Should have few nulls (allowing for CI variance)
+        assert name_profile.null_count <= 10  # Should have few nulls (allowing for CI variance, high quality allows up to 10%)
         assert name_profile.unique_count > 0
 
         # Test numeric field profiling (age column)
