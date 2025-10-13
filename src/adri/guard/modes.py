@@ -276,6 +276,7 @@ class DataProtectionEngine:
         min_score: Optional[float] = None,
         dimensions: Optional[Dict[str, float]] = None,
         on_failure: Optional[str] = None,
+        on_assessment: Optional[Callable[[Any], None]] = None,
         auto_generate: Optional[bool] = None,
         cache_assessments: Optional[bool] = None,
         verbose: Optional[bool] = None,
@@ -400,6 +401,9 @@ class DataProtectionEngine:
                 self.logger.info(
                     f"Assessment completed in {assessment_duration:.2f}s, score: {assessment_result.overall_score:.1f}"
                 )
+
+            # Invoke assessment callback if provided (before pass/fail checking)
+            self._invoke_assessment_callback(on_assessment, assessment_result, verbose)
 
             # Log workflow execution and provenance if workflow_context provided
             execution_id = ""
@@ -870,6 +874,48 @@ class DataProtectionEngine:
             }
 
         return result
+
+    def _invoke_assessment_callback(
+        self,
+        callback: Optional[Callable[[Any], None]],
+        assessment_result: Any,
+        verbose: bool = False,
+    ) -> None:
+        """
+        Safely invoke the assessment callback if provided.
+
+        Callback exceptions are caught and logged as warnings to ensure
+        they don't disrupt the data protection flow. The callback is an
+        optional feature for capturing assessment metadata, not core protection.
+
+        Args:
+            callback: Optional callback function to invoke with assessment result
+            assessment_result: Assessment result to pass to callback
+            verbose: Whether to log callback invocation details
+        """
+        if callback is None:
+            return
+
+        try:
+            if verbose:
+                self.logger.debug(
+                    f"Invoking assessment callback with result (score: {assessment_result.overall_score:.1f})"
+                )
+
+            # Invoke the callback with the assessment result
+            callback(assessment_result)
+
+            if verbose:
+                self.logger.debug("Assessment callback completed successfully")
+
+        except Exception as e:
+            # Log callback errors as warnings but don't fail protection
+            self.logger.warning(
+                f"Assessment callback failed: {e}. "
+                "Continuing with data protection flow. "
+                "Check your callback implementation for errors.",
+                exc_info=True,
+            )
 
     def _extract_response_text(self, result: Any) -> str:
         """
