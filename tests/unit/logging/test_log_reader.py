@@ -213,8 +213,8 @@ class TestADRILogReader:
         """Test that default config path is used when not specified."""
         reader = ADRILogReader({})
 
-        # Should use default path
-        assert str(reader.log_dir) == "ADRI/dev/audit-logs"
+        # Should use default path (use as_posix() for cross-platform compatibility)
+        assert reader.log_dir.as_posix() == "ADRI/dev/audit-logs"
 
     def test_custom_config_path(self, temp_log_dir):
         """Test that custom config path is respected."""
