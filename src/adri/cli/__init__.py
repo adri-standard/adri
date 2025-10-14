@@ -842,46 +842,57 @@ def _parse_assessment_files(assessment_files: List[Path]) -> List[Dict[str, Any]
 
 
 def _load_audit_entries() -> List[Dict[str, Any]]:
+    """Load audit entries from JSONL files using ADRILogReader."""
+    from datetime import datetime
+
+    from .logging import ADRILogReader
+
     audit_entries: List[Dict[str, Any]] = []
-    audit_logs_dir = Path("ADRI/dev/audit-logs")
-    if ConfigurationLoader:
-        config_loader = ConfigurationLoader()
-        config = config_loader.get_active_config()
-        if config:
-            try:
+
+    try:
+        if ConfigurationLoader:
+            config_loader = ConfigurationLoader()
+            config = config_loader.get_active_config()
+            if config:
                 env_config = config_loader.get_environment_config(config)
-                audit_logs_dir = Path(env_config["paths"]["audit_logs"])
-            except (KeyError, AttributeError):
-                pass
+                # Create log reader with config
+                log_reader = ADRILogReader({"paths": env_config.get("paths", {})})
+            else:
+                # Fallback to default config
+                log_reader = ADRILogReader(
+                    {"paths": {"audit_logs": "ADRI/dev/audit-logs"}}
+                )
+        else:
+            # No config loader, use default
+            log_reader = ADRILogReader({"paths": {"audit_logs": "ADRI/dev/audit-logs"}})
 
-    main_log_file = audit_logs_dir / "adri_assessment_logs.csv"
-    if main_log_file.exists():
-        import csv
-        from datetime import datetime
+        # Read assessment logs
+        assessment_logs = log_reader.read_assessment_logs()
 
-        with open(main_log_file, "r", encoding="utf-8") as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                try:
-                    timestamp_str = row.get("timestamp", "")
-                    if "T" in timestamp_str:
-                        timestamp = datetime.fromisoformat(
-                            timestamp_str.replace("Z", "")
-                        )
-                    else:
-                        timestamp = datetime.strptime(
-                            timestamp_str, "%Y-%m-%d %H:%M:%S"
-                        )
-                    audit_entries.append(
-                        {
-                            "timestamp": timestamp,
-                            "data_row_count": int(row.get("data_row_count", 0)),
-                            "overall_score": float(row.get("overall_score", 0)),
-                        }
-                    )
-                except Exception as e:
-                    if _debug_io_enabled():
-                        click.echo(f"⚠️ Skipping unreadable audit log row: {e}")
+        # Convert to audit entries format
+        for log_record in assessment_logs:
+            try:
+                timestamp_str = log_record.get("timestamp", "")
+                if "T" in timestamp_str:
+                    timestamp = datetime.fromisoformat(timestamp_str.replace("Z", ""))
+                else:
+                    timestamp = datetime.strptime(timestamp_str, "%Y-%m-%d %H:%M:%S")
+
+                audit_entries.append(
+                    {
+                        "timestamp": timestamp,
+                        "data_row_count": int(log_record.get("data_row_count", 0)),
+                        "overall_score": float(log_record.get("overall_score", 0)),
+                    }
+                )
+            except Exception as e:
+                if _debug_io_enabled():
+                    click.echo(f"⚠️ Skipping unreadable audit log row: {e}")
+
+    except Exception as e:
+        if _debug_io_enabled():
+            click.echo(f"⚠️ Could not load audit logs: {e}")
+
     return audit_entries
 
 
