@@ -211,7 +211,19 @@ class AuditRecord:
 
 
 class LocalLogger:
-    """Local JSONL-based audit logger for ADRI assessments. Renamed from CSVAuditLogger."""
+    """Local JSONL-based audit logger for ADRI assessments.
+
+    This logger writes audit logs exclusively in JSONL format (JSON Lines) to three
+    separate files in the configured audit log directory:
+    - adri_assessment_logs.jsonl - Main assessment records
+    - adri_dimension_scores.jsonl - Dimension scores per assessment
+    - adri_failed_validations.jsonl - Failed validation details
+
+    All records use native JSON types (booleans are true/false, not strings) and
+    include a write_seq field for stable ordering. CSV format is no longer supported.
+
+    Formerly known as CSVAuditLogger - now writes JSONL format only.
+    """
 
     # Define field names for each dataset
     ASSESSMENT_LOG_HEADERS = [
@@ -798,10 +810,12 @@ def log_to_jsonl(
     )
 
 
-# Backward compatibility aliases
-CSVAuditLogger = LocalLogger  # Historical name - now uses JSONL format
-AuditLoggerCSV = LocalLogger  # Historical name - now uses JSONL format
-log_to_csv = log_to_jsonl  # Historical function name - now writes JSONL
+# Backward compatibility aliases - all now write JSONL format
+# These aliases are provided for backward compatibility but should be considered deprecated.
+# All logging is now JSONL-only. CSV format is no longer supported.
+CSVAuditLogger = LocalLogger  # DEPRECATED: Historical name - now uses JSONL format
+AuditLoggerCSV = LocalLogger  # DEPRECATED: Historical name - now uses JSONL format
+log_to_csv = log_to_jsonl  # DEPRECATED: Historical function name - now writes JSONL
 
 
 class LogRotator:
