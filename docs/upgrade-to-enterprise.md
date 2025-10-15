@@ -15,7 +15,7 @@ Both packages share the same version number (5.0.0) for clear upgrade paths.
 Upgrade to `adri-enterprise` if you need:
 
 - ✅ **ReasoningLogger** - Track AI prompts and responses for debugging
-- ✅ **WorkflowLogger** - Capture workflow execution and data provenance  
+- ✅ **WorkflowLogger** - Capture workflow execution and data provenance
 - ✅ **Analytics Dashboards** - Visualize quality metrics over time
 - ✅ **Workflow Automation** - Approval workflows and orchestration
 - ✅ **Advanced Verodat Integration** - Batch processing, retry logic, authentication
@@ -117,7 +117,7 @@ To use enterprise features, update your imports:
 # Open-Source (v5.0.0)
 from adri.logging import LocalLogger, send_to_verodat
 
-# Enterprise (v5.0.0)  
+# Enterprise (v5.0.0)
 from adri_enterprise.logging import (
     LocalLogger,           # Same as open-source
     ReasoningLogger,       # Enterprise-only
@@ -268,7 +268,7 @@ from adri_enterprise.logging import ReasoningLogger, WorkflowLogger, EnterpriseL
 reasoning_logger = ReasoningLogger({"enabled": True, "log_dir": "./logs"})
 print("✅ ReasoningLogger available")
 
-# Test workflow logger  
+# Test workflow logger
 workflow_logger = WorkflowLogger({"enabled": True, "log_dir": "./logs"})
 print("✅ WorkflowLogger available")
 
@@ -395,6 +395,6 @@ See [ADRI Enterprise Documentation](https://github.com/Verodat/adri-enterprise/b
 
 ---
 
-**Last Updated:** October 15, 2025  
-**Version:** 5.0.0  
+**Last Updated:** October 15, 2025
+**Version:** 5.0.0
 **Maintained By:** Verodat

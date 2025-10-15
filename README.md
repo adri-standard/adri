@@ -89,7 +89,7 @@ flowchart LR
 ### Enterprise Features
 For advanced capabilities, see [ADRI Enterprise](#upgrade-to-enterprise):
 - 🧠 **ReasoningLogger** - AI prompt/response tracking
-- 🔄 **WorkflowLogger** - Execution and provenance logging  
+- 🔄 **WorkflowLogger** - Execution and provenance logging
 - 📊 **Analytics Dashboards** - Quality metrics visualization
 - 🤖 **Workflow Automation** - Approval workflows and orchestration
 - 🔐 **Advanced Verodat Integration** - Batch processing, retry logic, auth
