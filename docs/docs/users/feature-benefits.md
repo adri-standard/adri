@@ -17,7 +17,7 @@ See also:
 - Onboarding: [Onboarding Guide](onboarding-guide.md)
 - Concepts: [Core Concepts](core-concepts.md)
 - Journey: [Adoption Journey](adoption-journey.md)
-- Enterprise: [Flip to Enterprise](flip-to-enterprise.md)
+- Enterprise: [ADRI Enterprise](enterprise.md)
 
 ---
 
@@ -30,9 +30,10 @@ See also:
 | Single decorator (`@adri_protected`) | Protects any Python function with one decorator; validates at call boundary. | Minimal code change; drop‑in. | Framework‑agnostic (LangChain, CrewAI, LlamaIndex, etc.); standardized guardrail point. |
 | Protection modes | `raise` (fail‑fast), `warn` (log only), `continue` (mark run). | Safe ramp: start in `warn`, switch to `raise` once tuned. | Gradual hardening in prod without branching agent code. |
 | Multi‑format loaders | CSV/JSON/Parquet and common tabular shapes. | Use existing datasets immediately. | Integrates with heterogeneous data sources over time. |
-| Local audit & reports | JSON reports and optional CSV audit trail stored under `ADRI/**`. | Clear local evidence for debugging. | Evidence trails for compliance; easy export to downstream systems. |
-| Reasoning mode (optional) | Captures prompt/response artifacts and links to assessments. | Rapid diagnosis of logic failures vs. data failures. | Longitudinal analysis of agent behavior alongside data quality. |
-| Enterprise (Verodat MCP) | Streams logs to governed workspace; publishes standards as datasets for shared analytics and marketplace. | Optional on day‑0. | Organization‑wide visibility, RBAC, retention, dashboards, distribution. |
+| Local audit & reports | JSON reports and JSONL audit logs stored under `ADRI/**`. | Clear local evidence for debugging. | Evidence trails for compliance; easy export to downstream systems. |
+| Reasoning mode **(Enterprise)** | Captures AI prompt/response artifacts and links to assessments with cryptographic verification. | Rapid diagnosis of AI logic failures vs. data failures. | Longitudinal analysis of AI agent behavior alongside data quality; full audit trail for AI decisions. |
+| Workflow orchestration **(Enterprise)** | Track multi-step workflows and data provenance across agent pipelines. | Not applicable - advanced feature. | Multi-agent coordination debugging; workflow approval and governance. |
+| Advanced Verodat Integration **(Enterprise)** | Batch processing, retry logic, enterprise auth for streaming logs to governed workspace. | Optional on day‑0. | Organization‑wide visibility, RBAC, retention, dashboards, analytics, SLA support. |
 
 5‑dimension scoring used across CLI and decorator:
 - Validity, Completeness, Consistency, Plausibility, Freshness
@@ -49,10 +50,10 @@ See also:
 - Week‑1
   - Tune thresholds (`min_score`) and field‑level expectations in YAML
   - Switch critical paths to `on_failure="raise"` once stable
-  - Add reasoning capture where helpful to separate data vs. logic failures
+  - **(Enterprise)** Add AI reasoning capture where helpful to separate data vs. logic failures
 - Team scale
   - Share standards via git; re‑use validator configs across services
-  - When repeated triage or compliance needs emerge, [flip to enterprise](flip-to-enterprise.md)
+  - When you need AI transparency or workflow orchestration, [explore enterprise](enterprise.md)
 
 ---
 
@@ -63,7 +64,7 @@ See also:
 - Deterministic gating: objective pass/fail + quality score before agent execution
 - Progressive hardening: `warn → raise` without code forks
 - Portable: yaml standards live in your repo; easy review and versioning
-- Transparent: local JSON/CSV reports and optional reasoning mode for rapid diagnosis
+- Transparent: local JSONL audit logs; enterprise adds AI reasoning mode for debugging
 
 ---
 
@@ -80,4 +81,4 @@ See also:
 
 - Do it now: follow the [Onboarding Guide](onboarding-guide.md) to get a green assessment today
 - Understand guardrails: see [Core Concepts](core-concepts.md#protection-modes) for protection modes
-- Plan for scale: read [Flip to Enterprise](flip-to-enterprise.md) to know when and how to enable Verodat MCP
+- Plan for scale: read [ADRI Enterprise](enterprise.md) to understand advanced capabilities

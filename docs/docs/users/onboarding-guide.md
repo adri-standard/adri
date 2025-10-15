@@ -13,7 +13,7 @@ See also:
 - What each feature buys you: [Feature ➝ Benefit](feature-benefits.md)
 - Concepts and protection modes: [Core Concepts](core-concepts.md)
 - Longer journey with teams: [Adoption Journey](adoption-journey.md)
-- When to enable enterprise: [Flip to Enterprise](flip-to-enterprise.md)
+- When to enable enterprise: [Flip to Enterprise](enterprise.md)
 
 ---
 
@@ -152,4 +152,4 @@ Then iterate:
 
 - Understand why this works and where each feature helps: [Feature ➝ Benefit](feature-benefits.md)
 - Explore framework examples (LangChain, CrewAI, LlamaIndex): [Framework Playbooks](frameworks.md)
-- Plan when to enable governed visibility and analytics: [Flip to Enterprise](flip-to-enterprise.md)
+- Plan when to enable governed visibility and analytics: [Flip to Enterprise](enterprise.md)

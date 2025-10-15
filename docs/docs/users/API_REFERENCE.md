@@ -69,9 +69,9 @@ adri_protected(
 | `auto_generate` | `bool` | `True` | Allow ADRI to create a standard automatically if the referenced file does not exist. |
 | `cache_assessments` | `bool` | config default | Toggle short-term caching of assessment results for identical inputs. |
 | `verbose` | `bool` | config default | Emit detailed protection logs for debugging. |
-| `reasoning_mode` | `bool` | `False` | Enable AI/LLM reasoning workflow with prompt and response logging. See [Reasoning Mode](#reasoning-mode) below. |
-| `store_prompt` | `bool` | `True` | When `reasoning_mode=True`, log AI prompts to JSONL audit logs. |
-| `store_response` | `bool` | `True` | When `reasoning_mode=True`, log AI responses to JSONL audit logs. |
+| `reasoning_mode` | `bool` | `False` | **(Enterprise Only)** Enable AI/LLM reasoning workflow with prompt and response logging. See [Reasoning Mode](#reasoning-mode) below. |
+| `store_prompt` | `bool` | `True` | **(Enterprise Only)** When `reasoning_mode=True`, log AI prompts to JSONL audit logs. |
+| `store_response` | `bool` | `True` | **(Enterprise Only)** When `reasoning_mode=True`, log AI responses to JSONL audit logs. |
 | `llm_config` | `dict` | `None` | LLM configuration dict with keys: `model` (required), `temperature` (required), `seed` (optional), `max_tokens` (optional, default: 4000). |
 
 Returns the wrapped function. Raises `ProtectionError` when `on_failure="raise"` and the data does not pass requirements.
@@ -123,25 +123,14 @@ def analyze_project_risks(projects):
 
 ### Reasoning Mode
 
-**Reasoning mode** extends ADRI's quality validation to AI/LLM workflows by capturing prompts and responses to JSONL audit logs. This feature is **decorator-only by design** — it wraps functions that execute AI calls, not CLI commands that validate existing data.
+> **🏢 Enterprise Only Feature**
+> Reasoning mode is available exclusively in `adri-enterprise`. [Learn more about ADRI Enterprise →](./enterprise)
 
-**Key Features:**
-- Automatic prompt and response logging to `adri_reasoning_prompts.jsonl` and `adri_reasoning_responses.jsonl`
-- SHA-256 hash verification for content integrity
-- Relational linking to quality assessments via `prompt_id` and `response_id`
-- Thread-safe CSV operations for production use
+**Reasoning mode** extends ADRI's quality validation to AI/LLM workflows by capturing prompts and responses to JSONL audit logs for complete AI transparency and debugging.
 
-**When to Use:**
-- Wrapping functions that make AI/LLM calls
-- Capturing AI reasoning steps for audit trails
-- Validating AI-generated outputs (confidence scores, risk levels, etc.)
-- Ensuring reproducibility with LLM configuration tracking
+**Perfect for:** Debugging AI decisions, compliance audit trails, workflow replay
 
-**Why Decorator-Only:**
-
-The CLI validates data that already exists. Reasoning mode requires capturing prompts **before** AI execution and responses **after** AI execution. This only makes sense when wrapping the function that performs the AI call, not when checking data quality post-facto.
-
-For complete details, examples, and best practices, see the [Reasoning Mode Guide](./reasoning-mode-guide.md).
+[View enterprise features →](./enterprise)
 
 ---
 
@@ -283,4 +272,4 @@ Always catch `ProtectionError` around guarded functions if your workflow needs c
 
 ---
 
-*API reference for ADRI v3.x. If the code changes, update this document alongside the implementation.*
+*API reference for ADRI open-source. Enterprise-only features are clearly marked. If the code changes, update this document alongside the implementation.*

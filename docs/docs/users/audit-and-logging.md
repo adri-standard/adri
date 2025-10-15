@@ -14,19 +14,31 @@ Every assessment creates a complete audit trail across 5 interconnected log file
 
 ---
 
-## The 5 Log Files
+## Logging Architecture
 
-ADRI generates five log files for each assessment, organized into two categories:
+ADRI provides a comprehensive logging system split between **open-source** and **enterprise** capabilities:
+
+### Open-Source Logging (3 Log Files)
+
+Core quality assessment logging available in the `adri` package:
 
 | File Name | Format | Purpose | Records Per Assessment |
 |-----------|--------|---------|----------------------|
 | `adri_assessment_logs.jsonl` | JSONL | Main audit trail | 1 |
 | `adri_dimension_scores.jsonl` | JSONL | Quality dimension breakdown | 5 (one per dimension) |
 | `adri_failed_validations.jsonl` | JSONL | Specific validation failures | N (variable) |
+
+### Enterprise Logging (2 Additional Log Files)
+
+> **🏢 Enterprise Only**
+> AI reasoning logs for workflow monitoring, replay, and debugging. [Learn more →](./enterprise)
+
+| File Name | Format | Purpose | Records Per Assessment |
+|-----------|--------|---------|----------------------|
 | `adri_reasoning_prompts.jsonl` | JSONL | AI prompts sent to LLM | M (variable) |
 | `adri_reasoning_responses.jsonl` | JSONL | AI responses from LLM | M (matches prompts) |
 
-All files are linked via `assessment_id`, creating a complete lineage from assessment to dimension scores to specific failures to AI reasoning.
+All files are linked via `assessment_id`, creating a complete lineage from assessment to dimension scores to specific failures (and AI reasoning in Enterprise).
 
 ---
 
@@ -60,7 +72,7 @@ All files are linked via `assessment_id`, creating a complete lineage from asses
 - `critical_failures` - Number of critical (blocking) failures
 - `validation_failure_rate` - Percentage of failures
 
-**AI Reasoning:**
+**AI Reasoning (Enterprise Only):**
 - `ai_reason` - AI-generated explanation of the assessment
 - `ai_recommendation` - AI-suggested actions
 - `ai_model_used` - LLM model identifier
@@ -207,101 +219,25 @@ Each assessment generates **exactly 5 records** (one per dimension):
 
 ---
 
-## 4. AI Reasoning Prompts (adri_reasoning_prompts.jsonl)
+## Enterprise Logging: AI Reasoning Transparency
 
-**Purpose:** Complete transparency into AI decision-making by logging every prompt sent to the LLM.
+> **🏢 ENTERPRISE ONLY**
+> AI reasoning logs for complete transparency into AI decision-making. [Learn more about enterprise features →](./enterprise)
 
-### Key Fields
+ADRI Enterprise adds 2 additional log files for AI transparency:
 
-**Identity:**
-- `prompt_id` - Unique identifier for this prompt
-- `assessment_id` - Links to parent assessment
-- `timestamp` - When prompt was sent
+| File | Purpose |
+|------|---------|
+| `adri_reasoning_prompts.jsonl` | Every prompt sent to AI models with cryptographic verification |
+| `adri_reasoning_responses.jsonl` | All AI responses with performance metrics and token costs |
 
-**Model Configuration:**
-- `model` - LLM model used (e.g., "gpt-4", "claude-3-opus")
-- `temperature` - Randomness setting (0.0 = deterministic, 1.0 = creative)
-- `seed` - Random seed for reproducibility
-- `max_tokens` - Maximum response length
+**Perfect for:**
+- Debugging AI hallucinations and errors
+- Compliance audit trails for AI decisions
+- Workflow replay and troubleshooting
+- Cost optimization and token tracking
 
-**Prompt Content:**
-- `system_prompt` - System-level instructions to the AI
-- `user_prompt` - Specific question or request
-- `prompt_hash` - SHA-256 hash for tamper detection
-
-**Context:**
-- `prompt_type` - Category (e.g., "assessment_reasoning", "remediation_suggestion")
-- `quality_dimension` - Which dimension this relates to (if applicable)
-
-### Example Record
-
-```csv
-prompt_id,assessment_id,timestamp,model,temperature,seed,max_tokens,system_prompt,user_prompt,prompt_hash,prompt_type,quality_dimension
-prompt_2025-01-15T10:30:45_001,2025-01-15T10:30:45_invoice_data,2025-01-15T10:30:45.345678Z,gpt-4,0.7,42,500,"You are a data quality expert analyzing invoice data.","Explain why this invoice dataset scored 87.5 overall with 3 validation failures. Dataset has 1000 rows, 12 columns.",a3f5d8b9c2e1f4a7d6c8b5e9f2a4d7c1b6e8f3a9d5c2e7f1b4a8d6c9e3f5a2,assessment_reasoning,overall
-```
-
-### Use Cases
-- **AI Transparency** - See exactly what ADRI asked the AI
-- **Reproducibility** - Recreate AI decisions using same prompts
-- **Audit Compliance** - Prove AI decisions are based on stated criteria
-- **Debugging** - Understand why AI made certain recommendations
-- **Prompt Engineering** - Refine prompts based on response quality
-
-### Cryptographic Verification
-
-The `prompt_hash` field contains a SHA-256 hash of the complete prompt (system + user). This enables:
-- Tamper detection: Verify prompts haven't been altered
-- Deduplication: Identify repeated prompts
-- Compliance: Prove exact prompts used in decisions
-
----
-
-## 5. AI Reasoning Responses (adri_reasoning_responses.jsonl)
-
-**Purpose:** Complete record of AI-generated responses with performance metrics and cryptographic verification.
-
-### Key Fields
-
-**Identity:**
-- `response_id` - Unique identifier for this response
-- `prompt_id` - Links to the prompt that generated this response
-- `assessment_id` - Links to parent assessment
-- `timestamp` - When response was received
-
-**Response Content:**
-- `response_text` - Complete AI-generated text
-- `response_hash` - SHA-256 hash for tamper detection
-- `response_status` - SUCCESS or ERROR
-
-**Performance Metrics:**
-- `processing_time_ms` - How long AI took to respond
-- `token_count` - Number of tokens in response
-- `cost_estimate_usd` - Estimated API cost (if available)
-
-**Model Information:**
-- `model_used` - Actual model that responded
-- `finish_reason` - Why AI stopped (e.g., "stop", "length", "error")
-
-### Example Record
-
-```csv
-response_id,prompt_id,assessment_id,timestamp,response_text,response_hash,response_status,processing_time_ms,token_count,cost_estimate_usd,model_used,finish_reason
-resp_2025-01-15T10:30:45_001,prompt_2025-01-15T10:30:45_001,2025-01-15T10:30:45_invoice_data,2025-01-15T10:30:45.789012Z,"The invoice dataset demonstrates strong overall quality (87.5/100) with minor issues. The 3 validation failures are non-critical, affecting only 0.4% of records. Primary concern is missing tax_id values for international transactions. Recommendation: Implement tax_id collection for cross-border invoices or clearly flag domestic-only transactions.",b7e9f3a1d5c8e2f6a9d4b7c1e8f5a3d9c6e2f7b4a1d8e5c9f3a6b2e7d4f1c8,SUCCESS,3421,147,0.0088,gpt-4,stop
-```
-
-### Use Cases
-- **AI Decision Review** - See exactly what AI recommended
-- **Performance Analysis** - Track AI response times and costs
-- **Quality Assurance** - Verify AI responses meet standards
-- **Cost Optimization** - Identify expensive operations
-- **Compliance** - Prove AI decisions with cryptographic verification
-
-### Cryptographic Verification
-
-The `response_hash` field enables:
-- **Tamper Detection** - Verify responses haven't been altered post-generation
-- **Audit Trail** - Prove exact AI output used in decisions
-- **Dispute Resolution** - Definitively show what AI actually said
+[View full enterprise capabilities →](./enterprise)
 
 ---
 
