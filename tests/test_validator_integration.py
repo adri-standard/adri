@@ -104,16 +104,13 @@ class TestAuditLoggingIntegration(unittest.TestCase):
         self.assertIn("performance_metrics", call_args[1])
 
     @patch('src.adri.validator.engine.CSVAuditLogger')
-    @patch('src.adri.validator.engine.send_to_verodat')
-    def test_verodat_enterprise_logging_integration(self, mock_verodat_class, mock_csv_logger_class):
-        """Test integration with enterprise Verodat logging."""
-        # Set up mock loggers
+    def test_verodat_enterprise_logging_integration(self, mock_csv_logger_class):
+        """Test integration with simplified Verodat configuration (open-source version)."""
+        # Set up mock logger
         mock_audit_logger = Mock()
-        mock_verodat_logger = Mock()
         mock_csv_logger_class.return_value = mock_audit_logger
-        mock_verodat_class.return_value = mock_verodat_logger
 
-        # Configuration with Verodat enabled
+        # Configuration with Verodat enabled (simplified in open-source)
         verodat_config = {
             "audit": {
                 "enabled": True,
@@ -121,17 +118,16 @@ class TestAuditLoggingIntegration(unittest.TestCase):
             },
             "verodat": {
                 "enabled": True,
-                "batch_size": 10,
-                "auto_flush": True
+                "api_url": "https://api.verodat.com/upload",
+                "api_key": "test_key"
             }
         }
 
         # Create assessor
         assessor = DataQualityAssessor(verodat_config)
 
-        # Verify Verodat logger was attached
-        mock_verodat_class.assert_called_once_with(verodat_config["verodat"])
-        self.assertEqual(assessor.audit_logger.verodat_logger, mock_verodat_logger)
+        # Verify Verodat config was stored (simplified in open-source)
+        self.assertEqual(assessor.audit_logger.verodat_config, verodat_config["verodat"])
 
         # Perform assessment
         result = assessor.assess(self.sample_data)
@@ -139,9 +135,8 @@ class TestAuditLoggingIntegration(unittest.TestCase):
         # Verify assessment succeeded
         self.assertIsInstance(result, AssessmentResult)
 
-        # Verify Verodat integration was called
+        # Verify audit logging was called
         mock_audit_logger.log_assessment.assert_called_once()
-        mock_verodat_logger.add_to_batch.assert_called_once()
 
     def test_audit_logging_execution_context_details(self):
         """Test detailed execution context logging."""
