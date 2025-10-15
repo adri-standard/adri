@@ -65,3 +65,4 @@ __description__ = (
 )
 __url__ = "https://github.com/adri-framework/adri"
 # Release v4.3.0
+# Trigger CI for v4.4.0 changelog
