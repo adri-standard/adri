@@ -1,0 +1,15 @@
+backup/pre-split/RESTORE_INSTRUCTIONS.md
+backup/pre-split/ARCHITECTURE.md
+backup/pre-split/rollback-metadata.json
+backup/pre-split/CHANGELOG.md
+backup/pre-split/pyproject.toml
+backup/pre-split/README.md
+backup/pre-split/file-list.txt
+backup/pre-split/src/adri/validator/engine.py
+backup/pre-split/src/adri/__init__.py
+backup/pre-split/src/adri/guard/reasoning_mode.py
+backup/pre-split/src/adri/logging/local.py
+backup/pre-split/src/adri/logging/__init__.py
+backup/pre-split/src/adri/logging/reasoning.py
+backup/pre-split/src/adri/logging/enterprise.py
+backup/pre-split/src/adri/logging/workflow.py

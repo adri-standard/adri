@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "adri"
 dynamic = ["version"]
-description = "Open-source AI data quality framework with standards-based validation and decorator protection"
+description = "AI Data Reliability Intelligence - Comprehensive data quality assessment and validation framework"
 readme = "README.md"
 license = {file = "LICENSE"}
 authors = [
@@ -338,4 +338,4 @@ ignore = [
 version_scheme = "post-release"
 local_scheme = "node-and-date"
 write_to = "src/adri/_version.py"
-fallback_version = "5.0.0"
+fallback_version = "4.0.0"
