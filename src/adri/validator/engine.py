@@ -13,7 +13,7 @@ from typing import Any, Dict, List, Optional
 
 import pandas as pd
 
-from ..logging.enterprise import VerodatLogger
+from ..logging.enterprise import send_to_verodat
 
 # Clean imports for new modular architecture
 from ..logging.local import CSVAuditLogger
@@ -624,9 +624,10 @@ class DataQualityAssessor:
 
             # Initialize Verodat logger if configured
             verodat_config = self.config.get("verodat", {})
-            if verodat_config.get("enabled", False) and VerodatLogger:
-                # Attach Verodat logger to audit logger
-                self.audit_logger.verodat_logger = VerodatLogger(verodat_config)
+            # Verodat integration simplified in open-source version
+            # For full enterprise Verodat integration, use adri-enterprise
+            if verodat_config.get("enabled", False):
+                self.audit_logger.verodat_config = verodat_config
 
         # Track if effective config has been logged
         self._effective_config_logged = False

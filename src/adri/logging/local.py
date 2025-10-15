@@ -17,9 +17,9 @@ from typing import Any, Dict, List, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
     try:
-        from ..logging.enterprise import VerodatLogger
+        from ..logging.enterprise import send_to_verodat
     except ImportError:
-        from adri.core.verodat_logger import VerodatLogger
+        send_to_verodat = None
 
 # Clean import for version info
 from ..version import __version__
@@ -335,7 +335,7 @@ class LocalLogger:
         self._lock = threading.Lock()
 
         # Optional Verodat logger for external integration
-        self.verodat_logger: Optional["VerodatLogger"] = None
+        self.verodat_config: Optional[Dict[str, Any]] = None
 
         # Initialize JSONL files and load write sequence if enabled
         if self.enabled:
