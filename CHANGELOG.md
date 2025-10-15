@@ -9,6 +9,108 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 No unreleased changes.
 
+## [4.4.0] - 2025-10-15
+
+### Overview
+This release introduces a powerful JSONL log reader with workflow orchestration support, enabling programmatic access to ADRI's audit logs for analysis, monitoring, and integration workflows. The new LogReader class provides filtering, parsing, and workflow correlation capabilities for both assessment and execution logs. Enhanced cross-platform testing documentation and test fixes improve reliability across all supported platforms. All changes maintain full backward compatibility with existing ADRI installations.
+
+### Added
+- **JSONL Log Reader**: New `LogReader` class for programmatic audit log access
+  - Parse and filter assessment logs from JSONL audit files
+  - Parse and filter workflow execution logs for orchestration tracking
+  - Support for date range filtering, assessment ID lookup, and workflow correlation
+  - Automatic handling of both JSONL and legacy CSV log formats
+  - Iterator-based API for memory-efficient processing of large log files
+  - Type-safe parsing with validation of log entry schemas
+  - Integration with workflow orchestration for execution tracking
+  - Comprehensive error handling for corrupted or incomplete log entries
+
+- **Workflow Log Integration**: Enhanced workflow execution log reading capabilities
+  - Parse `adri_workflow_executions.jsonl` with execution context
+  - Link workflow executions to assessment logs via execution_id
+  - Filter by workflow_id, run_id, step_id for targeted analysis
+  - Support for parent-child execution relationships
+  - Enable audit trail reconstruction across multi-step workflows
+
+- **CLI Enhancement**: Updated `list-assessments` command with log reader
+  - Improved performance using LogReader for large log files
+  - Consistent formatting and error handling
+  - Better support for filtered assessment retrieval
+  - Enhanced display of workflow context information
+
+### Fixed
+- **Cross-Platform Path Comparison**: Resolved test failures on Windows
+  - Updated path comparison logic to use platform-normalized paths
+  - Fixed path separator inconsistencies between Windows and Unix systems
+  - Enhanced test reliability across Ubuntu, Windows, and macOS
+  - Prevents false test failures due to path representation differences
+
+### Documentation
+- **Cross-Platform Path Testing Best Practices**: New comprehensive guide
+  - Document path handling patterns for cross-platform compatibility
+  - Guidelines for writing platform-agnostic path tests
+  - Common pitfalls and recommended solutions
+  - Testing strategies for Windows/Unix path differences
+  - Located at `docs/development/CROSS_PLATFORM_PATH_TESTING.md`
+
+- **Workflow Orchestration Integration Guide**: Enhanced workflow documentation
+  - Detailed guide for integrating LogReader with workflow systems
+  - Examples of log analysis and monitoring workflows
+  - Best practices for audit log processing
+  - Located at `docs/WORKFLOW_ORCHESTRATION_INTEGRATION.md`
+
+### Changed
+- **Logging Module Structure**: Enhanced with log reading capabilities
+  - New `log_reader.py` module in `src/adri/logging/`
+  - Updated `__init__.py` to export LogReader class
+  - Improved local logging with better JSONL format support
+  - Enhanced configuration for log directory management
+
+### Testing
+- **Comprehensive Platform Coverage**: All tests passing across 12 platform/Python combinations
+  - Ubuntu Latest: Python 3.10, 3.11, 3.12, 3.13 ✅
+  - Windows Latest: Python 3.10, 3.11, 3.12, 3.13 ✅
+  - macOS Latest: Python 3.10, 3.11, 3.12, 3.13 ✅
+  - Total: 1135 tests passing, 8 skipped
+  - Coverage: 59.97% overall coverage
+  - Security scans: CodeQL ✅, Bandit ✅
+
+- **New Test Suites**: Comprehensive coverage for log reader functionality
+  - `tests/unit/logging/test_log_reader.py`: 20+ LogReader core tests
+  - `tests/unit/logging/test_log_reader_workflow.py`: 25+ workflow integration tests
+  - Cross-platform path comparison tests updated
+  - Integration tests verify end-to-end log reading workflows
+  - Zero test regressions from previous release
+
+### Migration Notes
+- **LogReader Usage**: New programmatic API available for log analysis
+  - Existing CLI commands continue to work unchanged
+  - New Python API for custom log processing workflows
+  - No changes required to existing ADRI integrations
+  - Log files remain in JSONL format (introduced in v4.3.0)
+
+- **Cross-Platform Testing**: Enhanced test reliability
+  - Existing tests benefit from improved path handling
+  - No action required for end users
+  - Test suite now more reliable on Windows environments
+
+### Performance
+- **Log Reading Efficiency**: Optimized for large audit log files
+  - Iterator-based parsing reduces memory footprint
+  - Lazy loading of log entries improves startup time
+  - Efficient filtering reduces unnecessary parsing
+  - Suitable for processing multi-GB log files
+
+### Contributors
+- @thomas-ADRI - Feature implementation, documentation, testing
+- Community contributors for cross-platform testing feedback
+
+### References
+- Log Reader Implementation: `src/adri/logging/log_reader.py`
+- Documentation: [Workflow Orchestration Integration](docs/WORKFLOW_ORCHESTRATION_INTEGRATION.md)
+- Documentation: [Cross-Platform Path Testing](docs/development/CROSS_PLATFORM_PATH_TESTING.md)
+- Tests: `tests/unit/logging/test_log_reader*.py`
+
 ## [4.3.0] - 2025-10-13
 
 ### Overview
