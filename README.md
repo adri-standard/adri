@@ -1,6 +1,8 @@
 # ADRI - Stop AI Agents Breaking on Bad Data
 
-**Prevent AI agent failures with one decorator**
+**Open-Source Data Quality Framework for AI**
+
+> **v5.0.0** - Core features for data quality protection. For advanced logging, workflow automation, and analytics, see [ADRI Enterprise](#upgrade-to-enterprise).
 
 ## 5-Minute Quickstart
 
@@ -73,12 +75,24 @@ flowchart LR
 
 ## Key Features
 
+### Core Open-Source Features
 - **🛡️ One-Decorator Protection** - Add `@adri_protected` to any function
 - **🤖 Framework Agnostic** - Works with LangChain, CrewAI, AutoGen, LlamaIndex, etc.
 - **🚀 Smart Defaults** - Zero-config start with optional fine-grained control
 - **📊 5-Dimension Validation** - Completeness, validity, consistency, plausibility, freshness
-- **📋 Detailed Reporting** - JSON logs and actionable error messages
-- **⚡ Enterprise Ready** - Local-first with a path to managed Verodat supply
+- **📋 JSONL Logging** - 3-file audit trail (assessments, dimensions, failures)
+- **🎯 3 Protection Modes** - FailFast, Selective, WarnOnly
+- **⚙️ Complete CLI** - 8 commands for standards and assessments
+- **📖 Standard Generation** - Auto-generate from your data
+- **🔧 Simplified Verodat Bridge** - Basic API integration
+
+### Enterprise Features
+For advanced capabilities, see [ADRI Enterprise](#upgrade-to-enterprise):
+- 🧠 **ReasoningLogger** - AI prompt/response tracking
+- 🔄 **WorkflowLogger** - Execution and provenance logging  
+- 📊 **Analytics Dashboards** - Quality metrics visualization
+- 🤖 **Workflow Automation** - Approval workflows and orchestration
+- 🔐 **Advanced Verodat Integration** - Batch processing, retry logic, auth
 
 ## Quick Example
 
@@ -109,6 +123,33 @@ def process_customers(invoice_rows):
 🏗️ **[Architecture](ARCHITECTURE.md)** - How ADRI is built
 📋 **[Examples](examples/)** - Ready-to-run use cases and standards
 🤝 **[Contributing](CONTRIBUTING.md)** - Join the community
+
+## Upgrade to Enterprise
+
+ADRI Enterprise provides advanced features for production AI systems:
+
+| Feature | Open-Source | Enterprise |
+|---------|-------------|------------|
+| @adri_protected decorator | ✅ | ✅ |
+| 5-dimension validation | ✅ | ✅ |
+| CLI (8 commands) | ✅ | ✅ |
+| Standard generation | ✅ | ✅ |
+| Local JSONL logging | ✅ | ✅ |
+| Protection modes (3) | ✅ | ✅ |
+| ReasoningLogger (AI prompts) | ❌ | ✅ |
+| WorkflowLogger (provenance) | ❌ | ✅ |
+| Analytics dashboards | ❌ | ✅ |
+| Workflow automation | ❌ | ✅ |
+| Advanced Verodat integration | ❌ | ✅ |
+| Batch processing & retry | ❌ | ✅ |
+| Enterprise support | ❌ | ✅ |
+
+**Get Enterprise Access:**
+- Contact: adri@verodat.com
+- Private repository: https://github.com/Verodat/adri-enterprise
+- Installation: `pip install git+ssh://git@github.com/Verodat/adri-enterprise.git`
+
+**Migration Guide:** [docs/upgrade-to-enterprise.md](docs/upgrade-to-enterprise.md)
 
 ## Framework Support
 
