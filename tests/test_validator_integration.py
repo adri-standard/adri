@@ -1,7 +1,7 @@
 """Integration tests for ADRI Validator Engine.
 
 This module consolidates integration tests for the validator engine, focusing on:
-- Audit logging integration with CSVAuditLogger and VerodatLogger
+- Audit logging integration with CSVAuditLogger and Verodat
 - Real-world validation scenarios (financial, healthcare, e-commerce, IoT, social media)
 - Edge cases and error handling
 - Comprehensive method coverage
@@ -38,7 +38,7 @@ from src.adri.validator.engine import (
 class TestAuditLoggingIntegration(unittest.TestCase):
     """Integration tests for audit logging functionality.
 
-    Tests audit logging integration with CSVAuditLogger and VerodatLogger,
+    Tests audit logging integration with CSVAuditLogger and Verodat,
     including execution context tracking, performance metrics, and failed checks.
     """
 
@@ -104,7 +104,7 @@ class TestAuditLoggingIntegration(unittest.TestCase):
         self.assertIn("performance_metrics", call_args[1])
 
     @patch('src.adri.validator.engine.CSVAuditLogger')
-    @patch('src.adri.validator.engine.VerodatLogger')
+    @patch('src.adri.validator.engine.send_to_verodat')
     def test_verodat_enterprise_logging_integration(self, mock_verodat_class, mock_csv_logger_class):
         """Test integration with enterprise Verodat logging."""
         # Set up mock loggers
