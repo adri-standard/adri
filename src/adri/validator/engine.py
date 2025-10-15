@@ -13,8 +13,6 @@ from typing import Any, Dict, List, Optional
 
 import pandas as pd
 
-from ..logging.enterprise import send_to_verodat
-
 # Clean imports for new modular architecture
 from ..logging.local import CSVAuditLogger
 
