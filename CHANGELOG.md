@@ -5,9 +5,136 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [5.0.0] - 2025-10-15
 
-No unreleased changes.
+### Overview
+ADRI v5.0.0 is an open-source data quality framework designed for AI Engineers building agentic workflows. This release provides core data quality protection capabilities through a simple decorator pattern, eliminating the complexity of data validation for AI applications.
+
+**Target Audience:** AI Engineers who need to protect their AI Agent workflows from bad data
+
+**Key Value:** Stop your AI agents breaking on bad data - add one decorator to any Python function
+
+### Core Features
+
+#### Protection & Validation
+- **@adri_protected Decorator** - One-line protection for any Python function
+- **3 Protection Modes** - FailFast (raise on failure), Selective (filter bad rows), WarnOnly (log warnings)
+- **5-Dimension Quality Assessment** - Completeness, Accuracy, Consistency, Plausibility, Schema Validity
+- **Standards-Based Validation** - YAML-based data quality rules and thresholds
+- **Smart Defaults** - Zero-config start with 75% minimum quality threshold
+
+#### CLI Tools
+- **8 Commands** - Complete CLI for assessment, standards, and configuration
+  - `adri setup` - Initialize project structure with guided setup
+  - `adri generate-standard` - Create standards from clean datasets
+  - `adri assess` - Validate data against standards
+  - `adri list-standards` - View available standards
+  - `adri list-assessments` - Review assessment history
+  - `adri validate-standard` - Pre-validate YAML standards
+  - `adri what-if` - Simulate quality score changes
+  - `adri config` - Manage configuration
+
+#### Logging & Audit
+- **LocalLogger** - 3-file JSONL audit trail
+  - `adri_assessments.jsonl` - Assessment results and scores
+  - `adri_dimension_scores.jsonl` - Detailed dimension breakdowns
+  - `adri_failed_validations.jsonl` - Validation failure details
+- **ADRILogReader** - Programmatic log access with filtering and parsing
+- **Basic Verodat Bridge** - Optional API integration with `send_to_verodat()`
+
+#### Standards Management
+- **Auto-Generation** - Create standards from your "good" data patterns
+- **YAML-Based** - Human-readable, version-controllable standards
+- **Validation Rules** - Pre-validate standards before deployment
+- **Threshold Configuration** - Flexible scoring thresholds per dimension
+
+### Framework Support
+
+Works seamlessly with all major AI frameworks:
+- **LangChain** - Protect chains and agents
+- **CrewAI** - Validate crew inputs
+- **AutoGen** - Secure multi-agent conversations
+- **LlamaIndex** - Guard query engines
+- **Any Python Function** - Universal protection with simple decorator
+
+### Platform Support
+
+Comprehensive cross-platform compatibility:
+- **Operating Systems:** Ubuntu, Windows, macOS
+- **Python Versions:** 3.10, 3.11, 3.12, 3.13
+- **Test Coverage:** 986 passing tests, 56.78% coverage
+- **Security:** CodeQL and Bandit scans passing
+
+### Getting Started
+
+```bash
+# Install
+pip install adri
+
+# Initialize project
+adri setup --guide
+
+# Generate standard from clean data
+adri generate-standard data/invoices_clean.csv \
+  --output ADRI/dev/standards/invoice_standard.yaml
+
+# Protect your function
+from adri import adri_protected
+
+@adri_protected(standard="invoice_standard", data_param="invoices")
+def process_invoices(invoices):
+    return ai_analysis(invoices)  # Only runs on quality data
+```
+
+### What's Not Included (Enterprise Features)
+
+The open-source version focuses on core data quality protection. For advanced features, see ADRI Enterprise:
+- ❌ **ReasoningLogger** - AI prompt/response tracking (Enterprise)
+- ❌ **WorkflowLogger** - Execution and provenance logging (Enterprise)
+- ❌ **Analytics Dashboards** - Quality metrics visualization (Enterprise)
+- ❌ **Workflow Automation** - Approval workflows and orchestration (Enterprise)
+- ❌ **Advanced Verodat Integration** - Batch processing, retry logic, auth (Enterprise)
+
+See [docs/upgrade-to-enterprise.md](docs/upgrade-to-enterprise.md) for Enterprise features.
+
+### Architecture
+
+- **Core Engine** - Data quality validation with 5-dimension scoring
+- **Guard System** - Protection modes and decorator implementation
+- **Logging** - Local JSONL logging with optional Verodat integration
+- **CLI** - Command-line interface for all operations
+- **Standards** - YAML-based quality rules and validation
+
+### Documentation
+
+- **[README.md](README.md)** - Quick start and overview
+- **[ARCHITECTURE.md](ARCHITECTURE.md)** - Technical architecture
+- **[docs/docs/users/](docs/docs/users/)** - Complete user guides
+- **[examples/](examples/)** - Ready-to-run examples
+- **[CONTRIBUTING.md](CONTRIBUTING.md)** - Contribution guidelines
+
+### Testing
+
+- **986 Tests Passing** - Comprehensive test coverage across platforms
+- **Cross-Platform** - Validated on Ubuntu, Windows, macOS
+- **Python 3.10-3.13** - Full compatibility with modern Python
+- **Security Scans** - CodeQL and Bandit passing
+- **Performance** - Optimized for production workloads
+
+### Contributors
+
+- @thomas-ADRI - Core implementation and documentation
+- Verodat Team - Architecture and design
+- Community contributors - Testing and feedback
+
+### References
+
+- Repository: https://github.com/adri-standard/adri
+- Documentation: https://docs.adri-standard.org
+- Enterprise: https://github.com/Verodat/adri-enterprise
+- Support: adri@verodat.com
+
+---
 
 ## [4.4.0] - 2025-10-15
 
