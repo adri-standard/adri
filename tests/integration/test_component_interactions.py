@@ -81,7 +81,7 @@ from src.adri.analysis.data_profiler import DataProfiler
 from src.adri.analysis.standard_generator import StandardGenerator
 from src.adri.analysis.type_inference import TypeInference
 from src.adri.logging.local import LocalLogger
-from src.adri.logging.enterprise import EnterpriseLogger
+from src.adri.logging.enterprise import send_to_verodat
 from tests.quality_framework import TestCategory, ComponentTester, performance_monitor
 from tests.fixtures.modern_fixtures import ModernFixtures, ErrorSimulator
 from tests.performance_thresholds import get_performance_threshold
