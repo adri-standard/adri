@@ -34,13 +34,27 @@ ADRI was founded by Verodat, under Thomas Russell's leadership, as part of a bro
 
 ## What logging does ADRI provide?
 
-ADRI generates multiple log types depending on how far you are in the adoption journey:
+### Open-Source Logging
+
+The `adri` package provides comprehensive local logging:
 
 - **Console Output** → Immediate pass/fail feedback for developers
 - **Assessment Reports** (`ADRI/**/assessments`) → JSON summaries you can diff or feed into dashboards
-- **Optional CSV Audit Logs** (`ADRI/**/audit-logs`) → Detailed row-level evidence when local auditing is enabled
-- **Enterprise Streaming Logs** → When you connect to Verodat MCP (Step 5 onward in the [Adoption Journey](adoption-journey.md)), ADRI ships every assessment to your governed workspace
+- **Local JSONL Audit Logs** (`ADRI/**/audit-logs`) → Detailed assessment logs including:
+  - `adri_assessment_logs.jsonl` - Main audit trail
+  - `adri_dimension_scores.jsonl` - Quality dimension breakdown
+  - `adri_failed_validations.jsonl` - Specific validation failures with remediation
 - **Verbose/Debug Output** → Turn on with `@adri_protected(..., verbose=True)` to trace decision making
+
+### Enterprise Logging
+
+**🏢 Available in `adri-enterprise` only:**
+
+- AI reasoning logs for complete AI transparency
+- Workflow orchestration and performance monitoring
+- Advanced Verodat data supply chain integration
+
+[Learn more about enterprise features →](./enterprise)
 
 ## Does ADRI block all bad data, or just the dirty records?
 
@@ -197,19 +211,33 @@ def run_agent(invoice_rows):
 
 When you outgrow local logging, continue to Step 5 of the [Adoption Journey](adoption-journey.md) to stream assessments into Verodat MCP.
 
-## Is there an enterprise version of ADRI?
+## What's the difference between open-source and enterprise?
 
-Yes. **Verodat offers ADRI Enterprise** for teams that need advanced features such as:
-- Centralized compliance logging and dashboards
-- Enterprise audit trails
-- Managed data supply and real-time pipelines
-- SLA-backed support
+**Open-Source (`adri` package) - Free Forever:**
+- ✅ Core data quality protection with `@adri_protected` decorator
+- ✅ 3 protection modes (FailFast, Selective, WarnOnly)
+- ✅ 5-dimension quality assessment (validity, completeness, consistency, plausibility, freshness)
+- ✅ 8 CLI commands for standard generation and validation
+- ✅ Local JSONL logging (3 files: assessments, dimensions, failures)
+- ✅ Basic Verodat bridge for sending data
+- ✅ Automatic standard generation
+- ✅ Complete validation engine
 
-The **open-source edition** of ADRI is fully featured for standalone use and always free.
+**Enterprise (`adri-enterprise` package) - Private Repository:**
+- ✅ **Everything in open-source, PLUS:**
+- ✅ **ReasoningLogger** - Track AI prompts and responses for debugging
+- ✅ **WorkflowLogger** - Capture workflow execution and data provenance
+- ✅ **Advanced Verodat Integration** - Batch processing, retry logic, authentication
+- ✅ **Analytics Dashboards** - Visualize quality metrics over time
+- ✅ **Workflow Automation** - Approval workflows and orchestration
+- ✅ **Enterprise Support** - Priority support with SLAs
 
-You can start with ADRI OSS today and upgrade later if your organization requires scale, compliance, or managed services.
+**When to upgrade:**
+- AI transparency and debugging at production scale
+- Workflow performance monitoring and replay
+- Enterprise data supply chain governance
 
-Learn more: [ADRI Enterprise](https://verodat.com/adri-enterprise/)
+[View enterprise capabilities →](./enterprise) | **Contact:** adri@verodat.com
 
 ---
 

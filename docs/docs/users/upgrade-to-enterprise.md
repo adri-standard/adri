@@ -1,14 +1,14 @@
 # Upgrading from ADRI Open-Source to Enterprise
 
-This guide helps you migrate from the open-source `adri` package to the enterprise `adri-enterprise` package.
+This guide helps you upgrade from the open-source `adri` package to the enterprise `adri-enterprise` package.
 
 ## Overview
 
-**ADRI v5.0.0** is split into two packages:
-- **`adri`** (open-source) - Core data quality features
+**ADRI** is available in two editions:
+- **`adri`** (open-source) - Core data quality protection for AI agents
 - **`adri-enterprise`** (private) - All open-source features PLUS advanced logging, workflow automation, and analytics
 
-Both packages share the same version number (5.0.0) for clear upgrade paths.
+Both packages share the same version number for seamless upgrading.
 
 ## Why Upgrade to Enterprise?
 
@@ -92,16 +92,16 @@ pip install git+ssh://git@github.com/Verodat/adri-enterprise.git@v5.0.0
 python -c "from adri_enterprise import adri_protected, ReasoningLogger, WorkflowLogger; print('✅ Enterprise installation successful')"
 ```
 
-## Code Migration
+## Code Changes
 
-Most code will work without changes! The enterprise package includes all open-source features.
+Your existing code works without changes! The enterprise package includes all open-source features.
 
-### No Changes Needed
+### No Changes Required for Core Features
 
-If you're using core features, your code works as-is:
+If you're using core protection features, your code works as-is:
 
 ```python
-# These imports work in both versions
+# These imports work in both open-source and enterprise
 from adri import adri_protected, LocalLogger, DataQualityAssessor
 
 @adri_protected(standard="my_standard")
@@ -109,84 +109,35 @@ def my_function(data):
     return process(data)
 ```
 
-### Enterprise-Only Features
+### Adding Enterprise Features
 
-To use enterprise features, update your imports:
+To use enterprise-only features, update your imports and decorator parameters:
 
 ```python
-# Open-Source (v5.0.0)
-from adri.logging import LocalLogger, send_to_verodat
-
-# Enterprise (v5.0.0)
+# Import enterprise logging capabilities
 from adri_enterprise.logging import (
     LocalLogger,           # Same as open-source
-    ReasoningLogger,       # Enterprise-only
-    WorkflowLogger,        # Enterprise-only
-    EnterpriseLogger       # Full Verodat integration
+    ReasoningLogger,       # Enterprise-only: Track AI prompts/responses
+    WorkflowLogger,        # Enterprise-only: Track workflow execution
+    EnterpriseLogger       # Enterprise-only: Full Verodat integration
 )
 
-# Enable AI reasoning logging
+# Enable AI reasoning logging in your decorator
 from adri_enterprise import adri_protected
 
 @adri_protected(
     standard="my_standard",
-    reasoning_mode=True,      # Enterprise-only
-    store_prompt=True,        # Enterprise-only
-    store_response=True       # Enterprise-only
+    reasoning_mode=True,      # Enterprise-only: Enable reasoning capture
+    store_prompt=True,        # Enterprise-only: Log AI prompts
+    store_response=True       # Enterprise-only: Log AI responses
 )
 def ai_agent_function(data):
     return llm.generate(data)
 ```
 
-### Breaking Changes from v4.4.0
-
-If you were using enterprise features in v4.4.0 open-source, update your code:
-
-**1. EnterpriseLogger → Use enterprise package**
-
-```python
-# Old (v4.4.0 open-source)
-from adri.logging import EnterpriseLogger
-logger = EnterpriseLogger(config)
-logger.upload(records, "assessment_logs")
-
-# New (v5.0.0 open-source) - Simplified
-from adri.logging import send_to_verodat
-send_to_verodat(assessment_data, api_url, api_key)
-
-# New (v5.0.0 enterprise) - Full features
-from adri_enterprise.logging import EnterpriseLogger
-logger = EnterpriseLogger(config)
-logger.upload(records, "assessment_logs")
-```
-
-**2. ReasoningLogger → Use enterprise package**
-
-```python
-# Old (v4.4.0 open-source)
-from adri.logging import ReasoningLogger
-logger = ReasoningLogger(config)
-
-# New (v5.0.0 enterprise)
-from adri_enterprise.logging import ReasoningLogger
-logger = ReasoningLogger(config)
-```
-
-**3. WorkflowLogger → Use enterprise package**
-
-```python
-# Old (v4.4.0 open-source)
-from adri.logging import WorkflowLogger
-logger = WorkflowLogger(config)
-
-# New (v5.0.0 enterprise)
-from adri_enterprise.logging import WorkflowLogger
-logger = WorkflowLogger(config)
-```
-
 ## Configuration Updates
 
-### Open-Source Configuration (v5.0.0)
+### Open-Source Configuration
 
 ```yaml
 adri:
@@ -206,7 +157,7 @@ adri:
         default_failure_mode: raise
 ```
 
-### Enterprise Configuration (v5.0.0)
+### Enterprise Configuration
 
 ```yaml
 adri:
@@ -356,17 +307,11 @@ pip install adri==5.0.0
 - Private repository issues: https://github.com/Verodat/adri-enterprise/issues
 - SLA-based support for enterprise customers
 
-## Version Compatibility
+## Version Alignment
 
-Both open-source and enterprise use the same version numbers:
+Both open-source and enterprise packages use synchronized version numbers (e.g., both are currently version 5.0.0). This ensures feature compatibility and simplifies upgrades.
 
-| Version | Open-Source | Enterprise | Notes |
-|---------|-------------|------------|-------|
-| 5.0.0   | ✅ PyPI     | ✅ Private | Current - Split version |
-| 4.4.0   | ✅ PyPI     | ❌         | Last unified version |
-| 4.3.0   | ✅ PyPI     | ❌         | Unified version |
-
-**Recommendation:** Always keep enterprise and open-source at the same version number.
+**Recommendation:** Always use matching versions for open-source and enterprise packages.
 
 ## Next Steps
 
@@ -395,6 +340,5 @@ See [ADRI Enterprise Documentation](https://github.com/Verodat/adri-enterprise/b
 
 ---
 
-**Last Updated:** October 15, 2025
-**Version:** 5.0.0
+**Last Updated:** January 2025
 **Maintained By:** Verodat

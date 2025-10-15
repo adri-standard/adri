@@ -25,9 +25,9 @@ Click **"Add rule"** or **"New rule"** button
 **Pattern:** `v*.*.*`
 
 This pattern will match all version tags like:
-- `v4.1.1`
 - `v5.0.0`
-- `v1.2.3-beta`
+- `v5.1.0`
+- `v5.2.0-beta`
 
 **Options to Enable:**
 
@@ -103,8 +103,8 @@ Ensure `main` branch has these protections enabled:
    ```bash
    git checkout main
    git pull origin main
-   git tag v4.1.1
-   git push origin v4.1.1
+   git tag v5.1.0
+   git push origin v5.1.0
    ```
 
    With tag protection enabled, this will:
@@ -140,19 +140,13 @@ git push origin v9.9.9
 - [Branch Protection Rules](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches)
 - [Signed Commits](https://docs.github.com/en/authentication/managing-commit-signature-verification/about-commit-signature-verification)
 
-## Current Status (as of 2025-06-10)
-
-- ❌ Tag protection NOT configured (allowed Issue #35 tag bypass)
-- ✅ Branch protection IS configured (prevented direct push to main)
-- 🔄 **Action Required:** Configure tag protection as documented above
-
-## Emergency Fix Procedure (if tag bypass happens again)
+## Emergency Fix Procedure (if tag bypass happens)
 
 If an unauthorized tag is created:
 
 1. **Delete the remote tag:**
    ```bash
-   git push origin :refs/tags/v4.1.1
+   git push origin :refs/tags/v5.1.0
    ```
 
 2. **Create proper PR for review**
@@ -161,5 +155,5 @@ If an unauthorized tag is created:
    ```bash
    git checkout main
    git pull origin main
-   git tag v4.1.1
-   git push origin v4.1.1
+   git tag v5.1.0
+   git push origin v5.1.0

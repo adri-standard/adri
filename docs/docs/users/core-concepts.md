@@ -137,17 +137,29 @@ def process_invoices(invoice_rows):
 
 ## Audit trail
 
-ADRI logs every assessment in 5 interconnected files, creating a complete audit trail for compliance, debugging, and AI transparency:
+ADRI logs every assessment with comprehensive audit trails for compliance, debugging, and transparency.
+
+### Open-Source Logging (3 Files)
+
+Core quality assessment logging available in the `adri` package:
 
 | File | Format | Purpose |
 |------|--------|---------|
 | adri_assessment_logs.jsonl | JSONL | Main audit trail with overall results |
 | adri_dimension_scores.jsonl | JSONL | Breakdown across 5 quality dimensions |
 | adri_failed_validations.jsonl | JSONL | Specific validation failures with remediation suggestions |
+
+### Enterprise Logging (2 Additional Files)
+
+> **🏢 Enterprise Only**
+> AI reasoning logs for workflow monitoring and debugging. [Learn more →](./enterprise)
+
+| File | Format | Purpose |
+|------|--------|---------|
 | adri_reasoning_prompts.jsonl | JSONL | AI prompts sent to LLM with cryptographic hashes |
 | adri_reasoning_responses.jsonl | JSONL | AI responses with performance metrics |
 
-All files are linked via `assessment_id`, providing complete lineage from assessment → dimensions → failures → AI reasoning.
+All files are linked via `assessment_id`, providing complete lineage from assessment → dimensions → failures (and AI reasoning in Enterprise).
 
 ```mermaid
 flowchart TB
@@ -164,9 +176,9 @@ flowchart TB
 
 Key benefits:
 - **Compliance**: Complete lineage for regulatory audits
-- **AI Transparency**: Full visibility into AI decisions with cryptographic verification
 - **Debugging**: Detailed failure tracking with remediation suggestions
-- **Performance**: Token usage, processing times, and cost metrics
+- **AI Transparency** (Enterprise): Full visibility into AI decisions with cryptographic verification
+- **Performance** (Enterprise): Token usage, processing times, and cost metrics
 
 See [Audit Trail & Logging](audit-and-logging.md) for detailed documentation on all log files, query examples, and integration patterns.
 
@@ -178,4 +190,4 @@ See [Audit Trail & Logging](audit-and-logging.md) for detailed documentation on 
 - Canonical example variable: `invoice_rows`.
 - Dimensions: validity, completeness, consistency, plausibility, freshness.
 - Protection modes: raise | warn | continue.
-- Audit logs: 5 files (all JSONL format) linked via `assessment_id`.
+- Audit logs: 3 core files (open-source) + 2 AI reasoning files (enterprise), all JSONL format, linked via `assessment_id`.
