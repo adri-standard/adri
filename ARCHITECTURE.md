@@ -2,6 +2,29 @@
 
 *Simple, clear explanations of how ADRI works and why each piece matters*
 
+> **Note:** This document describes the open-source v5.0.0 architecture. For enterprise features (ReasoningLogger, WorkflowLogger, Analytics, Workflow Automation), see the [ADRI Enterprise documentation](https://github.com/Verodat/adri-enterprise).
+
+## Version 5.0.0 - Open-Source & Enterprise Split
+
+ADRI v5.0.0 is split into two packages:
+
+**Open-Source (`adri`)** - This repository:
+- Core data quality protection (@adri_protected decorator)
+- Complete CLI (8 commands)
+- Standard generation and validation
+- Local JSONL logging (3 files)
+- Simplified Verodat bridge
+
+**Enterprise (`adri-enterprise`)** - Private fork:
+- All open-source features PLUS
+- ReasoningLogger (AI prompt/response tracking)
+- WorkflowLogger (execution provenance)
+- Analytics dashboards
+- Workflow automation
+- Advanced Verodat integration
+
+See [docs/upgrade-to-enterprise.md](docs/upgrade-to-enterprise.md) for migration guide.
+
 ## Complete Technical Architecture
 
 This comprehensive architecture diagram shows all ADRI components and their relationships. Each component maps to actual source code files.

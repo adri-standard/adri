@@ -31,7 +31,7 @@ from .config.loader import ConfigurationLoader
 # Core public API imports
 from .decorator import adri_protected
 from .guard.modes import DataProtectionEngine
-from .logging.enterprise import EnterpriseLogger
+from .logging.enterprise import send_to_verodat
 from .logging.local import LocalLogger
 
 # Core component imports
@@ -49,7 +49,7 @@ __all__ = [
     "ValidationEngine",
     "DataProtectionEngine",
     "LocalLogger",
-    "EnterpriseLogger",
+    "send_to_verodat",
     "ConfigurationLoader",
     "DataProfiler",
     "StandardGenerator",
