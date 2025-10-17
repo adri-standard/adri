@@ -180,31 +180,6 @@ Developer-friendly insights during development:
 - Auto-generated standards
 - Stored in `ADRI/dev/logs/`
 
-## 📚 Browse Standards Library
-
-**13 production-ready standards for common use cases** - Copy, use, or customize for your needs.
-
-### Business Domains
-- **[Customer Service](adri/standards/domains/customer_service_standard.yaml)** - Support tickets, interactions
-- **[E-commerce Orders](adri/standards/domains/ecommerce_order_standard.yaml)** - Order processing, fulfillment  
-- **[Financial Transactions](adri/standards/domains/financial_transaction_standard.yaml)** - Payments, accounting
-- **[Healthcare Patients](adri/standards/domains/healthcare_patient_standard.yaml)** - EHR systems, patient records
-- **[Marketing Campaigns](adri/standards/domains/marketing_campaign_standard.yaml)** - Campaign tracking, ROI
-
-### AI Frameworks
-- **[LangChain Chains](adri/standards/frameworks/langchain_chain_input_standard.yaml)** - Chain input validation
-- **[CrewAI Tasks](adri/standards/frameworks/crewai_task_context_standard.yaml)** - Multi-agent task context
-- **[LlamaIndex Documents](adri/standards/frameworks/llamaindex_document_standard.yaml)** - RAG document structure
-- **[AutoGen Messages](adri/standards/frameworks/autogen_message_standard.yaml)** - Agent message validation
-
-### Generic Templates
-- **[API Responses](adri/standards/templates/api_response_template.yaml)** - REST API response structure
-- **[Time Series](adri/standards/templates/time_series_template.yaml)** - Metrics, sensor data
-- **[Key-Value Pairs](adri/standards/templates/key_value_template.yaml)** - Configuration, settings
-- **[Nested JSON](adri/standards/templates/nested_json_template.yaml)** - Hierarchical structures
-
-**[📖 Full Standards Library Documentation](docs/STANDARDS_LIBRARY.md)** - Complete catalog with usage examples, contribution guide, and customization instructions.
-
 ## Common Use Cases
 
 ### API Data Validation
@@ -238,6 +213,48 @@ def index_documents(docs):
 **Use when**: Validating documents before vector store indexing (LlamaIndex, Haystack)
 
 > **Note**: ADRI validates data structure, not content. For RAG, it ensures each document has required fields (id, text, metadata) and correct types, preventing indexing failures from malformed data.
+
+> **Got a different use case?** [Share your story](https://github.com/adri-standard/adri/discussions) or [contribute a standard](CONTRIBUTING.md#contributing-standards-to-the-library) - help the community!
+
+## 📚 Don't Start from Scratch - Use Catalog Standards
+
+**13 battle-tested standards ready to copy and use** - No need to write validation rules from scratch.
+
+### Business Domains
+- **[Customer Service](adri/standards/domains/customer_service_standard.yaml)** - Support tickets, interactions
+- **[E-commerce Orders](adri/standards/domains/ecommerce_order_standard.yaml)** - Order processing, fulfillment  
+- **[Financial Transactions](adri/standards/domains/financial_transaction_standard.yaml)** - Payments, accounting
+- **[Healthcare Patients](adri/standards/domains/healthcare_patient_standard.yaml)** - EHR systems, patient records
+- **[Marketing Campaigns](adri/standards/domains/marketing_campaign_standard.yaml)** - Campaign tracking, ROI
+
+### AI Frameworks
+- **[LangChain Chains](adri/standards/frameworks/langchain_chain_input_standard.yaml)** - Chain input validation
+- **[CrewAI Tasks](adri/standards/frameworks/crewai_task_context_standard.yaml)** - Multi-agent task context
+- **[LlamaIndex Documents](adri/standards/frameworks/llamaindex_document_standard.yaml)** - RAG document structure
+- **[AutoGen Messages](adri/standards/frameworks/autogen_message_standard.yaml)** - Agent message validation
+
+### Generic Templates
+- **[API Responses](adri/standards/templates/api_response_template.yaml)** - REST API response structure
+- **[Time Series](adri/standards/templates/time_series_template.yaml)** - Metrics, sensor data
+- **[Key-Value Pairs](adri/standards/templates/key_value_template.yaml)** - Configuration, settings
+- **[Nested JSON](adri/standards/templates/nested_json_template.yaml)** - Hierarchical structures
+
+**[📖 Full Catalog](docs/STANDARDS_LIBRARY.md)** | **Can't find your use case? [Add it!](CONTRIBUTING.md#contributing-standards-to-the-library)** - Takes 15 minutes, helps everyone.
+
+## 🤝 Share Your Standards
+
+**Built something with ADRI? Your standard could help hundreds of engineers.**
+
+1. **Use ADRI** on your data
+2. **Polish your standard**
+3. **Submit a PR** - [Contribution guide](CONTRIBUTING.md#contributing-standards-to-the-library)
+
+**Why contribute?**
+- 🎯 Get featured in the catalog
+- 💬 Connect with others in your domain  
+- 🚀 Help the community solve similar problems
+
+[Start Contributing](CONTRIBUTING.md) | [Discuss Ideas](https://github.com/adri-standard/adri/discussions)
 
 ## Enterprise: Production-Grade Agent Reliability
 
@@ -301,8 +318,9 @@ Apache 2.0 License. See [LICENSE](LICENSE) for details.
 
 ### Support This Project
 - ⭐ **[Star on GitHub](https://github.com/adri-standard/adri)** - Help others discover ADRI
-- 🗣️ **Share**: Post about ADRI with #ADRI #AIAgents
-- 🤝 **Contribute**: See [CONTRIBUTING.md](CONTRIBUTING.md)
+- 🗣️ **Share your wins**: "Solved [your use case] with #ADRI #AIAgents"
+- 🤝 **Contribute a standard**: Your use case could help hundreds - [Guide](CONTRIBUTING.md#contributing-standards-to-the-library)
+- 💬 **Discuss ideas**: [Propose new standards](https://github.com/adri-standard/adri/discussions) or share what you're building
 
 ---
 
