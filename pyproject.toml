@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "adri"
 dynamic = ["version"]
-description = "Open-source AI data quality framework with standards-based validation and decorator protection"
+description = "The missing data layer for AI agents - Auto-validates data quality with one decorator. Works with any framework."
 readme = "README.md"
 license = {file = "LICENSE"}
 authors = [
