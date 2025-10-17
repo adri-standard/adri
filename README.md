@@ -222,23 +222,23 @@ def index_documents(docs):
 **13 battle-tested standards ready to copy and use** - No need to write validation rules from scratch.
 
 ### Business Domains
-- **[Customer Service](ADRI/standards/domains/customer_service_standard.yaml)** - Support tickets, interactions
-- **[E-commerce Orders](ADRI/standards/domains/ecommerce_order_standard.yaml)** - Order processing, fulfillment  
-- **[Financial Transactions](ADRI/standards/domains/financial_transaction_standard.yaml)** - Payments, accounting
-- **[Healthcare Patients](ADRI/standards/domains/healthcare_patient_standard.yaml)** - EHR systems, patient records
-- **[Marketing Campaigns](ADRI/standards/domains/marketing_campaign_standard.yaml)** - Campaign tracking, ROI
+- 🎧 **[Customer Service](ADRI/standards/domains/customer_service_standard.yaml)** - Support tickets, interactions
+- 🛒 **[E-commerce Orders](ADRI/standards/domains/ecommerce_order_standard.yaml)** - Order processing, fulfillment  
+- 💰 **[Financial Transactions](ADRI/standards/domains/financial_transaction_standard.yaml)** - Payments, accounting
+- 🏥 **[Healthcare Patients](ADRI/standards/domains/healthcare_patient_standard.yaml)** - EHR systems, patient records
+- 📊 **[Marketing Campaigns](ADRI/standards/domains/marketing_campaign_standard.yaml)** - Campaign tracking, ROI
 
 ### AI Frameworks
-- **[LangChain Chains](ADRI/standards/frameworks/langchain_chain_input_standard.yaml)** - Chain input validation
-- **[CrewAI Tasks](ADRI/standards/frameworks/crewai_task_context_standard.yaml)** - Multi-agent task context
-- **[LlamaIndex Documents](ADRI/standards/frameworks/llamaindex_document_standard.yaml)** - RAG document structure
-- **[AutoGen Messages](ADRI/standards/frameworks/autogen_message_standard.yaml)** - Agent message validation
+- 🔗 **[LangChain Chains](ADRI/standards/frameworks/langchain_chain_input_standard.yaml)** - Chain input validation
+- 🤖 **[CrewAI Tasks](ADRI/standards/frameworks/crewai_task_context_standard.yaml)** - Multi-agent task context
+- 📚 **[LlamaIndex Documents](ADRI/standards/frameworks/llamaindex_document_standard.yaml)** - RAG document structure
+- 💬 **[AutoGen Messages](ADRI/standards/frameworks/autogen_message_standard.yaml)** - Agent message validation
 
 ### Generic Templates
-- **[API Responses](ADRI/standards/templates/api_response_template.yaml)** - REST API response structure
-- **[Time Series](ADRI/standards/templates/time_series_template.yaml)** - Metrics, sensor data
-- **[Key-Value Pairs](ADRI/standards/templates/key_value_template.yaml)** - Configuration, settings
-- **[Nested JSON](ADRI/standards/templates/nested_json_template.yaml)** - Hierarchical structures
+- 🌐 **[API Responses](ADRI/standards/templates/api_response_template.yaml)** - REST API response structure
+- ⏱️ **[Time Series](ADRI/standards/templates/time_series_template.yaml)** - Metrics, sensor data
+- 🔑 **[Key-Value Pairs](ADRI/standards/templates/key_value_template.yaml)** - Configuration, settings
+- 🌳 **[Nested JSON](ADRI/standards/templates/nested_json_template.yaml)** - Hierarchical structures
 
 **[📖 Full Catalog](docs/STANDARDS_LIBRARY.md)** | **Can't find your use case? [Add it!](CONTRIBUTING.md#contributing-standards-to-the-library)** - Takes 15 minutes, helps everyone.
 
