@@ -77,7 +77,7 @@ analyze_customers(bad_customers)  # ❌ Raises exception with quality report
 pip install adri
 ```
 
-**Requirements**: Python 3.8+
+**Requirements**: Python 3.10+
 
 ## Quick Links
 
