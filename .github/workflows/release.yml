@@ -186,7 +186,7 @@ jobs:
         pytest tests/test_tutorial_*.py -v --tb=short
 
   publish-pypi:
-    needs: [validate-tag, build, test-install, publish-test-pypi]
+    needs: [validate-tag, build, test-install]
     runs-on: ubuntu-latest
 
     steps:
