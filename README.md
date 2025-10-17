@@ -224,6 +224,7 @@ Apache License 2.0. See [LICENSE](LICENSE) for details.
 
 ### Connect with the Team
 - 👤 **[Thomas Russell](https://linkedin.com/in/thomas-verodat/)** - Founder (updates & engagement)
+- 🦋 **[@thomas-ds.bsky.social](https://bsky.app/profile/thomas-ds.bsky.social)** - Real-time updates on Bluesky
 - 🏢 **[Verodat](https://linkedin.com/company/verodat/)** - Company behind ADRI
 
 ### Support This Project
