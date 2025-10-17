@@ -106,6 +106,7 @@ pip install adri
 
 - **[Quickstart Guide](QUICKSTART.md)** - 2-minute integration guide
 - **[Getting Started](docs/GETTING_STARTED.md)** - Detailed 10-minute tutorial
+- **[Standards Library](docs/STANDARDS_LIBRARY.md)** - 13 production-ready standards to copy and use
 - **[How It Works](docs/HOW_IT_WORKS.md)** - Five quality dimensions explained
 - **[Framework Patterns](docs/FRAMEWORK_PATTERNS.md)** - LangChain, CrewAI, AutoGen examples
 - **[CLI Reference](docs/CLI_REFERENCE.md)** - Command-line tools
@@ -256,29 +257,20 @@ def index_documents(docs):
 
 [Start Contributing](CONTRIBUTING.md) | [Discuss Ideas](https://github.com/adri-standard/adri/discussions)
 
-## Enterprise: Production-Grade Agent Reliability
+## Scaling to Production
 
-**The Problem**: 80% of agent failures are data-related, not model-related. Current tools (LangSmith, W&B, Prometheus) log prompts and tokens—but ignore data quality, lineage, and reproducibility.
+**Open-source ADRI gives you everything to build reliable agents** - local validation, auto-generation, comprehensive logging.
 
-**The Reality**: As agent workflows scale beyond prototypes, they fail due to:
-- No shared definition of "good data"
-- Missing data provenance and lineage
-- Non-reproducible workflow behavior
-- Engineers spending more time on data scaffolding than agent logic
+**When you're ready to scale**, Verodat Enterprise adds centralized infrastructure:
 
-**The Solution**: Verodat Enterprise is the missing **data reliability layer** for AI agents.
+- **Team Dashboards** - Monitor data quality across all agents and teams
+- **Workflow Replay** - Reproduce any agent run with complete data context
+- **Data Orchestration** - Managed data feeds for production reliability
+- **Compliance Tools** - Audit trails and provenance for regulated industries
 
-Open-source ADRI provides local data quality validation. **Verodat Enterprise** adds production infrastructure:
+**ADRI is 100% functional open-source.** Enterprise just makes collaboration and compliance easier at scale.
 
-- **Centralized Telemetry** - Send assessments to Verodat cloud, monitor quality across all agents
-- **Full Workflow Replay** - Deterministic replays with complete data state (not just prompts)
-- **Data Supply Manager** - Orchestrated, validated, compliant data feeds for production agents
-- **Compliance & Audit** - Immutable data lineage and provenance for regulatory requirements
-- **Team Collaboration** - Share standards, monitor drift, coordinate across Agent + Data + Compliance teams
-
-**Impact**: One decorator + one config → from prototype to auditable, reproducible, production-grade workflows.
-
-See [FAQ](docs/FAQ.md#enterprise) for details or [contact Verodat](https://verodat.com) for enterprise trials.
+[Learn more](docs/FAQ.md#enterprise) or [contact us](https://verodat.com) for production deployments.
 
 ## Development
 
