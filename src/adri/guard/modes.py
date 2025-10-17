@@ -184,12 +184,21 @@ class DataProtectionEngine:
     Refactored from the original DataProtectionEngine to use the new mode-based architecture.
     """
 
-    def __init__(self, protection_mode: Optional[ProtectionMode] = None):
+    def __init__(
+        self,
+        protection_mode: Optional[ProtectionMode] = None,
+        async_callbacks: Optional[Any] = None,
+        workflow_adapter: Optional[Any] = None,
+        fast_path_logger: Optional[Any] = None,
+    ):
         """
         Initialize the data protection engine.
 
         Args:
             protection_mode: Protection mode to use (defaults to FailFastMode)
+            async_callbacks: AsyncCallbackManager for async callback execution
+            workflow_adapter: WorkflowAdapter for framework integration
+            fast_path_logger: FastPathLogger for immediate manifest writes
         """
         self.protection_mode = protection_mode or FailFastMode()
         self.config_manager = ConfigurationLoader() if ConfigurationLoader else None
@@ -203,6 +212,11 @@ class DataProtectionEngine:
         # Initialize loggers (will be configured when config is loaded)
         self.local_logger = None
         self.enterprise_logger = None
+
+        # Async callback support
+        self.async_callbacks = async_callbacks
+        self.workflow_adapter = workflow_adapter
+        self.fast_path_logger = fast_path_logger
 
         self.logger.debug(
             f"DataProtectionEngine initialized with {self.protection_mode.mode_name} mode"
@@ -402,8 +416,22 @@ class DataProtectionEngine:
                     f"Assessment completed in {assessment_duration:.2f}s, score: {assessment_result.overall_score:.1f}"
                 )
 
-            # Invoke assessment callback if provided (before pass/fail checking)
+            # Write to fast path logger if available (immediate manifest write)
+            if self.fast_path_logger:
+                self._write_fast_path_manifest(
+                    assessment_result, standard_name or standard_filename
+                )
+
+            # Call workflow adapter on_assessment_complete if available
+            if self.workflow_adapter:
+                self._invoke_workflow_adapter_complete(assessment_result)
+
+            # Invoke legacy assessment callback if provided (backward compatibility)
             self._invoke_assessment_callback(on_assessment, assessment_result, verbose)
+
+            # Invoke async callbacks if available (new async callback system)
+            if self.async_callbacks:
+                self._invoke_async_callbacks(assessment_result)
 
             # Log workflow execution and provenance if workflow_context provided
             execution_id = ""
@@ -940,6 +968,81 @@ class DataProtectionEngine:
             return f"DataFrame with {len(result)} rows, {len(result.columns)} columns"
         else:
             return str(result)
+
+    def _write_fast_path_manifest(
+        self, assessment_result: Any, standard_name: str
+    ) -> None:
+        """Write assessment manifest to fast path logger.
+
+        Args:
+            assessment_result: Assessment result to write
+            standard_name: Name of standard used
+        """
+        try:
+            from datetime import datetime
+
+            from ..events.types import AssessmentManifest
+
+            # Determine status
+            status = "PASSED" if assessment_result.passed else "BLOCKED"
+
+            # Create manifest
+            manifest = AssessmentManifest(
+                assessment_id=assessment_result.assessment_id,
+                timestamp=(
+                    assessment_result.assessment_date
+                    if hasattr(assessment_result, "assessment_date")
+                    else datetime.now()
+                ),
+                status=status,
+                score=assessment_result.overall_score,
+                standard_name=standard_name.replace(".yaml", "").replace(
+                    "_standard", ""
+                ),
+            )
+
+            # Write to fast path logger
+            self.fast_path_logger.log_manifest(manifest)
+            self.logger.debug(
+                f"Wrote fast path manifest for {assessment_result.assessment_id}"
+            )
+
+        except Exception as e:
+            # Non-critical - log warning but don't fail
+            self.logger.warning(f"Failed to write fast path manifest: {e}")
+
+    def _invoke_workflow_adapter_complete(self, assessment_result: Any) -> None:
+        """Invoke workflow adapter on_assessment_complete hook.
+
+        Args:
+            assessment_result: Assessment result to pass to adapter
+        """
+        try:
+            assessment_id = getattr(assessment_result, "assessment_id", "unknown")
+            self.workflow_adapter.on_assessment_complete(
+                assessment_id, assessment_result
+            )
+            self.logger.debug(f"Invoked workflow adapter for {assessment_id}")
+
+        except Exception as e:
+            # Non-critical - log warning but don't fail
+            self.logger.warning(f"Workflow adapter call failed: {e}")
+
+    def _invoke_async_callbacks(self, assessment_result: Any) -> None:
+        """Invoke all registered async callbacks.
+
+        Args:
+            assessment_result: Assessment result to pass to callbacks
+        """
+        try:
+            self.async_callbacks.invoke_all(assessment_result)
+            self.logger.debug(
+                f"Invoked async callbacks for {assessment_result.assessment_id}"
+            )
+
+        except Exception as e:
+            # Non-critical - log warning but don't fail
+            self.logger.warning(f"Async callback invocation failed: {e}")
 
 
 # Mode factory functions

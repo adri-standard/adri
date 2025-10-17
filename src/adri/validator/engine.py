@@ -8,6 +8,7 @@ Migrated from adri/core/assessor.py for the new src/ layout.
 import os
 import time
 from dataclasses import dataclass
+from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
@@ -178,6 +179,7 @@ class AssessmentResult:
         assessment_source: str = "unknown",
         threshold_info: Optional[ThresholdInfo] = None,
         assessment_id: Optional[str] = None,
+        publish_events: bool = True,
     ):
         """Initialize assessment result with scores and metadata."""
         # Generate assessment_id immediately if not provided
@@ -188,7 +190,7 @@ class AssessmentResult:
         self.dimension_scores = dimension_scores
         self.standard_id = standard_id
         self.standard_path = standard_path  # Full absolute path to standard file used
-        self.assessment_date = assessment_date
+        self.assessment_date = assessment_date or datetime.now()
         self.metadata = metadata or {}
         self.rule_execution_log: List[Any] = []
         self.field_analysis: Dict[str, Any] = {}
@@ -196,6 +198,38 @@ class AssessmentResult:
         # Enhanced tracking for issue #35 debugging
         self.assessment_source = assessment_source  # "cli" or "decorator"
         self.threshold_info = threshold_info
+
+        # Publish ASSESSMENT_CREATED event if enabled
+        if publish_events:
+            self._publish_created_event()
+
+    def _publish_created_event(self) -> None:
+        """Publish ASSESSMENT_CREATED event to event bus."""
+        try:
+            from ..events.event_bus import get_event_bus
+            from ..events.types import AssessmentEvent, EventType
+
+            event = AssessmentEvent(
+                event_type=EventType.ASSESSMENT_CREATED,
+                assessment_id=self.assessment_id,
+                timestamp=(
+                    self.assessment_date
+                    if isinstance(self.assessment_date, datetime)
+                    else datetime.now()
+                ),
+                payload={
+                    "standard_id": self.standard_id,
+                    "standard_path": self.standard_path,
+                    "assessment_source": self.assessment_source,
+                },
+                metadata={"created": True},
+            )
+
+            event_bus = get_event_bus()
+            event_bus.publish(event)
+        except Exception:
+            # Event publishing is non-critical - don't fail assessment
+            pass
 
     def add_rule_execution(self, rule_result):
         """Add a rule execution result to the assessment."""

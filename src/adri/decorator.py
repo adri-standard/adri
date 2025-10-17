@@ -31,6 +31,9 @@ def adri_protected(
     llm_config: Optional[Dict] = None,
     workflow_context: Optional[Dict] = None,
     data_provenance: Optional[Dict] = None,
+    async_callbacks: Optional[any] = None,
+    workflow_adapter: Optional[any] = None,
+    fast_path_logger: Optional[any] = None,
 ):
     """
     Protect agent functions with ADRI data quality checks.
@@ -218,8 +221,12 @@ def adri_protected(
                     )
                     return func(*args, **kwargs)
 
-                # Initialize protection engine
-                engine = DataProtectionEngine()
+                # Initialize protection engine with async callbacks and workflow adapter
+                engine = DataProtectionEngine(
+                    async_callbacks=async_callbacks,
+                    workflow_adapter=workflow_adapter,
+                    fast_path_logger=fast_path_logger,
+                )
 
                 # Protect the function call with name-only standard resolution
                 return engine.protect_function_call(

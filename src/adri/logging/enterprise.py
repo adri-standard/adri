@@ -71,7 +71,8 @@ class EnterpriseLogger:
         # Batch settings
         batch_settings = config.get("batch_settings", {})
         self.batch_size = batch_settings.get("batch_size", 100)
-        self.flush_interval = batch_settings.get("flush_interval_seconds", 60)
+        # Reduced default from 60s to 5s for faster workflow orchestration
+        self.flush_interval = batch_settings.get("flush_interval_seconds", 5)
         self.retry_attempts = batch_settings.get("retry_attempts", 3)
         self.retry_delay = batch_settings.get("retry_delay_seconds", 5)
 

@@ -62,13 +62,14 @@ jobs:
           cd docs
           npm run build
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
+      # Pages deployment disabled - docs are internal only
+      # - name: Setup Pages
+      #   uses: actions/configure-pages@v5
 
-      - name: Upload artifact for deployment
-        uses: actions/upload-pages-artifact@v4
-        with:
-          path: docs/build
+      # - name: Upload artifact for deployment
+      #   uses: actions/upload-pages-artifact@v4
+      #   with:
+      #     path: docs/build
 
       # Also upload regular artifact for testing
       - name: Upload build artifact for testing
@@ -121,15 +122,16 @@ jobs:
           echo "🚀 This build would deploy successfully to:"
           echo "   https://adri-standard.github.io/adri/"
 
-  # Actual deployment (only on releases or manual trigger)
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    needs: build
-    if: github.event_name == 'release' || github.event_name == 'workflow_dispatch'
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+  # Pages deployment disabled - docs are internal only
+  # Uncomment below to enable public documentation deployment
+  # deploy:
+  #   environment:
+  #     name: github-pages
+  #     url: ${{ steps.deployment.outputs.page_url }}
+  #   runs-on: ubuntu-latest
+  #   needs: build
+  #   if: github.event_name == 'release' || github.event_name == 'workflow_dispatch'
+  #   steps:
+  #     - name: Deploy to GitHub Pages
+  #       id: deployment
+  #       uses: actions/deploy-pages@v4

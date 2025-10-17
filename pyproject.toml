@@ -41,6 +41,19 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+# Event-driven logging dependencies
+redis = [
+    "redis>=5.0.0",
+]
+# Workflow orchestration framework integrations
+workflows = [
+    "prefect>=2.0.0",
+    "apache-airflow>=2.0.0",
+]
+# Complete event-driven logging stack
+events = [
+    "adri[redis,workflows]",
+]
 dev = [
     "pytest>=8.2.0",
     "pytest-cov>=5.0.0",
@@ -73,6 +86,10 @@ security = [
     "bandit[toml]>=1.7.10",
     "safety>=3.2.8",
     "pip-audit>=2.7.3",
+]
+# Full installation with all features
+full = [
+    "adri[redis,workflows,dev,test,security]",
 ]
 
 [project.urls]
