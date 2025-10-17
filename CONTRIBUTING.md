@@ -1,8 +1,8 @@
-# Contributing to ADRI
+# Contributing to verodat-adri
 
-**Stop AI Agents Breaking on Bad Data**
+**Enterprise Edition: Stop AI Agents Breaking on Bad Data**
 
-Thank you for your interest in contributing to ADRI! We welcome contributions from the AI framework community to help protect agents from bad data with one line of code.
+Thank you for your interest in contributing to verodat-adri! We welcome contributions from the AI framework community to help protect agents from bad data with enterprise-grade features.
 
 **Join the Movement**: Help make AI agents bulletproof across LangChain, CrewAI, AutoGen, LlamaIndex, Haystack, LangGraph, and Semantic Kernel.
 
@@ -12,8 +12,8 @@ Thank you for your interest in contributing to ADRI! We welcome contributions fr
 
 **Want to jump right in?** Check out our **[Quick Contribution Guide](development/docs/QUICK_CONTRIBUTION_GUIDE.md)** for the fastest path to contributing!
 
-- 🌟 **First time?** → [Browse good first issues](https://github.com/adri-standard/adri/labels/good%20first%20issue)
-- 🔧 **Have an idea?** → [Create an issue](https://github.com/adri-standard/adri/issues/new/choose)
+- 🌟 **First time?** → [Browse good first issues](https://github.com/Verodat/verodat-adri/labels/good%20first%20issue)
+- 🔧 **Have an idea?** → [Create an issue](https://github.com/Verodat/verodat-adri/issues/new/choose)
 - 📚 **See a typo?** → Just fix it and create a PR!
 
 **Our smart automation adapts to your changes** - documentation updates are super easy, core functionality gets extra quality attention.
@@ -42,13 +42,14 @@ Please read and follow our [Code of Conduct](CODE_OF_CONDUCT.md) to ensure a wel
 1. Fork the repository on GitHub
 2. Clone your fork locally:
    ```bash
-   git clone https://github.com/YOUR_USERNAME/adri.git
-   cd adri
+   git clone https://github.com/YOUR_USERNAME/verodat-adri.git
+   cd verodat-adri
    ```
-3. Add the upstream repository as a remote:
+3. Add the upstream repository as a remote (for syncing with community ADRI):
    ```bash
    git remote add upstream https://github.com/adri-standard/adri.git
    ```
+   Note: This upstream points to community ADRI for core module synchronization.
 
 ## Development Setup
 
@@ -169,7 +170,7 @@ We welcome various types of contributions:
 
 ### Finding Issues to Work On
 
-- Check our [issue tracker](https://github.com/adri-standard/adri/issues) for open issues
+- Check our [issue tracker](https://github.com/Verodat/verodat-adri/issues) for open issues
 - Look for issues labeled `good first issue` if you're new to the project
 - Issues labeled `help wanted` are particularly important to the project
 - **No issue for your idea?** Create one using our templates!
@@ -466,13 +467,22 @@ Contributors who make significant contributions will be:
 
 ## License
 
-By contributing to ADRI, you agree that your contributions will be licensed under the same license as the project (Apache 2.0).
+By contributing to verodat-adri, you agree that your contributions will be licensed under the same license as the project (Apache 2.0).
+
+## Enterprise Features
+
+When contributing to verodat-adri, be aware of:
+- **Protected Enterprise Modules**: src/adri/logging/enterprise.py, src/adri/events/, src/adri/callbacks/
+- **Syncable Core Modules**: src/adri/decorator.py, src/adri/validator/, src/adri/guard/
+- See [UPSTREAM_SYNC.md](UPSTREAM_SYNC.md) for synchronization guidelines
+- See [ENTERPRISE_FEATURES.md](ENTERPRISE_FEATURES.md) for feature differentiation
 
 ## Questions?
 
 If you have questions about contributing, feel free to:
-- Open a discussion on GitHub
-- Contact the maintainers
+- Open a discussion on GitHub: https://github.com/Verodat/verodat-adri/discussions
+- Contact the Verodat team: adri@verodat.com
 - Check our FAQ section
+- Review community ADRI: https://github.com/adri-standard/adri
 
-Thank you for helping make ADRI better for everyone! 🎉
+Thank you for helping make verodat-adri better for everyone! 🎉

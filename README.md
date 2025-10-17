@@ -1,13 +1,18 @@
-# ADRI - Stop AI Agents Breaking on Bad Data
+# verodat-adri - Enterprise Edition: Stop AI Agents Breaking on Bad Data
 
-**Prevent AI agent failures with one decorator**
+**Prevent AI agent failures with one decorator + Enterprise cloud integration, event-driven logging, and workflow orchestration**
+
+> **Note**: This is the **Enterprise Edition** of ADRI. The package name is `verodat-adri`, but you still `import adri` - 100% backward compatible!
 
 ## 5-Minute Quickstart
 
 Install → Generate Standard → Assess → Decorate
 
 ```bash
-pip install adri
+pip install verodat-adri
+
+# With enterprise features (Redis, Prefect, Airflow)
+pip install verodat-adri[events]
 
 # Bootstrap project folders and sample data
 adri setup --guide
@@ -73,12 +78,22 @@ flowchart LR
 
 ## Key Features
 
+### Core ADRI Features
 - **🛡️ One-Decorator Protection** - Add `@adri_protected` to any function
 - **🤖 Framework Agnostic** - Works with LangChain, CrewAI, AutoGen, LlamaIndex, etc.
 - **🚀 Smart Defaults** - Zero-config start with optional fine-grained control
 - **📊 5-Dimension Validation** - Completeness, validity, consistency, plausibility, freshness
 - **📋 Detailed Reporting** - JSON logs and actionable error messages
-- **⚡ Enterprise Ready** - Local-first with a path to managed Verodat supply
+
+### Enterprise Features (verodat-adri Exclusive)
+- **☁️ Verodat Cloud Integration** - Real-time upload to Verodat platform with 5s flush
+- **⚡ Fast Path Logging** - Assessment IDs available in <10ms (vs 30-60s community edition)
+- **🔔 Event-Driven Architecture** - Real-time pub/sub for workflow orchestration
+- **🔄 Async Callbacks** - Thread-pool callback infrastructure for complex workflows
+- **🚀 Workflow Adapters** - Native Prefect and Airflow integration
+- **📊 Advanced Analytics** - Team collaboration, compliance tracking, and audit trails
+
+👉 **See [ENTERPRISE_FEATURES.md](ENTERPRISE_FEATURES.md) for detailed comparison and migration guide**
 
 ## Quick Example
 
@@ -123,8 +138,9 @@ See [docs/docs/users/frameworks.md](docs/docs/users/frameworks.md) for copy-past
 
 ## Support
 
-- **[GitHub Issues](https://github.com/adri-standard/adri/issues)** - Report bugs and request features
-- **[GitHub Discussions](https://github.com/adri-standard/adri/discussions)** - Community support
+- **[GitHub Issues](https://github.com/Verodat/verodat-adri/issues)** - Report bugs and request features
+- **[GitHub Discussions](https://github.com/Verodat/verodat-adri/discussions)** - Enterprise support
+- **[Community ADRI](https://github.com/adri-standard/adri)** - Open source community edition
 
 ---
 
@@ -136,8 +152,29 @@ When to scale up to Verodat MCP: [docs/docs/users/flip-to-enterprise.md](docs/do
 
 ---
 
+## Enterprise vs Community
+
+**verodat-adri** (this package) is the enterprise edition with additional features for production workflows. The community edition is available at [adri-standard/adri](https://github.com/adri-standard/adri).
+
+**Both editions share the same import**: `import adri` - ensuring seamless migration and compatibility.
+
+### Quick Comparison
+
+| Feature | Community ADRI | verodat-adri |
+|---------|---------------|--------------|
+| Package Name | `adri` | `verodat-adri` |
+| Import | `import adri` | `import adri` ✅ |
+| Core Validation | ✅ | ✅ |
+| Local Logging | ✅ | ✅ |
+| Verodat Cloud | ❌ | ✅ |
+| Fast Path (<10ms IDs) | ❌ | ✅ |
+| Event System | ❌ | ✅ |
+| Workflow Adapters | ❌ | ✅ |
+
+See [ENTERPRISE_FEATURES.md](ENTERPRISE_FEATURES.md) for complete feature comparison.
+
 ## License & Attribution
 
 **Apache 2.0 License** - Use freely in any project. See [LICENSE](LICENSE) for details.
 
-ADRI is founded and maintained by [Verodat](https://verodat.com).
+verodat-adri is built and maintained by [Verodat](https://verodat.com), based on the community ADRI project.

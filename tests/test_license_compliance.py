@@ -72,9 +72,13 @@ class TestLicenseCompliance(unittest.TestCase):
         with open(readme_path, 'r', encoding='utf-8') as f:
             readme_content = f.read()
 
-        # Check for attribution in README
+        # Check for attribution in README (enterprise edition wording)
         self.assertIn("Apache 2.0 License", readme_content)
-        self.assertIn("ADRI is founded and maintained by", readme_content)
+        self.assertTrue(
+            "verodat-adri is built and maintained by" in readme_content or
+            "ADRI is founded and maintained by" in readme_content,
+            "README must contain Verodat attribution"
+        )
         self.assertIn("Verodat", readme_content)
 
     def test_pyproject_metadata_compliance(self):
@@ -147,7 +151,8 @@ class TestLicenseCompliance(unittest.TestCase):
 
     def test_consistent_attribution_format(self):
         """Verify attribution format is consistent across all files."""
-        attribution_pattern = r"founded and maintained by.*Verodat"
+        # Updated for enterprise edition - accept both "founded" and "built"
+        attribution_pattern = r"(founded|built) and maintained by.*Verodat"
 
         files_with_attribution = [
             (self.project_root / "README.md", "README.md attribution"),

@@ -1,0 +1,208 @@
+name: Upstream Sync Check
+
+on:
+  schedule:
+    # Run every Monday at 9 AM UTC
+    - cron: '0 9 * * 1'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  check-upstream:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Add upstream remote
+        run: |
+          git remote add upstream https://github.com/adri-standard/adri.git || true
+          git fetch upstream
+
+      - name: Check for upstream updates
+        id: check_updates
+        run: |
+          # Get latest upstream commit
+          UPSTREAM_COMMIT=$(git rev-parse upstream/main)
+          echo "upstream_commit=$UPSTREAM_COMMIT" >> $GITHUB_OUTPUT
+
+          # Get our current base commit (last sync point)
+          # Check if we have a sync tag
+          LAST_SYNC_TAG=$(git tag -l 'sync/upstream-*' | sort -V | tail -n 1)
+          if [ -n "$LAST_SYNC_TAG" ]; then
+            BASE_COMMIT=$(git rev-list -n 1 $LAST_SYNC_TAG)
+            echo "Last sync tag: $LAST_SYNC_TAG"
+          else
+            # If no sync tag, use initial fork point (v4.4.0)
+            BASE_COMMIT=$(git rev-list -n 1 v4.4.0 2>/dev/null || git rev-list --max-parents=0 HEAD)
+            echo "No sync tag found, using initial fork point"
+          fi
+          echo "base_commit=$BASE_COMMIT" >> $GITHUB_OUTPUT
+
+          # Count commits behind upstream
+          COMMITS_BEHIND=$(git rev-list --count $BASE_COMMIT..upstream/main)
+          echo "commits_behind=$COMMITS_BEHIND" >> $GITHUB_OUTPUT
+          echo "Commits behind upstream: $COMMITS_BEHIND"
+
+          # Get list of changed files in core modules
+          CORE_FILES_CHANGED=$(git diff --name-only $BASE_COMMIT..upstream/main | \
+            grep -E '^src/adri/(decorator|validator|guard|analysis|config|standards|utils)' || true)
+
+          if [ -n "$CORE_FILES_CHANGED" ]; then
+            echo "Core module changes detected"
+            echo "core_changes=true" >> $GITHUB_OUTPUT
+            echo "$CORE_FILES_CHANGED" > /tmp/core_files_changed.txt
+          else
+            echo "No core module changes"
+            echo "core_changes=false" >> $GITHUB_OUTPUT
+          fi
+
+          # Set needs_sync flag if there are commits and core changes
+          if [ "$COMMITS_BEHIND" -gt 0 ] && [ -n "$CORE_FILES_CHANGED" ]; then
+            echo "needs_sync=true" >> $GITHUB_OUTPUT
+          else
+            echo "needs_sync=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Get upstream commit details
+        if: steps.check_updates.outputs.needs_sync == 'true'
+        id: commit_details
+        run: |
+          # Get commits between our base and upstream
+          git log --oneline --no-merges ${{ steps.check_updates.outputs.base_commit }}..upstream/main \
+            --pretty=format:"- %h %s" > /tmp/commits.txt
+
+          # Get latest upstream version tag
+          UPSTREAM_VERSION=$(git describe --tags upstream/main --abbrev=0 2>/dev/null || echo "unknown")
+          echo "upstream_version=$UPSTREAM_VERSION" >> $GITHUB_OUTPUT
+
+          # Count changes per core module
+          echo "## Core Module Changes" > /tmp/module_changes.txt
+          for module in decorator validator guard analysis config standards utils; do
+            CHANGES=$(git diff --stat ${{ steps.check_updates.outputs.base_commit }}..upstream/main -- \
+              src/adri/$module 2>/dev/null | tail -n 1 || echo "")
+            if [ -n "$CHANGES" ]; then
+              echo "- **$module**: $CHANGES" >> /tmp/module_changes.txt
+            fi
+          done
+
+      - name: Create sync issue
+        if: steps.check_updates.outputs.needs_sync == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+
+            // Read commit list
+            const commits = fs.readFileSync('/tmp/commits.txt', 'utf8');
+            const moduleChanges = fs.readFileSync('/tmp/module_changes.txt', 'utf8');
+            const coreFilesChanged = fs.readFileSync('/tmp/core_files_changed.txt', 'utf8');
+
+            const commitsBehind = '${{ steps.check_updates.outputs.commits_behind }}';
+            const upstreamVersion = '${{ steps.commit_details.outputs.upstream_version }}';
+            const upstreamCommit = '${{ steps.check_updates.outputs.upstream_commit }}';
+
+            // Check if issue already exists
+            const existingIssues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: 'upstream-sync',
+              state: 'open'
+            });
+
+            if (existingIssues.data.length > 0) {
+              console.log('Sync issue already exists, updating...');
+              const issue = existingIssues.data[0];
+
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                body: `## 🔄 Upstream Update Detected\n\n` +
+                      `**New commits available**: ${commitsBehind}\n` +
+                      `**Upstream version**: ${upstreamVersion}\n` +
+                      `**Upstream commit**: ${upstreamCommit}\n\n` +
+                      `### Recent Commits\n\n${commits}\n\n` +
+                      `${moduleChanges}\n\n` +
+                      `_Updated: ${new Date().toISOString()}_`
+              });
+            } else {
+              console.log('Creating new sync issue...');
+
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: `🔄 Upstream Sync Available: ${upstreamVersion} (${commitsBehind} commits)`,
+                body: `## Upstream Synchronization Required\n\n` +
+                      `New updates are available from the community ADRI repository that affect core modules.\n\n` +
+                      `### Summary\n\n` +
+                      `- **Commits behind**: ${commitsBehind}\n` +
+                      `- **Upstream version**: ${upstreamVersion}\n` +
+                      `- **Upstream commit**: [\`${upstreamCommit.substring(0, 7)}\`](https://github.com/adri-standard/adri/commit/${upstreamCommit})\n` +
+                      `- **Check date**: ${new Date().toISOString()}\n\n` +
+                      `### Core Module Changes\n\n` +
+                      `${moduleChanges}\n\n` +
+                      `### Changed Files\n\n` +
+                      `\`\`\`\n${coreFilesChanged}\n\`\`\`\n\n` +
+                      `### Recent Commits\n\n` +
+                      `${commits}\n\n` +
+                      `### Next Steps\n\n` +
+                      `1. Review the upstream changes: [Compare view](https://github.com/adri-standard/adri/compare/${{ steps.check_updates.outputs.base_commit }}...main)\n` +
+                      `2. Follow the sync workflow in [UPSTREAM_SYNC.md](./UPSTREAM_SYNC.md)\n` +
+                      `3. Create a sync branch: \`git checkout -b sync/upstream-$(date +%Y-%m-%d)\`\n` +
+                      `4. Cherry-pick or merge relevant changes\n` +
+                      `5. Test thoroughly with enterprise features\n` +
+                      `6. Create PR for review\n\n` +
+                      `### Sync Commands\n\n` +
+                      `\`\`\`bash\n` +
+                      `# Fetch latest upstream\n` +
+                      `git fetch upstream\n\n` +
+                      `# Review changes\n` +
+                      `git log HEAD..upstream/main --oneline\n\n` +
+                      `# Create sync branch\n` +
+                      `git checkout -b sync/upstream-$(date +%Y-%m-%d)\n\n` +
+                      `# Option A: Cherry-pick specific commits\n` +
+                      `git cherry-pick <commit-hash>\n\n` +
+                      `# Option B: Merge with protection\n` +
+                      `git merge upstream/main --no-commit --no-ff\n` +
+                      `# Then reset enterprise modules as per UPSTREAM_SYNC.md\n` +
+                      `\`\`\`\n\n` +
+                      `### Protected Modules (Do Not Sync)\n\n` +
+                      `- \`src/adri/logging/enterprise.py\`\n` +
+                      `- \`src/adri/logging/unified.py\`\n` +
+                      `- \`src/adri/logging/fast_path.py\`\n` +
+                      `- \`src/adri/events/\`\n` +
+                      `- \`src/adri/callbacks/\`\n\n` +
+                      `### Documentation\n\n` +
+                      `- [Upstream Sync Guide](./UPSTREAM_SYNC.md)\n` +
+                      `- [Enterprise Features](./ENTERPRISE_FEATURES.md)\n` +
+                      `- [Implementation Plan](./implementation_plan.md)\n\n` +
+                      `---\n\n` +
+                      `_This issue was automatically created by the upstream sync check workflow._`,
+                labels: ['upstream-sync', 'maintenance', 'enhancement']
+              });
+            }
+
+      - name: Post summary
+        if: always()
+        run: |
+          echo "## Upstream Sync Check Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commits behind**: ${{ steps.check_updates.outputs.commits_behind }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Core changes**: ${{ steps.check_updates.outputs.core_changes }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Needs sync**: ${{ steps.check_updates.outputs.needs_sync }}" >> $GITHUB_STEP_SUMMARY
+
+          if [ "${{ steps.check_updates.outputs.needs_sync }}" == "true" ]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "✅ Sync issue created/updated" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "✓ No sync required - up to date with upstream" >> $GITHUB_STEP_SUMMARY
+          fi

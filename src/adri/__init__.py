@@ -1,11 +1,15 @@
 """
-ADRI - Stop Your AI Agents Breaking on Bad Data.
+verodat-adri - Enterprise Edition: Stop Your AI Agents Breaking on Bad Data.
 
-A data quality assessment framework that protects AI agents from unreliable data.
-Simple decorator-based API with comprehensive CLI tools for data teams.
+An enterprise data quality assessment framework with Verodat cloud integration,
+event-driven logging, and workflow orchestration. Built on community ADRI foundation.
 
 Key Features:
 - @adri_protected decorator for automatic data quality checks
+- Enterprise: Verodat cloud integration with 5s flush (vs 60s community)
+- Enterprise: Fast-path logging for <10ms assessment ID capture
+- Enterprise: Event-driven architecture for real-time workflow coordination
+- Enterprise: Async callbacks and workflow adapters (Prefect, Airflow)
 - CLI tools for assessment, standard generation, and reporting
 - YAML-based standards for transparency and collaboration
 - Five-dimension quality assessment (validity, completeness, freshness, consistency, plausibility)
@@ -57,12 +61,14 @@ __all__ = [
 ]
 
 # Package metadata
-__author__ = "Thomas"
-__email__ = "thomas@adri.dev"
-__license__ = "MIT"
+__author__ = "Verodat"
+__email__ = "adri@verodat.com"
+__license__ = "Apache-2.0"
 __description__ = (
-    "Stop Your AI Agents Breaking on Bad Data - Data Quality Assessment Framework"
+    "Enterprise Edition: Stop Your AI Agents Breaking on Bad Data - "
+    "Data Quality Assessment with Verodat Cloud Integration, Event-Driven Logging, "
+    "and Workflow Orchestration"
 )
-__url__ = "https://github.com/adri-framework/adri"
-# Release v4.3.0
-# Trigger CI for v4.4.0 changelog
+__url__ = "https://github.com/Verodat/verodat-adri"
+# verodat-adri v5.0.0 - Enterprise Edition First Release
+# Forked from community ADRI v4.4.0 with enterprise features

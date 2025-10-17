@@ -217,12 +217,14 @@ jobs:
           "ARCHITECTURE.md"
           "CHANGELOG.md"
           "CONTRIBUTING.md"
+          "ENTERPRISE_FEATURES.md"
           "LICENSE"
           "NOTICE"
           "pyproject.toml"
           "README.md"
           "SECURITY.md"
           "TRADEMARK.md"
+          "UPSTREAM_SYNC.md"
         )
 
         # Define allowed root directories

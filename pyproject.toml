@@ -3,22 +3,23 @@ requires = ["setuptools>=61.0", "setuptools_scm[toml]>=6.2", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "adri"
+name = "verodat-adri"
 dynamic = ["version"]
-description = "AI Data Reliability Intelligence - Comprehensive data quality assessment and validation framework"
+description = "AI Data Reliability Intelligence - Enterprise Edition: Comprehensive data quality assessment with Verodat cloud integration, event-driven logging, and workflow orchestration"
 readme = "README.md"
 license = {file = "LICENSE"}
 authors = [
-    {name = "Thomas Russell", email = "adri@verodat.com"}
+    {name = "Verodat", email = "adri@verodat.com"}
 ]
 maintainers = [
-    {name = "Thomas Russell", email = "adri@verodat.com"}
+    {name = "Verodat", email = "adri@verodat.com"}
 ]
-keywords = ["data-quality", "ai", "validation", "assessment", "reliability"]
+keywords = ["data-quality", "ai", "validation", "assessment", "reliability", "enterprise", "verodat", "workflow-orchestration"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
+    "Intended Audience :: Enterprise",
     "License :: OSI Approved :: Apache Software License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
@@ -29,6 +30,9 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
     "Topic :: Software Development :: Quality Assurance",
     "Topic :: Software Development :: Testing",
+    "Topic :: System :: Monitoring",
+    "Framework :: Prefect",
+    "Framework :: Apache Airflow",
 ]
 requires-python = ">=3.10"
 dependencies = [
@@ -52,7 +56,7 @@ workflows = [
 ]
 # Complete event-driven logging stack
 events = [
-    "adri[redis,workflows]",
+    "verodat-adri[redis,workflows]",
 ]
 dev = [
     "pytest>=8.2.0",
@@ -89,15 +93,15 @@ security = [
 ]
 # Full installation with all features
 full = [
-    "adri[redis,workflows,dev,test,security]",
+    "verodat-adri[redis,workflows,dev,test,security]",
 ]
 
 [project.urls]
-Homepage = "https://github.com/adri-standard/adri"
-Documentation = "https://github.com/adri-standard/adri/blob/main/README.md"
-Repository = "https://github.com/adri-standard/adri"
-Issues = "https://github.com/adri-standard/adri/issues"
-Changelog = "https://github.com/adri-standard/adri/blob/main/CHANGELOG.md"
+Homepage = "https://github.com/Verodat/verodat-adri"
+Documentation = "https://github.com/Verodat/verodat-adri/blob/main/README.md"
+Repository = "https://github.com/Verodat/verodat-adri"
+Issues = "https://github.com/Verodat/verodat-adri/issues"
+Changelog = "https://github.com/Verodat/verodat-adri/blob/main/CHANGELOG.md"
 
 [project.scripts]
 adri = "adri.cli:main"
@@ -355,4 +359,4 @@ ignore = [
 version_scheme = "post-release"
 local_scheme = "node-and-date"
 write_to = "src/adri/_version.py"
-fallback_version = "4.0.0"
+fallback_version = "5.0.0"

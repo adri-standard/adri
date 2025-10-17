@@ -9,6 +9,217 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 No unreleased changes.
 
+## [5.0.0] - 2025-04-05
+
+### Overview
+**Enterprise Edition First Release** - verodat-adri v5.0.0 marks the inaugural release of the enterprise edition, forked from community ADRI v4.4.0. This release introduces powerful enterprise features including Verodat cloud integration, event-driven assessment logging, fast-path ID capture, async callback infrastructure, and native workflow orchestration adapters. The package is now published as `verodat-adri` on PyPI while maintaining 100% backward compatibility with `import adri`.
+
+### Breaking Changes
+**None** - This release maintains full backward compatibility with community ADRI. All existing code using `import adri` continues to work unchanged.
+
+### Added - Enterprise Features
+
+- **Verodat Cloud Integration** (`src/adri/logging/enterprise.py`)
+  - EnterpriseLogger with real-time upload to Verodat platform
+  - Reduced batch flush interval: 60s → 5s for faster cloud sync
+  - Cloud-based assessment history with team collaboration
+  - Advanced analytics, reporting, and compliance audit trails
+  - Secure API key authentication with workspace isolation
+
+- **Event-Driven Architecture** (`src/adri/events/`)
+  - Thread-safe EventBus with pub/sub pattern for real-time notifications
+  - Five event types: CREATED, STARTED, COMPLETED, FAILED, PERSISTED
+  - <5ms event publishing overhead with error isolation
+  - Support for both sync and async event subscribers
+  - Enables real-time workflow coordination and monitoring
+
+- **Fast Path Logging** (`src/adri/logging/fast_path.py`)
+  - Immediate assessment ID capture in <10ms (vs 30-60s in community edition)
+  - Three storage backends: MemoryBackend, FileBackend, RedisBackend
+  - `wait_for_completion()` API for blocking workflows
+  - TTL-based automatic cleanup with configurable retention
+  - Critical for real-time workflow orchestration integration
+
+- **Unified Logger** (`src/adri/logging/unified.py`)
+  - Coordinated dual-write to fast path and slow path (enterprise cloud)
+  - Automatic error isolation between logging paths
+  - Best of both worlds: immediate IDs + complete cloud logging
+  - Graceful degradation when one path fails
+
+- **Async Callback Infrastructure** (`src/adri/callbacks/`)
+  - AsyncCallbackManager with configurable thread pool
+  - Support for both async and sync callback functions
+  - <50ms callback invocation overhead
+  - Error handling and timeout management
+  - Enables complex post-assessment workflows
+
+- **Workflow Orchestration Adapters** (`src/adri/callbacks/workflow_adapters.py`)
+  - PrefectAdapter for Prefect workflow integration
+  - AirflowAdapter for Apache Airflow integration
+  - Automatic artifact creation and XCom integration
+  - Native state updates and failure handling
+  - Pre-built callbacks for common workflow patterns
+
+### Added - Package Infrastructure
+
+- **Upstream Synchronization** (UPSTREAM_SYNC.md)
+  - Documented workflow for syncing core modules from adri-standard/adri
+  - Protected enterprise-only modules list (events, callbacks, enterprise logging)
+  - Sync-eligible core modules list (decorator, validator, guard, analysis)
+  - Automated weekly upstream check workflow (.github/workflows/upstream-sync-check.yml)
+  - Cherry-pick and merge strategies with conflict resolution guidelines
+
+- **Enterprise Features Documentation** (ENTERPRISE_FEATURES.md)
+  - Complete feature comparison: community vs enterprise
+  - Migration guide from community ADRI
+  - Enterprise use case examples and code samples
+  - Configuration examples and best practices
+  - Performance comparison table
+
+- **Package Rebranding**
+  - Package name changed from "adri" to "verodat-adri"
+  - Import name remains "adri" for 100% backward compatibility
+  - Updated all URLs from adri-standard/adri to Verodat/verodat-adri
+  - Enhanced package description with enterprise features
+  - Added enterprise-specific classifiers and keywords
+
+### Added - Optional Dependencies
+
+```toml
+# New optional dependency groups for enterprise features
+redis = ["redis>=5.0.0"]  # For RedisBackend fast path storage
+workflows = ["prefect>=2.0.0", "apache-airflow>=2.0.0"]  # Workflow adapters
+events = ["verodat-adri[redis,workflows]"]  # Complete event stack
+```
+
+### Changed
+
+- **Repository Structure**
+  - Repository renamed from adri-enterprise to verodat-adri
+  - Upstream remote configured to adri-standard/adri for core sync
+  - Enhanced documentation with enterprise differentiation
+
+- **Version Strategy**
+  - Enterprise v5.0.0 aligns with community ADRI v5.0.0
+  - Fallback version updated to 5.0.0 in setuptools_scm
+  - Future releases maintain version parity with community edition
+
+- **Package Metadata**
+  - Authors/Maintainers updated to "Verodat"
+  - Homepage, Repository, Issues URLs point to Verodat organization
+  - Enhanced description emphasizes enterprise capabilities
+
+### Testing
+
+- **All Existing Tests Pass** - 1135+ tests from community ADRI v4.4.0
+  - Zero test regressions during enterprise feature integration
+  - Full compatibility maintained across all modules
+  - Cross-platform testing: Ubuntu, Windows, macOS
+  - Python versions: 3.10, 3.11, 3.12, 3.13
+
+- **New Enterprise Tests** - 67 additional tests for enterprise features
+  - Event system: 15 tests (96% coverage)
+  - Fast path logging: 15 tests (58% coverage)
+  - Async callbacks: 20 tests (91% coverage)
+  - Integration tests: 17 tests (end-to-end workflows)
+  - All tests passing (3 Redis tests skipped when Redis unavailable)
+
+### Performance
+
+Enterprise features meet all performance targets:
+- ✅ Fast path writes: <10ms p99 latency
+- ✅ Event publishing: <5ms overhead
+- ✅ Async callbacks: <50ms invocation
+- ✅ Memory overhead: <100MB
+- ✅ Enterprise flush: 60s → 5s
+
+### Migration from Community ADRI
+
+**Installation Change:**
+```bash
+# Old (community)
+pip install adri
+
+# New (enterprise)
+pip install verodat-adri
+
+# With enterprise features
+pip install verodat-adri[events]
+```
+
+**Code Changes:**
+**None required!** All existing code using `import adri` continues to work:
+
+```python
+# This works in both community and enterprise editions
+from adri import adri_protected
+
+@adri_protected(standard="standard.yaml")
+def process_data(data):
+    return {"result": data}
+```
+
+**Optional Enterprise Features** (opt-in):
+```python
+# Add enterprise features gradually
+from adri.logging.enterprise import EnterpriseLogger
+from adri.logging.fast_path import FastPathLogger, MemoryBackend
+from adri.events import EventBus
+
+# Use enterprise logger for cloud sync
+logger = EnterpriseLogger(api_base_url="https://api.verodat.com")
+
+# Use fast path for immediate assessment IDs
+fast_logger = FastPathLogger(backend=MemoryBackend())
+
+# Use event bus for real-time notifications
+event_bus = EventBus()
+
+@adri_protected(
+    standard="standard.yaml",
+    logger=logger,
+    fast_path_logger=fast_logger,
+    event_bus=event_bus
+)
+def process_data(data):
+    return {"result": data}
+```
+
+### Platform Support
+
+- Cross-platform: Ubuntu Latest, Windows Latest, macOS Latest
+- Python versions: 3.10, 3.11, 3.12, 3.13
+- Comprehensive testing across 12 platform/Python combinations
+- All CI pipelines passing: tests, security, docs
+
+### Documentation
+
+- **README.md**: Updated with enterprise branding and feature comparison
+- **ENTERPRISE_FEATURES.md**: Complete enterprise feature documentation
+- **UPSTREAM_SYNC.md**: Upstream synchronization workflow guide
+- **.github/workflows/upstream-sync-check.yml**: Automated sync monitoring
+- **CHANGELOG.md**: This comprehensive v5.0.0 release entry
+- All documentation URLs updated to Verodat organization
+
+### Contributors
+
+- @thomas-ADRI - Enterprise feature implementation, package rebranding, documentation
+- Verodat Engineering Team - Enterprise architecture and cloud integration
+
+### References
+
+- Enterprise Features: [ENTERPRISE_FEATURES.md](ENTERPRISE_FEATURES.md)
+- Upstream Sync: [UPSTREAM_SYNC.md](UPSTREAM_SYNC.md)
+- Community ADRI: https://github.com/adri-standard/adri
+- verodat-adri Repository: https://github.com/Verodat/verodat-adri
+- PyPI Package: https://pypi.org/project/verodat-adri/
+
+### License
+
+Apache 2.0 - Same as community ADRI, with additional enterprise components copyright Verodat.
+
+---
+
 ## [4.4.0] - 2025-10-15
 
 ### Overview

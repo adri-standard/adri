@@ -487,6 +487,7 @@ class TestLocalLoggingComprehensive:
 
     @pytest.mark.performance
     @pytest.mark.system_infrastructure
+    @pytest.mark.timeout(120)  # Extended timeout for slow Windows CI runners
     def test_high_volume_logging_performance(self, temp_workspace, performance_tester):
         """Test performance with high volume logging."""
 
