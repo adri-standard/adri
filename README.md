@@ -102,6 +102,12 @@ pip install adri
 
 **Requirements**: Python 3.10+
 
+---
+
+⭐ **If ADRI helps your project, [star us on GitHub](https://github.com/adri-standard/adri)** - takes 2 seconds, helps us grow!
+
+---
+
 ## Quick Links
 
 - **[Quickstart Guide](QUICKSTART.md)** - 2-minute integration guide
@@ -309,7 +315,8 @@ Apache 2.0 License. See [LICENSE](LICENSE) for details.
 - 🏢 **[Verodat](https://linkedin.com/company/verodat/)** - Company behind ADRI
 
 ### Support This Project
-- ⭐ **[Star on GitHub](https://github.com/adri-standard/adri)** - Help others discover ADRI
+**If ADRI saves you time, show your support:**
+- ⭐ **[Star on GitHub](https://github.com/adri-standard/adri)** - Takes 2 seconds, helps us reach more developers
 - 🗣️ **Share your wins**: "Solved [your use case] with #ADRI #AIAgents"
 - 🤝 **Contribute a standard**: Your use case could help hundreds - [Guide](CONTRIBUTING.md#contributing-standards-to-the-library)
 - 💬 **Discuss ideas**: [Propose new standards](https://github.com/adri-standard/adri/discussions) or share what you're building
