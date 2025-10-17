@@ -1,0 +1,168 @@
+# E-commerce Order Standard
+# Validates e-commerce order data for completeness and accuracy
+# Use Case: Order processing systems, fulfillment pipelines, sales analytics
+
+standards:
+  id: ecommerce_order_standard
+  name: E-commerce Order Standard
+  version: 1.0.0
+  authority: ADRI Standards Catalog
+  description: Standard for validating e-commerce order records
+
+record_identification:
+  primary_key_fields:
+    - order_id
+  strategy: primary_key_with_fallback
+
+requirements:
+  overall_minimum: 90.0
+
+  field_requirements:
+    # Core identification
+    order_id:
+      type: string
+      nullable: false
+      pattern: '^ORD-\d{8,}$'
+      description: Unique order identifier
+
+    customer_id:
+      type: string
+      nullable: false
+      description: Customer identifier
+
+    # Order details
+    order_date:
+      type: string
+      nullable: false
+      pattern: '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$'
+      description: Order timestamp (ISO 8601)
+
+    order_status:
+      type: string
+      nullable: false
+      valid_values:
+        - Pending
+        - Processing
+        - Shipped
+        - Delivered
+        - Cancelled
+        - Refunded
+      description: Current order status
+
+    # Financial details
+    subtotal:
+      type: float
+      nullable: false
+      min_value: 0.0
+      description: Subtotal before tax and shipping
+
+    tax_amount:
+      type: float
+      nullable: false
+      min_value: 0.0
+      description: Tax amount
+
+    shipping_cost:
+      type: float
+      nullable: false
+      min_value: 0.0
+      description: Shipping cost
+
+    total_amount:
+      type: float
+      nullable: false
+      min_value: 0.0
+      description: Total order amount
+
+    # Shipping details
+    shipping_address_line1:
+      type: string
+      nullable: false
+      description: Shipping address line 1
+
+    shipping_city:
+      type: string
+      nullable: false
+      description: Shipping city
+
+    shipping_state:
+      type: string
+      nullable: false
+      description: Shipping state/province
+
+    shipping_postal_code:
+      type: string
+      nullable: false
+      description: Shipping postal code
+
+    shipping_country:
+      type: string
+      nullable: false
+      description: Shipping country
+
+    # Payment details
+    payment_method:
+      type: string
+      nullable: false
+      valid_values:
+        - Credit Card
+        - Debit Card
+        - PayPal
+        - Bank Transfer
+        - Cash on Delivery
+      description: Payment method used
+
+    payment_status:
+      type: string
+      nullable: false
+      valid_values:
+        - Pending
+        - Completed
+        - Failed
+        - Refunded
+      description: Payment processing status
+
+  dimension_requirements:
+    validity:
+      minimum_score: 22.0
+      weight: 1.0
+
+    completeness:
+      minimum_score: 20.0
+      weight: 1.0
+
+    consistency:
+      minimum_score: 20.0
+      weight: 1.0
+
+    freshness:
+      minimum_score: 14.0
+      weight: 1.0
+
+    plausibility:
+      minimum_score: 14.0
+      weight: 1.0
+
+metadata:
+  purpose: Validate e-commerce order data quality for processing and analytics
+  usage: |
+    This standard ensures order records contain:
+    1. Valid order and customer identifiers
+    2. Complete financial calculations (subtotal + tax + shipping = total)
+    3. Full shipping address information
+    4. Payment method and status tracking
+    5. Order status workflow compliance
+
+  example_usage: |
+    from adri import adri_protected
+    import pandas as pd
+
+    @adri_protected(standard="ecommerce_order_standard")
+    def process_orders(orders_df):
+        # Process validated order data
+        return orders_df
+
+  created_by: ADRI Standards Catalog
+  created_date: 2025-01-17
+  domain: E-commerce
+  tags: [orders, ecommerce, sales, fulfillment]

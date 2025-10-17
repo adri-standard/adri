@@ -1,0 +1,160 @@
+# Nested JSON Template
+# Generic template for validating nested/hierarchical JSON data
+# Use Case: Complex configurations, nested objects, tree structures
+
+standards:
+  id: nested_json_template
+  name: Nested JSON Structure Template
+  version: 1.0.0
+  authority: ADRI Standards Catalog
+  description: Generic template for validating nested JSON data structures
+
+record_identification:
+  primary_key_fields:
+    - record_id
+  strategy: primary_key_with_fallback
+
+requirements:
+  overall_minimum: 80.0
+
+  field_requirements:
+    # Core identification
+    record_id:
+      type: string
+      nullable: false
+      description: Unique record identifier
+
+    record_type:
+      type: string
+      nullable: false
+      description: Type of nested structure
+
+    # Hierarchy metadata
+    parent_id:
+      type: string
+      nullable: true
+      description: Parent record ID (null for root)
+
+    depth_level:
+      type: integer
+      nullable: false
+      min_value: 0
+      description: Depth level in hierarchy (0 = root)
+
+    path:
+      type: string
+      nullable: false
+      description: Full path from root (e.g., 'root.child1.grandchild')
+
+    # Content
+    name:
+      type: string
+      nullable: false
+      description: Node name
+
+    data:
+      type: string
+      nullable: false
+      description: JSON string containing node data
+
+    # Structure information
+    has_children:
+      type: boolean
+      nullable: false
+      description: Whether node has child nodes
+
+    child_count:
+      type: integer
+      nullable: false
+      min_value: 0
+      description: Number of direct children
+
+    total_descendants:
+      type: integer
+      nullable: false
+      min_value: 0
+      description: Total number of descendants
+
+    # Metadata
+    created_at:
+      type: string
+      nullable: false
+      pattern: '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$'
+      description: Node creation timestamp
+
+    updated_at:
+      type: string
+      nullable: false
+      pattern: '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$'
+      description: Node last update timestamp
+
+    # Status
+    is_active:
+      type: boolean
+      nullable: false
+      description: Whether node is active
+
+    validation_status:
+      type: string
+      nullable: false
+      valid_values:
+        - valid
+        - invalid
+        - pending
+        - unknown
+      description: Validation status of node data
+
+  dimension_requirements:
+    validity:
+      minimum_score: 18.0
+      weight: 1.0
+
+    completeness:
+      minimum_score: 17.0
+      weight: 1.0
+
+    consistency:
+      minimum_score: 17.0
+      weight: 1.0
+
+    freshness:
+      minimum_score: 14.0
+      weight: 1.0
+
+    plausibility:
+      minimum_score: 14.0
+      weight: 1.0
+
+metadata:
+  purpose: Generic template for validating nested JSON structures
+  usage: |
+    This template validates:
+    1. Hierarchical record identification
+    2. Parent-child relationships
+    3. Depth and path tracking
+    4. Child count consistency
+    5. Node data and metadata
+    6. Validation status
+
+  customization_notes: |
+    To customize this template:
+    1. Add domain-specific record_type values
+    2. Define custom data schema for your JSON content
+    3. Add business rules for depth_level limits
+    4. Configure child_count validation rules
+    5. Add custom validation_status values
+    6. Define path format conventions
+
+  example_usage: |
+    from adri import adri_protected
+    import pandas as pd
+
+    @adri_protected(standard="nested_json_template")
+    def process_nested_data(nested_df):
+        # Process validated nested JSON structures
+        return nested_df
+
+  created_by: ADRI Standards Catalog
+  created_date: 2025-01-17
+  category: Template
+  tags: [json, nested, hierarchical, template, tree-structure]

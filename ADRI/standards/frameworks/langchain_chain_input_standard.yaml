@@ -1,0 +1,142 @@
+# LangChain Chain Input Standard
+# Validates input data for LangChain chain processing
+# Use Case: LangChain workflows, chain validation, AI agent inputs
+
+standards:
+  id: langchain_chain_input_standard
+  name: LangChain Chain Input Standard
+  version: 1.0.0
+  authority: ADRI Standards Catalog
+  description: Standard for validating LangChain chain input data
+
+record_identification:
+  primary_key_fields:
+    - input_id
+  strategy: primary_key_with_fallback
+
+requirements:
+  overall_minimum: 80.0
+
+  field_requirements:
+    # Core identification
+    input_id:
+      type: string
+      nullable: false
+      description: Unique input identifier
+
+    chain_type:
+      type: string
+      nullable: false
+      valid_values:
+        - ConversationChain
+        - LLMChain
+        - SequentialChain
+        - TransformChain
+        - RouterChain
+      description: Type of LangChain chain
+
+    # Input data
+    user_input:
+      type: string
+      nullable: false
+      description: User input text or prompt
+
+    context:
+      type: string
+      nullable: true
+      description: Additional context for the chain
+
+    # Configuration
+    temperature:
+      type: float
+      nullable: false
+      min_value: 0.0
+      max_value: 2.0
+      description: Model temperature setting
+
+    max_tokens:
+      type: integer
+      nullable: false
+      min_value: 1
+      max_value: 32000
+      description: Maximum tokens for response
+
+    model_name:
+      type: string
+      nullable: false
+      description: LLM model identifier
+
+    # Metadata
+    timestamp:
+      type: string
+      nullable: false
+      pattern: '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$'
+      description: Input timestamp (ISO 8601)
+
+    user_id:
+      type: string
+      nullable: false
+      description: User identifier
+
+    session_id:
+      type: string
+      nullable: true
+      description: Conversation session identifier
+
+    # Memory and history
+    memory_enabled:
+      type: boolean
+      nullable: false
+      description: Whether conversation memory is enabled
+
+    history_length:
+      type: integer
+      nullable: false
+      min_value: 0
+      description: Number of previous messages in context
+
+  dimension_requirements:
+    validity:
+      minimum_score: 18.0
+      weight: 1.0
+
+    completeness:
+      minimum_score: 17.0
+      weight: 1.0
+
+    consistency:
+      minimum_score: 17.0
+      weight: 1.0
+
+    freshness:
+      minimum_score: 14.0
+      weight: 1.0
+
+    plausibility:
+      minimum_score: 14.0
+      weight: 1.0
+
+metadata:
+  purpose: Validate LangChain chain input data for processing
+  usage: |
+    This standard ensures LangChain inputs contain:
+    1. Valid chain type and configuration
+    2. Required user input and optional context
+    3. Model parameters (temperature, max_tokens)
+    4. User and session tracking
+    5. Memory configuration
+
+  example_usage: |
+    from adri import adri_protected
+    import pandas as pd
+
+    @adri_protected(standard="langchain_chain_input_standard")
+    def process_chain_inputs(inputs_df):
+        # Process validated LangChain inputs
+        return inputs_df
+
+  framework_version: LangChain 0.1.x+
+  created_by: ADRI Standards Catalog
+  created_date: 2025-01-17
+  framework: LangChain
+  tags: [langchain, chains, llm, ai-agents]

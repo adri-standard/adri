@@ -1,0 +1,156 @@
+# AutoGen Message Standard
+# Validates message data for AutoGen multi-agent conversations
+# Use Case: AutoGen agents, conversational AI, multi-agent dialogue
+
+standards:
+  id: autogen_message_standard
+  name: AutoGen Message Standard
+  version: 1.0.0
+  authority: ADRI Standards Catalog
+  description: Standard for validating AutoGen agent message data
+
+record_identification:
+  primary_key_fields:
+    - message_id
+  strategy: primary_key_with_fallback
+
+requirements:
+  overall_minimum: 80.0
+
+  field_requirements:
+    # Core identification
+    message_id:
+      type: string
+      nullable: false
+      pattern: '^MSG-[A-Z0-9]{10,}$'
+      description: Unique message identifier
+
+    conversation_id:
+      type: string
+      nullable: false
+      description: Conversation identifier
+
+    # Message details
+    role:
+      type: string
+      nullable: false
+      valid_values:
+        - user
+        - assistant
+        - system
+        - function
+      description: Message role in conversation
+
+    content:
+      type: string
+      nullable: false
+      description: Message content/text
+
+    # Agent information
+    sender_agent:
+      type: string
+      nullable: false
+      description: Sending agent name/identifier
+
+    receiver_agent:
+      type: string
+      nullable: false
+      description: Receiving agent name/identifier
+
+    # Metadata
+    timestamp:
+      type: string
+      nullable: false
+      pattern: '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+$'
+      description: Message timestamp
+
+    sequence_number:
+      type: integer
+      nullable: false
+      min_value: 0
+      description: Message sequence in conversation
+
+    # Function calling
+    function_call:
+      type: string
+      nullable: true
+      description: JSON object with function call details
+
+    function_response:
+      type: string
+      nullable: true
+      description: JSON object with function response
+
+    # Execution context
+    execution_mode:
+      type: string
+      nullable: false
+      valid_values:
+        - auto
+        - manual
+        - terminate
+      description: Message execution mode
+
+    termination_keyword:
+      type: string
+      nullable: true
+      description: Keyword that triggered termination
+
+    # Token usage
+    tokens_used:
+      type: integer
+      nullable: false
+      min_value: 0
+      description: Tokens consumed by message
+
+    model_name:
+      type: string
+      nullable: false
+      description: LLM model used
+
+  dimension_requirements:
+    validity:
+      minimum_score: 18.0
+      weight: 1.0
+
+    completeness:
+      minimum_score: 17.0
+      weight: 1.0
+
+    consistency:
+      minimum_score: 17.0
+      weight: 1.0
+
+    freshness:
+      minimum_score: 14.0
+      weight: 1.0
+
+    plausibility:
+      minimum_score: 14.0
+      weight: 1.0
+
+metadata:
+  purpose: Validate AutoGen message data for multi-agent conversations
+  usage: |
+    This standard ensures message records contain:
+    1. Valid message and conversation identifiers
+    2. Message role and content
+    3. Sender and receiver agent information
+    4. Sequence tracking
+    5. Function calling details (if applicable)
+    6. Token usage and model information
+
+  example_usage: |
+    from adri import adri_protected
+    import pandas as pd
+
+    @adri_protected(standard="autogen_message_standard")
+    def process_agent_messages(messages_df):
+        # Process validated AutoGen messages
+        return messages_df
+
+  framework_version: AutoGen 0.2.x+
+  created_by: ADRI Standards Catalog
+  created_date: 2025-01-17
+  framework: AutoGen
+  tags: [autogen, multi-agent, messages, conversation, function-calling]

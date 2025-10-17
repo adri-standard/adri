@@ -1,0 +1,165 @@
+# Time Series Template
+# Generic template for validating time series data
+# Use Case: Sensor data, metrics, logs, financial data
+
+standards:
+  id: time_series_template
+  name: Time Series Data Template
+  version: 1.0.0
+  authority: ADRI Standards Catalog
+  description: Generic template for validating time series data structures
+
+record_identification:
+  primary_key_fields:
+    - timestamp
+    - metric_name
+  strategy: primary_key_with_fallback
+
+requirements:
+  overall_minimum: 85.0
+
+  field_requirements:
+    # Time identification
+    timestamp:
+      type: string
+      nullable: false
+      pattern: '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$'
+      description: Measurement timestamp (ISO 8601)
+
+    # Metric identification
+    metric_name:
+      type: string
+      nullable: false
+      description: Name of the metric being measured
+
+    metric_id:
+      type: string
+      nullable: false
+      description: Unique metric identifier
+
+    # Value
+    value:
+      type: float
+      nullable: false
+      description: Metric value
+
+    unit:
+      type: string
+      nullable: false
+      description: Unit of measurement
+
+    # Data source
+    source_id:
+      type: string
+      nullable: false
+      description: Data source identifier
+
+    source_type:
+      type: string
+      nullable: false
+      valid_values:
+        - sensor
+        - application
+        - user
+        - system
+        - external
+      description: Type of data source
+
+    # Quality indicators
+    quality_score:
+      type: float
+      nullable: false
+      min_value: 0.0
+      max_value: 100.0
+      description: Data quality score (0-100)
+
+    confidence:
+      type: float
+      nullable: false
+      min_value: 0.0
+      max_value: 1.0
+      description: Confidence level (0.0-1.0)
+
+    is_anomaly:
+      type: boolean
+      nullable: false
+      description: Whether value is flagged as anomaly
+
+    # Aggregation metadata
+    aggregation_type:
+      type: string
+      nullable: false
+      valid_values:
+        - raw
+        - average
+        - sum
+        - min
+        - max
+        - count
+      description: Type of aggregation applied
+
+    aggregation_window:
+      type: string
+      nullable: true
+      description: Aggregation window (e.g., '1m', '5m', '1h')
+
+    # Tags and dimensions
+    tags:
+      type: string
+      nullable: true
+      description: Comma-separated tags for grouping
+
+  dimension_requirements:
+    validity:
+      minimum_score: 19.0
+      weight: 1.0
+
+    completeness:
+      minimum_score: 18.0
+      weight: 1.0
+
+    consistency:
+      minimum_score: 18.0
+      weight: 1.0
+
+    freshness:
+      minimum_score: 15.0
+      weight: 1.0
+
+    plausibility:
+      minimum_score: 15.0
+      weight: 1.0
+
+metadata:
+  purpose: Generic template for validating time series data
+  usage: |
+    This template validates:
+    1. Time-based measurements
+    2. Metric identification and values
+    3. Data source tracking
+    4. Quality indicators
+    5. Aggregation metadata
+    6. Tagging and dimensions
+
+  customization_notes: |
+    To customize this template:
+    1. Add domain-specific metrics to metric_name validation
+    2. Define custom units based on measurement types
+    3. Add source_type values for your data sources
+    4. Configure anomaly detection thresholds
+    5. Add custom aggregation types
+    6. Define tag taxonomies for grouping
+
+  example_usage: |
+    from adri import adri_protected
+    import pandas as pd
+
+    @adri_protected(standard="time_series_template")
+    def process_time_series(metrics_df):
+        # Process validated time series data
+        return metrics_df
+
+  created_by: ADRI Standards Catalog
+  created_date: 2025-01-17
+  category: Template
+  tags: [time-series, metrics, monitoring, template, sensors]

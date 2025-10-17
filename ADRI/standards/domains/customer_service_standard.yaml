@@ -1,0 +1,141 @@
+# Customer Service Standard
+# Validates customer service interaction data for quality and completeness
+# Use Case: Customer support systems, ticketing platforms, chat logs
+
+standards:
+  id: customer_service_standard
+  name: Customer Service Interaction Standard
+  version: 1.0.0
+  authority: ADRI Standards Catalog
+  description: Standard for validating customer service interaction records
+
+record_identification:
+  primary_key_fields:
+    - ticket_id
+  strategy: primary_key_with_fallback
+
+requirements:
+  overall_minimum: 85.0
+
+  field_requirements:
+    # Core identification
+    ticket_id:
+      type: string
+      nullable: false
+      pattern: '^TKT-\d{6,}$'
+      description: Unique ticket identifier
+
+    customer_id:
+      type: string
+      nullable: false
+      description: Customer identifier
+
+    # Interaction details
+    created_date:
+      type: string
+      nullable: false
+      pattern: '^\d{4}-\d{2}-\d{2}$'
+      description: Ticket creation date (YYYY-MM-DD)
+
+    category:
+      type: string
+      nullable: false
+      valid_values:
+        - Technical Support
+        - Billing
+        - Product Inquiry
+        - Complaint
+        - Feature Request
+      description: Support category
+
+    priority:
+      type: string
+      nullable: false
+      valid_values:
+        - Low
+        - Medium
+        - High
+        - Critical
+      description: Ticket priority level
+
+    status:
+      type: string
+      nullable: false
+      valid_values:
+        - Open
+        - In Progress
+        - Resolved
+        - Closed
+      description: Current ticket status
+
+    # Response metrics
+    first_response_time_hours:
+      type: float
+      nullable: false
+      min_value: 0.0
+      max_value: 720.0
+      description: Hours until first response
+
+    resolution_time_hours:
+      type: float
+      nullable: true
+      min_value: 0.0
+      description: Hours to resolution (null if unresolved)
+
+    # Quality metrics
+    customer_satisfaction_score:
+      type: integer
+      nullable: true
+      min_value: 1
+      max_value: 5
+      description: Customer satisfaction rating (1-5, null if not rated)
+
+    agent_id:
+      type: string
+      nullable: false
+      description: Assigned support agent identifier
+
+  dimension_requirements:
+    validity:
+      minimum_score: 20.0
+      weight: 1.0
+
+    completeness:
+      minimum_score: 18.0
+      weight: 1.0
+
+    consistency:
+      minimum_score: 18.0
+      weight: 1.0
+
+    freshness:
+      minimum_score: 14.0
+      weight: 1.0
+
+    plausibility:
+      minimum_score: 15.0
+      weight: 1.0
+
+metadata:
+  purpose: Validate customer service interaction data quality
+  usage: |
+    This standard ensures customer service records contain:
+    1. Valid ticket identifiers and customer IDs
+    2. Proper categorization and priority assignment
+    3. Response time tracking
+    4. Status workflow compliance
+    5. Optional satisfaction ratings
+
+  example_usage: |
+    from adri import adri_protected
+    import pandas as pd
+
+    @adri_protected(standard="customer_service_standard")
+    def process_support_tickets(tickets_df):
+        # Process validated customer service data
+        return tickets_df
+
+  created_by: ADRI Standards Catalog
+  created_date: 2025-01-17
+  domain: Customer Service
+  tags: [support, tickets, customer-service, quality]

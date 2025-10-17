@@ -1,0 +1,165 @@
+# CrewAI Task Context Standard
+# Validates task context data for CrewAI multi-agent workflows
+# Use Case: CrewAI orchestration, agent task inputs, multi-agent systems
+
+standards:
+  id: crewai_task_context_standard
+  name: CrewAI Task Context Standard
+  version: 1.0.0
+  authority: ADRI Standards Catalog
+  description: Standard for validating CrewAI task context data
+
+record_identification:
+  primary_key_fields:
+    - task_id
+  strategy: primary_key_with_fallback
+
+requirements:
+  overall_minimum: 85.0
+
+  field_requirements:
+    # Core identification
+    task_id:
+      type: string
+      nullable: false
+      pattern: '^TASK-[A-Z0-9]{8,}$'
+      description: Unique task identifier
+
+    crew_id:
+      type: string
+      nullable: false
+      description: Crew identifier
+
+    # Task details
+    task_description:
+      type: string
+      nullable: false
+      description: Task description for agent
+
+    expected_output:
+      type: string
+      nullable: false
+      description: Expected output format/description
+
+    task_type:
+      type: string
+      nullable: false
+      valid_values:
+        - Research
+        - Analysis
+        - Writing
+        - Coding
+        - Review
+        - Decision
+      description: Type of task
+
+    # Agent assignment
+    assigned_agent_role:
+      type: string
+      nullable: false
+      description: Role of assigned agent
+
+    agent_id:
+      type: string
+      nullable: false
+      description: Agent identifier
+
+    # Context and dependencies
+    context:
+      type: string
+      nullable: true
+      description: Additional context for task
+
+    dependencies:
+      type: string
+      nullable: true
+      description: JSON array of dependent task IDs
+
+    previous_task_output:
+      type: string
+      nullable: true
+      description: Output from previous task in chain
+
+    # Execution metadata
+    priority:
+      type: integer
+      nullable: false
+      min_value: 1
+      max_value: 5
+      description: Task priority (1=highest, 5=lowest)
+
+    status:
+      type: string
+      nullable: false
+      valid_values:
+        - Pending
+        - In Progress
+        - Completed
+        - Failed
+        - Cancelled
+      description: Task execution status
+
+    created_at:
+      type: string
+      nullable: false
+      pattern: '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$'
+      description: Task creation timestamp
+
+    # Tools and capabilities
+    tools_available:
+      type: string
+      nullable: false
+      description: JSON array of available tool names
+
+    max_iterations:
+      type: integer
+      nullable: false
+      min_value: 1
+      description: Maximum iterations for task completion
+
+  dimension_requirements:
+    validity:
+      minimum_score: 19.0
+      weight: 1.0
+
+    completeness:
+      minimum_score: 18.0
+      weight: 1.0
+
+    consistency:
+      minimum_score: 18.0
+      weight: 1.0
+
+    freshness:
+      minimum_score: 15.0
+      weight: 1.0
+
+    plausibility:
+      minimum_score: 15.0
+      weight: 1.0
+
+metadata:
+  purpose: Validate CrewAI task context for multi-agent orchestration
+  usage: |
+    This standard ensures task context contains:
+    1. Valid task and crew identifiers
+    2. Clear task description and expected output
+    3. Agent assignment information
+    4. Context and dependency tracking
+    5. Execution status and metadata
+    6. Available tools and iteration limits
+
+  example_usage: |
+    from adri import adri_protected
+    import pandas as pd
+
+    @adri_protected(standard="crewai_task_context_standard")
+    def process_crew_tasks(tasks_df):
+        # Process validated CrewAI task contexts
+        return tasks_df
+
+  framework_version: CrewAI 0.1.x+
+  created_by: ADRI Standards Catalog
+  created_date: 2025-01-17
+  framework: CrewAI
+  tags: [crewai, multi-agent, tasks, orchestration]

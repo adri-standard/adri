@@ -1,0 +1,150 @@
+# Financial Transaction Standard
+# Validates financial transaction records for accuracy and compliance
+# Use Case: Payment processing, accounting systems, fraud detection
+
+standards:
+  id: financial_transaction_standard
+  name: Financial Transaction Standard
+  version: 1.0.0
+  authority: ADRI Standards Catalog
+  description: Standard for validating financial transaction records
+
+record_identification:
+  primary_key_fields:
+    - transaction_id
+  strategy: primary_key_with_fallback
+
+requirements:
+  overall_minimum: 95.0
+
+  field_requirements:
+    # Core identification
+    transaction_id:
+      type: string
+      nullable: false
+      pattern: '^TXN-[A-Z0-9]{12,}$'
+      description: Unique transaction identifier
+
+    account_id:
+      type: string
+      nullable: false
+      description: Account identifier
+
+    # Transaction details
+    transaction_date:
+      type: string
+      nullable: false
+      pattern: '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+Z$'
+      description: Transaction timestamp (ISO 8601 with timezone)
+
+    transaction_type:
+      type: string
+      nullable: false
+      valid_values:
+        - Debit
+        - Credit
+        - Transfer
+        - Refund
+        - Fee
+      description: Type of transaction
+
+    # Financial amounts
+    amount:
+      type: float
+      nullable: false
+      description: Transaction amount (positive for credit, negative for debit)
+
+    currency:
+      type: string
+      nullable: false
+      pattern: '^[A-Z]{3}$'
+      description: ISO 4217 currency code
+
+    balance_after:
+      type: float
+      nullable: false
+      description: Account balance after transaction
+
+    # Status and processing
+    status:
+      type: string
+      nullable: false
+      valid_values:
+        - Pending
+        - Completed
+        - Failed
+        - Reversed
+      description: Transaction status
+
+    processing_time_ms:
+      type: integer
+      nullable: false
+      min_value: 0
+      description: Processing time in milliseconds
+
+    # Metadata
+    merchant_id:
+      type: string
+      nullable: true
+      description: Merchant identifier (for purchases)
+
+    merchant_category:
+      type: string
+      nullable: true
+      description: Merchant category code
+
+    description:
+      type: string
+      nullable: false
+      description: Transaction description
+
+    # Security
+    authorization_code:
+      type: string
+      nullable: true
+      description: Authorization code for the transaction
+
+  dimension_requirements:
+    validity:
+      minimum_score: 23.0
+      weight: 1.0
+
+    completeness:
+      minimum_score: 20.0
+      weight: 1.0
+
+    consistency:
+      minimum_score: 20.0
+      weight: 1.0
+
+    freshness:
+      minimum_score: 17.0
+      weight: 1.0
+
+    plausibility:
+      minimum_score: 15.0
+      weight: 1.0
+
+metadata:
+  purpose: Validate financial transaction data for accuracy and compliance
+  usage: |
+    This standard ensures transaction records contain:
+    1. Valid transaction and account identifiers
+    2. Accurate financial amounts and currency codes
+    3. Complete status and processing information
+    4. Merchant details for purchase transactions
+    5. Authorization codes for security tracking
+
+  example_usage: |
+    from adri import adri_protected
+    import pandas as pd
+
+    @adri_protected(standard="financial_transaction_standard")
+    def process_transactions(transactions_df):
+        # Process validated transaction data
+        return transactions_df
+
+  created_by: ADRI Standards Catalog
+  created_date: 2025-01-17
+  domain: Financial Services
+  tags: [transactions, finance, payments, compliance]

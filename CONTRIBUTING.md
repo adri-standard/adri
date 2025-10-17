@@ -269,6 +269,106 @@ Contributors are recognized in:
 - Release notes
 - Project README
 
+## Contributing Standards to the Library
+
+The ADRI Standards Library is a community-driven catalog of reusable data quality standards. Contributing standards helps others adopt ADRI faster and builds the ecosystem.
+
+### What Makes a Good Standard Contribution?
+
+**Good Candidates**:
+- ✅ Common business domains (retail, healthcare, finance, logistics)
+- ✅ Popular AI frameworks (LangChain, CrewAI, AutoGen, LlamaIndex)
+- ✅ Generic patterns (event logs, audit trails, user activity)
+- ✅ Industry-specific formats (HL7, FHIR, financial reporting)
+
+**Not Suitable**:
+- ❌ Company-specific internal standards
+- ❌ Standards with proprietary/confidential fields
+- ❌ Overly narrow use cases (single-application standards)
+
+### Standard Contribution Process
+
+1. **Create your standard** following the v5.0.0 format (see [STANDARDS_LIBRARY.md](docs/STANDARDS_LIBRARY.md))
+
+2. **Write comprehensive tests**:
+   ```python
+   def test_your_standard():
+       """Test your contributed standard."""
+       @adri_protected(standard="your_standard_name")
+       def process_data(data):
+           return data
+       
+       # Create sample data matching all required fields
+       data = pd.DataFrame([{
+           "field1": "value1",
+           "field2": 123,
+           # ... all required fields
+       }])
+       
+       result = process_data(data)
+       assert result is not None
+   ```
+
+3. **Document thoroughly**:
+   - Clear description of use case
+   - Field descriptions explaining purpose
+   - Example usage code in metadata
+   - Tags for discoverability
+
+4. **Choose the right location**:
+   - `adri/standards/domains/` - Business domain standards
+   - `adri/standards/frameworks/` - AI framework-specific
+   - `adri/standards/templates/` - Generic reusable templates
+
+5. **Submit pull request** with:
+   - Standard YAML file
+   - Tests in `tests/test_standards_catalog.py`
+   - Entry in `docs/STANDARDS_LIBRARY.md`
+
+### Standard Quality Checklist
+
+- [ ] Unique, descriptive standard ID and name
+- [ ] All fields have descriptions
+- [ ] Appropriate quality threshold (85-95% for production)
+- [ ] Example usage in metadata section
+- [ ] No SQL reserved words in field names
+- [ ] Tests passing with sample data
+- [ ] Clear tags for discoverability
+
+### Standard Format Reference
+
+Required sections:
+```yaml
+standards:
+  id: unique_identifier
+  name: Human Readable Name
+  version: 1.0.0
+  authority: ADRI Standards Catalog
+  description: What this validates
+
+record_identification:
+  primary_key_fields: [id_field]
+  strategy: primary_key_with_fallback
+
+requirements:
+  overall_minimum: 85.0
+  field_requirements:
+    # Your fields here
+
+metadata:
+  purpose: Why this standard exists
+  example_usage: |
+    from adri import adri_protected
+    @adri_protected(standard="your_standard")
+    def process(data):
+        return data
+  created_by: ADRI Standards Catalog
+  created_date: YYYY-MM-DD
+  tags: [tag1, tag2]
+```
+
+See [STANDARDS_LIBRARY.md](docs/STANDARDS_LIBRARY.md) for complete documentation and examples.
+
 ## License
 
 By contributing, you agree that your contributions will be licensed under the MIT License.

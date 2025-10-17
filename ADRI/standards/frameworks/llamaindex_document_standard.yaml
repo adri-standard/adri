@@ -1,0 +1,161 @@
+# LlamaIndex Document Standard
+# Validates document data for LlamaIndex RAG pipelines
+# Use Case: RAG systems, document indexing, knowledge bases
+
+standards:
+  id: llamaindex_document_standard
+  name: LlamaIndex Document Standard
+  version: 1.0.0
+  authority: ADRI Standards Catalog
+  description: Standard for validating LlamaIndex document data
+
+record_identification:
+  primary_key_fields:
+    - doc_id
+  strategy: primary_key_with_fallback
+
+requirements:
+  overall_minimum: 85.0
+
+  field_requirements:
+    # Core identification
+    doc_id:
+      type: string
+      nullable: false
+      pattern: '^DOC-[A-Z0-9]{10,}$'
+      description: Unique document identifier
+
+    # Document content
+    text:
+      type: string
+      nullable: false
+      description: Document text content
+
+    # Metadata
+    source:
+      type: string
+      nullable: false
+      description: Document source/origin
+
+    document_type:
+      type: string
+      nullable: false
+      valid_values:
+        - PDF
+        - Text
+        - Markdown
+        - HTML
+        - Code
+        - JSON
+      description: Type of document
+
+    title:
+      type: string
+      nullable: false
+      description: Document title
+
+    author:
+      type: string
+      nullable: true
+      description: Document author
+
+    created_date:
+      type: string
+      nullable: false
+      pattern: '^\d{4}-\d{2}-\d{2}$'
+      description: Document creation date (YYYY-MM-DD)
+
+    # Indexing metadata
+    chunk_id:
+      type: integer
+      nullable: false
+      min_value: 0
+      description: Chunk identifier within document
+
+    chunk_size:
+      type: integer
+      nullable: false
+      min_value: 1
+      description: Size of text chunk in characters
+
+    total_chunks:
+      type: integer
+      nullable: false
+      min_value: 1
+      description: Total number of chunks for this document
+
+    # Embedding information
+    embedding_model:
+      type: string
+      nullable: false
+      description: Embedding model used
+
+    embedding_dimension:
+      type: integer
+      nullable: false
+      min_value: 1
+      description: Dimension of embedding vector
+
+    # Retrieval metadata
+    keywords:
+      type: string
+      nullable: true
+      description: Comma-separated keywords
+
+    category:
+      type: string
+      nullable: false
+      description: Document category
+
+    language:
+      type: string
+      nullable: false
+      pattern: '^[a-z]{2}$'
+      description: ISO 639-1 language code
+
+  dimension_requirements:
+    validity:
+      minimum_score: 19.0
+      weight: 1.0
+
+    completeness:
+      minimum_score: 18.0
+      weight: 1.0
+
+    consistency:
+      minimum_score: 18.0
+      weight: 1.0
+
+    freshness:
+      minimum_score: 15.0
+      weight: 1.0
+
+    plausibility:
+      minimum_score: 15.0
+      weight: 1.0
+
+metadata:
+  purpose: Validate LlamaIndex document data for RAG indexing
+  usage: |
+    This standard ensures document records contain:
+    1. Valid document and chunk identifiers
+    2. Complete text content
+    3. Source and metadata information
+    4. Chunking configuration
+    5. Embedding model details
+    6. Retrieval metadata (keywords, category)
+
+  example_usage: |
+    from adri import adri_protected
+    import pandas as pd
+
+    @adri_protected(standard="llamaindex_document_standard")
+    def process_documents(docs_df):
+        # Process validated LlamaIndex documents
+        return docs_df
+
+  framework_version: LlamaIndex 0.9.x+
+  created_by: ADRI Standards Catalog
+  created_date: 2025-01-17
+  framework: LlamaIndex
+  tags: [llamaindex, rag, documents, embeddings, retrieval]

@@ -180,6 +180,31 @@ Developer-friendly insights during development:
 - Auto-generated standards
 - Stored in `ADRI/dev/logs/`
 
+## 📚 Browse Standards Library
+
+**13 production-ready standards for common use cases** - Copy, use, or customize for your needs.
+
+### Business Domains
+- **[Customer Service](adri/standards/domains/customer_service_standard.yaml)** - Support tickets, interactions
+- **[E-commerce Orders](adri/standards/domains/ecommerce_order_standard.yaml)** - Order processing, fulfillment  
+- **[Financial Transactions](adri/standards/domains/financial_transaction_standard.yaml)** - Payments, accounting
+- **[Healthcare Patients](adri/standards/domains/healthcare_patient_standard.yaml)** - EHR systems, patient records
+- **[Marketing Campaigns](adri/standards/domains/marketing_campaign_standard.yaml)** - Campaign tracking, ROI
+
+### AI Frameworks
+- **[LangChain Chains](adri/standards/frameworks/langchain_chain_input_standard.yaml)** - Chain input validation
+- **[CrewAI Tasks](adri/standards/frameworks/crewai_task_context_standard.yaml)** - Multi-agent task context
+- **[LlamaIndex Documents](adri/standards/frameworks/llamaindex_document_standard.yaml)** - RAG document structure
+- **[AutoGen Messages](adri/standards/frameworks/autogen_message_standard.yaml)** - Agent message validation
+
+### Generic Templates
+- **[API Responses](adri/standards/templates/api_response_template.yaml)** - REST API response structure
+- **[Time Series](adri/standards/templates/time_series_template.yaml)** - Metrics, sensor data
+- **[Key-Value Pairs](adri/standards/templates/key_value_template.yaml)** - Configuration, settings
+- **[Nested JSON](adri/standards/templates/nested_json_template.yaml)** - Hierarchical structures
+
+**[📖 Full Standards Library Documentation](docs/STANDARDS_LIBRARY.md)** - Complete catalog with usage examples, contribution guide, and customization instructions.
+
 ## Common Use Cases
 
 ### API Data Validation

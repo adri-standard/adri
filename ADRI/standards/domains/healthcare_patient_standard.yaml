@@ -1,0 +1,183 @@
+# Healthcare Patient Standard
+# Validates patient health records for completeness and compliance
+# Use Case: EHR systems, patient management, healthcare analytics
+
+standards:
+  id: healthcare_patient_standard
+  name: Healthcare Patient Record Standard
+  version: 1.0.0
+  authority: ADRI Standards Catalog
+  description: Standard for validating healthcare patient records
+
+record_identification:
+  primary_key_fields:
+    - patient_id
+  strategy: primary_key_with_fallback
+
+requirements:
+  overall_minimum: 92.0
+
+  field_requirements:
+    # Core identification
+    patient_id:
+      type: string
+      nullable: false
+      pattern: '^PAT-\d{8,}$'
+      description: Unique patient identifier
+
+    medical_record_number:
+      type: string
+      nullable: false
+      description: Medical record number
+
+    # Demographics
+    date_of_birth:
+      type: string
+      nullable: false
+      pattern: '^\d{4}-\d{2}-\d{2}$'
+      description: Patient date of birth (YYYY-MM-DD)
+
+    gender:
+      type: string
+      nullable: false
+      valid_values:
+        - Male
+        - Female
+        - Other
+        - Prefer not to say
+      description: Patient gender
+
+    # Contact information
+    phone_number:
+      type: string
+      nullable: false
+      pattern: '^\+?[\d\s\-\(\)]{10,}$'
+      description: Patient phone number
+
+    email:
+      type: string
+      nullable: true
+      description: Patient email address
+
+    # Address
+    address_line1:
+      type: string
+      nullable: false
+      description: Residential address line 1
+
+    city:
+      type: string
+      nullable: false
+      description: City
+
+    state:
+      type: string
+      nullable: false
+      description: State/province
+
+    postal_code:
+      type: string
+      nullable: false
+      description: Postal code
+
+    country:
+      type: string
+      nullable: false
+      description: Country
+
+    # Medical information
+    blood_type:
+      type: string
+      nullable: true
+      valid_values:
+        - A+
+        - A-
+        - B+
+        - B-
+        - AB+
+        - AB-
+        - O+
+        - O-
+      description: Blood type
+
+    primary_physician_id:
+      type: string
+      nullable: false
+      description: Primary care physician identifier
+
+    insurance_provider:
+      type: string
+      nullable: false
+      description: Insurance provider name
+
+    insurance_policy_number:
+      type: string
+      nullable: false
+      description: Insurance policy number
+
+    # Administrative
+    registration_date:
+      type: string
+      nullable: false
+      pattern: '^\d{4}-\d{2}-\d{2}$'
+      description: Patient registration date
+
+    patient_status:
+      type: string
+      nullable: false
+      valid_values:
+        - Active
+        - Inactive
+        - Deceased
+      description: Patient status
+
+  dimension_requirements:
+    validity:
+      minimum_score: 22.0
+      weight: 1.0
+
+    completeness:
+      minimum_score: 20.0
+      weight: 1.0
+
+    consistency:
+      minimum_score: 18.0
+      weight: 1.0
+
+    freshness:
+      minimum_score: 17.0
+      weight: 1.0
+
+    plausibility:
+      minimum_score: 15.0
+      weight: 1.0
+
+metadata:
+  purpose: Validate healthcare patient records for completeness and HIPAA compliance
+  usage: |
+    This standard ensures patient records contain:
+    1. Valid patient and medical record identifiers
+    2. Complete demographic information
+    3. Contact details and residential address
+    4. Medical information (blood type, physician)
+    5. Insurance coverage details
+    6. Patient status tracking
+
+  example_usage: |
+    from adri import adri_protected
+    import pandas as pd
+
+    @adri_protected(standard="healthcare_patient_standard")
+    def process_patient_records(patients_df):
+        # Process validated patient data
+        return patients_df
+
+  compliance_notes: |
+    This standard validates structure and completeness only.
+    Additional HIPAA compliance measures (encryption, access control,
+    audit logging) must be implemented separately.
+
+  created_by: ADRI Standards Catalog
+  created_date: 2025-01-17
+  domain: Healthcare
+  tags: [healthcare, patients, EHR, HIPAA, medical-records]

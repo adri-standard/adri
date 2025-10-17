@@ -1,0 +1,164 @@
+# Key-Value Template
+# Generic template for validating key-value pair data
+# Use Case: Configuration data, feature flags, settings, metadata
+
+standards:
+  id: key_value_template
+  name: Key-Value Pair Template
+  version: 1.0.0
+  authority: ADRI Standards Catalog
+  description: Generic template for validating key-value pair data structures
+
+record_identification:
+  primary_key_fields:
+    - key
+  strategy: primary_key_with_fallback
+
+requirements:
+  overall_minimum: 85.0
+
+  field_requirements:
+    # Core key-value
+    key:
+      type: string
+      nullable: false
+      description: Unique key identifier
+
+    value:
+      type: string
+      nullable: false
+      description: Value (stored as string, can be parsed)
+
+    value_type:
+      type: string
+      nullable: false
+      valid_values:
+        - string
+        - integer
+        - float
+        - boolean
+        - json
+        - array
+      description: Data type of the value
+
+    # Metadata
+    namespace:
+      type: string
+      nullable: false
+      description: Namespace for key grouping
+
+    category:
+      type: string
+      nullable: false
+      description: Category or domain of the key
+
+    description:
+      type: string
+      nullable: true
+      description: Human-readable description
+
+    # Version control
+    version:
+      type: integer
+      nullable: false
+      min_value: 1
+      description: Version number of this key-value
+
+    created_at:
+      type: string
+      nullable: false
+      pattern: '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$'
+      description: Creation timestamp
+
+    updated_at:
+      type: string
+      nullable: false
+      pattern: '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$'
+      description: Last update timestamp
+
+    # Access control
+    is_sensitive:
+      type: boolean
+      nullable: false
+      description: Whether value contains sensitive data
+
+    access_level:
+      type: string
+      nullable: false
+      valid_values:
+        - public
+        - internal
+        - restricted
+        - confidential
+      description: Access level for this key-value
+
+    # Status
+    is_active:
+      type: boolean
+      nullable: false
+      description: Whether key-value is currently active
+
+    environment:
+      type: string
+      nullable: false
+      valid_values:
+        - development
+        - staging
+        - production
+        - all
+      description: Environment where key-value applies
+
+  dimension_requirements:
+    validity:
+      minimum_score: 19.0
+      weight: 1.0
+
+    completeness:
+      minimum_score: 18.0
+      weight: 1.0
+
+    consistency:
+      minimum_score: 18.0
+      weight: 1.0
+
+    freshness:
+      minimum_score: 15.0
+      weight: 1.0
+
+    plausibility:
+      minimum_score: 15.0
+      weight: 1.0
+
+metadata:
+  purpose: Generic template for validating key-value pair configurations
+  usage: |
+    This template validates:
+    1. Key-value pairs with type information
+    2. Namespace and categorization
+    3. Version tracking
+    4. Access control levels
+    5. Environment-specific settings
+    6. Active/inactive status
+
+  customization_notes: |
+    To customize this template:
+    1. Add domain-specific namespaces
+    2. Define custom categories for your use case
+    3. Add validation rules for specific value_type formats
+    4. Configure access_level values based on your security model
+    5. Add environment values for your deployment stages
+    6. Define key naming conventions
+
+  example_usage: |
+    from adri import adri_protected
+    import pandas as pd
+
+    @adri_protected(standard="key_value_template")
+    def process_config_data(config_df):
+        # Process validated configuration data
+        return config_df
+
+  created_by: ADRI Standards Catalog
+  created_date: 2025-01-17
+  category: Template
+  tags: [key-value, configuration, settings, template, metadata]

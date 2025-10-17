@@ -1,0 +1,189 @@
+# Marketing Campaign Standard
+# Validates marketing campaign data for tracking and analytics
+# Use Case: Campaign management, marketing analytics, ROI tracking
+
+standards:
+  id: marketing_campaign_standard
+  name: Marketing Campaign Performance Standard
+  version: 1.0.0
+  authority: ADRI Standards Catalog
+  description: Standard for validating marketing campaign performance data
+
+record_identification:
+  primary_key_fields:
+    - campaign_id
+  strategy: primary_key_with_fallback
+
+requirements:
+  overall_minimum: 85.0
+
+  field_requirements:
+    # Core identification
+    campaign_id:
+      type: string
+      nullable: false
+      pattern: '^CMP-\d{6,}$'
+      description: Unique campaign identifier
+
+    campaign_name:
+      type: string
+      nullable: false
+      description: Campaign name
+
+    # Campaign details
+    start_date:
+      type: string
+      nullable: false
+      pattern: '^\d{4}-\d{2}-\d{2}$'
+      description: Campaign start date (YYYY-MM-DD)
+
+    end_date:
+      type: string
+      nullable: false
+      pattern: '^\d{4}-\d{2}-\d{2}$'
+      description: Campaign end date (YYYY-MM-DD)
+
+    campaign_type:
+      type: string
+      nullable: false
+      valid_values:
+        - Email
+        - Social Media
+        - Display Ads
+        - Search Ads
+        - Content Marketing
+        - Influencer
+      description: Campaign type/channel
+
+    campaign_status:
+      type: string
+      nullable: false
+      valid_values:
+        - Draft
+        - Scheduled
+        - Active
+        - Paused
+        - Completed
+      description: Current campaign status
+
+    # Budget and spend
+    budget:
+      type: float
+      nullable: false
+      min_value: 0.0
+      description: Total campaign budget
+
+    spent:
+      type: float
+      nullable: false
+      min_value: 0.0
+      description: Amount spent so far
+
+    # Performance metrics
+    impressions:
+      type: integer
+      nullable: false
+      min_value: 0
+      description: Total impressions
+
+    clicks:
+      type: integer
+      nullable: false
+      min_value: 0
+      description: Total clicks
+
+    conversions:
+      type: integer
+      nullable: false
+      min_value: 0
+      description: Total conversions
+
+    revenue:
+      type: float
+      nullable: false
+      min_value: 0.0
+      description: Revenue generated
+
+    # Calculated metrics
+    click_through_rate:
+      type: float
+      nullable: false
+      min_value: 0.0
+      max_value: 100.0
+      description: CTR percentage
+
+    conversion_rate:
+      type: float
+      nullable: false
+      min_value: 0.0
+      max_value: 100.0
+      description: Conversion rate percentage
+
+    cost_per_click:
+      type: float
+      nullable: false
+      min_value: 0.0
+      description: Average cost per click
+
+    return_on_ad_spend:
+      type: float
+      nullable: false
+      min_value: 0.0
+      description: ROAS (revenue / spent)
+
+    # Targeting
+    target_audience:
+      type: string
+      nullable: false
+      description: Target audience description
+
+    geographic_region:
+      type: string
+      nullable: false
+      description: Geographic targeting region
+
+  dimension_requirements:
+    validity:
+      minimum_score: 20.0
+      weight: 1.0
+
+    completeness:
+      minimum_score: 18.0
+      weight: 1.0
+
+    consistency:
+      minimum_score: 18.0
+      weight: 1.0
+
+    freshness:
+      minimum_score: 14.0
+      weight: 1.0
+
+    plausibility:
+      minimum_score: 15.0
+      weight: 1.0
+
+metadata:
+  purpose: Validate marketing campaign performance data for analytics and optimization
+  usage: |
+    This standard ensures campaign records contain:
+    1. Valid campaign identifiers and names
+    2. Complete date ranges and status tracking
+    3. Budget and spend information
+    4. Performance metrics (impressions, clicks, conversions)
+    5. Calculated KPIs (CTR, conversion rate, ROAS)
+    6. Targeting information
+
+  example_usage: |
+    from adri import adri_protected
+    import pandas as pd
+
+    @adri_protected(standard="marketing_campaign_standard")
+    def analyze_campaigns(campaigns_df):
+        # Process validated campaign data
+        return campaigns_df
+
+  created_by: ADRI Standards Catalog
+  created_date: 2025-01-17
+  domain: Marketing
+  tags: [marketing, campaigns, analytics, ROI, performance]

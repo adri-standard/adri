@@ -1,0 +1,153 @@
+# API Response Template
+# Generic template for validating REST API response data
+# Use Case: API monitoring, response validation, integration testing
+
+standards:
+  id: api_response_template
+  name: API Response Template
+  version: 1.0.0
+  authority: ADRI Standards Catalog
+  description: Generic template for validating REST API response structures
+
+record_identification:
+  primary_key_fields:
+    - request_id
+  strategy: primary_key_with_fallback
+
+requirements:
+  overall_minimum: 85.0
+
+  field_requirements:
+    # Request identification
+    request_id:
+      type: string
+      nullable: false
+      description: Unique request identifier
+
+    # Response metadata
+    status_code:
+      type: integer
+      nullable: false
+      min_value: 100
+      max_value: 599
+      description: HTTP status code
+
+    status:
+      type: string
+      nullable: false
+      valid_values:
+        - success
+        - error
+        - partial
+      description: Response status
+
+    # Timing
+    timestamp:
+      type: string
+      nullable: false
+      pattern: '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+Z$'
+      description: Response timestamp (ISO 8601)
+
+    response_time_ms:
+      type: integer
+      nullable: false
+      min_value: 0
+      description: Response time in milliseconds
+
+    # Endpoint information
+    endpoint:
+      type: string
+      nullable: false
+      description: API endpoint path
+
+    method:
+      type: string
+      nullable: false
+      valid_values:
+        - GET
+        - POST
+        - PUT
+        - PATCH
+        - DELETE
+      description: HTTP method
+
+    # Response data
+    data:
+      type: string
+      nullable: true
+      description: JSON string of response data
+
+    error_message:
+      type: string
+      nullable: true
+      description: Error message if status is error
+
+    error_code:
+      type: string
+      nullable: true
+      description: Application-specific error code
+
+    # Metadata
+    api_version:
+      type: string
+      nullable: false
+      description: API version used
+
+    request_source:
+      type: string
+      nullable: false
+      description: Source of the request
+
+  dimension_requirements:
+    validity:
+      minimum_score: 19.0
+      weight: 1.0
+
+    completeness:
+      minimum_score: 18.0
+      weight: 1.0
+
+    consistency:
+      minimum_score: 18.0
+      weight: 1.0
+
+    freshness:
+      minimum_score: 15.0
+      weight: 1.0
+
+    plausibility:
+      minimum_score: 15.0
+      weight: 1.0
+
+metadata:
+  purpose: Generic template for validating API response structures
+  usage: |
+    This template validates:
+    1. Request identification
+    2. HTTP status codes
+    3. Response timing
+    4. Endpoint and method information
+    5. Response data or error details
+    6. API version tracking
+
+  customization_notes: |
+    To customize this template:
+    1. Add domain-specific fields to field_requirements
+    2. Update valid_values for status based on your API
+    3. Add custom error codes to error_code validation
+    4. Adjust dimension score minimums based on requirements
+    5. Add business logic validation rules
+
+  example_usage: |
+    from adri import adri_protected
+    import pandas as pd
+
+    @adri_protected(standard="api_response_template")
+    def process_api_responses(responses_df):
+        # Process validated API responses
+        return responses_df
+
+  created_by: ADRI Standards Catalog
+  created_date: 2025-01-17
+  category: Template
+  tags: [api, rest, responses, template, monitoring]
