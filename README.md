@@ -71,6 +71,27 @@ bad_customers = pd.DataFrame({
 analyze_customers(bad_customers)  # ❌ Raises exception with quality report
 ```
 
+### Visual Flow
+
+```mermaid
+flowchart LR
+    A[Your Function Called] --> B[🛡️ ADRI Intercepts]
+    B --> C{Quality Check<br/>5 Dimensions}
+    C -->|Score ≥ 80| D[✅ ALLOW<br/>Function Runs]
+    C -->|Score < 80| E[❌ BLOCK<br/>Error Raised]
+    D --> F[📋 Log Results]
+    E --> F
+
+    style A fill:#e3f2fd,stroke:#2196f3,stroke-width:2px
+    style B fill:#fff3e0,stroke:#ff9800,stroke-width:3px
+    style C fill:#f3e5f5,stroke:#9c27b0,stroke-width:2px
+    style D fill:#e8f5e9,stroke:#4caf50,stroke-width:2px
+    style E fill:#ffebee,stroke:#f44336,stroke-width:2px
+    style F fill:#fafafa,stroke:#757575,stroke-width:1px
+```
+
+**In plain English:** ADRI sits between your code and its data, checking quality before letting data through. Good data passes, bad data gets blocked.
+
 ## Installation
 
 ```bash
