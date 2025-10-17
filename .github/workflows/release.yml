@@ -128,7 +128,7 @@ jobs:
     - name: Test wheel installation
       run: |
         python -c "import os; print('Available files:'); [print(f'  {f}') for f in os.listdir('dist')]"
-        python -c "import os, glob; wheel = glob.glob('dist/adri-*.whl')[0]; os.system(f'pip install {wheel}')"
+        python -c "import os, glob; wheel = glob.glob('dist/verodat_adri-*.whl')[0]; os.system(f'pip install {wheel}')"
 
     - name: Test CLI functionality
       run: |
@@ -174,7 +174,7 @@ jobs:
     - name: Test installation from TestPyPI
       run: |
         sleep 180  # Wait for TestPyPI CDN propagation (typically 2-3 minutes)
-        pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ adri==${{ needs.validate-tag.outputs.version }}
+        pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ verodat-adri==${{ needs.validate-tag.outputs.version }}
         adri --version
 
     - name: Run tutorial tests against TestPyPI package
