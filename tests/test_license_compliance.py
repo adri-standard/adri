@@ -74,8 +74,12 @@ class TestLicenseCompliance(unittest.TestCase):
 
         # Check for attribution in README
         self.assertIn("Apache 2.0 License", readme_content)
-        self.assertIn("ADRI is founded and maintained by", readme_content)
         self.assertIn("Verodat", readme_content)
+        # Flexible attribution check - accepts different wording
+        self.assertTrue(
+            "Built with ❤️ by" in readme_content or "founded and maintained by" in readme_content,
+            "README must contain Verodat attribution"
+        )
 
     def test_pyproject_metadata_compliance(self):
         """Verify pyproject.toml contains correct license and author information."""
@@ -90,43 +94,20 @@ class TestLicenseCompliance(unittest.TestCase):
         self.assertIn("adri@verodat.com", pyproject_content)
         self.assertNotIn("ThinkVeolvesolve", pyproject_content, "Old copyright holder should be removed")
 
+    @unittest.skip("Docusaurus removed in v5.0.0 documentation simplification")
     def test_docusaurus_legal_section_exists(self):
         """Verify Docusaurus documentation includes legal section."""
-        legal_doc_path = self.project_root / "docs" / "docs" / "legal" / "trademark-policy.md"
-        self.assertTrue(legal_doc_path.exists(), "Legal documentation must exist")
+        pass
 
-        with open(legal_doc_path, 'r', encoding='utf-8') as f:
-            legal_content = f.read()
-
-        # Check for Docusaurus-formatted legal content
-        self.assertIn("sidebar_position: 1", legal_content)
-        self.assertIn("ADRI™ Trademark Policy", legal_content)
-        self.assertIn("trademarks of Verodat", legal_content)
-
+    @unittest.skip("Docusaurus removed in v5.0.0 documentation simplification")
     def test_docusaurus_sidebar_configuration(self):
         """Verify Docusaurus sidebar includes legal section."""
-        sidebar_path = self.project_root / "docs" / "sidebars.ts"
-        self.assertTrue(sidebar_path.exists(), "Docusaurus sidebar config must exist")
+        pass
 
-        with open(sidebar_path, 'r', encoding='utf-8') as f:
-            sidebar_content = f.read()
-
-        # Check for legal section in sidebar
-        self.assertIn("⚖️ Legal", sidebar_content)
-        self.assertIn("legal/trademark-policy", sidebar_content)
-
+    @unittest.skip("Docusaurus removed in v5.0.0 documentation simplification")
     def test_docusaurus_footer_attribution(self):
         """Verify Docusaurus footer contains Verodat attribution."""
-        config_path = self.project_root / "docs" / "docusaurus.config.ts"
-        self.assertTrue(config_path.exists(), "Docusaurus config must exist")
-
-        with open(config_path, 'r', encoding='utf-8') as f:
-            config_content = f.read()
-
-        # Check for attribution in footer
-        self.assertIn("ADRI™ is founded and maintained by", config_content)
-        self.assertIn("https://verodat.com", config_content)
-        self.assertIn("Verodat", config_content)
+        pass
 
     def test_no_conflicting_copyright_statements(self):
         """Verify no conflicting or old copyright statements remain."""
@@ -147,20 +128,21 @@ class TestLicenseCompliance(unittest.TestCase):
 
     def test_consistent_attribution_format(self):
         """Verify attribution format is consistent across all files."""
-        attribution_pattern = r"founded and maintained by.*Verodat"
-
-        files_with_attribution = [
-            (self.project_root / "README.md", "README.md attribution"),
-            (self.project_root / "docs" / "docusaurus.config.ts", "Docusaurus footer attribution"),
+        # Flexible attribution pattern - multiple formats accepted
+        attribution_patterns = [
+            r"founded and maintained by.*Verodat",
+            r"Built with ❤️ by.*Verodat",
+            r"by.*Thomas Russell.*at.*Verodat"
         ]
 
-        for file_path, description in files_with_attribution:
-            if file_path.exists():
-                with open(file_path, 'r', encoding='utf-8') as f:
-                    content = f.read()
+        readme_path = self.project_root / "README.md"
+        if readme_path.exists():
+            with open(readme_path, 'r', encoding='utf-8') as f:
+                content = f.read()
 
-                self.assertTrue(re.search(attribution_pattern, content, re.IGNORECASE),
-                    f"Consistent attribution format not found in {description}")
+            # Check if at least one attribution pattern matches
+            found = any(re.search(pattern, content, re.IGNORECASE) for pattern in attribution_patterns)
+            self.assertTrue(found, "Verodat attribution not found in README.md")
 
     def test_trademark_symbols_usage(self):
         """Verify proper trademark symbol usage across documentation."""

@@ -1,184 +1,239 @@
-# ADRI - Stop AI Agents Breaking on Bad Data
+# ADRI - Agent Data Readiness Index
 
-**Open-Source Data Quality Framework for AI**
+**AI agents break on bad data. ADRI fixes that with one decorator.**
 
-> **v5.0.0** - Core features for data quality protection. For advanced logging, workflow automation, and analytics, see [ADRI Enterprise](#upgrade-to-enterprise).
+```python
+from adri import adri_protected
 
-## 5-Minute Quickstart
+@adri_protected(standard="customer_data", data_param="data")
+def process_customers(data):
+    # Your agent logic here
+    return results
+```
 
-Install → Generate Standard → Assess → Decorate
+Auto-validates data quality. Works with any framework. 2 minutes to integrate.
+
+---
+
+## What is ADRI?
+
+ADRI is **the missing data layer for AI agents**. It protects your AI agent workflows from bad data by:
+
+- **Auto-validating data quality** across 5 dimensions (validity, completeness, consistency, accuracy, timeliness)
+- **Auto-generating quality standards** on first successful run - no manual configuration
+- **Blocking or warning** on quality failures based on your preference
+- **Logging insights locally** for debugging and development
+
+**Framework agnostic**: Works with LangChain, CrewAI, AutoGen, LlamaIndex, Haystack, Semantic Kernel, and any Python function.
+
+## Why ADRI?
+
+AI agents are powerful, but fragile. One malformed field or missing value can crash your entire workflow. Traditional validation is tedious - you write dozens of `if` statements, manually check types, and hope you caught everything.
+
+**ADRI learns what good data looks like** and enforces it automatically. Add one decorator, run with good data once, and you're protected.
+
+## How It Works
+
+```python
+from adri import adri_protected
+import pandas as pd
+
+@adri_protected(standard="customer_data", data_param="customer_data")
+def analyze_customers(customer_data):
+    """Your AI agent logic."""
+    print(f"Analyzing {len(customer_data)} customers")
+    return {"status": "complete"}
+
+# First run with good data
+customers = pd.DataFrame({
+    "id": [1, 2, 3],
+    "email": ["user1@example.com", "user2@example.com", "user3@example.com"],
+    "signup_date": ["2024-01-01", "2024-01-02", "2024-01-03"]
+})
+
+analyze_customers(customers)  # ✅ Runs, auto-generates standard
+```
+
+**What happened:**
+1. Function executed successfully
+2. ADRI analyzed the data structure
+3. Generated quality standard in `ADRI/dev/standards/customer_data.yaml`
+4. Future runs validate against this standard
+
+**Future runs with bad data:**
+```python
+bad_customers = pd.DataFrame({
+    "id": [1, 2, None],  # Missing ID
+    "email": ["user1@example.com", "invalid-email", "user3@example.com"],  # Bad email
+    # Missing signup_date column
+})
+
+analyze_customers(bad_customers)  # ❌ Raises exception with quality report
+```
+
+## Installation
 
 ```bash
 pip install adri
-
-# Bootstrap project folders and sample data
-adri setup --guide
-
-# Generate a standard from your "good" dataset
-adri generate-standard examples/data/invoice_data.csv \
-  --output examples/standards/invoice_data_ADRI_standard.yaml
-
-# Validate a new dataset against the generated standard
-adri assess examples/data/test_invoice_data.csv \
-  --standard examples/standards/invoice_data_ADRI_standard.yaml
 ```
 
-What you should see
+**Requirements**: Python 3.8+
 
-- Allowed ✅ when data complies with the generated standard
-- Blocked ❌ with a summary of failed checks when the test data violates the standard
+## Quick Links
+
+- **[Quickstart Guide](QUICKSTART.md)** - 2-minute integration guide
+- **[Getting Started](docs/GETTING_STARTED.md)** - Detailed 10-minute tutorial
+- **[How It Works](docs/HOW_IT_WORKS.md)** - Five quality dimensions explained
+- **[Framework Patterns](docs/FRAMEWORK_PATTERNS.md)** - LangChain, CrewAI, AutoGen examples
+- **[CLI Reference](docs/CLI_REFERENCE.md)** - Command-line tools
+- **[FAQ](docs/FAQ.md)** - Common questions
+- **[Examples](examples/)** - Real-world examples
+
+## Features
+
+### 🎯 One Decorator, Complete Protection
 
 ```python
-from adri import adri_protected
-
-@adri_protected(standard="invoice_data_standard", data_param="invoice_rows")
-def your_agent_function(invoice_rows):
-    # Your existing code - now protected!
-    return result
+@adri_protected(standard="your_data", data_param="data")
+def your_function(data):
+    return results
 ```
 
-Start warn-first, then switch to raise when confident:
+### 🤖 Framework Agnostic
+
+Works with any AI agent framework:
+- LangChain & LangGraph
+- CrewAI
+- AutoGen
+- LlamaIndex
+- Haystack
+- Semantic Kernel
+- Generic Python
+
+### 📊 Five Quality Dimensions
+
+ADRI validates:
+1. **Validity** - Data types and formats
+2. **Completeness** - Required fields present
+3. **Consistency** - Cross-field relationships
+4. **Accuracy** - Value ranges and patterns
+5. **Timeliness** - Data freshness
+
+### 🔄 Auto-Generation
+
+No manual configuration. ADRI learns from your data:
+- Runs successfully with good data → generates standard
+- Future runs → validates against standard
+- Customize generated standards as needed
+
+### 🛡️ Protection Modes
 
 ```python
-@adri_protected(standard="invoice_data_standard", data_param="invoice_rows", on_failure="warn")
+# Raise mode (default) - raises exception
+@adri_protected(standard="data", data_param="data", on_failure="raise")
+
+# Warn mode - logs warning, continues
+@adri_protected(standard="data", data_param="data", on_failure="warn")
+
+# Continue mode - silently continues
+@adri_protected(standard="data", data_param="data", on_failure="continue")
 ```
 
-**ADRI automatically creates standards from your data patterns and blocks bad data before it reaches your agents.**
-
-## How ADRI Works
-
-ADRI acts as a quality gate for your AI functions - intercepting calls, checking data quality across 5 dimensions, and deciding whether to allow or block execution.
-
-```mermaid
-flowchart LR
-    A[Your Function Called] --> B[🛡️ ADRI Intercepts]
-    B --> C{Quality Check<br/>5 Dimensions}
-    C -->|Score ≥ 75| D[✅ ALLOW<br/>Function Runs]
-    C -->|Score < 75| E[❌ BLOCK<br/>Error Raised]
-    D --> F[📋 Log Results]
-    E --> F
-
-    style A fill:#e3f2fd,stroke:#2196f3,stroke-width:2px
-    style B fill:#fff3e0,stroke:#ff9800,stroke-width:3px
-    style C fill:#f3e5f5,stroke:#9c27b0,stroke-width:2px
-    style D fill:#e8f5e9,stroke:#4caf50,stroke-width:2px
-    style E fill:#ffebee,stroke:#f44336,stroke-width:2px
-    style F fill:#fafafa,stroke:#757575,stroke-width:1px
-```
-
-**The 5 Quality Dimensions:**
-- ✅ **Validity** - Correct formats (emails, dates, types)
-- ✅ **Completeness** - No missing required fields
-- ✅ **Consistency** - Same format across records
-- ✅ **Plausibility** - Realistic values (age 0-120, not -5)
-- ✅ **Freshness** - Data recency and relevance
-
-## Key Features
-
-### Core Open-Source Features
-- **🛡️ One-Decorator Protection** - Add `@adri_protected` to any function
-- **🤖 Framework Agnostic** - Works with LangChain, CrewAI, AutoGen, LlamaIndex, etc.
-- **🚀 Smart Defaults** - Zero-config start with optional fine-grained control
-- **📊 5-Dimension Validation** - Completeness, validity, consistency, plausibility, freshness
-- **📋 JSONL Logging** - 3-file audit trail (assessments, dimensions, failures)
-- **🎯 3 Protection Modes** - FailFast, Selective, WarnOnly
-- **⚙️ Complete CLI** - 8 commands for standards and assessments
-- **📖 Standard Generation** - Auto-generate from your data
-- **🔧 Simplified Verodat Bridge** - Basic API integration
-
-### Enterprise Features
-For advanced capabilities, see [ADRI Enterprise](#upgrade-to-enterprise):
-- 🧠 **ReasoningLogger** - AI prompt/response tracking
-- 🔄 **WorkflowLogger** - Execution and provenance logging
-- 📊 **Analytics Dashboards** - Quality metrics visualization
-- 🤖 **Workflow Automation** - Approval workflows and orchestration
-- 🔐 **Advanced Verodat Integration** - Batch processing, retry logic, auth
-
-## Quick Example
+### 🔧 CLI Tools
 
 ```bash
-# Generate a data standard once
-adri generate-standard data/customers_clean.csv \
-  --output ADRI/dev/standards/customer_data_standard.yaml
-
-# Use the same standard to guard new inputs
-adri assess data/customers_latest.csv \
-  --standard ADRI/dev/standards/customer_data_standard.yaml
+adri setup                                      # Initialize ADRI
+adri assess data.csv --standard my_standard     # Assess data quality
+adri generate-standard data.json                # Generate standard
+adri list-standards                             # List standards
+adri validate-standard my_standard.yaml         # Validate standard
 ```
 
+### 📝 Local Logging
+
+Developer-friendly insights during development:
+- Quality scores and assessments
+- Dimension-specific failures
+- Auto-generated standards
+- Stored in `ADRI/dev/logs/`
+
+## Common Use Cases
+
+### API Data Validation
 ```python
-from adri import adri_protected
-
-@adri_protected(standard="customer_data_standard", data_param="invoice_rows")
-def process_customers(invoice_rows):
-    return ai_analysis(invoice_rows)  # Only runs on quality data
+@adri_protected(standard="api_response", data_param="response")
+def process_api_data(response):
+    return transform(response)
 ```
 
-## Documentation
+### Multi-Agent Workflows
+```python
+@adri_protected(standard="crew_context", data_param="context")
+def crew_task(context):
+    return crew.kickoff(context)
+```
 
-📖 **[Getting Started](docs/docs/users/getting-started.md)** - Installation and first success
-❓ **[FAQ](docs/docs/users/faq.md)** - Answers for agent engineers and data teams
-🧠 **[Framework Playbooks](docs/docs/users/frameworks.md)** - Copy/paste fixes for LangChain, CrewAI, LlamaIndex, and more
-🧭 **[Adoption Journey](docs/docs/users/adoption-journey.md)** - When to move from local logging to Verodat MCP
-🏗️ **[Architecture](ARCHITECTURE.md)** - How ADRI is built
-📋 **[Examples](examples/)** - Ready-to-run use cases and standards
-🤝 **[Contributing](CONTRIBUTING.md)** - Join the community
+### RAG Pipelines
+```python
+@adri_protected(standard="documents", data_param="docs")
+def index_documents(docs):
+    return index.insert(docs)
+```
 
-## Upgrade to Enterprise
+## Enterprise Features
 
-ADRI Enterprise provides advanced features for production AI systems:
+Open-source ADRI provides local logging and protection. For production deployments, ADRI Enterprise adds:
 
-| Feature | Open-Source | Enterprise |
-|---------|-------------|------------|
-| @adri_protected decorator | ✅ | ✅ |
-| 5-dimension validation | ✅ | ✅ |
-| CLI (8 commands) | ✅ | ✅ |
-| Standard generation | ✅ | ✅ |
-| Local JSONL logging | ✅ | ✅ |
-| Protection modes (3) | ✅ | ✅ |
-| ReasoningLogger (AI prompts) | ❌ | ✅ |
-| WorkflowLogger (provenance) | ❌ | ✅ |
-| Analytics dashboards | ❌ | ✅ |
-| Workflow automation | ❌ | ✅ |
-| Advanced Verodat integration | ❌ | ✅ |
-| Batch processing & retry | ❌ | ✅ |
-| Enterprise support | ❌ | ✅ |
+- **Centralized logging** - Send assessments to Verodat cloud
+- **Analytics dashboard** - Monitor quality across all agents
+- **Workflow orchestration** - Track data lineage and provenance
+- **Team collaboration** - Share standards across teams
 
-**Get Enterprise Access:**
-- Contact: adri@verodat.com
-- Private repository: https://github.com/Verodat/adri-enterprise
-- Installation: `pip install git+ssh://git@github.com/Verodat/adri-enterprise.git`
+See [FAQ](docs/FAQ.md#enterprise) for details.
 
-**Migration Guide:** [docs/upgrade-to-enterprise.md](docs/upgrade-to-enterprise.md)
+## Development
 
-## Framework Support
+```bash
+# Clone repository
+git clone https://github.com/adri-standard/adri.git
+cd adri
 
-ADRI works seamlessly with all major AI frameworks:
-- **LangChain** - Protect chains and agents
-- **CrewAI** - Validate crew inputs
-- **AutoGen** - Secure multi-agent conversations
-- **LlamaIndex** - Guard query engines
-- **Any Python Function** - Universal protection
+# Install in development mode
+pip install -e .
 
-See [docs/docs/users/frameworks.md](docs/docs/users/frameworks.md) for copy-paste playbooks.
+# Run tests
+pytest
 
-## Support
+# Run linters
+flake8 src/
+black src/
+```
 
-- **[GitHub Issues](https://github.com/adri-standard/adri/issues)** - Report bugs and request features
-- **[GitHub Discussions](https://github.com/adri-standard/adri/discussions)** - Community support
+See [CONTRIBUTING.md](CONTRIBUTING.md) for contribution guidelines.
+
+## License
+
+Apache 2.0 License. See [LICENSE](LICENSE) for details.
+
+## Community & Support
+
+### Get Help
+- 💬 **[GitHub Discussions](https://github.com/adri-standard/adri/discussions)** - Ask questions, share use cases
+- 🐛 **[GitHub Issues](https://github.com/adri-standard/adri/issues)** - Report bugs, request features  
+- 📚 **[Documentation](docs/)** - Comprehensive guides and tutorials
+
+### Connect with the Team
+- 👤 **[Thomas Russell](https://linkedin.com/in/thomas-verodat/)** - Founder (updates & engagement)
+- 🦋 **[@thomas-ds.bsky.social](https://bsky.app/profile/thomas-ds.bsky.social)** - Real-time updates on Bluesky
+- 🏢 **[Verodat](https://linkedin.com/company/verodat/)** - Company behind ADRI
+
+### Support This Project
+- ⭐ **[Star on GitHub](https://github.com/adri-standard/adri)** - Help others discover ADRI
+- 🗣️ **Share**: Post about ADRI with #ADRI #AIAgents
+- 🤝 **Contribute**: See [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ---
 
-## ADRI Adoption Path
+**One decorator. Any framework. Reliable agents.**
 
-See the Adoption Journey for next steps: [docs/docs/users/adoption-journey.md](docs/docs/users/adoption-journey.md)
-
-When to scale up to Verodat MCP: [docs/docs/users/flip-to-enterprise.md](docs/docs/users/flip-to-enterprise.md)
-
----
-
-## License & Attribution
-
-**Apache 2.0 License** - Use freely in any project. See [LICENSE](LICENSE) for details.
-
-ADRI is founded and maintained by [Verodat](https://verodat.com).
+Built with ❤️ by [Thomas Russell](https://linkedin.com/in/thomas-verodat/) at [Verodat](https://verodat.com)

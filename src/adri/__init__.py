@@ -1,28 +1,44 @@
 """
-ADRI - Stop Your AI Agents Breaking on Bad Data.
+ADRI - Agent Data Readiness Index
 
-A data quality assessment framework that protects AI agents from unreliable data.
-Simple decorator-based API with comprehensive CLI tools for data teams.
+The missing data layer for AI agents. Auto-validates data quality with one decorator.
 
-Key Features:
-- @adri_protected decorator for automatic data quality checks
-- CLI tools for assessment, standard generation, and reporting
-- YAML-based standards for transparency and collaboration
-- Five-dimension quality assessment (validity, completeness, freshness, consistency, plausibility)
-- Framework integrations for LangChain, CrewAI, LangGraph, and more
+AI agents break on bad data. ADRI fixes that by:
+- Auto-validating data quality across 5 dimensions
+- Auto-generating quality standards from your data
+- Blocking or warning on quality failures
+- Working with any framework (LangChain, CrewAI, AutoGen, LlamaIndex, etc.)
 
 Quick Start:
     from adri import adri_protected
 
-    @adri_protected(standard="customer_data_standard")
-    def my_agent_function(customer_data):
-        # Your agent logic here
-        return process_data(customer_data)
+    @adri_protected(standard="customer_data", data_param="data")
+    def my_agent_function(data):
+        # Your agent logic here - now protected!
+        return process_data(data)
 
-CLI Usage:
-    adri setup                              # Initialize ADRI in project
-    adri generate-standard data.csv         # Generate quality standard
-    adri assess data.csv --standard std.yaml  # Run assessment
+What happens:
+- First run with good data → ADRI generates quality standard
+- Future runs → ADRI validates against that standard
+- Bad data → Blocked with quality report
+
+CLI Tools:
+    adri setup --guide                     # Initialize ADRI
+    adri generate-standard data.csv        # Generate standard
+    adri assess data.csv --standard std    # Check quality
+
+Five Quality Dimensions:
+1. Validity - Data types and formats
+2. Completeness - Required fields present
+3. Consistency - Cross-field relationships
+4. Accuracy - Value ranges and patterns
+5. Timeliness - Data freshness
+
+Framework Agnostic:
+Works seamlessly with LangChain, CrewAI, AutoGen, LlamaIndex, Haystack,
+Semantic Kernel, and any Python function.
+
+Learn more: https://github.com/adri-standard/adri
 """
 
 from .analysis import DataProfiler, StandardGenerator, TypeInference

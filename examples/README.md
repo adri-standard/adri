@@ -1,58 +1,209 @@
-# ADRI Framework Examples
+# ADRI Examples
 
-**30-Second Protection for Your AI Agent Workflows**
+Real-world examples of protecting AI agents with ADRI's `@adri_protected` decorator.
 
-Production-ready examples demonstrating ADRI protection across major AI frameworks. Each example addresses documented validation issues that cause agent failures in production environments.
+## Quick Reference
 
-## Quick Start
+All examples follow the same pattern:
+
+```python
+from adri import adri_protected
+
+@adri_protected(standard="your_data", data_param="your_data")
+def your_function(your_data):
+    # Your logic here
+    return results
+```
+
+## Available Examples
+
+### By Framework
+
+| Framework | File | Description |
+|-----------|------|-------------|
+| **LangChain** | `langchain_basic.py` | Protect LangChain chains and tools |
+| **LangGraph** | `langgraph_basic.py` | Protect LangGraph workflows |
+| **CrewAI** | `crewai_basic.py` | Protect multi-agent crews |
+| **AutoGen** | `autogen_basic.py` | Protect agent conversations |
+| **LlamaIndex** | `llamaindex_basic.py` | Protect RAG pipelines |
+| **Haystack** | `haystack_basic.py` | Protect document search |
+| **Semantic Kernel** | `semantic_kernel_basic.py` | Protect kernel functions |
+| **Generic Python** | `generic_basic.py` | Protect any Python function |
+
+### By Pattern
+
+| Pattern | File | Use Case |
+|---------|------|----------|
+| **Full Decorator Demo** | `adri_protected_decorator_example.py` | Learn all decorator features |
+| **API Data** | `generic_basic.py` | Validate API responses |
+| **Multi-Agent** | `crewai_basic.py`, `autogen_basic.py` | Coordinate agent teams |
+| **RAG/Search** | `llamaindex_basic.py`, `haystack_basic.py` | Protect retrieval systems |
+| **Workflows** | `langgraph_basic.py`, `langchain_basic.py` | Protect complex pipelines |
+
+## Running Examples
+
+### Install ADRI
 
 ```bash
 pip install adri
 ```
 
-Copy any example, add your data, and you're protected!
+### Run an Example
 
-## Available Examples
+```bash
+python langchain_basic.py
+```
 
-| Framework | File | Use Case | Issues Prevented |
-|-----------|------|----------|------------------|
-| **LangChain** | `langchain-customer-service.py` | Customer Service | 525+ validation failures |
-| **CrewAI** | `crewai-business-analysis.py` | Business Analysis | 124+ coordination failures |
-| **AutoGen** | `autogen-research-collaboration.py` | Research Teams | 54+ conversation failures |
-| **LlamaIndex** | `llamaindex-document-processing.py` | Document Processing | 949+ index failures |
-| **Haystack** | `haystack-knowledge-management.py` | Knowledge Search | 347+ pipeline failures |
-| **LangGraph** | `langgraph-workflow-automation.py` | Workflow Automation | 245+ state failures |
-| **Semantic Kernel** | `semantic-kernel-ai-orchestration.py` | AI Orchestration | 178+ plugin failures |
+### Install Framework Dependencies (Optional)
 
-## Universal Protection Pattern
+Examples work without framework installs (using mocks), but you can install real frameworks:
 
-All examples follow the same simple pattern:
+```bash
+pip install langchain crewai autogen llama-index haystack-ai semantic-kernel langgraph
+```
+
+## Common Patterns
+
+### Pattern 1: Basic Protection
+
+Simplest usage - auto-generates standard from data:
 
 ```python
 from adri import adri_protected
 
-@adri_protected("framework_data_standard")
-def your_ai_function(data):
-    # Your framework code here - now protected!
-    return result
+@adri_protected(standard="data", data_param="data")
+def process_data(data):
+    return results
 ```
 
-## Why These Examples?
+### Pattern 2: Guard Mode Selection
 
-1. **Production-Ready** - Full working implementations, not just snippets
-2. **Evidence-Based** - Each addresses real GitHub issues from framework communities
-3. **Business-Focused** - Targets actual use cases where frameworks excel
-4. **Comprehensive Protection** - Covers validity, completeness, consistency, freshness, and plausibility
+Choose block (strict) or warn (permissive):
 
-## Get Started
+```python
+# Block mode - raises exception on bad data (default)
+@adri_protected(standard="data", data_param="data", on_failure="raise")
+def strict_function(data):
+    return results
 
-1. Choose your framework example above
-2. Run the example to see ADRI protection in action
-3. Adapt the code for your specific use case
-4. Your AI workflow is now protected!
+# Warn mode - logs warning but continues
+@adri_protected(standard="data", data_param="data", on_failure="warn")
+def lenient_function(data):
+    return results
+```
 
-For detailed setup instructions and troubleshooting, see the [ADRI Documentation](https://adri-standard.github.io/adri/).
+### Pattern 3: Custom Standard
+
+Use a specific pre-defined standard:
+
+```python
+@adri_protected(data_param="data", standard="customer_data")
+def process_customers(data):
+    return results
+```
+
+### Pattern 4: Multi-Parameter
+
+Protect multiple data parameters:
+
+```python
+@adri_protected(standard="customer_data", data_param="customers")
+def process_with_context(customers, config, api_key):
+    # Only 'customers' is validated
+    return results
+```
+
+### Pattern 5: Framework Integration
+
+Works the same across all frameworks:
+
+```python
+# LangChain
+@adri_protected(standard="data", data_param="input_data")
+def langchain_tool(input_data):
+    return chain.invoke(input_data)
+
+# CrewAI
+@adri_protected(standard="context", data_param="context")
+def crewai_task(context):
+    return crew.kickoff(context)
+
+# AutoGen
+@adri_protected(standard="messages", data_param="messages")
+def autogen_function(messages):
+    return agent.generate_reply(messages)
+```
+
+## What You'll Learn
+
+### From `generic_basic.py`
+- Basic decorator usage
+- Auto-generation workflow
+- Guard modes (block vs warn)
+- Working with DataFrames
+
+### From `adri_protected_decorator_example.py`
+- All decorator parameters
+- Custom requirements
+- Verbose logging
+- Development patterns
+
+### From Framework Examples
+- Integration patterns for your framework
+- Real-world use cases
+- Best practices per framework
+
+## Expected Output
+
+### ✅ Good Data (Passes Validation)
+
+```
+🛡️ ADRI Protection: ALLOWED ✅
+📊 Quality Score: 94.2/100
+📋 Standard: your_function_data_standard (auto-generated)
+```
+
+### ❌ Bad Data (Fails Validation)
+
+```
+🛡️ ADRI Protection: BLOCKED ❌
+📊 Quality Score: 67.3/100 (Required: 80.0/100)
+
+Quality Issues:
+- Completeness: Missing required field 'email'
+- Validity: Field 'age' has invalid type (expected: int, got: str)
+- Accuracy: Field 'age' value -5 outside valid range [0, 120]
+```
+
+## Troubleshooting
+
+### "Standard not found"
+Run your function once with good data. ADRI will auto-generate the standard.
+
+### "Import errors"
+Examples use mocks by default. Install frameworks if you want real integrations:
+```bash
+pip install langchain  # or crewai, autogen, etc.
+```
+
+### "Quality score too low"
+Check `ADRI/dev/logs/` for detailed assessment. Fix data issues or adjust `mode` to "warn".
+
+## Next Steps
+
+1. **Run an example**: Start with `generic_basic.py`
+2. **Check generated standards**: Look in `ADRI/dev/standards/`
+3. **Read the logs**: Check `ADRI/dev/logs/` for insights
+4. **Try with your data**: Replace sample data with your own
+5. **Add to your agents**: Copy the decorator pattern
+
+## Learn More
+
+- [Quickstart Guide](../QUICKSTART.md) - 2-minute integration
+- [Getting Started](../docs/GETTING_STARTED.md) - Detailed tutorial
+- [Framework Patterns](../docs/FRAMEWORK_PATTERNS.md) - Framework-specific guides
+- [API Reference](../docs/API_REFERENCE.md) - All decorator options
 
 ---
 
-**Ready to protect your AI workflows?** Choose your framework and get started in 30 seconds!
+**One decorator. Any framework. Reliable agents.**
