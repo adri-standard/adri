@@ -239,16 +239,29 @@ def index_documents(docs):
 
 > **Note**: ADRI validates data structure, not content. For RAG, it ensures each document has required fields (id, text, metadata) and correct types, preventing indexing failures from malformed data.
 
-## Enterprise Features
+## Enterprise: Production-Grade Agent Reliability
 
-Open-source ADRI provides local logging and protection. For production deployments, ADRI Enterprise adds:
+**The Problem**: 80% of agent failures are data-related, not model-related. Current tools (LangSmith, W&B, Prometheus) log prompts and tokens—but ignore data quality, lineage, and reproducibility.
 
-- **Centralized logging** - Send assessments to Verodat cloud
-- **Analytics dashboard** - Monitor quality across all agents
-- **Workflow orchestration** - Track data lineage and provenance
-- **Team collaboration** - Share standards across teams
+**The Reality**: As agent workflows scale beyond prototypes, they fail due to:
+- No shared definition of "good data"
+- Missing data provenance and lineage
+- Non-reproducible workflow behavior
+- Engineers spending more time on data scaffolding than agent logic
 
-See [FAQ](docs/FAQ.md#enterprise) for details.
+**The Solution**: Verodat Enterprise is the missing **data reliability layer** for AI agents.
+
+Open-source ADRI provides local data quality validation. **Verodat Enterprise** adds production infrastructure:
+
+- **Centralized Telemetry** - Send assessments to Verodat cloud, monitor quality across all agents
+- **Full Workflow Replay** - Deterministic replays with complete data state (not just prompts)
+- **Data Supply Manager** - Orchestrated, validated, compliant data feeds for production agents
+- **Compliance & Audit** - Immutable data lineage and provenance for regulatory requirements
+- **Team Collaboration** - Share standards, monitor drift, coordinate across Agent + Data + Compliance teams
+
+**Impact**: One decorator + one config → from prototype to auditable, reproducible, production-grade workflows.
+
+See [FAQ](docs/FAQ.md#enterprise) for details or [contact Verodat](https://verodat.com) for enterprise trials.
 
 ## Development
 
