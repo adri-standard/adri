@@ -215,15 +215,24 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for contribution guidelines.
 
 Apache License 2.0. See [LICENSE](LICENSE) for details.
 
-## Support
+## Community & Support
 
-- **Issues**: [GitHub Issues](https://github.com/adri-standard/adri/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/adri-standard/adri/discussions)
-- **Documentation**: [docs/](docs/)
-- **Email**: adri@verodat.com
+### Get Help
+- 💬 **[GitHub Discussions](https://github.com/adri-standard/adri/discussions)** - Ask questions, share use cases
+- 🐛 **[GitHub Issues](https://github.com/adri-standard/adri/issues)** - Report bugs, request features  
+- 📚 **[Documentation](docs/)** - Comprehensive guides and tutorials
+
+### Connect with the Team
+- 👤 **[Thomas Russell](https://linkedin.com/in/thomas-verodat/)** - Founder (updates & engagement)
+- 🏢 **[Verodat](https://linkedin.com/company/verodat/)** - Company behind ADRI
+
+### Support This Project
+- ⭐ **[Star on GitHub](https://github.com/adri-standard/adri)** - Help others discover ADRI
+- 🗣️ **Share**: Post about ADRI with #ADRI #AIAgents
+- 🤝 **Contribute**: See [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ---
 
 **One decorator. Any framework. Reliable agents.**
 
-Built with ❤️ by the Verodat team
+Built with ❤️ by [Thomas Russell](https://linkedin.com/in/thomas-verodat/) at [Verodat](https://verodat.com)
