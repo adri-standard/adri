@@ -5,6 +5,38 @@ All notable changes to ADRI will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.0.1] - 2025-01-17
+
+**Standards Catalog Library & Community Enhancements**
+
+### Added
+
+**Standards Catalog Library** - 13 production-ready standards for common use cases
+- 5 Domain Standards: customer_service, ecommerce_order, financial_transaction, healthcare_patient, marketing_campaign
+- 4 Framework Standards: langchain_chain_input, crewai_task_context, llamaindex_document, autogen_message
+- 4 Template Standards: api_response, time_series, key_value, nested_json
+- Comprehensive test suite (29 tests validating all standards)
+- Complete documentation in docs/STANDARDS_LIBRARY.md
+
+**Documentation Improvements**
+- README optimized for virality and community engagement
+- "Share Your Standards" section encouraging contributions
+- Standards Library added to Quick Links for discoverability
+- Icons added to all standards for better visual scanning
+- Multiple contribution CTAs throughout
+
+### Changed
+- Reordered README sections: Common Use Cases now before Standards Library
+- Enhanced Enterprise section renamed to "Scaling to Production" with positive framing
+- Star CTAs improved with dual placement (top banner + enhanced footer)
+- CONTRIBUTING.md updated with standards contribution guidelines
+
+### Impact
+- Lower adoption barrier with proven standards
+- Community-driven contribution model established
+- SEO-optimized for discovery ("customer service data standard" etc.)
+- Clear pathway for users to share and contribute standards
+
 ## [5.0.0] - 2025-10-17
 
 **ADRI v5.0.0 - The missing data layer for AI agents**
