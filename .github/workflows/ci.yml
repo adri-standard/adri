@@ -159,12 +159,12 @@ jobs:
       - name: Check code style
         if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.11'
         run: |
-          flake8 adri/
+          flake8 src/adri/
       
       - name: Check formatting
         if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.11'
         run: |
-          black --check adri/
+          black --check src/adri/
 
   # Status check that always runs
   ci-status:
