@@ -165,6 +165,9 @@ Developer-friendly insights during development:
 def process_api_data(response):
     return transform(response)
 ```
+**What it protects**: API response data structure  
+**Sample data**: [examples/data/api_response.json](examples/data/api_response.json)  
+**Use when**: Validating third-party API responses before processing
 
 ### Multi-Agent Workflows
 ```python
@@ -172,6 +175,9 @@ def process_api_data(response):
 def crew_task(context):
     return crew.kickoff(context)
 ```
+**What it protects**: Agent communication context  
+**Sample data**: [examples/data/crew_context.json](examples/data/crew_context.json)  
+**Use when**: Coordinating multi-agent workflows (CrewAI, AutoGen, custom)
 
 ### RAG Pipelines
 ```python
@@ -179,6 +185,11 @@ def crew_task(context):
 def index_documents(docs):
     return index.insert(docs)
 ```
+**What it protects**: Document structure before indexing  
+**Sample data**: [examples/data/rag_documents.json](examples/data/rag_documents.json)  
+**Use when**: Validating documents before vector store indexing (LlamaIndex, Haystack)
+
+> **Note**: ADRI validates data structure, not content. For RAG, it ensures each document has required fields (id, text, metadata) and correct types, preventing indexing failures from malformed data.
 
 ## Enterprise Features
 

@@ -374,7 +374,7 @@ Sources:
 
 ### setup
 
-Interactive configuration setup.
+Interactive configuration setup with optional guided tour.
 
 **Usage:**
 ```bash
@@ -383,6 +383,7 @@ adri setup [OPTIONS]
 
 **Options:**
 ```bash
+--guide               Interactive guided tour with examples and tutorials
 --global              Configure global settings
 --project             Configure project settings (default)
 --reset               Reset to defaults
@@ -390,6 +391,11 @@ adri setup [OPTIONS]
 ```
 
 **Examples:**
+
+Guided tour (recommended for first-time users):
+```bash
+adri setup --guide
+```
 
 Interactive setup:
 ```bash
