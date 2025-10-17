@@ -166,8 +166,8 @@ No manual configuration. ADRI learns from your data:
 
 ```bash
 adri setup                                      # Initialize ADRI
-adri assess data.csv --standard my_standard     # Assess data quality
 adri generate-standard data.json                # Generate standard
+adri assess data.csv --standard my_standard     # Assess data quality
 adri list-standards                             # List standards
 adri validate-standard my_standard.yaml         # Validate standard
 ```
