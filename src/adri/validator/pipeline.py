@@ -126,8 +126,7 @@ class ValidationPipeline:
             field_requirements = standard.get_field_requirements()
             if _should_enable_debug():
                 diagnostic_log.append(
-                    f"Dimension requirements loaded: {list(
-                            dimension_requirements.keys())}"
+                    f"Dimension requirements loaded: {list(dimension_requirements.keys())}"
                 )
                 diagnostic_log.append(
                     f"Field requirements count: {len(field_requirements)}"
