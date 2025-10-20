@@ -516,6 +516,9 @@ class DataProtectionEngine:
         Raises:
             ProtectionError: If standard doesn't exist and auto_generate is False
         """
+        # Resolve path to handle macOS symlinks (/var -> /private/var)
+        standard_path = str(Path(standard_path).resolve())
+        
         self.logger.info("Checking if standard exists at: %s", standard_path)
         if os.path.exists(standard_path):
             self.logger.info("Standard already exists, skipping auto-generation")
@@ -576,7 +579,7 @@ class DataProtectionEngine:
 
             # Validate the generated standard to ensure it's valid
             try:
-                from adri.standards.validator import get_validator
+                from ..standards.validator import get_validator
 
                 validator = get_validator()
                 result = validator.validate_standard_file(

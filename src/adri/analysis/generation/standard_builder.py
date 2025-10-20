@@ -228,6 +228,23 @@ class StandardBuilder:
                     rule_counts.setdefault(dimension, {})
                     rule_counts[dimension][rule_type] = rule_counts[dimension].get(rule_type, 0) + 1
         
+        # Add consistency rules (dataset-level, not in field validation_rules)
+        consistency_counts = rule_counts.setdefault("consistency", {})
+        
+        if pk_fields:
+            consistency_counts["primary_key_uniqueness"] = 1.0
+        
+        has_string_fields = any(
+            field_req.get("type") == "string"
+            for field_req in field_reqs.values()
+            if isinstance(field_req, dict)
+        )
+        if has_string_fields:
+            consistency_counts["format_consistency"] = 1.0
+        
+        if len(field_reqs) >= 2:
+            consistency_counts["cross_field_logic"] = 1.0
+        
         # Populate weights for each dimension
         for dimension_name, dimension_config in dimension_reqs.items():
             if not isinstance(dimension_config, dict):

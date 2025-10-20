@@ -228,7 +228,10 @@ requirements:
       minimum_score: 12.0
       weight: 1.0
       scoring:
-        rule_weights: {}
+        rule_weights:
+          primary_key_uniqueness: 0.3333333333333333
+          format_consistency: 0.3333333333333333
+          cross_field_logic: 0.3333333333333333
         field_overrides: {}
     freshness:
       minimum_score: 15.0

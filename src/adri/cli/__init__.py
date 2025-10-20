@@ -1568,6 +1568,73 @@ def standards_catalog_fetch_command(
         return 1
 
 
+def show_help_guide() -> Dict[str, Any]:
+    """Show environment information and directory structure explanation.
+    
+    Returns comprehensive ADRI environment documentation including:
+    - Environment configuration details
+    - Directory structure explanations
+    - Configuration file locations
+    - Best practices and usage guidelines
+    
+    Returns:
+        Dict containing environment info, directory structure, and configuration details
+    """
+    # Get project root for context
+    project_root = _find_adri_project_root()
+    
+    # Build environment information
+    environment_info = {
+        "current_environment": os.environ.get("ADRI_ENV", "development"),
+        "config_path": os.environ.get("ADRI_CONFIG_PATH"),
+        "standards_dir": os.environ.get("ADRI_STANDARDS_DIR"),
+        "project_root": str(project_root) if project_root else None,
+    }
+    
+    # Directory structure explanation
+    directory_structure = {
+        "ADRI/": "Root directory for all ADRI assets",
+        "ADRI/dev/": "Development environment directory",
+        "ADRI/dev/standards/": "Development standards (draft/testing)",
+        "ADRI/dev/assessments/": "Development assessment reports",
+        "ADRI/dev/audit-logs/": "Development audit logs",
+        "ADRI/dev/training-data/": "Development training data snapshots",
+        "ADRI/prod/": "Production environment directory",
+        "ADRI/prod/standards/": "Production standards (validated/approved)",
+        "ADRI/prod/assessments/": "Production assessment reports",
+        "ADRI/prod/audit-logs/": "Production audit logs",
+        "ADRI/tutorials/": "Tutorial and example data directories",
+        "adri-config.yaml": "Main ADRI configuration file",
+    }
+    
+    # Configuration file explanation
+    config_details = {
+        "file_location": "adri-config.yaml in project root",
+        "purpose": "Centralized configuration for all ADRI functionality",
+        "key_sections": {
+            "environments": "Development and production environment settings",
+            "protection": "Data protection and decorator settings",
+            "audit": "Audit logging configuration",
+            "standards": "Standards discovery and validation settings",
+        },
+        "environment_variables": {
+            "ADRI_ENV": "Current environment (development/production)",
+            "ADRI_CONFIG_PATH": "Override config file location",
+            "ADRI_STANDARDS_DIR": "Override standards directory location",
+        },
+    }
+    
+    # Build comprehensive help guide response
+    help_guide = {
+        "environment_info": environment_info,
+        "directory_structure": directory_structure,
+        "config_details": config_details,
+        "version": __version__,
+    }
+    
+    return help_guide
+
+
 def main():
     """Run the main CLI entry point."""
     cli()

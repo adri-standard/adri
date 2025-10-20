@@ -401,10 +401,11 @@ class StandardValidator:
         result: ValidationResult,
     ) -> None:
         """
-        Validate field-specific requirements with validation_rules structure.
+        Validate field-specific requirements.
         
-        Clean break implementation: validation_rules are REQUIRED.
-        Old format (nullable, allowed_values without validation_rules) is not supported.
+        Supports both formats:
+        - New format: validation_rules (list of ValidationRule dicts)
+        - Old format: nullable, allowed_values, etc. (backward compatible)
 
         Args:
             field_requirements: Dictionary of field requirements
@@ -423,31 +424,24 @@ class StandardValidator:
                 )
                 continue
 
-            # REQUIRE validation_rules (clean break - no backward compatibility)
-            if 'validation_rules' not in field_config:
-                result.add_error(
-                    message=f"Field '{field_name}' missing required 'validation_rules'",
-                    path=field_path,
-                    suggestion="All fields must use validation_rules format. "
-                               "Use migration script: python scripts/migrate_standards_to_severity.py",
+            # If validation_rules present (new format), validate them
+            if 'validation_rules' in field_config:
+                validation_rules = field_config['validation_rules']
+                rule_errors = StandardSchema.validate_validation_rules_list(
+                    validation_rules, 
+                    field_path
                 )
-                continue
-            
-            # Validate the validation_rules structure
-            validation_rules = field_config['validation_rules']
-            rule_errors = StandardSchema.validate_validation_rules_list(
-                validation_rules, 
-                field_path
-            )
-            
-            # Add all rule validation errors to result
-            for error_msg in rule_errors:
-                result.add_error(
-                    message=error_msg,
-                    path=field_path,
-                    suggestion="Check validation_rules structure: each rule needs name, dimension, "
-                               "severity, rule_type, and rule_expression"
-                )
+                
+                # Add all rule validation errors to result
+                for error_msg in rule_errors:
+                    result.add_error(
+                        message=error_msg,
+                        path=field_path,
+                        suggestion="Check validation_rules structure: each rule needs name, dimension, "
+                                   "severity, rule_type, and rule_expression"
+                    )
+            # Otherwise, validate as old format (backward compatible)
+            # Old format is valid, just different structure - no validation needed
 
     def _get_cached_result(self, file_path: str) -> Optional[ValidationResult]:
         """

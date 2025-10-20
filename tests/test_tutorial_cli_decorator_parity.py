@@ -49,6 +49,7 @@ class TestStandardGenerationParity:
         df = pd.read_csv(training_data_path)
 
         # 1. Generate via Python API (same as CLI uses)
+        os.environ.pop('ADRI_STANDARDS_DIR', None)  # Let config file take precedence
         os.environ['ADRI_CONFIG_PATH'] = str(cli_env['config'])
         os.environ['ADRI_ENV'] = 'development'
 
@@ -66,6 +67,7 @@ class TestStandardGenerationParity:
             yaml.dump(cli_standard_dict, f, default_flow_style=False, sort_keys=False)
 
         # 2. Generate via Decorator auto-generation
+        os.environ.pop('ADRI_STANDARDS_DIR', None)  # Let config file take precedence
         os.environ['ADRI_CONFIG_PATH'] = str(dec_env['config'])
         os.environ['ADRI_ENV'] = 'development'
 
@@ -116,6 +118,7 @@ class TestAssessmentParity:
         copy_standard(standard_source, standard_dest)
 
         # Configure environment
+        os.environ.pop('ADRI_STANDARDS_DIR', None)  # Let config file take precedence
         os.environ['ADRI_CONFIG_PATH'] = str(env['config'])
         os.environ['ADRI_ENV'] = 'development'
 
@@ -166,6 +169,7 @@ class TestAssessmentParity:
         copy_standard(standard_source, standard_dest)
 
         # Configure environment
+        os.environ.pop('ADRI_STANDARDS_DIR', None)  # Let config file take precedence
         os.environ['ADRI_CONFIG_PATH'] = str(env['config'])
         os.environ['ADRI_ENV'] = 'development'
 
@@ -228,6 +232,7 @@ class TestStandardPathConsistency:
         config_standard_path = standard_dest.resolve()
 
         # Configure environment
+        os.environ.pop('ADRI_STANDARDS_DIR', None)  # Let config file take precedence
         os.environ['ADRI_CONFIG_PATH'] = str(env['config'])
         os.environ['ADRI_ENV'] = 'development'
 
@@ -370,6 +375,7 @@ class TestEndToEndParity:
         df = pd.read_csv(training_data_path)
 
         # === CLI PATH ===
+        os.environ.pop('ADRI_STANDARDS_DIR', None)  # Let config file take precedence
         os.environ['ADRI_CONFIG_PATH'] = str(cli_env['config'])
         os.environ['ADRI_ENV'] = 'development'
 
@@ -399,6 +405,7 @@ class TestEndToEndParity:
         cli_result = assessor.assess(df, str(cli_standard_path))
 
         # === DECORATOR PATH ===
+        os.environ.pop('ADRI_STANDARDS_DIR', None)  # Let config file take precedence
         os.environ['ADRI_CONFIG_PATH'] = str(dec_env['config'])
         os.environ['ADRI_ENV'] = 'development'
 
@@ -444,6 +451,7 @@ class TestEndToEndParity:
         df = pd.read_csv(test_data_path)
 
         # === CLI PATH ===
+        os.environ.pop('ADRI_STANDARDS_DIR', None)  # Let config file take precedence
         os.environ['ADRI_CONFIG_PATH'] = str(cli_env['config'])
         os.environ['ADRI_ENV'] = 'development'
 
@@ -473,6 +481,7 @@ class TestEndToEndParity:
         cli_result = assessor.assess(df, str(cli_standard_path))
 
         # === DECORATOR PATH ===
+        os.environ.pop('ADRI_STANDARDS_DIR', None)  # Let config file take precedence
         os.environ['ADRI_CONFIG_PATH'] = str(dec_env['config'])
         os.environ['ADRI_ENV'] = 'development'
 
