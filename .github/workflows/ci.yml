@@ -121,7 +121,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        python-version: ['3.10', '3.11', '3.12']
+        python-version: ['3.10', '3.11', '3.12', '3.13']
 
     steps:
       - uses: actions/checkout@v4
@@ -166,9 +166,157 @@ jobs:
         run: |
           black --check src/adri/
 
+  # Build and test package installation
+  build-test:
+    needs: check-changes
+    if: needs.check-changes.outputs.docs-only == 'false'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install build dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install build twine
+
+      - name: Build package
+        run: |
+          python -m build
+
+      - name: Check package
+        run: |
+          twine check dist/*
+
+      - name: Test install from built package
+        run: |
+          pip install dist/*.whl
+          python -c "import adri; print(f'✅ ADRI version {adri.__version__} installed successfully')"
+
+  # Security scanning
+  security:
+    needs: check-changes
+    if: needs.check-changes.outputs.docs-only == 'false'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Run bandit security scan
+        run: |
+          pip install bandit[toml]
+          bandit -r src/adri/ -c pyproject.toml
+
+      - name: Run safety check on dependencies
+        run: |
+          pip install safety
+          safety check --json || echo "⚠️  Safety check completed with warnings"
+
+  # Validate .gitignore protection
+  validate-gitignore-protection:
+    needs: check-changes
+    if: needs.check-changes.outputs.docs-only == 'false'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate .gitignore protects sensitive files
+        run: |
+          echo "✅ Checking .gitignore protection..."
+
+          # Check that .gitignore exists
+          if [ ! -f .gitignore ]; then
+            echo "❌ .gitignore file not found"
+            exit 1
+          fi
+
+          # Required patterns in .gitignore
+          REQUIRED_PATTERNS=(
+            "__pycache__"
+            "*.pyc"
+            ".pytest_cache"
+            ".coverage"
+            "*.egg-info"
+            ".env"
+            "venv"
+          )
+
+          for pattern in "${REQUIRED_PATTERNS[@]}"; do
+            if grep -q "$pattern" .gitignore; then
+              echo "✅ Protected: $pattern"
+            else
+              echo "❌ Missing protection for: $pattern"
+              exit 1
+            fi
+          done
+
+          echo "✅ All required patterns protected"
+
+  # Validate root structure
+  validate-root-structure:
+    needs: check-changes
+    if: needs.check-changes.outputs.docs-only == 'false'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate project root structure
+        run: |
+          echo "✅ Checking project structure..."
+
+          # Required root files
+          REQUIRED_FILES=(
+            "README.md"
+            "LICENSE"
+            "pyproject.toml"
+            ".gitignore"
+            "CONTRIBUTING.md"
+          )
+
+          for file in "${REQUIRED_FILES[@]}"; do
+            if [ -f "$file" ]; then
+              echo "✅ Found: $file"
+            else
+              echo "❌ Missing required file: $file"
+              exit 1
+            fi
+          done
+
+          # Required directories
+          REQUIRED_DIRS=(
+            "src/adri"
+            "tests"
+            "docs"
+            ".github/workflows"
+          )
+
+          for dir in "${REQUIRED_DIRS[@]}"; do
+            if [ -d "$dir" ]; then
+              echo "✅ Found: $dir/"
+            else
+              echo "❌ Missing required directory: $dir/"
+              exit 1
+            fi
+          done
+
+          echo "✅ Project structure validated"
+
   # Status check that always runs
   ci-status:
-    needs: [check-changes, validate-docs, test]
+    needs: [check-changes, validate-docs, test, build-test, security, validate-gitignore-protection, validate-root-structure]
     if: always()
     runs-on: ubuntu-latest
     steps:
