@@ -75,9 +75,7 @@ class DimensionRequirementsBuilder:
             "minimum_score": thresholds.get("completeness_min", 15.0),
             "weight": 1.0,
             "scoring": {
-                "rule_weights": {
-                    "missing_required": 1.0,  # Primary completeness rule
-                },
+                "rule_weights": {"missing_required": 1.0},  # Primary completeness rule
                 "field_overrides": {},
             },
         }

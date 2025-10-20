@@ -305,10 +305,7 @@ def _get_json_info(file_path: Path) -> Dict[str, Any]:
                 "column_names": column_names,
             }
         else:
-            return {
-                "type": type(data).__name__,
-                "is_list": False,
-            }
+            return {"type": type(data).__name__, "is_list": False}
 
 
 def _get_parquet_info(file_path: Path) -> Dict[str, Any]:

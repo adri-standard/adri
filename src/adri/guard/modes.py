@@ -204,8 +204,7 @@ class DataProtectionEngine:
         self.enterprise_logger = None
 
         self.logger.debug(
-            f"DataProtectionEngine initialized with {
-                self.protection_mode.mode_name} mode"
+            f"DataProtectionEngine initialized with {self.protection_mode.mode_name} mode"
         )
 
     @property
@@ -363,8 +362,7 @@ class DataProtectionEngine:
 
         if verbose:
             self.logger.info(
-                f"Protecting function '{function_name}' with {
-                    effective_mode.mode_name} mode, min_score={min_score}"
+                f"Protecting function '{function_name}' with {effective_mode.mode_name} mode, min_score={min_score}"
             )
 
         try:
@@ -401,9 +399,7 @@ class DataProtectionEngine:
 
             if verbose:
                 self.logger.info(
-                    f"Assessment completed in {
-                        assessment_duration:.2f}s, score: {
-                        assessment_result.overall_score:.1f}"
+                    f"Assessment completed in {assessment_duration:.2f}s, score: {assessment_result.overall_score:.1f}"
                 )
 
             # Invoke assessment callback if provided (before pass/fail checking)
@@ -487,10 +483,7 @@ class DataProtectionEngine:
         )
 
     def _resolve_standard(
-        self,
-        function_name: str,
-        data_param: str,
-        standard_name: Optional[str] = None,
+        self, function_name: str, data_param: str, standard_name: Optional[str] = None
     ) -> str:
         """
         Resolve which standard to use for protection.
@@ -733,8 +726,7 @@ class DataProtectionEngine:
         else:
             return (
                 f"🛡️ ADRI Protection: ALLOWED ✅\n"
-                f"📊 Score: {
-                    assessment_result.overall_score:.1f}/100 | Standard: {standard_name}"
+                f"📊 Score: {assessment_result.overall_score:.1f}/100 | Standard: {standard_name}"
             )
 
     def _invoke_assessment_callback(
@@ -761,8 +753,7 @@ class DataProtectionEngine:
         try:
             if verbose:
                 self.logger.debug(
-                    f"Invoking assessment callback with result (score: {
-                        assessment_result.overall_score:.1f})"
+                    f"Invoking assessment callback with result (score: {assessment_result.overall_score:.1f})"
                 )
 
             # Invoke the callback with the assessment result

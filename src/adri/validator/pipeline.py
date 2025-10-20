@@ -200,9 +200,7 @@ class ValidationPipeline:
         duration_ms = int((time.time() - start_time) * 1000)
 
         # Build metadata
-        metadata = {
-            "applied_dimension_weights": applied_weights,
-        }
+        metadata = {"applied_dimension_weights": applied_weights}
 
         if explain_data and collect_explain:
             metadata["explain"] = explain_data

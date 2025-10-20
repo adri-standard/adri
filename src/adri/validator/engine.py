@@ -1499,9 +1499,7 @@ class ValidationEngine:
         passed = overall_score >= min_score
 
         # Build metadata with explain and warnings
-        metadata = {
-            "applied_dimension_weights": applied_weights,
-        }
+        metadata = {"applied_dimension_weights": applied_weights}
         if getattr(self, "_scoring_warnings", None):
             metadata["scoring_warnings"] = list(self._scoring_warnings)
         if getattr(self, "_explain", None):
@@ -1596,9 +1594,7 @@ class ValidationEngine:
             passed = overall_score >= min_score
 
             # Build metadata with explain and warnings
-            metadata: Dict[str, Any] = {
-                "applied_dimension_weights": applied_weights,
-            }
+            metadata: Dict[str, Any] = {"applied_dimension_weights": applied_weights}
             if getattr(self, "_scoring_warnings", None):
                 metadata["scoring_warnings"] = list(self._scoring_warnings)
             # Include explain even if it's an empty dict (some dimensions may return {})
@@ -2198,10 +2194,7 @@ class ValidationEngine:
 
         # Build explain payload
         rule_counts = {
-            rule: {
-                "passed": result.get("passed", 0),
-                "total": result.get("total", 0),
-            }
+            rule: {"passed": result.get("passed", 0), "total": result.get("total", 0)}
             for rule, result in rule_results.items()
         }
         # Fill in zero counts for inactive rules
@@ -2321,22 +2314,14 @@ class ValidationEngine:
         # Placeholder implementation - assume all values pass business logic for now
         # In a real implementation, this would check domain-specific rules
         total = len(data) if not data.empty else 0
-        return {
-            "passed": total,
-            "total": total,
-            "pass_rate": 1.0,
-        }
+        return {"passed": total, "total": total, "pass_rate": 1.0}
 
     def _assess_cross_field_consistency(self, data: pd.DataFrame) -> Dict[str, Any]:
         """Assess cross-field consistency (placeholder - could check field relationships)."""
         # Placeholder implementation - assume all records are consistent for now
         # In a real implementation, this would check relationships between fields
         total = len(data) if not data.empty else 0
-        return {
-            "passed": total,
-            "total": total,
-            "pass_rate": 1.0,
-        }
+        return {"passed": total, "total": total, "pass_rate": 1.0}
 
     def _assess_plausibility(self, data: pd.DataFrame) -> float:
         """Assess data plausibility (fallback when no standard available)."""

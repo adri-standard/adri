@@ -1,5 +1,5 @@
 """
-ADRI - Agent Data Readiness Index
+ADRI - Agent Data Readiness Index.
 
 The missing data layer for AI agents. Auto-validates data quality with one decorator.
 

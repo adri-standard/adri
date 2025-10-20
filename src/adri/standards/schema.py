@@ -115,13 +115,7 @@ class StandardSchema:
             "custom",
         },
         "completeness": {"not_null", "not_empty", "required_fields"},
-        "consistency": {
-            "format",
-            "case",
-            "uniqueness",
-            "cross_field",
-            "primary_key",
-        },
+        "consistency": {"format", "case", "uniqueness", "cross_field", "primary_key"},
         "freshness": {"age_check", "recency", "staleness"},
         "plausibility": {
             "range_check",

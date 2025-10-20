@@ -659,7 +659,7 @@ class FieldInferenceEngine:
                 severity=severity_loader.get_severity("validity", "allowed_values"),
                 rule_type="allowed_values",
                 rule_expression=f"VALUE_IN({allowed})",
-                error_message=f"{field_name} must be one of: {', '.join(str(v) for v in allowed[: 5])}",
+                error_message=f"{field_name} must be one of: {', '.join(str(v) for v in list(allowed)[0:5])}",
             )
             validation_rules.append(rule)
 

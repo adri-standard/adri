@@ -40,9 +40,7 @@ class ReasoningValidator:
         self.assessor = DataQualityAssessor(config)
 
     def validate_ai_output(
-        self,
-        data: pd.DataFrame,
-        standard_path: str,
+        self, data: pd.DataFrame, standard_path: str
     ) -> AssessmentResult:
         """
         Validate AI-generated output against reasoning standard.
@@ -67,9 +65,7 @@ class ReasoningValidator:
         return result
 
     def _validate_confidence_scores(
-        self,
-        data: pd.DataFrame,
-        result: AssessmentResult,
+        self, data: pd.DataFrame, result: AssessmentResult
     ) -> None:
         """
         Validate AI confidence scores are within expected ranges.
@@ -115,9 +111,7 @@ class ReasoningValidator:
                 self.logger.debug(f"Could not validate confidence field {field}: {e}")
 
     def _validate_risk_levels(
-        self,
-        data: pd.DataFrame,
-        result: AssessmentResult,
+        self, data: pd.DataFrame, result: AssessmentResult
     ) -> None:
         """
         Validate AI risk levels are within expected categories.
@@ -172,9 +166,7 @@ class ReasoningValidator:
                 self.logger.debug(f"Could not validate risk field {field}: {e}")
 
     def check_ai_field_requirements(
-        self,
-        data: pd.DataFrame,
-        field_requirements: Dict[str, Any],
+        self, data: pd.DataFrame, field_requirements: Dict[str, Any]
     ) -> List[Dict[str, Any]]:
         """
         Check AI-specific field requirements.
@@ -256,9 +248,7 @@ class ReasoningValidator:
         return issues
 
     def validate_reasoning_completeness(
-        self,
-        data: pd.DataFrame,
-        required_ai_fields: List[str],
+        self, data: pd.DataFrame, required_ai_fields: List[str]
     ) -> DimensionScore:
         """
         Validate that required AI reasoning fields are present and complete.
