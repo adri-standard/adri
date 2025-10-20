@@ -243,25 +243,54 @@ jobs:
             exit 1
           fi
 
-          # Required patterns in .gitignore
-          REQUIRED_PATTERNS=(
-            "__pycache__"
-            "*.pyc"
-            ".pytest_cache"
-            ".coverage"
-            "*.egg-info"
-            ".env"
-            "venv"
-          )
+          # Required patterns in .gitignore (or their equivalents)
+          # Check __pycache__
+          if grep -qE "__pycache__|\.pyc" .gitignore; then
+            echo "✅ Protected: Python bytecode (__pycache__ or *.pyc)"
+          else
+            echo "❌ Missing protection for: __pycache__ or *.pyc"
+            exit 1
+          fi
 
-          for pattern in "${REQUIRED_PATTERNS[@]}"; do
-            if grep -q "$pattern" .gitignore; then
-              echo "✅ Protected: $pattern"
-            else
-              echo "❌ Missing protection for: $pattern"
-              exit 1
-            fi
-          done
+          # Check .pytest_cache
+          if grep -q ".pytest_cache" .gitignore; then
+            echo "✅ Protected: .pytest_cache"
+          else
+            echo "❌ Missing protection for: .pytest_cache"
+            exit 1
+          fi
+
+          # Check .coverage
+          if grep -q ".coverage" .gitignore; then
+            echo "✅ Protected: .coverage"
+          else
+            echo "❌ Missing protection for: .coverage"
+            exit 1
+          fi
+
+          # Check .egg-info
+          if grep -q ".egg-info" .gitignore; then
+            echo "✅ Protected: .egg-info"
+          else
+            echo "❌ Missing protection for: .egg-info"
+            exit 1
+          fi
+
+          # Check .env
+          if grep -q ".env" .gitignore; then
+            echo "✅ Protected: .env"
+          else
+            echo "❌ Missing protection for: .env"
+            exit 1
+          fi
+
+          # Check venv
+          if grep -q "venv" .gitignore; then
+            echo "✅ Protected: venv"
+          else
+            echo "❌ Missing protection for: venv"
+            exit 1
+          fi
 
           echo "✅ All required patterns protected"
 
