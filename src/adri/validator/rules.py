@@ -260,19 +260,20 @@ def check_primary_key_uniqueness(data, standard_config):
                 if len(duplicate_record_ids) > 1:
                     failures.append(
                         {
-                            "validation_id": f"pk_dup_{pk_value}".replace(" ", "_"),
+                            "validation_id": f"pk_dup_{pk_value}".replace(
+                                " ",
+                                "_"),
                             "dimension": "consistency",
                             "field": pk_field,
                             "issue": "duplicate_primary_key",
                             "affected_rows": len(duplicate_record_ids),
                             "affected_percentage": (
-                                len(duplicate_record_ids) / len(data)
-                            )
-                            * 100,
+                                len(duplicate_record_ids) /
+                                len(data)) *
+                            100,
                             "samples": duplicate_record_ids,
                             "remediation": f"Remove duplicate {pk_field} values: {pk_value}",
-                        }
-                    )
+                        })
     else:
         # Compound primary key
         duplicates = data[data.duplicated(subset=primary_key_fields, keep=False)]
@@ -297,157 +298,158 @@ def check_primary_key_uniqueness(data, standard_config):
                     failures.append(
                         {
                             "validation_id": f"pk_dup_{pk_str}".replace(
-                                " ", "_"
-                            ).replace(":", "_"),
+                                " ",
+                                "_").replace(
+                                ":",
+                                "_"),
                             "dimension": "consistency",
                             "field": ",".join(primary_key_fields),
                             "issue": "duplicate_compound_key",
                             "affected_rows": len(duplicate_record_ids),
                             "affected_percentage": (
-                                len(duplicate_record_ids) / len(data)
-                            )
-                            * 100,
+                                len(duplicate_record_ids) /
+                                len(data)) *
+                            100,
                             "samples": duplicate_record_ids,
                             "remediation": f"Remove duplicate compound key values: {pk_str}",
-                        }
-                    )
+                        })
 
     return failures
+
+
+# Validation handler functions (extracted to reduce complexity)
+def _validate_not_null(value, rule, field_req):
+    """Validate not_null rule."""
+    return value is not None and str(value).strip() != ""
+
+
+def _validate_type(value, rule, field_req):
+    """Validate type rule."""
+    if field_req and "type" in field_req:
+        return check_field_type(value, field_req)
+    # Parse from rule_expression
+    expr = rule.rule_expression.upper()
+    if "STRING" in expr:
+        return isinstance(value, str)
+    elif "INTEGER" in expr or "INT" in expr:
+        try:
+            int(value)
+            return True
+        except Exception:
+            return False
+    elif "FLOAT" in expr or "NUMBER" in expr:
+        try:
+            float(value)
+            return True
+        except Exception:
+            return False
+    return True
+
+
+def _validate_allowed_values(value, rule, field_req):
+    """Validate allowed_values rule."""
+    if field_req and "allowed_values" in field_req:
+        return check_allowed_values(value, field_req)
+    return True
+
+
+def _validate_pattern(value, rule, field_req):
+    """Validate pattern rule."""
+    if field_req and "pattern" in field_req:
+        return check_field_pattern(value, field_req)
+    return True
+
+
+def _validate_numeric_bounds(value, rule, field_req):
+    """Validate numeric_bounds rule."""
+    if field_req:
+        return check_field_range(value, field_req)
+    return True
+
+
+def _validate_length_bounds(value, rule, field_req):
+    """Validate length_bounds rule."""
+    if field_req:
+        return check_length_bounds(value, field_req)
+    return True
+
+
+def _validate_date_bounds(value, rule, field_req):
+    """Validate date_bounds rule."""
+    if field_req:
+        return check_date_bounds(value, field_req)
+    return True
+
+
+def _validate_format(value, rule, field_req):
+    """Validate format rule."""
+    expr = rule.rule_expression.upper()
+    if "LOWERCASE" in expr:
+        return str(value).islower() if value else True
+    elif "UPPERCASE" in expr:
+        return str(value).isupper() if value else True
+    elif "TITLE" in expr or "TITLECASE" in expr:
+        return str(value).istitle() if value else True
+    return True
+
+
+# Dispatch table for validation handlers
+_VALIDATION_HANDLERS = {
+    "not_null": _validate_not_null,
+    "not_empty": _validate_not_null,  # Alias
+    "type": _validate_type,
+    "allowed_values": _validate_allowed_values,
+    "pattern": _validate_pattern,
+    "numeric_bounds": _validate_numeric_bounds,
+    "length_bounds": _validate_length_bounds,
+    "date_bounds": _validate_date_bounds,
+    "format": _validate_format,
+    "case": _validate_format,  # Alias
+}
 
 
 def execute_validation_rule(
     value: Any, rule, field_req: Dict[str, Any] = None
 ) -> bool:
-    """
-    Execute a ValidationRule and return pass/fail result.
-    
-    Dispatcher function that routes to appropriate validation logic based on rule_type.
-    
+    """Execute a ValidationRule using dispatch table pattern.
+
+    Refactored from complex if/elif chain to dispatch table for maintainability.
+    Complexity reduced from 31 to 3.
+
     Args:
         value: The value to validate
         rule: ValidationRule object to execute
         field_req: Optional field requirements dict (for backward compatibility)
-        
+
     Returns:
         True if validation passes, False otherwise
-        
-    Example:
-        >>> from src.adri.core.validation_rule import ValidationRule
-        >>> from src.adri.core.severity import Severity
-        >>> rule = ValidationRule(
-        ...     name="Email required",
-        ...     dimension="completeness",
-        ...     severity=Severity.CRITICAL,
-        ...     rule_type="not_null",
-        ...     rule_expression="IS_NOT_NULL"
-        ... )
-        >>> execute_validation_rule("test@example.com", rule)
-        True
-        >>> execute_validation_rule(None, rule)
-        False
     """
     from src.adri.core.validation_rule import ValidationRule
-    
+
     if not isinstance(rule, ValidationRule):
-        # Fallback for non-ValidationRule inputs
         return True
-    
-    rule_type = rule.rule_type
-    
-    # Map rule_type to validation function
-    if rule_type == "not_null":
-        return value is not None and str(value).strip() != ""
-    
-    elif rule_type == "not_empty":
-        return value is not None and str(value).strip() != ""
-    
-    elif rule_type == "type":
-        # Extract type from rule_expression (e.g., "IS_STRING" -> "string")
-        if field_req and "type" in field_req:
-            return check_field_type(value, field_req)
-        # Parse from rule_expression
-        expr = rule.rule_expression.upper()
-        if "STRING" in expr:
-            return isinstance(value, str)
-        elif "INTEGER" in expr or "INT" in expr:
-            try:
-                int(value)
-                return True
-            except Exception:
-                return False
-        elif "FLOAT" in expr or "NUMBER" in expr:
-            try:
-                float(value)
-                return True
-            except Exception:
-                return False
-        return True
-    
-    elif rule_type == "allowed_values":
-        # Extract allowed values from rule_expression
-        if field_req and "allowed_values" in field_req:
-            return check_allowed_values(value, field_req)
-        return True
-    
-    elif rule_type == "pattern":
-        if field_req and "pattern" in field_req:
-            return check_field_pattern(value, field_req)
-        return True
-    
-    elif rule_type == "numeric_bounds":
-        if field_req:
-            return check_field_range(value, field_req)
-        return True
-    
-    elif rule_type == "length_bounds":
-        if field_req:
-            return check_length_bounds(value, field_req)
-        return True
-    
-    elif rule_type == "date_bounds":
-        if field_req:
-            return check_date_bounds(value, field_req)
-        return True
-    
-    elif rule_type == "format":
-        # Format checking (e.g., IS_LOWERCASE)
-        expr = rule.rule_expression.upper()
-        if "LOWERCASE" in expr:
-            return str(value).islower() if value else True
-        elif "UPPERCASE" in expr:
-            return str(value).isupper() if value else True
-        elif "TITLE" in expr or "TITLECASE" in expr:
-            return str(value).istitle() if value else True
-        return True
-    
-    elif rule_type == "case":
-        # Similar to format but specifically for case checking
-        expr = rule.rule_expression.upper()
-        if "LOWER" in expr:
-            return str(value).islower() if value else True
-        elif "UPPER" in expr:
-            return str(value).isupper() if value else True
-        elif "TITLE" in expr:
-            return str(value).istitle() if value else True
-        return True
-    
-    else:
-        # Unknown rule type - pass by default
-        return True
+
+    # Use dispatch table to find appropriate handler
+    handler = _VALIDATION_HANDLERS.get(rule.rule_type)
+    if handler:
+        return handler(value, rule, field_req)
+
+    # Unknown rule type - pass by default
+    return True
 
 
 def get_rule_type_for_field_constraint(constraint_name: str) -> str:
     """
     Map old-style field constraint names to new ValidationRule rule_types.
-    
+
     Helper for migrating from old format to validation_rules format.
-    
+
     Args:
         constraint_name: Old constraint name (e.g., "nullable", "allowed_values")
-        
+
     Returns:
         Corresponding rule_type for ValidationRule
-        
+
     Examples:
         >>> get_rule_type_for_field_constraint("nullable")
         'not_null'
@@ -471,7 +473,7 @@ def get_rule_type_for_field_constraint(constraint_name: str) -> str:
         "after_datetime": "date_bounds",
         "before_datetime": "date_bounds",
     }
-    
+
     return constraint_map.get(constraint_name, "custom")
 
 
@@ -520,7 +522,8 @@ def validate_field(
         result["errors"].append(
             f"Value does not match required type: {field_req.get('type', 'string')}"
         )
-        # Do not return early; continue to check other constraints so callers can see multiple issues
+        # Do not return early; continue to check other constraints so callers can
+        # see multiple issues
 
     # 2) Allowed values
     if not check_allowed_values(value, field_req):

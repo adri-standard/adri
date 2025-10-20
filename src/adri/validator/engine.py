@@ -146,66 +146,69 @@ class BundledStandardWrapper:
     def get_validation_rules_for_field(self, field_name: str) -> List[Any]:
         """
         Get all ValidationRule objects for a specific field across all dimensions.
-        
+
         Args:
             field_name: Name of the field to get rules for
-            
+
         Returns:
             List of ValidationRule objects for the field
-            
+
         Example:
             >>> rules = wrapper.get_validation_rules_for_field("email")
             >>> critical_rules = [r for r in rules if r.severity == Severity.CRITICAL]
         """
         from src.adri.core.validation_rule import ValidationRule
-        
+
         all_rules = []
         dim_reqs = self.get_dimension_requirements()
-        
+
         for dimension_name, dimension_config in dim_reqs.items():
             if not isinstance(dimension_config, dict):
                 continue
-                
+
             field_reqs = dimension_config.get("field_requirements", {})
             if not isinstance(field_reqs, dict):
                 continue
-                
+
             if field_name in field_reqs:
                 field_config = field_reqs[field_name]
-                if isinstance(field_config, dict) and "validation_rules" in field_config:
+                if isinstance(field_config,
+                              dict) and "validation_rules" in field_config:
                     rules = field_config["validation_rules"]
                     if isinstance(rules, list):
                         # Filter to only ValidationRule objects
-                        all_rules.extend([r for r in rules if isinstance(r, ValidationRule)])
-        
+                        all_rules.extend(
+                            [r for r in rules if isinstance(r, ValidationRule)])
+
         return all_rules
 
     def get_all_validation_rules(self) -> Dict[str, List[Any]]:
         """
         Get all ValidationRule objects organized by field name.
-        
+
         Returns:
             Dictionary mapping field names to lists of ValidationRule objects
-            
+
         Example:
             >>> rules_by_field = wrapper.get_all_validation_rules()
             >>> email_rules = rules_by_field.get("email", [])
         """
         from src.adri.core.validation_rule import ValidationRule
-        
+
         rules_by_field = {}
         dim_reqs = self.get_dimension_requirements()
-        
+
         for dimension_name, dimension_config in dim_reqs.items():
             if not isinstance(dimension_config, dict):
                 continue
-                
+
             field_reqs = dimension_config.get("field_requirements", {})
             if not isinstance(field_reqs, dict):
                 continue
-                
+
             for field_name, field_config in field_reqs.items():
-                if isinstance(field_config, dict) and "validation_rules" in field_config:
+                if isinstance(field_config,
+                              dict) and "validation_rules" in field_config:
                     rules = field_config["validation_rules"]
                     if isinstance(rules, list):
                         # Initialize field entry if not exists
@@ -215,50 +218,53 @@ class BundledStandardWrapper:
                         rules_by_field[field_name].extend(
                             [r for r in rules if isinstance(r, ValidationRule)]
                         )
-        
+
         return rules_by_field
 
-    def filter_rules_by_dimension(self, dimension: str, rules: List[Any] = None) -> List[Any]:
+    def filter_rules_by_dimension(
+            self,
+            dimension: str,
+            rules: List[Any] = None) -> List[Any]:
         """
         Filter ValidationRule objects by dimension.
-        
+
         Args:
             dimension: Dimension name to filter by (e.g., "validity", "completeness")
             rules: Optional list of rules to filter. If not provided, gets all rules.
-            
+
         Returns:
             List of ValidationRule objects for the specified dimension
-            
+
         Example:
             >>> validity_rules = wrapper.filter_rules_by_dimension("validity")
             >>> completeness_rules = wrapper.filter_rules_by_dimension("completeness")
         """
         from src.adri.core.validation_rule import ValidationRule
-        
+
         # Get all rules if not provided
         if rules is None:
             rules_by_field = self.get_all_validation_rules()
             rules = []
             for field_rules in rules_by_field.values():
                 rules.extend(field_rules)
-        
+
         # Filter by dimension
         return [
-            r for r in rules 
+            r for r in rules
             if isinstance(r, ValidationRule) and r.dimension == dimension
         ]
 
     def filter_rules_by_severity(self, severity, rules: List[Any] = None) -> List[Any]:
         """
         Filter ValidationRule objects by severity level.
-        
+
         Args:
             severity: Severity level to filter by (Severity enum or string)
             rules: Optional list of rules to filter. If not provided, gets all rules.
-            
+
         Returns:
             List of ValidationRule objects with the specified severity
-            
+
         Example:
             >>> from src.adri.core.severity import Severity
             >>> critical_rules = wrapper.filter_rules_by_severity(Severity.CRITICAL)
@@ -266,21 +272,21 @@ class BundledStandardWrapper:
         """
         from src.adri.core.severity import Severity
         from src.adri.core.validation_rule import ValidationRule
-        
+
         # Convert string to Severity enum if needed
         if isinstance(severity, str):
             severity = Severity.from_string(severity)
-        
+
         # Get all rules if not provided
         if rules is None:
             rules_by_field = self.get_all_validation_rules()
             rules = []
             for field_rules in rules_by_field.values():
                 rules.extend(field_rules)
-        
+
         # Filter by severity
         return [
-            r for r in rules 
+            r for r in rules
             if isinstance(r, ValidationRule) and r.severity == severity
         ]
 
@@ -704,7 +710,8 @@ class DataQualityAssessor:
         self.engine = ValidationEngine()  # Keep for backward compatibility
 
         # IMPORTANT: Distinguish between None (auto-discover) and {} (explicit empty config)
-        # When config={} is explicitly passed, skip all auto-discovery and use minimal defaults
+        # When config={} is explicitly passed, skip all auto-discovery and use
+        # minimal defaults
         self.config = config if config is not None else {}
         self._explicit_config = (
             config is not None
@@ -917,8 +924,8 @@ class DataQualityAssessor:
                 diagnostic_log.append("=== METADATA ===")
                 if "applied_dimension_weights" in result.metadata:
                     diagnostic_log.append(
-                        f"Applied weights: {result.metadata['applied_dimension_weights']}"
-                    )
+                        f"Applied weights: {
+                            result.metadata['applied_dimension_weights']}")
 
             # Write diagnostic log to stderr for debugging
             diagnostic_output = "\n".join(diagnostic_log)
@@ -1159,8 +1166,7 @@ class ValidationEngine:
             for k in list(weights.keys()):
                 weights[k] = 1.0
             self._scoring_warnings.append(
-                f"{label} weights were zero/invalid; applied equal weights of 1.0 to present dimensions"
-            )
+                f"{label} weights were zero/invalid; applied equal weights of 1.0 to present dimensions")
         return weights
 
     def _normalize_rule_weights(
@@ -1361,8 +1367,7 @@ class ValidationEngine:
                     if fw <= 0.0:
                         if isinstance(weight, (int, float)) and weight < 0:
                             self._scoring_warnings.append(
-                                f"Validity field_overrides contained negative weight for '{field_name}.{rule_name}', clamped to 0.0"
-                            )
+                                f"Validity field_overrides contained negative weight for '{field_name}.{rule_name}', clamped to 0.0")
                         continue
                     c = per_field_counts[field_name].get(rule_name)
                     if not c or c.get("total", 0) <= 0:
@@ -1542,7 +1547,8 @@ class ValidationEngine:
                 "plausibility": DimensionScore(plausibility_score),
             }
 
-            # Calculate overall score using per-dimension weights if provided (parity with assess())
+            # Calculate overall score using per-dimension weights if provided (parity
+            # with assess())
             try:
                 dim_reqs = standard_wrapper.get_dimension_requirements()
             except Exception:  # noqa: E722
@@ -1969,7 +1975,8 @@ class ValidationEngine:
         has_meta = bool(as_of_str and date_field and wd_val is not None)
         if not has_meta:
             return self._assess_freshness(data)
-        # If metadata present but rule weight is inactive (<=0), attach informational explain with baseline.
+        # If metadata present but rule weight is inactive (<=0), attach
+        # informational explain with baseline.
         if rw <= 0.0:
             self._explain["freshness"] = {
                 "date_field": date_field,
@@ -2023,13 +2030,15 @@ class ValidationEngine:
                 "date_field": date_field,
                 "as_of": str(as_of),
                 "window_days": int(wd_val) if wd_val is not None else None,
-                "counts": {"passed": 0, "total": 0},
+                "counts": {
+                    "passed": 0,
+                    "total": 0},
                 "pass_rate": 1.0,
-                "rule_weights_applied": {"recency_window": float(rw)},
+                "rule_weights_applied": {
+                    "recency_window": float(rw)},
                 "score_0_20": 20.0,
                 "warnings": [
-                    f"date_field '{date_field}' not found; using perfect baseline score 20.0/20"
-                ],
+                    f"date_field '{date_field}' not found; using perfect baseline score 20.0/20"],
             }
             return 20.0
 
@@ -2054,7 +2063,8 @@ class ValidationEngine:
             }
             return 20.0
 
-        # Compute recency: rows within window_days of as_of (future-dated rows also pass)
+        # Compute recency: rows within window_days of as_of (future-dated rows
+        # also pass)
         deltas = as_of - parsed
         # Days can be negative for future dates; treat negative as within window (fresh)
         days = deltas.dt.days
@@ -2220,11 +2230,13 @@ class ValidationEngine:
         """Execute plausibility rules that are distinct from validity rules."""
         results = {}
 
-        # Statistical outliers - IQR-based outlier detection (different from validity bounds)
+        # Statistical outliers - IQR-based outlier detection (different from
+        # validity bounds)
         if "statistical_outliers" in active_weights:
             results["statistical_outliers"] = self._assess_statistical_outliers(data)
 
-        # Categorical frequency - flag rare categories (different from validity allowed_values)
+        # Categorical frequency - flag rare categories (different from validity
+        # allowed_values)
         if "categorical_frequency" in active_weights:
             results["categorical_frequency"] = self._assess_categorical_frequency(data)
 
@@ -2232,7 +2244,8 @@ class ValidationEngine:
         if "business_logic" in active_weights:
             results["business_logic"] = self._assess_business_logic(data)
 
-        # Cross-field consistency - relationships between fields (placeholder for future)
+        # Cross-field consistency - relationships between fields (placeholder for
+        # future)
         if "cross_field_consistency" in active_weights:
             results["cross_field_consistency"] = self._assess_cross_field_consistency(
                 data
@@ -2283,7 +2296,8 @@ class ValidationEngine:
                 if len(non_null) == 0:
                     continue
 
-                # Calculate frequency threshold (categories appearing in <5% of data are "rare")
+                # Calculate frequency threshold (categories appearing in <5% of data are
+                # "rare")
                 value_counts = non_null.value_counts()
                 threshold = len(non_null) * 0.05
 

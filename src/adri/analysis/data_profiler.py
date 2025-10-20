@@ -230,7 +230,8 @@ class DataProfiler:
         # Add quality_assessment as a top-level attribute for API compatibility
         result.quality_assessment = quality_assessment
 
-        # Add fields alias (used by internal generation code that accesses profile.get('fields'))
+        # Add fields alias (used by internal generation code that accesses
+        # profile.get('fields'))
         result.fields = field_profiles
 
         return result

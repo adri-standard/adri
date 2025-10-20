@@ -266,7 +266,8 @@ class AssessCommand(Command):
         _progressive_echo("===============================", 0.0)
         _progressive_echo("", 0.0)
         _progressive_echo(
-            f"System Health (Score): {result.overall_score:.1f}/100  {status_icon} {status_text}",
+            f"System Health (Score): {
+                result.overall_score:.1f}/100  {status_icon} {status_text}",
             0.0,
         )
         _progressive_echo("  • Dataset-level quality across all 5 dimensions.", 0.0)
@@ -287,17 +288,14 @@ class AssessCommand(Command):
         _progressive_echo("💬 Why two numbers?", 0.0)
         _progressive_echo("─" * 58, 0.0)
         _progressive_echo(
-            f"  • Health = average dataset quality (meets {int(threshold)}/100 threshold).",
-            0.0,
-        )
+            f"  • Health = average dataset quality (meets {
+                int(threshold)}/100 threshold).", 0.0, )
         _progressive_echo(
             "  • Readiness = how many records are agent-safe right now.", 0.0
         )
         if result.passed and actual_passed_records < total_records:
             _progressive_echo(
-                f"  • You passed health, but {actual_failed_records} row(s) need fixes.",
-                0.6,
-            )
+                f"  • You passed health, but {actual_failed_records} row(s) need fixes.", 0.6, )
         else:
             _progressive_echo("", 0.6)
         _progressive_echo("", 0.0)
@@ -335,8 +333,8 @@ class AssessCommand(Command):
             else f"{failed_records}/{total_records} records failed"
         )
         click.echo(
-            f"Score: {result.overall_score:.1f}/100 {status_icon} {status_text} → {explanation}"
-        )
+            f"Score: {
+                result.overall_score:.1f}/100 {status_icon} {status_text} → {explanation}")
 
         # Display standard path for transparency (Issue #35 fix)
         if hasattr(result, "standard_path") and result.standard_path:
@@ -373,10 +371,10 @@ class AssessCommand(Command):
 
             # If there are issues, format them for display
             if issues:
-                record_id = row.get("invoice_id", f"Row {i+1}")
+                record_id = row.get("invoice_id", f"Row {i + 1}")
                 try:
                     if pd.isna(record_id):
-                        record_id = f"Row {i+1}"
+                        record_id = f"Row {i + 1}"
                 except Exception:
                     pass
 

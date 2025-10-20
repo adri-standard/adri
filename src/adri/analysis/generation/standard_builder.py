@@ -200,7 +200,7 @@ class StandardBuilder:
         pk_fields: List[str]
     ) -> None:
         """Populate rule weights from validation_rules structure.
-        
+
         Args:
             dimension_reqs: Dimension requirements dictionary
             field_reqs: Field requirements dictionary with validation_rules
@@ -208,32 +208,33 @@ class StandardBuilder:
         """
         # Count rules by dimension and rule_type
         rule_counts = {}
-        
+
         for field_name, field_req in field_reqs.items():
             if not isinstance(field_req, dict):
                 continue
-                
+
             validation_rules = field_req.get("validation_rules", [])
             if not validation_rules:
                 continue
-            
+
             for rule in validation_rules:
                 if not isinstance(rule, dict):
                     continue
-                    
+
                 dimension = rule.get("dimension")
                 rule_type = rule.get("rule_type")
-                
+
                 if dimension and rule_type:
                     rule_counts.setdefault(dimension, {})
-                    rule_counts[dimension][rule_type] = rule_counts[dimension].get(rule_type, 0) + 1
-        
+                    rule_counts[dimension][rule_type] = rule_counts[dimension].get(
+                        rule_type, 0) + 1
+
         # Add consistency rules (dataset-level, not in field validation_rules)
         consistency_counts = rule_counts.setdefault("consistency", {})
-        
+
         if pk_fields:
             consistency_counts["primary_key_uniqueness"] = 1.0
-        
+
         has_string_fields = any(
             field_req.get("type") == "string"
             for field_req in field_reqs.values()
@@ -241,30 +242,31 @@ class StandardBuilder:
         )
         if has_string_fields:
             consistency_counts["format_consistency"] = 1.0
-        
+
         if len(field_reqs) >= 2:
             consistency_counts["cross_field_logic"] = 1.0
-        
+
         # Populate weights for each dimension
         for dimension_name, dimension_config in dimension_reqs.items():
             if not isinstance(dimension_config, dict):
                 continue
-                
+
             scoring = dimension_config.get("scoring", {})
             if not isinstance(scoring, dict):
                 continue
-                
+
             rule_weights = scoring.get("rule_weights", {})
             if not isinstance(rule_weights, dict):
                 continue
-            
+
             # Set weights based on rule counts for this dimension
             dimension_rule_counts = rule_counts.get(dimension_name, {})
             for rule_type, count in dimension_rule_counts.items():
                 rule_weights[rule_type] = float(count)
-            
+
             # Normalize weights
-            self.dimension_builder.normalize_rule_weights(dimension_reqs, dimension_name)
+            self.dimension_builder.normalize_rule_weights(
+                dimension_reqs, dimension_name)
 
     def _populate_rule_weights_from_constraints(
         self,
@@ -273,7 +275,7 @@ class StandardBuilder:
         pk_fields: List[str]
     ) -> None:
         """Populate rule weights from old-style field constraints (backward compatible).
-        
+
         Args:
             dimension_reqs: Dimension requirements dictionary
             field_reqs: Field requirements dictionary with constraints
@@ -452,7 +454,8 @@ class StandardBuilder:
             series = data[col]
 
             # Skip numeric columns - they are not date fields
-            # This prevents selecting fields like 'amount' (1250.00, 2500.00) as date candidates
+            # This prevents selecting fields like 'amount' (1250.00, 2500.00) as date
+            # candidates
             if series.dtype in ["int64", "float64", "int32", "float32", "int", "float"]:
                 continue
 
@@ -541,7 +544,7 @@ class StandardBuilder:
             "generation_method": "auto_generated",
             "tags": ["data_quality", "auto_generated", f"{data_name}_data"],
         }
-        
+
         # Add severity config lineage for traceability
         severity_config_info = self._get_severity_config_lineage()
         if severity_config_info:
@@ -552,10 +555,10 @@ class StandardBuilder:
         standard["metadata"] = {**generation_metadata, **existing_metadata}
 
         return standard
-    
+
     def _get_severity_config_lineage(self) -> Optional[Dict[str, Any]]:
         """Get lineage information for severity config used in generation.
-        
+
         Returns:
             Dictionary with config file path, checksum, and timestamp
         """
@@ -563,27 +566,28 @@ class StandardBuilder:
             import hashlib
             from pathlib import Path
             import os
-            
+
             # Determine which config file was used
             env_config = os.environ.get("ADRI_SEVERITY_CONFIG")
             if env_config and os.path.exists(env_config):
                 config_path = Path(env_config)
             else:
                 # Default config path
-                config_path = Path(__file__).parent.parent.parent / "config" / "severity_defaults.yaml"
-            
+                config_path = Path(__file__).parent.parent.parent / \
+                    "config" / "severity_defaults.yaml"
+
             if not config_path.exists():
                 return None
-            
+
             # Calculate checksum
             with open(config_path, 'rb') as f:
                 content = f.read()
                 checksum = hashlib.sha256(content).hexdigest()
-            
+
             # Get file modification time
             mtime = config_path.stat().st_mtime
             modified_date = datetime.fromtimestamp(mtime).isoformat()
-            
+
             return {
                 "config_file": str(config_path.resolve()),
                 "config_checksum": f"sha256:{checksum[:16]}",
@@ -591,7 +595,7 @@ class StandardBuilder:
                 "modified_date": modified_date,
                 "version": "1.0.0"
             }
-            
+
         except Exception:
             # Non-fatal - just skip lineage if can't be determined
             return None

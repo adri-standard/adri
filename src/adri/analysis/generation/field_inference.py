@@ -117,8 +117,9 @@ class FieldInferenceEngine:
 
         # 4) Convert constraints to validation_rules format
         field_name_str = str(col_name) if col_name else "field"
-        validation_rules = self.convert_field_constraints_to_validation_rules(req, field_name_str)
-        
+        validation_rules = self.convert_field_constraints_to_validation_rules(
+            req, field_name_str)
+
         if validation_rules:
             req["validation_rules"] = validation_rules
 
@@ -610,20 +611,19 @@ class FieldInferenceEngine:
         self, field_req: Dict[str, Any], field_name: str
     ) -> List[Dict[str, Any]]:
         """Convert old-style field constraints to validation_rules list with severity.
-        
+
         Args:
             field_req: Field requirement dictionary with old-style constraints
             field_name: Name of the field (for error messages)
-            
+
         Returns:
             List of validation rule dictionaries ready for standard generation
         """
         from ...config.severity_loader import SeverityDefaultsLoader
-        from ...validator.rules import get_rule_type_for_field_constraint
-        
+
         severity_loader = SeverityDefaultsLoader()
         validation_rules = []
-        
+
         # 1. Completeness: not_null rule (if not nullable)
         if not field_req.get("nullable", True):
             rule = self.create_validation_rule(
@@ -635,7 +635,7 @@ class FieldInferenceEngine:
                 error_message=f"{field_name} must not be empty"
             )
             validation_rules.append(rule)
-        
+
         # 2. Validity: type rule
         if "type" in field_req:
             field_type = field_req["type"]
@@ -648,7 +648,7 @@ class FieldInferenceEngine:
                 error_message=f"{field_name} must be of type {field_type}"
             )
             validation_rules.append(rule)
-        
+
         # 3. Validity: allowed_values rule
         if "allowed_values" in field_req:
             allowed = field_req["allowed_values"]
@@ -661,7 +661,7 @@ class FieldInferenceEngine:
                 error_message=f"{field_name} must be one of: {', '.join(str(v) for v in allowed[:5])}"
             )
             validation_rules.append(rule)
-        
+
         # 4. Validity: numeric_bounds rule
         if "min_value" in field_req or "max_value" in field_req:
             min_val = field_req.get("min_value")
@@ -671,7 +671,7 @@ class FieldInferenceEngine:
                 expr_parts.append(f"VALUE >= {min_val}")
             if max_val is not None:
                 expr_parts.append(f"VALUE <= {max_val}")
-            
+
             rule = self.create_validation_rule(
                 name=f"{field_name} numeric bounds",
                 dimension="validity",
@@ -681,7 +681,7 @@ class FieldInferenceEngine:
                 error_message=f"{field_name} must be between {min_val} and {max_val}"
             )
             validation_rules.append(rule)
-        
+
         # 5. Validity: length_bounds rule
         if "min_length" in field_req or "max_length" in field_req:
             min_len = field_req.get("min_length")
@@ -691,17 +691,18 @@ class FieldInferenceEngine:
                 expr_parts.append(f"LENGTH >= {min_len}")
             if max_len is not None:
                 expr_parts.append(f"LENGTH <= {max_len}")
-            
+
             rule = self.create_validation_rule(
                 name=f"{field_name} length bounds",
                 dimension="validity",
-                severity=severity_loader.get_severity("validity", "length_bounds"),
+                severity=severity_loader.get_severity(
+                    "validity",
+                    "length_bounds"),
                 rule_type="length_bounds",
                 rule_expression=" AND ".join(expr_parts),
-                error_message=f"{field_name} length must be between {min_len} and {max_len}"
-            )
+                error_message=f"{field_name} length must be between {min_len} and {max_len}")
             validation_rules.append(rule)
-        
+
         # 6. Validity: pattern rule
         if "pattern" in field_req:
             pattern = field_req["pattern"]
@@ -714,9 +715,14 @@ class FieldInferenceEngine:
                 error_message=f"{field_name} must match pattern: {pattern}"
             )
             validation_rules.append(rule)
-        
+
         # 7. Validity: date_bounds rule
-        if any(k in field_req for k in ["after_date", "before_date", "after_datetime", "before_datetime"]):
+        if any(
+            k in field_req for k in [
+                "after_date",
+                "before_date",
+                "after_datetime",
+                "before_datetime"]):
             after = field_req.get("after_date") or field_req.get("after_datetime")
             before = field_req.get("before_date") or field_req.get("before_datetime")
             expr_parts = []
@@ -724,7 +730,7 @@ class FieldInferenceEngine:
                 expr_parts.append(f"DATE >= '{after}'")
             if before:
                 expr_parts.append(f"DATE <= '{before}'")
-            
+
             rule = self.create_validation_rule(
                 name=f"{field_name} date bounds",
                 dimension="validity",
@@ -734,9 +740,9 @@ class FieldInferenceEngine:
                 error_message=f"{field_name} must be within date range"
             )
             validation_rules.append(rule)
-        
+
         return validation_rules
-    
+
     def create_validation_rule(
         self,
         name: str,
@@ -749,7 +755,7 @@ class FieldInferenceEngine:
         penalty_weight: float = 1.0
     ) -> Dict[str, Any]:
         """Create a validation rule dictionary for standard generation.
-        
+
         Args:
             name: Descriptive name for the rule
             dimension: Quality dimension (validity, completeness, etc.)
@@ -759,18 +765,18 @@ class FieldInferenceEngine:
             error_message: Optional error message
             remediation: Optional remediation guidance
             penalty_weight: Optional penalty weight (default 1.0)
-            
+
         Returns:
             Dictionary representation of a validation rule
         """
         from ...core.severity import Severity as SeverityEnum
-        
+
         # Convert Severity enum to string if needed
         if isinstance(severity, SeverityEnum):
             severity_str = severity.value
         else:
             severity_str = str(severity)
-        
+
         rule = {
             "name": name,
             "dimension": dimension,
@@ -778,12 +784,12 @@ class FieldInferenceEngine:
             "rule_type": rule_type,
             "rule_expression": rule_expression
         }
-        
+
         if error_message:
             rule["error_message"] = error_message
         if remediation:
             rule["remediation"] = remediation
         if penalty_weight != 1.0:
             rule["penalty_weight"] = penalty_weight
-        
+
         return rule

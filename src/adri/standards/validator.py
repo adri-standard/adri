@@ -88,7 +88,7 @@ class StandardValidator:
             ValidationResult with errors and warnings
         """
         import yaml
-        
+
         # Load the standard directly (avoiding circular import with loaders)
         try:
             with open(file_path, 'r', encoding='utf-8') as f:
@@ -256,7 +256,7 @@ class StandardValidator:
             self._validate_dimension_requirements(
                 requirements["dimension_requirements"], result
             )
-        
+
         # Validate top-level field_requirements (new format)
         if "field_requirements" in requirements:
             self._validate_field_requirements(
@@ -305,7 +305,10 @@ class StandardValidator:
             result.add_error(
                 message="At least one dimension requirement must be specified",
                 path=base_path,
-                suggestion=f"Add at least one dimension from: {', '.join(sorted(StandardSchema.VALID_DIMENSIONS))}",
+                suggestion=f"Add at least one dimension from: {
+                    ', '.join(
+                        sorted(
+                            StandardSchema.VALID_DIMENSIONS))}",
             )
             return
 
@@ -318,7 +321,10 @@ class StandardValidator:
                 result.add_error(
                     message=f"Invalid dimension name: '{dimension_name}'",
                     path=dimension_path,
-                    expected=f"One of: {', '.join(sorted(StandardSchema.VALID_DIMENSIONS))}",
+                    expected=f"One of: {
+                        ', '.join(
+                            sorted(
+                                StandardSchema.VALID_DIMENSIONS))}",
                     actual=dimension_name,
                     suggestion="Use a valid ADRI dimension name",
                 )
@@ -383,9 +389,13 @@ class StandardValidator:
                         result.add_error(
                             message=range_error,
                             path=field_path,
-                            expected=f"Value between {field_schema.min_value} and {field_schema.max_value}",
+                            expected=f"Value between {
+                                field_schema.min_value} and {
+                                field_schema.max_value}",
                             actual=str(value),
-                            suggestion=f"Set {field_name} to a value between {field_schema.min_value} and {field_schema.max_value}",
+                            suggestion=f"Set {field_name} to a value between {
+                                field_schema.min_value} and {
+                                field_schema.max_value}",
                         )
 
                 # Validate field_requirements if present
@@ -402,7 +412,7 @@ class StandardValidator:
     ) -> None:
         """
         Validate field-specific requirements.
-        
+
         Supports both formats:
         - New format: validation_rules (list of ValidationRule dicts)
         - Old format: nullable, allowed_values, etc. (backward compatible)
@@ -428,18 +438,17 @@ class StandardValidator:
             if 'validation_rules' in field_config:
                 validation_rules = field_config['validation_rules']
                 rule_errors = StandardSchema.validate_validation_rules_list(
-                    validation_rules, 
+                    validation_rules,
                     field_path
                 )
-                
+
                 # Add all rule validation errors to result
                 for error_msg in rule_errors:
                     result.add_error(
                         message=error_msg,
                         path=field_path,
                         suggestion="Check validation_rules structure: each rule needs name, dimension, "
-                                   "severity, rule_type, and rule_expression"
-                    )
+                        "severity, rule_type, and rule_expression")
             # Otherwise, validate as old format (backward compatible)
             # Old format is valid, just different structure - no validation needed
 

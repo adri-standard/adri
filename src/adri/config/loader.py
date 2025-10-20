@@ -324,9 +324,11 @@ class ConfigurationLoader:
         requested_env = environment  # Store original request
         environment = self._get_effective_environment(config, environment)
 
-        # If effective environment doesn't exist, only fall back if it came from ADRI_ENV
+        # If effective environment doesn't exist, only fall back if it came from
+        # ADRI_ENV
         if environment not in adri_config["environments"]:
-            # Only fall back to default if the invalid environment came from ADRI_ENV (not explicit request)
+            # Only fall back to default if the invalid environment came from ADRI_ENV
+            # (not explicit request)
             if from_adri_env and not requested_env:
                 default_env = adri_config.get("default_environment", "development")
                 if default_env in adri_config["environments"]:

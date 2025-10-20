@@ -42,11 +42,12 @@ class FreshnessAssessor(DimensionAssessor):
         # Check if using new validation_rules format
         field_requirements = requirements.get("field_requirements", {})
         using_validation_rules = self._has_validation_rules_format(field_requirements)
-        
+
         if using_validation_rules:
             # New format: Use validation_rules with severity filtering
-            return self._assess_freshness_with_validation_rules(data, field_requirements)
-        
+            return self._assess_freshness_with_validation_rules(
+                data, field_requirements)
+
         # Old format: Use existing freshness configuration
         freshness_config = self._extract_freshness_config(requirements)
         if not freshness_config["is_active"]:
@@ -290,10 +291,10 @@ class FreshnessAssessor(DimensionAssessor):
 
     def _has_validation_rules_format(self, field_requirements: Dict[str, Any]) -> bool:
         """Check if field_requirements use new validation_rules format.
-        
+
         Args:
             field_requirements: Field requirements dictionary
-            
+
         Returns:
             True if using validation_rules format, False for old format
         """
@@ -307,40 +308,40 @@ class FreshnessAssessor(DimensionAssessor):
         self, data: pd.DataFrame, field_requirements: Dict[str, Any]
     ) -> float:
         """Assess freshness using validation_rules with severity-aware scoring.
-        
+
         Only CRITICAL severity rules affect the score. WARNING and INFO rules
         are executed and logged but don't penalize the score.
-        
+
         Args:
             data: DataFrame to assess
             field_requirements: Field requirements with validation_rules
-            
+
         Returns:
             Freshness score (0.0 to 20.0)
         """
         from src.adri.core.severity import Severity
         from src.adri.core.validation_rule import ValidationRule
-        
+
         # Note: Freshness rules are typically metadata-driven (recency windows)
         # Most freshness rules may be INFO severity for notifications
         # For now, return perfect score if no CRITICAL rules
         # This can be extended when actual freshness validation_rules are defined
-        
+
         total_critical_checks = 0
-        
+
         # Process each field looking for CRITICAL freshness rules
         for column in data.columns:
             if column not in field_requirements:
                 continue
-                
+
             field_config = field_requirements[column]
             if not isinstance(field_config, dict):
                 continue
-                
+
             validation_rules = field_config.get("validation_rules", [])
             if not validation_rules:
                 continue
-            
+
             # Filter to only CRITICAL rules for freshness dimension
             critical_rules = [
                 r for r in validation_rules
@@ -348,17 +349,17 @@ class FreshnessAssessor(DimensionAssessor):
                 and r.dimension == "freshness"
                 and r.severity == Severity.CRITICAL
             ]
-            
+
             if not critical_rules:
                 continue
-            
+
             # For future: execute CRITICAL freshness rules
             # For now, most freshness is INFO/WARNING, so this returns perfect score
             total_critical_checks += 1  # Placeholder
-        
+
         # Calculate score based on CRITICAL rules only
         if total_critical_checks == 0:
             return 20.0  # No CRITICAL rules = perfect score
-        
+
         # Placeholder for when freshness rules are fully implemented
         return 20.0

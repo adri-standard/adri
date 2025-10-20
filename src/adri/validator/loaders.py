@@ -144,7 +144,7 @@ def load_parquet(file_path: Path) -> List[Dict[str, Any]]:
 def load_standard(file_path: str, validate: bool = True) -> Dict[str, Any]:
     """
     Load YAML standard from file with optional validation.
-    
+
     Parses validation_rules from field_requirements and converts them to
     ValidationRule objects for use by dimension assessors.
 
@@ -162,7 +162,7 @@ def load_standard(file_path: str, validate: bool = True) -> Dict[str, Any]:
     """
     # Import validator inside function to avoid circular import at module load time
     from ..standards.validator import get_validator
-    
+
     if not os.path.exists(file_path):
         raise FileNotFoundError(f"Standard file not found: {file_path}")
 
@@ -331,57 +331,57 @@ def _get_parquet_info(file_path: Path) -> Dict[str, Any]:
 def _parse_validation_rules(standard: Dict[str, Any]) -> Dict[str, Any]:
     """
     Parse validation_rules from field_requirements into ValidationRule objects.
-    
+
     Traverses the standard dictionary and converts any validation_rules lists
     into ValidationRule objects for easier use by dimension assessors.
-    
+
     Args:
         standard: Standard dictionary loaded from YAML
-        
+
     Returns:
         Modified standard with ValidationRule objects
-        
+
     Note:
         This modifies field_requirements in place, converting:
         - Old format: field_requirements with simple constraints
         - New format: field_requirements with validation_rules lists
     """
     from ..core.validation_rule import ValidationRule
-    
+
     # Check if standard has requirements section
     if "requirements" not in standard:
         return standard
-    
+
     requirements = standard["requirements"]
-    
+
     # Check if dimension_requirements exist
     if "dimension_requirements" not in requirements:
         return standard
-    
+
     dimension_requirements = requirements["dimension_requirements"]
-    
+
     # Process each dimension
     for dimension_name, dimension_config in dimension_requirements.items():
         if not isinstance(dimension_config, dict):
             continue
-            
+
         # Check if this dimension has field_requirements
         if "field_requirements" not in dimension_config:
             continue
-            
+
         field_requirements = dimension_config["field_requirements"]
         if not isinstance(field_requirements, dict):
             continue
-        
+
         # Process each field
         for field_name, field_config in field_requirements.items():
             if not isinstance(field_config, dict):
                 continue
-                
+
             # Check if field has validation_rules (new format)
             if "validation_rules" in field_config:
                 validation_rules_data = field_config["validation_rules"]
-                
+
                 if isinstance(validation_rules_data, list):
                     # Parse each rule into a ValidationRule object
                     parsed_rules = []
@@ -396,8 +396,8 @@ def _parse_validation_rules(standard: Dict[str, Any]) -> Dict[str, Any]:
                                 f"Failed to parse validation rule for field '{field_name}' "
                                 f"in dimension '{dimension_name}': {e}"
                             )
-                    
+
                     # Replace the list of dicts with list of ValidationRule objects
                     field_config["validation_rules"] = parsed_rules
-    
+
     return standard

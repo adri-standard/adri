@@ -32,7 +32,8 @@ class InferenceConfig:
     enum_max_unique: int = 30
     enum_min_coverage: float = 0.95  # fraction of total rows covered by non-null values
     range_margin_pct: float = (
-        0.10  # widen numeric range by +/- margin% of range (used when range_strategy='span')
+        # widen numeric range by +/- margin% of range (used when range_strategy='span')
+        0.10
     )
     date_margin_days: int = 3  # widen date bounds by +/- this many days
     nullable_zero_is_required: bool = True
@@ -71,7 +72,8 @@ def infer_allowed_values(
     if total_rows == 0 or non_null_count == 0:
         return None
 
-    # Bail out if any unhashable types present (e.g., dicts) to avoid "unhashable type" errors
+    # Bail out if any unhashable types present (e.g., dicts) to avoid
+    # "unhashable type" errors
     try:
         for v in non_null:
             hash(v)
@@ -90,7 +92,8 @@ def infer_allowed_values(
     if unique_count <= max_unique and coverage >= min_coverage:
         # Convert numpy types to native Python for YAML-friendliness
         vals = [v.item() if hasattr(v, "item") else v for v in unique_vals]
-        # Keep original order of appearance (unique() in pandas preserves order since 0.24)
+        # Keep original order of appearance (unique() in pandas preserves order
+        # since 0.24)
         return list(vals)
     return None
 
@@ -428,7 +431,8 @@ def detect_primary_key(df: pd.DataFrame, max_combo: int = 2) -> List[str]:  # no
                 continue
 
             score = sum(1 for c in subset if _is_id_like(c))
-            # Prefer combos with more id-like columns; break ties using shorter combined average length
+            # Prefer combos with more id-like columns; break ties using shorter
+            # combined average length
             if score > best_score:
                 best_combo = subset
                 best_score = score

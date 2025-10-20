@@ -129,8 +129,7 @@ class SelectiveMode(ProtectionMode):
     def handle_failure(self, assessment_result: Any, error_message: str) -> None:
         """Log failure but continue execution."""
         self.logger.warning(
-            f"Selective mode: Data quality issue detected but continuing - {error_message}"
-        )
+            f"Selective mode: Data quality issue detected but continuing - {error_message}")
         print("⚠️  ADRI Warning: Data quality below threshold but continuing execution")
         print(f"📊 Score: {assessment_result.overall_score:.1f}")
 
@@ -204,8 +203,8 @@ class DataProtectionEngine:
         self.enterprise_logger = None
 
         self.logger.debug(
-            f"DataProtectionEngine initialized with {self.protection_mode.mode_name} mode"
-        )
+            f"DataProtectionEngine initialized with {
+                self.protection_mode.mode_name} mode")
 
     @property
     def protection_config(self) -> Dict[str, Any]:
@@ -325,7 +324,8 @@ class DataProtectionEngine:
             resolved_standard_path = self._resolve_standard_file_path(standard_name)
 
         # Apply unified threshold resolution (same logic as CLI)
-        # Note: We don't check if file exists here - let _ensure_standard_exists handle it
+        # Note: We don't check if file exists here - let _ensure_standard_exists
+        # handle it
         threshold_info = ThresholdResolver.resolve_assessment_threshold(
             standard_path=(
                 resolved_standard_path
@@ -361,8 +361,8 @@ class DataProtectionEngine:
 
         if verbose:
             self.logger.info(
-                f"Protecting function '{function_name}' with {effective_mode.mode_name} mode, min_score={min_score}"
-            )
+                f"Protecting function '{function_name}' with {
+                    effective_mode.mode_name} mode, min_score={min_score}")
 
         try:
             # Extract data from function parameters
@@ -398,14 +398,16 @@ class DataProtectionEngine:
 
             if verbose:
                 self.logger.info(
-                    f"Assessment completed in {assessment_duration:.2f}s, score: {assessment_result.overall_score:.1f}"
-                )
+                    f"Assessment completed in {
+                        assessment_duration:.2f}s, score: {
+                        assessment_result.overall_score:.1f}")
 
             # Invoke assessment callback if provided (before pass/fail checking)
             self._invoke_assessment_callback(on_assessment, assessment_result, verbose)
 
             # Workflow logging not available in open-source version
-            # For workflow orchestration and data provenance tracking, use adri-enterprise
+            # For workflow orchestration and data provenance tracking, use
+            # adri-enterprise
             if workflow_context and verbose:
                 self.logger.info(
                     "Workflow context provided but logging not available in open-source version"
@@ -518,7 +520,7 @@ class DataProtectionEngine:
         """
         # Resolve path to handle macOS symlinks (/var -> /private/var)
         standard_path = str(Path(standard_path).resolve())
-        
+
         self.logger.info("Checking if standard exists at: %s", standard_path)
         if os.path.exists(standard_path):
             self.logger.info("Standard already exists, skipping auto-generation")
@@ -562,7 +564,8 @@ class DataProtectionEngine:
             generator = StandardGenerator()
 
             # Generate rich standard with full profiling and rule inference
-            # This includes: allowed_values, min/max_value, patterns, length_bounds, date_bounds, etc.
+            # This includes: allowed_values, min/max_value, patterns, length_bounds,
+            # date_bounds, etc.
             standard_dict = generator.generate(
                 data=df,
                 data_name=data_name,
@@ -725,9 +728,8 @@ class DataProtectionEngine:
             )
         else:
             return (
-                f"🛡️ ADRI Protection: ALLOWED ✅\n"
-                f"📊 Score: {assessment_result.overall_score:.1f}/100 | Standard: {standard_name}"
-            )
+                f"🛡️ ADRI Protection: ALLOWED ✅\n" f"📊 Score: {
+                    assessment_result.overall_score:.1f}/100 | Standard: {standard_name}")
 
     def _invoke_assessment_callback(
         self,
@@ -753,8 +755,8 @@ class DataProtectionEngine:
         try:
             if verbose:
                 self.logger.debug(
-                    f"Invoking assessment callback with result (score: {assessment_result.overall_score:.1f})"
-                )
+                    f"Invoking assessment callback with result (score: {
+                        assessment_result.overall_score:.1f})")
 
             # Invoke the callback with the assessment result
             callback(assessment_result)

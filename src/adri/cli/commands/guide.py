@@ -185,7 +185,8 @@ class GuideCommand(Command):
         _progressive_echo("Step 2: Understanding the Decorator", 0.0)
         _progressive_echo("─" * 58, 0.5)
         _progressive_echo("", 0.0)
-        _progressive_echo("ADRI can protect your AI functions with a simple decorator:", 0.0)
+        _progressive_echo(
+            "ADRI can protect your AI functions with a simple decorator:", 0.0)
         _progressive_echo("", 0.3)
         _progressive_echo("```python", 0.0)
         _progressive_echo("from adri import adri_assess", 0.0)
@@ -317,7 +318,8 @@ class GuideCommand(Command):
         _progressive_echo("Step 5: Review Audit Logs", 0.0)
         _progressive_echo("─" * 58, 0.5)
         _progressive_echo("", 0.0)
-        _progressive_echo("ADRI maintains comprehensive audit logs of all assessments.", 0.0)
+        _progressive_echo(
+            "ADRI maintains comprehensive audit logs of all assessments.", 0.0)
         _progressive_echo("Let's view the recent activity:", 0.5)
         _progressive_echo("", 0.0)
 
@@ -394,7 +396,8 @@ class GuideCommand(Command):
         _progressive_echo(
             "  • Switch to 'prod' environment for production deployments", 0.0
         )
-        _progressive_echo("  • Review audit logs regularly for data quality trends", 0.0)
+        _progressive_echo(
+            "  • Review audit logs regularly for data quality trends", 0.0)
         _progressive_echo(
             "  • Adjust thresholds in standards based on your requirements", 0.5
         )

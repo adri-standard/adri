@@ -204,8 +204,7 @@ def adri_protected(
             "Available commands:\n"
             "  adri list-standards           # See existing standards\n"
             "  adri generate-standard <data> # Pre-create a standard\n\n"
-            "For more help: adri --help"
-        )
+            "For more help: adri --help")
 
     def decorator(func: Callable) -> Callable:
         @functools.wraps(func)

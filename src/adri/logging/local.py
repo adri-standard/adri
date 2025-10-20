@@ -424,7 +424,8 @@ class LocalLogger:
         if not self.enabled:
             return None
 
-        # Use pre-generated assessment ID from result if available, otherwise generate one
+        # Use pre-generated assessment ID from result if available, otherwise
+        # generate one
         timestamp = datetime.now()
         assessment_id = getattr(assessment_result, "assessment_id", None)
         if not assessment_id:
@@ -661,7 +662,8 @@ class LocalLogger:
                 try:
                     file_path.touch()
                 except (OSError, PermissionError):
-                    # If recreation fails, continue - file will be recreated on next write
+                    # If recreation fails, continue - file will be recreated on next
+                    # write
                     pass
 
     def get_log_files(self) -> Dict[str, Path]:
@@ -693,8 +695,9 @@ class LocalLogger:
 
         if log_type not in log_file_map:
             raise ValueError(
-                f"Invalid log_type: {log_type}. Must be one of {list(log_file_map.keys())}"
-            )
+                f"Invalid log_type: {log_type}. Must be one of {
+                    list(
+                        log_file_map.keys())}")
 
         log_file = log_file_map[log_type]
 

@@ -14,41 +14,41 @@ from ..core.severity import Severity
 
 class SeverityDefaultsLoader:
     """Loads and provides access to severity default configuration.
-    
+
     This class loads the severity_defaults.yaml configuration file and provides
     methods to retrieve default severity levels for specific rule types and dimensions.
-    
+
     Example:
         >>> loader = SeverityDefaultsLoader()
         >>> severity = loader.get_severity("validity", "type")
         >>> print(severity)
         CRITICAL
     """
-    
+
     _instance = None
     _config: Optional[Dict] = None
-    
+
     def __new__(cls):
         """Implement singleton pattern for config caching."""
         if cls._instance is None:
             cls._instance = super().__new__(cls)
         return cls._instance
-    
+
     def __init__(self):
         """Initialize the loader and load configuration if not already loaded."""
         if self._config is None:
             self._load_config()
-    
+
     def _load_config(self):
         """Load severity defaults from YAML configuration file."""
         # Default config path
         config_file = Path(__file__).parent / "severity_defaults.yaml"
-        
+
         # Allow override via environment variable
         env_config_path = os.environ.get("ADRI_SEVERITY_CONFIG")
         if env_config_path and os.path.exists(env_config_path):
             config_file = Path(env_config_path)
-        
+
         try:
             with open(config_file, 'r', encoding='utf-8') as f:
                 self._config = yaml.safe_load(f)
@@ -60,7 +60,7 @@ class SeverityDefaultsLoader:
                 "Using hardcoded defaults."
             )
             self._config = self._get_hardcoded_defaults()
-    
+
     def _get_hardcoded_defaults(self) -> Dict:
         """Get hardcoded default configuration as fallback."""
         return {
@@ -99,23 +99,23 @@ class SeverityDefaultsLoader:
                 },
             }
         }
-    
+
     def get_severity(
-        self, 
-        dimension: str, 
-        rule_type: str, 
+        self,
+        dimension: str,
+        rule_type: str,
         default: str = "CRITICAL"
     ) -> Severity:
         """Get severity level for a specific dimension and rule type.
-        
+
         Args:
             dimension: Dimension name (validity, completeness, etc.)
             rule_type: Rule type (type, not_null, pattern, etc.)
             default: Default severity if not found in config (default: "CRITICAL")
-            
+
         Returns:
             Severity enum value
-            
+
         Examples:
             >>> loader = SeverityDefaultsLoader()
             >>> loader.get_severity("validity", "type")
@@ -125,15 +125,16 @@ class SeverityDefaultsLoader:
         """
         if self._config is None:
             self._load_config()
-        
+
         try:
             # Check for overrides first
             overrides = self._config.get("overrides", {})
             # Handle None overrides (empty/commented in YAML)
-            if overrides and dimension in overrides and rule_type in overrides.get(dimension, {}):
+            if overrides and dimension in overrides and rule_type in overrides.get(dimension, {
+            }):
                 severity_str = overrides[dimension][rule_type]
                 return Severity.from_string(severity_str)
-            
+
             # Check severity_defaults
             severity_defaults = self._config.get("severity_defaults", {})
             if severity_defaults and dimension in severity_defaults:
@@ -141,20 +142,20 @@ class SeverityDefaultsLoader:
                 if dimension_defaults and rule_type in dimension_defaults:
                     severity_str = dimension_defaults[rule_type]
                     return Severity.from_string(severity_str)
-            
+
             # Return default if not found
             return Severity.from_string(default)
-            
+
         except Exception:
             # Fallback to default on any error
             return Severity.from_string(default)
-    
+
     def get_all_defaults(self) -> Dict[str, Dict[str, str]]:
         """Get all severity defaults organized by dimension.
-        
+
         Returns:
             Dictionary mapping dimensions to rule_type->severity mappings
-            
+
         Example:
             >>> loader = SeverityDefaultsLoader()
             >>> defaults = loader.get_all_defaults()
@@ -163,9 +164,9 @@ class SeverityDefaultsLoader:
         """
         if self._config is None:
             self._load_config()
-        
+
         return self._config.get("severity_defaults", {})
-    
+
     def reload_config(self):
         """Reload configuration from file (useful for testing or runtime updates)."""
         self._config = None

@@ -565,15 +565,13 @@ class ExplanationGenerator:
                     for i, adj in enumerate(adjustments):
                         if not isinstance(adj, dict):
                             errors.append(
-                                f"Adjustment {i} for field '{field_name}' must be a dictionary"
-                            )
+                                f"Adjustment {i} for field '{field_name}' must be a dictionary")
                         else:
                             required_adj_keys = ["rule", "action", "reason"]
                             for req_key in required_adj_keys:
                                 if req_key not in adj:
                                     errors.append(
-                                        f"Missing '{req_key}' in adjustment {i} for field '{field_name}'"
-                                    )
+                                        f"Missing '{req_key}' in adjustment {i} for field '{field_name}'")
 
         return errors
 

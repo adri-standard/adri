@@ -139,7 +139,7 @@ def _shorten_home(path: Path) -> str:
         p_str = str(abs_path)
         h_str = str(home_abs)
         if p_str.startswith(h_str):
-            return "~" + p_str[len(h_str) :]
+            return "~" + p_str[len(h_str):]
         return p_str
     except Exception:
         try:
@@ -162,7 +162,7 @@ def _rel_to_project_root(path: Path) -> str:
                 rel = abs_path.relative_to(root_abs)
                 rel_str = str(rel)
                 if rel_str.startswith("ADRI/"):
-                    rel_str = rel_str[len("ADRI/") :]
+                    rel_str = rel_str[len("ADRI/"):]
                 return rel_str
             except ValueError:
                 return _shorten_home(abs_path)
@@ -377,8 +377,6 @@ def view_logs_command(
         return 1
 
 
-
-
 # ---------------- Configuration helpers -----------------
 
 
@@ -584,10 +582,10 @@ def _analyze_failed_records(data):
             issues.append(("invalid_date_format", None))
 
         if issues:
-            record_id = row.get("invoice_id", f"Row {i+1}")
+            record_id = row.get("invoice_id", f"Row {i + 1}")
             try:
                 if pd.isna(record_id):
-                    record_id = f"Row {i+1}"
+                    record_id = f"Row {i + 1}"
             except Exception:
                 pass
 
@@ -625,8 +623,8 @@ def _display_assessment_results(result, data, guide, threshold: float = 75.0):
         click.echo("📊 Quality Assessment Results:")
         click.echo("==============================")
         click.echo(
-            f"🎯 Agent System Health: {result.overall_score:.1f}/100 {status_icon} {status_text}"
-        )
+            f"🎯 Agent System Health: {
+                result.overall_score:.1f}/100 {status_icon} {status_text}")
         click.echo(f"Threshold = {threshold:.1f}/100 (set in your standard)")
         click.echo("   → Overall reliability for AI agent workflows")
         click.echo(
@@ -659,8 +657,8 @@ def _display_assessment_results(result, data, guide, threshold: float = 75.0):
             else f"{failed_records}/{total_records} records failed"
         )
         click.echo(
-            f"Score: {result.overall_score:.1f}/100 {status_icon} {status_text} → {explanation}"
-        )
+            f"Score: {
+                result.overall_score:.1f}/100 {status_icon} {status_text} → {explanation}")
 
 
 # ---------------- Hash/snapshot helpers -----------------
@@ -1017,8 +1015,7 @@ def _display_audit_logs_table(table_data, log_entries, audit_logs_dir, verbose):
         module = entry["module"].ljust(11)
         date = entry["date"].ljust(11)
         click.echo(
-            f"│ {data_packet} │ {score} │ {status} │ {mode} │ {function} │ {module} │ {date} │"
-        )
+            f"│ {data_packet} │ {score} │ {status} │ {mode} │ {function} │ {module} │ {date} │")
     click.echo(
         "└─────────────┴───────────┴──────────────┴─────────────┴─────────────────┴─────────────┴─────────────┘"
     )
@@ -1028,8 +1025,9 @@ def _display_audit_logs_table(table_data, log_entries, audit_logs_dir, verbose):
         for i, entry in enumerate(log_entries, 1):
             click.echo(f"  {i}. Assessment ID: {entry['assessment_id']}")
             click.echo(
-                f"     Records: {entry['data_row_count']} | Duration: {entry['assessment_duration_ms']}ms"
-            )
+                f"     Records: {
+                    entry['data_row_count']} | Duration: {
+                    entry['assessment_duration_ms']}ms")
             click.echo(f"     Decision: {entry['execution_decision']}")
             click.echo()
     else:
@@ -1570,28 +1568,34 @@ def standards_catalog_fetch_command(
 
 def show_help_guide() -> int:
     """Show environment information and directory structure explanation.
-    
+
     Displays comprehensive ADRI environment documentation including:
     - Environment configuration details
     - Directory structure explanations
     - Configuration file locations
     - Best practices and usage guidelines
-    
+
     Returns:
         0 for success, 1 for failure
     """
     try:
         # Get project root for context
         project_root = _find_adri_project_root()
-        
+
         # Display Environment Information
         click.echo("🌍 Environment Information:")
-        click.echo(f"   Current Environment: {os.environ.get('ADRI_ENV', 'development')}")
-        click.echo(f"   Default: Development environment")
-        click.echo(f"   Switch: Edit ADRI/config.yaml (set default_environment)")
-        click.echo(f"   Project Root: {project_root if project_root else 'Not detected'}")
+        click.echo(
+            f"   Current Environment: {
+                os.environ.get(
+                    'ADRI_ENV',
+                    'development')}")
+        click.echo(   "Default: Development environment")
+        click.echo("   Switch: Edit ADRI/config.yaml (set default_environment)")
+        click.echo(
+            f"   Project Root: {
+                project_root if project_root else 'Not detected'}")
         click.echo("")
-        
+
         # Display Directory Structure
         click.echo("📁 Directory Structure:")
         click.echo("   ADRI/")
@@ -1607,7 +1611,7 @@ def show_help_guide() -> int:
         click.echo("       ├── prod/training-data/   # Production training data snapshots")
         click.echo("       └── prod/audit-logs/      # Production audit logs")
         click.echo("")
-        
+
         # Display Configuration Info
         click.echo("⚙️  Configuration:")
         click.echo("   File: adri-config.yaml (in project root)")
@@ -1618,23 +1622,23 @@ def show_help_guide() -> int:
         click.echo("     - audit: Audit logging configuration")
         click.echo("     - standards: Standards discovery and validation")
         click.echo("")
-        
+
         # Display Environment Variables
         click.echo("🔧 Environment Variables:")
         click.echo("   ADRI_ENV: Current environment (development/production)")
         click.echo("   ADRI_CONFIG_PATH: Override config file location")
         click.echo("   ADRI_STANDARDS_DIR: Override standards directory")
         click.echo("")
-        
+
         # Display Smart Path Resolution
         click.echo("🎯 Smart Path Resolution:")
         click.echo("   Standards resolve automatically based on environment:")
         click.echo("   - dev/ environment → ADRI/dev/standards/")
         click.echo("   - prod/ environment → ADRI/prod/standards/")
         click.echo("")
-        
+
         click.echo(f"📦 ADRI Version: {__version__}")
-        
+
         return 0
     except Exception as e:
         click.echo(f"❌ Error showing help guide: {e}")
