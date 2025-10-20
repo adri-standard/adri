@@ -924,8 +924,7 @@ class DataQualityAssessor:
                 diagnostic_log.append("=== METADATA ===")
                 if "applied_dimension_weights" in result.metadata:
                     diagnostic_log.append(
-                        f"Applied weights: {
-                            result.metadata['applied_dimension_weights']}")
+                        f"Applied weights: {result.metadata['applied_dimension_weights']}")
 
             # Write diagnostic log to stderr for debugging
             diagnostic_output = "\n".join(diagnostic_log)
