@@ -454,7 +454,6 @@ class TestHelpGuideEnvironmentInformation(unittest.TestCase):
         os.chdir(self.original_cwd)
         shutil.rmtree(self.temp_dir)
 
-    @pytest.mark.skip(reason="show_help_guide() not yet implemented - pending feature completion")
     @patch('click.echo')
     def test_help_guide_includes_environment_information(self, mock_echo):
         """Test that help guide includes comprehensive environment information."""
@@ -481,7 +480,6 @@ class TestHelpGuideEnvironmentInformation(unittest.TestCase):
                 self.assertIn(info, all_output,
                     f"Help guide missing environment info: {info}")
 
-    @pytest.mark.skip(reason="show_help_guide() not yet implemented - pending feature completion")
     @patch('click.echo')
     def test_help_guide_directory_structure_explanation(self, mock_echo):
         """Test that help guide explains directory structure correctly."""
@@ -714,7 +712,6 @@ class TestDocumentationConsistency(unittest.TestCase):
                 continue
         return ' '.join(echo_calls)
 
-    @pytest.mark.skip(reason="show_help_guide() not yet implemented - pending feature completion")
     @patch('click.echo')
     def test_help_guide_config_consistency(self, mock_echo):
         """Test consistency between help guide and config.yaml documentation."""

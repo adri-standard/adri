@@ -1568,71 +1568,77 @@ def standards_catalog_fetch_command(
         return 1
 
 
-def show_help_guide() -> Dict[str, Any]:
+def show_help_guide() -> int:
     """Show environment information and directory structure explanation.
     
-    Returns comprehensive ADRI environment documentation including:
+    Displays comprehensive ADRI environment documentation including:
     - Environment configuration details
     - Directory structure explanations
     - Configuration file locations
     - Best practices and usage guidelines
     
     Returns:
-        Dict containing environment info, directory structure, and configuration details
+        0 for success, 1 for failure
     """
-    # Get project root for context
-    project_root = _find_adri_project_root()
-    
-    # Build environment information
-    environment_info = {
-        "current_environment": os.environ.get("ADRI_ENV", "development"),
-        "config_path": os.environ.get("ADRI_CONFIG_PATH"),
-        "standards_dir": os.environ.get("ADRI_STANDARDS_DIR"),
-        "project_root": str(project_root) if project_root else None,
-    }
-    
-    # Directory structure explanation
-    directory_structure = {
-        "ADRI/": "Root directory for all ADRI assets",
-        "ADRI/dev/": "Development environment directory",
-        "ADRI/dev/standards/": "Development standards (draft/testing)",
-        "ADRI/dev/assessments/": "Development assessment reports",
-        "ADRI/dev/audit-logs/": "Development audit logs",
-        "ADRI/dev/training-data/": "Development training data snapshots",
-        "ADRI/prod/": "Production environment directory",
-        "ADRI/prod/standards/": "Production standards (validated/approved)",
-        "ADRI/prod/assessments/": "Production assessment reports",
-        "ADRI/prod/audit-logs/": "Production audit logs",
-        "ADRI/tutorials/": "Tutorial and example data directories",
-        "adri-config.yaml": "Main ADRI configuration file",
-    }
-    
-    # Configuration file explanation
-    config_details = {
-        "file_location": "adri-config.yaml in project root",
-        "purpose": "Centralized configuration for all ADRI functionality",
-        "key_sections": {
-            "environments": "Development and production environment settings",
-            "protection": "Data protection and decorator settings",
-            "audit": "Audit logging configuration",
-            "standards": "Standards discovery and validation settings",
-        },
-        "environment_variables": {
-            "ADRI_ENV": "Current environment (development/production)",
-            "ADRI_CONFIG_PATH": "Override config file location",
-            "ADRI_STANDARDS_DIR": "Override standards directory location",
-        },
-    }
-    
-    # Build comprehensive help guide response
-    help_guide = {
-        "environment_info": environment_info,
-        "directory_structure": directory_structure,
-        "config_details": config_details,
-        "version": __version__,
-    }
-    
-    return help_guide
+    try:
+        # Get project root for context
+        project_root = _find_adri_project_root()
+        
+        # Display Environment Information
+        click.echo("🌍 Environment Information:")
+        click.echo(f"   Current Environment: {os.environ.get('ADRI_ENV', 'development')}")
+        click.echo(f"   Default: Development environment")
+        click.echo(f"   Switch: Edit ADRI/config.yaml (set default_environment)")
+        click.echo(f"   Project Root: {project_root if project_root else 'Not detected'}")
+        click.echo("")
+        
+        # Display Directory Structure
+        click.echo("📁 Directory Structure:")
+        click.echo("   ADRI/")
+        click.echo("   ├── tutorials/           # Tutorial and example data")
+        click.echo("   ├── dev/                 # Development environment")
+        click.echo("   │   ├── dev/standards/       # Draft/testing standards")
+        click.echo("   │   ├── dev/assessments/     # Development assessment reports")
+        click.echo("   │   ├── dev/training-data/   # Development training data snapshots")
+        click.echo("   │   └── dev/audit-logs/      # Development audit logs")
+        click.echo("   └── prod/                # Production environment")
+        click.echo("       ├── prod/standards/       # Validated/approved standards")
+        click.echo("       ├── prod/assessments/     # Production assessment reports")
+        click.echo("       ├── prod/training-data/   # Production training data snapshots")
+        click.echo("       └── prod/audit-logs/      # Production audit logs")
+        click.echo("")
+        
+        # Display Configuration Info
+        click.echo("⚙️  Configuration:")
+        click.echo("   File: adri-config.yaml (in project root)")
+        click.echo("   Purpose: Centralized configuration for all ADRI functionality")
+        click.echo("   Sections:")
+        click.echo("     - environments: Development and production settings")
+        click.echo("     - protection: Data protection and decorator settings")
+        click.echo("     - audit: Audit logging configuration")
+        click.echo("     - standards: Standards discovery and validation")
+        click.echo("")
+        
+        # Display Environment Variables
+        click.echo("🔧 Environment Variables:")
+        click.echo("   ADRI_ENV: Current environment (development/production)")
+        click.echo("   ADRI_CONFIG_PATH: Override config file location")
+        click.echo("   ADRI_STANDARDS_DIR: Override standards directory")
+        click.echo("")
+        
+        # Display Smart Path Resolution
+        click.echo("🎯 Smart Path Resolution:")
+        click.echo("   Standards resolve automatically based on environment:")
+        click.echo("   - dev/ environment → ADRI/dev/standards/")
+        click.echo("   - prod/ environment → ADRI/prod/standards/")
+        click.echo("")
+        
+        click.echo(f"📦 ADRI Version: {__version__}")
+        
+        return 0
+    except Exception as e:
+        click.echo(f"❌ Error showing help guide: {e}")
+        return 1
 
 
 def main():
