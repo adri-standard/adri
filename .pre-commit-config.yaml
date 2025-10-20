@@ -60,6 +60,20 @@ repos:
         pass_filenames: false
         always_run: true
 
+      - id: python-syntax-check
+        name: Check Python syntax (compile check)
+        entry: python -m py_compile
+        language: system
+        files: \.py$
+        exclude: ^(\.eggs/|\.git/|\.tox/|\.venv/|venv/|build/|dist/)
+
+      - id: pytest-collection-check
+        name: Verify pytest can collect all tests
+        entry: bash -c 'python -m pytest tests/ --collect-only -q > /dev/null 2>&1 || (echo "ERROR Test collection failed. Run pytest tests/ --collect-only to see details." && exit 1)'
+        language: system
+        pass_filenames: false
+        always_run: true
+
   # Documentation validation is handled by CI workflow (docs-check job)
   # Jekyll requires Ruby/bundle which may not be available in all environments
 

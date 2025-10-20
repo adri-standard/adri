@@ -116,6 +116,9 @@ adri = [
 line-length = 88
 target-version = ['py310', 'py311', 'py312', 'py313']
 include = '\.pyi?$'
+# Prevent black from breaking f-strings and other strings across lines
+skip-string-normalization = false
+skip-magic-trailing-comma = true
 extend-exclude = '''
 /(
   # directories
