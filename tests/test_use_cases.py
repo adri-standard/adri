@@ -257,7 +257,7 @@ class TestUseCaseIntegration:
         ]
 
         for file_path in sample_files:
-            with open(file_path, 'r') as f:
+            with open(file_path, 'r', encoding="utf-8") as f:
                 data = json.load(f)
                 assert data is not None
                 assert isinstance(data, list)
@@ -299,7 +299,7 @@ class TestUseCaseDocumentation:
         """Verify README use case examples match available sample files."""
         readme_path = Path("README.md")
 
-        with open(readme_path, 'r') as f:
+        with open(readme_path, 'r', encoding="utf-8") as f:
             readme_content = f.read()
 
         # README should mention all three sample files
