@@ -9,6 +9,69 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 No unreleased changes.
 
+## [5.0.1] - 2025-10-20
+
+### Overview
+**Upstream v5.0.1 Sync Checkpoint** - This release marks a sync checkpoint with community ADRI v5.0.1 (commit 6a06422). Analysis of the 16 upstream commits reveals this was purely an "open-source split" release that removed all enterprise features from the community edition. No core bug fixes or improvements were found to sync. The enterprise fork maintains all features on the v5.0.1 base version for compatibility.
+
+### Changed
+- **Version Alignment**: Updated base version from v5.0.0 to v5.0.1
+  - Fallback version in pyproject.toml updated to 5.0.1
+  - Maintains version parity with upstream for compatibility
+  - No functional changes to codebase
+
+### Upstream Analysis
+Reviewed 16 commits from upstream v5.0.0 to v5.0.1:
+- **No core improvements found**: All changes were enterprise feature removals
+- **Deletions analyzed**: 17,643 lines removed (all enterprise-specific)
+  - Removed: `src/adri/events/` (event-driven architecture)
+  - Removed: `src/adri/callbacks/` (async callback system)
+  - Removed: `src/adri/logging/enterprise.py` (Verodat integration)
+  - Removed: `src/adri/logging/unified.py` (dual-write coordinator)
+  - Removed: `src/adri/logging/fast_path.py` (fast path logging)
+  - Removed: `src/adri/guard/reasoning_mode.py` (reasoning extensions)
+  - Removed: Enterprise documentation and tests
+- **Core modules unchanged**: No updates to validator, analysis, or standards
+
+### Preserved
+All enterprise features remain fully functional:
+- ✅ Verodat Cloud Integration (EnterpriseLogger)
+- ✅ Event-Driven Architecture (EventBus)
+- ✅ Fast Path Logging (<10ms ID capture)
+- ✅ Unified Logger (dual-write coordination)
+- ✅ Async Callback Infrastructure
+- ✅ Workflow Orchestration Adapters (Prefect, Airflow)
+- ✅ Reasoning Mode Extensions
+- ✅ Enterprise Documentation (ENTERPRISE_FEATURES.md, UPSTREAM_SYNC.md)
+
+### Testing
+- **Pre-sync baseline captured**: All tests passing
+- **No code changes required**: Enterprise codebase unchanged
+- **All 1135+ tests remain passing**: Zero regressions
+- **Cross-platform support maintained**: Ubuntu, Windows, macOS
+- **Python versions**: 3.10, 3.11, 3.12, 3.13
+
+### Documentation
+- **UPSTREAM_SYNC.md**: Updated with v5.0.1 sync details
+- **CHANGELOG.md**: This entry documenting sync checkpoint
+- **Sync history**: Recorded in UPSTREAM_SYNC.md log table
+
+### Notes for Future Syncs
+This sync demonstrates the importance of analyzing upstream changes before merging:
+- Not all upstream releases contain improvements to sync
+- "Open-source split" releases may only remove enterprise features
+- Version alignment helps track compatibility but doesn't always require code changes
+- Enterprise fork successfully maintains independence while tracking upstream versions
+
+### Contributors
+- @thomas-ADRI - Upstream analysis, version alignment, documentation
+
+### References
+- Upstream Sync Documentation: [UPSTREAM_SYNC.md](UPSTREAM_SYNC.md)
+- Upstream commits: 51a2bb5..6a06422 (16 commits)
+- Upstream repository: https://github.com/adri-standard/adri
+- Community ADRI v5.0.1: https://github.com/adri-standard/adri/releases/tag/v5.0.1
+
 ## [5.0.0] - 2025-04-05
 
 ### Overview

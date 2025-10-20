@@ -356,4 +356,4 @@ ignore = [
 version_scheme = "post-release"
 local_scheme = "node-and-date"
 write_to = "src/adri/_version.py"
-fallback_version = "5.0.0"
+fallback_version = "5.0.1"

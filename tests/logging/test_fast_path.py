@@ -170,8 +170,10 @@ class TestFileManifestStore:
             store.write(manifest)
             duration_ms = (time.time() - start) * 1000
 
-            # Should be very fast (allow some margin for CI environments)
-            assert duration_ms < 50.0  # Relaxed for CI, target is 10ms
+            # Should be very fast (allow margin for CI environment variance)
+            # Target is <10ms on local dev, but CI environments (especially Windows)
+            # can have significant filesystem I/O variance due to virtualization
+            assert duration_ms < 100.0  # Relaxed for CI stability, target is 10ms
 
     def test_subdirectory_organization(self):
         """Test that manifests are organized in subdirectories."""

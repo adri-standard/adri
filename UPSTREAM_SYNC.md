@@ -444,16 +444,16 @@ gh pr create --title "rollback: Revert upstream sync due to <issue>"
 ## Sync History
 
 ### Last Sync
-- **Date**: 2025-04-05 (Initial fork)
-- **Source**: adri-standard/adri @ v4.4.0
-- **Status**: Enterprise fork created
-- **Notes**: Initial divergence, enterprise features added
+- **Date**: 2025-10-20
+- **Source**: adri-standard/adri @ v5.0.1 (commit 6a06422)
+- **Status**: Sync checkpoint - no core changes to merge
+- **Notes**: Upstream v5.0.1 is "open-source split" release (16 commits) that only removed enterprise features. No core bug fixes or improvements found. Enterprise fork maintains all features on v5.0.1 base.
 
 ### Sync Log
 | Date | Source Version | Modules Synced | Conflicts | Notes |
 |------|---------------|----------------|-----------|-------|
 | 2025-04-05 | v4.4.0 | All | None | Initial fork |
-| TBD | v5.0.0 | Core | TBD | First sync after fork |
+| 2025-10-20 | v5.0.1 | None (version bump only) | None | Upstream only removed enterprise features, no core improvements. All enterprise modules preserved. Version updated to v5.0.1 base. |
 
 ---
 
