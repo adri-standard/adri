@@ -695,9 +695,7 @@ class LocalLogger:
 
         if log_type not in log_file_map:
             raise ValueError(
-                f"Invalid log_type: {log_type}. Must be one of {
-                    list(
-                        log_file_map.keys())}"
+                f"Invalid log_type: {log_type}. Must be one of {list(log_file_map.keys())}"
             )
 
         log_file = log_file_map[log_type]
