@@ -266,8 +266,7 @@ class AssessCommand(Command):
         _progressive_echo("===============================", 0.0)
         _progressive_echo("", 0.0)
         _progressive_echo(
-            f"System Health (Score): {
-                result.overall_score:.1f}/100  {status_icon} {status_text}",
+            f"System Health (Score): {result.overall_score:.1f}/100  {status_icon} {status_text}",
             0.0,
         )
         _progressive_echo("  • Dataset-level quality across all 5 dimensions.", 0.0)
@@ -288,8 +287,7 @@ class AssessCommand(Command):
         _progressive_echo("💬 Why two numbers?", 0.0)
         _progressive_echo("─" * 58, 0.0)
         _progressive_echo(
-            f"  • Health = average dataset quality (meets {
-                int(threshold)}/100 threshold).",
+            f"  • Health = average dataset quality (meets {int(threshold)}/100 threshold).",
             0.0,
         )
         _progressive_echo(
@@ -337,8 +335,7 @@ class AssessCommand(Command):
             else f"{failed_records}/{total_records} records failed"
         )
         click.echo(
-            f"Score: {
-                result.overall_score:.1f}/100 {status_icon} {status_text} → {explanation}"
+            f"Score: {result.overall_score:.1f}/100 {status_icon} {status_text} → {explanation}"
         )
 
         # Display standard path for transparency (Issue #35 fix)

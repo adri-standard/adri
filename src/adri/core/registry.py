@@ -56,8 +56,7 @@ class ComponentRegistry(ABC):
         """
         if name in self._components:
             raise ComponentRegistrationError(
-                f"Component '{name}' is already registered in {
-                    self.get_component_type_name()} registry"
+                f"Component '{name}' is already registered in {self.get_component_type_name()} registry"
             )
 
         try:

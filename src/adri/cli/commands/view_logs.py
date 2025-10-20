@@ -383,9 +383,7 @@ class ViewLogsCommand(Command):
             for i, entry in enumerate(log_entries, 1):
                 click.echo(f"  {i}. Assessment ID: {entry['assessment_id']}")
                 click.echo(
-                    f"     Records: {
-                        entry['data_row_count']} | Duration: {
-                        entry['assessment_duration_ms']}ms"
+                    f"     Records: {entry['data_row_count']} | Duration: {entry['assessment_duration_ms']}ms"
                 )
                 click.echo(f"     Decision: {entry['execution_decision']}")
                 click.echo()
@@ -441,9 +439,7 @@ class ViewLogsCommand(Command):
                             click.echo(f"     Affected: {rows} rows ({pct:.1f}%)")
                             if samples:
                                 click.echo(
-                                    f"     Samples: {
-                                        ', '.join(
-                                            str(s) for s in samples)}"
+                                    f"     Samples: {', '.join(str(s) for s in samples)}"
                                 )
                             if remediation:
                                 click.echo(f"     Fix: {remediation}")

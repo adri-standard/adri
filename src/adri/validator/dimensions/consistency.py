@@ -361,8 +361,7 @@ class ConsistencyAssessor(DimensionAssessor):
                         for value, count in duplicates.items():
                             failures.append(
                                 {
-                                    "validation_id": f"pk_uniqueness_{
-                                        len(failures):03d}",
+                                    "validation_id": f"pk_uniqueness_{len(failures):03d}",
                                     "dimension": "consistency",
                                     "field": field,
                                     "issue": "duplicate_primary_key",
@@ -400,8 +399,7 @@ class ConsistencyAssessor(DimensionAssessor):
 
                                 failures.append(
                                     {
-                                        "validation_id": f"pk_uniqueness_{
-                                            len(failures):03d}",
+                                        "validation_id": f"pk_uniqueness_{len(failures):03d}",
                                         "dimension": "consistency",
                                         "field": ":".join(pk_fields),
                                         "issue": "duplicate_composite_primary_key",
@@ -409,8 +407,7 @@ class ConsistencyAssessor(DimensionAssessor):
                                         "affected_percentage": (count / len(data))
                                         * 100.0,
                                         "samples": [sample_key],
-                                        "remediation": f"Remove or correct duplicate combinations for composite primary key ({
-                                            ', '.join(pk_fields)})",
+                                        "remediation": f"Remove or correct duplicate combinations for composite primary key ({', '.join(pk_fields)})",
                                     }
                                 )
 

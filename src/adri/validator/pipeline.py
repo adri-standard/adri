@@ -126,8 +126,7 @@ class ValidationPipeline:
             field_requirements = standard.get_field_requirements()
             if _should_enable_debug():
                 diagnostic_log.append(
-                    f"Dimension requirements loaded: {
-                        list(
+                    f"Dimension requirements loaded: {list(
                             dimension_requirements.keys())}"
                 )
                 diagnostic_log.append(
@@ -332,9 +331,7 @@ class ValidationPipeline:
         except Exception as e:  # noqa: E722
             # Log exception for debugging but don't fail the assessment
             print(
-                f"Warning: Failed to collect {dimension_name} explanation: {
-                    type(e).__name__}: {
-                    str(e)}",
+                f"Warning: Failed to collect {dimension_name} explanation: {type(e).__name__}: {str(e)}",
                 file=sys.stderr,
             )
 

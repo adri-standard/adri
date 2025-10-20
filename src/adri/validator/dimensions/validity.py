@@ -513,8 +513,7 @@ class ValidityAssessor(DimensionAssessor):
             return f"Fix {field_name} to match expected type: {expected_type}"
         elif rule_type == "allowed_values":
             allowed = field_req.get("allowed_values", [])
-            return f"Use only allowed values for {field_name}: {
-                ', '.join(
+            return f"Use only allowed values for {field_name}: {', '.join(
                     str(v) for v in allowed[
                         :5])}"
         elif rule_type == "length_bounds":

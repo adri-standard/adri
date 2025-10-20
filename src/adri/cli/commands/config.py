@@ -354,8 +354,7 @@ class ShowStandardCommand(Command):
 
             requirements = standard.get("requirements", {})
             click.echo(
-                f"\n🎯 Overall Minimum Score: {
-                    requirements.get(
+                f"\n🎯 Overall Minimum Score: {requirements.get(
                         'overall_minimum',
                         'Not set')}/100"
             )
@@ -809,8 +808,7 @@ class WhatIfCommand(Command):
             current_readiness_status = self._get_readiness_status(current_readiness_pct)
 
             click.echo(
-                f"  • Status: Health {current_health_status} ({
-                    current_result.overall_score:.1f}/100), Readiness {current_readiness_status} ({current_passed_rows}/{total_rows})"
+                f"  • Status: Health {current_health_status} ({current_result.overall_score:.1f}/100), Readiness {current_readiness_status} ({current_passed_rows}/{total_rows})"
             )
             click.echo("")
 
@@ -834,8 +832,7 @@ class WhatIfCommand(Command):
                 elif key == "readiness.row_threshold":
                     new_threshold = float(value)
                     click.echo(
-                        f"  • Row Threshold: {current_row_threshold} → {new_threshold} ({
-                            int(
+                        f"  • Row Threshold: {current_row_threshold} → {new_threshold} ({int(
                                 total_rows * new_threshold)}/{total_rows} rows required)"
                     )
             click.echo("")
@@ -858,12 +855,10 @@ class WhatIfCommand(Command):
 
             click.echo("Projected Results:")
             click.echo(
-                f"  • Health: {current_health_status} → {new_health_status} ({
-                    current_result.overall_score:.1f}/100 vs threshold {new_min_score})"
+                f"  • Health: {current_health_status} → {new_health_status} ({current_result.overall_score:.1f}/100 vs threshold {new_min_score})"
             )
             click.echo(
-                f"  • Readiness: {current_readiness_status} → {new_readiness_status} ({current_passed_rows}/{total_rows}, need {
-                    int(
+                f"  • Readiness: {current_readiness_status} → {new_readiness_status} ({current_passed_rows}/{total_rows}, need {int(
                         total_rows * new_row_threshold)}/{total_rows})"
             )
             click.echo("")
@@ -891,8 +886,7 @@ class WhatIfCommand(Command):
                 click.echo("  • Readiness: Currently meets new threshold")
 
             click.echo(
-                f"  • Recommendation: Fix {
-                    max(
+                f"  • Recommendation: Fix {max(
                         0,
                         rows_needed -
                         current_passed_rows)} more row(s) to meet new readiness gate"

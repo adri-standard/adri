@@ -386,8 +386,7 @@ class StandardSchema:
         """
         # Check type
         if not isinstance(overall_minimum, (int, float)):
-            return f"overall_minimum must be a number, got {
-                type(overall_minimum).__name__}"
+            return f"overall_minimum must be a number, got {type(overall_minimum).__name__}"
 
         # Check range
         return cls.validate_numeric_range(
@@ -428,24 +427,16 @@ class StandardSchema:
         severity = rule.get("severity")
         if severity not in cls.VALID_SEVERITY_LEVELS:
             errors.append(
-                f"Validation rule '{
-                    rule.get('name')}' at '{field_path}' has invalid severity: '{severity}'. "
-                f"Must be one of: {
-                    ', '.join(
-                        sorted(
-                            cls.VALID_SEVERITY_LEVELS))}"
+                f"Validation rule '{rule.get('name')}' at '{field_path}' has invalid severity: '{severity}'. "
+                f"Must be one of: {', '.join(sorted(cls.VALID_SEVERITY_LEVELS))}"
             )
 
         # Validate dimension
         dimension = rule.get("dimension")
         if dimension not in cls.VALID_DIMENSIONS:
             errors.append(
-                f"Validation rule '{
-                    rule.get('name')}' at '{field_path}' has invalid dimension: '{dimension}'. "
-                f"Must be one of: {
-                    ', '.join(
-                        sorted(
-                            cls.VALID_DIMENSIONS))}"
+                f"Validation rule '{rule.get('name')}' at '{field_path}' has invalid dimension: '{dimension}'. "
+                f"Must be one of: {', '.join(sorted(cls.VALID_DIMENSIONS))}"
             )
 
         # Validate rule_type for the dimension
@@ -463,15 +454,12 @@ class StandardSchema:
             penalty_weight = rule["penalty_weight"]
             if not isinstance(penalty_weight, (int, float)):
                 errors.append(
-                    f"Validation rule '{
-                        rule.get('name')}' at '{field_path}' has invalid penalty_weight type. "
-                    f"Expected number, got {
-                        type(penalty_weight).__name__}"
+                    f"Validation rule '{rule.get('name')}' at '{field_path}' has invalid penalty_weight type. "
+                    f"Expected number, got {type(penalty_weight).__name__}"
                 )
             elif penalty_weight < 0:
                 errors.append(
-                    f"Validation rule '{
-                        rule.get('name')}' at '{field_path}' has negative penalty_weight: {penalty_weight}"
+                    f"Validation rule '{rule.get('name')}' at '{field_path}' has negative penalty_weight: {penalty_weight}"
                 )
 
         return errors
@@ -494,8 +482,7 @@ class StandardSchema:
 
         if not isinstance(rules, list):
             errors.append(
-                f"validation_rules at '{field_path}' must be a list, got {
-                    type(rules).__name__}"
+                f"validation_rules at '{field_path}' must be a list, got {type(rules).__name__}"
             )
             return errors
 
@@ -509,11 +496,8 @@ class StandardSchema:
         for idx, rule in enumerate(rules):
             if not isinstance(rule, dict):
                 errors.append(
-                    f"Validation rule #{
-                        idx +
-                        1} at '{field_path}' must be a dictionary, "
-                    f"got {
-                        type(rule).__name__}"
+                    f"Validation rule #{idx + 1} at '{field_path}' must be a dictionary, "
+                    f"got {type(rule).__name__}"
                 )
                 continue
 

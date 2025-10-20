@@ -623,8 +623,7 @@ def _display_assessment_results(result, data, guide, threshold: float = 75.0):
         click.echo("📊 Quality Assessment Results:")
         click.echo("==============================")
         click.echo(
-            f"🎯 Agent System Health: {
-                result.overall_score:.1f}/100 {status_icon} {status_text}"
+            f"🎯 Agent System Health: {result.overall_score:.1f}/100 {status_icon} {status_text}"
         )
         click.echo(f"Threshold = {threshold:.1f}/100 (set in your standard)")
         click.echo("   → Overall reliability for AI agent workflows")
@@ -658,8 +657,7 @@ def _display_assessment_results(result, data, guide, threshold: float = 75.0):
             else f"{failed_records}/{total_records} records failed"
         )
         click.echo(
-            f"Score: {
-                result.overall_score:.1f}/100 {status_icon} {status_text} → {explanation}"
+            f"Score: {result.overall_score:.1f}/100 {status_icon} {status_text} → {explanation}"
         )
 
 
@@ -1028,9 +1026,7 @@ def _display_audit_logs_table(table_data, log_entries, audit_logs_dir, verbose):
         for i, entry in enumerate(log_entries, 1):
             click.echo(f"  {i}. Assessment ID: {entry['assessment_id']}")
             click.echo(
-                f"     Records: {
-                    entry['data_row_count']} | Duration: {
-                    entry['assessment_duration_ms']}ms"
+                f"     Records: {entry['data_row_count']} | Duration: {entry['assessment_duration_ms']}ms"
             )
             click.echo(f"     Decision: {entry['execution_decision']}")
             click.echo()
@@ -1589,16 +1585,12 @@ def show_help_guide() -> int:
         # Display Environment Information
         click.echo("🌍 Environment Information:")
         click.echo(
-            f"   Current Environment: {
-                os.environ.get(
-                    'ADRI_ENV',
-                    'development')}"
+            f"   Current Environment: {os.environ.get('ADRI_ENV', 'development')}"
         )
         click.echo("Default: Development environment")
         click.echo("   Switch: Edit ADRI/config.yaml (set default_environment)")
         click.echo(
-            f"   Project Root: {
-                project_root if project_root else 'Not detected'}"
+            f"   Project Root: {project_root if project_root else 'Not detected'}"
         )
         click.echo("")
 

@@ -125,8 +125,7 @@ class ValidationRule:
         missing_fields = [f for f in required_fields if f not in rule_dict]
         if missing_fields:
             raise ValueError(
-                f"Missing required fields in validation rule: {
-                    ', '.join(missing_fields)}"
+                f"Missing required fields in validation rule: {', '.join(missing_fields)}"
             )
 
         # Extract fields with defaults for optional ones

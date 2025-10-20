@@ -351,17 +351,11 @@ class GenerateStandardCommand(Command):
         _progressive_echo("📈 Defaults learned from this dataset", 0.0)
         _progressive_echo("─" * 58, 0.0)
         _progressive_echo(
-            f"  • MIN_SCORE:      {
-                controls['min_score']}/100   → Health passes if ≥ {
-                controls['min_score']}",
+            f"  • MIN_SCORE:      {controls['min_score']}/100   → Health passes if ≥ {controls['min_score']}",
             0.0,
         )
         _progressive_echo(
-            f"  • READINESS.GATE: {
-                controls['row_threshold']:.2f}     → {
-                int(
-                    controls['row_threshold'] *
-                    100)}% of rows must fully pass",
+            f"  • READINESS.GATE: {controls['row_threshold']:.2f}     → {int(controls['row_threshold'] * 100)}% of rows must fully pass",
             0.0,
         )
         _progressive_echo(f"  • Guard mode:     {controls['guard_mode']}", 0.0)
@@ -384,8 +378,7 @@ class GenerateStandardCommand(Command):
         _progressive_echo("─" * 58, 0.0)
         _progressive_echo(f"# Path: {rel_to_project_root(output_path)}", 0.0)
         _progressive_echo(
-            f"# (preview — view full file with: less {
-                rel_to_project_root(output_path)})",
+            f"# (preview — view full file with: less {rel_to_project_root(output_path)})",
             0.0,
         )
         _progressive_echo("", 0.0)
@@ -419,8 +412,7 @@ class GenerateStandardCommand(Command):
             "   This tests real-world data against your new standard and shows:", 0.0
         )
         _progressive_echo(
-            f"     • System Health — overall dataset quality (vs MIN_SCORE {
-                controls['min_score']})",
+            f"     • System Health — overall dataset quality (vs MIN_SCORE {controls['min_score']})",
             0.0,
         )
         _progressive_echo(

@@ -305,8 +305,7 @@ class StandardValidator:
             result.add_error(
                 message="At least one dimension requirement must be specified",
                 path=base_path,
-                suggestion=f"Add at least one dimension from: {
-                    ', '.join(
+                suggestion=f"Add at least one dimension from: {', '.join(
                         sorted(
                             StandardSchema.VALID_DIMENSIONS))}",
             )
@@ -321,8 +320,7 @@ class StandardValidator:
                 result.add_error(
                     message=f"Invalid dimension name: '{dimension_name}'",
                     path=dimension_path,
-                    expected=f"One of: {
-                        ', '.join(
+                    expected=f"One of: {', '.join(
                             sorted(
                                 StandardSchema.VALID_DIMENSIONS))}",
                     actual=dimension_name,
@@ -389,13 +387,9 @@ class StandardValidator:
                         result.add_error(
                             message=range_error,
                             path=field_path,
-                            expected=f"Value between {
-                                field_schema.min_value} and {
-                                field_schema.max_value}",
+                            expected=f"Value between {field_schema.min_value} and {field_schema.max_value}",
                             actual=str(value),
-                            suggestion=f"Set {field_name} to a value between {
-                                field_schema.min_value} and {
-                                field_schema.max_value}",
+                            suggestion=f"Set {field_name} to a value between {field_schema.min_value} and {field_schema.max_value}",
                         )
 
                 # Validate field_requirements if present
