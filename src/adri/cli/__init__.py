@@ -9,7 +9,7 @@ import json
 import os
 import sys
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import click
 import yaml
@@ -27,12 +27,10 @@ from .commands.config import (
     WhatIfCommand,
 )
 from .commands.generate_standard import GenerateStandardCommand
-from .commands.guide import GuideCommand
 from .commands.list_assessments import ListAssessmentsCommand
-from .commands.scoring import ScoringExplainCommand
 from .commands.setup import SetupCommand
 from .commands.view_logs import ViewLogsCommand
-from .registry import create_command_registry, get_command, register_all_commands
+from .registry import get_command
 
 # Import needed components
 try:
@@ -81,7 +79,7 @@ def _debug_io_enabled() -> bool:
 # ---------------- Path discovery and helpers -----------------
 
 
-def _find_adri_project_root(start_path: Optional[Path] = None) -> Optional[Path]:
+def _find_adri_project_root(start_path: Path | None = None) -> Path | None:
     """
     Find the ADRI project root directory by searching for ADRI/config.yaml.
 
@@ -185,7 +183,7 @@ def _get_threshold_from_standard(standard_path: Path) -> float:
     try:
         std = load_standard(str(standard_path)) if load_standard else None
         if std is None:
-            with open(standard_path, "r", encoding="utf-8") as f:
+            with open(standard_path, encoding="utf-8") as f:
                 std = yaml.safe_load(f) or {}
         req = std.get("requirements", {}) if isinstance(std, dict) else {}
         thr = float(req.get("overall_minimum", 75.0))
@@ -233,7 +231,7 @@ INV-110,DUPLICATE-ID,875.25,2024-02-24,paid,credit_card"""
 
 
 def show_config_command(
-    paths_only: bool = False, environment: Optional[str] = None
+    paths_only: bool = False, environment: str | None = None
 ) -> int:
     """Show current ADRI configuration (standalone function for tests)."""
     try:
@@ -256,7 +254,7 @@ def show_standard_command(standard_path: str, verbose: bool = False) -> int:
         if load_standard:
             standard = load_standard(standard_path)
         else:
-            with open(standard_file, "r", encoding="utf-8") as f:
+            with open(standard_file, encoding="utf-8") as f:
                 standard = yaml.safe_load(f)
 
         if standard:
@@ -271,7 +269,7 @@ def show_standard_command(standard_path: str, verbose: bool = False) -> int:
 
 
 def setup_command(
-    force: bool = False, project_name: Optional[str] = None, guide: bool = False
+    force: bool = False, project_name: str | None = None, guide: bool = False
 ) -> int:
     """Initialize ADRI in a project (standalone function for tests)."""
     try:
@@ -290,7 +288,7 @@ def setup_command(
 def assess_command(
     data_path: str,
     standard_path: str,
-    output_path: Optional[str] = None,
+    output_path: str | None = None,
     guide: bool = False,
 ) -> int:
     """Run data quality assessment (standalone function for tests)."""
@@ -309,10 +307,7 @@ def assess_command(
 
 
 def generate_standard_command(
-    data_path: str,
-    force: bool = False,
-    output: Optional[str] = None,
-    guide: bool = False,
+    data_path: str, force: bool = False, output: str | None = None, guide: bool = False
 ) -> int:
     """Generate ADRI standard from data (standalone function for tests)."""
     try:
@@ -380,7 +375,7 @@ def view_logs_command(
 # ---------------- Configuration helpers -----------------
 
 
-def _get_default_audit_config() -> Dict[str, Any]:
+def _get_default_audit_config() -> dict[str, Any]:
     return {
         "enabled": True,
         "log_dir": "ADRI/dev/audit-logs",
@@ -391,8 +386,8 @@ def _get_default_audit_config() -> Dict[str, Any]:
     }
 
 
-def _load_assessor_config() -> Dict[str, Any]:
-    assessor_config: Dict[str, Any] = {}
+def _load_assessor_config() -> dict[str, Any]:
+    assessor_config: dict[str, Any] = {}
     if ConfigurationLoader:
         config_loader = ConfigurationLoader()
         config = config_loader.get_active_config()
@@ -412,7 +407,7 @@ def _load_assessor_config() -> Dict[str, Any]:
 # ---------------- Assessment helpers -----------------
 
 
-def _generate_record_id(row, row_index, primary_key_fields: List[str]) -> str:
+def _generate_record_id(row, row_index, primary_key_fields: list[str]) -> str:
     import pandas as pd
 
     if primary_key_fields:
@@ -674,7 +669,7 @@ def _generate_file_hash(file_path: Path) -> str:
     return hash_sha256.hexdigest()[:8]
 
 
-def _create_training_snapshot(data_path: str) -> Optional[str]:
+def _create_training_snapshot(data_path: str) -> str | None:
     try:
         source_file = Path(data_path)
         if not source_file.exists():
@@ -702,12 +697,12 @@ def _create_training_snapshot(data_path: str) -> Optional[str]:
 
 
 def _create_lineage_metadata(
-    data_path: str, snapshot_path: Optional[str] = None
-) -> Dict[str, Any]:
+    data_path: str, snapshot_path: str | None = None
+) -> dict[str, Any]:
     from datetime import datetime
 
     source_file = Path(data_path)
-    metadata: Dict[str, Any] = {
+    metadata: dict[str, Any] = {
         "source_path": str(source_file.resolve()),
         "timestamp": datetime.now().isoformat(),
         "file_hash": _generate_file_hash(source_file) if source_file.exists() else None,
@@ -751,11 +746,11 @@ def _get_assessments_directory() -> Path:
     return assessments_dir
 
 
-def _parse_assessment_files(assessment_files: List[Path]) -> List[Dict[str, Any]]:
-    table_data: List[Dict[str, Any]] = []
+def _parse_assessment_files(assessment_files: list[Path]) -> list[dict[str, Any]]:
+    table_data: list[dict[str, Any]] = []
     for file_path in assessment_files:
         try:
-            with open(file_path, "r", encoding="utf-8") as f:
+            with open(file_path, encoding="utf-8") as f:
                 assessment_data = json.load(f)
             adri_report = assessment_data.get("adri_assessment_report", {})
             summary = adri_report.get("summary", {})
@@ -784,13 +779,13 @@ def _parse_assessment_files(assessment_files: List[Path]) -> List[Dict[str, Any]
     return table_data
 
 
-def _load_audit_entries() -> List[Dict[str, Any]]:
+def _load_audit_entries() -> list[dict[str, Any]]:
     """Load audit entries from JSONL files using ADRILogReader."""
     from datetime import datetime
 
     from .logging import ADRILogReader
 
-    audit_entries: List[Dict[str, Any]] = []
+    audit_entries: list[dict[str, Any]] = []
 
     try:
         if ConfigurationLoader:
@@ -912,7 +907,7 @@ def _parse_audit_log_entries(main_log_file: Path, today: bool):
     from datetime import date, datetime
 
     log_entries = []
-    with open(main_log_file, "r", encoding="utf-8") as f:
+    with open(main_log_file, encoding="utf-8") as f:
         reader = csv.DictReader(f)
         for row in reader:
             try:
@@ -1083,7 +1078,6 @@ def _compute_dimension_contributions(dimension_scores, applied_dimension_weights
 @click.version_option(version=__version__, prog_name="adri")
 def cli():
     """ADRI - Stop Your AI Agents Breaking on Bad Data."""
-    pass
 
 
 # Initialize command registry on module load
@@ -1261,7 +1255,6 @@ def scoring_preset_apply(preset, standard_path, output_path):
 @click.group("standards-catalog")
 def standards_catalog():
     """Remote standards catalog commands."""
-    pass
 
 
 @standards_catalog.command("list")
@@ -1433,7 +1426,7 @@ def standards_catalog_list_command(json_output: bool = False) -> int:
 def standards_catalog_fetch_command(
     name_or_id: str,
     dest: str = "dev",
-    filename: Optional[str] = None,
+    filename: str | None = None,
     overwrite: bool = False,
     json_output: bool = False,
 ) -> int:

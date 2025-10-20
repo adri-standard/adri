@@ -7,7 +7,7 @@ smart caching and thread-safe operation.
 
 import os
 import threading
-from typing import Any, Dict, Optional
+from typing import Any
 
 from .exceptions import ValidationResult
 from .schema import StandardSchema
@@ -28,13 +28,13 @@ class StandardValidator:
 
     def __init__(self):
         """Initialize the validator with empty cache and thread lock."""
-        self._cache: Dict[str, tuple[ValidationResult, float]] = {}
+        self._cache: dict[str, tuple[ValidationResult, float]] = {}
         self._cache_lock = threading.RLock()
 
     def validate_standard(
         self,
-        standard: Dict[str, Any],
-        standard_path: Optional[str] = None,
+        standard: dict[str, Any],
+        standard_path: str | None = None,
         use_cache: bool = True,
     ) -> ValidationResult:
         """
@@ -91,7 +91,7 @@ class StandardValidator:
 
         # Load the standard directly (avoiding circular import with loaders)
         try:
-            with open(file_path, "r", encoding="utf-8") as f:
+            with open(file_path, encoding="utf-8") as f:
                 standard = yaml.safe_load(f)
         except FileNotFoundError:
             result = ValidationResult(is_valid=False, standard_path=file_path)
@@ -122,7 +122,7 @@ class StandardValidator:
         return self.validate_standard(standard, file_path, use_cache)
 
     def _validate_structure(
-        self, standard: Dict[str, Any], result: ValidationResult
+        self, standard: dict[str, Any], result: ValidationResult
     ) -> None:
         """
         Validate top-level structure of the standard.
@@ -147,7 +147,7 @@ class StandardValidator:
             result.add_error(message=error_msg, path="<root>")
 
     def _validate_standards_section(
-        self, standard: Dict[str, Any], result: ValidationResult
+        self, standard: dict[str, Any], result: ValidationResult
     ) -> None:
         """
         Validate the 'standards' metadata section.
@@ -218,7 +218,7 @@ class StandardValidator:
                     )
 
     def _validate_requirements_section(
-        self, standard: Dict[str, Any], result: ValidationResult
+        self, standard: dict[str, Any], result: ValidationResult
     ) -> None:
         """
         Validate the 'requirements' section.
@@ -305,9 +305,7 @@ class StandardValidator:
             result.add_error(
                 message="At least one dimension requirement must be specified",
                 path=base_path,
-                suggestion=f"Add at least one dimension from: {', '.join(
-                        sorted(
-                            StandardSchema.VALID_DIMENSIONS))}",
+                suggestion=f"Add at least one dimension from: {', '.join(sorted(StandardSchema.VALID_DIMENSIONS))}",
             )
             return
 
@@ -320,9 +318,7 @@ class StandardValidator:
                 result.add_error(
                     message=f"Invalid dimension name: '{dimension_name}'",
                     path=dimension_path,
-                    expected=f"One of: {', '.join(
-                            sorted(
-                                StandardSchema.VALID_DIMENSIONS))}",
+                    expected=f"One of: {', '.join(sorted(StandardSchema.VALID_DIMENSIONS))}",
                     actual=dimension_name,
                     suggestion="Use a valid ADRI dimension name",
                 )
@@ -400,7 +396,7 @@ class StandardValidator:
 
     def _validate_field_requirements(
         self,
-        field_requirements: Dict[str, Any],
+        field_requirements: dict[str, Any],
         base_path: str,
         result: ValidationResult,
     ) -> None:
@@ -446,7 +442,7 @@ class StandardValidator:
             # Otherwise, validate as old format (backward compatible)
             # Old format is valid, just different structure - no validation needed
 
-    def _get_cached_result(self, file_path: str) -> Optional[ValidationResult]:
+    def _get_cached_result(self, file_path: str) -> ValidationResult | None:
         """
         Get cached validation result if valid.
 
@@ -504,7 +500,7 @@ class StandardValidator:
             # If file doesn't exist or can't be accessed, cache is invalid
             return False
 
-    def clear_cache(self, file_path: Optional[str] = None) -> None:
+    def clear_cache(self, file_path: str | None = None) -> None:
         """
         Clear validation cache.
 
@@ -517,7 +513,7 @@ class StandardValidator:
             elif file_path in self._cache:
                 del self._cache[file_path]
 
-    def get_cache_stats(self) -> Dict[str, Any]:
+    def get_cache_stats(self) -> dict[str, Any]:
         """
         Get cache statistics.
 
@@ -532,7 +528,7 @@ class StandardValidator:
 
 
 # Global singleton instance
-_validator_instance: Optional[StandardValidator] = None
+_validator_instance: StandardValidator | None = None
 _instance_lock = threading.Lock()
 
 

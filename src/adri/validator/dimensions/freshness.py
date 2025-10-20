@@ -5,7 +5,7 @@ This module contains the FreshnessAssessor class that evaluates data freshness
 """
 
 from datetime import datetime
-from typing import Any, Dict, Optional
+from typing import Any
 
 import pandas as pd
 
@@ -23,7 +23,7 @@ class FreshnessAssessor(DimensionAssessor):
         """Get the name of this dimension."""
         return "freshness"
 
-    def assess(self, data: Any, requirements: Dict[str, Any]) -> float:
+    def assess(self, data: Any, requirements: dict[str, Any]) -> float:
         """Assess freshness dimension for the given data.
 
         Args:
@@ -56,7 +56,7 @@ class FreshnessAssessor(DimensionAssessor):
 
         return self._assess_freshness_with_config(data, freshness_config)
 
-    def _extract_freshness_config(self, requirements: Dict[str, Any]) -> Dict[str, Any]:
+    def _extract_freshness_config(self, requirements: dict[str, Any]) -> dict[str, Any]:
         """Extract freshness configuration from requirements."""
         # Check if freshness rules are active
         scoring_cfg = requirements.get("scoring", {})
@@ -100,7 +100,7 @@ class FreshnessAssessor(DimensionAssessor):
         }
 
     def _assess_freshness_with_config(
-        self, data: pd.DataFrame, config: Dict[str, Any]
+        self, data: pd.DataFrame, config: dict[str, Any]
     ) -> float:
         """Assess freshness using the extracted configuration."""
         # Parse the as_of date
@@ -145,7 +145,7 @@ class FreshnessAssessor(DimensionAssessor):
 
         return score
 
-    def _parse_as_of_date(self, as_of_str: Optional[str]) -> Optional[datetime]:
+    def _parse_as_of_date(self, as_of_str: str | None) -> datetime | None:
         """Parse the as_of date string into a datetime object."""
         if not as_of_str:
             return None
@@ -165,8 +165,8 @@ class FreshnessAssessor(DimensionAssessor):
         return None
 
     def get_freshness_breakdown(
-        self, data: pd.DataFrame, requirements: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, data: pd.DataFrame, requirements: dict[str, Any]
+    ) -> dict[str, Any]:
         """Get detailed freshness breakdown for reporting.
 
         Args:
@@ -267,7 +267,7 @@ class FreshnessAssessor(DimensionAssessor):
         }
 
     def assess_with_config(
-        self, data: pd.DataFrame, freshness_config: Dict[str, Any]
+        self, data: pd.DataFrame, freshness_config: dict[str, Any]
     ) -> float:
         """Assess freshness with explicit configuration for backward compatibility.
 
@@ -290,7 +290,7 @@ class FreshnessAssessor(DimensionAssessor):
 
         return 20.0  # Perfect baseline score
 
-    def _has_validation_rules_format(self, field_requirements: Dict[str, Any]) -> bool:
+    def _has_validation_rules_format(self, field_requirements: dict[str, Any]) -> bool:
         """Check if field_requirements use new validation_rules format.
 
         Args:
@@ -306,7 +306,7 @@ class FreshnessAssessor(DimensionAssessor):
         return False
 
     def _assess_freshness_with_validation_rules(
-        self, data: pd.DataFrame, field_requirements: Dict[str, Any]
+        self, data: pd.DataFrame, field_requirements: dict[str, Any]
     ) -> float:
         """Assess freshness using validation_rules with severity-aware scoring.
 

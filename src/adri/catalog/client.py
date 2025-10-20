@@ -13,7 +13,7 @@ import json
 import os
 import ssl
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 # Minimal HTTP adapter using stdlib urllib for simple GET operations
 try:
@@ -31,7 +31,7 @@ class HttpResponse:
     """HTTP response container for UrlLibHttpAdapter GET requests."""
 
     status: int
-    headers: Dict[str, str]
+    headers: dict[str, str]
     data: bytes
     url: str
 
@@ -90,15 +90,15 @@ class CatalogEntry:
     version: str
     description: str
     path: str
-    tags: List[str] = field(default_factory=list)
-    sha256: Optional[str] = None
+    tags: list[str] = field(default_factory=list)
+    sha256: str | None = None
 
 
 @dataclass
 class CatalogListResponse:
     """Response payload for listing catalog entries."""
 
-    entries: List[CatalogEntry]
+    entries: list[CatalogEntry]
     source_url: str
 
 
@@ -113,7 +113,7 @@ class FetchResult:
 class CatalogClient:
     """Remote catalog client for listing and fetching ADRI standards."""
 
-    def __init__(self, config: CatalogConfig, http: Optional[UrlLibHttpAdapter] = None):
+    def __init__(self, config: CatalogConfig, http: UrlLibHttpAdapter | None = None):
         """Initialize the catalog client with configuration and optional HTTP adapter."""
         if not config or not config.base_url:
             raise ValueError("CatalogConfig with a valid base_url is required")
@@ -121,7 +121,7 @@ class CatalogClient:
         self.http = http or UrlLibHttpAdapter()
 
     @staticmethod
-    def resolve_base_url() -> Optional[str]:
+    def resolve_base_url() -> str | None:
         """
         Resolve the catalog base URL from environment or ADRI/config.yaml.
 
@@ -168,7 +168,7 @@ class CatalogClient:
             raise ValueError(f"Invalid JSON from {url}: {e}") from e
 
     @staticmethod
-    def _coerce_entry(d: Dict[str, Any]) -> CatalogEntry:
+    def _coerce_entry(d: dict[str, Any]) -> CatalogEntry:
         # Coerce/validate minimal fields with fallbacks
         entry_id = str(
             d.get("id") or d.get("name") or d.get("path") or "unknown"
@@ -202,7 +202,7 @@ class CatalogClient:
         payload = self._get_json(index_url)
 
         # Accept either {"entries": [...]} or a bare list
-        raw_entries: List[Dict[str, Any]]
+        raw_entries: list[dict[str, Any]]
         if (
             isinstance(payload, dict)
             and "entries" in payload
@@ -216,7 +216,7 @@ class CatalogClient:
                 "Catalog index JSON must be a list or contain an 'entries' list"
             )
 
-        entries: List[CatalogEntry] = []
+        entries: list[CatalogEntry] = []
         for item in raw_entries:
             if isinstance(item, dict):
                 try:

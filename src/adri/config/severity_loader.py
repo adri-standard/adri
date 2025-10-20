@@ -5,7 +5,6 @@ Loads and manages default severity assignments for auto-generated validation rul
 
 import os
 from pathlib import Path
-from typing import Dict, Optional
 
 import yaml
 
@@ -26,7 +25,7 @@ class SeverityDefaultsLoader:
     """
 
     _instance = None
-    _config: Optional[Dict] = None
+    _config: dict | None = None
 
     def __new__(cls):
         """Implement singleton pattern for config caching."""
@@ -50,7 +49,7 @@ class SeverityDefaultsLoader:
             config_file = Path(env_config_path)
 
         try:
-            with open(config_file, "r", encoding="utf-8") as f:
+            with open(config_file, encoding="utf-8") as f:
                 self._config = yaml.safe_load(f)
         except Exception as e:
             # Fallback to hardcoded defaults if config file can't be loaded
@@ -62,7 +61,7 @@ class SeverityDefaultsLoader:
             )
             self._config = self._get_hardcoded_defaults()
 
-    def _get_hardcoded_defaults(self) -> Dict:
+    def _get_hardcoded_defaults(self) -> dict:
         """Get hardcoded default configuration as fallback."""
         return {
             "severity_defaults": {
@@ -151,7 +150,7 @@ class SeverityDefaultsLoader:
             # Fallback to default on any error
             return Severity.from_string(default)
 
-    def get_all_defaults(self) -> Dict[str, Dict[str, str]]:
+    def get_all_defaults(self) -> dict[str, dict[str, str]]:
         """Get all severity defaults organized by dimension.
 
         Returns:

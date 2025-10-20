@@ -6,7 +6,7 @@ defined in ADRI standards.
 """
 
 from collections import defaultdict
-from typing import Any, Dict, List
+from typing import Any
 
 import pandas as pd
 
@@ -33,7 +33,7 @@ class ValidityAssessor(DimensionAssessor):
         """Get the name of this dimension."""
         return "validity"
 
-    def assess(self, data: Any, requirements: Dict[str, Any]) -> float:
+    def assess(self, data: Any, requirements: dict[str, Any]) -> float:
         """Assess validity dimension for the given data.
 
         Args:
@@ -105,7 +105,7 @@ class ValidityAssessor(DimensionAssessor):
         return success_rate * 20.0
 
     def _assess_validity_simple(
-        self, data: pd.DataFrame, field_requirements: Dict[str, Any]
+        self, data: pd.DataFrame, field_requirements: dict[str, Any]
     ) -> float:
         """Perform simple validity assessment using field requirements."""
         total_checks = 0
@@ -144,9 +144,9 @@ class ValidityAssessor(DimensionAssessor):
     def _assess_validity_weighted(
         self,
         data: pd.DataFrame,
-        field_requirements: Dict[str, Any],
-        rule_weights_cfg: Dict[str, float],
-        field_overrides_cfg: Dict[str, Dict[str, float]],
+        field_requirements: dict[str, Any],
+        rule_weights_cfg: dict[str, float],
+        field_overrides_cfg: dict[str, dict[str, float]],
     ) -> float:
         """Weighted validity assessment using rule weights."""
         RULE_KEYS = [
@@ -182,7 +182,7 @@ class ValidityAssessor(DimensionAssessor):
         return S * 20.0
 
     def _compute_validity_rule_counts(
-        self, data: pd.DataFrame, field_requirements: Dict[str, Any]
+        self, data: pd.DataFrame, field_requirements: dict[str, Any]
     ) -> tuple:
         """Compute totals and passes per rule type and per field."""
         RULE_KEYS = [
@@ -195,7 +195,7 @@ class ValidityAssessor(DimensionAssessor):
         ]
 
         counts = {rk: {"passed": 0, "total": 0} for rk in RULE_KEYS}
-        per_field_counts: Dict[str, Dict[str, Dict[str, int]]] = defaultdict(
+        per_field_counts: dict[str, dict[str, dict[str, int]]] = defaultdict(
             lambda: {rk: {"passed": 0, "total": 0} for rk in RULE_KEYS}
         )
 
@@ -269,9 +269,9 @@ class ValidityAssessor(DimensionAssessor):
 
     def _apply_global_rule_weights(
         self,
-        counts: Dict[str, Dict[str, int]],
-        rule_weights_cfg: Dict[str, float],
-        rule_keys: List[str],
+        counts: dict[str, dict[str, int]],
+        rule_weights_cfg: dict[str, float],
+        rule_keys: list[str],
     ) -> tuple:
         """Apply normalized global rule weights to aggregate score."""
         S_raw = 0.0
@@ -293,9 +293,9 @@ class ValidityAssessor(DimensionAssessor):
 
     def _apply_field_overrides(
         self,
-        per_field_counts: Dict[str, Dict[str, Dict[str, int]]],
-        overrides_cfg: Dict[str, Dict[str, float]],
-        rule_keys: List[str],
+        per_field_counts: dict[str, dict[str, dict[str, int]]],
+        overrides_cfg: dict[str, dict[str, float]],
+        rule_keys: list[str],
     ) -> tuple:
         """Apply field-level overrides to aggregate score."""
         S_add = 0.0
@@ -329,12 +329,12 @@ class ValidityAssessor(DimensionAssessor):
 
     def _normalize_rule_weights(
         self,
-        rule_weights_cfg: Dict[str, float],
-        rule_keys: List[str],
-        counts: Dict[str, Dict[str, int]],
-    ) -> Dict[str, float]:
+        rule_weights_cfg: dict[str, float],
+        rule_keys: list[str],
+        counts: dict[str, dict[str, int]],
+    ) -> dict[str, float]:
         """Normalize rule weights: clamp negatives, drop unknowns, equalize when zero."""
-        applied: Dict[str, float] = {}
+        applied: dict[str, float] = {}
         for rk, w in (rule_weights_cfg or {}).items():
             if rk not in rule_keys:
                 continue
@@ -370,8 +370,8 @@ class ValidityAssessor(DimensionAssessor):
         return bool(re.match(pattern, email))
 
     def get_validation_failures(
-        self, data: pd.DataFrame, requirements: Dict[str, Any]
-    ) -> List[Dict[str, Any]]:
+        self, data: pd.DataFrame, requirements: dict[str, Any]
+    ) -> list[dict[str, Any]]:
         """Extract detailed validation failures for audit logging.
 
         Args:
@@ -505,7 +505,7 @@ class ValidityAssessor(DimensionAssessor):
         return failures
 
     def _get_remediation_text(
-        self, rule_type: str, field_name: str, field_req: Dict[str, Any]
+        self, rule_type: str, field_name: str, field_req: dict[str, Any]
     ) -> str:
         """Generate remediation text for a specific validation failure."""
         if rule_type == "type":
@@ -513,9 +513,7 @@ class ValidityAssessor(DimensionAssessor):
             return f"Fix {field_name} to match expected type: {expected_type}"
         elif rule_type == "allowed_values":
             allowed = field_req.get("allowed_values", [])
-            return f"Use only allowed values for {field_name}: {', '.join(
-                    str(v) for v in allowed[
-                        :5])}"
+            return f"Use only allowed values for {field_name}: {', '.join(str(v) for v in allowed[:5])}"
         elif rule_type == "length_bounds":
             min_len = field_req.get("min_length")
             max_len = field_req.get("max_length")
@@ -549,7 +547,7 @@ class ValidityAssessor(DimensionAssessor):
         else:
             return f"Fix validation issue with {field_name}"
 
-    def _has_validation_rules_format(self, field_requirements: Dict[str, Any]) -> bool:
+    def _has_validation_rules_format(self, field_requirements: dict[str, Any]) -> bool:
         """Check if field_requirements use new validation_rules format.
 
         Args:
@@ -565,7 +563,7 @@ class ValidityAssessor(DimensionAssessor):
         return False
 
     def _assess_validity_with_rules(
-        self, data: pd.DataFrame, field_requirements: Dict[str, Any]
+        self, data: pd.DataFrame, field_requirements: dict[str, Any]
     ) -> float:
         """Assess validity using validation_rules with severity-aware scoring.
 

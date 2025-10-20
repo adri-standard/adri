@@ -5,10 +5,10 @@ Field-level validation logic extracted from the original AssessmentEngine.
 Contains functions for type checking, pattern matching, and range validation.
 """
 
-from typing import Any, Dict
+from typing import Any
 
 
-def check_field_type(value: Any, field_req: Dict[str, Any]) -> bool:
+def check_field_type(value: Any, field_req: dict[str, Any]) -> bool:
     """Check if value matches the required type."""
     required_type = field_req.get("type", "string")
 
@@ -43,7 +43,7 @@ def check_field_type(value: Any, field_req: Dict[str, Any]) -> bool:
     return True
 
 
-def check_field_pattern(value: Any, field_req: Dict[str, Any]) -> bool:
+def check_field_pattern(value: Any, field_req: dict[str, Any]) -> bool:
     """Check if value matches the required pattern (e.g., email regex)."""
     pattern = field_req.get("pattern")
     if not pattern:
@@ -57,7 +57,7 @@ def check_field_pattern(value: Any, field_req: Dict[str, Any]) -> bool:
         return False
 
 
-def check_field_range(value: Any, field_req: Dict[str, Any]) -> bool:
+def check_field_range(value: Any, field_req: dict[str, Any]) -> bool:
     """Check if value is within the required numeric range."""
     try:
         numeric_value = float(value)
@@ -77,7 +77,7 @@ def check_field_range(value: Any, field_req: Dict[str, Any]) -> bool:
         return True
 
 
-def check_allowed_values(value: Any, field_req: Dict[str, Any]) -> bool:
+def check_allowed_values(value: Any, field_req: dict[str, Any]) -> bool:
     """Check if value is one of the allowed_values when specified."""
     allowed = field_req.get("allowed_values")
     if not allowed:
@@ -96,7 +96,7 @@ def check_allowed_values(value: Any, field_req: Dict[str, Any]) -> bool:
         return False
 
 
-def check_length_bounds(value: Any, field_req: Dict[str, Any]) -> bool:
+def check_length_bounds(value: Any, field_req: dict[str, Any]) -> bool:
     """Check string length against min_length/max_length if present."""
     min_len = field_req.get("min_length")
     max_len = field_req.get("max_length")
@@ -159,7 +159,7 @@ def _parse_date_like(value: Any):
     return None
 
 
-def check_date_bounds(value: Any, field_req: Dict[str, Any]) -> bool:
+def check_date_bounds(value: Any, field_req: dict[str, Any]) -> bool:
     """Check after/before bounds for date or datetime fields.
 
     Supports keys:
@@ -406,7 +406,7 @@ _VALIDATION_HANDLERS = {
 }
 
 
-def execute_validation_rule(value: Any, rule, field_req: Dict[str, Any] = None) -> bool:
+def execute_validation_rule(value: Any, rule, field_req: dict[str, Any] = None) -> bool:
     """Execute a ValidationRule using dispatch table pattern.
 
     Refactored from complex if/elif chain to dispatch table for maintainability.
@@ -474,8 +474,8 @@ def get_rule_type_for_field_constraint(constraint_name: str) -> str:
 
 
 def validate_field(
-    field_name: str, value: Any, field_requirements: Dict[str, Any]
-) -> Dict[str, Any]:
+    field_name: str, value: Any, field_requirements: dict[str, Any]
+) -> dict[str, Any]:
     """
     Validate a single field value against its requirements.
 

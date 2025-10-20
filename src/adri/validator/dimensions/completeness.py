@@ -5,7 +5,7 @@ This module contains the CompletenessAssessor class that evaluates data complete
 ADRI standards.
 """
 
-from typing import Any, Dict
+from typing import Any
 
 import pandas as pd
 
@@ -23,7 +23,7 @@ class CompletenessAssessor(DimensionAssessor):
         """Get the name of this dimension."""
         return "completeness"
 
-    def assess(self, data: Any, requirements: Dict[str, Any]) -> float:
+    def assess(self, data: Any, requirements: dict[str, Any]) -> float:
         """Assess completeness dimension for the given data.
 
         Args:
@@ -62,7 +62,7 @@ class CompletenessAssessor(DimensionAssessor):
         return float(completeness_rate * 20.0)
 
     def _assess_completeness_with_requirements(
-        self, data: pd.DataFrame, field_requirements: Dict[str, Any]
+        self, data: pd.DataFrame, field_requirements: dict[str, Any]
     ) -> float:
         """Assess completeness using field requirements (focusing on non-nullable fields)."""
         # Identify required (non-nullable) fields
@@ -95,8 +95,8 @@ class CompletenessAssessor(DimensionAssessor):
         return float(completeness_rate * 20.0)
 
     def get_completeness_breakdown(
-        self, data: pd.DataFrame, field_requirements: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, data: pd.DataFrame, field_requirements: dict[str, Any]
+    ) -> dict[str, Any]:
         """Get detailed completeness breakdown for reporting.
 
         Args:
@@ -113,7 +113,7 @@ class CompletenessAssessor(DimensionAssessor):
         ]
 
         required_total = len(data) * len(required_fields) if len(data) > 0 else 0
-        per_field_missing: Dict[str, int] = {}
+        per_field_missing: dict[str, int] = {}
 
         for col in required_fields:
             if col in data.columns:
@@ -150,7 +150,7 @@ class CompletenessAssessor(DimensionAssessor):
         }
 
     def assess_with_requirements(
-        self, data: pd.DataFrame, requirements: Dict[str, Any]
+        self, data: pd.DataFrame, requirements: dict[str, Any]
     ) -> float:
         """Assess completeness with explicit requirements for backward compatibility.
 
@@ -179,7 +179,7 @@ class CompletenessAssessor(DimensionAssessor):
         return self._assess_completeness_basic(data)
 
     def get_validation_failures(
-        self, data: pd.DataFrame, requirements: Dict[str, Any]
+        self, data: pd.DataFrame, requirements: dict[str, Any]
     ) -> list:
         """Extract detailed completeness failures for audit logging.
 
@@ -190,9 +190,8 @@ class CompletenessAssessor(DimensionAssessor):
         Returns:
             List of failure records with details about missing required values
         """
-        from typing import List
 
-        failures: List[Dict[str, Any]] = []
+        failures: list[dict[str, Any]] = []
         field_requirements = requirements.get("field_requirements", {})
 
         if not field_requirements:
@@ -252,7 +251,7 @@ class CompletenessAssessor(DimensionAssessor):
 
         return failures
 
-    def _has_validation_rules_format(self, field_requirements: Dict[str, Any]) -> bool:
+    def _has_validation_rules_format(self, field_requirements: dict[str, Any]) -> bool:
         """Check if field_requirements use new validation_rules format.
 
         Args:
@@ -268,7 +267,7 @@ class CompletenessAssessor(DimensionAssessor):
         return False
 
     def _assess_completeness_with_rules(
-        self, data: pd.DataFrame, field_requirements: Dict[str, Any]
+        self, data: pd.DataFrame, field_requirements: dict[str, Any]
     ) -> float:
         """Assess completeness using validation_rules with severity-aware scoring.
 

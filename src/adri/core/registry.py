@@ -9,7 +9,7 @@ import importlib
 import inspect
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Any, Dict, List, Optional, TypeVar
+from typing import Any, TypeVar
 
 from .exceptions import (
     ComponentNotFoundError,
@@ -29,8 +29,8 @@ class ComponentRegistry(ABC):
 
     def __init__(self):
         """Initialize the component registry."""
-        self._components: Dict[str, Any] = {}
-        self._aliases: Dict[str, str] = {}
+        self._components: dict[str, Any] = {}
+        self._aliases: dict[str, str] = {}
 
     @abstractmethod
     def get_component_type_name(self) -> str:
@@ -39,10 +39,9 @@ class ComponentRegistry(ABC):
         Returns:
             Component type name for error messages
         """
-        pass
 
     def register(
-        self, name: str, component: Any, aliases: Optional[List[str]] = None
+        self, name: str, component: Any, aliases: list[str] | None = None
     ) -> None:
         """Register a component in the registry.
 
@@ -122,7 +121,7 @@ class ComponentRegistry(ABC):
         for alias in aliases_to_remove:
             del self._aliases[alias]
 
-    def list_components(self) -> List[str]:
+    def list_components(self) -> list[str]:
         """List all registered component names.
 
         Returns:
@@ -130,7 +129,7 @@ class ComponentRegistry(ABC):
         """
         return list(self._components.keys())
 
-    def list_aliases(self) -> Dict[str, str]:
+    def list_aliases(self) -> dict[str, str]:
         """List all registered aliases and their targets.
 
         Returns:
@@ -153,7 +152,6 @@ class ComponentRegistry(ABC):
         Raises:
             ComponentRegistrationError: If component is invalid
         """
-        pass
 
 
 class DimensionRegistry(ComponentRegistry):
@@ -209,7 +207,7 @@ class DimensionRegistry(ComponentRegistry):
         return component
 
     def assess_dimension(
-        self, dimension_name: str, data: Any, requirements: Dict[str, Any]
+        self, dimension_name: str, data: Any, requirements: dict[str, Any]
     ) -> float:
         """Assess a dimension using the registered assessor.
 
@@ -280,7 +278,7 @@ class CommandRegistry(ComponentRegistry):
 
         return component
 
-    def execute_command(self, command_name: str, args: Dict[str, Any]) -> int:
+    def execute_command(self, command_name: str, args: dict[str, Any]) -> int:
         """Execute a command with the given arguments.
 
         Args:
@@ -333,7 +331,7 @@ class LoaderRegistry(ComponentRegistry):
                     "Loader instance must implement 'load' method"
                 )
 
-    def get_loader_for_format(self, file_format: str) -> Optional[Any]:
+    def get_loader_for_format(self, file_format: str) -> Any | None:
         """Get a loader that supports the specified file format.
 
         Args:
@@ -402,7 +400,7 @@ class SerializerRegistry(ComponentRegistry):
                         f"Serializer instance must implement '{method_name}' method"
                     )
 
-    def get_serializer_for_format(self, format_name: str) -> Optional[Any]:
+    def get_serializer_for_format(self, format_name: str) -> Any | None:
         """Get a serializer that supports the specified format.
 
         Args:
@@ -607,7 +605,7 @@ class GlobalRegistry:
 
 
 # Global registry instance
-_global_registry: Optional[GlobalRegistry] = None
+_global_registry: GlobalRegistry | None = None
 
 
 def get_global_registry() -> GlobalRegistry:
@@ -622,7 +620,7 @@ def get_global_registry() -> GlobalRegistry:
     return _global_registry
 
 
-def create_command_registry() -> Dict[str, Command]:
+def create_command_registry() -> dict[str, Command]:
     """Create a dictionary of all registered commands.
 
     Returns:

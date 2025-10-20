@@ -5,7 +5,7 @@ This module contains the PlausibilityAssessor class that evaluates data plausibi
 defined in ADRI standards.
 """
 
-from typing import Any, Dict
+from typing import Any
 
 import pandas as pd
 
@@ -25,7 +25,7 @@ class PlausibilityAssessor(DimensionAssessor):
         """Get the name of this dimension."""
         return "plausibility"
 
-    def assess(self, data: Any, requirements: Dict[str, Any]) -> float:
+    def assess(self, data: Any, requirements: dict[str, Any]) -> float:
         """Assess plausibility dimension for the given data.
 
         Args:
@@ -67,7 +67,7 @@ class PlausibilityAssessor(DimensionAssessor):
         return self._assess_plausibility_with_rules(data, active_weights)
 
     def _assess_plausibility_with_rules(
-        self, data: pd.DataFrame, active_weights: Dict[str, float]
+        self, data: pd.DataFrame, active_weights: dict[str, float]
     ) -> float:
         """Assess plausibility using active rule weights."""
         rule_results = self._execute_plausibility_rules(data, active_weights)
@@ -86,8 +86,8 @@ class PlausibilityAssessor(DimensionAssessor):
         return float(score)
 
     def _execute_plausibility_rules(
-        self, data: pd.DataFrame, active_weights: Dict[str, float]
-    ) -> Dict[str, Any]:
+        self, data: pd.DataFrame, active_weights: dict[str, float]
+    ) -> dict[str, Any]:
         """Execute plausibility rules that are distinct from validity rules."""
         results = {}
 
@@ -111,7 +111,7 @@ class PlausibilityAssessor(DimensionAssessor):
 
         return results
 
-    def _assess_statistical_outliers(self, data: pd.DataFrame) -> Dict[str, Any]:
+    def _assess_statistical_outliers(self, data: pd.DataFrame) -> dict[str, Any]:
         """Assess statistical outliers using IQR method (distinct from validity bounds)."""
         passed = 0
         total = 0
@@ -142,7 +142,7 @@ class PlausibilityAssessor(DimensionAssessor):
             "pass_rate": (passed / total) if total > 0 else 1.0,
         }
 
-    def _assess_categorical_frequency(self, data: pd.DataFrame) -> Dict[str, Any]:
+    def _assess_categorical_frequency(self, data: pd.DataFrame) -> dict[str, Any]:
         """Assess categorical frequency - flag rare categories."""
         passed = 0
         total = 0
@@ -169,14 +169,14 @@ class PlausibilityAssessor(DimensionAssessor):
             "pass_rate": (passed / total) if total > 0 else 1.0,
         }
 
-    def _assess_business_logic(self, data: pd.DataFrame) -> Dict[str, Any]:
+    def _assess_business_logic(self, data: pd.DataFrame) -> dict[str, Any]:
         """Assess business logic rules (placeholder - can be extended with domain rules)."""
         # Placeholder implementation - assume all values pass business logic for now
         # In a real implementation, this would check domain-specific rules
         total = len(data) if not data.empty else 0
         return {"passed": total, "total": total, "pass_rate": 1.0}
 
-    def _assess_cross_field_consistency(self, data: pd.DataFrame) -> Dict[str, Any]:
+    def _assess_cross_field_consistency(self, data: pd.DataFrame) -> dict[str, Any]:
         """Assess cross-field consistency (placeholder - could check field relationships)."""
         # Placeholder implementation - assume all records are consistent for now
         # In a real implementation, this would check relationships between fields
@@ -184,8 +184,8 @@ class PlausibilityAssessor(DimensionAssessor):
         return {"passed": total, "total": total, "pass_rate": 1.0}
 
     def get_plausibility_breakdown(
-        self, data: pd.DataFrame, requirements: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, data: pd.DataFrame, requirements: dict[str, Any]
+    ) -> dict[str, Any]:
         """Get detailed plausibility breakdown for reporting.
 
         Args:
@@ -264,7 +264,7 @@ class PlausibilityAssessor(DimensionAssessor):
         }
 
     def assess_with_config(
-        self, data: pd.DataFrame, plausibility_config: Dict[str, Any]
+        self, data: pd.DataFrame, plausibility_config: dict[str, Any]
     ) -> float:
         """Assess plausibility with explicit configuration for backward compatibility.
 
@@ -321,7 +321,7 @@ class PlausibilityAssessor(DimensionAssessor):
 
         return 20.0  # Perfect score
 
-    def _has_validation_rules_format(self, field_requirements: Dict[str, Any]) -> bool:
+    def _has_validation_rules_format(self, field_requirements: dict[str, Any]) -> bool:
         """Check if field_requirements use new validation_rules format.
 
         Args:
@@ -337,7 +337,7 @@ class PlausibilityAssessor(DimensionAssessor):
         return False
 
     def _assess_plausibility_with_validation_rules(
-        self, data: pd.DataFrame, field_requirements: Dict[str, Any]
+        self, data: pd.DataFrame, field_requirements: dict[str, Any]
     ) -> float:
         """Assess plausibility using validation_rules with severity-aware scoring.
 

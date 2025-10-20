@@ -5,7 +5,7 @@ inference including type detection, constraint generation, and rule creation
 for individual data fields.
 """
 
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import pandas as pd
 
@@ -31,15 +31,14 @@ class FieldInferenceEngine:
 
     def __init__(self):
         """Initialize the field inference engine."""
-        pass
 
     def infer_field_requirements(
         self,
         data: pd.DataFrame,
-        field_profile: Dict[str, Any],
+        field_profile: dict[str, Any],
         config: InferenceConfig,
-        pk_fields: Optional[List[str]] = None,
-    ) -> Dict[str, Any]:
+        pk_fields: list[str] | None = None,
+    ) -> dict[str, Any]:
         """Infer comprehensive requirements for all fields in the data.
 
         Args:
@@ -66,11 +65,11 @@ class FieldInferenceEngine:
 
     def build_field_requirement(
         self,
-        field_profile: Dict[str, Any],
+        field_profile: dict[str, Any],
         series: pd.Series,
         config: InferenceConfig,
-        pk_fields: Optional[List[str]] = None,
-    ) -> Dict[str, Any]:
+        pk_fields: list[str] | None = None,
+    ) -> dict[str, Any]:
         """Construct comprehensive field requirement using inference utilities.
 
         Args:
@@ -82,7 +81,7 @@ class FieldInferenceEngine:
         Returns:
             Field requirement dictionary with validation_rules format
         """
-        req: Dict[str, Any] = {}
+        req: dict[str, Any] = {}
 
         # 1) Type and nullability inference
         type_info = self.infer_type_and_nullability(field_profile, series, config)
@@ -127,8 +126,8 @@ class FieldInferenceEngine:
         return req
 
     def infer_type_and_nullability(
-        self, field_profile: Dict[str, Any], series: pd.Series, config: InferenceConfig
-    ) -> Dict[str, Any]:
+        self, field_profile: dict[str, Any], series: pd.Series, config: InferenceConfig
+    ) -> dict[str, Any]:
         """Infer field type and nullability from profile and data.
 
         Args:
@@ -177,9 +176,9 @@ class FieldInferenceEngine:
         self,
         series: pd.Series,
         config: InferenceConfig,
-        col_name: Optional[str],
-        pk_fields: Optional[List[str]],
-    ) -> Optional[List[Any]]:
+        col_name: str | None,
+        pk_fields: list[str] | None,
+    ) -> list[Any] | None:
         """Infer allowed values (enums) for categorical fields.
 
         Args:
@@ -217,7 +216,7 @@ class FieldInferenceEngine:
 
     def infer_numeric_bounds(
         self, series: pd.Series, config: InferenceConfig
-    ) -> Optional[tuple]:
+    ) -> tuple | None:
         """Infer numeric range bounds using configured strategy.
 
         Args:
@@ -263,7 +262,7 @@ class FieldInferenceEngine:
 
     def infer_string_constraints(
         self, series: pd.Series, config: InferenceConfig
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Infer string-specific constraints like length bounds and patterns.
 
         Args:
@@ -273,7 +272,7 @@ class FieldInferenceEngine:
         Returns:
             Dictionary with string constraint keys
         """
-        constraints: Dict[str, Any] = {}
+        constraints: dict[str, Any] = {}
 
         # Infer length bounds
         try:
@@ -297,7 +296,7 @@ class FieldInferenceEngine:
 
     def infer_date_bounds(
         self, series: pd.Series, config: InferenceConfig, is_datetime: bool = False
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Infer date/datetime bounds with appropriate field names.
 
         Args:
@@ -308,7 +307,7 @@ class FieldInferenceEngine:
         Returns:
             Dictionary with date constraint keys
         """
-        constraints: Dict[str, Any] = {}
+        constraints: dict[str, Any] = {}
 
         try:
             date_bounds = infer_date_bounds(series, margin_days=config.date_margin_days)
@@ -324,7 +323,7 @@ class FieldInferenceEngine:
 
         return constraints
 
-    def _is_id_like(self, name: Optional[str]) -> bool:
+    def _is_id_like(self, name: str | None) -> bool:
         """Heuristic to detect ID-like column names to suppress enum generation.
 
         Args:
@@ -342,8 +341,8 @@ class FieldInferenceEngine:
         return any(token in lname for token in id_tokens)
 
     def validate_field_against_rules(
-        self, value: Any, field_req: Dict[str, Any]
-    ) -> Optional[str]:
+        self, value: Any, field_req: dict[str, Any]
+    ) -> str | None:
         """Validate a single value against field requirements.
 
         Args:
@@ -386,7 +385,7 @@ class FieldInferenceEngine:
 
         return None
 
-    def prepare_observed_stats(self, data: pd.DataFrame) -> Dict[str, Dict[str, Any]]:
+    def prepare_observed_stats(self, data: pd.DataFrame) -> dict[str, dict[str, Any]]:
         """Precompute observed statistics for training-pass relaxation.
 
         Args:
@@ -395,7 +394,7 @@ class FieldInferenceEngine:
         Returns:
             Dictionary mapping field names to their observed statistics
         """
-        observed_stats: Dict[str, Dict[str, Any]] = {}
+        observed_stats: dict[str, dict[str, Any]] = {}
 
         for col in data.columns:
             series = data[col].dropna()
@@ -435,9 +434,9 @@ class FieldInferenceEngine:
         self,
         col: str,
         failing_rule: str,
-        field_req: Dict[str, Any],
-        observed_stats: Dict[str, Any],
-        adjustments_log: Dict[str, Any],
+        field_req: dict[str, Any],
+        observed_stats: dict[str, Any],
+        adjustments_log: dict[str, Any],
     ) -> None:
         """Relax a failing constraint to ensure training-pass guarantee.
 
@@ -609,8 +608,8 @@ class FieldInferenceEngine:
             )
 
     def convert_field_constraints_to_validation_rules(
-        self, field_req: Dict[str, Any], field_name: str
-    ) -> List[Dict[str, Any]]:
+        self, field_req: dict[str, Any], field_name: str
+    ) -> list[dict[str, Any]]:
         """Convert old-style field constraints to validation_rules list with severity.
 
         Args:
@@ -748,10 +747,10 @@ class FieldInferenceEngine:
         severity,
         rule_type: str,
         rule_expression: str,
-        error_message: Optional[str] = None,
-        remediation: Optional[str] = None,
+        error_message: str | None = None,
+        remediation: str | None = None,
         penalty_weight: float = 1.0,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Create a validation rule dictionary for standard generation.
 
         Args:

@@ -6,7 +6,7 @@ and displaying assessment report history.
 
 import json
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
 import click
 
@@ -24,7 +24,7 @@ class ListAssessmentsCommand(Command):
         """Get command description."""
         return "List previous assessment reports"
 
-    def execute(self, args: Dict[str, Any]) -> int:
+    def execute(self, args: dict[str, Any]) -> int:
         """Execute the list-assessments command.
 
         Args:
@@ -106,14 +106,14 @@ class ListAssessmentsCommand(Command):
         return assessments_dir
 
     def _parse_assessment_files(
-        self, assessment_files: List[Path]
-    ) -> List[Dict[str, Any]]:
+        self, assessment_files: list[Path]
+    ) -> list[dict[str, Any]]:
         """Parse assessment files and extract table data."""
-        table_data: List[Dict[str, Any]] = []
+        table_data: list[dict[str, Any]] = []
 
         for file_path in assessment_files:
             try:
-                with open(file_path, "r", encoding="utf-8") as f:
+                with open(file_path, encoding="utf-8") as f:
                     assessment_data = json.load(f)
 
                 adri_report = assessment_data.get("adri_assessment_report", {})
@@ -145,14 +145,14 @@ class ListAssessmentsCommand(Command):
 
         return table_data
 
-    def _load_audit_entries(self) -> List[Dict[str, Any]]:
+    def _load_audit_entries(self) -> list[dict[str, Any]]:
         """Load audit entries from JSONL files using ADRILogReader."""
         from datetime import datetime
 
         from ...config.loader import ConfigurationLoader
         from ...logging import ADRILogReader
 
-        audit_entries: List[Dict[str, Any]] = []
+        audit_entries: list[dict[str, Any]] = []
 
         try:
             config_loader = ConfigurationLoader()
@@ -200,8 +200,8 @@ class ListAssessmentsCommand(Command):
         return audit_entries
 
     def _enhance_with_record_counts(
-        self, table_data: List[Dict[str, Any]], audit_entries: List[Dict[str, Any]]
-    ) -> List[Dict[str, Any]]:
+        self, table_data: list[dict[str, Any]], audit_entries: list[dict[str, Any]]
+    ) -> list[dict[str, Any]]:
         """Enhance table data with record count information from audit logs."""
         enhanced = []
 
@@ -230,8 +230,8 @@ class ListAssessmentsCommand(Command):
 
     def _display_assessments_table(
         self,
-        enhanced_table_data: List[Dict[str, Any]],
-        table_data: List[Dict[str, Any]],
+        enhanced_table_data: list[dict[str, Any]],
+        table_data: list[dict[str, Any]],
         verbose: bool,
     ) -> None:
         """Display assessments in a formatted table."""

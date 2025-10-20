@@ -5,7 +5,7 @@ construction and assembly of ADRI standards from analyzed components.
 """
 
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import pandas as pd
 
@@ -31,9 +31,9 @@ class StandardBuilder:
         self,
         data: pd.DataFrame,
         data_name: str,
-        data_profile: Dict[str, Any],
-        generation_config: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
+        data_profile: dict[str, Any],
+        generation_config: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         """Build a complete ADRI standard from data and profile.
 
         Args:
@@ -89,7 +89,7 @@ class StandardBuilder:
 
         return standard
 
-    def _build_standards_metadata(self, data_name: str) -> Dict[str, Any]:
+    def _build_standards_metadata(self, data_name: str) -> dict[str, Any]:
         """Build the standards section metadata.
 
         Args:
@@ -108,7 +108,7 @@ class StandardBuilder:
 
     def _detect_primary_key_fields(
         self, data: pd.DataFrame, config: InferenceConfig
-    ) -> List[str]:
+    ) -> list[str]:
         """Detect primary key fields in the data.
 
         Args:
@@ -126,7 +126,7 @@ class StandardBuilder:
 
         return pk_fields or []
 
-    def _build_record_identification(self, pk_fields: List[str]) -> Dict[str, Any]:
+    def _build_record_identification(self, pk_fields: list[str]) -> dict[str, Any]:
         """Build record identification configuration.
 
         Args:
@@ -140,7 +140,7 @@ class StandardBuilder:
             "strategy": "primary_key_with_fallback",
         }
 
-    def _build_base_metadata(self) -> Dict[str, Any]:
+    def _build_base_metadata(self) -> dict[str, Any]:
         """Build base metadata structure for the standard.
 
         Returns:
@@ -158,7 +158,7 @@ class StandardBuilder:
             "explanations": {},  # Will be populated by ExplanationGenerator
         }
 
-    def _populate_rule_weights(self, standard: Dict[str, Any]) -> None:
+    def _populate_rule_weights(self, standard: dict[str, Any]) -> None:
         """Populate rule weights dynamically based on detected rules.
 
         Now supports both old format (field constraints) and new format (validation_rules).
@@ -195,9 +195,9 @@ class StandardBuilder:
 
     def _populate_rule_weights_from_validation_rules(
         self,
-        dimension_reqs: Dict[str, Any],
-        field_reqs: Dict[str, Any],
-        pk_fields: List[str],
+        dimension_reqs: dict[str, Any],
+        field_reqs: dict[str, Any],
+        pk_fields: list[str],
     ) -> None:
         """Populate rule weights from validation_rules structure.
 
@@ -272,9 +272,9 @@ class StandardBuilder:
 
     def _populate_rule_weights_from_constraints(
         self,
-        dimension_reqs: Dict[str, Any],
-        field_reqs: Dict[str, Any],
-        pk_fields: List[str],
+        dimension_reqs: dict[str, Any],
+        field_reqs: dict[str, Any],
+        pk_fields: list[str],
     ) -> None:
         """Populate rule weights from old-style field constraints (backward compatible).
 
@@ -368,8 +368,8 @@ class StandardBuilder:
         self.dimension_builder.normalize_rule_weights(dimension_reqs, "plausibility")
 
     def enforce_training_pass_guarantee(
-        self, data: pd.DataFrame, standard: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, data: pd.DataFrame, standard: dict[str, Any]
+    ) -> dict[str, Any]:
         """Ensure the generated standard passes on its training data.
 
         Args:
@@ -431,8 +431,8 @@ class StandardBuilder:
         return standard
 
     def detect_and_configure_freshness(
-        self, data: pd.DataFrame, standard: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, data: pd.DataFrame, standard: dict[str, Any]
+    ) -> dict[str, Any]:
         """Detect date fields and configure freshness checking if appropriate.
 
         Args:
@@ -520,8 +520,8 @@ class StandardBuilder:
         return standard
 
     def add_generation_metadata(
-        self, standard: Dict[str, Any], data_name: str
-    ) -> Dict[str, Any]:
+        self, standard: dict[str, Any], data_name: str
+    ) -> dict[str, Any]:
         """Add generation-specific metadata to the standard.
 
         Args:
@@ -552,7 +552,7 @@ class StandardBuilder:
 
         return standard
 
-    def _get_severity_config_lineage(self) -> Optional[Dict[str, Any]]:
+    def _get_severity_config_lineage(self) -> dict[str, Any] | None:
         """Get lineage information for severity config used in generation.
 
         Returns:
@@ -599,7 +599,7 @@ class StandardBuilder:
             # Non-fatal - just skip lineage if can't be determined
             return None
 
-    def add_plausibility_templates(self, standard: Dict[str, Any]) -> Dict[str, Any]:
+    def add_plausibility_templates(self, standard: dict[str, Any]) -> dict[str, Any]:
         """Add plausibility configuration templates to metadata.
 
         Args:
@@ -673,7 +673,7 @@ class StandardBuilder:
 
         return df
 
-    def validate_standard_structure(self, standard: Dict[str, Any]) -> List[str]:
+    def validate_standard_structure(self, standard: dict[str, Any]) -> list[str]:
         """Validate the structure of a generated standard.
 
         Args:
@@ -738,7 +738,7 @@ class StandardBuilder:
 
         return errors
 
-    def get_generation_summary(self, standard: Dict[str, Any]) -> Dict[str, Any]:
+    def get_generation_summary(self, standard: dict[str, Any]) -> dict[str, Any]:
         """Generate a summary of the created standard.
 
         Args:

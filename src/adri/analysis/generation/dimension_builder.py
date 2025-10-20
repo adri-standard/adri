@@ -6,7 +6,7 @@ for ADRI standards.
 """
 
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 class DimensionRequirementsBuilder:
@@ -19,11 +19,10 @@ class DimensionRequirementsBuilder:
 
     def __init__(self):
         """Initialize the dimension requirements builder."""
-        pass
 
     def build_dimension_requirements(
-        self, thresholds: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, thresholds: dict[str, Any]
+    ) -> dict[str, Any]:
         """Generate comprehensive dimension requirements with scoring policies.
 
         Args:
@@ -41,8 +40,8 @@ class DimensionRequirementsBuilder:
         }
 
     def _build_validity_requirements(
-        self, thresholds: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, thresholds: dict[str, Any]
+    ) -> dict[str, Any]:
         """Build validity dimension requirements with rule weights.
 
         Args:
@@ -61,8 +60,8 @@ class DimensionRequirementsBuilder:
         }
 
     def _build_completeness_requirements(
-        self, thresholds: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, thresholds: dict[str, Any]
+    ) -> dict[str, Any]:
         """Build completeness dimension requirements.
 
         Args:
@@ -81,8 +80,8 @@ class DimensionRequirementsBuilder:
         }
 
     def _build_consistency_requirements(
-        self, thresholds: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, thresholds: dict[str, Any]
+    ) -> dict[str, Any]:
         """Build consistency dimension requirements.
 
         Args:
@@ -101,8 +100,8 @@ class DimensionRequirementsBuilder:
         }
 
     def _build_freshness_requirements(
-        self, thresholds: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, thresholds: dict[str, Any]
+    ) -> dict[str, Any]:
         """Build freshness dimension requirements.
 
         Args:
@@ -124,8 +123,8 @@ class DimensionRequirementsBuilder:
         }
 
     def _build_plausibility_requirements(
-        self, thresholds: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, thresholds: dict[str, Any]
+    ) -> dict[str, Any]:
         """Build plausibility dimension requirements with distinct rule types.
 
         Args:
@@ -144,7 +143,7 @@ class DimensionRequirementsBuilder:
         }
 
     def normalize_rule_weights(
-        self, dimension_config: Dict[str, Any], dimension_name: str
+        self, dimension_config: dict[str, Any], dimension_name: str
     ) -> None:
         """Normalize rule weights so active rules sum to 1.0.
 
@@ -167,7 +166,7 @@ class DimensionRequirementsBuilder:
                 rule_weights[rule_type] = active_weights[rule_type] / total
 
     def enable_freshness_checking(
-        self, dimension_reqs: Dict[str, Any], date_field: str, window_days: int = 365
+        self, dimension_reqs: dict[str, Any], date_field: str, window_days: int = 365
     ) -> None:
         """Enable freshness checking for a detected date field.
 
@@ -183,8 +182,8 @@ class DimensionRequirementsBuilder:
             rule_weights["recency_window"] = 1.0
 
     def create_freshness_metadata(
-        self, date_field: str, window_days: int = 365, as_of_date: Optional[Any] = None
-    ) -> Dict[str, Any]:
+        self, date_field: str, window_days: int = 365, as_of_date: Any | None = None
+    ) -> dict[str, Any]:
         """Create freshness metadata configuration.
 
         Args:
@@ -237,8 +236,8 @@ class DimensionRequirementsBuilder:
         )
 
     def apply_dimension_preset(
-        self, dimension_reqs: Dict[str, Any], preset: str
-    ) -> Dict[str, str]:
+        self, dimension_reqs: dict[str, Any], preset: str
+    ) -> dict[str, str]:
         """Apply a dimension scoring preset to modify weights and minimums.
 
         Args:
@@ -292,7 +291,7 @@ class DimensionRequirementsBuilder:
 
         return {f"preset_{preset}_applied": changes}
 
-    def _get_dimension_presets(self) -> Dict[str, Dict[str, Any]]:
+    def _get_dimension_presets(self) -> dict[str, dict[str, Any]]:
         """Get predefined dimension scoring presets.
 
         Returns:
@@ -374,8 +373,8 @@ class DimensionRequirementsBuilder:
         }
 
     def validate_dimension_requirements(
-        self, dimension_reqs: Dict[str, Any]
-    ) -> List[str]:
+        self, dimension_reqs: dict[str, Any]
+    ) -> list[str]:
         """Validate dimension requirements for completeness and correctness.
 
         Args:

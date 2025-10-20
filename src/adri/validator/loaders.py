@@ -9,7 +9,7 @@ import csv
 import json
 import os
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
 # Standard pandas import for data operations
 import pandas as pd
@@ -19,7 +19,7 @@ import yaml
 from ..standards.exceptions import SchemaValidationError
 
 
-def load_data(file_path: str) -> List[Dict[str, Any]]:
+def load_data(file_path: str) -> list[dict[str, Any]]:
     """
     Load data from file (CSV, JSON, or Parquet).
 
@@ -48,7 +48,7 @@ def load_data(file_path: str) -> List[Dict[str, Any]]:
         raise ValueError(f"Unsupported file format: {file_path_obj.suffix}")
 
 
-def load_csv(file_path: Path) -> List[Dict[str, Any]]:
+def load_csv(file_path: Path) -> list[dict[str, Any]]:
     """
     Load data from CSV file.
 
@@ -62,7 +62,7 @@ def load_csv(file_path: Path) -> List[Dict[str, Any]]:
         ValueError: If CSV file is empty or invalid
     """
     data = []
-    with open(file_path, "r", encoding="utf-8") as f:
+    with open(file_path, encoding="utf-8") as f:
         reader = csv.DictReader(f)
         for row in reader:
             data.append(dict(row))
@@ -70,7 +70,7 @@ def load_csv(file_path: Path) -> List[Dict[str, Any]]:
     # Check if no data was loaded (empty file)
     if not data:
         # Re-read to check if file is truly empty
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, encoding="utf-8") as f:
             content = f.read()
             if not content.strip():
                 raise ValueError("CSV file is empty")
@@ -78,7 +78,7 @@ def load_csv(file_path: Path) -> List[Dict[str, Any]]:
     return data
 
 
-def load_json(file_path: Path) -> List[Dict[str, Any]]:
+def load_json(file_path: Path) -> list[dict[str, Any]]:
     """
     Load data from JSON file.
 
@@ -91,7 +91,7 @@ def load_json(file_path: Path) -> List[Dict[str, Any]]:
     Raises:
         ValueError: If JSON file doesn't contain a list of objects
     """
-    with open(file_path, "r", encoding="utf-8") as f:
+    with open(file_path, encoding="utf-8") as f:
         data = json.load(f)
 
     # Ensure data is a list of dictionaries
@@ -101,7 +101,7 @@ def load_json(file_path: Path) -> List[Dict[str, Any]]:
     return data
 
 
-def load_parquet(file_path: Path) -> List[Dict[str, Any]]:
+def load_parquet(file_path: Path) -> list[dict[str, Any]]:
     """
     Load data from Parquet file.
 
@@ -130,7 +130,7 @@ def load_parquet(file_path: Path) -> List[Dict[str, Any]]:
 
         # Convert DataFrame to list of dictionaries
         # Use .to_dict('records') to convert each row to a dictionary
-        data: List[Dict[str, Any]] = df.to_dict("records")
+        data: list[dict[str, Any]] = df.to_dict("records")
 
         return data
 
@@ -141,7 +141,7 @@ def load_parquet(file_path: Path) -> List[Dict[str, Any]]:
             raise
 
 
-def load_standard(file_path: str, validate: bool = True) -> Dict[str, Any]:
+def load_standard(file_path: str, validate: bool = True) -> dict[str, Any]:
     """
     Load YAML standard from file with optional validation.
 
@@ -167,8 +167,8 @@ def load_standard(file_path: str, validate: bool = True) -> Dict[str, Any]:
         raise FileNotFoundError(f"Standard file not found: {file_path}")
 
     try:
-        with open(file_path, "r", encoding="utf-8") as f:
-            yaml_content: Dict[Any, Any] = yaml.safe_load(f)
+        with open(file_path, encoding="utf-8") as f:
+            yaml_content: dict[Any, Any] = yaml.safe_load(f)
 
         # Validate standard if requested
         if validate:
@@ -226,7 +226,7 @@ def detect_format(file_path: str) -> str:
         return "unknown"
 
 
-def get_data_info(file_path: str) -> Dict[str, Any]:
+def get_data_info(file_path: str) -> dict[str, Any]:
     """
     Get basic information about a data file without fully loading it.
 
@@ -264,9 +264,9 @@ def get_data_info(file_path: str) -> Dict[str, Any]:
     return info
 
 
-def _get_csv_info(file_path: Path) -> Dict[str, Any]:
+def _get_csv_info(file_path: Path) -> dict[str, Any]:
     """Get information about a CSV file."""
-    with open(file_path, "r", encoding="utf-8") as f:
+    with open(file_path, encoding="utf-8") as f:
         # Get header
         first_line = f.readline()
         if first_line:
@@ -285,9 +285,9 @@ def _get_csv_info(file_path: Path) -> Dict[str, Any]:
     return {"columns": 0, "estimated_rows": 0}
 
 
-def _get_json_info(file_path: Path) -> Dict[str, Any]:
+def _get_json_info(file_path: Path) -> dict[str, Any]:
     """Get information about a JSON file."""
-    with open(file_path, "r", encoding="utf-8") as f:
+    with open(file_path, encoding="utf-8") as f:
         data = json.load(f)
 
         if isinstance(data, list):
@@ -308,7 +308,7 @@ def _get_json_info(file_path: Path) -> Dict[str, Any]:
             return {"type": type(data).__name__, "is_list": False}
 
 
-def _get_parquet_info(file_path: Path) -> Dict[str, Any]:
+def _get_parquet_info(file_path: Path) -> dict[str, Any]:
     """Get information about a Parquet file."""
     if pd is None:
         return {"error": "pandas not available"}
@@ -325,7 +325,7 @@ def _get_parquet_info(file_path: Path) -> Dict[str, Any]:
         return {"error": str(e)}
 
 
-def _parse_validation_rules(standard: Dict[str, Any]) -> Dict[str, Any]:
+def _parse_validation_rules(standard: dict[str, Any]) -> dict[str, Any]:
     """
     Parse validation_rules from field_requirements into ValidationRule objects.
 

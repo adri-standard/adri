@@ -7,7 +7,7 @@ ADRI standard generation from data analysis.
 import sys
 import time
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any
 
 import click
 import pandas as pd
@@ -45,7 +45,7 @@ class GenerateStandardCommand(Command):
         """Get command description."""
         return "Generate ADRI standard from data file analysis"
 
-    def execute(self, args: Dict[str, Any]) -> int:
+    def execute(self, args: dict[str, Any]) -> int:
         """Execute the generate-standard command.
 
         Args:
@@ -165,7 +165,7 @@ class GenerateStandardCommand(Command):
         click.echo("📋 Creating data quality rules based on your good data...")
         click.echo("🔍 Creating training data snapshot for lineage tracking...")
 
-    def _create_training_snapshot(self, data_path: str) -> Optional[str]:
+    def _create_training_snapshot(self, data_path: str) -> str | None:
         """Create a training data snapshot for lineage tracking."""
         try:
             source_file = Path(data_path)
@@ -214,7 +214,7 @@ class GenerateStandardCommand(Command):
                 hash_sha256.update(chunk)
         return hash_sha256.hexdigest()[:8]
 
-    def _display_snapshot_status(self, snapshot_path: Optional[str]) -> None:
+    def _display_snapshot_status(self, snapshot_path: str | None) -> None:
         """Display training snapshot creation status."""
         if snapshot_path:
             click.echo(f"✅ Training snapshot created: {Path(snapshot_path).name}")
@@ -224,7 +224,7 @@ class GenerateStandardCommand(Command):
 
     def _generate_standard_dict(
         self, data: pd.DataFrame, data_name: str
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Generate the standard dictionary using StandardGenerator."""
         from ...analysis.standard_generator import StandardGenerator
 
@@ -232,13 +232,13 @@ class GenerateStandardCommand(Command):
         return generator.generate(data, data_name, generation_config=None)
 
     def _create_lineage_metadata(
-        self, data_path: str, snapshot_path: Optional[str] = None
-    ) -> Dict[str, Any]:
+        self, data_path: str, snapshot_path: str | None = None
+    ) -> dict[str, Any]:
         """Create lineage metadata for the generated standard."""
         from datetime import datetime
 
         source_file = Path(data_path)
-        metadata: Dict[str, Any] = {
+        metadata: dict[str, Any] = {
             "source_path": str(source_file.resolve()),
             "timestamp": datetime.now().isoformat(),
             "file_hash": (
@@ -270,7 +270,7 @@ class GenerateStandardCommand(Command):
         return metadata
 
     def _add_generation_metadata(
-        self, std_dict: Dict[str, Any], data_name: str
+        self, std_dict: dict[str, Any], data_name: str
     ) -> None:
         """Add generation metadata to the standard dictionary."""
         from datetime import datetime
@@ -289,7 +289,7 @@ class GenerateStandardCommand(Command):
 
     def _display_generation_success_guide(
         self,
-        std_dict: Dict[str, Any],
+        std_dict: dict[str, Any],
         standard_filename: str,
         output_path: Path,
         data_path: str,
@@ -420,7 +420,7 @@ class GenerateStandardCommand(Command):
         )
         _progressive_echo("─" * 58, 0.0)
 
-    def _extract_controls_preview(self, std_dict: Dict[str, Any]) -> Dict[str, Any]:
+    def _extract_controls_preview(self, std_dict: dict[str, Any]) -> dict[str, Any]:
         """Extract control values from standard for display."""
         controls = {
             "min_score": 75,
@@ -453,7 +453,7 @@ class GenerateStandardCommand(Command):
 
         return controls
 
-    def _format_yaml_controls(self, controls: Dict[str, Any]) -> str:
+    def _format_yaml_controls(self, controls: dict[str, Any]) -> str:
         """Format controls as YAML preview."""
         weights_section = """weights:
   validity: 0.35

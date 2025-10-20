@@ -8,7 +8,7 @@ import json
 import sys
 import time
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any
 
 import click
 import pandas as pd
@@ -46,7 +46,7 @@ class AssessCommand(Command):
         """Get command description."""
         return "Run data quality assessment"
 
-    def execute(self, args: Dict[str, Any]) -> int:
+    def execute(self, args: dict[str, Any]) -> int:
         """Execute the assess command.
 
         Args:
@@ -70,7 +70,7 @@ class AssessCommand(Command):
         self,
         data_path: str,
         standard_path: str,
-        output_path: Optional[str] = None,
+        output_path: str | None = None,
         guide: bool = False,
     ) -> int:
         """Run data quality assessment."""
@@ -136,11 +136,11 @@ class AssessCommand(Command):
         else:
             click.echo(f"❌ Assessment failed: {file_type} not found: {original_path}")
 
-    def _load_assessor_config(self) -> Dict[str, Any]:
+    def _load_assessor_config(self) -> dict[str, Any]:
         """Load configuration for the data quality assessor."""
         from ...config.loader import ConfigurationLoader
 
-        assessor_config: Dict[str, Any] = {}
+        assessor_config: dict[str, Any] = {}
 
         # Try to load configuration
         try:
@@ -161,7 +161,7 @@ class AssessCommand(Command):
 
         return assessor_config
 
-    def _get_default_audit_config(self) -> Dict[str, Any]:
+    def _get_default_audit_config(self) -> dict[str, Any]:
         """Get default audit configuration."""
         return {
             "enabled": True,

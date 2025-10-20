@@ -5,7 +5,7 @@ Data profiling functionality for automatic standard generation.
 Migrated and updated for the new src/ layout architecture.
 """
 
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import pandas as pd
 
@@ -46,7 +46,7 @@ class ProfileResult:
         self.data_quality_score = data_quality_score
         self.metadata = metadata or {}
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert profile to dictionary format.
 
         Returns complete profile data as a dictionary for serialization.
@@ -85,7 +85,7 @@ class ProfileResult:
             raise KeyError(f"Field '{field_name}' not found in profile")
         return self.field_profiles[field_name]
 
-    def get_field_names(self) -> List[str]:
+    def get_field_names(self) -> list[str]:
         """Get list of all profiled field names.
 
         Returns:
@@ -167,7 +167,7 @@ class DataProfiler:
     and helps create appropriate quality standards.
     """
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: dict[str, Any] | None = None):
         """Initialize the data profiler."""
         self.config = config or {}
         self.sample_size = self.config.get("sample_size", 10000)
@@ -180,7 +180,7 @@ class DataProfiler:
         self.null_threshold = self.config.get("null_threshold", 0.05)
 
     def profile_data(
-        self, data: pd.DataFrame, max_rows: Optional[int] = None
+        self, data: pd.DataFrame, max_rows: int | None = None
     ) -> "ProfileResult":
         """
         Profile a DataFrame to understand its structure and patterns.
@@ -236,7 +236,7 @@ class DataProfiler:
 
         return result
 
-    def _get_summary_stats(self, data: pd.DataFrame) -> Dict[str, Any]:
+    def _get_summary_stats(self, data: pd.DataFrame) -> dict[str, Any]:
         """Get basic summary statistics."""
         return {
             "total_rows": int(len(data)),
@@ -250,7 +250,7 @@ class DataProfiler:
             ),
         }
 
-    def _profile_fields(self, data: pd.DataFrame) -> Dict[str, "FieldProfile"]:
+    def _profile_fields(self, data: pd.DataFrame) -> dict[str, "FieldProfile"]:
         """Profile individual fields."""
         field_profiles = {}
 
@@ -286,7 +286,7 @@ class DataProfiler:
 
         return field_profiles
 
-    def _profile_single_field(self, series: pd.Series) -> Dict[str, Any]:
+    def _profile_single_field(self, series: pd.Series) -> dict[str, Any]:
         """Profile a single field/column."""
         profile = {
             "name": series.name,
@@ -384,7 +384,7 @@ class DataProfiler:
         except (ValueError, TypeError):
             return 0
 
-    def _identify_patterns(self, series: pd.Series) -> List[str]:
+    def _identify_patterns(self, series: pd.Series) -> list[str]:
         """Identify common patterns in string data."""
         patterns = []
 
@@ -411,7 +411,7 @@ class DataProfiler:
 
         return patterns
 
-    def _assess_quality_patterns(self, data: pd.DataFrame) -> Dict[str, Any]:
+    def _assess_quality_patterns(self, data: pd.DataFrame) -> dict[str, Any]:
         """Assess overall quality patterns in the data."""
         return {
             "overall_completeness": float(
@@ -423,7 +423,7 @@ class DataProfiler:
             "potential_issues": self._identify_potential_issues(data),
         }
 
-    def _identify_potential_issues(self, data: pd.DataFrame) -> List[str]:
+    def _identify_potential_issues(self, data: pd.DataFrame) -> list[str]:
         """Identify potential data quality issues."""
         issues = []
 
@@ -444,7 +444,7 @@ class DataProfiler:
 
         return issues
 
-    def _generate_recommendations(self, data: pd.DataFrame) -> List[str]:
+    def _generate_recommendations(self, data: pd.DataFrame) -> list[str]:
         """Generate recommendations for data quality improvement."""
         recommendations = []
 
@@ -468,8 +468,8 @@ class DataProfiler:
 
     def _calculate_data_quality_score(
         self,
-        quality_assessment: Dict[str, Any],
-        field_profiles: Dict[str, "FieldProfile"],
+        quality_assessment: dict[str, Any],
+        field_profiles: dict[str, "FieldProfile"],
     ) -> float:
         """Calculate overall data quality score with high sensitivity to quality differences."""
         try:
@@ -554,8 +554,8 @@ class DataProfiler:
 
 # Convenience function
 def profile_dataframe(
-    data: pd.DataFrame, max_rows: Optional[int] = None
-) -> Dict[str, Any]:
+    data: pd.DataFrame, max_rows: int | None = None
+) -> dict[str, Any]:
     """
     Profile a DataFrame using the default profiler.
 

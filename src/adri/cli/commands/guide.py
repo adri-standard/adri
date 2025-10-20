@@ -8,7 +8,7 @@ with a cohesive learning experience.
 import sys
 import time
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any
 
 import click
 
@@ -53,7 +53,7 @@ class GuideCommand(Command):
         """Get command name."""
         return "guide"
 
-    def execute(self, args: Dict[str, Any]) -> int:
+    def execute(self, args: dict[str, Any]) -> int:
         """Execute the interactive guide walkthrough.
 
         Args:

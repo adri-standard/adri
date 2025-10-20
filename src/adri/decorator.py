@@ -7,7 +7,7 @@ Provides the @adri_protected decorator for protecting agent workflows from dirty
 
 import functools
 import logging
-from typing import Callable, Dict, Optional
+from collections.abc import Callable
 
 # Clean imports for modular architecture
 from .guard.modes import DataProtectionEngine, ProtectionError
@@ -16,21 +16,21 @@ logger = logging.getLogger(__name__)
 
 
 def adri_protected(
-    standard: Optional[str] = None,
+    standard: str | None = None,
     data_param: str = "data",
-    min_score: Optional[float] = None,
-    dimensions: Optional[Dict[str, float]] = None,
-    on_failure: Optional[str] = None,
-    on_assessment: Optional[Callable] = None,
+    min_score: float | None = None,
+    dimensions: dict[str, float] | None = None,
+    on_failure: str | None = None,
+    on_assessment: Callable | None = None,
     auto_generate: bool = True,
-    cache_assessments: Optional[bool] = None,
-    verbose: Optional[bool] = None,
+    cache_assessments: bool | None = None,
+    verbose: bool | None = None,
     reasoning_mode: bool = False,
     store_prompt: bool = True,
     store_response: bool = True,
-    llm_config: Optional[Dict] = None,
-    workflow_context: Optional[Dict] = None,
-    data_provenance: Optional[Dict] = None,
+    llm_config: dict | None = None,
+    workflow_context: dict | None = None,
+    data_provenance: dict | None = None,
 ):
     """
     Protect agent functions with ADRI data quality checks.

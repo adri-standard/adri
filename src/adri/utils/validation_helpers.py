@@ -7,18 +7,19 @@ rule execution.
 
 import hashlib
 import re
+from collections.abc import Callable
 from datetime import date, datetime
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Any
 
 import pandas as pd
 
 
 def validate_field_value(
     value: Any,
-    rules: List[Callable[[Any, Dict[str, Any]], bool]],
-    context: Dict[str, Any] = None,
-) -> List[str]:
+    rules: list[Callable[[Any, dict[str, Any]], bool]],
+    context: dict[str, Any] = None,
+) -> list[str]:
     """Validate a field value against multiple validation rules.
 
     Args:
@@ -132,7 +133,7 @@ def is_valid_phone(phone: str) -> bool:
     return 7 <= len(cleaned) <= 15
 
 
-def parse_date_value(value: Any) -> Optional[datetime]:
+def parse_date_value(value: Any) -> datetime | None:
     """Parse a value into a datetime object.
 
     Args:
@@ -213,7 +214,7 @@ def is_numeric_value(value: Any) -> bool:
     return False
 
 
-def safe_numeric_conversion(value: Any) -> Optional[float]:
+def safe_numeric_conversion(value: Any) -> float | None:
     """Safely convert a value to numeric.
 
     Args:
@@ -237,7 +238,7 @@ def safe_numeric_conversion(value: Any) -> Optional[float]:
     return None
 
 
-def generate_record_id(row: Any, row_index: int, primary_key_fields: List[str]) -> str:
+def generate_record_id(row: Any, row_index: int, primary_key_fields: list[str]) -> str:
     """Generate a record identifier for error reporting.
 
     Args:
@@ -434,7 +435,7 @@ def suggest_field_name_alternative(field_name: str) -> str:
     return f"{field_name}_value"
 
 
-def generate_file_hash(file_path: Union[str, Path]) -> str:
+def generate_file_hash(file_path: str | Path) -> str:
     """Generate a hash for a file for integrity checking.
 
     Args:
@@ -458,13 +459,13 @@ def generate_file_hash(file_path: Union[str, Path]) -> str:
             for chunk in iter(lambda: f.read(4096), b""):
                 hash_sha256.update(chunk)
         return hash_sha256.hexdigest()[:8]
-    except IOError as e:
-        raise IOError(f"Cannot read file {file_path}: {e}")
+    except OSError as e:
+        raise OSError(f"Cannot read file {file_path}: {e}")
 
 
 def validate_data_types(
-    data: pd.DataFrame, expected_types: Dict[str, str]
-) -> Dict[str, List[str]]:
+    data: pd.DataFrame, expected_types: dict[str, str]
+) -> dict[str, list[str]]:
     """Validate data types of DataFrame columns.
 
     Args:
@@ -539,10 +540,10 @@ class ValidationContext:
 
     def __init__(
         self,
-        data: Optional[pd.DataFrame] = None,
-        standard: Optional[Dict[str, Any]] = None,
-        field_name: Optional[str] = None,
-        row_index: Optional[int] = None,
+        data: pd.DataFrame | None = None,
+        standard: dict[str, Any] | None = None,
+        field_name: str | None = None,
+        row_index: int | None = None,
     ):
         """Initialize validation context.
 
@@ -556,11 +557,9 @@ class ValidationContext:
         self.standard = standard
         self.field_name = field_name
         self.row_index = row_index
-        self._cache: Dict[str, Any] = {}
+        self._cache: dict[str, Any] = {}
 
-    def get_field_requirements(
-        self, field_name: Optional[str] = None
-    ) -> Dict[str, Any]:
+    def get_field_requirements(self, field_name: str | None = None) -> dict[str, Any]:
         """Get field requirements from the standard.
 
         Args:
@@ -603,8 +602,8 @@ class ValidationContext:
 
 
 def create_validation_summary(
-    total_records: int, passed_records: int, failed_validations: List[Dict[str, Any]]
-) -> Dict[str, Any]:
+    total_records: int, passed_records: int, failed_validations: list[dict[str, Any]]
+) -> dict[str, Any]:
     """Create a summary of validation results.
 
     Args:

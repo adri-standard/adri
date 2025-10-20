@@ -15,7 +15,6 @@ generates version numbers from git tags.
 """
 
 import os
-from typing import List
 
 
 def _get_version_from_setuptools_scm() -> str:
@@ -51,7 +50,7 @@ __version__ = _get_version_from_setuptools_scm()
 __min_compatible_version__ = "4.0.0"
 
 
-def _get_compatible_versions() -> List[str]:
+def _get_compatible_versions() -> list[str]:
     """
     Generate list of compatible versions based on current version.
 

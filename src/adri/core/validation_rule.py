@@ -5,7 +5,7 @@ validation rules with explicit severity levels.
 """
 
 from dataclasses import dataclass
-from typing import Any, Dict, Optional
+from typing import Any
 
 from .severity import Severity
 
@@ -58,8 +58,8 @@ class ValidationRule:
     severity: Severity
     rule_type: str
     rule_expression: str
-    error_message: Optional[str] = None
-    remediation: Optional[str] = None
+    error_message: str | None = None
+    remediation: str | None = None
     penalty_weight: float = 1.0
 
     def __post_init__(self):
@@ -87,7 +87,7 @@ class ValidationRule:
             raise ValueError(f"penalty_weight must be >= 0, got {self.penalty_weight}")
 
     @classmethod
-    def from_dict(cls, rule_dict: Dict[str, Any]) -> "ValidationRule":
+    def from_dict(cls, rule_dict: dict[str, Any]) -> "ValidationRule":
         """Create ValidationRule from dictionary (YAML parsing).
 
         Args:
@@ -140,7 +140,7 @@ class ValidationRule:
             penalty_weight=rule_dict.get("penalty_weight", 1.0),
         )
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert ValidationRule to dictionary for serialization.
 
         Returns:

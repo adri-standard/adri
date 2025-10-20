@@ -5,13 +5,13 @@ Provides a basic function to send assessment data to Verodat API.
 For full enterprise features, use adri-enterprise package.
 """
 
-from typing import Any, Dict
+from typing import Any
 
 import requests
 
 
 def send_to_verodat(
-    assessment_data: Dict[str, Any], api_url: str, api_key: str
+    assessment_data: dict[str, Any], api_url: str, api_key: str
 ) -> bool:
     """
     Send assessment data to Verodat API endpoint.

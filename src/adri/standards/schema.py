@@ -6,7 +6,7 @@ for ADRI standard files, providing the foundation for comprehensive validation.
 """
 
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any
 
 
 @dataclass
@@ -26,10 +26,10 @@ class FieldSchema:
 
     name: str
     required: bool
-    field_type: type | Tuple[type, ...]
-    valid_values: Optional[Set[Any]] = None
-    min_value: Optional[float] = None
-    max_value: Optional[float] = None
+    field_type: type | tuple[type, ...]
+    valid_values: set[Any] | None = None
+    min_value: float | None = None
+    max_value: float | None = None
     description: str = ""
 
 
@@ -43,7 +43,7 @@ class StandardSchema:
 
     # Top-level sections
     REQUIRED_SECTIONS = ["standards", "requirements"]
-    OPTIONAL_SECTIONS: List[str] = ["record_identification", "metadata", "dimensions"]
+    OPTIONAL_SECTIONS: list[str] = ["record_identification", "metadata", "dimensions"]
 
     # Standards section required fields
     STANDARDS_REQUIRED_FIELDS = ["id", "name", "version", "description"]
@@ -126,7 +126,7 @@ class StandardSchema:
     }
 
     @classmethod
-    def get_standards_section_schema(cls) -> Dict[str, FieldSchema]:
+    def get_standards_section_schema(cls) -> dict[str, FieldSchema]:
         """
         Get field schema for the 'standards' section.
 
@@ -185,7 +185,7 @@ class StandardSchema:
         }
 
     @classmethod
-    def get_dimension_requirement_schema(cls) -> Dict[str, FieldSchema]:
+    def get_dimension_requirement_schema(cls) -> dict[str, FieldSchema]:
         """
         Get field schema for dimension requirements.
 
@@ -218,7 +218,7 @@ class StandardSchema:
         }
 
     @classmethod
-    def validate_top_level_structure(cls, standard: Dict[str, Any]) -> List[str]:
+    def validate_top_level_structure(cls, standard: dict[str, Any]) -> list[str]:
         """
         Validate top-level structure of a standard.
 
@@ -248,8 +248,8 @@ class StandardSchema:
 
     @classmethod
     def validate_field_type(
-        cls, value: Any, expected_type: type | Tuple[type, ...], field_path: str
-    ) -> Optional[str]:
+        cls, value: Any, expected_type: type | tuple[type, ...], field_path: str
+    ) -> str | None:
         """
         Validate that a field has the expected type.
 
@@ -280,10 +280,10 @@ class StandardSchema:
     def validate_numeric_range(
         cls,
         value: float | int,
-        min_value: Optional[float],
-        max_value: Optional[float],
+        min_value: float | None,
+        max_value: float | None,
         field_path: str,
-    ) -> Optional[str]:
+    ) -> str | None:
         """
         Validate that a numeric value is within the expected range.
 
@@ -306,8 +306,8 @@ class StandardSchema:
 
     @classmethod
     def validate_value_in_set(
-        cls, value: Any, valid_values: Set[Any], field_path: str
-    ) -> Optional[str]:
+        cls, value: Any, valid_values: set[Any], field_path: str
+    ) -> str | None:
         """
         Validate that a value is in the set of valid values.
 
@@ -327,7 +327,7 @@ class StandardSchema:
         return None
 
     @classmethod
-    def get_dimension_names(cls) -> Set[str]:
+    def get_dimension_names(cls) -> set[str]:
         """
         Get the set of valid dimension names.
 
@@ -350,7 +350,7 @@ class StandardSchema:
         return dimension in cls.VALID_DIMENSIONS
 
     @classmethod
-    def validate_version_string(cls, version: str) -> Optional[str]:
+    def validate_version_string(cls, version: str) -> str | None:
         """
         Validate version string format.
 
@@ -374,7 +374,7 @@ class StandardSchema:
         return None
 
     @classmethod
-    def validate_overall_minimum(cls, overall_minimum: Any) -> Optional[str]:
+    def validate_overall_minimum(cls, overall_minimum: Any) -> str | None:
         """
         Validate overall_minimum field.
 
@@ -398,8 +398,8 @@ class StandardSchema:
 
     @classmethod
     def validate_validation_rule(
-        cls, rule: Dict[str, Any], field_path: str
-    ) -> List[str]:
+        cls, rule: dict[str, Any], field_path: str
+    ) -> list[str]:
         """
         Validate a single validation rule structure (new format).
 
@@ -466,8 +466,8 @@ class StandardSchema:
 
     @classmethod
     def validate_validation_rules_list(
-        cls, rules: List[Dict[str, Any]], field_path: str
-    ) -> List[str]:
+        cls, rules: list[dict[str, Any]], field_path: str
+    ) -> list[str]:
         """
         Validate a list of validation rules (new format).
 

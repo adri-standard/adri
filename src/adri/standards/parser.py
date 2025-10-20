@@ -10,7 +10,7 @@ import os
 import threading
 from functools import lru_cache
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
 import yaml
 
@@ -33,17 +33,11 @@ except ImportError:
         class StandardsDirectoryNotFoundError(Exception):
             """Exception raised when standards directory is not found."""
 
-            pass
-
         class StandardNotFoundError(Exception):
             """Exception raised when a standard is not found."""
 
-            pass
-
         class InvalidStandardError(Exception):
             """Exception raised when a standard is invalid."""
-
-            pass
 
 
 class StandardsParser:
@@ -104,7 +98,7 @@ class StandardsParser:
             )
 
     @lru_cache(maxsize=128)
-    def parse_standard(self, standard_name: str) -> Dict[str, Any]:
+    def parse_standard(self, standard_name: str) -> dict[str, Any]:
         """
         Parse a standard by name.
 
@@ -129,7 +123,7 @@ class StandardsParser:
 
             try:
                 # Load and parse the YAML file
-                with open(standard_file, "r", encoding="utf-8") as f:
+                with open(standard_file, encoding="utf-8") as f:
                     standard_content = yaml.safe_load(f)
 
                 # Validate the standard structure
@@ -151,7 +145,7 @@ class StandardsParser:
                 )
 
     def _validate_standard_structure(
-        self, standard: Dict[str, Any], standard_name: str
+        self, standard: dict[str, Any], standard_name: str
     ):
         """
         Validate that a standard has the required structure using StandardValidator.
@@ -194,7 +188,7 @@ class StandardsParser:
                         f"Missing required section: {section}", standard_name
                     )
 
-    def list_available_standards(self) -> List[str]:
+    def list_available_standards(self) -> list[str]:
         """
         List all available standards.
 
@@ -227,7 +221,7 @@ class StandardsParser:
         standard_file = self._standards_path / f"{standard_name}.yaml"
         return standard_file.exists()
 
-    def get_standard_metadata(self, standard_name: str) -> Dict[str, Any]:
+    def get_standard_metadata(self, standard_name: str) -> dict[str, Any]:
         """
         Get metadata for a standard without loading the full content.
 
@@ -270,7 +264,7 @@ class StandardsParser:
 
         return self.parse_standard.cache_info()
 
-    def validate_standard_file(self, standard_path: str) -> Dict[str, Any]:
+    def validate_standard_file(self, standard_path: str) -> dict[str, Any]:
         """
         Validate a YAML standard file and return detailed results.
 
@@ -298,7 +292,7 @@ class StandardsParser:
 
             # Load YAML content
             try:
-                with open(standard_path, "r", encoding="utf-8") as f:
+                with open(standard_path, encoding="utf-8") as f:
                     yaml_content = yaml.safe_load(f)
                 validation_result["passed_checks"].append("Valid YAML syntax")
             except yaml.YAMLError as e:
@@ -328,7 +322,7 @@ class StandardsParser:
 
 
 # Convenience functions for backward compatibility
-def load_bundled_standard(standard_name: str) -> Dict[str, Any]:
+def load_bundled_standard(standard_name: str) -> dict[str, Any]:
     """
     Load a standard using the default parser.
 
@@ -343,7 +337,7 @@ def load_bundled_standard(standard_name: str) -> Dict[str, Any]:
     return parser.parse_standard(standard_name)
 
 
-def list_bundled_standards() -> List[str]:
+def list_bundled_standards() -> list[str]:
     """
     List all available standards.
 

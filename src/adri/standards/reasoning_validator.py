@@ -6,7 +6,7 @@ outputs against business rules and confidence thresholds.
 """
 
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import pandas as pd
 
@@ -26,7 +26,7 @@ class ReasoningValidator:
     - AI-specific field requirements
     """
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: dict[str, Any] | None = None):
         """
         Initialize reasoning validator.
 
@@ -166,8 +166,8 @@ class ReasoningValidator:
                 self.logger.debug(f"Could not validate risk field {field}: {e}")
 
     def check_ai_field_requirements(
-        self, data: pd.DataFrame, field_requirements: Dict[str, Any]
-    ) -> List[Dict[str, Any]]:
+        self, data: pd.DataFrame, field_requirements: dict[str, Any]
+    ) -> list[dict[str, Any]]:
         """
         Check AI-specific field requirements.
 
@@ -248,7 +248,7 @@ class ReasoningValidator:
         return issues
 
     def validate_reasoning_completeness(
-        self, data: pd.DataFrame, required_ai_fields: List[str]
+        self, data: pd.DataFrame, required_ai_fields: list[str]
     ) -> DimensionScore:
         """
         Validate that required AI reasoning fields are present and complete.
