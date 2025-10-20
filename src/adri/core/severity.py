@@ -35,8 +35,8 @@ class Severity(str, Enum):
     """
 
     CRITICAL = "CRITICAL"  # Reduces dimension score when rule fails
-    WARNING = "WARNING"    # Logged only, no score impact
-    INFO = "INFO"          # Informational only, minimal logging
+    WARNING = "WARNING"  # Logged only, no score impact
+    INFO = "INFO"  # Informational only, minimal logging
 
     def __str__(self) -> str:
         """Return the string value of the severity level."""

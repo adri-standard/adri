@@ -21,14 +21,14 @@ severity_defaults:
     date_bounds: CRITICAL         # Date values must be within date range
     length_bounds: CRITICAL       # String length must be within bounds
     custom: WARNING               # Custom validity rules (context-dependent)
-  
+
   # Completeness dimension rules
   # Controls missing value and data availability validation
   completeness:
     not_null: CRITICAL            # Field must not be null/empty
     not_empty: CRITICAL           # Field must contain non-empty value
     required_fields: CRITICAL     # Required fields must be present
-  
+
   # Consistency dimension rules
   # Controls referential integrity and internal coherence validation
   consistency:
@@ -37,14 +37,14 @@ severity_defaults:
     uniqueness: CRITICAL          # Values must be unique (e.g., IDs, emails)
     cross_field: WARNING          # Cross-field logic (context-dependent)
     primary_key: CRITICAL         # Primary key values must be unique
-  
+
   # Freshness dimension rules
   # Controls temporal relevance and data recency validation
   freshness:
     age_check: WARNING            # Data age threshold checks
     recency: INFO                 # Recency notifications (informational)
     staleness: INFO               # Staleness warnings (informational)
-  
+
   # Plausibility dimension rules
   # Controls statistical reasonableness and business logic validation
   plausibility:
@@ -59,7 +59,7 @@ overrides:
   # Example: Make pattern matching CRITICAL for specific use cases
   # validity:
   #   pattern: CRITICAL
-  
+
   # Example: Make format consistency CRITICAL for strict standardization
   # consistency:
   #   format: CRITICAL

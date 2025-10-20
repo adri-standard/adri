@@ -39,14 +39,14 @@ class TestGuideCommand:
         """Test that welcome step displays expected content."""
         cmd = GuideCommand()
         result = cmd._welcome_step()
-        
+
         assert result is True
         assert mock_echo.call_count > 0
-        
+
         # Check that welcome messages were displayed
         calls = [str(call) for call in mock_echo.call_args_list]
         all_output = ' '.join(calls)
-        
+
         assert 'ADRI' in all_output or 'Welcome' in all_output
 
     @patch('src.adri.cli.commands.guide.Path.exists')
@@ -54,10 +54,10 @@ class TestGuideCommand:
     def test_setup_step_when_already_configured(self, mock_echo, mock_exists):
         """Test setup step when project is already configured."""
         mock_exists.return_value = True
-        
+
         cmd = GuideCommand()
         result = cmd._setup_step()
-        
+
         assert result is True
         assert mock_echo.call_count > 0
 
@@ -66,14 +66,14 @@ class TestGuideCommand:
         """Test that decorator example step displays code."""
         cmd = GuideCommand()
         result = cmd._decorator_example_step()
-        
+
         assert result is True
         assert mock_echo.call_count > 0
-        
+
         # Check that code example was shown
         calls = [str(call) for call in mock_echo.call_args_list]
         all_output = ' '.join(calls)
-        
+
         assert 'adri_assess' in all_output or 'decorator' in all_output.lower()
 
     @patch('src.adri.cli.commands.guide.Path.exists')
@@ -81,10 +81,10 @@ class TestGuideCommand:
     def test_generate_standard_step_missing_data(self, mock_echo, mock_exists):
         """Test generate standard step when training data is missing."""
         mock_exists.return_value = False
-        
+
         cmd = GuideCommand()
         result = cmd._generate_standard_step()
-        
+
         assert result is False
         assert mock_echo.call_count > 0
 
@@ -93,10 +93,10 @@ class TestGuideCommand:
     def test_assess_data_step_missing_files(self, mock_echo, mock_exists):
         """Test assess step when files are missing."""
         mock_exists.return_value = False
-        
+
         cmd = GuideCommand()
         result = cmd._assess_data_step()
-        
+
         assert result is False
         assert mock_echo.call_count > 0
 
@@ -107,10 +107,10 @@ class TestGuideCommand:
         mock_instance = Mock()
         mock_instance.execute.return_value = 0
         mock_view_logs_cmd.return_value = mock_instance
-        
+
         cmd = GuideCommand()
         result = cmd._view_results_step()
-        
+
         assert result is True
         assert mock_echo.call_count > 0
 
@@ -119,21 +119,21 @@ class TestGuideCommand:
         """Test next steps conclusion displays guidance."""
         cmd = GuideCommand()
         result = cmd._next_steps_conclusion()
-        
+
         assert result is True
         assert mock_echo.call_count > 0
-        
+
         # Check that completion message and next steps were shown
         calls = [str(call) for call in mock_echo.call_args_list]
         all_output = ' '.join(calls)
-        
+
         assert 'complete' in all_output.lower() or 'next' in all_output.lower()
 
     def test_execute_returns_integer(self):
         """Test that execute returns an integer exit code."""
         cmd = GuideCommand()
         args = {}
-        
+
         # Mock all the step methods to return True quickly
         with patch.object(cmd, '_welcome_step', return_value=True), \
              patch.object(cmd, '_setup_step', return_value=True), \
@@ -142,7 +142,7 @@ class TestGuideCommand:
              patch.object(cmd, '_assess_data_step', return_value=True), \
              patch.object(cmd, '_view_results_step', return_value=True), \
              patch.object(cmd, '_next_steps_conclusion', return_value=True):
-            
+
             result = cmd.execute(args)
             assert isinstance(result, int)
             assert result == 0
@@ -151,7 +151,7 @@ class TestGuideCommand:
         """Test that execute handles KeyboardInterrupt gracefully."""
         cmd = GuideCommand()
         args = {}
-        
+
         with patch.object(cmd, '_welcome_step', side_effect=KeyboardInterrupt):
             result = cmd.execute(args)
             assert isinstance(result, int)
@@ -161,7 +161,7 @@ class TestGuideCommand:
         """Test that execute handles general exceptions."""
         cmd = GuideCommand()
         args = {}
-        
+
         with patch.object(cmd, '_welcome_step', side_effect=Exception("Test error")):
             result = cmd.execute(args)
             assert isinstance(result, int)
@@ -171,14 +171,14 @@ class TestGuideCommand:
         """Test that if a step fails, execution stops."""
         cmd = GuideCommand()
         args = {}
-        
+
         # Make the setup step fail
         with patch.object(cmd, '_welcome_step', return_value=True), \
              patch.object(cmd, '_setup_step', return_value=False), \
              patch.object(cmd, '_decorator_example_step') as mock_decorator:
-            
+
             result = cmd.execute(args)
-            
+
             # Should stop after setup fails, so decorator step should not be called
             mock_decorator.assert_not_called()
             assert result == 1
@@ -195,10 +195,10 @@ class TestGuideCommandIntegration:
         mock_instance = Mock()
         mock_instance.execute.return_value = 0
         mock_setup_cmd.return_value = mock_instance
-        
+
         cmd = GuideCommand()
         result = cmd._setup_step()
-        
+
         assert mock_instance.execute.called
 
     @patch('src.adri.cli.commands.generate_standard.GenerateStandardCommand')
@@ -209,10 +209,10 @@ class TestGuideCommandIntegration:
         mock_instance = Mock()
         mock_instance.execute.return_value = 0
         mock_gen_cmd.return_value = mock_instance
-        
+
         cmd = GuideCommand()
         result = cmd._generate_standard_step()
-        
+
         assert mock_instance.execute.called
 
     @patch('src.adri.cli.commands.assess.AssessCommand')
@@ -223,10 +223,10 @@ class TestGuideCommandIntegration:
         mock_instance = Mock()
         mock_instance.execute.return_value = 0
         mock_assess_cmd.return_value = mock_instance
-        
+
         cmd = GuideCommand()
         result = cmd._assess_data_step()
-        
+
         assert mock_instance.execute.called
 
     @patch('src.adri.cli.commands.view_logs.ViewLogsCommand')
@@ -235,10 +235,10 @@ class TestGuideCommandIntegration:
         mock_instance = Mock()
         mock_instance.execute.return_value = 0
         mock_logs_cmd.return_value = mock_instance
-        
+
         cmd = GuideCommand()
         result = cmd._view_results_step()
-        
+
         assert mock_instance.execute.called
 
 
@@ -248,14 +248,14 @@ class TestGuideCommandCLIIntegration:
     def test_guide_command_registered(self):
         """Test that guide command is registered in the registry."""
         from src.adri.cli.registry import list_available_commands
-        
+
         commands = list_available_commands()
         assert 'guide' in commands
 
     def test_guide_command_can_be_retrieved(self):
         """Test that guide command can be retrieved from registry."""
         from src.adri.cli.registry import get_command
-        
+
         cmd = get_command('guide')
         assert cmd is not None
         assert isinstance(cmd, GuideCommand)
@@ -263,6 +263,6 @@ class TestGuideCommandCLIIntegration:
     def test_guide_command_in_cli_exports(self):
         """Test that GuideCommand is exported from commands module."""
         from src.adri.cli.commands import GuideCommand as ExportedGuideCommand
-        
+
         assert ExportedGuideCommand is not None
         assert ExportedGuideCommand == GuideCommand

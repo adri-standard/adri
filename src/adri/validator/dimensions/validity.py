@@ -582,6 +582,7 @@ class ValidityAssessor(DimensionAssessor):
         """
         from src.adri.core.severity import Severity
         from src.adri.core.validation_rule import ValidationRule
+
         from ..rules import execute_validation_rule
 
         total_critical_checks = 0
@@ -602,7 +603,8 @@ class ValidityAssessor(DimensionAssessor):
 
             # Filter to only CRITICAL rules for this dimension
             critical_rules = [
-                r for r in validation_rules
+                r
+                for r in validation_rules
                 if isinstance(r, ValidationRule)
                 and r.dimension == "validity"
                 and r.severity == Severity.CRITICAL
@@ -623,6 +625,7 @@ class ValidityAssessor(DimensionAssessor):
         if total_critical_checks == 0:
             return 20.0  # No CRITICAL rules = perfect score
 
-        success_rate = (total_critical_checks -
-                        failed_critical_checks) / total_critical_checks
+        success_rate = (
+            total_critical_checks - failed_critical_checks
+        ) / total_critical_checks
         return success_rate * 20.0

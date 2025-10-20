@@ -24,9 +24,9 @@ def clear_standards_cache():
     except ImportError:
         # If parser module doesn't exist, no cache to clear
         pass
-    
+
     yield
-    
+
     # Clear again after test to prevent pollution
     try:
         from adri.standards.parser import StandardsParser

@@ -357,7 +357,8 @@ class ShowStandardCommand(Command):
                 f"\n🎯 Overall Minimum Score: {
                     requirements.get(
                         'overall_minimum',
-                        'Not set')}/100")
+                        'Not set')}/100"
+            )
 
             if verbose:
                 self._display_verbose_details(requirements)
@@ -651,7 +652,8 @@ class ExplainThresholdsCommand(Command):
             click.echo("Health Threshold (MIN_SCORE):")
             click.echo(f"  • Current: {min_score}/100")
             click.echo(
-                f"  • Meaning: Dataset must average ≥{min_score}% quality across all dimensions")
+                f"  • Meaning: Dataset must average ≥{min_score}% quality across all dimensions"
+            )
             click.echo(
                 f"  • What passes: Weighted average of dimension scores ≥ {min_score}"
             )
@@ -808,7 +810,8 @@ class WhatIfCommand(Command):
 
             click.echo(
                 f"  • Status: Health {current_health_status} ({
-                    current_result.overall_score:.1f}/100), Readiness {current_readiness_status} ({current_passed_rows}/{total_rows})")
+                    current_result.overall_score:.1f}/100), Readiness {current_readiness_status} ({current_passed_rows}/{total_rows})"
+            )
             click.echo("")
 
             # Parse proposed changes
@@ -833,7 +836,8 @@ class WhatIfCommand(Command):
                     click.echo(
                         f"  • Row Threshold: {current_row_threshold} → {new_threshold} ({
                             int(
-                                total_rows * new_threshold)}/{total_rows} rows required)")
+                                total_rows * new_threshold)}/{total_rows} rows required)"
+                    )
             click.echo("")
 
             # Project results
@@ -855,11 +859,13 @@ class WhatIfCommand(Command):
             click.echo("Projected Results:")
             click.echo(
                 f"  • Health: {current_health_status} → {new_health_status} ({
-                    current_result.overall_score:.1f}/100 vs threshold {new_min_score})")
+                    current_result.overall_score:.1f}/100 vs threshold {new_min_score})"
+            )
             click.echo(
                 f"  • Readiness: {current_readiness_status} → {new_readiness_status} ({current_passed_rows}/{total_rows}, need {
                     int(
-                        total_rows * new_row_threshold)}/{total_rows})")
+                        total_rows * new_row_threshold)}/{total_rows})"
+            )
             click.echo("")
 
             # Impact summary
@@ -889,7 +895,8 @@ class WhatIfCommand(Command):
                     max(
                         0,
                         rows_needed -
-                        current_passed_rows)} more row(s) to meet new readiness gate")
+                        current_passed_rows)} more row(s) to meet new readiness gate"
+            )
             click.echo("")
 
             click.echo("💡 Use 'adri config set' to apply these changes permanently")

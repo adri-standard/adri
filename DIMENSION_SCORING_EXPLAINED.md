@@ -8,7 +8,7 @@
 
 **From the audit logs**, Validity had 6 different validation failures:
 1. customer_id length_bounds (1 row = 10%)
-2. amount numeric_bounds (1 row = 10%)  
+2. amount numeric_bounds (1 row = 10%)
 3. date date_bounds (8 rows = 80%)
 4. date type_failed (1 row = 10%)
 5. status allowed_values (3 rows = 30%)
@@ -146,7 +146,7 @@ score_display:
 # Summary dashboards: 1 decimal
 overall_score = "96.4%"
 
-# Detailed reports: 2 decimals  
+# Detailed reports: 2 decimals
 validity_score = "90.21%"
 
 # API/Storage: Full precision
@@ -155,7 +155,7 @@ stored_score = 18.041703585563234
 
 **Recommendation**:
 - **Store**: Full float precision (18.041703585563234)
-- **Display**: 2 decimal places (18.04) 
+- **Display**: 2 decimal places (18.04)
 - **Percentage**: 2 decimal places (90.21%)
 - **Comparisons**: Use full precision internally
 
@@ -238,11 +238,11 @@ rule_templates:
   email_validation:
     pattern: "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
     applies_when: "field_name contains 'email'"
-    
+
   positive_amount:
     expression: "row['{field}'] > 0"
     applies_when: "field_name contains 'amount' or 'price' or 'cost'"
-    
+
   date_in_past:
     expression: "row['{field}'] <= TODAY()"
     applies_when: "field_type = 'date' and field_name contains 'birth|created|occurred'"
@@ -252,33 +252,33 @@ rule_templates:
 ```python
 def auto_generate_advanced_rules(training_data, standard):
     """Generate advanced validation rules from training data patterns."""
-    
+
     rules = []
-    
+
     # 1. Detect patterns
     for field in standard.fields:
         # Email patterns
         if is_email_field(field, training_data):
             rules.append(create_email_validation(field))
-        
+
         # Positive value constraints
         if is_positive_values_only(field, training_data):
             rules.append(create_positive_constraint(field))
-        
+
         # Date relationships
         if is_past_date_field(field, training_data):
             rules.append(create_past_date_constraint(field))
-    
+
     # 2. Detect cross-field relationships
     relationships = detect_field_relationships(training_data)
     for rel in relationships:
         rules.append(create_relationship_rule(rel))
-    
+
     # 3. Detect statistical bounds
     for numeric_field in standard.numeric_fields:
         bounds = calculate_plausibility_bounds(field, training_data)
         rules.append(create_plausibility_rule(field, bounds))
-    
+
     return rules
 ```
 
@@ -293,7 +293,7 @@ for rule in generated_rules:
     print(f"Rule: {rule.expression}")
     print(f"Rationale: {rule.rationale}")
     print(f"Accept? (y/n)")
-    
+
     if user_accepts(rule):
         standard.add_rule(rule)
 ```

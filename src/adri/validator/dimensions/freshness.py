@@ -46,7 +46,8 @@ class FreshnessAssessor(DimensionAssessor):
         if using_validation_rules:
             # New format: Use validation_rules with severity filtering
             return self._assess_freshness_with_validation_rules(
-                data, field_requirements)
+                data, field_requirements
+            )
 
         # Old format: Use existing freshness configuration
         freshness_config = self._extract_freshness_config(requirements)
@@ -344,7 +345,8 @@ class FreshnessAssessor(DimensionAssessor):
 
             # Filter to only CRITICAL rules for freshness dimension
             critical_rules = [
-                r for r in validation_rules
+                r
+                for r in validation_rules
                 if isinstance(r, ValidationRule)
                 and r.dimension == "freshness"
                 and r.severity == Severity.CRITICAL

@@ -36,13 +36,13 @@ validation_rules:
     rule: "REGEX_MATCH(row['customer_email'], '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$')"
     severity: CRITICAL  # <-- EXPLICIT: This rule WILL reduce score if failed
     dimension: validity
-    
+
   - name: "Status format consistency"
     field: "status"
     rule: "VALUE_IN(['paid', 'pending', 'cancelled'])"
     severity: WARNING  # <-- EXPLICIT: This rule WON'T reduce score, just logs
     dimension: consistency
-    
+
   - name: "Amount must be positive"
     field: "amount"
     rule: "row['amount'] > 0"
@@ -138,7 +138,7 @@ target_fields:
         rule: "VALUE_IN(['paid', 'pending'])"
         severity: CRITICAL  # <-- EXPLICIT
         error_message: "Status must be 'paid' or 'pending'"
-        
+
       - name: "Status should be lowercase"
         rule: "row['status'] == LOWER(row['status'])"
         severity: WARNING  # <-- EXPLICIT
@@ -170,20 +170,20 @@ target_fields:
         severity: CRITICAL
         dimension: completeness
         penalty_weight: 1.0  # Full penalty if fails
-        
+
       - name: "Valid email format"
         rule: "REGEX_MATCH(row['customer_email'], '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$')"
         severity: CRITICAL
         dimension: validity
         penalty_weight: 1.0
-        
+
       # WARNING - Nice to have, doesn't affect score
       - name: "Email should be lowercase"
         rule: "row['customer_email'] == LOWER(row['customer_email'])"
         severity: WARNING
         dimension: consistency
         penalty_weight: 0.0  # No penalty
-        
+
       - name: "Prefer company domain emails"
         rule: "ENDS_WITH(row['customer_email'], '@company.com')"
         severity: WARNING
@@ -205,13 +205,13 @@ target_fields:
   - name: "invoice_id"
     type: "string"
     mandatory: true
-    
+
   - name: "amount"
     type: "number"
     mandatory: true
     min: 0
     max: 1000000
-    
+
   - name: "status"
     type: "string"
     mandatory: true
@@ -234,13 +234,13 @@ target_fields:
         severity: CRITICAL
         dimension: completeness
         error_message: "Every invoice must have an ID"
-        
+
       - name: "Invoice ID format"
         rule: "REGEX_MATCH(row['invoice_id'], '^INV-[0-9]{6}$')"
         severity: CRITICAL
         dimension: validity
         error_message: "Invoice ID must match format INV-XXXXXX"
-        
+
   - name: "amount"
     type: "number"
     mandatory: true
@@ -249,19 +249,19 @@ target_fields:
         rule: "IS_NOT_NULL"
         severity: CRITICAL
         dimension: completeness
-        
+
       - name: "Amount must be positive"
         rule: "row['amount'] > 0"
         severity: CRITICAL
         dimension: plausibility
         error_message: "Invoice amounts must be positive"
-        
+
       - name: "Amount within normal range"
         rule: "row['amount'] < 100000"
         severity: WARNING
         dimension: plausibility
         error_message: "Unusually high amount - please verify"
-        
+
   - name: "status"
     type: "string"
     mandatory: true
@@ -271,7 +271,7 @@ target_fields:
         severity: CRITICAL
         dimension: validity
         error_message: "Status must be paid, pending, or cancelled"
-        
+
       - name: "Status format consistency"
         rule: "row['status'] == LOWER(row['status'])"
         severity: WARNING
@@ -297,11 +297,11 @@ CRITICAL Rules (affect score):
 WARNING Rules (logged only):
   ✗ Status format consistency (consistency) - 10 warnings
   ✗ Amount within normal range (plausibility) - 2 warnings
-  
+
 Score Impact:
   - CRITICAL failures: -1.96 points
   - WARNING issues: 0 points (logged only)
-  
+
 Final Score: 18.04 / 20 (90.2%)
 ```
 
@@ -326,7 +326,7 @@ Start lenient, become stricter over time:
 - name: "VAT number format"
   severity: WARNING
   rollout_date: "2025-Q1"
-  
+
 # Phase 2: After 3 months, make critical
 - name: "VAT number format"
   severity: CRITICAL
@@ -371,7 +371,7 @@ class ValidationRule:
         self.rule = rule
         self.severity = severity  # <-- NEW: CRITICAL, WARNING, INFO
         self.dimension = dimension
-        
+
     def calculate_penalty(self, failure_rate):
         """Calculate score penalty based on severity."""
         if self.severity == "CRITICAL":
@@ -392,13 +392,13 @@ def calculate_dimension_score(dimension, rules, results):
     """Calculate dimension score considering severity levels."""
     max_score = 20
     total_penalty = 0
-    
+
     for rule in rules:
         if rule.dimension != dimension:
             continue
-            
+
         failure_rate = results[rule.name]['failure_rate']
-        
+
         # Only CRITICAL rules affect score
         if rule.severity == "CRITICAL":
             penalty = rule.calculate_penalty(failure_rate)
@@ -406,7 +406,7 @@ def calculate_dimension_score(dimension, rules, results):
         elif rule.severity == "WARNING":
             # Log but don't penalize
             log_warning(rule.name, failure_rate)
-        
+
     return max(0, max_score - total_penalty)
 ```
 
@@ -421,10 +421,10 @@ def generate_validation_report(results):
         'warnings': [],
         'info': []
     }
-    
+
     for rule_name, result in results.items():
         rule = get_rule_by_name(rule_name)
-        
+
         if result['failed']:
             if rule.severity == "CRITICAL":
                 report['critical_failures'].append({
@@ -438,7 +438,7 @@ def generate_validation_report(results):
                     'issues': result['failure_count'],
                     'impact': "No score penalty"
                 })
-    
+
     return report
 ```
 
@@ -457,7 +457,7 @@ def generate_validation_report(results):
 
 **Three Severity Levels**:
 1. **CRITICAL**: Reduces score, must be fixed
-2. **WARNING**: Logged only, no score impact  
+2. **WARNING**: Logged only, no score impact
 3. **INFO**: Informational, no action needed
 
 **Key Benefit**: Users can SEE and CONTROL which rules affect scoring vs which just provide guidance.
@@ -479,7 +479,7 @@ def generate_validation_report(results):
 - name: "Status format"
   rule: "LOWER(status)"
   severity: WARNING  # <-- No score impact
-  
+
 # This one is critical - will reduce score
 - name: "Status allowed values"
   rule: "VALUE_IN(['paid', 'pending'])"

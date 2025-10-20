@@ -197,7 +197,7 @@ class StandardBuilder:
         self,
         dimension_reqs: Dict[str, Any],
         field_reqs: Dict[str, Any],
-        pk_fields: List[str]
+        pk_fields: List[str],
     ) -> None:
         """Populate rule weights from validation_rules structure.
 
@@ -226,8 +226,9 @@ class StandardBuilder:
 
                 if dimension and rule_type:
                     rule_counts.setdefault(dimension, {})
-                    rule_counts[dimension][rule_type] = rule_counts[dimension].get(
-                        rule_type, 0) + 1
+                    rule_counts[dimension][rule_type] = (
+                        rule_counts[dimension].get(rule_type, 0) + 1
+                    )
 
         # Add consistency rules (dataset-level, not in field validation_rules)
         consistency_counts = rule_counts.setdefault("consistency", {})
@@ -266,13 +267,14 @@ class StandardBuilder:
 
             # Normalize weights
             self.dimension_builder.normalize_rule_weights(
-                dimension_reqs, dimension_name)
+                dimension_reqs, dimension_name
+            )
 
     def _populate_rule_weights_from_constraints(
         self,
         dimension_reqs: Dict[str, Any],
         field_reqs: Dict[str, Any],
-        pk_fields: List[str]
+        pk_fields: List[str],
     ) -> None:
         """Populate rule weights from old-style field constraints (backward compatible).
 
@@ -323,9 +325,7 @@ class StandardBuilder:
         self.dimension_builder.normalize_rule_weights(dimension_reqs, "validity")
 
         # Populate consistency rule weights
-        consistency_weights = dimension_reqs["consistency"]["scoring"][
-            "rule_weights"
-        ]
+        consistency_weights = dimension_reqs["consistency"]["scoring"]["rule_weights"]
 
         if pk_fields:
             consistency_weights["primary_key_uniqueness"] = 1.0
@@ -344,9 +344,7 @@ class StandardBuilder:
         self.dimension_builder.normalize_rule_weights(dimension_reqs, "consistency")
 
         # Populate plausibility rule weights
-        plausibility_weights = dimension_reqs["plausibility"]["scoring"][
-            "rule_weights"
-        ]
+        plausibility_weights = dimension_reqs["plausibility"]["scoring"]["rule_weights"]
         has_numeric = False
         has_categorical = False
 
@@ -367,9 +365,7 @@ class StandardBuilder:
             plausibility_weights["business_logic"] = 0.2
             plausibility_weights["cross_field_consistency"] = 0.1
 
-        self.dimension_builder.normalize_rule_weights(
-            dimension_reqs, "plausibility"
-        )
+        self.dimension_builder.normalize_rule_weights(dimension_reqs, "plausibility")
 
     def enforce_training_pass_guarantee(
         self, data: pd.DataFrame, standard: Dict[str, Any]
@@ -564,8 +560,8 @@ class StandardBuilder:
         """
         try:
             import hashlib
-            from pathlib import Path
             import os
+            from pathlib import Path
 
             # Determine which config file was used
             env_config = os.environ.get("ADRI_SEVERITY_CONFIG")
@@ -573,14 +569,17 @@ class StandardBuilder:
                 config_path = Path(env_config)
             else:
                 # Default config path
-                config_path = Path(__file__).parent.parent.parent / \
-                    "config" / "severity_defaults.yaml"
+                config_path = (
+                    Path(__file__).parent.parent.parent
+                    / "config"
+                    / "severity_defaults.yaml"
+                )
 
             if not config_path.exists():
                 return None
 
             # Calculate checksum
-            with open(config_path, 'rb') as f:
+            with open(config_path, "rb") as f:
                 content = f.read()
                 checksum = hashlib.sha256(content).hexdigest()
 
@@ -593,7 +592,7 @@ class StandardBuilder:
                 "config_checksum": f"sha256:{checksum[:16]}",
                 "loaded_at": datetime.now().isoformat(),
                 "modified_date": modified_date,
-                "version": "1.0.0"
+                "version": "1.0.0",
             }
 
         except Exception:

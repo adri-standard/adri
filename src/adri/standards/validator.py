@@ -91,7 +91,7 @@ class StandardValidator:
 
         # Load the standard directly (avoiding circular import with loaders)
         try:
-            with open(file_path, 'r', encoding='utf-8') as f:
+            with open(file_path, "r", encoding="utf-8") as f:
                 standard = yaml.safe_load(f)
         except FileNotFoundError:
             result = ValidationResult(is_valid=False, standard_path=file_path)
@@ -262,7 +262,7 @@ class StandardValidator:
             self._validate_field_requirements(
                 requirements["field_requirements"],
                 "requirements.field_requirements",
-                result
+                result,
             )
 
         # Validate overall_minimum
@@ -435,11 +435,10 @@ class StandardValidator:
                 continue
 
             # If validation_rules present (new format), validate them
-            if 'validation_rules' in field_config:
-                validation_rules = field_config['validation_rules']
+            if "validation_rules" in field_config:
+                validation_rules = field_config["validation_rules"]
                 rule_errors = StandardSchema.validate_validation_rules_list(
-                    validation_rules,
-                    field_path
+                    validation_rules, field_path
                 )
 
                 # Add all rule validation errors to result
@@ -448,7 +447,8 @@ class StandardValidator:
                         message=error_msg,
                         path=field_path,
                         suggestion="Check validation_rules structure: each rule needs name, dimension, "
-                        "severity, rule_type, and rule_expression")
+                        "severity, rule_type, and rule_expression",
+                    )
             # Otherwise, validate as old format (backward compatible)
             # Old format is valid, just different structure - no validation needed
 

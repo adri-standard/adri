@@ -1,6 +1,6 @@
 # Severity Levels in ADRI Validation Rules
 
-**Version:** 1.0.0  
+**Version:** 1.0.0
 **Last Updated:** October 2025
 
 ## Overview
@@ -10,7 +10,7 @@ ADRI now supports **explicit severity levels** in validation rules, giving you f
 ## Severity Levels
 
 ### CRITICAL (Score Impact)
-**Effect:** Failures reduce dimension scores  
+**Effect:** Failures reduce dimension scores
 **Use For:** Data quality issues that truly matter
 - Type validation (data must be correct type)
 - Required fields (data must be present)
@@ -29,7 +29,7 @@ validation_rules:
 ```
 
 ### WARNING (Logged Only)
-**Effect:** Logged but doesn't affect scores  
+**Effect:** Logged but doesn't affect scores
 **Use For:** Style preferences and best practices
 - Format consistency (lowercase, case)
 - Pattern matching for style (not correctness)
@@ -47,7 +47,7 @@ validation_rules:
 ```
 
 ### INFO (Informational)
-**Effect:** Minimal logging, no score impact  
+**Effect:** Minimal logging, no score impact
 **Use For:** Statistical observations
 - Outlier detection (95th percentile)
 - Recency notifications
@@ -81,14 +81,14 @@ field_requirements:
         rule_type: "not_null"
         rule_expression: "IS_NOT_NULL"
         error_message: "Status field must not be empty"
-        
+
       - name: "Status must be valid value"
         dimension: "validity"
         severity: "CRITICAL"
         rule_type: "allowed_values"
         rule_expression: "VALUE_IN(['paid', 'pending', 'cancelled'])"
         error_message: "Status must be one of: paid, pending, cancelled"
-        
+
       # WARNING - logged only, no score penalty
       - name: "Status should be lowercase"
         dimension: "consistency"
@@ -164,13 +164,13 @@ field_requirements:
         severity: "CRITICAL"
         rule_type: "not_null"
         rule_expression: "IS_NOT_NULL"
-      
+
       - name: "Email type validation"
         dimension: "validity"
         severity: "CRITICAL"
         rule_type: "type"
         rule_expression: "IS_STRING"
-      
+
       - name: "Email pattern validation"
         dimension: "validity"
         severity: "WARNING"  # Pattern often style preference
@@ -247,12 +247,12 @@ field_requirements:
         severity: "CRITICAL"  # Must have value
         dimension: "completeness"
         rule_type: "not_null"
-        
+
       - name: "Status must be valid"
         severity: "CRITICAL"  # Must be in enum
         dimension: "validity"
         rule_type: "allowed_values"
-        
+
       - name: "Status lowercase preference"
         severity: "WARNING"  # Style only
         dimension: "consistency"
@@ -272,12 +272,12 @@ field_requirements:
         severity: "CRITICAL"
         dimension: "completeness"
         rule_type: "not_null"
-        
+
       - name: "Amount numeric bounds"
         severity: "CRITICAL"  # Must be in range
         dimension: "validity"
         rule_type: "numeric_bounds"
-        
+
       - name: "Amount outlier check"
         severity: "INFO"  # Just FYI
         dimension: "plausibility"
@@ -286,19 +286,19 @@ field_requirements:
 
 ## FAQs
 
-**Q: Can I change severity for a specific rule?**  
+**Q: Can I change severity for a specific rule?**
 A: Yes! Just edit the `severity` field in your standard's validation_rules.
 
-**Q: Will WARNING rules still appear in logs?**  
+**Q: Will WARNING rules still appear in logs?**
 A: Yes! WARNING failures are logged for visibility, they just don't reduce scores.
 
-**Q: Do I need to update existing standards?**  
+**Q: Do I need to update existing standards?**
 A: No - old format still works. But we recommend migrating for transparency.
 
-**Q: Can I make all format rules CRITICAL?**  
+**Q: Can I make all format rules CRITICAL?**
 A: Yes! Edit `src/adri/config/severity_defaults.yaml` and set `consistency.format: CRITICAL`
 
-**Q: What happens if I have no CRITICAL rules?**  
+**Q: What happens if I have no CRITICAL rules?**
 A: You get a perfect score (20/20) for that dimension - no penalties possible.
 
 ## See Also

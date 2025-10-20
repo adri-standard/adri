@@ -425,7 +425,8 @@ class ScoringExplainCommand(Command):
         click.echo(
             f" - primary_key_uniqueness: {passed_c}/{total} passed, failed={failed_c}, pass_rate={
                 pr:.1f}%, weight={
-                float(rw):.2f}")
+                float(rw):.2f}"
+        )
 
     def _display_freshness_explanation(self, freshness_explain: Dict[str, Any]) -> None:
         """Display freshness dimension explanation."""
@@ -529,7 +530,8 @@ class ScoringPresetApplyCommand(Command):
             if output_path:
                 click.echo(
                     f"✅ Preset '{preset}' applied and saved to: {
-                        rel_to_project_root(out_path)}")
+                        rel_to_project_root(out_path)}"
+                )
             else:
                 click.echo(
                     f"✅ Preset '{preset}' applied in-place: {rel_to_project_root(out_path)}"
@@ -661,7 +663,8 @@ class ScoringPresetApplyCommand(Command):
             changed_dims.append(
                 f"{dim} (weight {before_weight}→{
                     dim_cfg['weight']}, min {before_min}→{
-                    dim_cfg['minimum_score']})")
+                    dim_cfg['minimum_score']})"
+            )
 
         return changed_dims
 

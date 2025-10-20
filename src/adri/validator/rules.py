@@ -260,20 +260,19 @@ def check_primary_key_uniqueness(data, standard_config):
                 if len(duplicate_record_ids) > 1:
                     failures.append(
                         {
-                            "validation_id": f"pk_dup_{pk_value}".replace(
-                                " ",
-                                "_"),
+                            "validation_id": f"pk_dup_{pk_value}".replace(" ", "_"),
                             "dimension": "consistency",
                             "field": pk_field,
                             "issue": "duplicate_primary_key",
                             "affected_rows": len(duplicate_record_ids),
                             "affected_percentage": (
-                                len(duplicate_record_ids) /
-                                len(data)) *
-                            100,
+                                len(duplicate_record_ids) / len(data)
+                            )
+                            * 100,
                             "samples": duplicate_record_ids,
                             "remediation": f"Remove duplicate {pk_field} values: {pk_value}",
-                        })
+                        }
+                    )
     else:
         # Compound primary key
         duplicates = data[data.duplicated(subset=primary_key_fields, keep=False)]
@@ -298,21 +297,20 @@ def check_primary_key_uniqueness(data, standard_config):
                     failures.append(
                         {
                             "validation_id": f"pk_dup_{pk_str}".replace(
-                                " ",
-                                "_").replace(
-                                ":",
-                                "_"),
+                                " ", "_"
+                            ).replace(":", "_"),
                             "dimension": "consistency",
                             "field": ",".join(primary_key_fields),
                             "issue": "duplicate_compound_key",
                             "affected_rows": len(duplicate_record_ids),
                             "affected_percentage": (
-                                len(duplicate_record_ids) /
-                                len(data)) *
-                            100,
+                                len(duplicate_record_ids) / len(data)
+                            )
+                            * 100,
                             "samples": duplicate_record_ids,
                             "remediation": f"Remove duplicate compound key values: {pk_str}",
-                        })
+                        }
+                    )
 
     return failures
 
@@ -408,9 +406,7 @@ _VALIDATION_HANDLERS = {
 }
 
 
-def execute_validation_rule(
-    value: Any, rule, field_req: Dict[str, Any] = None
-) -> bool:
+def execute_validation_rule(value: Any, rule, field_req: Dict[str, Any] = None) -> bool:
     """Execute a ValidationRule using dispatch table pattern.
 
     Refactored from complex if/elif chain to dispatch table for maintainability.

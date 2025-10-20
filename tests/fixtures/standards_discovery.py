@@ -105,7 +105,7 @@ def find_testable_standards(
         # Skip files in test_data directory itself
         if test_data_dir in yaml_file.parents:
             continue
-            
+
         is_valid, metadata = validate_standard_for_testing(
             yaml_file, standards_root, test_data_dir
         )

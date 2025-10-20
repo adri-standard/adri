@@ -54,10 +54,10 @@ fields:
   email:
     type: string
     pattern: "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
-  
+
   age:
     type: integer
-    
+
   signup_date:
     type: date
 ```
@@ -92,11 +92,11 @@ fields:
   customer_id:
     type: integer
     required: true  # Must be present and non-null
-  
+
   email:
     type: string
     required: true
-    
+
   items:
     type: array
     required: true
@@ -143,11 +143,11 @@ fields:
   start_date:
     type: date
     required: true
-  
+
   end_date:
     type: date
     required: true
-  
+
   # Cross-field validation
   rules:
     - name: "End after start"
@@ -189,16 +189,16 @@ fields:
     type: integer
     min_value: 0
     max_value: 120
-  
+
   percentage:
     type: number
     min_value: 0
     max_value: 100
-  
+
   price:
     type: number
     min_value: 0.01
-  
+
   name:
     type: string
     min_length: 1
@@ -244,7 +244,7 @@ fields:
     type: date
     required: true
     max_age_days: 30  # Must be within last 30 days
-  
+
   transaction_date:
     type: date
     required: true
@@ -338,7 +338,7 @@ def strict_function(data):
 
 **Exception Details**:
 ```python
-adri.validator.exceptions.DataQualityException: 
+adri.validator.exceptions.DataQualityException:
 Data quality too low for reliable execution
 
 Quality Score: 67.3/100 (Required: 80.0/100)
@@ -500,19 +500,19 @@ standard:
   name: "customer_data"
   version: "1.0.0"
   description: "Customer data quality standard"
-  
+
   # Field definitions (validity, completeness, accuracy)
   fields:
     customer_id:
       type: integer
       required: true
       min_value: 1
-  
+
   # Cross-field rules (consistency)
   rules:
     - name: "End after start"
       expression: "end_date > start_date"
-  
+
   # Timeliness requirements
   timeliness:
     max_age_days: 30

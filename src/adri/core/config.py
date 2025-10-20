@@ -297,14 +297,16 @@ class ProjectConfig:
         if self.default_environment not in self.environments:
             errors.append(
                 f"default_environment '{
-                    self.default_environment}' not found in environments")
+                    self.default_environment}' not found in environments"
+            )
 
         # Validate each environment
         for env_name, env_config in self.environments.items():
             if env_config.name != env_name:
                 errors.append(
                     f"Environment name mismatch: key='{env_name}', name='{
-                        env_config.name}'")
+                        env_config.name}'"
+                )
 
             # Validate nested configs
             for validation_error in env_config.validation.validate():

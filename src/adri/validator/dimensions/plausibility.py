@@ -48,7 +48,8 @@ class PlausibilityAssessor(DimensionAssessor):
         if using_validation_rules:
             # New format: Use validation_rules with severity filtering
             return self._assess_plausibility_with_validation_rules(
-                data, field_requirements)
+                data, field_requirements
+            )
 
         # Old format: Use existing rule weight scoring
         scoring_cfg = requirements.get("scoring", {})
@@ -386,7 +387,8 @@ class PlausibilityAssessor(DimensionAssessor):
 
             # Filter to only CRITICAL rules for plausibility dimension
             critical_rules = [
-                r for r in validation_rules
+                r
+                for r in validation_rules
                 if isinstance(r, ValidationRule)
                 and r.dimension == "plausibility"
                 and r.severity == Severity.CRITICAL

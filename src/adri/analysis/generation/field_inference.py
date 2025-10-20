@@ -118,7 +118,8 @@ class FieldInferenceEngine:
         # 4) Convert constraints to validation_rules format
         field_name_str = str(col_name) if col_name else "field"
         validation_rules = self.convert_field_constraints_to_validation_rules(
-            req, field_name_str)
+            req, field_name_str
+        )
 
         if validation_rules:
             req["validation_rules"] = validation_rules
@@ -632,7 +633,7 @@ class FieldInferenceEngine:
                 severity=severity_loader.get_severity("completeness", "not_null"),
                 rule_type="not_null",
                 rule_expression="IS_NOT_NULL",
-                error_message=f"{field_name} must not be empty"
+                error_message=f"{field_name} must not be empty",
             )
             validation_rules.append(rule)
 
@@ -645,7 +646,7 @@ class FieldInferenceEngine:
                 severity=severity_loader.get_severity("validity", "type"),
                 rule_type="type",
                 rule_expression=f"IS_{field_type.upper()}",
-                error_message=f"{field_name} must be of type {field_type}"
+                error_message=f"{field_name} must be of type {field_type}",
             )
             validation_rules.append(rule)
 
@@ -658,7 +659,7 @@ class FieldInferenceEngine:
                 severity=severity_loader.get_severity("validity", "allowed_values"),
                 rule_type="allowed_values",
                 rule_expression=f"VALUE_IN({allowed})",
-                error_message=f"{field_name} must be one of: {', '.join(str(v) for v in allowed[:5])}"
+                error_message=f"{field_name} must be one of: {', '.join(str(v) for v in allowed[: 5])}",
             )
             validation_rules.append(rule)
 
@@ -678,7 +679,7 @@ class FieldInferenceEngine:
                 severity=severity_loader.get_severity("validity", "numeric_bounds"),
                 rule_type="numeric_bounds",
                 rule_expression=" AND ".join(expr_parts),
-                error_message=f"{field_name} must be between {min_val} and {max_val}"
+                error_message=f"{field_name} must be between {min_val} and {max_val}",
             )
             validation_rules.append(rule)
 
@@ -695,12 +696,11 @@ class FieldInferenceEngine:
             rule = self.create_validation_rule(
                 name=f"{field_name} length bounds",
                 dimension="validity",
-                severity=severity_loader.get_severity(
-                    "validity",
-                    "length_bounds"),
+                severity=severity_loader.get_severity("validity", "length_bounds"),
                 rule_type="length_bounds",
                 rule_expression=" AND ".join(expr_parts),
-                error_message=f"{field_name} length must be between {min_len} and {max_len}")
+                error_message=f"{field_name} length must be between {min_len} and {max_len}",
+            )
             validation_rules.append(rule)
 
         # 6. Validity: pattern rule
@@ -712,17 +712,15 @@ class FieldInferenceEngine:
                 severity=severity_loader.get_severity("validity", "pattern"),
                 rule_type="pattern",
                 rule_expression=f"REGEX_MATCH('{pattern}')",
-                error_message=f"{field_name} must match pattern: {pattern}"
+                error_message=f"{field_name} must match pattern: {pattern}",
             )
             validation_rules.append(rule)
 
         # 7. Validity: date_bounds rule
         if any(
-            k in field_req for k in [
-                "after_date",
-                "before_date",
-                "after_datetime",
-                "before_datetime"]):
+            k in field_req
+            for k in ["after_date", "before_date", "after_datetime", "before_datetime"]
+        ):
             after = field_req.get("after_date") or field_req.get("after_datetime")
             before = field_req.get("before_date") or field_req.get("before_datetime")
             expr_parts = []
@@ -737,7 +735,7 @@ class FieldInferenceEngine:
                 severity=severity_loader.get_severity("validity", "date_bounds"),
                 rule_type="date_bounds",
                 rule_expression=" AND ".join(expr_parts),
-                error_message=f"{field_name} must be within date range"
+                error_message=f"{field_name} must be within date range",
             )
             validation_rules.append(rule)
 
@@ -752,7 +750,7 @@ class FieldInferenceEngine:
         rule_expression: str,
         error_message: Optional[str] = None,
         remediation: Optional[str] = None,
-        penalty_weight: float = 1.0
+        penalty_weight: float = 1.0,
     ) -> Dict[str, Any]:
         """Create a validation rule dictionary for standard generation.
 
@@ -782,7 +780,7 @@ class FieldInferenceEngine:
             "dimension": dimension,
             "severity": severity_str,
             "rule_type": rule_type,
-            "rule_expression": rule_expression
+            "rule_expression": rule_expression,
         }
 
         if error_message:

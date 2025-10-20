@@ -225,12 +225,12 @@ def test_error_detection_works(tutorial_name, tutorial_metadata, tutorial_projec
 
     # With severity levels, test data may score 100% if it only has WARNING/INFO issues
     # This is correct behavior - WARNING issues are logged but don't penalize scores
-    
+
     # Verify assessment ran successfully (score is valid)
     assert 0.0 <= overall_score <= 100.0, (
         f"Tutorial '{tutorial_name}': Invalid score {overall_score}%, must be 0-100"
     )
-    
+
     # Verify assessment completed (has dimension scores)
     assert hasattr(assessment, 'dimension_scores'), (
         f"Tutorial '{tutorial_name}': Assessment missing dimension_scores"
@@ -238,7 +238,7 @@ def test_error_detection_works(tutorial_name, tutorial_metadata, tutorial_projec
     assert len(assessment.dimension_scores) == 5, (
         f"Tutorial '{tutorial_name}': Expected 5 dimension scores, got {len(assessment.dimension_scores)}"
     )
-    
+
     # Note: With explicit severity levels, test data scoring 100% is acceptable
     # if it only contains WARNING/INFO severity issues (style preferences, not quality problems)
     if overall_score == 100.0:
@@ -515,7 +515,7 @@ def test_assessment_and_logs_are_valid(tutorial_name, tutorial_metadata, tutoria
     with open(main_log_path, 'r', encoding='utf-8') as f:
         main_log_records = [json.loads(line) for line in f if line.strip()]
     main_log_df = pd.DataFrame(main_log_records)
-    
+
     # Validate against standard
     main_log_standard = Path('ADRI/standards/ADRI_audit_log.yaml')
     assert main_log_standard.exists(), (
@@ -554,7 +554,7 @@ def test_assessment_and_logs_are_valid(tutorial_name, tutorial_metadata, tutoria
     with open(dim_scores_path, 'r', encoding='utf-8') as f:
         dim_scores_records = [json.loads(line) for line in f if line.strip()]
     dim_scores_df = pd.DataFrame(dim_scores_records)
-    
+
     # Validate against standard
     dim_scores_standard = Path('ADRI/standards/ADRI_dimension_scores.yaml')
     assert dim_scores_standard.exists(), (
@@ -601,13 +601,13 @@ def test_assessment_and_logs_are_valid(tutorial_name, tutorial_metadata, tutoria
     with open(failed_val_path, 'r', encoding='utf-8') as f:
         failed_val_records = [json.loads(line) for line in f if line.strip()]
     failed_val_df = pd.DataFrame(failed_val_records)
-    
+
     # Validate against standard
     failed_val_standard = Path('ADRI/standards/ADRI_failed_validations.yaml')
     assert failed_val_standard.exists(), (
         f"Tutorial '{tutorial_name}': Failed validations standard not found at {failed_val_standard}"
     )
-    
+
     # Only validate if there are failures (this file can be empty for clean data)
     if len(failed_val_df) > 0:
         # Validate a sample of recent failures

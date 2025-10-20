@@ -8,7 +8,7 @@ add_if_missing() {
     local file="$1"
     local content="$2"
     local marker="$3"
-    
+
     if grep -q "$marker" "$file" 2>/dev/null; then
         echo "✓ Already configured: $marker"
     else

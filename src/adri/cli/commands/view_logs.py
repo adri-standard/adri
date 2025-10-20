@@ -385,7 +385,8 @@ class ViewLogsCommand(Command):
                 click.echo(
                     f"     Records: {
                         entry['data_row_count']} | Duration: {
-                        entry['assessment_duration_ms']}ms")
+                        entry['assessment_duration_ms']}ms"
+                )
                 click.echo(f"     Decision: {entry['execution_decision']}")
                 click.echo()
         else:
@@ -409,10 +410,12 @@ class ViewLogsCommand(Command):
 
         if failed_val_count > 0:
             click.echo(
-                f"   ✅ {audit_logs_dir}/adri_failed_validations.jsonl ({failed_val_count} validation failures)")
+                f"   ✅ {audit_logs_dir}/adri_failed_validations.jsonl ({failed_val_count} validation failures)"
+            )
         else:
             click.echo(
-                f"   ⚪ {audit_logs_dir}/adri_failed_validations.jsonl (no failures - data passed all checks)")
+                f"   ⚪ {audit_logs_dir}/adri_failed_validations.jsonl (no failures - data passed all checks)"
+            )
 
         # Show sample failures if verbose mode and failures exist
         if verbose and failed_val_count > 0:
@@ -440,7 +443,8 @@ class ViewLogsCommand(Command):
                                 click.echo(
                                     f"     Samples: {
                                         ', '.join(
-                                            str(s) for s in samples)}")
+                                            str(s) for s in samples)}"
+                                )
                             if remediation:
                                 click.echo(f"     Fix: {remediation}")
                             click.echo()

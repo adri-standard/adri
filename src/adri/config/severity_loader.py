@@ -50,11 +50,12 @@ class SeverityDefaultsLoader:
             config_file = Path(env_config_path)
 
         try:
-            with open(config_file, 'r', encoding='utf-8') as f:
+            with open(config_file, "r", encoding="utf-8") as f:
                 self._config = yaml.safe_load(f)
         except Exception as e:
             # Fallback to hardcoded defaults if config file can't be loaded
             import warnings
+
             warnings.warn(
                 f"Failed to load severity defaults config from {config_file}: {e}. "
                 "Using hardcoded defaults."
@@ -101,10 +102,7 @@ class SeverityDefaultsLoader:
         }
 
     def get_severity(
-        self,
-        dimension: str,
-        rule_type: str,
-        default: str = "CRITICAL"
+        self, dimension: str, rule_type: str, default: str = "CRITICAL"
     ) -> Severity:
         """Get severity level for a specific dimension and rule type.
 
@@ -130,8 +128,11 @@ class SeverityDefaultsLoader:
             # Check for overrides first
             overrides = self._config.get("overrides", {})
             # Handle None overrides (empty/commented in YAML)
-            if overrides and dimension in overrides and rule_type in overrides.get(dimension, {
-            }):
+            if (
+                overrides
+                and dimension in overrides
+                and rule_type in overrides.get(dimension, {})
+            ):
                 severity_str = overrides[dimension][rule_type]
                 return Severity.from_string(severity_str)
 

@@ -139,7 +139,7 @@ def _shorten_home(path: Path) -> str:
         p_str = str(abs_path)
         h_str = str(home_abs)
         if p_str.startswith(h_str):
-            return "~" + p_str[len(h_str):]
+            return "~" + p_str[len(h_str) :]
         return p_str
     except Exception:
         try:
@@ -162,7 +162,7 @@ def _rel_to_project_root(path: Path) -> str:
                 rel = abs_path.relative_to(root_abs)
                 rel_str = str(rel)
                 if rel_str.startswith("ADRI/"):
-                    rel_str = rel_str[len("ADRI/"):]
+                    rel_str = rel_str[len("ADRI/") :]
                 return rel_str
             except ValueError:
                 return _shorten_home(abs_path)
@@ -624,7 +624,8 @@ def _display_assessment_results(result, data, guide, threshold: float = 75.0):
         click.echo("==============================")
         click.echo(
             f"🎯 Agent System Health: {
-                result.overall_score:.1f}/100 {status_icon} {status_text}")
+                result.overall_score:.1f}/100 {status_icon} {status_text}"
+        )
         click.echo(f"Threshold = {threshold:.1f}/100 (set in your standard)")
         click.echo("   → Overall reliability for AI agent workflows")
         click.echo(
@@ -658,7 +659,8 @@ def _display_assessment_results(result, data, guide, threshold: float = 75.0):
         )
         click.echo(
             f"Score: {
-                result.overall_score:.1f}/100 {status_icon} {status_text} → {explanation}")
+                result.overall_score:.1f}/100 {status_icon} {status_text} → {explanation}"
+        )
 
 
 # ---------------- Hash/snapshot helpers -----------------
@@ -1015,7 +1017,8 @@ def _display_audit_logs_table(table_data, log_entries, audit_logs_dir, verbose):
         module = entry["module"].ljust(11)
         date = entry["date"].ljust(11)
         click.echo(
-            f"│ {data_packet} │ {score} │ {status} │ {mode} │ {function} │ {module} │ {date} │")
+            f"│ {data_packet} │ {score} │ {status} │ {mode} │ {function} │ {module} │ {date} │"
+        )
     click.echo(
         "└─────────────┴───────────┴──────────────┴─────────────┴─────────────────┴─────────────┴─────────────┘"
     )
@@ -1027,7 +1030,8 @@ def _display_audit_logs_table(table_data, log_entries, audit_logs_dir, verbose):
             click.echo(
                 f"     Records: {
                     entry['data_row_count']} | Duration: {
-                    entry['assessment_duration_ms']}ms")
+                    entry['assessment_duration_ms']}ms"
+            )
             click.echo(f"     Decision: {entry['execution_decision']}")
             click.echo()
     else:
@@ -1588,12 +1592,14 @@ def show_help_guide() -> int:
             f"   Current Environment: {
                 os.environ.get(
                     'ADRI_ENV',
-                    'development')}")
-        click.echo(   "Default: Development environment")
+                    'development')}"
+        )
+        click.echo("Default: Development environment")
         click.echo("   Switch: Edit ADRI/config.yaml (set default_environment)")
         click.echo(
             f"   Project Root: {
-                project_root if project_root else 'Not detected'}")
+                project_root if project_root else 'Not detected'}"
+        )
         click.echo("")
 
         # Display Directory Structure
@@ -1603,12 +1609,16 @@ def show_help_guide() -> int:
         click.echo("   ├── dev/                 # Development environment")
         click.echo("   │   ├── dev/standards/       # Draft/testing standards")
         click.echo("   │   ├── dev/assessments/     # Development assessment reports")
-        click.echo("   │   ├── dev/training-data/   # Development training data snapshots")
+        click.echo(
+            "   │   ├── dev/training-data/   # Development training data snapshots"
+        )
         click.echo("   │   └── dev/audit-logs/      # Development audit logs")
         click.echo("   └── prod/                # Production environment")
         click.echo("       ├── prod/standards/       # Validated/approved standards")
         click.echo("       ├── prod/assessments/     # Production assessment reports")
-        click.echo("       ├── prod/training-data/   # Production training data snapshots")
+        click.echo(
+            "       ├── prod/training-data/   # Production training data snapshots"
+        )
         click.echo("       └── prod/audit-logs/      # Production audit logs")
         click.echo("")
 

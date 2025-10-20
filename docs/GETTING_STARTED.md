@@ -67,7 +67,7 @@ The guide will walk you through:
 - Generating and viewing standards
 - Understanding assessment results
 
-**Time**: 5 minutes  
+**Time**: 5 minutes
 **Recommended for**: First-time users wanting a quick interactive introduction
 
 **Want more depth?** Continue reading this guide for detailed explanations and advanced topics.
@@ -88,11 +88,11 @@ import pandas as pd
 def process_customers(customers):
     """Process customer data for analysis."""
     print(f"Processing {len(customers)} customers")
-    
+
     # Your processing logic
     total_value = customers['purchase_value'].sum()
     avg_age = customers['age'].mean()
-    
+
     return {
         "total_customers": len(customers),
         "total_value": total_value,
@@ -109,7 +109,7 @@ if __name__ == "__main__":
         "purchase_value": [100.0, 150.0, 200.0],
         "signup_date": ["2024-01-01", "2024-01-02", "2024-01-03"]
     })
-    
+
     result = process_customers(customers)
     print(f"Result: {result}")
 ```
@@ -185,34 +185,34 @@ standard:
   name: "process_customers_customers"
   version: "1.0.0"
   description: "Auto-generated standard for process_customers function"
-  
+
   fields:
     customer_id:
       type: integer
       required: true
       min_value: 1
-      
+
     name:
       type: string
       required: true
       min_length: 1
-      
+
     email:
       type: string
       required: true
       pattern: "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
-      
+
     age:
       type: integer
       required: true
       min_value: 0
       max_value: 120
-      
+
     purchase_value:
       type: number
       required: true
       min_value: 0
-      
+
     signup_date:
       type: date
       required: true
@@ -227,35 +227,35 @@ standard:
   name: "process_customers_customers"
   version: "1.1.0"  # Updated version
   description: "Customer data quality standard"
-  
+
   fields:
     customer_id:
       type: integer
       required: true
       min_value: 1
-      
+
     name:
       type: string
       required: true
       min_length: 2  # Names must be at least 2 characters
-      
+
     email:
       type: string
       required: true
       pattern: "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
-      
+
     age:
       type: integer
       required: true
       min_value: 18  # Only adults
       max_value: 100
-      
+
     purchase_value:
       type: number
       required: true
       min_value: 0.01  # Minimum purchase
       max_value: 10000  # Maximum purchase limit
-      
+
     signup_date:
       type: date
       required: true

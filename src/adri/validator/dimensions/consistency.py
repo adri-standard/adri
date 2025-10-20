@@ -46,7 +46,8 @@ class ConsistencyAssessor(DimensionAssessor):
         if using_validation_rules:
             # New format: Use validation_rules with severity filtering
             return self._assess_consistency_with_validation_rules(
-                data, field_requirements)
+                data, field_requirements
+            )
 
         # Old format: Use existing weighted rule scoring
         scoring_cfg = requirements.get("scoring", {})
@@ -366,12 +367,11 @@ class ConsistencyAssessor(DimensionAssessor):
                                     "field": field,
                                     "issue": "duplicate_primary_key",
                                     "affected_rows": int(count),
-                                    "affected_percentage": (
-                                        count / len(data)) * 100.0,
-                                    "samples": [
-                                        str(value)],
+                                    "affected_percentage": (count / len(data)) * 100.0,
+                                    "samples": [str(value)],
                                     "remediation": f"Remove or correct duplicate values for primary key field '{field}'",
-                                })
+                                }
+                            )
             else:
                 # Composite primary key
                 pk_data = data[pk_fields].copy()
@@ -406,12 +406,13 @@ class ConsistencyAssessor(DimensionAssessor):
                                         "field": ":".join(pk_fields),
                                         "issue": "duplicate_composite_primary_key",
                                         "affected_rows": int(count),
-                                        "affected_percentage": (
-                                            count / len(data)) * 100.0,
+                                        "affected_percentage": (count / len(data))
+                                        * 100.0,
                                         "samples": [sample_key],
                                         "remediation": f"Remove or correct duplicate combinations for composite primary key ({
                                             ', '.join(pk_fields)})",
-                                    })
+                                    }
+                                )
 
         except Exception:
             # If there's an error in the detailed check, return a generic failure
@@ -425,7 +426,8 @@ class ConsistencyAssessor(DimensionAssessor):
                     "affected_percentage": 100.0,
                     "samples": [],
                     "remediation": "Unable to verify primary key uniqueness due to data processing error",
-                })
+                }
+            )
 
         return failures
 
@@ -645,12 +647,14 @@ class ConsistencyAssessor(DimensionAssessor):
                                     "field": f"{total_col}",
                                     "issue": "incorrect_total",
                                     "affected_rows": int(mismatch_count),
-                                    "affected_percentage": (
-                                        mismatch_count / total_rows) * 100.0,
+                                    "affected_percentage": (mismatch_count / total_rows)
+                                    * 100.0,
                                     "samples": [
-                                        f"Row {idx}" for idx in mismatch_indices],
+                                        f"Row {idx}" for idx in mismatch_indices
+                                    ],
                                     "remediation": f"Ensure {total_col} = {part1_col} + {part2_col}",
-                                })
+                                }
+                            )
                     except Exception:
                         pass
 
@@ -730,6 +734,7 @@ class ConsistencyAssessor(DimensionAssessor):
         """
         from src.adri.core.severity import Severity
         from src.adri.core.validation_rule import ValidationRule
+
         from ..rules import execute_validation_rule
 
         total_critical_checks = 0
@@ -750,7 +755,8 @@ class ConsistencyAssessor(DimensionAssessor):
 
             # Filter to only CRITICAL rules for consistency dimension
             critical_rules = [
-                r for r in validation_rules
+                r
+                for r in validation_rules
                 if isinstance(r, ValidationRule)
                 and r.dimension == "consistency"
                 and r.severity == Severity.CRITICAL
@@ -771,6 +777,7 @@ class ConsistencyAssessor(DimensionAssessor):
         if total_critical_checks == 0:
             return 20.0  # No CRITICAL rules = perfect score
 
-        success_rate = (total_critical_checks -
-                        failed_critical_checks) / total_critical_checks
+        success_rate = (
+            total_critical_checks - failed_critical_checks
+        ) / total_critical_checks
         return success_rate * 20.0

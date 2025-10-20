@@ -353,7 +353,9 @@ class GenerateStandardCommand(Command):
         _progressive_echo(
             f"  • MIN_SCORE:      {
                 controls['min_score']}/100   → Health passes if ≥ {
-                controls['min_score']}", 0.0, )
+                controls['min_score']}",
+            0.0,
+        )
         _progressive_echo(
             f"  • READINESS.GATE: {
                 controls['row_threshold']:.2f}     → {
@@ -383,7 +385,9 @@ class GenerateStandardCommand(Command):
         _progressive_echo(f"# Path: {rel_to_project_root(output_path)}", 0.0)
         _progressive_echo(
             f"# (preview — view full file with: less {
-                rel_to_project_root(output_path)})", 0.0, )
+                rel_to_project_root(output_path)})",
+            0.0,
+        )
         _progressive_echo("", 0.0)
         _progressive_echo(self._format_yaml_controls(controls), 0.0)
         _progressive_echo("─" * 58, 0.5)
@@ -400,7 +404,9 @@ class GenerateStandardCommand(Command):
                 0.0,
             )
             _progressive_echo(
-                "        --standard dev/standards/invoice_data_ADRI_standard.yaml --guide", 0.0, )
+                "        --standard dev/standards/invoice_data_ADRI_standard.yaml --guide",
+                0.0,
+            )
         else:
             _progressive_echo("   adri assess your_test_data.csv \\", 0.0)
             _progressive_echo(
@@ -414,7 +420,9 @@ class GenerateStandardCommand(Command):
         )
         _progressive_echo(
             f"     • System Health — overall dataset quality (vs MIN_SCORE {
-                controls['min_score']})", 0.0, )
+                controls['min_score']})",
+            0.0,
+        )
         _progressive_echo(
             "     • Batch Readiness — which rows are agent-safe right now", 0.0
         )

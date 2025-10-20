@@ -194,7 +194,7 @@ def process_with_config(customers, config, api_key):
 # Production - strict validation
 @adri_protected(
     standard="prod_data",
-    data_param="data", 
+    data_param="data",
     on_failure="raise",
     min_score=90
 )

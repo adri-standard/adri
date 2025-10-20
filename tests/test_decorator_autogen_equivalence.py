@@ -286,7 +286,7 @@ class TestDecoratorAutoGeneration:
         # Set up environment for test project
         test_standard_name = "test_autogen_invoice"
         os.environ['ADRI_ENV'] = 'development'
-        
+
         # CRITICAL: Unset ADRI_STANDARDS_DIR so config file takes precedence
         os.environ.pop('ADRI_STANDARDS_DIR', None)
 
@@ -302,12 +302,12 @@ class TestDecoratorAutoGeneration:
         original_cwd = os.getcwd()
         try:
             os.chdir(project_root)
-            
+
             # Ensure standard doesn't exist - delete both resolved and unresolved paths
             standard_dir = project_root / 'ADRI' / 'dev' / 'standards'
             standard_path_resolved = (standard_dir / f"{test_standard_name}.yaml").resolve()
             standard_path_unresolved = Path('ADRI') / 'dev' / 'standards' / f"{test_standard_name}.yaml"
-            
+
             if standard_path_resolved.exists():
                 standard_path_resolved.unlink()
             if standard_path_unresolved.exists():
@@ -320,18 +320,18 @@ class TestDecoratorAutoGeneration:
 
             # Execute function - should trigger auto-generation
             result = process_invoices(training_data)
-            
+
             # Search for created file instead of checking exact path (handles macOS symlinks)
             standards_dir = Path('ADRI') / 'dev' / 'standards'
             assert standards_dir.exists(), f"Standards directory should exist: {standards_dir}"
-            
+
             found_files = list(standards_dir.glob(f"{test_standard_name}.yaml"))
             assert len(found_files) > 0, \
                 f"Standard {test_standard_name}.yaml should be auto-generated in {standards_dir}. Found files: {list(standards_dir.glob('*.yaml'))}"
-            
+
             # Use the found file for subsequent checks
             standard_path = found_files[0]
-            
+
             # Read the file WHILE still in chdir context
             with open(standard_path, 'r', encoding='utf-8') as f:
                 standard_content = yaml.safe_load(f)
@@ -359,7 +359,7 @@ class TestDecoratorAutoGeneration:
 
         # Set up environment
         os.environ['ADRI_ENV'] = 'development'
-        
+
         # CRITICAL: Unset ADRI_STANDARDS_DIR so config file takes precedence
         os.environ.pop('ADRI_STANDARDS_DIR', None)
 
@@ -387,12 +387,12 @@ class TestDecoratorAutoGeneration:
 
         # Step 2: Use decorator to trigger auto-generation
         decorator_standard_name = "test_decorator_invoice"
-        
+
         # Change to project root for path resolution
         original_cwd = os.getcwd()
         try:
             os.chdir(project_root)
-            
+
             # Delete standard to force decorator auto-generation (after chdir)
             decorator_standard_path = (standard_dir / f"{decorator_standard_name}.yaml").resolve()
             if decorator_standard_path.exists():
@@ -404,18 +404,18 @@ class TestDecoratorAutoGeneration:
 
             # Execute to trigger auto-generation
             result = process_invoices(training_data)
-            
+
             # Search for created file instead of checking exact path
             standards_dir_rel = Path('ADRI') / 'dev' / 'standards'
             assert standards_dir_rel.exists(), f"Standards directory should exist: {standards_dir_rel}"
-            
+
             found_files = list(standards_dir_rel.glob(f"{decorator_standard_name}.yaml"))
             assert len(found_files) > 0, \
                 f"Decorator should auto-generate {decorator_standard_name}.yaml. Found files: {list(standards_dir_rel.glob('*.yaml'))}"
-            
+
             # Use the found file and read it WHILE still in chdir context
             decorator_standard_path = found_files[0]
-            
+
             # Step 4: Read decorator-generated standard
             with open(decorator_standard_path, 'r', encoding='utf-8') as f:
                 decorator_standard = yaml.safe_load(f)
@@ -451,7 +451,7 @@ class TestDecoratorAutoGeneration:
 
         # Set up environment
         os.environ['ADRI_ENV'] = 'development'
-        
+
         # CRITICAL: Unset ADRI_STANDARDS_DIR so config file takes precedence
         os.environ.pop('ADRI_STANDARDS_DIR', None)
 
@@ -474,12 +474,12 @@ class TestDecoratorAutoGeneration:
         # Auto-generate decorator standard
         standard_dir = project_root / 'ADRI' / 'dev' / 'standards'
         decorator_standard_name = "test_fields_decorator"
-        
+
         # Change to project root for path resolution
         original_cwd = os.getcwd()
         try:
             os.chdir(project_root)
-            
+
             # Delete standard and resolve path after chdir
             decorator_standard_path = (standard_dir / f"{decorator_standard_name}.yaml").resolve()
             if decorator_standard_path.exists():
@@ -490,14 +490,14 @@ class TestDecoratorAutoGeneration:
                 return data
 
             process_data(training_data)
-            
+
             # Search for created file and read it WHILE still in chdir context
             standards_dir_rel = Path('ADRI') / 'dev' / 'standards'
             if standards_dir_rel.exists():
                 found_files = list(standards_dir_rel.glob(f"{decorator_standard_name}.yaml"))
                 if len(found_files) > 0:
                     decorator_standard_path = found_files[0]
-            
+
             # Read the file before exiting chdir context
             with open(decorator_standard_path, 'r', encoding='utf-8') as f:
                 decorator_standard = yaml.safe_load(f)
@@ -532,7 +532,7 @@ class TestDecoratorAutoGeneration:
 
         # Set up environment
         os.environ['ADRI_ENV'] = 'development'
-        
+
         # CRITICAL: Unset ADRI_STANDARDS_DIR so config file takes precedence
         os.environ.pop('ADRI_STANDARDS_DIR', None)
 
@@ -555,12 +555,12 @@ class TestDecoratorAutoGeneration:
         # Auto-generate decorator standard
         standard_dir = project_root / 'ADRI' / 'dev' / 'standards'
         decorator_standard_name = "test_rules_decorator"
-        
+
         # Change to project root for path resolution
         original_cwd = os.getcwd()
         try:
             os.chdir(project_root)
-            
+
             # Delete standard and resolve path after chdir
             decorator_standard_path = (standard_dir / f"{decorator_standard_name}.yaml").resolve()
             if decorator_standard_path.exists():
@@ -615,7 +615,7 @@ class TestDecoratorAutoGeneration:
 
         # Set up environment
         os.environ['ADRI_ENV'] = 'development'
-        
+
         # CRITICAL: Unset ADRI_STANDARDS_DIR so config file takes precedence
         os.environ.pop('ADRI_STANDARDS_DIR', None)
 
@@ -645,12 +645,12 @@ class TestDecoratorAutoGeneration:
 
         # Auto-generate decorator standard
         decorator_standard_name = "test_assessment_decorator"
-        
+
         # Change to project root for path resolution
         original_cwd = os.getcwd()
         try:
             os.chdir(project_root)
-            
+
             # Delete standard and resolve path after chdir
             decorator_standard_path = (standard_dir / f"{decorator_standard_name}.yaml").resolve()
             if decorator_standard_path.exists():

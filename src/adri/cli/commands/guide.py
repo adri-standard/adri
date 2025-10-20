@@ -124,9 +124,7 @@ class GuideCommand(Command):
         _progressive_echo("─" * 58, 0.0)
         _progressive_echo("What is ADRI?", 0.0)
         _progressive_echo("─" * 58, 0.0)
-        _progressive_echo(
-            "ADRI prevents AI agents from breaking on bad data by:", 0.0
-        )
+        _progressive_echo("ADRI prevents AI agents from breaking on bad data by:", 0.0)
         _progressive_echo("  • Validating data quality before agent execution", 0.0)
         _progressive_echo("  • Tracking data lineage and audit trails", 0.0)
         _progressive_echo("  • Blocking or warning on quality issues", 0.0)
@@ -136,9 +134,7 @@ class GuideCommand(Command):
         _progressive_echo(
             "  📊 System Health → Dataset-level quality score (0-100)", 0.0
         )
-        _progressive_echo(
-            "  ✅ Batch Readiness → Row-level pass/fail gate", 0.5
-        )
+        _progressive_echo("  ✅ Batch Readiness → Row-level pass/fail gate", 0.5)
         _progressive_echo("", 0.0)
 
         return True
@@ -186,7 +182,8 @@ class GuideCommand(Command):
         _progressive_echo("─" * 58, 0.5)
         _progressive_echo("", 0.0)
         _progressive_echo(
-            "ADRI can protect your AI functions with a simple decorator:", 0.0)
+            "ADRI can protect your AI functions with a simple decorator:", 0.0
+        )
         _progressive_echo("", 0.3)
         _progressive_echo("```python", 0.0)
         _progressive_echo("from adri import adri_assess", 0.0)
@@ -235,9 +232,7 @@ class GuideCommand(Command):
         # Check if training data exists
         training_file = self.tutorial_path / "invoice_data.csv"
         if not training_file.exists():
-            click.echo(
-                f"❌ Training data not found: {training_file}"
-            )
+            click.echo(f"❌ Training data not found: {training_file}")
             click.echo("   Please ensure setup completed successfully")
             return False
 
@@ -319,7 +314,8 @@ class GuideCommand(Command):
         _progressive_echo("─" * 58, 0.5)
         _progressive_echo("", 0.0)
         _progressive_echo(
-            "ADRI maintains comprehensive audit logs of all assessments.", 0.0)
+            "ADRI maintains comprehensive audit logs of all assessments.", 0.0
+        )
         _progressive_echo("Let's view the recent activity:", 0.5)
         _progressive_echo("", 0.0)
 
@@ -397,7 +393,8 @@ class GuideCommand(Command):
             "  • Switch to 'prod' environment for production deployments", 0.0
         )
         _progressive_echo(
-            "  • Review audit logs regularly for data quality trends", 0.0)
+            "  • Review audit logs regularly for data quality trends", 0.0
+        )
         _progressive_echo(
             "  • Adjust thresholds in standards based on your requirements", 0.5
         )

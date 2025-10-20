@@ -118,7 +118,7 @@ Once you complete the guide, you'll have:
 1. **Integrate with your code**:
    ```python
    from adri import adri_assess
-   
+
    @adri_assess(
        standard="dev/standards/your_standard.yaml",
        guard_mode="block"
@@ -154,7 +154,7 @@ Once you complete the guide, you'll have:
 # Step 1
 adri setup --guide
 
-# Step 2  
+# Step 2
 adri generate-standard data.csv --guide
 
 # Step 3
@@ -253,7 +253,7 @@ Share feedback through GitHub issues or discussions.
 ## See Also
 
 - [README.md](../README.md) - Project overview and quick start
-- [QUICKSTART.md](../QUICKSTART.md) - Detailed getting started guide  
+- [QUICKSTART.md](../QUICKSTART.md) - Detailed getting started guide
 - [CLI_REFERENCE.md](CLI_REFERENCE.md) - Complete CLI command reference
 - [GETTING_STARTED.md](GETTING_STARTED.md) - Integration guide for developers
 - [HOW_IT_WORKS.md](HOW_IT_WORKS.md) - Technical architecture details

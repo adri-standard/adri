@@ -260,7 +260,7 @@ TICKET_ID-01002,CUSTOMER_ID-01002,2024-01-29,Product Inquiry,INVALID,Open,0.5,99
 
 ## Summary
 
-The standard validation workflow provides **automated, comprehensive testing** for all ADRI standards. 
+The standard validation workflow provides **automated, comprehensive testing** for all ADRI standards.
 
 **To validate any standard:**
 1. Run: `python scripts/generate_standard_test_data.py <standard.yaml>`

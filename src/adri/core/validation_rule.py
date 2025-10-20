@@ -4,6 +4,7 @@ This module defines the ValidationRule dataclass that represents individual
 validation rules with explicit severity levels.
 """
 
+from dataclasses import dataclass
 from typing import Any, Dict, Optional
 
 from .severity import Severity
@@ -69,8 +70,11 @@ class ValidationRule:
 
         # Validate dimension
         valid_dimensions = {
-            "validity", "completeness", "consistency",
-            "freshness", "plausibility"
+            "validity",
+            "completeness",
+            "consistency",
+            "freshness",
+            "plausibility",
         }
         if self.dimension not in valid_dimensions:
             raise ValueError(
@@ -116,12 +120,14 @@ class ValidationRule:
             "dimension",
             "severity",
             "rule_type",
-            "rule_expression"]
+            "rule_expression",
+        ]
         missing_fields = [f for f in required_fields if f not in rule_dict]
         if missing_fields:
             raise ValueError(
                 f"Missing required fields in validation rule: {
-                    ', '.join(missing_fields)}")
+                    ', '.join(missing_fields)}"
+            )
 
         # Extract fields with defaults for optional ones
         return cls(
@@ -132,7 +138,7 @@ class ValidationRule:
             rule_expression=rule_dict["rule_expression"],
             error_message=rule_dict.get("error_message"),
             remediation=rule_dict.get("remediation"),
-            penalty_weight=rule_dict.get("penalty_weight", 1.0)
+            penalty_weight=rule_dict.get("penalty_weight", 1.0),
         )
 
     def to_dict(self) -> Dict[str, Any]:

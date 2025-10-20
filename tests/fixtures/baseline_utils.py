@@ -492,13 +492,13 @@ def compare_jsonl_files(current: Path, baseline: Path) -> Optional[Dict[str, Any
             for col in comparable_cols:
                 curr_val = current_sample.iloc[idx][col]
                 base_val = baseline_sample.iloc[idx][col]
-                
+
                 # Compare values, handling NaN and arrays
                 try:
                     # Check if both are NaN (handles scalar and array cases)
                     curr_is_na = pd.isna(curr_val).all() if hasattr(pd.isna(curr_val), 'all') else pd.isna(curr_val)
                     base_is_na = pd.isna(base_val).all() if hasattr(pd.isna(base_val), 'all') else pd.isna(base_val)
-                    
+
                     if curr_is_na and base_is_na:
                         continue
                     if curr_is_na or base_is_na or curr_val != base_val:

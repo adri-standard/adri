@@ -129,7 +129,8 @@ class SelectiveMode(ProtectionMode):
     def handle_failure(self, assessment_result: Any, error_message: str) -> None:
         """Log failure but continue execution."""
         self.logger.warning(
-            f"Selective mode: Data quality issue detected but continuing - {error_message}")
+            f"Selective mode: Data quality issue detected but continuing - {error_message}"
+        )
         print("⚠️  ADRI Warning: Data quality below threshold but continuing execution")
         print(f"📊 Score: {assessment_result.overall_score:.1f}")
 
@@ -204,7 +205,8 @@ class DataProtectionEngine:
 
         self.logger.debug(
             f"DataProtectionEngine initialized with {
-                self.protection_mode.mode_name} mode")
+                self.protection_mode.mode_name} mode"
+        )
 
     @property
     def protection_config(self) -> Dict[str, Any]:
@@ -362,7 +364,8 @@ class DataProtectionEngine:
         if verbose:
             self.logger.info(
                 f"Protecting function '{function_name}' with {
-                    effective_mode.mode_name} mode, min_score={min_score}")
+                    effective_mode.mode_name} mode, min_score={min_score}"
+            )
 
         try:
             # Extract data from function parameters
@@ -400,7 +403,8 @@ class DataProtectionEngine:
                 self.logger.info(
                     f"Assessment completed in {
                         assessment_duration:.2f}s, score: {
-                        assessment_result.overall_score:.1f}")
+                        assessment_result.overall_score:.1f}"
+                )
 
             # Invoke assessment callback if provided (before pass/fail checking)
             self._invoke_assessment_callback(on_assessment, assessment_result, verbose)
@@ -728,8 +732,10 @@ class DataProtectionEngine:
             )
         else:
             return (
-                f"🛡️ ADRI Protection: ALLOWED ✅\n" f"📊 Score: {
-                    assessment_result.overall_score:.1f}/100 | Standard: {standard_name}")
+                f"🛡️ ADRI Protection: ALLOWED ✅\n"
+                f"📊 Score: {
+                    assessment_result.overall_score:.1f}/100 | Standard: {standard_name}"
+            )
 
     def _invoke_assessment_callback(
         self,
@@ -756,7 +762,8 @@ class DataProtectionEngine:
             if verbose:
                 self.logger.debug(
                     f"Invoking assessment callback with result (score: {
-                        assessment_result.overall_score:.1f})")
+                        assessment_result.overall_score:.1f})"
+                )
 
             # Invoke the callback with the assessment result
             callback(assessment_result)

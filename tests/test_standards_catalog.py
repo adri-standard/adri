@@ -483,7 +483,7 @@ class TestStandardsCatalogIntegrity:
                 continue
 
             for standard_file in standards_dir.glob("*.yaml"):
-                with open(standard_file, 'r') as f:
+                with open(standard_file, 'r', encoding='utf-8') as f:
                     standard = yaml.safe_load(f)
 
                 if 'standards' in standard and 'id' in standard['standards']:
@@ -500,11 +500,11 @@ class TestStandardsCatalogIntegrity:
 
         # At least the main standards directory should exist
         assert Path("adri/standards").exists(), "Main standards directory must exist"
-        
+
         # Check for catalog subdirectories (may not all exist yet)
         catalog_dirs = ["domains", "frameworks", "templates"]
         existing_dirs = [d for d in catalog_dirs if (Path("adri/standards") / d).exists()]
-        
+
         # Should have at least one catalog subdirectory
         assert len(existing_dirs) >= 1, f"Expected at least one catalog subdirectory, found {existing_dirs}"
 
@@ -524,7 +524,7 @@ class TestStandardsCatalogIntegrity:
                 continue
 
             for standard_file in standards_dir.glob("*.yaml"):
-                with open(standard_file, 'r') as f:
+                with open(standard_file, 'r', encoding='utf-8') as f:
                     standard = yaml.safe_load(f)
 
                 # Verify required top-level sections

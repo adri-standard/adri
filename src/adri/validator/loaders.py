@@ -392,6 +392,7 @@ def _parse_validation_rules(standard: Dict[str, Any]) -> Dict[str, Any]:
                         except Exception as e:
                             # Log warning but continue - validation will catch issues
                             import warnings
+
                             warnings.warn(
                                 f"Failed to parse validation rule for field '{field_name}' "
                                 f"in dimension '{dimension_name}': {e}"

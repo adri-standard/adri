@@ -128,7 +128,8 @@ class ValidationPipeline:
                 diagnostic_log.append(
                     f"Dimension requirements loaded: {
                         list(
-                            dimension_requirements.keys())}")
+                            dimension_requirements.keys())}"
+                )
                 diagnostic_log.append(
                     f"Field requirements count: {len(field_requirements)}"
                 )
@@ -335,7 +336,9 @@ class ValidationPipeline:
             print(
                 f"Warning: Failed to collect {dimension_name} explanation: {
                     type(e).__name__}: {
-                    str(e)}", file=sys.stderr, )
+                    str(e)}",
+                file=sys.stderr,
+            )
 
         return None
 

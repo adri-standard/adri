@@ -289,13 +289,17 @@ class AssessCommand(Command):
         _progressive_echo("─" * 58, 0.0)
         _progressive_echo(
             f"  • Health = average dataset quality (meets {
-                int(threshold)}/100 threshold).", 0.0, )
+                int(threshold)}/100 threshold).",
+            0.0,
+        )
         _progressive_echo(
             "  • Readiness = how many records are agent-safe right now.", 0.0
         )
         if result.passed and actual_passed_records < total_records:
             _progressive_echo(
-                f"  • You passed health, but {actual_failed_records} row(s) need fixes.", 0.6, )
+                f"  • You passed health, but {actual_failed_records} row(s) need fixes.",
+                0.6,
+            )
         else:
             _progressive_echo("", 0.6)
         _progressive_echo("", 0.0)
@@ -334,7 +338,8 @@ class AssessCommand(Command):
         )
         click.echo(
             f"Score: {
-                result.overall_score:.1f}/100 {status_icon} {status_text} → {explanation}")
+                result.overall_score:.1f}/100 {status_icon} {status_text} → {explanation}"
+        )
 
         # Display standard path for transparency (Issue #35 fix)
         if hasattr(result, "standard_path") and result.standard_path:

@@ -93,18 +93,18 @@ Creates `ADRI/dev/standards/process_customers_customers_standard.yaml`:
 standard:
   name: "process_customers_customers"
   version: "1.0.0"
-  
+
   fields:
     id:
       type: integer
       required: true
       min_value: 1
-    
+
     email:
       type: string
       required: true
       pattern: "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
-    
+
     age:
       type: integer
       required: true

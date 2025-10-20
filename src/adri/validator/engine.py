@@ -172,13 +172,16 @@ class BundledStandardWrapper:
 
             if field_name in field_reqs:
                 field_config = field_reqs[field_name]
-                if isinstance(field_config,
-                              dict) and "validation_rules" in field_config:
+                if (
+                    isinstance(field_config, dict)
+                    and "validation_rules" in field_config
+                ):
                     rules = field_config["validation_rules"]
                     if isinstance(rules, list):
                         # Filter to only ValidationRule objects
                         all_rules.extend(
-                            [r for r in rules if isinstance(r, ValidationRule)])
+                            [r for r in rules if isinstance(r, ValidationRule)]
+                        )
 
         return all_rules
 
@@ -207,8 +210,10 @@ class BundledStandardWrapper:
                 continue
 
             for field_name, field_config in field_reqs.items():
-                if isinstance(field_config,
-                              dict) and "validation_rules" in field_config:
+                if (
+                    isinstance(field_config, dict)
+                    and "validation_rules" in field_config
+                ):
                     rules = field_config["validation_rules"]
                     if isinstance(rules, list):
                         # Initialize field entry if not exists
@@ -222,9 +227,8 @@ class BundledStandardWrapper:
         return rules_by_field
 
     def filter_rules_by_dimension(
-            self,
-            dimension: str,
-            rules: List[Any] = None) -> List[Any]:
+        self, dimension: str, rules: List[Any] = None
+    ) -> List[Any]:
         """
         Filter ValidationRule objects by dimension.
 
@@ -250,7 +254,8 @@ class BundledStandardWrapper:
 
         # Filter by dimension
         return [
-            r for r in rules
+            r
+            for r in rules
             if isinstance(r, ValidationRule) and r.dimension == dimension
         ]
 
@@ -286,8 +291,7 @@ class BundledStandardWrapper:
 
         # Filter by severity
         return [
-            r for r in rules
-            if isinstance(r, ValidationRule) and r.severity == severity
+            r for r in rules if isinstance(r, ValidationRule) and r.severity == severity
         ]
 
 
@@ -924,7 +928,8 @@ class DataQualityAssessor:
                 diagnostic_log.append("=== METADATA ===")
                 if "applied_dimension_weights" in result.metadata:
                     diagnostic_log.append(
-                        f"Applied weights: {result.metadata['applied_dimension_weights']}")
+                        f"Applied weights: {result.metadata['applied_dimension_weights']}"
+                    )
 
             # Write diagnostic log to stderr for debugging
             diagnostic_output = "\n".join(diagnostic_log)
@@ -1165,7 +1170,8 @@ class ValidationEngine:
             for k in list(weights.keys()):
                 weights[k] = 1.0
             self._scoring_warnings.append(
-                f"{label} weights were zero/invalid; applied equal weights of 1.0 to present dimensions")
+                f"{label} weights were zero/invalid; applied equal weights of 1.0 to present dimensions"
+            )
         return weights
 
     def _normalize_rule_weights(
@@ -1366,7 +1372,8 @@ class ValidationEngine:
                     if fw <= 0.0:
                         if isinstance(weight, (int, float)) and weight < 0:
                             self._scoring_warnings.append(
-                                f"Validity field_overrides contained negative weight for '{field_name}.{rule_name}', clamped to 0.0")
+                                f"Validity field_overrides contained negative weight for '{field_name}.{rule_name}', clamped to 0.0"
+                            )
                         continue
                     c = per_field_counts[field_name].get(rule_name)
                     if not c or c.get("total", 0) <= 0:
@@ -2029,15 +2036,13 @@ class ValidationEngine:
                 "date_field": date_field,
                 "as_of": str(as_of),
                 "window_days": int(wd_val) if wd_val is not None else None,
-                "counts": {
-                    "passed": 0,
-                    "total": 0},
+                "counts": {"passed": 0, "total": 0},
                 "pass_rate": 1.0,
-                "rule_weights_applied": {
-                    "recency_window": float(rw)},
+                "rule_weights_applied": {"recency_window": float(rw)},
                 "score_0_20": 20.0,
                 "warnings": [
-                    f"date_field '{date_field}' not found; using perfect baseline score 20.0/20"],
+                    f"date_field '{date_field}' not found; using perfect baseline score 20.0/20"
+                ],
             }
             return 20.0
 

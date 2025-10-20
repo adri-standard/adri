@@ -424,7 +424,8 @@ class DimensionRequirementsBuilder:
                 min_score = float(dim_config.get("minimum_score", 15.0))
                 if min_score < 0 or min_score > 20:
                     errors.append(
-                        f"Invalid minimum_score for dimension {dim}: {min_score} (must be 0-20)")
+                        f"Invalid minimum_score for dimension {dim}: {min_score} (must be 0-20)"
+                    )
             except (ValueError, TypeError):
                 errors.append(
                     f"Invalid minimum_score for dimension {dim}: must be numeric"

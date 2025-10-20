@@ -741,7 +741,7 @@ results = []
 for file_path in glob.glob("data/*.csv"):
     data = pd.read_csv(file_path)
     assessment = assessor.assess(data, standard)
-    
+
     results.append({
         "file": file_path,
         "score": assessment.overall_score,
