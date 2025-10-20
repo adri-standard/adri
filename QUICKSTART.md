@@ -70,6 +70,23 @@ Quality Issues:
 
 Your function is now protected. Bad data is blocked before it reaches your logic.
 
+## Want an Interactive Tutorial?
+
+New to ADRI? Try the interactive guide:
+
+```bash
+adri guide
+```
+
+This 3-minute walkthrough will:
+- Set up your project
+- Show decorator usage
+- Generate a standard
+- Assess sample data
+- Review audit logs
+
+**Highly recommended for first-time users!**
+
 ## What's Next?
 
 ### Choose Protection Mode

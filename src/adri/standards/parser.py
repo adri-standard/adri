@@ -71,11 +71,11 @@ class StandardsParser:
     def _get_standards_path(self) -> Path:
         """Resolve standards directory path from environment parameter only."""
 
-        # Environment variable is required - no defaults or fallbacks
-        env_path = os.getenv("ADRI_STANDARDS_PATH")
+        # Use consistent variable name: ADRI_STANDARDS_DIR
+        env_path = os.getenv("ADRI_STANDARDS_DIR")
         if not env_path:
             raise StandardsDirectoryNotFoundError(
-                "ADRI_STANDARDS_PATH environment variable must be set. "
+                "ADRI_STANDARDS_DIR environment variable must be set. "
                 "Set it to point to your standards directory."
             )
 

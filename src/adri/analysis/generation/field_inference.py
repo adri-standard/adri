@@ -80,7 +80,7 @@ class FieldInferenceEngine:
             pk_fields: Primary key field names
 
         Returns:
-            Field requirement dictionary with type, constraints, and rules
+            Field requirement dictionary with validation_rules format
         """
         req: Dict[str, Any] = {}
 
@@ -114,6 +114,13 @@ class FieldInferenceEngine:
         elif field_type == "datetime":
             date_constraints = self.infer_date_bounds(series, config, is_datetime=True)
             req.update(date_constraints)
+
+        # 4) Convert constraints to validation_rules format
+        field_name_str = str(col_name) if col_name else "field"
+        validation_rules = self.convert_field_constraints_to_validation_rules(req, field_name_str)
+        
+        if validation_rules:
+            req["validation_rules"] = validation_rules
 
         return req
 
@@ -598,3 +605,185 @@ class FieldInferenceEngine:
                     "before": {"after": before_after, "before": before_before},
                 }
             )
+
+    def convert_field_constraints_to_validation_rules(
+        self, field_req: Dict[str, Any], field_name: str
+    ) -> List[Dict[str, Any]]:
+        """Convert old-style field constraints to validation_rules list with severity.
+        
+        Args:
+            field_req: Field requirement dictionary with old-style constraints
+            field_name: Name of the field (for error messages)
+            
+        Returns:
+            List of validation rule dictionaries ready for standard generation
+        """
+        from ...config.severity_loader import SeverityDefaultsLoader
+        from ...validator.rules import get_rule_type_for_field_constraint
+        
+        severity_loader = SeverityDefaultsLoader()
+        validation_rules = []
+        
+        # 1. Completeness: not_null rule (if not nullable)
+        if not field_req.get("nullable", True):
+            rule = self.create_validation_rule(
+                name=f"{field_name} is required",
+                dimension="completeness",
+                severity=severity_loader.get_severity("completeness", "not_null"),
+                rule_type="not_null",
+                rule_expression="IS_NOT_NULL",
+                error_message=f"{field_name} must not be empty"
+            )
+            validation_rules.append(rule)
+        
+        # 2. Validity: type rule
+        if "type" in field_req:
+            field_type = field_req["type"]
+            rule = self.create_validation_rule(
+                name=f"{field_name} type validation",
+                dimension="validity",
+                severity=severity_loader.get_severity("validity", "type"),
+                rule_type="type",
+                rule_expression=f"IS_{field_type.upper()}",
+                error_message=f"{field_name} must be of type {field_type}"
+            )
+            validation_rules.append(rule)
+        
+        # 3. Validity: allowed_values rule
+        if "allowed_values" in field_req:
+            allowed = field_req["allowed_values"]
+            rule = self.create_validation_rule(
+                name=f"{field_name} must be valid value",
+                dimension="validity",
+                severity=severity_loader.get_severity("validity", "allowed_values"),
+                rule_type="allowed_values",
+                rule_expression=f"VALUE_IN({allowed})",
+                error_message=f"{field_name} must be one of: {', '.join(str(v) for v in allowed[:5])}"
+            )
+            validation_rules.append(rule)
+        
+        # 4. Validity: numeric_bounds rule
+        if "min_value" in field_req or "max_value" in field_req:
+            min_val = field_req.get("min_value")
+            max_val = field_req.get("max_value")
+            expr_parts = []
+            if min_val is not None:
+                expr_parts.append(f"VALUE >= {min_val}")
+            if max_val is not None:
+                expr_parts.append(f"VALUE <= {max_val}")
+            
+            rule = self.create_validation_rule(
+                name=f"{field_name} numeric bounds",
+                dimension="validity",
+                severity=severity_loader.get_severity("validity", "numeric_bounds"),
+                rule_type="numeric_bounds",
+                rule_expression=" AND ".join(expr_parts),
+                error_message=f"{field_name} must be between {min_val} and {max_val}"
+            )
+            validation_rules.append(rule)
+        
+        # 5. Validity: length_bounds rule
+        if "min_length" in field_req or "max_length" in field_req:
+            min_len = field_req.get("min_length")
+            max_len = field_req.get("max_length")
+            expr_parts = []
+            if min_len is not None:
+                expr_parts.append(f"LENGTH >= {min_len}")
+            if max_len is not None:
+                expr_parts.append(f"LENGTH <= {max_len}")
+            
+            rule = self.create_validation_rule(
+                name=f"{field_name} length bounds",
+                dimension="validity",
+                severity=severity_loader.get_severity("validity", "length_bounds"),
+                rule_type="length_bounds",
+                rule_expression=" AND ".join(expr_parts),
+                error_message=f"{field_name} length must be between {min_len} and {max_len}"
+            )
+            validation_rules.append(rule)
+        
+        # 6. Validity: pattern rule
+        if "pattern" in field_req:
+            pattern = field_req["pattern"]
+            rule = self.create_validation_rule(
+                name=f"{field_name} pattern validation",
+                dimension="validity",
+                severity=severity_loader.get_severity("validity", "pattern"),
+                rule_type="pattern",
+                rule_expression=f"REGEX_MATCH('{pattern}')",
+                error_message=f"{field_name} must match pattern: {pattern}"
+            )
+            validation_rules.append(rule)
+        
+        # 7. Validity: date_bounds rule
+        if any(k in field_req for k in ["after_date", "before_date", "after_datetime", "before_datetime"]):
+            after = field_req.get("after_date") or field_req.get("after_datetime")
+            before = field_req.get("before_date") or field_req.get("before_datetime")
+            expr_parts = []
+            if after:
+                expr_parts.append(f"DATE >= '{after}'")
+            if before:
+                expr_parts.append(f"DATE <= '{before}'")
+            
+            rule = self.create_validation_rule(
+                name=f"{field_name} date bounds",
+                dimension="validity",
+                severity=severity_loader.get_severity("validity", "date_bounds"),
+                rule_type="date_bounds",
+                rule_expression=" AND ".join(expr_parts),
+                error_message=f"{field_name} must be within date range"
+            )
+            validation_rules.append(rule)
+        
+        return validation_rules
+    
+    def create_validation_rule(
+        self,
+        name: str,
+        dimension: str,
+        severity,
+        rule_type: str,
+        rule_expression: str,
+        error_message: Optional[str] = None,
+        remediation: Optional[str] = None,
+        penalty_weight: float = 1.0
+    ) -> Dict[str, Any]:
+        """Create a validation rule dictionary for standard generation.
+        
+        Args:
+            name: Descriptive name for the rule
+            dimension: Quality dimension (validity, completeness, etc.)
+            severity: Severity level (Severity enum or string)
+            rule_type: Type of rule (type, not_null, pattern, etc.)
+            rule_expression: Validation expression/logic
+            error_message: Optional error message
+            remediation: Optional remediation guidance
+            penalty_weight: Optional penalty weight (default 1.0)
+            
+        Returns:
+            Dictionary representation of a validation rule
+        """
+        from ...core.severity import Severity as SeverityEnum
+        
+        # Convert Severity enum to string if needed
+        if isinstance(severity, SeverityEnum):
+            severity_str = severity.value
+        else:
+            severity_str = str(severity)
+        
+        rule = {
+            "name": name,
+            "dimension": dimension,
+            "severity": severity_str,
+            "rule_type": rule_type,
+            "rule_expression": rule_expression
+        }
+        
+        if error_message:
+            rule["error_message"] = error_message
+        if remediation:
+            rule["remediation"] = remediation
+        if penalty_weight != 1.0:
+            rule["penalty_weight"] = penalty_weight
+        
+        return rule

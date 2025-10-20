@@ -51,6 +51,65 @@ adri generate-standard data.json --config custom-config.yaml
 
 ## Commands
 
+### guide
+
+Interactive walkthrough for first-time users.
+
+**Usage:**
+```bash
+adri guide
+```
+
+**Description:**
+Provides a comprehensive 3-minute interactive tutorial that covers:
+- ADRI concepts and how it works
+- Project setup and folder structure
+- Decorator usage with code examples
+- Generating quality standards from sample data
+- Assessing data quality with real-world examples
+- Reviewing audit logs and assessment history
+- Next steps for AI agent integration
+
+**Recommended for:**
+- First-time ADRI users
+- Teams onboarding new members
+- Quick refresher on ADRI workflows
+- Understanding ADRI before diving into code
+
+**Examples:**
+
+Run the interactive guide:
+```bash
+adri guide
+```
+
+**Output:**
+```
+🚀 Welcome to ADRI - AI Data Reliability Inspector
+
+This interactive guide will walk you through:
+  1️⃣  Setting up your project
+  2️⃣  Understanding decorator usage
+  3️⃣  Creating quality standards
+  4️⃣  Assessing data quality
+  5️⃣  Reviewing audit logs
+  6️⃣  Integrating with AI agents
+
+⏱️  This will take about 3 minutes
+```
+
+The guide will automatically:
+- Check if ADRI is set up, or initialize it
+- Show practical examples with real data
+- Generate a sample standard from tutorial data
+- Assess test data to demonstrate quality checks
+- Display audit logs to show tracking capabilities
+- Provide next steps for your own projects
+
+**Keyboard shortcuts:**
+- Press `Ctrl+C` to exit at any time
+- The guide can be restarted anytime with `adri guide`
+
 ### assess
 
 Assess data quality against a standard.

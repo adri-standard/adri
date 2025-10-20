@@ -11,6 +11,7 @@ from ..core.registry import get_global_registry
 from .commands import (
     AssessCommand,
     GenerateStandardCommand,
+    GuideCommand,
     ListAssessmentsCommand,
     ListStandardsCommand,
     ScoringExplainCommand,
@@ -33,6 +34,7 @@ def register_all_commands() -> None:
         ("setup", SetupCommand),
         ("assess", AssessCommand),
         ("generate-standard", GenerateStandardCommand),
+        ("guide", GuideCommand),
         # Information commands
         ("list-assessments", ListAssessmentsCommand),
         ("list-standards", ListStandardsCommand),

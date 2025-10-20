@@ -53,6 +53,25 @@ You should see output like:
 ADRI version 3.2.0
 ```
 
+## Want an Interactive Tutorial?
+
+**First-time user?** Try the interactive guide for a hands-on walkthrough:
+
+```bash
+adri guide
+```
+
+The guide will walk you through:
+- Setting up your project structure
+- Using decorators with sample data
+- Generating and viewing standards
+- Understanding assessment results
+
+**Time**: 5 minutes  
+**Recommended for**: First-time users wanting a quick interactive introduction
+
+**Want more depth?** Continue reading this guide for detailed explanations and advanced topics.
+
 ## Your First Protected Function
 
 Let's create a simple data processing function and protect it with ADRI.

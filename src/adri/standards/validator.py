@@ -87,12 +87,28 @@ class StandardValidator:
         Returns:
             ValidationResult with errors and warnings
         """
-        # Import here to avoid circular dependency
-        from adri.validator.loaders import load_standard
-
-        # Load the standard (this handles YAML syntax errors)
+        import yaml
+        
+        # Load the standard directly (avoiding circular import with loaders)
         try:
-            standard = load_standard(file_path)
+            with open(file_path, 'r', encoding='utf-8') as f:
+                standard = yaml.safe_load(f)
+        except FileNotFoundError:
+            result = ValidationResult(is_valid=False, standard_path=file_path)
+            result.add_error(
+                message=f"Standard file not found: {file_path}",
+                path="<file>",
+                suggestion="Check file path",
+            )
+            return result
+        except yaml.YAMLError as e:
+            result = ValidationResult(is_valid=False, standard_path=file_path)
+            result.add_error(
+                message=f"Invalid YAML syntax: {str(e)}",
+                path="<file>",
+                suggestion="Check YAML syntax and file encoding",
+            )
+            return result
         except Exception as e:
             result = ValidationResult(is_valid=False, standard_path=file_path)
             result.add_error(
@@ -240,6 +256,14 @@ class StandardValidator:
             self._validate_dimension_requirements(
                 requirements["dimension_requirements"], result
             )
+        
+        # Validate top-level field_requirements (new format)
+        if "field_requirements" in requirements:
+            self._validate_field_requirements(
+                requirements["field_requirements"],
+                "requirements.field_requirements",
+                result
+            )
 
         # Validate overall_minimum
         if "overall_minimum" in requirements:
@@ -377,34 +401,53 @@ class StandardValidator:
         result: ValidationResult,
     ) -> None:
         """
-        Validate field-specific requirements.
+        Validate field-specific requirements with validation_rules structure.
+        
+        Clean break implementation: validation_rules are REQUIRED.
+        Old format (nullable, allowed_values without validation_rules) is not supported.
 
         Args:
             field_requirements: Dictionary of field requirements
             base_path: Path prefix for error reporting
             result: ValidationResult to populate with errors
         """
-        for field_name, requirements in field_requirements.items():
+        for field_name, field_config in field_requirements.items():
             field_path = f"{base_path}.{field_name}"
 
-            if not isinstance(requirements, dict):
-                result.add_warning(
-                    message=f"Field requirements for '{field_name}' should be a dictionary",
+            if not isinstance(field_config, dict):
+                result.add_error(
+                    message=f"Field '{field_name}' configuration must be a dictionary",
                     path=field_path,
+                    expected="dict",
+                    actual=type(field_config).__name__,
                 )
                 continue
 
-            # Validate requirement rules
-            for rule_name, rule_config in requirements.items():
-                rule_path = f"{field_path}.{rule_name}"
-
-                # Basic structure check
-                if rule_name not in StandardSchema.VALID_RULE_TYPES:
-                    result.add_warning(
-                        message=f"Unknown rule type: '{rule_name}'",
-                        path=rule_path,
-                        suggestion=f"Valid rule types: {', '.join(sorted(StandardSchema.VALID_RULE_TYPES))}",
-                    )
+            # REQUIRE validation_rules (clean break - no backward compatibility)
+            if 'validation_rules' not in field_config:
+                result.add_error(
+                    message=f"Field '{field_name}' missing required 'validation_rules'",
+                    path=field_path,
+                    suggestion="All fields must use validation_rules format. "
+                               "Use migration script: python scripts/migrate_standards_to_severity.py",
+                )
+                continue
+            
+            # Validate the validation_rules structure
+            validation_rules = field_config['validation_rules']
+            rule_errors = StandardSchema.validate_validation_rules_list(
+                validation_rules, 
+                field_path
+            )
+            
+            # Add all rule validation errors to result
+            for error_msg in rule_errors:
+                result.add_error(
+                    message=error_msg,
+                    path=field_path,
+                    suggestion="Check validation_rules structure: each rule needs name, dimension, "
+                               "severity, rule_type, and rule_expression"
+                )
 
     def _get_cached_result(self, file_path: str) -> Optional[ValidationResult]:
         """

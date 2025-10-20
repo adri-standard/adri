@@ -44,12 +44,12 @@ class TestStandardsParserComprehensive:
         self.minimal_standard = ModernFixtures.create_standards_data("minimal")
         self.strict_standard = ModernFixtures.create_standards_data("strict")
 
-        # Set up ADRI_STANDARDS_PATH for all tests
+        # Set up ADRI_STANDARDS_DIR for all tests
         import os
         import tempfile
         self.temp_standards_dir = tempfile.mkdtemp()
-        self.original_standards_path = os.getenv("ADRI_STANDARDS_PATH")
-        os.environ["ADRI_STANDARDS_PATH"] = self.temp_standards_dir
+        self.original_standards_path = os.getenv("ADRI_STANDARDS_DIR")
+        os.environ["ADRI_STANDARDS_DIR"] = self.temp_standards_dir
 
         # Initialize parser with environment set
         self.parser = StandardsParser()
@@ -74,10 +74,10 @@ class TestStandardsParserComprehensive:
     def test_yaml_file_parsing(self, temp_workspace):
         """Test parsing of YAML standard files."""
 
-        # Set ADRI_STANDARDS_PATH to temp workspace for testing
+        # Set ADRI_STANDARDS_DIR to temp workspace for testing
         import os
-        original_path = os.getenv("ADRI_STANDARDS_PATH")
-        os.environ["ADRI_STANDARDS_PATH"] = str(temp_workspace)
+        original_path = os.getenv("ADRI_STANDARDS_DIR")
+        os.environ["ADRI_STANDARDS_DIR"] = str(temp_workspace)
 
         try:
             # Reinitialize parser with updated environment
@@ -104,11 +104,11 @@ class TestStandardsParserComprehensive:
 
             self.component_tester.record_test_execution(TestCategory.UNIT, True)
         finally:
-            # Restore original ADRI_STANDARDS_PATH
+            # Restore original ADRI_STANDARDS_DIR
             if original_path:
-                os.environ["ADRI_STANDARDS_PATH"] = original_path
+                os.environ["ADRI_STANDARDS_DIR"] = original_path
             else:
-                os.environ.pop("ADRI_STANDARDS_PATH", None)
+                os.environ.pop("ADRI_STANDARDS_DIR", None)
 
     @pytest.mark.unit
     @pytest.mark.system_infrastructure
@@ -145,10 +145,10 @@ class TestStandardsParserComprehensive:
     def test_field_requirements_parsing(self, temp_workspace):
         """Test parsing of field requirements."""
 
-        # Set ADRI_STANDARDS_PATH and use standard name
+        # Set ADRI_STANDARDS_DIR and use standard name
         import os
-        original_path = os.getenv("ADRI_STANDARDS_PATH")
-        os.environ["ADRI_STANDARDS_PATH"] = str(temp_workspace)
+        original_path = os.getenv("ADRI_STANDARDS_DIR")
+        os.environ["ADRI_STANDARDS_DIR"] = str(temp_workspace)
 
         try:
             test_parser = StandardsParser()
@@ -162,9 +162,9 @@ class TestStandardsParserComprehensive:
         finally:
             # Restore original environment
             if original_path:
-                os.environ["ADRI_STANDARDS_PATH"] = original_path
+                os.environ["ADRI_STANDARDS_DIR"] = original_path
             else:
-                os.environ.pop("ADRI_STANDARDS_PATH", None)
+                os.environ.pop("ADRI_STANDARDS_DIR", None)
 
         # Verify field requirements structure
         assert "customer_id" in field_requirements
@@ -195,10 +195,10 @@ class TestStandardsParserComprehensive:
     def test_dimension_requirements_parsing(self, temp_workspace):
         """Test parsing of dimension requirements."""
 
-        # Set ADRI_STANDARDS_PATH and use standard name
+        # Set ADRI_STANDARDS_DIR and use standard name
         import os
-        original_path = os.getenv("ADRI_STANDARDS_PATH")
-        os.environ["ADRI_STANDARDS_PATH"] = str(temp_workspace)
+        original_path = os.getenv("ADRI_STANDARDS_DIR")
+        os.environ["ADRI_STANDARDS_DIR"] = str(temp_workspace)
 
         try:
             test_parser = StandardsParser()
@@ -212,9 +212,9 @@ class TestStandardsParserComprehensive:
         finally:
             # Restore original environment
             if original_path:
-                os.environ["ADRI_STANDARDS_PATH"] = original_path
+                os.environ["ADRI_STANDARDS_DIR"] = original_path
             else:
-                os.environ.pop("ADRI_STANDARDS_PATH", None)
+                os.environ.pop("ADRI_STANDARDS_DIR", None)
 
         # Verify all dimensions are present
         expected_dimensions = ["validity", "completeness", "consistency", "freshness", "plausibility"]
@@ -232,10 +232,10 @@ class TestStandardsParserComprehensive:
     def test_malformed_yaml_handling(self, temp_workspace):
         """Test handling of malformed YAML files."""
 
-        # Set ADRI_STANDARDS_PATH environment for testing
+        # Set ADRI_STANDARDS_DIR environment for testing
         import os
-        original_path = os.getenv("ADRI_STANDARDS_PATH")
-        os.environ["ADRI_STANDARDS_PATH"] = str(temp_workspace)
+        original_path = os.getenv("ADRI_STANDARDS_DIR")
+        os.environ["ADRI_STANDARDS_DIR"] = str(temp_workspace)
 
         try:
             test_parser = StandardsParser()
@@ -268,19 +268,19 @@ class TestStandardsParserComprehensive:
         finally:
             # Restore original environment
             if original_path:
-                os.environ["ADRI_STANDARDS_PATH"] = original_path
+                os.environ["ADRI_STANDARDS_DIR"] = original_path
             else:
-                os.environ.pop("ADRI_STANDARDS_PATH", None)
+                os.environ.pop("ADRI_STANDARDS_DIR", None)
 
     @pytest.mark.error_handling
     @pytest.mark.system_infrastructure
     def test_file_system_error_handling(self, temp_workspace):
         """Test handling of file system errors."""
 
-        # Set ADRI_STANDARDS_PATH environment for testing
+        # Set ADRI_STANDARDS_DIR environment for testing
         import os
-        original_path = os.getenv("ADRI_STANDARDS_PATH")
-        os.environ["ADRI_STANDARDS_PATH"] = str(temp_workspace)
+        original_path = os.getenv("ADRI_STANDARDS_DIR")
+        os.environ["ADRI_STANDARDS_DIR"] = str(temp_workspace)
 
         try:
             test_parser = StandardsParser()
@@ -313,9 +313,9 @@ class TestStandardsParserComprehensive:
         finally:
             # Restore original environment
             if original_path:
-                os.environ["ADRI_STANDARDS_PATH"] = original_path
+                os.environ["ADRI_STANDARDS_DIR"] = original_path
             else:
-                os.environ.pop("ADRI_STANDARDS_PATH", None)
+                os.environ.pop("ADRI_STANDARDS_DIR", None)
 
     @pytest.mark.integration
     @pytest.mark.system_infrastructure
@@ -346,10 +346,10 @@ class TestStandardsParserComprehensive:
     def test_validator_engine_integration(self, temp_workspace):
         """Test integration with validator engine."""
 
-        # Set ADRI_STANDARDS_PATH environment for testing
+        # Set ADRI_STANDARDS_DIR environment for testing
         import os
-        original_path = os.getenv("ADRI_STANDARDS_PATH")
-        os.environ["ADRI_STANDARDS_PATH"] = str(temp_workspace)
+        original_path = os.getenv("ADRI_STANDARDS_DIR")
+        os.environ["ADRI_STANDARDS_DIR"] = str(temp_workspace)
 
         try:
             test_parser = StandardsParser()
@@ -382,19 +382,19 @@ class TestStandardsParserComprehensive:
         finally:
             # Restore original environment
             if original_path:
-                os.environ["ADRI_STANDARDS_PATH"] = original_path
+                os.environ["ADRI_STANDARDS_DIR"] = original_path
             else:
-                os.environ.pop("ADRI_STANDARDS_PATH", None)
+                os.environ.pop("ADRI_STANDARDS_DIR", None)
 
     @pytest.mark.performance
     @pytest.mark.system_infrastructure
     def test_parsing_performance(self, temp_workspace, performance_tester):
         """Test parsing performance with various standard sizes."""
 
-        # Set ADRI_STANDARDS_PATH environment for testing
+        # Set ADRI_STANDARDS_DIR environment for testing
         import os
-        original_path = os.getenv("ADRI_STANDARDS_PATH")
-        os.environ["ADRI_STANDARDS_PATH"] = str(temp_workspace)
+        original_path = os.getenv("ADRI_STANDARDS_DIR")
+        os.environ["ADRI_STANDARDS_DIR"] = str(temp_workspace)
 
         try:
             test_parser = StandardsParser()
@@ -414,14 +414,14 @@ class TestStandardsParserComprehensive:
         finally:
             # Restore original environment
             if original_path:
-                os.environ["ADRI_STANDARDS_PATH"] = original_path
+                os.environ["ADRI_STANDARDS_DIR"] = original_path
             else:
-                os.environ.pop("ADRI_STANDARDS_PATH", None)
+                os.environ.pop("ADRI_STANDARDS_DIR", None)
 
         # Test large standard (with many field requirements)
-        # Set ADRI_STANDARDS_PATH environment for large standard too
-        original_path = os.getenv("ADRI_STANDARDS_PATH")
-        os.environ["ADRI_STANDARDS_PATH"] = str(temp_workspace)
+        # Set ADRI_STANDARDS_DIR environment for large standard too
+        original_path = os.getenv("ADRI_STANDARDS_DIR")
+        os.environ["ADRI_STANDARDS_DIR"] = str(temp_workspace)
 
         try:
             test_parser = StandardsParser()
@@ -460,9 +460,9 @@ class TestStandardsParserComprehensive:
         finally:
             # Restore original environment
             if original_path:
-                os.environ["ADRI_STANDARDS_PATH"] = original_path
+                os.environ["ADRI_STANDARDS_DIR"] = original_path
             else:
-                os.environ.pop("ADRI_STANDARDS_PATH", None)
+                os.environ.pop("ADRI_STANDARDS_DIR", None)
 
     @pytest.mark.performance
     @pytest.mark.system_infrastructure
@@ -471,10 +471,10 @@ class TestStandardsParserComprehensive:
         import concurrent.futures
         import threading
 
-        # Set ADRI_STANDARDS_PATH environment for testing
+        # Set ADRI_STANDARDS_DIR environment for testing
         import os
-        original_path = os.getenv("ADRI_STANDARDS_PATH")
-        os.environ["ADRI_STANDARDS_PATH"] = str(temp_workspace)
+        original_path = os.getenv("ADRI_STANDARDS_DIR")
+        os.environ["ADRI_STANDARDS_DIR"] = str(temp_workspace)
 
         try:
             # Create multiple standard files
@@ -531,19 +531,19 @@ class TestStandardsParserComprehensive:
         finally:
             # Restore original environment
             if original_path:
-                os.environ["ADRI_STANDARDS_PATH"] = original_path
+                os.environ["ADRI_STANDARDS_DIR"] = original_path
             else:
-                os.environ.pop("ADRI_STANDARDS_PATH", None)
+                os.environ.pop("ADRI_STANDARDS_DIR", None)
 
     @pytest.mark.unit
     @pytest.mark.system_infrastructure
     def test_standard_metadata_extraction(self, temp_workspace):
         """Test extraction of standard metadata through parsing."""
 
-        # Set ADRI_STANDARDS_PATH environment for testing
+        # Set ADRI_STANDARDS_DIR environment for testing
         import os
-        original_path = os.getenv("ADRI_STANDARDS_PATH")
-        os.environ["ADRI_STANDARDS_PATH"] = str(temp_workspace)
+        original_path = os.getenv("ADRI_STANDARDS_DIR")
+        os.environ["ADRI_STANDARDS_DIR"] = str(temp_workspace)
 
         try:
             test_parser = StandardsParser()
@@ -573,19 +573,19 @@ class TestStandardsParserComprehensive:
         finally:
             # Restore original environment
             if original_path:
-                os.environ["ADRI_STANDARDS_PATH"] = original_path
+                os.environ["ADRI_STANDARDS_DIR"] = original_path
             else:
-                os.environ.pop("ADRI_STANDARDS_PATH", None)
+                os.environ.pop("ADRI_STANDARDS_DIR", None)
 
     @pytest.mark.error_handling
     @pytest.mark.system_infrastructure
     def test_schema_validation_edge_cases(self, temp_workspace):
         """Test schema validation edge cases."""
 
-        # Set ADRI_STANDARDS_PATH environment for testing
+        # Set ADRI_STANDARDS_DIR environment for testing
         import os
-        original_path = os.getenv("ADRI_STANDARDS_PATH")
-        os.environ["ADRI_STANDARDS_PATH"] = str(temp_workspace)
+        original_path = os.getenv("ADRI_STANDARDS_DIR")
+        os.environ["ADRI_STANDARDS_DIR"] = str(temp_workspace)
 
         try:
             test_parser = StandardsParser()
@@ -613,9 +613,9 @@ class TestStandardsParserComprehensive:
         finally:
             # Restore original environment
             if original_path:
-                os.environ["ADRI_STANDARDS_PATH"] = original_path
+                os.environ["ADRI_STANDARDS_DIR"] = original_path
             else:
-                os.environ.pop("ADRI_STANDARDS_PATH", None)
+                os.environ.pop("ADRI_STANDARDS_DIR", None)
 
         # Test standard with null required values
         null_values_standard = {
@@ -669,10 +669,10 @@ class TestStandardsParserComprehensive:
     def test_standard_versioning_support(self, temp_workspace):
         """Test support for different standard versions."""
 
-        # Set ADRI_STANDARDS_PATH environment for testing
+        # Set ADRI_STANDARDS_DIR environment for testing
         import os
-        original_path = os.getenv("ADRI_STANDARDS_PATH")
-        os.environ["ADRI_STANDARDS_PATH"] = str(temp_workspace)
+        original_path = os.getenv("ADRI_STANDARDS_DIR")
+        os.environ["ADRI_STANDARDS_DIR"] = str(temp_workspace)
 
         try:
             test_parser = StandardsParser()
@@ -718,19 +718,19 @@ class TestStandardsParserComprehensive:
         finally:
             # Restore original environment
             if original_path:
-                os.environ["ADRI_STANDARDS_PATH"] = original_path
+                os.environ["ADRI_STANDARDS_DIR"] = original_path
             else:
-                os.environ.pop("ADRI_STANDARDS_PATH", None)
+                os.environ.pop("ADRI_STANDARDS_DIR", None)
 
     @pytest.mark.integration
     @pytest.mark.system_infrastructure
     def test_config_integration(self, temp_workspace):
         """Test integration with configuration system."""
 
-        # Set ADRI_STANDARDS_PATH environment for testing
+        # Set ADRI_STANDARDS_DIR environment for testing
         import os
-        original_path = os.getenv("ADRI_STANDARDS_PATH")
-        os.environ["ADRI_STANDARDS_PATH"] = str(temp_workspace)
+        original_path = os.getenv("ADRI_STANDARDS_DIR")
+        os.environ["ADRI_STANDARDS_DIR"] = str(temp_workspace)
 
         try:
             # Create standard file
@@ -755,19 +755,19 @@ class TestStandardsParserComprehensive:
         finally:
             # Restore original environment
             if original_path:
-                os.environ["ADRI_STANDARDS_PATH"] = original_path
+                os.environ["ADRI_STANDARDS_DIR"] = original_path
             else:
-                os.environ.pop("ADRI_STANDARDS_PATH", None)
+                os.environ.pop("ADRI_STANDARDS_DIR", None)
 
     @pytest.mark.unit
     @pytest.mark.system_infrastructure
     def test_custom_validation_rules(self, temp_workspace):
         """Test parsing of custom validation rules."""
 
-        # Set ADRI_STANDARDS_PATH environment for testing
+        # Set ADRI_STANDARDS_DIR environment for testing
         import os
-        original_path = os.getenv("ADRI_STANDARDS_PATH")
-        os.environ["ADRI_STANDARDS_PATH"] = str(temp_workspace)
+        original_path = os.getenv("ADRI_STANDARDS_DIR")
+        os.environ["ADRI_STANDARDS_DIR"] = str(temp_workspace)
 
         try:
             test_parser = StandardsParser()
@@ -818,21 +818,21 @@ class TestStandardsParserComprehensive:
         finally:
             # Restore original environment
             if original_path:
-                os.environ["ADRI_STANDARDS_PATH"] = original_path
+                os.environ["ADRI_STANDARDS_DIR"] = original_path
             else:
-                os.environ.pop("ADRI_STANDARDS_PATH", None)
+                os.environ.pop("ADRI_STANDARDS_DIR", None)
 
     def teardown_method(self):
         """Cleanup after each test method."""
-        # Restore original ADRI_STANDARDS_PATH environment variable
+        # Restore original ADRI_STANDARDS_DIR environment variable
         import os
         import shutil
 
         # Restore original environment variable
         if hasattr(self, 'original_standards_path') and self.original_standards_path:
-            os.environ["ADRI_STANDARDS_PATH"] = self.original_standards_path
+            os.environ["ADRI_STANDARDS_DIR"] = self.original_standards_path
         else:
-            os.environ.pop("ADRI_STANDARDS_PATH", None)
+            os.environ.pop("ADRI_STANDARDS_DIR", None)
 
         # Clean up temporary directory
         if hasattr(self, 'temp_standards_dir'):

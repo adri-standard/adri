@@ -315,6 +315,166 @@ def check_primary_key_uniqueness(data, standard_config):
     return failures
 
 
+def execute_validation_rule(
+    value: Any, rule, field_req: Dict[str, Any] = None
+) -> bool:
+    """
+    Execute a ValidationRule and return pass/fail result.
+    
+    Dispatcher function that routes to appropriate validation logic based on rule_type.
+    
+    Args:
+        value: The value to validate
+        rule: ValidationRule object to execute
+        field_req: Optional field requirements dict (for backward compatibility)
+        
+    Returns:
+        True if validation passes, False otherwise
+        
+    Example:
+        >>> from src.adri.core.validation_rule import ValidationRule
+        >>> from src.adri.core.severity import Severity
+        >>> rule = ValidationRule(
+        ...     name="Email required",
+        ...     dimension="completeness",
+        ...     severity=Severity.CRITICAL,
+        ...     rule_type="not_null",
+        ...     rule_expression="IS_NOT_NULL"
+        ... )
+        >>> execute_validation_rule("test@example.com", rule)
+        True
+        >>> execute_validation_rule(None, rule)
+        False
+    """
+    from src.adri.core.validation_rule import ValidationRule
+    
+    if not isinstance(rule, ValidationRule):
+        # Fallback for non-ValidationRule inputs
+        return True
+    
+    rule_type = rule.rule_type
+    
+    # Map rule_type to validation function
+    if rule_type == "not_null":
+        return value is not None and str(value).strip() != ""
+    
+    elif rule_type == "not_empty":
+        return value is not None and str(value).strip() != ""
+    
+    elif rule_type == "type":
+        # Extract type from rule_expression (e.g., "IS_STRING" -> "string")
+        if field_req and "type" in field_req:
+            return check_field_type(value, field_req)
+        # Parse from rule_expression
+        expr = rule.rule_expression.upper()
+        if "STRING" in expr:
+            return isinstance(value, str)
+        elif "INTEGER" in expr or "INT" in expr:
+            try:
+                int(value)
+                return True
+            except Exception:
+                return False
+        elif "FLOAT" in expr or "NUMBER" in expr:
+            try:
+                float(value)
+                return True
+            except Exception:
+                return False
+        return True
+    
+    elif rule_type == "allowed_values":
+        # Extract allowed values from rule_expression
+        if field_req and "allowed_values" in field_req:
+            return check_allowed_values(value, field_req)
+        return True
+    
+    elif rule_type == "pattern":
+        if field_req and "pattern" in field_req:
+            return check_field_pattern(value, field_req)
+        return True
+    
+    elif rule_type == "numeric_bounds":
+        if field_req:
+            return check_field_range(value, field_req)
+        return True
+    
+    elif rule_type == "length_bounds":
+        if field_req:
+            return check_length_bounds(value, field_req)
+        return True
+    
+    elif rule_type == "date_bounds":
+        if field_req:
+            return check_date_bounds(value, field_req)
+        return True
+    
+    elif rule_type == "format":
+        # Format checking (e.g., IS_LOWERCASE)
+        expr = rule.rule_expression.upper()
+        if "LOWERCASE" in expr:
+            return str(value).islower() if value else True
+        elif "UPPERCASE" in expr:
+            return str(value).isupper() if value else True
+        elif "TITLE" in expr or "TITLECASE" in expr:
+            return str(value).istitle() if value else True
+        return True
+    
+    elif rule_type == "case":
+        # Similar to format but specifically for case checking
+        expr = rule.rule_expression.upper()
+        if "LOWER" in expr:
+            return str(value).islower() if value else True
+        elif "UPPER" in expr:
+            return str(value).isupper() if value else True
+        elif "TITLE" in expr:
+            return str(value).istitle() if value else True
+        return True
+    
+    else:
+        # Unknown rule type - pass by default
+        return True
+
+
+def get_rule_type_for_field_constraint(constraint_name: str) -> str:
+    """
+    Map old-style field constraint names to new ValidationRule rule_types.
+    
+    Helper for migrating from old format to validation_rules format.
+    
+    Args:
+        constraint_name: Old constraint name (e.g., "nullable", "allowed_values")
+        
+    Returns:
+        Corresponding rule_type for ValidationRule
+        
+    Examples:
+        >>> get_rule_type_for_field_constraint("nullable")
+        'not_null'
+        >>> get_rule_type_for_field_constraint("type")
+        'type'
+        >>> get_rule_type_for_field_constraint("allowed_values")
+        'allowed_values'
+    """
+    # Map common constraints to rule types
+    constraint_map = {
+        "nullable": "not_null",
+        "type": "type",
+        "allowed_values": "allowed_values",
+        "pattern": "pattern",
+        "min_value": "numeric_bounds",
+        "max_value": "numeric_bounds",
+        "min_length": "length_bounds",
+        "max_length": "length_bounds",
+        "after_date": "date_bounds",
+        "before_date": "date_bounds",
+        "after_datetime": "date_bounds",
+        "before_datetime": "date_bounds",
+    }
+    
+    return constraint_map.get(constraint_name, "custom")
+
+
 def validate_field(
     field_name: str, value: Any, field_requirements: Dict[str, Any]
 ) -> Dict[str, Any]:

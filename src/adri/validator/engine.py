@@ -143,6 +143,147 @@ class BundledStandardWrapper:
         rid = self.standard_dict.get("record_identification", {})
         return rid if isinstance(rid, dict) else {}
 
+    def get_validation_rules_for_field(self, field_name: str) -> List[Any]:
+        """
+        Get all ValidationRule objects for a specific field across all dimensions.
+        
+        Args:
+            field_name: Name of the field to get rules for
+            
+        Returns:
+            List of ValidationRule objects for the field
+            
+        Example:
+            >>> rules = wrapper.get_validation_rules_for_field("email")
+            >>> critical_rules = [r for r in rules if r.severity == Severity.CRITICAL]
+        """
+        from src.adri.core.validation_rule import ValidationRule
+        
+        all_rules = []
+        dim_reqs = self.get_dimension_requirements()
+        
+        for dimension_name, dimension_config in dim_reqs.items():
+            if not isinstance(dimension_config, dict):
+                continue
+                
+            field_reqs = dimension_config.get("field_requirements", {})
+            if not isinstance(field_reqs, dict):
+                continue
+                
+            if field_name in field_reqs:
+                field_config = field_reqs[field_name]
+                if isinstance(field_config, dict) and "validation_rules" in field_config:
+                    rules = field_config["validation_rules"]
+                    if isinstance(rules, list):
+                        # Filter to only ValidationRule objects
+                        all_rules.extend([r for r in rules if isinstance(r, ValidationRule)])
+        
+        return all_rules
+
+    def get_all_validation_rules(self) -> Dict[str, List[Any]]:
+        """
+        Get all ValidationRule objects organized by field name.
+        
+        Returns:
+            Dictionary mapping field names to lists of ValidationRule objects
+            
+        Example:
+            >>> rules_by_field = wrapper.get_all_validation_rules()
+            >>> email_rules = rules_by_field.get("email", [])
+        """
+        from src.adri.core.validation_rule import ValidationRule
+        
+        rules_by_field = {}
+        dim_reqs = self.get_dimension_requirements()
+        
+        for dimension_name, dimension_config in dim_reqs.items():
+            if not isinstance(dimension_config, dict):
+                continue
+                
+            field_reqs = dimension_config.get("field_requirements", {})
+            if not isinstance(field_reqs, dict):
+                continue
+                
+            for field_name, field_config in field_reqs.items():
+                if isinstance(field_config, dict) and "validation_rules" in field_config:
+                    rules = field_config["validation_rules"]
+                    if isinstance(rules, list):
+                        # Initialize field entry if not exists
+                        if field_name not in rules_by_field:
+                            rules_by_field[field_name] = []
+                        # Add only ValidationRule objects
+                        rules_by_field[field_name].extend(
+                            [r for r in rules if isinstance(r, ValidationRule)]
+                        )
+        
+        return rules_by_field
+
+    def filter_rules_by_dimension(self, dimension: str, rules: List[Any] = None) -> List[Any]:
+        """
+        Filter ValidationRule objects by dimension.
+        
+        Args:
+            dimension: Dimension name to filter by (e.g., "validity", "completeness")
+            rules: Optional list of rules to filter. If not provided, gets all rules.
+            
+        Returns:
+            List of ValidationRule objects for the specified dimension
+            
+        Example:
+            >>> validity_rules = wrapper.filter_rules_by_dimension("validity")
+            >>> completeness_rules = wrapper.filter_rules_by_dimension("completeness")
+        """
+        from src.adri.core.validation_rule import ValidationRule
+        
+        # Get all rules if not provided
+        if rules is None:
+            rules_by_field = self.get_all_validation_rules()
+            rules = []
+            for field_rules in rules_by_field.values():
+                rules.extend(field_rules)
+        
+        # Filter by dimension
+        return [
+            r for r in rules 
+            if isinstance(r, ValidationRule) and r.dimension == dimension
+        ]
+
+    def filter_rules_by_severity(self, severity, rules: List[Any] = None) -> List[Any]:
+        """
+        Filter ValidationRule objects by severity level.
+        
+        Args:
+            severity: Severity level to filter by (Severity enum or string)
+            rules: Optional list of rules to filter. If not provided, gets all rules.
+            
+        Returns:
+            List of ValidationRule objects with the specified severity
+            
+        Example:
+            >>> from src.adri.core.severity import Severity
+            >>> critical_rules = wrapper.filter_rules_by_severity(Severity.CRITICAL)
+            >>> warning_rules = wrapper.filter_rules_by_severity("WARNING")
+        """
+        from src.adri.core.severity import Severity
+        from src.adri.core.validation_rule import ValidationRule
+        
+        # Convert string to Severity enum if needed
+        if isinstance(severity, str):
+            severity = Severity.from_string(severity)
+        
+        # Get all rules if not provided
+        if rules is None:
+            rules_by_field = self.get_all_validation_rules()
+            rules = []
+            for field_rules in rules_by_field.values():
+                rules.extend(field_rules)
+        
+        # Filter by severity
+        return [
+            r for r in rules 
+            if isinstance(r, ValidationRule) and r.severity == severity
+        ]
+
 
 class AssessmentResult:
     """Represents the result of a data quality assessment."""

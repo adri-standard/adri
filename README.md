@@ -172,6 +172,7 @@ No manual configuration. ADRI learns from your data:
 ### 🔧 CLI Tools
 
 ```bash
+adri guide                                      # Interactive walkthrough (recommended for first-time users)
 adri setup                                      # Initialize ADRI
 adri generate-standard data.json                # Generate standard
 adri assess data.csv --standard my_standard     # Assess data quality

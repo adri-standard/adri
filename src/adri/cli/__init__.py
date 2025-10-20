@@ -27,6 +27,7 @@ from .commands.config import (
     WhatIfCommand,
 )
 from .commands.generate_standard import GenerateStandardCommand
+from .commands.guide import GuideCommand
 from .commands.list_assessments import ListAssessmentsCommand
 from .commands.scoring import ScoringExplainCommand
 from .commands.setup import SetupCommand
@@ -376,62 +377,6 @@ def view_logs_command(
         return 1
 
 
-def show_help_guide() -> int:
-    """Show first-time user guide."""
-    click.echo("🚀 ADRI - First Time User Guide")
-    click.echo("===============================")
-    click.echo("")
-    click.echo(_get_project_root_display())
-    click.echo("")
-    click.echo("📁 Directory Structure:")
-    click.echo("   tutorials/          → Packaged learning examples")
-    click.echo("   dev/standards/      → Development YAML rules")
-    click.echo("   dev/assessments/    → Development assessment reports")
-    click.echo("   dev/training-data/  → Development data snapshots")
-    click.echo("   dev/audit-logs/     → Development audit trail")
-    click.echo("   prod/standards/     → Production YAML rules")
-    click.echo("   prod/assessments/   → Production assessment reports")
-    click.echo("   prod/training-data/ → Production data snapshots")
-    click.echo("   prod/audit-logs/    → Production audit trail")
-    click.echo("")
-    click.echo("🌍 Environment Information:")
-    click.echo("   • Default: Development environment (ADRI/dev/)")
-    click.echo("   • Switch: Edit ADRI/config.yaml to change default_environment")
-    click.echo("   • Purpose: Separate development from production workflows")
-    click.echo("")
-    click.echo("💡 Smart Path Resolution:")
-    click.echo("   • Commands work from any directory within your project")
-    click.echo("   • ADRI automatically finds your project root")
-    click.echo("   • Use relative paths like: tutorials/invoice_processing/data.csv")
-    click.echo("")
-    click.echo("New to ADRI? Follow this complete walkthrough:")
-    click.echo("")
-    click.echo("📋 Step 1 of 4: Setup Your Project")
-    click.echo("   adri setup --guide")
-    click.echo("   → Sets up folders & samples")
-    click.echo("   Expected: ✅ Project initialized with sample data")
-    click.echo("")
-    click.echo("📋 Step 2 of 4: Create Your First Standard")
-    click.echo(
-        "   adri generate-standard tutorials/invoice_processing/invoice_data.csv --guide"
-    )
-    click.echo("   → Creates quality rules from clean data")
-    click.echo("   Expected: ✅ Standard saved to standards/")
-    click.echo("")
-    click.echo("📋 Step 3 of 4: Test Data Quality")
-    click.echo(
-        "   adri assess tutorials/invoice_processing/test_invoice_data.csv --standard dev/standards/invoice_data_ADRI_standard.yaml --guide"
-    )
-    click.echo("   → Tests data with issues")
-    click.echo("   Expected: Score: 88.5/100 ✅ PASSED → Safe for AI agents")
-    click.echo("")
-    click.echo("📋 Step 4 of 4: Review Results")
-    click.echo("   adri list-assessments")
-    click.echo("   → View assessment history")
-    click.echo("   Expected: Table showing all assessment results")
-    click.echo("")
-    click.echo("🎯 Ready? Start with: adri setup --guide")
-    return 0
 
 
 # ---------------- Configuration helpers -----------------
@@ -1199,10 +1144,12 @@ def generate_standard(data_path, force, output, guide):
     sys.exit(command.execute(args))
 
 
-@cli.command("help-guide")
-def help_guide():
-    """Show first-time user guide and tutorial."""
-    sys.exit(show_help_guide())
+@cli.command("guide")
+def guide():
+    """Interactive guide for first-time users (replaces --guide flags)."""
+    command = get_command("guide")
+    args = {}
+    sys.exit(command.execute(args))
 
 
 @cli.command("validate-standard")

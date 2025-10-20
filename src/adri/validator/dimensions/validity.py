@@ -46,25 +46,30 @@ class ValidityAssessor(DimensionAssessor):
         if not isinstance(data, pd.DataFrame):
             return 20.0  # Perfect score for non-DataFrame data
 
-        # Get field requirements and scoring configuration
+        # Get field requirements
         field_requirements = requirements.get("field_requirements", {})
         if not field_requirements:
             return self._assess_validity_basic(data)
 
+        # Check if using new validation_rules format
+        using_validation_rules = self._has_validation_rules_format(field_requirements)
+        
+        if using_validation_rules:
+            # New format: Use validation_rules with severity filtering
+            return self._assess_validity_with_rules(data, field_requirements)
+        
+        # Old format: Use existing weighted/simple scoring
         scoring_cfg = requirements.get("scoring", {})
         rule_weights_cfg = scoring_cfg.get("rule_weights", {})
         field_overrides_cfg = scoring_cfg.get("field_overrides", {})
 
-        # If no rule weights provided OR scoring config empty, fall back to simple method
-        # This ensures parity between CLI and decorator when standards lack explicit weights
         if (
             not isinstance(rule_weights_cfg, dict)
             or len(rule_weights_cfg) == 0
-            or not scoring_cfg  # Also check if scoring config itself is empty
+            or not scoring_cfg
         ):
             return self._assess_validity_simple(data, field_requirements)
 
-        # Use weighted rule-type scoring
         return self._assess_validity_weighted(
             data, field_requirements, rule_weights_cfg, field_overrides_cfg
         )
@@ -541,3 +546,79 @@ class ValidityAssessor(DimensionAssessor):
                 return f"Ensure {field_name} is before {before}"
         else:
             return f"Fix validation issue with {field_name}"
+
+    def _has_validation_rules_format(self, field_requirements: Dict[str, Any]) -> bool:
+        """Check if field_requirements use new validation_rules format.
+        
+        Args:
+            field_requirements: Field requirements dictionary
+            
+        Returns:
+            True if using validation_rules format, False for old format
+        """
+        # Check if any field has validation_rules
+        for field_config in field_requirements.values():
+            if isinstance(field_config, dict) and "validation_rules" in field_config:
+                return True
+        return False
+
+    def _assess_validity_with_rules(
+        self, data: pd.DataFrame, field_requirements: Dict[str, Any]
+    ) -> float:
+        """Assess validity using validation_rules with severity-aware scoring.
+        
+        Only CRITICAL severity rules affect the score. WARNING and INFO rules
+        are executed and logged but don't penalize the score.
+        
+        Args:
+            data: DataFrame to assess
+            field_requirements: Field requirements with validation_rules
+            
+        Returns:
+            Validity score (0.0 to 20.0)
+        """
+        from src.adri.core.severity import Severity
+        from src.adri.core.validation_rule import ValidationRule
+        from ..rules import execute_validation_rule
+        
+        total_critical_checks = 0
+        failed_critical_checks = 0
+        
+        # Process each field
+        for column in data.columns:
+            if column not in field_requirements:
+                continue
+                
+            field_config = field_requirements[column]
+            if not isinstance(field_config, dict):
+                continue
+                
+            validation_rules = field_config.get("validation_rules", [])
+            if not validation_rules:
+                continue
+            
+            # Filter to only CRITICAL rules for this dimension
+            critical_rules = [
+                r for r in validation_rules
+                if isinstance(r, ValidationRule)
+                and r.dimension == "validity"
+                and r.severity == Severity.CRITICAL
+            ]
+            
+            if not critical_rules:
+                continue
+            
+            # Execute CRITICAL rules against data
+            series = data[column].dropna()
+            for value in series:
+                for rule in critical_rules:
+                    total_critical_checks += 1
+                    if not execute_validation_rule(value, rule, field_config):
+                        failed_critical_checks += 1
+        
+        # Calculate score based on CRITICAL rules only
+        if total_critical_checks == 0:
+            return 20.0  # No CRITICAL rules = perfect score
+        
+        success_rate = (total_critical_checks - failed_critical_checks) / total_critical_checks
+        return success_rate * 20.0

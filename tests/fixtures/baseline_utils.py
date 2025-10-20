@@ -10,9 +10,9 @@ from tutorial test runs to detect framework regressions. The system automaticall
 
 Baseline artifacts (4 files per tutorial):
 - <use_case>_data_ADRI_standard.yaml: Generated standard
-- adri_assessment_logs.csv: Assessment results
-- adri_dimension_scores.csv: Dimension breakdowns
-- adri_failed_validations.csv: Validation failures
+- adri_assessment_logs.jsonl: Assessment results (JSONL format)
+- adri_dimension_scores.jsonl: Dimension breakdowns (JSONL format)
+- adri_failed_validations.jsonl: Validation failures (JSONL format)
 
 Directory Structure:
     ADRI/tutorials/<tutorial>/
@@ -20,9 +20,9 @@ Directory Structure:
     ├── test_<use_case>_data.csv
     └── baseline_outcome/              # Auto-created on first run
         ├── <use_case>_data_ADRI_standard.yaml
-        ├── adri_assessment_logs.csv
-        ├── adri_dimension_scores.csv
-        └── adri_failed_validations.csv
+        ├── adri_assessment_logs.jsonl
+        ├── adri_dimension_scores.jsonl
+        └── adri_failed_validations.jsonl
 
 Usage:
     # In test function
@@ -47,6 +47,8 @@ Usage:
 """
 
 import csv
+import json
+import pandas as pd
 import shutil
 import yaml
 from dataclasses import dataclass
@@ -163,9 +165,9 @@ def check_baseline_status(tutorial_metadata) -> BaselineStatus:
     # Count baseline artifacts
     expected_artifacts = [
         f"{tutorial_metadata.use_case_name}_data_ADRI_standard.yaml",
-        "adri_assessment_logs.csv",
-        "adri_dimension_scores.csv",
-        "adri_failed_validations.csv"
+        "adri_assessment_logs.jsonl",
+        "adri_dimension_scores.jsonl",
+        "adri_failed_validations.jsonl"
     ]
 
     existing_artifacts = []
@@ -198,9 +200,9 @@ def get_generated_artifacts(project_root: Path, use_case_name: str) -> Dict[str,
 
     Locates the 4 artifact types:
     1. Standard YAML in ADRI/dev/standards/
-    2. Assessment log CSV in ADRI/dev/audit-logs/
-    3. Dimension scores CSV in ADRI/dev/audit-logs/
-    4. Failed validations CSV in ADRI/dev/audit-logs/
+    2. Assessment log JSONL in ADRI/dev/audit-logs/
+    3. Dimension scores JSONL in ADRI/dev/audit-logs/
+    4. Failed validations JSONL in ADRI/dev/audit-logs/
 
     Args:
         project_root: Test project root directory
@@ -213,7 +215,7 @@ def get_generated_artifacts(project_root: Path, use_case_name: str) -> Dict[str,
         artifacts = get_generated_artifacts(project_root, "invoice")
         # Returns: {
         #   'standard': Path('ADRI/dev/standards/invoice_data_ADRI_standard.yaml'),
-        #   'assessment_log': Path('ADRI/dev/audit-logs/adri_assessment_logs.csv'),
+        #   'assessment_log': Path('ADRI/dev/audit-logs/adri_assessment_logs.jsonl'),
         #   ...
         # }
     """
@@ -224,20 +226,20 @@ def get_generated_artifacts(project_root: Path, use_case_name: str) -> Dict[str,
     if standard_path.exists():
         artifacts['standard'] = standard_path
 
-    # 2. Assessment log CSV
+    # 2. Assessment log JSONL
     audit_logs_dir = project_root / "ADRI" / "dev" / "audit-logs"
 
-    assessment_log_path = audit_logs_dir / "adri_assessment_logs.csv"
+    assessment_log_path = audit_logs_dir / "adri_assessment_logs.jsonl"
     if assessment_log_path.exists():
         artifacts['assessment_log'] = assessment_log_path
 
-    # 3. Dimension scores CSV
-    dimension_scores_path = audit_logs_dir / "adri_dimension_scores.csv"
+    # 3. Dimension scores JSONL
+    dimension_scores_path = audit_logs_dir / "adri_dimension_scores.jsonl"
     if dimension_scores_path.exists():
         artifacts['dimension_scores'] = dimension_scores_path
 
-    # 4. Failed validations CSV
-    failed_validations_path = audit_logs_dir / "adri_failed_validations.csv"
+    # 4. Failed validations JSONL
+    failed_validations_path = audit_logs_dir / "adri_failed_validations.jsonl"
     if failed_validations_path.exists():
         artifacts['failed_validations'] = failed_validations_path
 
@@ -401,6 +403,135 @@ def compare_yaml_files(current: Path, baseline: Path) -> Optional[Dict[str, Any]
     return None
 
 
+def read_jsonl_as_dataframe(file_path: Path) -> pd.DataFrame:
+    """Helper function to read JSONL file as pandas DataFrame.
+
+    Args:
+        file_path: Path to JSONL file
+
+    Returns:
+        DataFrame with all records from JSONL file
+
+    Example:
+        df = read_jsonl_as_dataframe(Path('audit_logs.jsonl'))
+    """
+    with open(file_path, 'r', encoding='utf-8') as f:
+        records = [json.loads(line) for line in f if line.strip()]
+    return pd.DataFrame(records)
+
+
+def compare_jsonl_files(current: Path, baseline: Path) -> Optional[Dict[str, Any]]:
+    """JSONL-specific comparison logic.
+
+    Compares JSONL files while ignoring timestamps and IDs.
+    Converts JSONL to DataFrame for structured comparison.
+
+    Args:
+        current: Path to current JSONL file
+        baseline: Path to baseline JSONL file
+
+    Returns:
+        Dict of differences or None if identical
+
+    Example:
+        diff = compare_jsonl_files(current_path, baseline_path)
+        if diff:
+            print(f"Row count changed: {diff['row_count_diff']}")
+    """
+    # Read both JSONL files as DataFrames
+    current_df = read_jsonl_as_dataframe(current)
+    baseline_df = read_jsonl_as_dataframe(baseline)
+
+    differences = []
+
+    # Compare column sets
+    current_cols = set(current_df.columns)
+    baseline_cols = set(baseline_df.columns)
+
+    if current_cols != baseline_cols:
+        differences.append({
+            'type': 'column_mismatch',
+            'current': sorted(current_cols),
+            'baseline': sorted(baseline_cols)
+        })
+
+    # Compare row counts
+    if len(current_df) != len(baseline_df):
+        differences.append({
+            'type': 'row_count_mismatch',
+            'current': len(current_df),
+            'baseline': len(baseline_df)
+        })
+
+    # Compare data structure (ignore volatile fields)
+    # Performance metrics like duration and throughput vary between runs
+    ignore_columns = [
+        'assessment_id',
+        'timestamp',
+        'hostname',
+        'process_id',
+        'created_at',
+        'standard_path',           # Environment-specific temp directory paths
+        'assessment_duration_ms',  # Performance metric - varies between runs
+        'rows_per_second',         # Performance metric - varies between runs
+        'adri_version'             # Version changes with every commit - not a regression
+    ]
+
+    # For most recent rows (last 5), compare non-volatile values
+    compare_count = min(5, len(current_df), len(baseline_df))
+    if compare_count > 0:
+        current_sample = current_df.tail(compare_count)
+        baseline_sample = baseline_df.tail(compare_count)
+
+        # Compare common columns only
+        common_cols = current_cols & baseline_cols
+        comparable_cols = [col for col in common_cols if col not in ignore_columns]
+
+        for idx in range(compare_count):
+            row_diffs = []
+            for col in comparable_cols:
+                curr_val = current_sample.iloc[idx][col]
+                base_val = baseline_sample.iloc[idx][col]
+                
+                # Compare values, handling NaN and arrays
+                try:
+                    # Check if both are NaN (handles scalar and array cases)
+                    curr_is_na = pd.isna(curr_val).all() if hasattr(pd.isna(curr_val), 'all') else pd.isna(curr_val)
+                    base_is_na = pd.isna(base_val).all() if hasattr(pd.isna(base_val), 'all') else pd.isna(base_val)
+                    
+                    if curr_is_na and base_is_na:
+                        continue
+                    if curr_is_na or base_is_na or curr_val != base_val:
+                        row_diffs.append({
+                            'column': col,
+                            'current': str(curr_val),
+                            'baseline': str(base_val)
+                        })
+                except (ValueError, TypeError):
+                    # Handle complex comparisons by converting to string
+                    if str(curr_val) != str(base_val):
+                        row_diffs.append({
+                            'column': col,
+                            'current': str(curr_val),
+                            'baseline': str(base_val)
+                        })
+
+            if row_diffs:
+                differences.append({
+                    'type': 'row_value_mismatch',
+                    'row_index': idx,
+                    'changes': row_diffs
+                })
+
+    if differences:
+        return {
+            'differences': differences,
+            'total_changes': len(differences)
+        }
+
+    return None
+
+
 def compare_csv_files(current: Path, baseline: Path) -> Optional[Dict[str, Any]]:
     """CSV-specific comparison logic.
 
@@ -547,11 +678,14 @@ def compare_with_baseline(
             continue
 
         # Compare based on file format
-        file_format = 'yaml' if baseline_filename.endswith('.yaml') else 'csv'
-
-        if file_format == 'yaml':
+        if baseline_filename.endswith('.yaml'):
+            file_format = 'yaml'
             diff = compare_yaml_files(current_path, baseline_path)
+        elif baseline_filename.endswith('.jsonl'):
+            file_format = 'jsonl'
+            diff = compare_jsonl_files(current_path, baseline_path)
         else:
+            file_format = 'csv'
             diff = compare_csv_files(current_path, baseline_path)
 
         # Create artifact metadata
