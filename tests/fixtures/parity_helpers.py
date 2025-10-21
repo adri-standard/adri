@@ -25,7 +25,7 @@ def setup_isolated_environment(base_path: Path) -> Dict[str, Path]:
 
     Returns:
         Dictionary containing paths:
-        - config: adri-config.yaml path
+        - config: ADRI/config.yaml path
         - standards_dir: ADRI/dev/standards
         - assessments_dir: ADRI/dev/assessments
         - logs_dir: ADRI/dev/logs
@@ -44,7 +44,7 @@ def setup_isolated_environment(base_path: Path) -> Dict[str, Path]:
         directory.mkdir(parents=True, exist_ok=True)
 
     # Create config file with correct structure for ConfigurationLoader
-    config_path = base_path / "adri-config.yaml"
+    config_path = base_path / "ADRI" / "config.yaml"
     config = {
         'adri': {
             'environment': 'development',

@@ -69,7 +69,7 @@ class TestConfigurationLoaderComprehensive:
         """Test configuration file discovery in various locations."""
 
         # Test discovery in current directory
-        config_file = temp_workspace / "adri-config.yaml"
+        config_file = temp_workspace / "ADRI" / "config.yaml"
         with open(config_file, 'w', encoding='utf-8') as f:
             yaml.dump(self.complete_config, f)
 
@@ -93,7 +93,7 @@ class TestConfigurationLoaderComprehensive:
         """Test environment-specific configuration loading."""
 
         # Create config file with multiple environments
-        config_file = temp_workspace / "adri-config.yaml"
+        config_file = temp_workspace / "ADRI" / "config.yaml"
         with open(config_file, 'w', encoding='utf-8') as f:
             yaml.dump(self.complete_config, f)
 
@@ -518,7 +518,7 @@ class TestConfigurationLoaderComprehensive:
 
         for i, location in enumerate(locations):
             location.mkdir(parents=True, exist_ok=True)
-            config_file = location / "adri-config.yaml"
+            config_file = location / "ADRI" / "config.yaml"
 
             config = {
                 "adri": {

@@ -531,7 +531,7 @@ class TestInvoiceTutorialFlowValidation:
 
         # Set up environment
         os.environ['ADRI_ENV'] = 'development'
-        config_path = invoice_scenario['tutorial_dir'].parent.parent / 'adri-config.yaml'
+        config_path = invoice_scenario['tutorial_dir'].parent.parent / 'ADRI' / 'config.yaml'
         os.environ['ADRI_CONFIG_PATH'] = str(config_path)
 
         # Load training data

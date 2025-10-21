@@ -181,8 +181,8 @@ ADRI follows a modular architecture designed for:
 **Configuration Hierarchy**:
 ```
 1. Decorator parameters (highest priority)
-2. Project .adri/config.yaml
-3. User ~/.adri/config.yaml
+2. Project ADRI/config.yaml
+3. User ~/ADRI/config.yaml
 4. Environment variables
 5. Default values (lowest priority)
 ```

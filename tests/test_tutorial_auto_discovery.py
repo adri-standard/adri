@@ -90,7 +90,7 @@ def test_training_data_scores_100_percent(tutorial_name, tutorial_metadata, tuto
 
     # Set environment for the test
     os.environ['ADRI_ENV'] = 'development'
-    os.environ['ADRI_CONFIG_PATH'] = str(tutorial_project / 'adri-config.yaml')
+    os.environ['ADRI_CONFIG_PATH'] = str(tutorial_project / 'ADRI' / 'config.yaml')
 
     # Load training data (should be 100% clean)
     training_data = pd.read_csv(scenario['training_data_path'])
@@ -208,7 +208,7 @@ def test_error_detection_works(tutorial_name, tutorial_metadata, tutorial_projec
 
     # Set environment for the test
     os.environ['ADRI_ENV'] = 'development'
-    os.environ['ADRI_CONFIG_PATH'] = str(tutorial_project / 'adri-config.yaml')
+    os.environ['ADRI_CONFIG_PATH'] = str(tutorial_project / 'ADRI' / 'config.yaml')
 
     # Load test data (should have quality issues)
     test_data = pd.read_csv(scenario['test_data_path'])
@@ -472,13 +472,13 @@ def test_assessment_and_logs_are_valid(tutorial_name, tutorial_metadata, tutoria
 
     # Set environment for the test
     os.environ['ADRI_ENV'] = 'development'
-    os.environ['ADRI_CONFIG_PATH'] = str(tutorial_project / 'adri-config.yaml')
+    os.environ['ADRI_CONFIG_PATH'] = str(tutorial_project / 'ADRI' / 'config.yaml')
 
     # Load training data and run assessment to generate logs
     training_data = pd.read_csv(scenario['training_data_path'])
 
     # Load config to enable audit logging
-    config_path = tutorial_project / 'adri-config.yaml'
+    config_path = tutorial_project / 'ADRI' / 'config.yaml'
     with open(config_path, 'r', encoding='utf-8') as f:
         config = yaml.safe_load(f)
 
@@ -671,14 +671,14 @@ def test_baseline_regression(tutorial_name, tutorial_metadata, tutorial_project)
 
     # Set environment for the test
     os.environ['ADRI_ENV'] = 'development'
-    os.environ['ADRI_CONFIG_PATH'] = str(tutorial_project / 'adri-config.yaml')
+    os.environ['ADRI_CONFIG_PATH'] = str(tutorial_project / 'ADRI' / 'config.yaml')
 
     # Run assessment to generate all artifacts
     training_data = pd.read_csv(scenario['training_data_path'])
 
     # Load config to enable audit logging
     import yaml
-    config_path = tutorial_project / 'adri-config.yaml'
+    config_path = tutorial_project / 'ADRI' / 'config.yaml'
     with open(config_path, 'r', encoding='utf-8') as f:
         config = yaml.safe_load(f)
 

@@ -292,7 +292,7 @@ class TestDecoratorAutoGeneration:
 
         # Get project root and set absolute config path
         project_root = invoice_scenario['tutorial_dir'].parent.parent.parent
-        config_path = (project_root / 'adri-config.yaml').resolve()
+        config_path = (project_root / 'ADRI' / 'config.yaml').resolve()
         os.environ['ADRI_CONFIG_PATH'] = str(config_path)
 
         # Load training data
@@ -365,7 +365,7 @@ class TestDecoratorAutoGeneration:
 
         # Get project root and set absolute config path
         project_root = invoice_scenario['tutorial_dir'].parent.parent.parent
-        config_path = (project_root / 'adri-config.yaml').resolve()
+        config_path = (project_root / 'ADRI' / 'config.yaml').resolve()
         os.environ['ADRI_CONFIG_PATH'] = str(config_path)
 
         # Load training data
@@ -457,7 +457,7 @@ class TestDecoratorAutoGeneration:
 
         # Set absolute config path
         project_root = invoice_scenario['tutorial_dir'].parent.parent.parent
-        config_path = (project_root / 'adri-config.yaml').resolve()
+        config_path = (project_root / 'ADRI' / 'config.yaml').resolve()
         os.environ['ADRI_CONFIG_PATH'] = str(config_path)
 
         # Load training data
@@ -538,7 +538,7 @@ class TestDecoratorAutoGeneration:
 
         # Set absolute config path
         project_root = invoice_scenario['tutorial_dir'].parent.parent.parent
-        config_path = (project_root / 'adri-config.yaml').resolve()
+        config_path = (project_root / 'ADRI' / 'config.yaml').resolve()
         os.environ['ADRI_CONFIG_PATH'] = str(config_path)
 
         # Load training data
@@ -621,7 +621,7 @@ class TestDecoratorAutoGeneration:
 
         # Set absolute config path
         project_root = invoice_scenario['tutorial_dir'].parent.parent.parent
-        config_path = (project_root / 'adri-config.yaml').resolve()
+        config_path = (project_root / 'ADRI' / 'config.yaml').resolve()
         os.environ['ADRI_CONFIG_PATH'] = str(config_path)
 
         # Load test data
@@ -692,7 +692,7 @@ class TestDecoratorAutoGeneration:
 
         # Set absolute config path
         project_root = invoice_scenario['tutorial_dir'].parent.parent.parent
-        config_path = (project_root / 'adri-config.yaml').resolve()
+        config_path = (project_root / 'ADRI' / 'config.yaml').resolve()
         os.environ['ADRI_CONFIG_PATH'] = str(config_path)
 
         # Create a standard manually
@@ -746,7 +746,7 @@ class TestDecoratorAutoGeneration:
 
         # Set absolute config path
         project_root = invoice_scenario['tutorial_dir'].parent.parent.parent
-        config_path = (project_root / 'adri-config.yaml').resolve()
+        config_path = (project_root / 'ADRI' / 'config.yaml').resolve()
         os.environ['ADRI_CONFIG_PATH'] = str(config_path)
 
         # Ensure standard doesn't exist

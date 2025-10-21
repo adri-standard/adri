@@ -460,7 +460,7 @@ def custom_function(data):
 
 1. Decorator parameters (highest priority)
 2. Project `ADRI/dev/config.yaml`
-3. User `~/.adri/config.yaml`
+3. User `~/ADRI/config.yaml`
 4. Default values (lowest priority)
 
 ## Next Steps

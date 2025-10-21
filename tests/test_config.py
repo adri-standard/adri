@@ -117,11 +117,14 @@ class TestConfigurationLoader(unittest.TestCase):
     def test_find_config_file_current_directory(self):
         """Test finding config file in current directory."""
         # Create config file
-        with open("adri-config.yaml", 'w', encoding='utf-8') as f:
+        adri_dir = Path("ADRI")
+        adri_dir.mkdir(parents=True, exist_ok=True)
+        config_file = adri_dir / "config.yaml"
+        with open(config_file, 'w', encoding='utf-8') as f:
             f.write("test: config")
 
         found_path = self.loader.find_config_file()
-        expected_path = str(Path.cwd().resolve() / "adri-config.yaml")
+        expected_path = str(Path.cwd().resolve() / "ADRI" / "config.yaml")
 
         # Normalize both paths to resolve Windows short vs long path names
         found_normalized = str(Path(found_path).resolve()) if found_path else None
@@ -146,7 +149,9 @@ class TestConfigurationLoader(unittest.TestCase):
     def test_get_active_config_search(self):
         """Test getting active config by searching."""
         config = self.loader.create_default_config("test")
-        self.loader.save_config(config, "adri-config.yaml")
+        adri_dir = Path("ADRI")
+        adri_dir.mkdir(parents=True, exist_ok=True)
+        self.loader.save_config(config, str(adri_dir / "config.yaml"))
 
         active_config = self.loader.get_active_config()
         self.assertEqual(active_config["adri"]["project_name"], "test")

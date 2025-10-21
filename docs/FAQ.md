@@ -515,7 +515,7 @@ ADRI samples large datasets for validation:
 - **Configurable**: Adjust sample size in config
 
 ```yaml
-# .adri/config.yaml
+# ADRI/config.yaml
 validation:
   sample_size: 5000  # For faster validation
   # sample_size: null  # Validate all rows
@@ -592,7 +592,7 @@ ls ADRI/dev/standards/
 **Solutions**:
 1. **Enable sampling**:
    ```yaml
-   # .adri/config.yaml
+   # ADRI/config.yaml
    validation:
      sample_size: 5000
    ```

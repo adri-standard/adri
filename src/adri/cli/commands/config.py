@@ -52,7 +52,7 @@ class ShowConfigCommand(Command):
             config = config_loader.get_active_config()
 
             if not config:
-                click.echo("❌ No ADRI configuration found")
+                click.echo("❌ Configuration must be located at ADRI/config.yaml")
                 click.echo("💡 Run 'adri setup' to initialize ADRI in this project")
                 return 1
 
