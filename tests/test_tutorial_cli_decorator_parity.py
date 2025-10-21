@@ -121,6 +121,7 @@ class TestAssessmentParity:
         os.environ.pop('ADRI_STANDARDS_DIR', None)  # Let config file take precedence
         os.environ['ADRI_CONFIG_PATH'] = str(env['config'])
         os.environ['ADRI_ENV'] = 'development'
+        os.environ['ADRI_LOG_DIR'] = str(env['logs_dir'])  # Enable audit logging
 
         # Change to environment directory for path resolution
         import os as os_module
@@ -172,6 +173,7 @@ class TestAssessmentParity:
         os.environ.pop('ADRI_STANDARDS_DIR', None)  # Let config file take precedence
         os.environ['ADRI_CONFIG_PATH'] = str(env['config'])
         os.environ['ADRI_ENV'] = 'development'
+        os.environ['ADRI_LOG_DIR'] = str(env['logs_dir'])  # Enable audit logging
 
         # Change to environment directory for path resolution
         import os as os_module
@@ -235,6 +237,7 @@ class TestStandardPathConsistency:
         os.environ.pop('ADRI_STANDARDS_DIR', None)  # Let config file take precedence
         os.environ['ADRI_CONFIG_PATH'] = str(env['config'])
         os.environ['ADRI_ENV'] = 'development'
+        os.environ['ADRI_LOG_DIR'] = str(env['logs_dir'])  # Enable audit logging
 
         # Load test data
         training_data_path = invoice_scenario['training_data_path']
@@ -408,6 +411,7 @@ class TestEndToEndParity:
         os.environ.pop('ADRI_STANDARDS_DIR', None)  # Let config file take precedence
         os.environ['ADRI_CONFIG_PATH'] = str(dec_env['config'])
         os.environ['ADRI_ENV'] = 'development'
+        os.environ['ADRI_LOG_DIR'] = str(dec_env['logs_dir'])  # Enable audit logging
 
         # Change to environment directory for path resolution
         import os as os_module
@@ -484,6 +488,7 @@ class TestEndToEndParity:
         os.environ.pop('ADRI_STANDARDS_DIR', None)  # Let config file take precedence
         os.environ['ADRI_CONFIG_PATH'] = str(dec_env['config'])
         os.environ['ADRI_ENV'] = 'development'
+        os.environ['ADRI_LOG_DIR'] = str(dec_env['logs_dir'])  # Enable audit logging
 
         # Change to environment directory for path resolution
         import os as os_module

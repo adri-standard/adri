@@ -43,25 +43,40 @@ def setup_isolated_environment(base_path: Path) -> Dict[str, Path]:
     for directory in [standards_dir, assessments_dir, logs_dir]:
         directory.mkdir(parents=True, exist_ok=True)
 
-    # Create config file with correct structure for ConfigurationLoader
+    # Create config file matching both ConfigurationLoader and DataQualityAssessor structures
     config_path = base_path / "ADRI" / "config.yaml"
     config = {
         'adri': {
-            'environment': 'development',
-            'project_root': str(base_path),
-            'standards_directory': str(standards_dir),
-            'assessments_directory': str(assessments_dir),
-            'audit_logs_directory': str(logs_dir),
+            'version': '4.0.0',
+            'project_name': 'test_project',
+            'default_environment': 'development',
+            'environments': {
+                'development': {
+                    'paths': {
+                        'standards': str(standards_dir),
+                        'assessments': str(assessments_dir),
+                        'training_data': str(dev_dir / 'training-data'),
+                        'audit_logs': str(logs_dir)
+                    },
+                    'protection': {
+                        'default_failure_mode': 'warn',
+                        'default_min_score': 75,
+                        'cache_duration_hours': 0.5
+                    }
+                }
+            },
             'protection': {
-                'default_min_score': 75.0,
+                'default_failure_mode': 'raise',
+                'default_min_score': 80,
+                'cache_duration_hours': 1,
                 'auto_generate_standards': True,
                 'verbose_protection': False
             },
             'audit': {
                 'enabled': True,
-                'log_location': str(logs_dir / 'adri_assessment_logs.csv'),
                 'log_dir': str(logs_dir),
-                'log_prefix': 'adri'
+                'formats': ['jsonl'],
+                'retention_days': 30
             }
         }
     }
