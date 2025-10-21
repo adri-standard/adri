@@ -623,9 +623,15 @@ class DataProtectionEngine:
             df = data
 
         # Use the same assessor as CLI for identical scoring logic
-        # Pass FULL config (not just protection_config) to enable audit logging
-        # DataQualityAssessor needs the 'audit' section from full config
-        config_for_assessor = getattr(self, "full_config", self.protection_config)
+        # CRITICAL: Pass None (not {}) to allow DataQualityAssessor to auto-discover
+        # audit config from environment variables (ADRI_LOG_DIR, ADRI_CONFIG_PATH)
+        # Passing {} explicitly disables audit logging, which breaks decorator parity
+        config_for_assessor = self.full_config
+
+        # If full_config is empty/None, pass None to enable auto-discovery
+        if not config_for_assessor:
+            config_for_assessor = None
+
         assessor = DataQualityAssessor(config_for_assessor)
         result = assessor.assess(df, standard_path)
 
