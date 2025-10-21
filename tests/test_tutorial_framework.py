@@ -65,7 +65,10 @@ class TestTutorialProjectStructure:
 
         config_path = os.environ.get('ADRI_CONFIG_PATH')
         assert config_path is not None
-        assert 'ADRI/config.yaml' in config_path
+        # Use Path to handle cross-platform path separators
+        config_path_obj = Path(config_path)
+        assert config_path_obj.name == 'config.yaml'
+        assert 'ADRI' in config_path_obj.parts
 
 
 class TestConfigTemplate:
