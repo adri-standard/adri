@@ -16,6 +16,10 @@ def check_field_type(value: Any, field_req: dict[str, Any]) -> bool:
         if required_type == "integer":
             int(value)
             return True
+        elif required_type == "number":
+            # Number type accepts both integers and floats
+            float(value)
+            return True
         elif required_type == "float":
             float(value)
             return True

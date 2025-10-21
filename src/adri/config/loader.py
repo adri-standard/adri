@@ -138,15 +138,19 @@ class ConfigurationLoader:
             return False
 
     def save_config(
-        self, config: dict[str, Any], config_path: str = "adri-config.yaml"
+        self, config: dict[str, Any], config_path: str = "ADRI/config.yaml"
     ) -> None:
         """
         Save configuration to YAML file.
 
         Args:
             config: Configuration dictionary to save
-            config_path: Path to save the configuration file
+            config_path: Path to save the configuration file (default: ADRI/config.yaml)
         """
+        # Ensure parent directory exists
+        config_file = Path(config_path)
+        config_file.parent.mkdir(parents=True, exist_ok=True)
+
         with open(config_path, "w", encoding="utf-8") as f:
             yaml.dump(config, f, default_flow_style=False, indent=2)
 
@@ -174,34 +178,29 @@ class ConfigurationLoader:
 
     def find_config_file(self, start_path: str = ".") -> str | None:
         """
-        Find ADRI config file by searching up the directory tree.
+        Find ADRI config file at standard location.
 
-        Stops at the user's home directory.
+        Searches up the directory tree for ADRI/config.yaml, stopping at
+        the user's home directory.
 
         Args:
             start_path: Directory to start searching from
 
         Returns:
-            Path to config file or None if not found
+            Path to config file if found at ADRI/config.yaml, None otherwise
+
+        Note:
+            Configuration file must be located at ADRI/config.yaml.
+            Run 'adri setup' to initialize if not found.
         """
         current_path = Path(start_path).resolve()
         home_path = Path.home().resolve()
 
         # Search up the directory tree, stopping at home directory
         for path in [current_path] + list(current_path.parents):
-            # Check common config file locations (new location first)
-            config_names = [
-                "ADRI/config.yaml",
-                "adri-config.yaml",  # backward compatibility
-                "adri-config.yml",  # backward compatibility
-                "ADRI/adri-config.yaml",  # backward compatibility
-                ".adri.yaml",
-            ]
-
-            for config_name in config_names:
-                config_path = path / config_name
-                if config_path.exists():
-                    return str(config_path)
+            config_path = path / "ADRI" / "config.yaml"
+            if config_path.exists():
+                return str(config_path)
 
             # Stop after checking home directory - don't search above it
             if path == home_path:
@@ -219,14 +218,18 @@ class ConfigurationLoader:
         1. ADRI_CONFIG (inline YAML string)
         2. ADRI_CONFIG_PATH or ADRI_CONFIG_FILE (explicit file path)
         3. config_path parameter
-        4. Auto-discovered config file
-        5. None (no config)
+        4. ADRI/config.yaml in current or parent directories
+        5. None (no config found)
 
         Args:
             config_path: Specific config file path, or None to search
 
         Returns:
             Configuration dictionary or None if no config found
+
+        Note:
+            Configuration file must be located at ADRI/config.yaml.
+            Run 'adri setup' to initialize if not found.
         """
         # Highest precedence: ADRI_CONFIG environment variable (inline YAML)
         inline_config = os.environ.get("ADRI_CONFIG")

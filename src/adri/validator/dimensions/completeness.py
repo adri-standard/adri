@@ -180,7 +180,7 @@ class CompletenessAssessor(DimensionAssessor):
 
     def get_validation_failures(
         self, data: pd.DataFrame, requirements: dict[str, Any]
-    ) -> list:
+    ) -> list[dict[str, Any]]:
         """Extract detailed completeness failures for audit logging.
 
         Args:
@@ -197,7 +197,14 @@ class CompletenessAssessor(DimensionAssessor):
         if not field_requirements:
             return failures
 
-        # Identify required (non-nullable) fields
+        # Check if using validation_rules format
+        using_validation_rules = self._has_validation_rules_format(field_requirements)
+
+        if using_validation_rules:
+            # Extract failures from validation_rules format
+            return self._get_validation_rules_failures(data, field_requirements)
+
+        # Identify required (non-nullable) fields (old format)
         required_fields = [
             col
             for col, cfg in field_requirements.items()
@@ -246,6 +253,98 @@ class CompletenessAssessor(DimensionAssessor):
                             ),
                             "samples": [f"Row {idx}" for idx in null_indices],
                             "remediation": f"Fill missing {field_name} values",
+                        }
+                    )
+
+        return failures
+
+    def _get_validation_rules_failures(
+        self, data: pd.DataFrame, field_requirements: dict[str, Any]
+    ) -> list[dict[str, Any]]:
+        """Extract failures from validation_rules format.
+
+        This handles the new severity-aware validation_rules format where
+        each field has a list of ValidationRule objects.
+
+        Args:
+            data: DataFrame to analyze
+            field_requirements: Field requirements with validation_rules
+
+        Returns:
+            List of failure records with details
+        """
+        from collections import defaultdict
+
+        from src.adri.core.validation_rule import ValidationRule
+
+        from ..rules import execute_validation_rule
+
+        failures = []
+        total_rows = len(data)
+
+        # Track failures by field and rule
+        failure_tracking = defaultdict(
+            lambda: defaultdict(lambda: {"count": 0, "samples": [], "row_indices": []})
+        )
+
+        for column in data.columns:
+            if column not in field_requirements:
+                continue
+
+            field_config = field_requirements[column]
+            if not isinstance(field_config, dict):
+                continue
+
+            validation_rules = field_config.get("validation_rules", [])
+            if not validation_rules:
+                continue
+
+            # Get completeness rules for this field (all severities for logging)
+            completeness_rules = [
+                r
+                for r in validation_rules
+                if isinstance(r, ValidationRule) and r.dimension == "completeness"
+            ]
+
+            if not completeness_rules:
+                continue
+
+            # Execute each rule and track failures
+            series = data[column]
+            for idx, value in series.items():
+                for rule in completeness_rules:
+                    if not execute_validation_rule(value, rule, field_config):
+                        # Track failure
+                        rule_key = f"{rule.rule_type}_{rule.severity.value}"
+                        failure_tracking[column][rule_key]["count"] += 1
+
+                        if len(failure_tracking[column][rule_key]["samples"]) < 3:
+                            sample_val = "<null>" if pd.isna(value) else str(value)[:50]
+                            failure_tracking[column][rule_key]["samples"].append(
+                                sample_val
+                            )
+                        failure_tracking[column][rule_key]["row_indices"].append(idx)
+
+        # Convert tracking to failure records
+        for field_name, rule_failures in failure_tracking.items():
+            for rule_key, failure_info in rule_failures.items():
+                if failure_info["count"] > 0:
+                    # Extract rule type and severity from key
+                    parts = rule_key.rsplit("_", 1)
+                    rule_type = parts[0] if len(parts) > 1 else rule_key
+                    severity = parts[1] if len(parts) > 1 else "CRITICAL"
+
+                    failures.append(
+                        {
+                            "dimension": "completeness",
+                            "field": field_name,
+                            "issue": f"{rule_type}_failed",
+                            "severity": severity,
+                            "affected_rows": failure_info["count"],
+                            "affected_percentage": (failure_info["count"] / total_rows)
+                            * 100.0,
+                            "samples": failure_info["samples"],
+                            "remediation": f"Fix {field_name} to pass {rule_type} validation ({severity} severity)",
                         }
                     )
 

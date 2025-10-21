@@ -130,7 +130,7 @@ class TestDecoratorComprehensive:
         """Test integration with configuration system."""
 
         # Create config file
-        config_file = temp_workspace / "adri-config.yaml"
+        config_file = temp_workspace / "ADRI" / "config.yaml"
         import yaml
         with open(config_file, 'w', encoding='utf-8') as f:
             yaml.dump(complete_config, f)

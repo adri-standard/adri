@@ -164,7 +164,7 @@ data_provenance={
 
 ## Configuration
 
-Enable workflow logging in `adri-config.yaml`:
+Enable workflow logging in `ADRI/config.yaml`:
 
 ```yaml
 adri:

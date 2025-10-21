@@ -426,8 +426,8 @@ Validation:
   Strict Mode: false
 
 Sources:
-  ✅ Project: .adri/config.yaml
-  ✅ User: ~/.adri/config.yaml
+  ✅ Project: ADRI/config.yaml
+  ✅ User: ~/ADRI/config.yaml
   ✅ Defaults: Built-in
 ```
 
@@ -496,7 +496,7 @@ Choice [1]: 1
 Auto-generate standards when missing?
   [Y/n]: Y
 
-✅ Configuration saved to .adri/config.yaml
+✅ Configuration saved to ADRI/config.yaml
 
 Next steps:
 1. Protect a function: @adri_protected(standard="data", data_param="data")

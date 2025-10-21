@@ -32,8 +32,8 @@ class TestTutorialProjectStructure:
         assert tutorial_project.is_dir()
 
     def test_config_file_copied(self, tutorial_project):
-        """Test that adri-config.yaml is copied to project root."""
-        config_path = tutorial_project / "adri-config.yaml"
+        """Test that ADRI/config.yaml is copied to ADRI directory."""
+        config_path = tutorial_project / "ADRI" / "config.yaml"
         assert config_path.exists()
         assert config_path.is_file()
 
@@ -65,7 +65,10 @@ class TestTutorialProjectStructure:
 
         config_path = os.environ.get('ADRI_CONFIG_PATH')
         assert config_path is not None
-        assert 'adri-config.yaml' in config_path
+        # Use Path to handle cross-platform path separators
+        config_path_obj = Path(config_path)
+        assert config_path_obj.name == 'config.yaml'
+        assert 'ADRI' in config_path_obj.parts
 
 
 class TestConfigTemplate:
@@ -73,7 +76,7 @@ class TestConfigTemplate:
 
     def test_config_template_valid_yaml(self, tutorial_project):
         """Test that config template is valid YAML."""
-        config_path = tutorial_project / "adri-config.yaml"
+        config_path = tutorial_project / "ADRI" / "config.yaml"
 
         with open(config_path, 'r', encoding='utf-8') as f:
             config = yaml.safe_load(f)
@@ -83,7 +86,7 @@ class TestConfigTemplate:
 
     def test_config_has_required_sections(self, tutorial_project):
         """Test that config contains required sections."""
-        config_path = tutorial_project / "adri-config.yaml"
+        config_path = tutorial_project / "ADRI" / "config.yaml"
 
         with open(config_path, 'r', encoding='utf-8') as f:
             config = yaml.safe_load(f)
@@ -94,7 +97,7 @@ class TestConfigTemplate:
 
     def test_config_has_development_environment(self, tutorial_project):
         """Test that config includes development environment."""
-        config_path = tutorial_project / "adri-config.yaml"
+        config_path = tutorial_project / "ADRI" / "config.yaml"
 
         with open(config_path, 'r', encoding='utf-8') as f:
             config = yaml.safe_load(f)
@@ -110,7 +113,7 @@ class TestConfigTemplate:
 
     def test_config_has_production_environment(self, tutorial_project):
         """Test that config includes production environment."""
-        config_path = tutorial_project / "adri-config.yaml"
+        config_path = tutorial_project / "ADRI" / "config.yaml"
 
         with open(config_path, 'r', encoding='utf-8') as f:
             config = yaml.safe_load(f)
@@ -124,7 +127,7 @@ class TestConfigTemplate:
 
     def test_config_default_environment_is_development(self, tutorial_project):
         """Test that default environment is set to development."""
-        config_path = tutorial_project / "adri-config.yaml"
+        config_path = tutorial_project / "ADRI" / "config.yaml"
 
         with open(config_path, 'r', encoding='utf-8') as f:
             config = yaml.safe_load(f)

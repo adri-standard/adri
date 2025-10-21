@@ -1,234 +1,232 @@
-"""Auto-discovery utilities for ADRI standards testing.
+"""Auto-discovery utilities for ADRI standards catalog.
 
-This module extends the tutorial discovery concept to ALL standards in the
-adri/standards/ directory. For each valid standard, it looks for or generates
-test data to enable comprehensive automated testing.
+This module provides functions for discovering and validating standards in the
+adri/standards/ directory. Standards are organized in subdirectories by category
+(domains, frameworks, templates) and follow a YAML-based v5.0.0 structure.
 
-File Structure Convention:
-    adri/standards/<path>/<standard>.yaml
-    adri/standards/test_data/<standard_id>_data.csv          # Training data (100%)
-    adri/standards/test_data/test_<standard_id>_data.csv     # Test data (with errors)
-
-Example:
-    adri/standards/domains/customer_service_standard.yaml
-    adri/standards/test_data/customer_service_standard_data.csv
-    adri/standards/test_data/test_customer_service_standard_data.csv
+Directory Structure:
+    adri/standards/
+    ├── domains/              # Business domain standards (5 standards)
+    ├── frameworks/           # AI framework standards (4 standards)
+    └── templates/            # Generic template standards (4 standards)
 
 Discovery Process:
-    1. Scan adri/standards/ recursively for *.yaml files
-    2. Validate each file is a proper ADRI standard
-    3. Check for corresponding test data CSV files
-    4. Return metadata for test generation
+    1. Scan adri/standards/{domains,frameworks,templates}/ for .yaml files
+    2. Validate each file has proper v5.0.0 structure
+    3. Extract standard metadata (id, name, version, etc.)
+    4. Return metadata for test parametrization
+
+Usage:
+    from tests.fixtures.standards_discovery import find_catalog_standards
+
+    standards = find_catalog_standards()
+    for standard in standards:
+        print(f"Found: {standard.standard_id} in {standard.category}")
+        print(f"  File: {standard.file_path}")
+        print(f"  Version: {standard.version}")
+
+Benefits:
+    - New standards are automatically discovered and tested
+    - No manual test file updates required when catalog grows
+    - Ensures complete test coverage of the standards catalog
 """
 
-import re
+import yaml
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List, Tuple, Optional
-import yaml
+from typing import List, Tuple, Optional, Dict
 
 
 @dataclass
-class StandardTestMetadata:
-    """Metadata about a discovered standard for testing.
+class StandardMetadata:
+    """Metadata about a discovered standard in the catalog.
 
     Attributes:
-        standard_id: Standard identifier from YAML (e.g., "customer_service_standard")
-        standard_path: Path to standard YAML file
-        standard_name: Human-readable name
-        training_data_path: Path to training CSV (may not exist yet)
-        test_data_path: Path to test CSV (may not exist yet)
-        has_training_data: Whether training CSV exists
-        has_test_data: Whether test CSV exists
-        field_count: Number of fields in standard
-        relative_path: Relative path from standards directory
+        standard_id: Unique identifier from YAML (e.g., "customer_service_standard")
+        standard_name: Display name from YAML (e.g., "Customer Service Interaction Standard")
+        file_path: Path to the YAML standard file
+        category: Category subdirectory (domains/frameworks/templates)
+        filename: Base filename without extension (used for @adri_protected references)
+        version: Version string from YAML (e.g., "1.0.0")
     """
     standard_id: str
-    standard_path: Path
     standard_name: str
-    training_data_path: Path
-    test_data_path: Path
-    has_training_data: bool
-    has_test_data: bool
-    field_count: int
-    relative_path: str
+    file_path: Path
+    category: str
+    filename: str
+    version: str
 
 
-def find_testable_standards(
-    standards_root: Optional[Path] = None,
-    test_data_dir: Optional[Path] = None
-) -> List[StandardTestMetadata]:
-    """Find all valid standards and check for test data.
+def find_catalog_standards(standards_root: Optional[Path] = None) -> List[StandardMetadata]:
+    """Find all valid standards in the catalog directories.
 
-    Scans adri/standards/ recursively for YAML files that are valid ADRI standards.
-    For each standard, checks if corresponding test data CSV files exist.
+    Scans adri/standards/{domains,frameworks,templates}/ for .yaml files
+    and extracts metadata from each standard.
 
     Args:
         standards_root: Optional path to standards directory.
                        If None, uses adri/standards/ relative to project root.
-        test_data_dir: Optional path to test data directory.
-                      If None, uses adri/standards/test_data/
 
     Returns:
-        List of StandardTestMetadata for each valid standard found.
-        Includes standards even if test data doesn't exist yet.
+        List of StandardMetadata for each valid standard found.
+        Empty list if directories don't exist.
 
     Example:
-        standards = find_testable_standards()
+        standards = find_catalog_standards()
         for std in standards:
-            print(f"Standard: {std.standard_id}")
-            print(f"  Has data: {std.has_training_data and std.has_test_data}")
+            print(f"Found: {std.standard_id} in {std.category}")
     """
     # Determine standards root directory
     if standards_root is None:
+        # This file is in tests/fixtures/
         current_file = Path(__file__)
         project_root = current_file.parent.parent.parent
         standards_root = project_root / "adri" / "standards"
 
-    # Determine test data directory
-    if test_data_dir is None:
-        test_data_dir = standards_root / "test_data"
-
-    # Create test_data directory if it doesn't exist
-    test_data_dir.mkdir(exist_ok=True)
-
-    # Return empty list if standards directory doesn't exist
+    # Return empty list if directory doesn't exist
     if not standards_root.exists():
         return []
 
-    # Find all YAML files recursively
-    yaml_files = list(standards_root.rglob("*.yaml"))
+    # Catalog subdirectories to scan
+    catalog_categories = ["domains", "frameworks", "templates"]
 
-    # Validate each file and collect metadata
+    # Collect all valid standards
     valid_standards = []
-    for yaml_file in yaml_files:
-        # Skip files in test_data directory itself
-        if test_data_dir in yaml_file.parents:
+
+    for category in catalog_categories:
+        category_dir = standards_root / category
+
+        # Skip if category directory doesn't exist
+        if not category_dir.exists():
             continue
 
-        is_valid, metadata = validate_standard_for_testing(
-            yaml_file, standards_root, test_data_dir
-        )
-        if is_valid and metadata:
-            valid_standards.append(metadata)
+        # Find all YAML files in this category
+        yaml_files = list(category_dir.glob("*.yaml"))
+
+        # Validate each file and collect metadata
+        for yaml_file in yaml_files:
+            is_valid, metadata = validate_standard_file(yaml_file, category)
+            if is_valid and metadata:
+                valid_standards.append(metadata)
 
     return valid_standards
 
 
-def validate_standard_for_testing(
-    standard_path: Path,
-    standards_root: Path,
-    test_data_dir: Path
-) -> Tuple[bool, Optional[StandardTestMetadata]]:
-    """Validate standard file and check for test data.
+def validate_standard_file(file_path: Path, category: str) -> Tuple[bool, Optional[StandardMetadata]]:
+    """Validate a standard YAML file and extract metadata.
 
     Checks:
     - File is valid YAML
-    - Contains required 'standards' section with 'id' field
-    - Contains 'requirements' section with 'field_requirements'
-    - Looks for corresponding training and test CSV files
+    - Has required v5.0.0 structure (standards, requirements, etc.)
+    - Contains standards.id and standards.name fields
+    - Version field is present
 
     Args:
-        standard_path: Path to standard YAML file
-        standards_root: Root directory for standards
-        test_data_dir: Directory where test data CSVs are stored
+        file_path: Path to YAML standard file
+        category: Category name (domains/frameworks/templates)
 
     Returns:
         Tuple of (is_valid, metadata):
         - is_valid: True if file is a valid standard, False otherwise
-        - metadata: StandardTestMetadata if valid, None if invalid
+        - metadata: StandardMetadata if valid, None if invalid
     """
     try:
-        # Load and parse YAML
-        with open(standard_path, 'r', encoding='utf-8') as f:
+        # Read and parse YAML file
+        with open(file_path, 'r', encoding='utf-8') as f:
             standard_data = yaml.safe_load(f)
 
-        # Validate basic structure
+        # Verify required v5.0.0 structure
         if not isinstance(standard_data, dict):
             return False, None
 
-        # Check for required sections
-        if 'standards' not in standard_data:
+        # Check for required top-level sections
+        required_sections = ['standards', 'record_identification', 'requirements', 'metadata']
+        if not all(section in standard_data for section in required_sections):
             return False, None
 
-        standards_section = standard_data['standards']
-        if not isinstance(standards_section, dict):
+        # Extract standards section
+        standards_section = standard_data.get('standards', {})
+
+        # Verify required fields in standards section
+        if 'id' not in standards_section or 'name' not in standards_section:
             return False, None
 
-        # Get standard ID
-        standard_id = standards_section.get('id')
-        if not standard_id:
+        if 'version' not in standards_section:
             return False, None
 
-        # Get standard name
-        standard_name = standards_section.get('name', standard_id)
+        # Extract metadata
+        standard_id = standards_section['id']
+        standard_name = standards_section['name']
+        version = standards_section['version']
+        filename = extract_standard_identifier(file_path)
 
-        # Check for requirements section
-        if 'requirements' not in standard_data:
-            return False, None
-
-        requirements = standard_data['requirements']
-        if not isinstance(requirements, dict):
-            return False, None
-
-        # Count fields
-        field_requirements = requirements.get('field_requirements', {})
-        field_count = len(field_requirements) if isinstance(field_requirements, dict) else 0
-
-        # Build expected test data file paths
-        training_data_path = test_data_dir / f"{standard_id}_data.csv"
-        test_data_path = test_data_dir / f"test_{standard_id}_data.csv"
-
-        # Check if test data files exist
-        has_training_data = training_data_path.exists()
-        has_test_data = test_data_path.exists()
-
-        # Calculate relative path for reporting
-        try:
-            relative_path = str(standard_path.relative_to(standards_root))
-        except ValueError:
-            relative_path = standard_path.name
-
-        # Build metadata
-        metadata = StandardTestMetadata(
+        # Build metadata object
+        metadata = StandardMetadata(
             standard_id=standard_id,
-            standard_path=standard_path,
             standard_name=standard_name,
-            training_data_path=training_data_path,
-            test_data_path=test_data_path,
-            has_training_data=has_training_data,
-            has_test_data=has_test_data,
-            field_count=field_count,
-            relative_path=relative_path
+            file_path=file_path,
+            category=category,
+            filename=filename,
+            version=version
         )
 
         return True, metadata
 
-    except (yaml.YAMLError, OSError, IOError, KeyError, TypeError):
+    except (yaml.YAMLError, OSError, IOError, KeyError):
         return False, None
 
 
-def get_standards_needing_data() -> List[StandardTestMetadata]:
-    """Get list of standards that don't have test data yet.
+def get_standards_by_category() -> Dict[str, List[StandardMetadata]]:
+    """Group discovered standards by category.
 
     Returns:
-        List of standards missing training data, test data, or both.
+        Dictionary mapping category names to lists of standards:
+        {
+            'domains': [std1, std2, ...],
+            'frameworks': [std3, std4, ...],
+            'templates': [std5, std6, ...]
+        }
+
+    Example:
+        by_category = get_standards_by_category()
+        print(f"Domain standards: {len(by_category['domains'])}")
+        print(f"Framework standards: {len(by_category['frameworks'])}")
+        print(f"Template standards: {len(by_category['templates'])}")
     """
-    all_standards = find_testable_standards()
-    return [
-        std for std in all_standards
-        if not std.has_training_data or not std.has_test_data
-    ]
+    standards = find_catalog_standards()
+
+    # Initialize category dictionary
+    categorized = {
+        'domains': [],
+        'frameworks': [],
+        'templates': []
+    }
+
+    # Group standards by category
+    for standard in standards:
+        if standard.category in categorized:
+            categorized[standard.category].append(standard)
+
+    return categorized
 
 
-def get_standards_ready_for_testing() -> List[StandardTestMetadata]:
-    """Get list of standards that have complete test data.
+def extract_standard_identifier(file_path: Path) -> str:
+    """Extract the standard identifier/name used for @adri_protected.
+
+    The identifier is the filename without extension, which should match
+    how users reference standards in @adri_protected(standard="...").
+
+    Args:
+        file_path: Path to standard YAML file
 
     Returns:
-        List of standards with both training and test CSV files.
+        Standard identifier (e.g., "customer_service_standard")
+
+    Example:
+        identifier = extract_standard_identifier(Path("customer_service_standard.yaml"))
+        # Returns: "customer_service_standard"
+
+        identifier = extract_standard_identifier(Path("api_response_template.yaml"))
+        # Returns: "api_response_template"
     """
-    all_standards = find_testable_standards()
-    return [
-        std for std in all_standards
-        if std.has_training_data and std.has_test_data
-    ]
+    return file_path.stem

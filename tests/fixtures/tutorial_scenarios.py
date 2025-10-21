@@ -179,7 +179,7 @@ class TutorialScenarios:
 
         # Set environment for development
         os.environ['ADRI_ENV'] = 'development'
-        os.environ['ADRI_CONFIG_PATH'] = str(project_root / 'adri-config.yaml')
+        os.environ['ADRI_CONFIG_PATH'] = str(project_root / 'ADRI' / 'config.yaml')
 
         # Load data
         df = pd.read_csv(config['source_data'])
@@ -436,7 +436,7 @@ def tutorial_project(tmp_path: Path) -> Path:
     """Test project with tutorial structure using development environment.
 
     Setup:
-    1. Copies test_adri_config.yaml to project root
+    1. Copies test_adri_config.yaml to ADRI/config.yaml
     2. Creates ADRI/dev/ and ADRI/prod/ directory structure
     3. Creates ADRI/tutorials/ directory
     4. Sets environment variables for development mode
@@ -449,7 +449,7 @@ def tutorial_project(tmp_path: Path) -> Path:
 
     Example:
         def test_something(tutorial_project):
-            config = tutorial_project / "adri-config.yaml"
+            config = tutorial_project / "ADRI" / "config.yaml"
             assert config.exists()
 
             standards_dir = tutorial_project / "ADRI" / "dev" / "standards"
@@ -465,11 +465,15 @@ def tutorial_project(tmp_path: Path) -> Path:
             f"Test config template not found: {config_template}"
         )
 
-    # Copy config to project root
+    # Copy config to ADRI directory
     project_root = tmp_path / "test_project"
     project_root.mkdir(parents=True, exist_ok=True)
 
-    config_dest = project_root / "adri-config.yaml"
+    # Create ADRI directory first
+    adri_dir = project_root / "ADRI"
+    adri_dir.mkdir(parents=True, exist_ok=True)
+
+    config_dest = adri_dir / "config.yaml"
     shutil.copy2(config_template, config_dest)
 
     # Create ADRI directory structure

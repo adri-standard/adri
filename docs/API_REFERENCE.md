@@ -499,7 +499,7 @@ Load configuration from file.
 config = ConfigManager()
 
 # Load from file
-config.load(".adri/config.yaml")
+config.load("ADRI/config.yaml")
 ```
 
 #### save
@@ -523,7 +523,7 @@ config = ConfigManager()
 
 # Modify and save
 config.set("min_score", 85.0)
-config.save(".adri/config.yaml")
+config.save("ADRI/config.yaml")
 ```
 
 ## Assessment API
@@ -709,7 +709,7 @@ config.set("standards_path", "./custom_standards")
 config.set("log_level", "DEBUG")
 config.set("default_mode", "warn")
 config.set("min_score", 85.0)
-config.save(".adri/config.yaml")
+config.save("ADRI/config.yaml")
 
 # Use with decorator
 @adri_protected(standard="data", data_param="data")

@@ -534,7 +534,7 @@ def temp_workspace():
 
         # Create config file
         config = ModernFixtures.create_configuration_data("complete")
-        config_file = workspace / "adri-config.yaml"
+        config_file = workspace / "ADRI" / "config.yaml"
         with open(config_file, 'w', encoding='utf-8') as f:
             yaml.dump(config, f)
 
