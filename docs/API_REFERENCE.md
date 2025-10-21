@@ -1,6 +1,6 @@
 # ADRI API Reference
 
-Complete API documentation for programmatic usage.
+Complete API documentation for programmatic usage of ADRI.
 
 ## Table of Contents
 
@@ -10,64 +10,251 @@ Complete API documentation for programmatic usage.
 4. [Configuration API](#configuration-api)
 5. [Assessment API](#assessment-api)
 6. [CLI API](#cli-api)
+7. [Type Hints](#type-hints)
+8. [Error Handling](#error-handling)
+
+---
 
 ## Decorator API
 
-### adri_protected
+### @adri_protected
 
 Main decorator for protecting functions with data quality validation.
 
+#### Signature
+
 ```python
-from adri import adri_protected
+from adri.validator.decorators import adri_protected
 
 @adri_protected(
-    data_param: str,
-    standard: Optional[str] = None,
-    mode: str = "block",
-    auto_generate: bool = True,
-    min_score: float = 80.0
+    standard: str,                           # Required
+    data_param: str = "data",               # Optional
+    min_score: float = 0.8,                 # Optional
+    dimensions: Optional[Dict[str, float]] = None,  # Optional
+    on_failure: str = "raise",              # Optional
+    auto_generate: bool = False,            # Optional
+    cache_assessments: bool = True,         # Optional
+    verbose: bool = False                   # Optional
 ) -> Callable
 ```
 
-**Parameters:**
+#### Parameters
 
-- `data_param` (str, required): Name of the parameter containing data to validate
-- `standard` (str, optional): Name of quality standard to use. If not provided, auto-generates from function and parameter names
-- `mode` (str, optional): Guard mode - "block" (raises exception) or "warn" (logs warning). Default: "block"
-- `auto_generate` (bool, optional): Auto-generate standard if not found. Default: True
-- `min_score` (float, optional): Minimum acceptable quality score (0-100). Default: 80.0
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `standard` | `str` | **Required** | Name of the YAML standard to validate against |
+| `data_param` | `str` | `"data"` | Function parameter name containing data to validate |
+| `min_score` | `float` | `0.8` | Minimum quality score threshold (0.0-1.0) |
+| `dimensions` | `Dict[str, float]` | `None` | Dimension-specific score requirements |
+| `on_failure` | `str` | `"raise"` | Failure mode: `"raise"`, `"warn"`, or `"continue"` |
+| `auto_generate` | `bool` | `False` | Auto-create standard if missing |
+| `cache_assessments` | `bool` | `True` | Cache assessment results |
+| `verbose` | `bool` | `False` | Show detailed validation logs |
 
-**Returns:** Decorated function
+#### Parameter Details
 
-**Raises:**
-- `DataQualityException`: When data quality is below threshold (block mode only)
-- `StandardNotFoundError`: When standard not found and auto_generate=False
-- `ValueError`: When data_param not found in function signature
-
-**Example:**
+##### standard (Required)
+The name of the YAML standard file (without .yaml extension).
 
 ```python
-@adri_protected(standard="customer_data", data_param="customers")
-def process_customers(customers):
-    """Process customer data."""
-    return analyze(customers)
-
-@adri_protected(
-    data_param="transactions",
-    standard="financial_standard",
-    on_failure="warn",
-    min_score=90.0
-)
-def process_transactions(transactions):
-    """Process financial transactions."""
-    return validate(transactions)
+@adri_protected(standard="customer_quality")
+def process_customers(data: pd.DataFrame) -> Dict:
+    return {"processed": len(data)}
 ```
+
+Standard will be loaded from:
+- `.adri/standards/customer_quality.yaml`
+- `adri/standards/customer_quality.yaml`
+- Custom paths in config
+
+##### data_param
+Specify which function parameter contains the data to validate.
+
+```python
+@adri_protected(standard="sales_data", data_param="sales")
+def analyze_sales(config: Dict, sales: pd.DataFrame) -> Dict:
+    """Data is in 'sales' parameter, not 'data'."""
+    return perform_analysis(sales)
+```
+
+##### min_score
+Minimum acceptable quality score (0.0 to 1.0 or 0 to 100).
+
+```python
+# Require 85% overall quality
+@adri_protected(standard="critical_data", min_score=0.85)
+def process_critical(data: pd.DataFrame) -> Dict:
+    return process(data)
+
+# Also accepts 0-100 scale
+@adri_protected(standard="critical_data", min_score=85)
+def process_critical_alt(data: pd.DataFrame) -> Dict:
+    return process(data)
+```
+
+##### dimensions
+Set dimension-specific quality requirements.
+
+```python
+@adri_protected(
+    standard="financial_data",
+    dimensions={
+        "completeness": 0.95,  # 95% completeness required
+        "validity": 0.90,      # 90% validity required
+        "consistency": 0.85    # 85% consistency required
+    }
+)
+def process_financials(data: pd.DataFrame) -> Dict:
+    return calculate_metrics(data)
+```
+
+Available dimensions:
+- `completeness` - No missing/null values
+- `validity` - Correct data types and formats
+- `consistency` - Cross-field consistency
+- `plausibility` - Reasonable value ranges
+- `accuracy` - Matches reference data
+
+##### on_failure
+Control behavior when validation fails.
+
+```python
+# Raise exception (default) - stops execution
+@adri_protected(standard="critical", on_failure="raise")
+def process_critical(data: pd.DataFrame) -> Dict:
+    return process(data)
+
+# Log warning and continue - execution continues
+@adri_protected(standard="important", on_failure="warn")
+def process_important(data: pd.DataFrame) -> Dict:
+    return process(data)
+
+# Silent continue - logs to file only
+@adri_protected(standard="monitoring", on_failure="continue")
+def process_monitoring(data: pd.DataFrame) -> Dict:
+    return process(data)
+```
+
+##### auto_generate
+Automatically create standards from data if missing.
+
+```python
+@adri_protected(standard="new_dataset", auto_generate=True)
+def process_new_data(data: pd.DataFrame) -> Dict:
+    """
+    First run: Standard is generated from data
+    Future runs: Data validated against generated standard
+    """
+    return process(data)
+```
+
+##### cache_assessments
+Enable/disable result caching for performance.
+
+```python
+# Cache results (default)
+@adri_protected(standard="heavy_check", cache_assessments=True)
+def expensive_validation(data: pd.DataFrame) -> Dict:
+    return process(data)
+
+# Disable caching for always-fresh validation
+@adri_protected(standard="real_time", cache_assessments=False)
+def real_time_check(data: pd.DataFrame) -> Dict:
+    return process(data)
+```
+
+##### verbose
+Show detailed validation output.
+
+```python
+@adri_protected(standard="debug_data", verbose=True)
+def debug_process(data: pd.DataFrame) -> Dict:
+    """Will print detailed validation logs."""
+    return process(data)
+```
+
+#### Returns
+Decorated function that validates data before execution.
+
+#### Raises
+- `DataQualityException`: When `on_failure="raise"` and quality < threshold
+- `StandardNotFoundError`: When standard not found and `auto_generate=False`
+- `ValueError`: When `data_param` not in function signature
+
+#### Complete Examples
+
+##### Basic Usage
+```python
+import pandas as pd
+from adri.validator.decorators import adri_protected
+
+@adri_protected(standard="customer_data")
+def process_customers(data: pd.DataFrame) -> Dict:
+    """Process customer data with quality validation."""
+    return {
+        "total": len(data),
+        "processed": len(data[data['status'] == 'active'])
+    }
+
+# Usage
+customers = pd.read_csv("customers.csv")
+result = process_customers(customers)  # Validates before processing
+```
+
+##### Advanced Configuration
+```python
+@adri_protected(
+    standard="customer_service_quality",
+    data_param="tickets",
+    min_score=0.8,
+    dimensions={
+        "completeness": 0.9,
+        "validity": 0.85
+    },
+    on_failure="warn",
+    auto_generate=False,
+    cache_assessments=True,
+    verbose=False
+)
+def process_tickets(tickets: pd.DataFrame, config: Dict) -> Dict:
+    """
+    Process customer service tickets with:
+    - 80% overall quality required
+    - 90% completeness required
+    - 85% validity required
+    - Warns on failure (doesn't block)
+    """
+    return analyze_tickets(tickets)
+```
+
+##### Multiple Validations
+```python
+@adri_protected(standard="input_validation", data_param="raw_data")
+def load_data(raw_data: pd.DataFrame) -> pd.DataFrame:
+    """Validate input data."""
+    return clean_data(raw_data)
+
+@adri_protected(standard="output_validation", data_param="result")
+def save_results(result: pd.DataFrame) -> bool:
+    """Validate output data."""
+    result.to_csv("output.csv")
+    return True
+
+# Chain validations
+raw = pd.read_csv("input.csv")
+cleaned = load_data(raw)      # Input validation
+success = save_results(cleaned)  # Output validation
+```
+
+---
 
 ## Core Classes
 
 ### DataQualityAssessor
 
 Performs multi-dimensional data quality assessment.
+
+#### Usage
 
 ```python
 from adri.validator.core.assessor import DataQualityAssessor
@@ -76,9 +263,9 @@ assessor = DataQualityAssessor()
 assessment = assessor.assess(data, standard)
 ```
 
-**Methods:**
+#### Methods
 
-#### assess
+##### assess()
 
 ```python
 def assess(
@@ -94,7 +281,7 @@ Assess data quality against a standard.
 - `data`: Data to assess (DataFrame, dict, or list)
 - `standard`: Standard name (str) or standard dict
 
-**Returns:** Assessment object with scores and details
+**Returns:** `Assessment` object with scores and validation details
 
 **Example:**
 
@@ -102,50 +289,45 @@ Assess data quality against a standard.
 from adri.validator.core.assessor import DataQualityAssessor
 import pandas as pd
 
-# Create assessor
 assessor = DataQualityAssessor()
 
-# Prepare data
 data = pd.DataFrame({
     "id": [1, 2, 3],
-    "email": ["user@example.com", "test@example.com", "admin@example.com"]
+    "email": ["user@example.com", "test@example.com", "admin@example.com"],
+    "age": [25, 30, 35]
 })
 
-# Assess
 assessment = assessor.assess(data, "customer_standard")
 
-# Access results
-print(f"Overall score: {assessment.overall_score}")
-print(f"Validity: {assessment.validity_score}")
-print(f"Completeness: {assessment.completeness_score}")
+print(f"Overall: {assessment.overall_score:.2f}")
+print(f"Completeness: {assessment.dimension_scores['completeness']:.2f}")
+print(f"Validity: {assessment.dimension_scores['validity']:.2f}")
+print(f"Passed: {assessment.passed}")
 ```
 
 ### Assessment
 
-Result of data quality assessment.
+Result object from data quality assessment.
 
-**Attributes:**
+#### Attributes
 
 ```python
 class Assessment:
-    overall_score: float          # 0-100
-    validity_score: float         # 0-20
-    completeness_score: float     # 0-20
-    consistency_score: float      # 0-20
-    accuracy_score: float         # 0-20
-    timeliness_score: float       # 0-20
-    issues: List[Issue]           # List of quality issues
-    passed: bool                  # Whether assessment passed
-    standard_name: str            # Standard used
-    standard_version: str         # Standard version
+    assessment_id: str                      # Unique assessment ID
+    timestamp: str                          # ISO format timestamp
+    standard_name: str                      # Standard used
+    overall_score: float                    # Overall score (0.0-1.0)
+    dimension_scores: Dict[str, float]      # Per-dimension scores
+    passed: bool                            # Whether assessment passed
+    failed_validations: List[Dict]          # Failed validation rules
+    metadata: Dict[str, Any]                # Additional metadata
 ```
 
-**Methods:**
+#### Methods
 
 ```python
-def to_dict(self) -> dict
+def to_dict(self) -> Dict
 def to_json(self) -> str
-def to_yaml(self) -> str
 ```
 
 **Example:**
@@ -153,152 +335,165 @@ def to_yaml(self) -> str
 ```python
 assessment = assessor.assess(data, standard)
 
-# Check if passed
+# Check results
 if assessment.passed:
-    print("Quality check passed!")
+    print(f"✅ Quality check passed: {assessment.overall_score:.2%}")
 else:
-    print(f"Quality check failed: {assessment.overall_score}/100")
+    print(f"❌ Quality check failed: {assessment.overall_score:.2%}")
+    for validation in assessment.failed_validations:
+        print(f"  - {validation['rule']}: {validation['failed_count']} failures")
 
-# Get details
-for issue in assessment.issues:
-    print(f"- {issue.dimension}: {issue.description}")
-
-# Export
-report_dict = assessment.to_dict()
-report_json = assessment.to_json()
+# Export results
+report = assessment.to_dict()
+json_report = assessment.to_json()
 ```
 
-### DataProtectionEngine
-
-Orchestrates the protection workflow.
-
-```python
-from adri.validator.core.protection import DataProtectionEngine
-
-engine = DataProtectionEngine()
-result = engine.protect(func, data, config)
-```
-
-**Methods:**
-
-#### protect
-
-```python
-def protect(
-    self,
-    func: Callable,
-    data: Any,
-    config: ProtectionConfig
-) -> Any
-```
-
-Protect function execution with quality validation.
-
-**Parameters:**
-- `func`: Function to protect
-- `data`: Data to validate
-- `config`: Protection configuration
-
-**Returns:** Function result if validation passes
-
-**Raises:** DataQualityException if validation fails
+---
 
 ## Standards API
 
 ### StandardGenerator
 
-Generate quality standards from data.
+Generate quality standards from sample data.
+
+#### Usage
 
 ```python
-from adri.validator.analysis.standard_generator import StandardGenerator
+from adri.validator.standards.generator import StandardGenerator
 
 generator = StandardGenerator()
-standard = generator.generate(data, name="my_standard")
+standard = generator.generate_from_dataframe(data, "my_standard")
 ```
 
-**Methods:**
+#### Methods
 
-#### generate
+##### generate_from_dataframe()
 
 ```python
-def generate(
+def generate_from_dataframe(
     self,
-    data: Union[pd.DataFrame, dict, list],
-    name: str,
-    description: Optional[str] = None,
-    version: str = "1.0.0",
-    strict: bool = False
-) -> dict
+    df: pd.DataFrame,
+    standard_name: str,
+    description: Optional[str] = None
+) -> Dict
 ```
 
-Generate a quality standard from data.
+Generate a quality standard from a pandas DataFrame.
 
 **Parameters:**
-- `data`: Sample data to learn from
-- `name`: Standard name
+- `df`: Sample DataFrame to learn from
+- `standard_name`: Name for the generated standard
 - `description`: Optional description
-- `version`: Version string (default: "1.0.0")
-- `strict`: Generate strict rules (tighter ranges)
 
 **Returns:** Standard dictionary
 
 **Example:**
 
 ```python
-from adri.validator.analysis.standard_generator import StandardGenerator
+from adri.validator.standards.generator import StandardGenerator
 import pandas as pd
 
 generator = StandardGenerator()
 
+# Sample data
 data = pd.DataFrame({
     "customer_id": [1, 2, 3],
     "email": ["a@example.com", "b@example.com", "c@example.com"],
-    "age": [25, 30, 35]
+    "age": [25, 30, 35],
+    "country": ["US", "UK", "CA"]
 })
 
-standard = generator.generate(
-    data=data,
-    name="customer_standard",
-    description="Customer data quality standard",
-    strict=True
+# Generate standard
+standard = generator.generate_from_dataframe(
+    df=data,
+    standard_name="customer_quality",
+    description="Customer data quality standard"
 )
 
-# Save standard
-generator.save(standard, "ADRI/dev/standards/customer_standard.yaml")
+# Save to file
+import yaml
+with open(".adri/standards/customer_quality.yaml", "w") as f:
+    yaml.dump(standard, f)
+```
+
+### StandardValidator
+
+Validate standard YAML files.
+
+#### Usage
+
+```python
+from adri.validator.standards.validator import StandardValidator
+
+validator = StandardValidator()
+is_valid = validator.validate_file("my_standard.yaml")
+```
+
+#### Methods
+
+##### validate_file()
+
+```python
+def validate_file(
+    self,
+    file_path: str
+) -> bool
+```
+
+Validate a standard YAML file.
+
+**Parameters:**
+- `file_path`: Path to standard YAML file
+
+**Returns:** True if valid, False otherwise
+
+**Example:**
+
+```python
+from adri.validator.standards.validator import StandardValidator
+
+validator = StandardValidator()
+
+if validator.validate_file(".adri/standards/customer_quality.yaml"):
+    print("✅ Standard is valid")
+else:
+    print("❌ Standard has errors")
+    for error in validator.errors:
+        print(f"  - {error}")
 ```
 
 ### StandardLoader
 
 Load quality standards from files.
 
+#### Usage
+
 ```python
 from adri.validator.standards.loader import StandardLoader
 
 loader = StandardLoader()
-standard = loader.load("my_standard")
+standard = loader.load("customer_quality")
 ```
 
-**Methods:**
+#### Methods
 
-#### load
+##### load()
 
 ```python
 def load(
     self,
-    standard_name: str,
-    paths: Optional[List[str]] = None
-) -> dict
+    standard_name: str
+) -> Dict
 ```
 
-Load a quality standard.
+Load a quality standard by name.
 
 **Parameters:**
-- `standard_name`: Name of standard to load
-- `paths`: Optional list of paths to search
+- `standard_name`: Name of standard (without .yaml)
 
 **Returns:** Standard dictionary
 
-**Raises:** StandardNotFoundError if standard not found
+**Raises:** `StandardNotFoundError` if not found
 
 **Example:**
 
@@ -307,30 +502,21 @@ from adri.validator.standards.loader import StandardLoader
 
 loader = StandardLoader()
 
-# Load from default paths
-standard = loader.load("customer_standard")
+# Load standard
+standard = loader.load("customer_quality")
 
-# Load from custom paths
-standard = loader.load("custom_standard", paths=["/custom/path"])
-
-# Access standard
-print(f"Standard: {standard['name']} v{standard['version']}")
-print(f"Fields: {list(standard['fields'].keys())}")
+print(f"Standard: {standard['name']}")
+print(f"Version: {standard['version']}")
+print(f"Dimensions: {list(standard['dimensions'].keys())}")
 ```
 
-#### list_standards
+##### list_available()
 
 ```python
-def list_standards(
-    self,
-    paths: Optional[List[str]] = None
-) -> List[str]
+def list_available(self) -> List[str]
 ```
 
-List available standards.
-
-**Parameters:**
-- `paths`: Optional list of paths to search
+List all available standards.
 
 **Returns:** List of standard names
 
@@ -339,74 +525,21 @@ List available standards.
 ```python
 loader = StandardLoader()
 
-# List all available standards
-standards = loader.list_standards()
+standards = loader.list_available()
+print("Available standards:")
 for name in standards:
-    print(f"- {name}")
+    print(f"  - {name}")
 ```
 
-### DataProfiler
-
-Profile data to extract patterns and statistics.
-
-```python
-from adri.validator.analysis.data_profiler import DataProfiler
-
-profiler = DataProfiler()
-profile = profiler.profile(data)
-```
-
-**Methods:**
-
-#### profile
-
-```python
-def profile(
-    self,
-    data: Union[pd.DataFrame, dict, list]
-) -> DataProfile
-```
-
-Profile data structure and content.
-
-**Parameters:**
-- `data`: Data to profile
-
-**Returns:** DataProfile object
-
-**Example:**
-
-```python
-from adri.validator.analysis.data_profiler import DataProfiler
-import pandas as pd
-
-profiler = DataProfiler()
-
-data = pd.DataFrame({
-    "id": [1, 2, 3],
-    "email": ["user@example.com", "test@example.com", "admin@example.com"],
-    "age": [25, 30, 35]
-})
-
-profile = profiler.profile(data)
-
-# Access profile
-print(f"Rows: {profile.row_count}")
-print(f"Columns: {profile.column_count}")
-
-for field_name, field_profile in profile.fields.items():
-    print(f"{field_name}:")
-    print(f"  Type: {field_profile.inferred_type}")
-    print(f"  Null rate: {field_profile.null_rate}")
-    if field_profile.inferred_type == "integer":
-        print(f"  Range: {field_profile.min_value} - {field_profile.max_value}")
-```
+---
 
 ## Configuration API
 
 ### ConfigManager
 
 Manage ADRI configuration.
+
+#### Usage
 
 ```python
 from adri.validator.config.manager import ConfigManager
@@ -415,9 +548,9 @@ config = ConfigManager()
 value = config.get("standards_path")
 ```
 
-**Methods:**
+#### Methods
 
-#### get
+##### get()
 
 ```python
 def get(
@@ -429,30 +562,17 @@ def get(
 
 Get configuration value.
 
-**Parameters:**
-- `key`: Configuration key
-- `default`: Default value if key not found
-
-**Returns:** Configuration value
-
 **Example:**
 
 ```python
-from adri.validator.config.manager import ConfigManager
-
 config = ConfigManager()
 
-# Get configuration
 standards_path = config.get("standards_path")
-log_level = config.get("log_level", "INFO")
-min_score = config.get("min_score", 80.0)
-
-print(f"Standards path: {standards_path}")
-print(f"Log level: {log_level}")
-print(f"Min score: {min_score}")
+min_score = config.get("min_score", 0.8)
+on_failure = config.get("on_failure", "raise")
 ```
 
-#### set
+##### set()
 
 ```python
 def set(
@@ -464,99 +584,51 @@ def set(
 
 Set configuration value.
 
-**Parameters:**
-- `key`: Configuration key
-- `value`: Configuration value
-
 **Example:**
 
 ```python
 config = ConfigManager()
 
-# Set configuration
 config.set("standards_path", "./my_standards")
-config.set("log_level", "DEBUG")
-config.set("default_mode", "warn")
+config.set("min_score", 0.85)
+config.set("on_failure", "warn")
 ```
 
-#### load
-
-```python
-def load(
-    self,
-    config_path: str
-) -> None
-```
-
-Load configuration from file.
-
-**Parameters:**
-- `config_path`: Path to configuration file
-
-**Example:**
-
-```python
-config = ConfigManager()
-
-# Load from file
-config.load("ADRI/config.yaml")
-```
-
-#### save
-
-```python
-def save(
-    self,
-    config_path: str
-) -> None
-```
-
-Save configuration to file.
-
-**Parameters:**
-- `config_path`: Path to save configuration
-
-**Example:**
-
-```python
-config = ConfigManager()
-
-# Modify and save
-config.set("min_score", 85.0)
-config.save("ADRI/config.yaml")
-```
+---
 
 ## Assessment API
 
-### assess_data_quality
+### assess_data_quality()
 
 Programmatic assessment function.
 
-```python
-from adri import assess_data_quality
+#### Usage
 
-assessment = assess_data_quality(data, standard_path)
+```python
+from adri.validator.core import assess_data_quality
+
+assessment = assess_data_quality(data, "customer_quality")
 ```
 
-**Parameters:**
+#### Signature
 
 ```python
 def assess_data_quality(
     data: Union[pd.DataFrame, dict, list],
-    standard_path: str
+    standard: str
 ) -> Assessment
 ```
 
 **Parameters:**
 - `data`: Data to assess
-- `standard_path`: Path to standard file
+- `standard`: Standard name
 
 **Returns:** Assessment object
 
 **Example:**
 
 ```python
-from adri import assess_data_quality
+from adri.validator.core import assess_data_quality
 import pandas as pd
 
 data = pd.DataFrame({
@@ -564,26 +636,24 @@ data = pd.DataFrame({
     "email": ["a@example.com", "b@example.com", "c@example.com"]
 })
 
-assessment = assess_data_quality(
-    data,
-    "ADRI/dev/standards/customer_standard.yaml"
-)
+assessment = assess_data_quality(data, "customer_quality")
 
 if assessment.passed:
-    print("Quality check passed!")
-    print(f"Score: {assessment.overall_score}/100")
+    print(f"✅ Passed: {assessment.overall_score:.2%}")
 else:
-    print("Quality check failed!")
-    for issue in assessment.issues:
-        print(f"- {issue}")
+    print(f"❌ Failed: {assessment.overall_score:.2%}")
+    for issue in assessment.failed_validations:
+        print(f"  - {issue['rule']}")
 ```
+
+---
 
 ## CLI API
 
 ### Running CLI Commands Programmatically
 
 ```python
-from adri.validator.cli.commands import cli
+from adri.validator.cli import cli
 from click.testing import CliRunner
 
 runner = CliRunner()
@@ -593,178 +663,41 @@ result = runner.invoke(cli, ['assess', 'data.csv', '--standard', 'my_standard'])
 **Example:**
 
 ```python
-from adri.validator.cli.commands import cli
+from adri.validator.cli import cli
 from click.testing import CliRunner
 
 runner = CliRunner()
 
-# Run assess command
+# Assess data
 result = runner.invoke(cli, [
     'assess',
     'customers.csv',
-    '--standard', 'customer_standard',
-    '--output', 'report.json'
+    '--standard', 'customer_quality'
 ])
 
-if result.exit_code == 0:
-    print("Assessment passed")
-else:
-    print(f"Assessment failed: {result.output}")
+print(result.output)
+print(f"Exit code: {result.exit_code}")
 
-# Run generate-standard command
+# Generate standard
 result = runner.invoke(cli, [
     'generate-standard',
-    'sample_data.csv',
-    '--name', 'new_standard',
-    '--strict'
+    '--data', 'sample.csv',
+    '--output', 'new_standard.yaml'
 ])
 
 print(result.output)
 ```
 
-## Complete Examples
-
-### Example 1: Programmatic Validation
-
-```python
-from adri.validator.core.assessor import DataQualityAssessor
-from adri.validator.standards.loader import StandardLoader
-import pandas as pd
-
-# Load standard
-loader = StandardLoader()
-standard = loader.load("customer_standard")
-
-# Prepare data
-data = pd.DataFrame({
-    "customer_id": [1, 2, 3],
-    "email": ["user@example.com", "test@example.com", "admin@example.com"],
-    "age": [25, 30, 35]
-})
-
-# Assess quality
-assessor = DataQualityAssessor()
-assessment = assessor.assess(data, standard)
-
-# Process results
-if assessment.overall_score >= 80.0:
-    print(f"✅ Quality passed: {assessment.overall_score}/100")
-    # Proceed with processing
-    process_data(data)
-else:
-    print(f"❌ Quality failed: {assessment.overall_score}/100")
-    # Handle quality issues
-    for issue in assessment.issues:
-        print(f"  - {issue.dimension}: {issue.description}")
-```
-
-### Example 2: Generate and Use Standard
-
-```python
-from adri.validator.analysis.standard_generator import StandardGenerator
-from adri.validator.core.assessor import DataQualityAssessor
-import pandas as pd
-
-# Sample good data
-good_data = pd.DataFrame({
-    "id": [1, 2, 3],
-    "email": ["a@example.com", "b@example.com", "c@example.com"],
-    "score": [85.5, 92.0, 78.5]
-})
-
-# Generate standard
-generator = StandardGenerator()
-standard = generator.generate(
-    data=good_data,
-    name="score_standard",
-    description="Score data quality standard",
-    strict=True
-)
-
-# Save standard
-generator.save(standard, "ADRI/dev/standards/score_standard.yaml")
-
-# Later: assess new data
-new_data = pd.DataFrame({
-    "id": [4, 5],
-    "email": ["d@example.com", "e@example.com"],
-    "score": [88.0, 95.5]
-})
-
-assessor = DataQualityAssessor()
-assessment = assessor.assess(new_data, standard)
-
-print(f"Quality score: {assessment.overall_score}/100")
-```
-
-### Example 3: Custom Configuration
-
-```python
-from adri.validator.config.manager import ConfigManager
-from adri import adri_protected
-
-# Configure ADRI
-config = ConfigManager()
-config.set("standards_path", "./custom_standards")
-config.set("log_level", "DEBUG")
-config.set("default_mode", "warn")
-config.set("min_score", 85.0)
-config.save("ADRI/config.yaml")
-
-# Use with decorator
-@adri_protected(standard="data", data_param="data")
-def process_data(data):
-    """Process data with custom config."""
-    return analyze(data)
-
-# Custom config is automatically loaded
-result = process_data(my_data)
-```
-
-### Example 4: Batch Assessment
-
-```python
-from adri.validator.core.assessor import DataQualityAssessor
-from adri.validator.standards.loader import StandardLoader
-import pandas as pd
-import glob
-
-# Load standard once
-loader = StandardLoader()
-standard = loader.load("customer_standard")
-
-# Create assessor once
-assessor = DataQualityAssessor()
-
-# Process multiple files
-results = []
-for file_path in glob.glob("data/*.csv"):
-    data = pd.read_csv(file_path)
-    assessment = assessor.assess(data, standard)
-
-    results.append({
-        "file": file_path,
-        "score": assessment.overall_score,
-        "passed": assessment.passed,
-        "issues": len(assessment.issues)
-    })
-
-# Summary
-passed = sum(1 for r in results if r["passed"])
-failed = len(results) - passed
-
-print(f"Results: {passed} passed, {failed} failed")
-for result in results:
-    status = "✅" if result["passed"] else "❌"
-    print(f"{status} {result['file']}: {result['score']}/100")
-```
+---
 
 ## Type Hints
 
-ADRI provides comprehensive type hints for all public APIs:
+ADRI provides comprehensive type hints for type safety.
+
+### Common Types
 
 ```python
-from typing import Union, Optional, List, Dict, Any
+from typing import Union, Optional, List, Dict, Any, Callable
 import pandas as pd
 
 # Data types
@@ -773,44 +706,235 @@ DataType = Union[pd.DataFrame, dict, list]
 # Standard types
 StandardType = Union[str, dict]
 
-# Assessment result
-class Assessment:
-    overall_score: float
-    passed: bool
-    issues: List[Issue]
+# Score type
+ScoreType = float  # 0.0 to 1.0
+
+# Dimension scores
+DimensionScores = Dict[str, float]
 ```
+
+### Decorator Type Hints
+
+```python
+from adri.validator.decorators import adri_protected
+from typing import Callable, Dict
+import pandas as pd
+
+@adri_protected(standard="data_quality")
+def process_data(data: pd.DataFrame) -> Dict[str, Any]:
+    """Type hints work with decorator."""
+    return {"status": "success"}
+```
+
+---
 
 ## Error Handling
 
-Common exceptions:
+### Exception Types
 
 ```python
 from adri.validator.exceptions import (
     DataQualityException,      # Quality check failed
     StandardNotFoundError,     # Standard not found
-    ConfigurationError,        # Configuration issue
-    ValidationError           # Validation error
+    ValidationError,          # Validation error
+    ConfigurationError        # Configuration issue
 )
+```
+
+### Handling Quality Failures
+
+```python
+from adri.validator.exceptions import DataQualityException
+from adri.validator.decorators import adri_protected
+import pandas as pd
+
+@adri_protected(standard="critical_data", on_failure="raise")
+def process_critical(data: pd.DataFrame) -> Dict:
+    return {"processed": len(data)}
+
+try:
+    result = process_critical(bad_data)
+except DataQualityException as e:
+    print(f"Quality check failed!")
+    print(f"Score: {e.assessment.overall_score:.2%}")
+    print(f"Required: {e.min_score:.2%}")
+    print("\nFailed validations:")
+    for validation in e.assessment.failed_validations:
+        print(f"  - {validation['rule']}: {validation['severity']}")
+```
+
+### Handling Missing Standards
+
+```python
+from adri.validator.exceptions import StandardNotFoundError
 
 try:
     result = process_data(data)
-except DataQualityException as e:
-    print(f"Quality check failed: {e}")
-    print(f"Score: {e.assessment.overall_score}")
-    print(f"Issues: {e.assessment.issues}")
 except StandardNotFoundError as e:
     print(f"Standard not found: {e.standard_name}")
-except ConfigurationError as e:
-    print(f"Configuration error: {e}")
+    print("Hint: Use auto_generate=True or create the standard")
 ```
 
-## Next Steps
+### Graceful Degradation
 
-- [Getting Started](GETTING_STARTED.md) - Hands-on tutorial
-- [How It Works](HOW_IT_WORKS.md) - Quality dimensions
-- [Architecture](ARCHITECTURE.md) - System design
-- [Examples](../examples/README.md) - Working examples
+```python
+from adri.validator.exceptions import DataQualityException
+
+@adri_protected(standard="data_quality", on_failure="warn")
+def process_with_fallback(data: pd.DataFrame) -> Dict:
+    """Logs warning but continues on quality failure."""
+    return process(data)
+
+# Or handle exceptions manually
+@adri_protected(standard="data_quality", on_failure="raise")
+def process_with_manual_handling(data: pd.DataFrame) -> Dict:
+    return process(data)
+
+try:
+    result = process_with_manual_handling(data)
+except DataQualityException:
+    # Fallback to less strict processing
+    result = process_lenient(data)
+```
 
 ---
 
-**Complete API reference for advanced ADRI usage.**
+## Complete Working Examples
+
+### Example 1: Basic Decorator Usage
+
+```python
+import pandas as pd
+from adri.validator.decorators import adri_protected
+
+@adri_protected(standard="customer_data")
+def process_customers(data: pd.DataFrame) -> Dict:
+    """Process customer data with quality validation."""
+    return {
+        "total": len(data),
+        "active": len(data[data['status'] == 'active'])
+    }
+
+# Load and process
+customers = pd.read_csv("customers.csv")
+result = process_customers(customers)
+print(result)
+```
+
+### Example 2: Generate and Use Standard
+
+```python
+from adri.validator.standards.generator import StandardGenerator
+from adri.validator.decorators import adri_protected
+import pandas as pd
+import yaml
+
+# Step 1: Generate standard from good data
+good_data = pd.DataFrame({
+    "id": [1, 2, 3],
+    "email": ["a@example.com", "b@example.com", "c@example.com"],
+    "age": [25, 30, 35]
+})
+
+generator = StandardGenerator()
+standard = generator.generate_from_dataframe(
+    df=good_data,
+    standard_name="customer_quality",
+    description="Customer data quality standard"
+)
+
+# Save standard
+with open(".adri/standards/customer_quality.yaml", "w") as f:
+    yaml.dump(standard, f)
+
+# Step 2: Use standard with decorator
+@adri_protected(standard="customer_quality")
+def process_customers(data: pd.DataFrame) -> Dict:
+    return {"processed": len(data)}
+
+# Step 3: Process new data
+new_data = pd.read_csv("new_customers.csv")
+result = process_customers(new_data)  # Validates against standard
+```
+
+### Example 3: Programmatic Assessment
+
+```python
+from adri.validator.core.assessor import DataQualityAssessor
+from adri.validator.standards.loader import StandardLoader
+import pandas as pd
+
+# Load standard
+loader = StandardLoader()
+standard = loader.load("customer_quality")
+
+# Create assessor
+assessor = DataQualityAssessor()
+
+# Assess data
+data = pd.read_csv("customers.csv")
+assessment = assessor.assess(data, standard)
+
+# Process results
+if assessment.passed:
+    print(f"✅ Quality passed: {assessment.overall_score:.2%}")
+    # Continue with data processing
+    process_data(data)
+else:
+    print(f"❌ Quality failed: {assessment.overall_score:.2%}")
+    print("\nDimension Scores:")
+    for dim, score in assessment.dimension_scores.items():
+        print(f"  {dim}: {score:.2%}")
+
+    print("\nFailed Validations:")
+    for validation in assessment.failed_validations:
+        print(f"  - {validation['rule']}: {validation['failed_count']} failures")
+```
+
+### Example 4: Batch Processing with Quality Checks
+
+```python
+from adri.validator.decorators import adri_protected
+import pandas as pd
+import glob
+
+@adri_protected(
+    standard="invoice_data",
+    on_failure="warn",  # Continue on failure but log
+    min_score=0.85
+)
+def process_invoice(data: pd.DataFrame, file_name: str) -> Dict:
+    """Process single invoice file."""
+    return {
+        "file": file_name,
+        "total_amount": data['amount'].sum(),
+        "invoice_count": len(data)
+    }
+
+# Process all invoices
+results = []
+for file_path in glob.glob("invoices/*.csv"):
+    data = pd.read_csv(file_path)
+    result = process_invoice(data, file_path)
+    results.append(result)
+
+# Summary
+total_processed = len(results)
+total_amount = sum(r['total_amount'] for r in results)
+print(f"Processed {total_processed} files")
+print(f"Total amount: ${total_amount:,.2f}")
+```
+
+---
+
+## Next Steps
+
+- **[Getting Started](GETTING_STARTED.md)** - Hands-on tutorial
+- **[Open-Source Features](OPEN_SOURCE_FEATURES.md)** - Complete feature reference
+- **[CLI Reference](CLI_REFERENCE.md)** - CLI command details
+- **[How It Works](HOW_IT_WORKS.md)** - Quality dimensions explained
+- **[Examples](../examples/README.md)** - Working code examples
+
+---
+
+**Questions?** See [FAQ.md](FAQ.md) or open an issue on GitHub.

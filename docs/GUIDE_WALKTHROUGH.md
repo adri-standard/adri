@@ -32,7 +32,7 @@ The interactive guide consists of 7 sequential steps:
 
 ### Step 3: Understanding the Decorator
 - Shows how to use the `@adri_assess` decorator
-- Explains guard modes (`warn` vs `block`)
+- Explains failure modes (`warn` vs `raise`)
 - Demonstrates integration with AI agent functions
 
 ### Step 4: Generate Quality Standard
@@ -117,11 +117,11 @@ Once you complete the guide, you'll have:
 
 1. **Integrate with your code**:
    ```python
-   from adri import adri_assess
+   from adri.validator.decorators import adri_protected
 
-   @adri_assess(
-       standard="dev/standards/your_standard.yaml",
-       guard_mode="block"
+   @adri_protected(
+       standard="your_standard",
+       on_failure="raise"
    )
    def your_ai_function(data):
        # Your agent logic here
