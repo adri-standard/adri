@@ -534,8 +534,16 @@ class ConsistencyAssessor(DimensionAssessor):
             List of failure records with details about consistency violations
         """
         failures = []
+        field_requirements = requirements.get("field_requirements", {})
 
-        # Get primary key fields
+        # Check if using validation_rules format
+        using_validation_rules = self._has_validation_rules_format(field_requirements)
+
+        if using_validation_rules:
+            # Extract failures from validation_rules format
+            return self._get_validation_rules_failures(data, requirements)
+
+        # Get primary key fields (old format)
         pk_fields = self._get_primary_key_fields(requirements)
 
         if pk_fields:
@@ -696,6 +704,98 @@ class ConsistencyAssessor(DimensionAssessor):
                                 "remediation": f"Standardize format for {col}",
                             }
                         )
+
+        return failures
+
+    def _get_validation_rules_failures(
+        self, data: pd.DataFrame, requirements: dict[str, Any]
+    ) -> list[dict[str, Any]]:
+        """Extract failures from validation_rules format.
+
+        This handles the new severity-aware validation_rules format where
+        each field has a list of ValidationRule objects.
+
+        Args:
+            data: DataFrame to analyze
+            requirements: Full requirements dict including field_requirements
+
+        Returns:
+            List of failure records with details
+        """
+        from collections import defaultdict
+
+        from src.adri.core.validation_rule import ValidationRule
+
+        from ..rules import execute_validation_rule
+
+        failures = []
+        field_requirements = requirements.get("field_requirements", {})
+        total_rows = len(data)
+
+        # Track failures by field and rule
+        failure_tracking = defaultdict(
+            lambda: defaultdict(lambda: {"count": 0, "samples": [], "row_indices": []})
+        )
+
+        for column in data.columns:
+            if column not in field_requirements:
+                continue
+
+            field_config = field_requirements[column]
+            if not isinstance(field_config, dict):
+                continue
+
+            validation_rules = field_config.get("validation_rules", [])
+            if not validation_rules:
+                continue
+
+            # Get consistency rules for this field (all severities for logging)
+            consistency_rules = [
+                r
+                for r in validation_rules
+                if isinstance(r, ValidationRule) and r.dimension == "consistency"
+            ]
+
+            if not consistency_rules:
+                continue
+
+            # Execute each rule and track failures
+            series = data[column].dropna()
+            for idx, value in series.items():
+                for rule in consistency_rules:
+                    if not execute_validation_rule(value, rule, field_config):
+                        # Track failure
+                        rule_key = f"{rule.rule_type}_{rule.severity.value}"
+                        failure_tracking[column][rule_key]["count"] += 1
+
+                        if len(failure_tracking[column][rule_key]["samples"]) < 3:
+                            failure_tracking[column][rule_key]["samples"].append(
+                                str(value)[:50]
+                            )
+                        failure_tracking[column][rule_key]["row_indices"].append(idx)
+
+        # Convert tracking to failure records
+        for field_name, rule_failures in failure_tracking.items():
+            for rule_key, failure_info in rule_failures.items():
+                if failure_info["count"] > 0:
+                    # Extract rule type and severity from key
+                    parts = rule_key.rsplit("_", 1)
+                    rule_type = parts[0] if len(parts) > 1 else rule_key
+                    severity = parts[1] if len(parts) > 1 else "CRITICAL"
+
+                    failures.append(
+                        {
+                            "dimension": "consistency",
+                            "field": field_name,
+                            "issue": f"{rule_type}_failed",
+                            "severity": severity,
+                            "affected_rows": failure_info["count"],
+                            "affected_percentage": (failure_info["count"] / total_rows)
+                            * 100.0,
+                            "samples": failure_info["samples"],
+                            "remediation": f"Fix {field_name} to pass {rule_type} validation ({severity} severity)",
+                        }
+                    )
 
         return failures
 
