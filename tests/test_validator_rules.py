@@ -49,6 +49,25 @@ class TestFieldTypeChecking(unittest.TestCase):
         self.assertFalse(check_field_type("abc", field_req))
         self.assertFalse(check_field_type("", field_req))
 
+    def test_check_field_type_number(self):
+        """Test number type validation (accepts both int and float)."""
+        field_req = {"type": "number"}
+
+        # Valid numbers (both int and float)
+        self.assertTrue(check_field_type("123", field_req))
+        self.assertTrue(check_field_type(123, field_req))
+        self.assertTrue(check_field_type("123.45", field_req))
+        self.assertTrue(check_field_type(123.45, field_req))
+        self.assertTrue(check_field_type("0", field_req))
+        self.assertTrue(check_field_type("0.0", field_req))
+        self.assertTrue(check_field_type("-50.5", field_req))
+
+        # Invalid numbers
+        self.assertFalse(check_field_type("abc", field_req))
+        self.assertFalse(check_field_type("not-a-number", field_req))
+        self.assertFalse(check_field_type("", field_req))
+        self.assertFalse(check_field_type("12.34.56", field_req))
+
     def test_check_field_type_string(self):
         """Test string type validation."""
         field_req = {"type": "string"}
