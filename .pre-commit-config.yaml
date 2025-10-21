@@ -89,15 +89,16 @@ repos:
         always_run: true
 
       - id: pytest-smoke-test
-        name: Run quick smoke tests (config, fixtures, imports)
+        name: Run quick smoke tests (critical components only)
         entry: python -m pytest
         args:
           - tests/test_config.py
-          - tests/test_tutorial_framework.py
+          - tests/test_decorator.py
+          - tests/test_guard_modes.py
           - tests/integration/test_cli_imports.py
           - -x
           - -q
-          - --tb=short
+          - --tb=line
         language: system
         pass_filenames: false
         always_run: true
