@@ -9,7 +9,7 @@ import json
 from datetime import date, datetime
 from io import StringIO
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 import yaml
 
@@ -20,9 +20,7 @@ class JSONSerializer:
     """Serializer for JSON format."""
 
     @staticmethod
-    def serialize(
-        data: Any, indent: Optional[int] = 2, ensure_ascii: bool = False
-    ) -> str:
+    def serialize(data: Any, indent: int | None = 2, ensure_ascii: bool = False) -> str:
         """Convert data to JSON string format.
 
         Args:
@@ -133,8 +131,8 @@ class CSVSerializer:
 
     @staticmethod
     def serialize(
-        data: List[Dict[str, Any]],
-        fieldnames: Optional[List[str]] = None,
+        data: list[dict[str, Any]],
+        fieldnames: list[str] | None = None,
         delimiter: str = ",",
         quoting: int = csv.QUOTE_MINIMAL,
     ) -> str:
@@ -191,7 +189,7 @@ class CSVSerializer:
     @staticmethod
     def deserialize(
         csv_str: str, delimiter: str = ",", quoting: int = csv.QUOTE_MINIMAL
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Deserialize CSV string to list of dictionaries.
 
         Args:
@@ -231,7 +229,7 @@ class AssessmentResultSerializer:
     """Specialized serializer for ADRI assessment results."""
 
     @staticmethod
-    def to_standard_dict(result: Any) -> Dict[str, Any]:
+    def to_standard_dict(result: Any) -> dict[str, Any]:
         """Convert assessment result to standard dictionary format.
 
         Args:
@@ -251,7 +249,7 @@ class AssessmentResultSerializer:
     @staticmethod
     def to_v2_standard_dict(
         result: Any, include_explanations: bool = True
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Convert assessment result to v2 standard dictionary format.
 
         Args:
@@ -269,7 +267,7 @@ class AssessmentResultSerializer:
 
     @staticmethod
     def to_json(
-        result: Any, format_version: str = "standard", indent: Optional[int] = 2
+        result: Any, format_version: str = "standard", indent: int | None = 2
     ) -> str:
         """Serialize assessment result to JSON.
 
@@ -353,7 +351,7 @@ class AssessmentResultSerializer:
             raise SerializationError(f"CSV summary serialization failed: {e}")
 
     @staticmethod
-    def _extract_result_fields(result: Any) -> Dict[str, Any]:
+    def _extract_result_fields(result: Any) -> dict[str, Any]:
         """Extract common fields from an assessment result object."""
         extracted = {}
 
@@ -382,7 +380,7 @@ class StandardSerializer:
 
     @staticmethod
     def serialize_standard(
-        standard: Dict[str, Any], format: str = "yaml", include_metadata: bool = True
+        standard: dict[str, Any], format: str = "yaml", include_metadata: bool = True
     ) -> str:
         """Serialize an ADRI standard to the specified format.
 
@@ -408,7 +406,7 @@ class StandardSerializer:
             raise SerializationError(f"Unsupported standard format: {format}")
 
     @staticmethod
-    def deserialize_standard(content: str, format: str = "yaml") -> Dict[str, Any]:
+    def deserialize_standard(content: str, format: str = "yaml") -> dict[str, Any]:
         """Deserialize an ADRI standard from string content.
 
         Args:
@@ -430,8 +428,8 @@ class StandardSerializer:
 
     @staticmethod
     def _clean_standard(
-        standard: Dict[str, Any], include_metadata: bool
-    ) -> Dict[str, Any]:
+        standard: dict[str, Any], include_metadata: bool
+    ) -> dict[str, Any]:
         """Clean up standard dictionary for serialization."""
         cleaned = standard.copy()
 
@@ -480,7 +478,7 @@ def serialize_assessment_result(result: Any, format: str = "json", **kwargs) -> 
 
 
 def save_to_file(
-    data: Any, file_path: Union[str, Path], format: Optional[str] = None, **kwargs
+    data: Any, file_path: str | Path, format: str | None = None, **kwargs
 ) -> None:
     """Save data to a file in the specified format.
 
@@ -525,7 +523,7 @@ def save_to_file(
         raise SerializationError(f"Failed to save file {file_path}: {e}")
 
 
-def load_from_file(file_path: Union[str, Path], format: Optional[str] = None) -> Any:
+def load_from_file(file_path: str | Path, format: str | None = None) -> Any:
     """Load data from a file in the specified format.
 
     Args:
@@ -551,7 +549,7 @@ def load_from_file(file_path: Union[str, Path], format: Optional[str] = None) ->
 
     try:
         # Read file content
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, encoding="utf-8") as f:
             content = f.read()
 
         # Deserialize content

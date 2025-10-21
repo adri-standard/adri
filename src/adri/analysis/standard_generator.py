@@ -6,7 +6,7 @@ Coordinates field inference, dimension building, and explanation generation.
 """
 
 import json
-from typing import Any, Dict, Optional
+from typing import Any
 
 import pandas as pd
 
@@ -95,7 +95,7 @@ class StandardGenerator:
             return f"{display_name} ADRI Standard"
 
     # ------------------------- Helper methods (refactor) -------------------------
-    def _is_id_like(self, name: Optional[str]) -> bool:
+    def _is_id_like(self, name: str | None) -> bool:
         """Heuristic to detect id-like column names to suppress enums."""
         if not name:
             return False
@@ -106,8 +106,8 @@ class StandardGenerator:
         return False
 
     def _infer_type_and_nullability(
-        self, field_profile: Dict[str, Any], series: pd.Series, inf_cfg: InferenceConfig
-    ) -> Dict[str, Any]:
+        self, field_profile: dict[str, Any], series: pd.Series, inf_cfg: InferenceConfig
+    ) -> dict[str, Any]:
         """
         Infer field 'type' and 'nullable' consistent with existing behavior.
         - Type mapping prioritizes datetime/date hints, then numeric coercion.
@@ -149,9 +149,9 @@ class StandardGenerator:
         self,
         series: pd.Series,
         inf_cfg: InferenceConfig,
-        col_name: Optional[str],
-        pk_fields: Optional[list],
-    ) -> Optional[list]:
+        col_name: str | None,
+        pk_fields: list | None,
+    ) -> list | None:
         """
         Infer allowed_values (enums) for string/integer fields when not id-like and not PK.
         Honors enum_strategy ('coverage' or 'tolerant') and coverage/uniqueness thresholds.
@@ -179,7 +179,7 @@ class StandardGenerator:
 
     def _infer_numeric_bounds(
         self, series: pd.Series, inf_cfg: InferenceConfig, treat_as_numeric: bool
-    ) -> Optional[tuple]:
+    ) -> tuple | None:
         """
         Infer numeric range bounds using the configured strategy.
         Returns (min_value, max_value) as floats when available.
@@ -213,12 +213,12 @@ class StandardGenerator:
 
     def _infer_length_and_pattern(
         self, series: pd.Series, inf_cfg: InferenceConfig
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Infer string length bounds and regex pattern (only if 100% coverage observed).
         Returns keys among: min_length, max_length, pattern.
         """
-        out: Dict[str, Any] = {}
+        out: dict[str, Any] = {}
         try:
             lb = infer_length_bounds(series, widen=None)
             if lb:
@@ -237,9 +237,9 @@ class StandardGenerator:
 
     def _infer_date_or_datetime_bounds(
         self, series: pd.Series, inf_cfg: InferenceConfig, is_datetime: bool
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Infer date/datetime bounds and return appropriate keys for the meta-schema."""
-        out: Dict[str, Any] = {}
+        out: dict[str, Any] = {}
         try:
             db = infer_date_bounds(series, margin_days=inf_cfg.date_margin_days)
         except Exception:
@@ -252,12 +252,12 @@ class StandardGenerator:
             out["after_date"], out["before_date"] = db[0], db[1]
         return out
 
-    def _prepare_observed_stats(self, data: pd.DataFrame) -> Dict[str, Dict[str, Any]]:
+    def _prepare_observed_stats(self, data: pd.DataFrame) -> dict[str, dict[str, Any]]:
         """
         Precompute observed per-field stats for training-pass relaxation.
         Provides min/max length and numeric min/max for widening rules.
         """
-        observed_stats: Dict[str, Dict[str, Any]] = {}
+        observed_stats: dict[str, dict[str, Any]] = {}
         for col in data.columns:
             s = data[col].dropna()
             if s.empty:
@@ -284,8 +284,8 @@ class StandardGenerator:
         return observed_stats
 
     def _validate_value_against_rules(
-        self, val: Any, field_req: Dict[str, Any]
-    ) -> Optional[str]:
+        self, val: Any, field_req: dict[str, Any]
+    ) -> str | None:
         """
         Validate a single value against field requirements in strict order.
         Returns the first failing rule key or None if all pass.
@@ -315,9 +315,9 @@ class StandardGenerator:
         self,
         col: str,
         failing_rule: str,
-        field_req: Dict[str, Any],
-        observed: Dict[str, Any],
-        exp_root: Dict[str, Any],
+        field_req: dict[str, Any],
+        observed: dict[str, Any],
+        exp_root: dict[str, Any],
     ) -> None:
         """
         Relax only the failing rule and log adjustments for training-pass guarantee.
@@ -449,12 +449,12 @@ class StandardGenerator:
             )
 
     # --- Explanation helpers (kept 1:1 with existing explain payload semantics) ---
-    def _explain_type(self, req: Dict[str, Any]) -> Any:
+    def _explain_type(self, req: dict[str, Any]) -> Any:
         return str(req.get("type")) if "type" in req else None
 
     def _explain_nullable(
-        self, series: pd.Series, req: Dict[str, Any]
-    ) -> Optional[Dict[str, Any]]:
+        self, series: pd.Series, req: dict[str, Any]
+    ) -> dict[str, Any] | None:
         if "nullable" not in req:
             return None
         try:
@@ -473,16 +473,14 @@ class StandardGenerator:
         }
 
     def _explain_allowed_values(
-        self, series: pd.Series, req: Dict[str, Any], inf_cfg: InferenceConfig
-    ) -> Optional[Dict[str, Any]]:
+        self, series: pd.Series, req: dict[str, Any], inf_cfg: InferenceConfig
+    ) -> dict[str, Any] | None:
         if "allowed_values" not in req:
             return None
         try:
             non_null = series.dropna()
             in_set = non_null.isin(req["allowed_values"])
-            coverage = (
-                float((in_set.sum() / len(non_null))) if len(non_null) > 0 else 1.0
-            )
+            coverage = float(in_set.sum() / len(non_null)) if len(non_null) > 0 else 1.0
             uniq = int(non_null.nunique())
         except Exception:
             coverage, uniq = (None, None)
@@ -501,8 +499,8 @@ class StandardGenerator:
         }
 
     def _explain_length(
-        self, series: pd.Series, req: Dict[str, Any]
-    ) -> Optional[Dict[str, Any]]:
+        self, series: pd.Series, req: dict[str, Any]
+    ) -> dict[str, Any] | None:
         if "min_length" not in req and "max_length" not in req:
             return None
         try:
@@ -526,15 +524,15 @@ class StandardGenerator:
         }
 
     def _explain_range(
-        self, series: pd.Series, req: Dict[str, Any], inf_cfg: InferenceConfig
-    ) -> Optional[Dict[str, Any]]:
+        self, series: pd.Series, req: dict[str, Any], inf_cfg: InferenceConfig
+    ) -> dict[str, Any] | None:
         if not (
             req.get("type") in ("integer", "float")
             and ("min_value" in req or "max_value" in req)
         ):
             return None
         strategy = getattr(inf_cfg, "range_strategy", "iqr")
-        stats: Dict[str, Any] = {}
+        stats: dict[str, Any] = {}
         try:
             x = pd.to_numeric(series.dropna(), errors="coerce").dropna()
             if len(x):
@@ -586,8 +584,8 @@ class StandardGenerator:
         }
 
     def _explain_date(
-        self, series: pd.Series, req: Dict[str, Any], inf_cfg: InferenceConfig
-    ) -> Optional[Dict[str, Any]]:
+        self, series: pd.Series, req: dict[str, Any], inf_cfg: InferenceConfig
+    ) -> dict[str, Any] | None:
         if not (
             req.get("type") in ("date", "datetime")
             and any(
@@ -623,8 +621,8 @@ class StandardGenerator:
         }
 
     def _explain_pattern(
-        self, series: pd.Series, req: Dict[str, Any]
-    ) -> Optional[Dict[str, Any]]:
+        self, series: pd.Series, req: dict[str, Any]
+    ) -> dict[str, Any] | None:
         if "pattern" not in req:
             return None
         try:
@@ -652,13 +650,13 @@ class StandardGenerator:
     # ============ Enriched field requirement generation with inference ============
     def _build_field_requirement(
         self,
-        field_profile: Dict[str, Any],
+        field_profile: dict[str, Any],
         series: pd.Series,
         inf_cfg: InferenceConfig,
-        pk_fields: Optional[list] = None,
-    ) -> Dict[str, Any]:
+        pk_fields: list | None = None,
+    ) -> dict[str, Any]:
         """Construct comprehensive field requirement using inference utilities."""
-        req: Dict[str, Any] = {}
+        req: dict[str, Any] = {}
 
         # 1) Type and nullability (strict behavior parity)
         tn = self._infer_type_and_nullability(field_profile, series, inf_cfg)
@@ -707,11 +705,11 @@ class StandardGenerator:
     def _generate_enriched_field_requirements(
         self,
         data: pd.DataFrame,
-        data_profile: Dict[str, Any],
+        data_profile: dict[str, Any],
         inf_cfg: InferenceConfig,
-        pk_fields: Optional[list] = None,
-    ) -> Dict[str, Any]:
-        field_reqs: Dict[str, Any] = {}
+        pk_fields: list | None = None,
+    ) -> dict[str, Any]:
+        field_reqs: dict[str, Any] = {}
         prof_fields = data_profile.get("fields", {}) or {}
         for col in data.columns:
             fp = prof_fields.get(col, {"dtype": str(data[col].dtype)})
@@ -723,8 +721,8 @@ class StandardGenerator:
         return field_reqs
 
     def _enforce_training_pass(
-        self, data: pd.DataFrame, standard: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, data: pd.DataFrame, standard: dict[str, Any]
+    ) -> dict[str, Any]:
         """
         Training-pass guarantee:
         - Validate each field value against its rules in strict order
@@ -778,8 +776,8 @@ class StandardGenerator:
         return standard
 
     def _generate_dimension_requirements(
-        self, thresholds: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, thresholds: dict[str, Any]
+    ) -> dict[str, Any]:
         """Generate dimension requirements from thresholds with explicit scoring policy."""
         return {
             "validity": {
@@ -847,18 +845,18 @@ class StandardGenerator:
     def _build_explanations(
         self,
         data: pd.DataFrame,
-        data_profile: Dict[str, Any],
+        data_profile: dict[str, Any],
         inf_cfg: InferenceConfig,
-        field_requirements: Dict[str, Any],
-    ) -> Dict[str, Any]:
+        field_requirements: dict[str, Any],
+    ) -> dict[str, Any]:
         """
         Build human-readable explanations per field/rule for the generated standard.
         Explanations are stored under metadata.explanations and do not affect validation.
         """
-        explanations: Dict[str, Any] = {}
+        explanations: dict[str, Any] = {}
         for col, req in field_requirements.items():
             s = data[col] if col in data.columns else pd.Series([], dtype=object)
-            col_exp: Dict[str, Any] = {}
+            col_exp: dict[str, Any] = {}
 
             t = self._explain_type(req)
             if t is not None:
@@ -936,8 +934,8 @@ class StandardGenerator:
         self,
         data: pd.DataFrame,
         data_name: str,
-        generation_config: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
+        generation_config: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         """
         Generate ADRI standard from DataFrame using modern modular architecture.
 
@@ -1001,10 +999,8 @@ class StandardGenerator:
 
 # Convenience function
 def generate_standard_from_data(
-    data: pd.DataFrame,
-    data_name: str,
-    generation_config: Optional[Dict[str, Any]] = None,
-) -> Dict[str, Any]:
+    data: pd.DataFrame, data_name: str, generation_config: dict[str, Any] | None = None
+) -> dict[str, Any]:
     """
     Generate an ADRI standard from DataFrame using default generator.
 

@@ -36,7 +36,7 @@ class TestCommandRegistry:
             expected_commands = [
                 "setup", "assess", "generate-standard", "list-assessments",
                 "list-standards", "view-logs", "show-config", "validate-standard",
-                "show-standard", "scoring-explain", "scoring-preset-apply"
+                "show-standard", "scoring-explain", "scoring-preset-apply", "guide"
             ]
 
             # Should have attempted to register each command
@@ -63,7 +63,7 @@ class TestCommandRegistry:
             expected_new_commands = [
                 "generate-standard", "list-assessments", "list-standards",
                 "view-logs", "show-config", "validate-standard", "show-standard",
-                "scoring-explain", "scoring-preset-apply"
+                "scoring-explain", "scoring-preset-apply", "guide"
             ]
 
             assert mock_commands_manager.register.call_count == len(expected_new_commands)

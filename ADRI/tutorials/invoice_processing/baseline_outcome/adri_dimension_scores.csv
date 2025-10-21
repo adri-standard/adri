@@ -1,6 +1,0 @@
-assessment_id,dimension_name,dimension_score,dimension_passed,issues_found,details
-adri_20251007_174117_e882cf,validity,20.0,TRUE,0,"{""score"": 20.0, ""max_score"": 20, ""percentage"": 100.0}"
-adri_20251007_174117_e882cf,completeness,20.0,TRUE,0,"{""score"": 20.0, ""max_score"": 20, ""percentage"": 100.0}"
-adri_20251007_174117_e882cf,consistency,20.0,TRUE,0,"{""score"": 20.0, ""max_score"": 20, ""percentage"": 100.0}"
-adri_20251007_174117_e882cf,freshness,20.0,TRUE,0,"{""score"": 20.0, ""max_score"": 20, ""percentage"": 100.0}"
-adri_20251007_174117_e882cf,plausibility,20.0,TRUE,0,"{""score"": 20.0, ""max_score"": 20, ""percentage"": 100.0}"

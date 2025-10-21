@@ -5,10 +5,10 @@ Provides clear TypedDict and Protocol definitions for standard structures,
 field requirements, and data profiles to improve API clarity and type safety.
 """
 
-from typing import Any, Dict, Optional, Protocol
+from typing import Any, Protocol
 
 
-class StandardMetadata(Dict[str, Any]):
+class StandardMetadata(dict[str, Any]):
     """Standard metadata structure.
 
     Required keys:
@@ -19,10 +19,8 @@ class StandardMetadata(Dict[str, Any]):
         description: Brief description of what the standard covers
     """
 
-    pass
 
-
-class FieldRequirement(Dict[str, Any]):
+class FieldRequirement(dict[str, Any]):
     """Field requirement structure with optional constraints.
 
     Common keys:
@@ -38,10 +36,8 @@ class FieldRequirement(Dict[str, Any]):
         before_date: Maximum date value (for date types)
     """
 
-    pass
 
-
-class StandardStructure(Dict[str, Any]):
+class StandardStructure(dict[str, Any]):
     """Complete standard structure (normalized format).
 
     Required top-level keys:
@@ -53,8 +49,6 @@ class StandardStructure(Dict[str, Any]):
         metadata: Additional metadata (explanations, freshness, etc.)
     """
 
-    pass
-
 
 class ProfileData(Protocol):
     """Protocol for data profile objects.
@@ -63,7 +57,7 @@ class ProfileData(Protocol):
     to provide consistent access to profile data.
     """
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert profile to dictionary format.
 
         Returns:
@@ -71,7 +65,7 @@ class ProfileData(Protocol):
         """
         ...
 
-    def get_field_profile(self, field_name: str) -> Dict[str, Any]:
+    def get_field_profile(self, field_name: str) -> dict[str, Any]:
         """Get profile information for a specific field.
 
         Args:
@@ -86,7 +80,7 @@ class ProfileData(Protocol):
         ...
 
 
-def is_valid_standard(standard: Dict[str, Any]) -> bool:
+def is_valid_standard(standard: dict[str, Any]) -> bool:
     """Check if a standard has the correct normalized structure.
 
     The ONLY valid structure is:
@@ -111,7 +105,7 @@ def is_valid_standard(standard: Dict[str, Any]) -> bool:
     return has_standards_section and has_requirements_section
 
 
-def get_standard_name(standard: Dict[str, Any]) -> Optional[str]:
+def get_standard_name(standard: dict[str, Any]) -> str | None:
     """Extract standard name from normalized format.
 
     Args:
@@ -132,7 +126,7 @@ def get_standard_name(standard: Dict[str, Any]) -> Optional[str]:
     return standard.get("standards", {}).get("name")
 
 
-def get_field_requirements(standard: Dict[str, Any]) -> Dict[str, Any]:
+def get_field_requirements(standard: dict[str, Any]) -> dict[str, Any]:
     """Extract field requirements from normalized format.
 
     Args:

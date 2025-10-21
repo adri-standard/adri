@@ -6,7 +6,7 @@ directory structure creation, and sample file generation.
 
 import os
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any
 
 import click
 import yaml
@@ -25,7 +25,7 @@ class SetupCommand(Command):
         """Get command description."""
         return "Initialize ADRI in a project"
 
-    def execute(self, args: Dict[str, Any]) -> int:
+    def execute(self, args: dict[str, Any]) -> int:
         """Execute the setup command.
 
         Args:
@@ -44,10 +44,7 @@ class SetupCommand(Command):
         return self._setup_project(force, project_name, guide)
 
     def _setup_project(
-        self,
-        force: bool = False,
-        project_name: Optional[str] = None,
-        guide: bool = False,
+        self, force: bool = False, project_name: str | None = None, guide: bool = False
     ) -> int:
         """Initialize ADRI in a project."""
         try:
@@ -179,7 +176,7 @@ class SetupCommand(Command):
 
         return doc_header + "\n" + config_yaml
 
-    def _get_config_data(self, project_name: str) -> Dict[str, Any]:
+    def _get_config_data(self, project_name: str) -> dict[str, Any]:
         """Get the configuration data structure."""
         return {
             "adri": {

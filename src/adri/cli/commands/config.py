@@ -6,7 +6,7 @@ display and environment management.
 
 import os
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import click
 import pandas as pd
@@ -25,7 +25,7 @@ class ShowConfigCommand(Command):
         """Get command description."""
         return "Show current ADRI configuration"
 
-    def execute(self, args: Dict[str, Any]) -> int:
+    def execute(self, args: dict[str, Any]) -> int:
         """Execute the show-config command.
 
         Args:
@@ -42,7 +42,7 @@ class ShowConfigCommand(Command):
         return self._show_config(paths_only, environment)
 
     def _show_config(
-        self, paths_only: bool = False, environment: Optional[str] = None
+        self, paths_only: bool = False, environment: str | None = None
     ) -> int:
         """Show current ADRI configuration."""
         try:
@@ -111,7 +111,7 @@ class ValidateStandardCommand(Command):
         """Get command description."""
         return "Validate YAML standard file"
 
-    def execute(self, args: Dict[str, Any]) -> int:
+    def execute(self, args: dict[str, Any]) -> int:
         """Execute the validate-standard command.
 
         Args:
@@ -194,7 +194,7 @@ class ListStandardsCommand(Command):
         """Get command description."""
         return "List available YAML standards"
 
-    def execute(self, args: Dict[str, Any]) -> int:
+    def execute(self, args: dict[str, Any]) -> int:
         """Execute the list-standards command.
 
         Args:
@@ -266,7 +266,7 @@ class ListStandardsCommand(Command):
             click.echo(f"❌ Failed to list standards: {e}")
             return 1
 
-    def _list_yaml_files(self, dir_path: Path) -> List[Path]:
+    def _list_yaml_files(self, dir_path: Path) -> list[Path]:
         """List YAML files in a directory."""
         if not dir_path.exists():
             return []
@@ -311,7 +311,7 @@ class ShowStandardCommand(Command):
         """Get command description."""
         return "Show details of a specific ADRI standard"
 
-    def execute(self, args: Dict[str, Any]) -> int:
+    def execute(self, args: dict[str, Any]) -> int:
         """Execute the show-standard command.
 
         Args:
@@ -369,7 +369,7 @@ class ShowStandardCommand(Command):
             click.echo(f"❌ Failed to show standard: {e}")
             return 1
 
-    def _find_standard_file(self, standard_name: str) -> Optional[str]:
+    def _find_standard_file(self, standard_name: str) -> str | None:
         """Find the standard file by name or path."""
         if os.path.exists(standard_name):
             return standard_name
@@ -387,7 +387,7 @@ class ShowStandardCommand(Command):
 
         return None
 
-    def _display_verbose_details(self, requirements: Dict[str, Any]) -> None:
+    def _display_verbose_details(self, requirements: dict[str, Any]) -> None:
         """Display verbose standard details."""
         if "field_requirements" in requirements:
             field_reqs = requirements["field_requirements"]
@@ -422,7 +422,7 @@ class ConfigSetCommand(Command):
         """Get command description."""
         return "Set configuration values in YAML standard files"
 
-    def execute(self, args: Dict[str, Any]) -> int:
+    def execute(self, args: dict[str, Any]) -> int:
         """Execute the config set command.
 
         Args:
@@ -466,7 +466,7 @@ class ConfigSetCommand(Command):
                 click.echo(f"❌ Standard file not found: {standard_path}")
                 return 1
 
-            with open(standard_file, "r", encoding="utf-8") as f:
+            with open(standard_file, encoding="utf-8") as f:
                 standard = yaml.safe_load(f)
 
             # Create backup
@@ -512,7 +512,7 @@ class ConfigSetCommand(Command):
         return value_str
 
     def _set_nested_value(
-        self, data: Dict[str, Any], key_parts: List[str], value: Any
+        self, data: dict[str, Any], key_parts: list[str], value: Any
     ) -> None:
         """Set a value in nested dictionary using dot notation."""
         current = data
@@ -537,7 +537,7 @@ class ConfigGetCommand(Command):
         """Get command description."""
         return "Get configuration values from YAML standard files"
 
-    def execute(self, args: Dict[str, Any]) -> int:
+    def execute(self, args: dict[str, Any]) -> int:
         """Execute the config get command.
 
         Args:
@@ -566,7 +566,7 @@ class ConfigGetCommand(Command):
                 click.echo(f"❌ Standard file not found: {standard_path}")
                 return 1
 
-            with open(standard_file, "r", encoding="utf-8") as f:
+            with open(standard_file, encoding="utf-8") as f:
                 standard = yaml.safe_load(f)
 
             # Get value using dot notation
@@ -584,8 +584,8 @@ class ConfigGetCommand(Command):
             return 1
 
     def _get_nested_value(
-        self, data: Dict[str, Any], key_parts: List[str]
-    ) -> Optional[Any]:
+        self, data: dict[str, Any], key_parts: list[str]
+    ) -> Any | None:
         """Get a value from nested dictionary using dot notation."""
         current = data
         for key in key_parts:
@@ -610,7 +610,7 @@ class ExplainThresholdsCommand(Command):
         """Get command description."""
         return "Explain threshold configurations and their implications"
 
-    def execute(self, args: Dict[str, Any]) -> int:
+    def execute(self, args: dict[str, Any]) -> int:
         """Execute the explain-thresholds command.
 
         Args:
@@ -634,7 +634,7 @@ class ExplainThresholdsCommand(Command):
                 click.echo(f"❌ Standard file not found: {standard_path}")
                 return 1
 
-            with open(standard_file, "r", encoding="utf-8") as f:
+            with open(standard_file, encoding="utf-8") as f:
                 standard = yaml.safe_load(f)
 
             click.echo("📊 Threshold Explanation")
@@ -729,7 +729,7 @@ class WhatIfCommand(Command):
         """Get command description."""
         return "Simulate threshold changes and show projected impact"
 
-    def execute(self, args: Dict[str, Any]) -> int:
+    def execute(self, args: dict[str, Any]) -> int:
         """Execute the what-if command.
 
         Args:
@@ -747,7 +747,7 @@ class WhatIfCommand(Command):
 
         return self._what_if(changes, standard_path, data_path)
 
-    def _what_if(self, changes: List[str], standard_path: str, data_path: str) -> int:
+    def _what_if(self, changes: list[str], standard_path: str, data_path: str) -> int:
         """Simulate threshold changes and show impact."""
         try:
             import yaml
@@ -766,7 +766,7 @@ class WhatIfCommand(Command):
                 click.echo(f"❌ Data file not found: {data_path}")
                 return 1
 
-            with open(standard_file, "r", encoding="utf-8") as f:
+            with open(standard_file, encoding="utf-8") as f:
                 standard = yaml.safe_load(f)
 
             data_list = load_data(data_path)
@@ -797,7 +797,7 @@ class WhatIfCommand(Command):
             click.echo("Current Configuration:")
             click.echo(f"  • MIN_SCORE: {current_min_score}/100")
             click.echo(
-                f"  • Row Threshold: {int(current_row_threshold*100)}% ({int(total_rows*current_row_threshold)}/{total_rows} rows)"
+                f"  • Row Threshold: {int(current_row_threshold * 100)}% ({int(total_rows * current_row_threshold)}/{total_rows} rows)"
             )
 
             current_health_status = (
@@ -830,7 +830,7 @@ class WhatIfCommand(Command):
                 elif key == "readiness.row_threshold":
                     new_threshold = float(value)
                     click.echo(
-                        f"  • Row Threshold: {current_row_threshold} → {new_threshold} ({int(total_rows*new_threshold)}/{total_rows} rows required)"
+                        f"  • Row Threshold: {current_row_threshold} → {new_threshold} ({int(total_rows * new_threshold)}/{total_rows} rows required)"
                     )
             click.echo("")
 
@@ -855,7 +855,7 @@ class WhatIfCommand(Command):
                 f"  • Health: {current_health_status} → {new_health_status} ({current_result.overall_score:.1f}/100 vs threshold {new_min_score})"
             )
             click.echo(
-                f"  • Readiness: {current_readiness_status} → {new_readiness_status} ({current_passed_rows}/{total_rows}, need {int(total_rows*new_row_threshold)}/{total_rows})"
+                f"  • Readiness: {current_readiness_status} → {new_readiness_status} ({current_passed_rows}/{total_rows}, need {int(total_rows * new_row_threshold)}/{total_rows})"
             )
             click.echo("")
 

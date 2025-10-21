@@ -9,8 +9,9 @@ import logging
 import os
 import time
 from abc import ABC, abstractmethod
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any, Callable, Dict, Optional
+from typing import Any
 
 import pandas as pd
 import yaml
@@ -34,8 +35,6 @@ class FailureMode:
 class ProtectionError(Exception):
     """Exception raised when data protection fails."""
 
-    pass
-
 
 class ProtectionMode(ABC):
     """
@@ -44,7 +43,7 @@ class ProtectionMode(ABC):
     Defines the interface that all protection modes must implement.
     """
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: dict[str, Any] | None = None):
         """Initialize protection mode with configuration."""
         self.config = config or {}
         self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
@@ -61,7 +60,6 @@ class ProtectionMode(ABC):
         Raises:
             ProtectionError: If the mode requires stopping execution
         """
-        pass
 
     @abstractmethod
     def handle_success(self, assessment_result: Any, success_message: str) -> None:
@@ -72,13 +70,11 @@ class ProtectionMode(ABC):
             assessment_result: The successful assessment result
             success_message: Formatted success message
         """
-        pass
 
     @property
     @abstractmethod
     def mode_name(self) -> str:
         """Return the name of this protection mode."""
-        pass
 
     def get_description(self) -> str:
         """Return a description of what this protection mode does."""
@@ -183,7 +179,7 @@ class DataProtectionEngine:
     Refactored from the original DataProtectionEngine to use the new mode-based architecture.
     """
 
-    def __init__(self, protection_mode: Optional[ProtectionMode] = None):
+    def __init__(self, protection_mode: ProtectionMode | None = None):
         """
         Initialize the data protection engine.
 
@@ -208,21 +204,21 @@ class DataProtectionEngine:
         )
 
     @property
-    def protection_config(self) -> Dict[str, Any]:
+    def protection_config(self) -> dict[str, Any]:
         """Get protection config, loading lazily if needed."""
         if self._protection_config is None:
             self._protection_config = self._load_protection_config()
         return self._protection_config
 
     @property
-    def full_config(self) -> Dict[str, Any]:
+    def full_config(self) -> dict[str, Any]:
         """Get full config, loading lazily if needed."""
         if self._full_config is None:
             # Trigger loading via protection_config property
             _ = self.protection_config
         return self._full_config or {}
 
-    def _load_protection_config(self) -> Dict[str, Any]:
+    def _load_protection_config(self) -> dict[str, Any]:
         """Load protection configuration."""
         if self.config_manager:
             try:
@@ -247,14 +243,13 @@ class DataProtectionEngine:
             except Exception as e:
                 self.logger.warning(f"Failed to load config: {e}")
                 # Don't reset _full_config on exception - keep what we have
-                pass
 
         # Return default config
         if not self._full_config:
             self._full_config = {}
         return self._get_default_protection_config()
 
-    def _get_default_protection_config(self) -> Dict[str, Any]:
+    def _get_default_protection_config(self) -> dict[str, Any]:
         """Get default protection configuration."""
         return {
             "default_min_score": 80,
@@ -271,20 +266,20 @@ class DataProtectionEngine:
         kwargs: dict,
         data_param: str,
         function_name: str,
-        standard_name: Optional[str] = None,
-        min_score: Optional[float] = None,
-        dimensions: Optional[Dict[str, float]] = None,
-        on_failure: Optional[str] = None,
-        on_assessment: Optional[Callable[[Any], None]] = None,
-        auto_generate: Optional[bool] = None,
-        cache_assessments: Optional[bool] = None,
-        verbose: Optional[bool] = None,
+        standard_name: str | None = None,
+        min_score: float | None = None,
+        dimensions: dict[str, float] | None = None,
+        on_failure: str | None = None,
+        on_assessment: Callable[[Any], None] | None = None,
+        auto_generate: bool | None = None,
+        cache_assessments: bool | None = None,
+        verbose: bool | None = None,
         reasoning_mode: bool = False,
         store_prompt: bool = True,
         store_response: bool = True,
-        llm_config: Optional[Dict] = None,
-        workflow_context: Optional[Dict] = None,
-        data_provenance: Optional[Dict] = None,
+        llm_config: dict | None = None,
+        workflow_context: dict | None = None,
+        data_provenance: dict | None = None,
     ) -> Any:
         """
         Protect a function call with data quality checks.
@@ -325,7 +320,8 @@ class DataProtectionEngine:
             resolved_standard_path = self._resolve_standard_file_path(standard_name)
 
         # Apply unified threshold resolution (same logic as CLI)
-        # Note: We don't check if file exists here - let _ensure_standard_exists handle it
+        # Note: We don't check if file exists here - let _ensure_standard_exists
+        # handle it
         threshold_info = ThresholdResolver.resolve_assessment_threshold(
             standard_path=(
                 resolved_standard_path
@@ -405,7 +401,8 @@ class DataProtectionEngine:
             self._invoke_assessment_callback(on_assessment, assessment_result, verbose)
 
             # Workflow logging not available in open-source version
-            # For workflow orchestration and data provenance tracking, use adri-enterprise
+            # For workflow orchestration and data provenance tracking, use
+            # adri-enterprise
             if workflow_context and verbose:
                 self.logger.info(
                     "Workflow context provided but logging not available in open-source version"
@@ -481,10 +478,7 @@ class DataProtectionEngine:
         )
 
     def _resolve_standard(
-        self,
-        function_name: str,
-        data_param: str,
-        standard_name: Optional[str] = None,
+        self, function_name: str, data_param: str, standard_name: str | None = None
     ) -> str:
         """
         Resolve which standard to use for protection.
@@ -516,6 +510,9 @@ class DataProtectionEngine:
         Raises:
             ProtectionError: If standard doesn't exist and auto_generate is False
         """
+        # Resolve path to handle macOS symlinks (/var -> /private/var)
+        standard_path = str(Path(standard_path).resolve())
+
         self.logger.info("Checking if standard exists at: %s", standard_path)
         if os.path.exists(standard_path):
             self.logger.info("Standard already exists, skipping auto-generation")
@@ -559,7 +556,8 @@ class DataProtectionEngine:
             generator = StandardGenerator()
 
             # Generate rich standard with full profiling and rule inference
-            # This includes: allowed_values, min/max_value, patterns, length_bounds, date_bounds, etc.
+            # This includes: allowed_values, min/max_value, patterns, length_bounds,
+            # date_bounds, etc.
             standard_dict = generator.generate(
                 data=df,
                 data_name=data_name,
@@ -576,7 +574,7 @@ class DataProtectionEngine:
 
             # Validate the generated standard to ensure it's valid
             try:
-                from adri.standards.validator import get_validator
+                from ..standards.validator import get_validator
 
                 validator = get_validator()
                 result = validator.validate_standard_file(
@@ -638,7 +636,7 @@ class DataProtectionEngine:
         return result
 
     def _check_dimension_requirements(
-        self, assessment_result: Any, dimensions: Dict[str, float]
+        self, assessment_result: Any, dimensions: dict[str, float]
     ) -> bool:
         """Check dimension-specific requirements."""
         if not hasattr(assessment_result, "dimension_scores"):
@@ -675,9 +673,7 @@ class DataProtectionEngine:
 
         return "\n".join(message_lines)
 
-    def _resolve_standard_file_path(
-        self, standard_name: Optional[str]
-    ) -> Optional[str]:
+    def _resolve_standard_file_path(self, standard_name: str | None) -> str | None:
         """
         Resolve standard name to file path using environment configuration.
 
@@ -728,7 +724,7 @@ class DataProtectionEngine:
 
     def _invoke_assessment_callback(
         self,
-        callback: Optional[Callable[[Any], None]],
+        callback: Callable[[Any], None] | None,
         assessment_result: Any,
         verbose: bool = False,
     ) -> None:
@@ -770,16 +766,16 @@ class DataProtectionEngine:
 
 
 # Mode factory functions
-def fail_fast_mode(config: Optional[Dict[str, Any]] = None) -> FailFastMode:
+def fail_fast_mode(config: dict[str, Any] | None = None) -> FailFastMode:
     """Create a fail-fast protection mode."""
     return FailFastMode(config)
 
 
-def selective_mode(config: Optional[Dict[str, Any]] = None) -> SelectiveMode:
+def selective_mode(config: dict[str, Any] | None = None) -> SelectiveMode:
     """Create a selective protection mode."""
     return SelectiveMode(config)
 
 
-def warn_only_mode(config: Optional[Dict[str, Any]] = None) -> WarnOnlyMode:
+def warn_only_mode(config: dict[str, Any] | None = None) -> WarnOnlyMode:
     """Create a warn-only protection mode."""
     return WarnOnlyMode(config)

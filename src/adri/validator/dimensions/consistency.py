@@ -5,7 +5,7 @@ This module contains the ConsistencyAssessor class that evaluates data consisten
 ADRI standards.
 """
 
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import pandas as pd
 
@@ -23,7 +23,7 @@ class ConsistencyAssessor(DimensionAssessor):
         """Get the name of this dimension."""
         return "consistency"
 
-    def assess(self, data: Any, requirements: Dict[str, Any]) -> float:
+    def assess(self, data: Any, requirements: dict[str, Any]) -> float:
         """Assess consistency dimension for the given data.
 
         Args:
@@ -39,7 +39,17 @@ class ConsistencyAssessor(DimensionAssessor):
         if data.empty:
             return 20.0  # Empty data is technically consistent
 
-        # Get consistency configuration from requirements
+        # Check if using new validation_rules format
+        field_requirements = requirements.get("field_requirements", {})
+        using_validation_rules = self._has_validation_rules_format(field_requirements)
+
+        if using_validation_rules:
+            # New format: Use validation_rules with severity filtering
+            return self._assess_consistency_with_validation_rules(
+                data, field_requirements
+            )
+
+        # Old format: Use existing weighted rule scoring
         scoring_cfg = requirements.get("scoring", {})
         rule_weights_cfg = scoring_cfg.get("rule_weights", {}) if scoring_cfg else {}
 
@@ -53,7 +63,7 @@ class ConsistencyAssessor(DimensionAssessor):
             data, rule_weights_cfg, pk_fields, format_rules
         )
 
-    def _get_primary_key_fields(self, requirements: Dict[str, Any]) -> List[str]:
+    def _get_primary_key_fields(self, requirements: dict[str, Any]) -> list[str]:
         """Extract primary key fields from requirements."""
         # Try to get from record_identification
         record_id = requirements.get("record_identification", {})
@@ -68,9 +78,9 @@ class ConsistencyAssessor(DimensionAssessor):
     def _assess_consistency_with_rules(
         self,
         data: pd.DataFrame,
-        rule_weights_cfg: Dict[str, float],
-        pk_fields: List[str],
-        format_rules: Optional[Dict[str, Any]] = None,
+        rule_weights_cfg: dict[str, float],
+        pk_fields: list[str],
+        format_rules: dict[str, Any] | None = None,
     ) -> float:
         """Assess consistency using configured rules with weighted scoring."""
         # Extract and validate rule weights
@@ -118,7 +128,7 @@ class ConsistencyAssessor(DimensionAssessor):
         return float(overall_pass_rate * 20.0)
 
     def _get_primary_key_pass_rate(
-        self, data: pd.DataFrame, pk_fields: List[str]
+        self, data: pd.DataFrame, pk_fields: list[str]
     ) -> float:
         """Get pass rate for primary key uniqueness rule."""
         failures = self._check_primary_key_uniqueness(data, pk_fields)
@@ -138,7 +148,8 @@ class ConsistencyAssessor(DimensionAssessor):
         Returns 1.0 (100% pass) by default since FK relationships are optional.
         """
         # TODO: Implement FK checking when standards support FK definitions
-        # For now, treat as passing since FK relationships are not yet defined in standards
+        # For now, treat as passing since FK relationships are not yet defined in
+        # standards
         return 1.0
 
     def _get_cross_field_logic_pass_rate(self, data: pd.DataFrame) -> float:
@@ -217,7 +228,7 @@ class ConsistencyAssessor(DimensionAssessor):
         return float(passed_checks / total_checks)
 
     def _get_format_consistency_pass_rate(
-        self, data: pd.DataFrame, format_rules: Optional[Dict[str, Any]] = None
+        self, data: pd.DataFrame, format_rules: dict[str, Any] | None = None
     ) -> float:
         """Get pass rate for format consistency rule.
 
@@ -263,7 +274,8 @@ class ConsistencyAssessor(DimensionAssessor):
                             0.5  # Partial credit for length consistency
                         )
 
-                # 2. Character type consistency (all numeric, all alpha, all alphanumeric)
+                # 2. Character type consistency (all numeric, all alpha, all
+                # alphanumeric)
                 str_sample = sample.astype(str)
                 numeric_pct = str_sample.str.isnumeric().mean()
                 alpha_pct = str_sample.str.isalpha().mean()
@@ -283,7 +295,7 @@ class ConsistencyAssessor(DimensionAssessor):
         return float(consistent_fields / total_fields_checked)
 
     def _assess_primary_key_uniqueness(
-        self, data: pd.DataFrame, pk_fields: List[str]
+        self, data: pd.DataFrame, pk_fields: list[str]
     ) -> float:
         """Assess primary key uniqueness constraint."""
         # Check if all primary key fields exist in data
@@ -321,8 +333,8 @@ class ConsistencyAssessor(DimensionAssessor):
             return 10.0
 
     def _check_primary_key_uniqueness(
-        self, data: pd.DataFrame, pk_fields: List[str]
-    ) -> List[Dict[str, Any]]:
+        self, data: pd.DataFrame, pk_fields: list[str]
+    ) -> list[dict[str, Any]]:
         """Check for primary key uniqueness violations.
 
         Args:
@@ -417,8 +429,8 @@ class ConsistencyAssessor(DimensionAssessor):
         return failures
 
     def get_consistency_breakdown(
-        self, data: pd.DataFrame, requirements: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, data: pd.DataFrame, requirements: dict[str, Any]
+    ) -> dict[str, Any]:
         """Get detailed consistency breakdown for reporting.
 
         Args:
@@ -477,7 +489,7 @@ class ConsistencyAssessor(DimensionAssessor):
         }
 
     def assess_with_rules(
-        self, data: pd.DataFrame, consistency_rules: Dict[str, Any]
+        self, data: pd.DataFrame, consistency_rules: dict[str, Any]
     ) -> float:
         """Assess consistency with explicit rules for backward compatibility.
 
@@ -510,8 +522,8 @@ class ConsistencyAssessor(DimensionAssessor):
         return 20.0  # Perfect score
 
     def get_validation_failures(
-        self, data: pd.DataFrame, requirements: Dict[str, Any]
-    ) -> List[Dict[str, Any]]:
+        self, data: pd.DataFrame, requirements: dict[str, Any]
+    ) -> list[dict[str, Any]]:
         """Extract detailed consistency failures for audit logging.
 
         Args:
@@ -543,7 +555,7 @@ class ConsistencyAssessor(DimensionAssessor):
 
     def _get_cross_field_logic_failures(
         self, data: pd.DataFrame
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Get failures from cross-field logic validation."""
         failures = []
 
@@ -647,7 +659,7 @@ class ConsistencyAssessor(DimensionAssessor):
 
     def _get_format_consistency_failures(
         self, data: pd.DataFrame
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Get failures from format consistency validation."""
         failures = []
 
@@ -686,3 +698,83 @@ class ConsistencyAssessor(DimensionAssessor):
                         )
 
         return failures
+
+    def _has_validation_rules_format(self, field_requirements: dict[str, Any]) -> bool:
+        """Check if field_requirements use new validation_rules format.
+
+        Args:
+            field_requirements: Field requirements dictionary
+
+        Returns:
+            True if using validation_rules format, False for old format
+        """
+        # Check if any field has validation_rules
+        for field_config in field_requirements.values():
+            if isinstance(field_config, dict) and "validation_rules" in field_config:
+                return True
+        return False
+
+    def _assess_consistency_with_validation_rules(
+        self, data: pd.DataFrame, field_requirements: dict[str, Any]
+    ) -> float:
+        """Assess consistency using validation_rules with severity-aware scoring.
+
+        Only CRITICAL severity rules affect the score. WARNING and INFO rules
+        are executed and logged but don't penalize the score.
+
+        Args:
+            data: DataFrame to assess
+            field_requirements: Field requirements with validation_rules
+
+        Returns:
+            Consistency score (0.0 to 20.0)
+        """
+        from src.adri.core.severity import Severity
+        from src.adri.core.validation_rule import ValidationRule
+
+        from ..rules import execute_validation_rule
+
+        total_critical_checks = 0
+        failed_critical_checks = 0
+
+        # Process each field
+        for column in data.columns:
+            if column not in field_requirements:
+                continue
+
+            field_config = field_requirements[column]
+            if not isinstance(field_config, dict):
+                continue
+
+            validation_rules = field_config.get("validation_rules", [])
+            if not validation_rules:
+                continue
+
+            # Filter to only CRITICAL rules for consistency dimension
+            critical_rules = [
+                r
+                for r in validation_rules
+                if isinstance(r, ValidationRule)
+                and r.dimension == "consistency"
+                and r.severity == Severity.CRITICAL
+            ]
+
+            if not critical_rules:
+                continue
+
+            # Execute CRITICAL consistency rules against data
+            series = data[column].dropna()
+            for value in series:
+                for rule in critical_rules:
+                    total_critical_checks += 1
+                    if not execute_validation_rule(value, rule, field_config):
+                        failed_critical_checks += 1
+
+        # Calculate score based on CRITICAL rules only
+        if total_critical_checks == 0:
+            return 20.0  # No CRITICAL rules = perfect score
+
+        success_rate = (
+            total_critical_checks - failed_critical_checks
+        ) / total_critical_checks
+        return success_rate * 20.0

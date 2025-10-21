@@ -8,7 +8,7 @@ handling of validation outcomes.
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 class ValidationSeverity(Enum):
@@ -36,9 +36,9 @@ class ValidationError:
     message: str
     path: str
     severity: ValidationSeverity = ValidationSeverity.ERROR
-    expected: Optional[str] = None
-    actual: Optional[str] = None
-    suggestion: Optional[str] = None
+    expected: str | None = None
+    actual: str | None = None
+    suggestion: str | None = None
 
     def __str__(self) -> str:
         """Format error as human-readable string."""
@@ -79,10 +79,10 @@ class ValidationResult:
     """
 
     is_valid: bool
-    errors: List[ValidationError] = field(default_factory=list)
-    warnings: List[ValidationError] = field(default_factory=list)
-    standard_path: Optional[str] = None
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    errors: list[ValidationError] = field(default_factory=list)
+    warnings: list[ValidationError] = field(default_factory=list)
+    standard_path: str | None = None
+    metadata: dict[str, Any] = field(default_factory=dict)
 
     @property
     def has_errors(self) -> bool:
@@ -209,8 +209,8 @@ class SchemaValidationError(Exception):
     def __init__(
         self,
         message: str,
-        validation_result: Optional[ValidationResult] = None,
-        standard_path: Optional[str] = None,
+        validation_result: ValidationResult | None = None,
+        standard_path: str | None = None,
     ):
         """
         Initialize schema validation error.
@@ -241,22 +241,14 @@ class SchemaValidationError(Exception):
 class InvalidStandardError(SchemaValidationError):
     """Raise exception when standard file is structurally invalid."""
 
-    pass
-
 
 class MissingRequiredFieldError(SchemaValidationError):
     """Raised when a required field is missing from the standard."""
-
-    pass
 
 
 class InvalidFieldTypeError(SchemaValidationError):
     """Raised when a field has an incorrect type."""
 
-    pass
-
 
 class InvalidFieldValueError(SchemaValidationError):
     """Raised when a field value is outside valid range or set."""
-
-    pass

@@ -1,0 +1,65 @@
+# ADRI Severity Defaults Configuration
+#
+# This file defines default severity levels for auto-generated validation rules.
+# Severity levels control whether rule failures affect dimension scores:
+#
+# - CRITICAL: Failures reduce dimension scores (most data quality rules)
+# - WARNING:  Failures are logged but don't affect scores (style preferences)
+# - INFO:     Informational only, minimal logging (future use)
+#
+# Users can customize these defaults to control which rules affect scores
+# in their auto-generated standards.
+
+severity_defaults:
+  # Validity dimension rules
+  # Controls format correctness and type compliance validation
+  validity:
+    type: CRITICAL                # Data type must match expected type (string, integer, etc.)
+    allowed_values: CRITICAL      # Value must be in enumerated set
+    pattern: WARNING              # Regex pattern matching (often style-based)
+    numeric_bounds: CRITICAL      # Numeric values must be within min/max range
+    date_bounds: CRITICAL         # Date values must be within date range
+    length_bounds: CRITICAL       # String length must be within bounds
+    custom: WARNING               # Custom validity rules (context-dependent)
+
+  # Completeness dimension rules
+  # Controls missing value and data availability validation
+  completeness:
+    not_null: CRITICAL            # Field must not be null/empty
+    not_empty: CRITICAL           # Field must contain non-empty value
+    required_fields: CRITICAL     # Required fields must be present
+
+  # Consistency dimension rules
+  # Controls referential integrity and internal coherence validation
+  consistency:
+    format: WARNING               # Format consistency within field (style preference)
+    case: WARNING                 # Case consistency (lowercase, uppercase, titlecase)
+    uniqueness: CRITICAL          # Values must be unique (e.g., IDs, emails)
+    cross_field: WARNING          # Cross-field logic (context-dependent)
+    primary_key: CRITICAL         # Primary key values must be unique
+
+  # Freshness dimension rules
+  # Controls temporal relevance and data recency validation
+  freshness:
+    age_check: WARNING            # Data age threshold checks
+    recency: INFO                 # Recency notifications (informational)
+    staleness: INFO               # Staleness warnings (informational)
+
+  # Plausibility dimension rules
+  # Controls statistical reasonableness and business logic validation
+  plausibility:
+    range_check: WARNING          # Statistical range validation
+    categorical_frequency: WARNING # Rare category detection
+    statistical_outlier: INFO     # Statistical outlier flagging
+    business_rule: CRITICAL       # Business logic validation (domain-specific)
+
+# Override settings (optional)
+# Allow users to override defaults for specific rule types
+overrides:
+  # Example: Make pattern matching CRITICAL for specific use cases
+  # validity:
+  #   pattern: CRITICAL
+
+  # Example: Make format consistency CRITICAL for strict standardization
+  # consistency:
+  #   format: CRITICAL

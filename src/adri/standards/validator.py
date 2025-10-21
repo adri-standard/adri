@@ -7,7 +7,7 @@ smart caching and thread-safe operation.
 
 import os
 import threading
-from typing import Any, Dict, Optional
+from typing import Any
 
 from .exceptions import ValidationResult
 from .schema import StandardSchema
@@ -28,13 +28,13 @@ class StandardValidator:
 
     def __init__(self):
         """Initialize the validator with empty cache and thread lock."""
-        self._cache: Dict[str, tuple[ValidationResult, float]] = {}
+        self._cache: dict[str, tuple[ValidationResult, float]] = {}
         self._cache_lock = threading.RLock()
 
     def validate_standard(
         self,
-        standard: Dict[str, Any],
-        standard_path: Optional[str] = None,
+        standard: dict[str, Any],
+        standard_path: str | None = None,
         use_cache: bool = True,
     ) -> ValidationResult:
         """
@@ -87,12 +87,28 @@ class StandardValidator:
         Returns:
             ValidationResult with errors and warnings
         """
-        # Import here to avoid circular dependency
-        from adri.validator.loaders import load_standard
+        import yaml
 
-        # Load the standard (this handles YAML syntax errors)
+        # Load the standard directly (avoiding circular import with loaders)
         try:
-            standard = load_standard(file_path)
+            with open(file_path, encoding="utf-8") as f:
+                standard = yaml.safe_load(f)
+        except FileNotFoundError:
+            result = ValidationResult(is_valid=False, standard_path=file_path)
+            result.add_error(
+                message=f"Standard file not found: {file_path}",
+                path="<file>",
+                suggestion="Check file path",
+            )
+            return result
+        except yaml.YAMLError as e:
+            result = ValidationResult(is_valid=False, standard_path=file_path)
+            result.add_error(
+                message=f"Invalid YAML syntax: {str(e)}",
+                path="<file>",
+                suggestion="Check YAML syntax and file encoding",
+            )
+            return result
         except Exception as e:
             result = ValidationResult(is_valid=False, standard_path=file_path)
             result.add_error(
@@ -106,7 +122,7 @@ class StandardValidator:
         return self.validate_standard(standard, file_path, use_cache)
 
     def _validate_structure(
-        self, standard: Dict[str, Any], result: ValidationResult
+        self, standard: dict[str, Any], result: ValidationResult
     ) -> None:
         """
         Validate top-level structure of the standard.
@@ -131,7 +147,7 @@ class StandardValidator:
             result.add_error(message=error_msg, path="<root>")
 
     def _validate_standards_section(
-        self, standard: Dict[str, Any], result: ValidationResult
+        self, standard: dict[str, Any], result: ValidationResult
     ) -> None:
         """
         Validate the 'standards' metadata section.
@@ -202,7 +218,7 @@ class StandardValidator:
                     )
 
     def _validate_requirements_section(
-        self, standard: Dict[str, Any], result: ValidationResult
+        self, standard: dict[str, Any], result: ValidationResult
     ) -> None:
         """
         Validate the 'requirements' section.
@@ -239,6 +255,14 @@ class StandardValidator:
         if "dimension_requirements" in requirements:
             self._validate_dimension_requirements(
                 requirements["dimension_requirements"], result
+            )
+
+        # Validate top-level field_requirements (new format)
+        if "field_requirements" in requirements:
+            self._validate_field_requirements(
+                requirements["field_requirements"],
+                "requirements.field_requirements",
+                result,
             )
 
         # Validate overall_minimum
@@ -372,41 +396,53 @@ class StandardValidator:
 
     def _validate_field_requirements(
         self,
-        field_requirements: Dict[str, Any],
+        field_requirements: dict[str, Any],
         base_path: str,
         result: ValidationResult,
     ) -> None:
         """
         Validate field-specific requirements.
 
+        Supports both formats:
+        - New format: validation_rules (list of ValidationRule dicts)
+        - Old format: nullable, allowed_values, etc. (backward compatible)
+
         Args:
             field_requirements: Dictionary of field requirements
             base_path: Path prefix for error reporting
             result: ValidationResult to populate with errors
         """
-        for field_name, requirements in field_requirements.items():
+        for field_name, field_config in field_requirements.items():
             field_path = f"{base_path}.{field_name}"
 
-            if not isinstance(requirements, dict):
-                result.add_warning(
-                    message=f"Field requirements for '{field_name}' should be a dictionary",
+            if not isinstance(field_config, dict):
+                result.add_error(
+                    message=f"Field '{field_name}' configuration must be a dictionary",
                     path=field_path,
+                    expected="dict",
+                    actual=type(field_config).__name__,
                 )
                 continue
 
-            # Validate requirement rules
-            for rule_name, rule_config in requirements.items():
-                rule_path = f"{field_path}.{rule_name}"
+            # If validation_rules present (new format), validate them
+            if "validation_rules" in field_config:
+                validation_rules = field_config["validation_rules"]
+                rule_errors = StandardSchema.validate_validation_rules_list(
+                    validation_rules, field_path
+                )
 
-                # Basic structure check
-                if rule_name not in StandardSchema.VALID_RULE_TYPES:
-                    result.add_warning(
-                        message=f"Unknown rule type: '{rule_name}'",
-                        path=rule_path,
-                        suggestion=f"Valid rule types: {', '.join(sorted(StandardSchema.VALID_RULE_TYPES))}",
+                # Add all rule validation errors to result
+                for error_msg in rule_errors:
+                    result.add_error(
+                        message=error_msg,
+                        path=field_path,
+                        suggestion="Check validation_rules structure: each rule needs name, dimension, "
+                        "severity, rule_type, and rule_expression",
                     )
+            # Otherwise, validate as old format (backward compatible)
+            # Old format is valid, just different structure - no validation needed
 
-    def _get_cached_result(self, file_path: str) -> Optional[ValidationResult]:
+    def _get_cached_result(self, file_path: str) -> ValidationResult | None:
         """
         Get cached validation result if valid.
 
@@ -464,7 +500,7 @@ class StandardValidator:
             # If file doesn't exist or can't be accessed, cache is invalid
             return False
 
-    def clear_cache(self, file_path: Optional[str] = None) -> None:
+    def clear_cache(self, file_path: str | None = None) -> None:
         """
         Clear validation cache.
 
@@ -477,7 +513,7 @@ class StandardValidator:
             elif file_path in self._cache:
                 del self._cache[file_path]
 
-    def get_cache_stats(self) -> Dict[str, Any]:
+    def get_cache_stats(self) -> dict[str, Any]:
         """
         Get cache statistics.
 
@@ -492,7 +528,7 @@ class StandardValidator:
 
 
 # Global singleton instance
-_validator_instance: Optional[StandardValidator] = None
+_validator_instance: StandardValidator | None = None
 _instance_lock = threading.Lock()
 
 

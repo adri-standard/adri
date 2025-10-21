@@ -9,7 +9,7 @@ import os
 import time
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import pandas as pd
 
@@ -23,7 +23,7 @@ class ThresholdInfo:
 
     value: float
     source: str  # "standard_overall_minimum", "config_default", "parameter_override"
-    standard_path: Optional[str] = None
+    standard_path: str | None = None
 
 
 class ThresholdResolver:
@@ -31,9 +31,9 @@ class ThresholdResolver:
 
     @staticmethod
     def resolve_assessment_threshold(
-        standard_path: Optional[str] = None,
-        min_score_override: Optional[float] = None,
-        config: Optional[Dict[str, Any]] = None,
+        standard_path: str | None = None,
+        min_score_override: float | None = None,
+        config: dict[str, Any] | None = None,
     ) -> ThresholdInfo:
         """
         Resolve assessment threshold with consistent priority order.
@@ -106,11 +106,11 @@ class ThresholdResolver:
 class BundledStandardWrapper:
     """Wrapper class to make bundled standards compatible with YAML standard interface."""
 
-    def __init__(self, standard_dict: Dict[str, Any]):
+    def __init__(self, standard_dict: dict[str, Any]):
         """Initialize wrapper with bundled standard dictionary."""
         self.standard_dict = standard_dict
 
-    def get_field_requirements(self) -> Dict[str, Any]:
+    def get_field_requirements(self) -> dict[str, Any]:
         """Get field requirements from the bundled standard."""
         requirements = self.standard_dict.get("requirements", {})
         if isinstance(requirements, dict):
@@ -130,7 +130,7 @@ class BundledStandardWrapper:
             )
         return 75.0
 
-    def get_dimension_requirements(self) -> Dict[str, Any]:
+    def get_dimension_requirements(self) -> dict[str, Any]:
         """Get dimension requirements (including weights and scoring config) from the standard."""
         requirements = self.standard_dict.get("requirements", {})
         if isinstance(requirements, dict):
@@ -138,10 +138,161 @@ class BundledStandardWrapper:
             return dim_reqs if isinstance(dim_reqs, dict) else {}
         return {}
 
-    def get_record_identification(self) -> Dict[str, Any]:
+    def get_record_identification(self) -> dict[str, Any]:
         """Get record identification configuration (e.g., primary_key_fields) from the standard."""
         rid = self.standard_dict.get("record_identification", {})
         return rid if isinstance(rid, dict) else {}
+
+    def get_validation_rules_for_field(self, field_name: str) -> list[Any]:
+        """
+        Get all ValidationRule objects for a specific field across all dimensions.
+
+        Args:
+            field_name: Name of the field to get rules for
+
+        Returns:
+            List of ValidationRule objects for the field
+
+        Example:
+            >>> rules = wrapper.get_validation_rules_for_field("email")
+            >>> critical_rules = [r for r in rules if r.severity == Severity.CRITICAL]
+        """
+        from src.adri.core.validation_rule import ValidationRule
+
+        all_rules = []
+        dim_reqs = self.get_dimension_requirements()
+
+        for dimension_name, dimension_config in dim_reqs.items():
+            if not isinstance(dimension_config, dict):
+                continue
+
+            field_reqs = dimension_config.get("field_requirements", {})
+            if not isinstance(field_reqs, dict):
+                continue
+
+            if field_name in field_reqs:
+                field_config = field_reqs[field_name]
+                if (
+                    isinstance(field_config, dict)
+                    and "validation_rules" in field_config
+                ):
+                    rules = field_config["validation_rules"]
+                    if isinstance(rules, list):
+                        # Filter to only ValidationRule objects
+                        all_rules.extend(
+                            [r for r in rules if isinstance(r, ValidationRule)]
+                        )
+
+        return all_rules
+
+    def get_all_validation_rules(self) -> dict[str, list[Any]]:
+        """
+        Get all ValidationRule objects organized by field name.
+
+        Returns:
+            Dictionary mapping field names to lists of ValidationRule objects
+
+        Example:
+            >>> rules_by_field = wrapper.get_all_validation_rules()
+            >>> email_rules = rules_by_field.get("email", [])
+        """
+        from src.adri.core.validation_rule import ValidationRule
+
+        rules_by_field = {}
+        dim_reqs = self.get_dimension_requirements()
+
+        for dimension_name, dimension_config in dim_reqs.items():
+            if not isinstance(dimension_config, dict):
+                continue
+
+            field_reqs = dimension_config.get("field_requirements", {})
+            if not isinstance(field_reqs, dict):
+                continue
+
+            for field_name, field_config in field_reqs.items():
+                if (
+                    isinstance(field_config, dict)
+                    and "validation_rules" in field_config
+                ):
+                    rules = field_config["validation_rules"]
+                    if isinstance(rules, list):
+                        # Initialize field entry if not exists
+                        if field_name not in rules_by_field:
+                            rules_by_field[field_name] = []
+                        # Add only ValidationRule objects
+                        rules_by_field[field_name].extend(
+                            [r for r in rules if isinstance(r, ValidationRule)]
+                        )
+
+        return rules_by_field
+
+    def filter_rules_by_dimension(
+        self, dimension: str, rules: list[Any] = None
+    ) -> list[Any]:
+        """
+        Filter ValidationRule objects by dimension.
+
+        Args:
+            dimension: Dimension name to filter by (e.g., "validity", "completeness")
+            rules: Optional list of rules to filter. If not provided, gets all rules.
+
+        Returns:
+            List of ValidationRule objects for the specified dimension
+
+        Example:
+            >>> validity_rules = wrapper.filter_rules_by_dimension("validity")
+            >>> completeness_rules = wrapper.filter_rules_by_dimension("completeness")
+        """
+        from src.adri.core.validation_rule import ValidationRule
+
+        # Get all rules if not provided
+        if rules is None:
+            rules_by_field = self.get_all_validation_rules()
+            rules = []
+            for field_rules in rules_by_field.values():
+                rules.extend(field_rules)
+
+        # Filter by dimension
+        return [
+            r
+            for r in rules
+            if isinstance(r, ValidationRule) and r.dimension == dimension
+        ]
+
+    def filter_rules_by_severity(self, severity, rules: list[Any] = None) -> list[Any]:
+        """
+        Filter ValidationRule objects by severity level.
+
+        Args:
+            severity: Severity level to filter by (Severity enum or string)
+            rules: Optional list of rules to filter. If not provided, gets all rules.
+
+        Returns:
+            List of ValidationRule objects with the specified severity
+
+        Example:
+            >>> from src.adri.core.severity import Severity
+            >>> critical_rules = wrapper.filter_rules_by_severity(Severity.CRITICAL)
+            >>> warning_rules = wrapper.filter_rules_by_severity("WARNING")
+        """
+        from src.adri.core.severity import Severity
+        from src.adri.core.validation_rule import ValidationRule
+
+        # Convert string to Severity enum if needed
+        if isinstance(severity, str):
+            severity = Severity.from_string(severity)
+
+        # Get all rules if not provided
+        if rules is None:
+            rules_by_field = self.get_all_validation_rules()
+            rules = []
+            for field_rules in rules_by_field.values():
+                rules.extend(field_rules)
+
+        # Filter by severity
+        return [
+            r for r in rules if isinstance(r, ValidationRule) and r.severity == severity
+        ]
 
 
 class AssessmentResult:
@@ -168,14 +319,14 @@ class AssessmentResult:
         self,
         overall_score: float,
         passed: bool,
-        dimension_scores: Dict[str, Any],
-        standard_id: Optional[str] = None,
-        standard_path: Optional[str] = None,
+        dimension_scores: dict[str, Any],
+        standard_id: str | None = None,
+        standard_path: str | None = None,
         assessment_date=None,
-        metadata: Optional[Dict[str, Any]] = None,
+        metadata: dict[str, Any] | None = None,
         assessment_source: str = "unknown",
-        threshold_info: Optional[ThresholdInfo] = None,
-        assessment_id: Optional[str] = None,
+        threshold_info: ThresholdInfo | None = None,
+        assessment_id: str | None = None,
     ):
         """Initialize assessment result with scores and metadata."""
         # Generate assessment_id immediately if not provided
@@ -188,8 +339,8 @@ class AssessmentResult:
         self.standard_path = standard_path  # Full absolute path to standard file used
         self.assessment_date = assessment_date
         self.metadata = metadata or {}
-        self.rule_execution_log: List[Any] = []
-        self.field_analysis: Dict[str, Any] = {}
+        self.rule_execution_log: list[Any] = []
+        self.field_analysis: dict[str, Any] = {}
 
         # Enhanced tracking for issue #35 debugging
         self.assessment_source = assessment_source  # "cli" or "decorator"
@@ -213,9 +364,9 @@ class AssessmentResult:
 
     def set_execution_stats(
         self,
-        total_execution_time_ms: Optional[int] = None,
-        rules_executed: Optional[int] = None,
-        duration_ms: Optional[int] = None,
+        total_execution_time_ms: int | None = None,
+        rules_executed: int | None = None,
+        duration_ms: int | None = None,
     ):
         """Set execution statistics."""
         # Support both parameter names for compatibility
@@ -228,7 +379,7 @@ class AssessmentResult:
             "rules_executed": rules_executed or len(self.rule_execution_log),
         }
 
-    def to_standard_dict(self) -> Dict[str, Any]:
+    def to_standard_dict(self) -> dict[str, Any]:
         """Convert assessment result to ADRI v0.1.0 compliant format using ReportGenerator."""
         # Updated import for new structure - with fallback during migration
         try:
@@ -243,8 +394,8 @@ class AssessmentResult:
         return generator.generate_report(self)
 
     def to_v2_standard_dict(
-        self, dataset_name: Optional[str] = None, adri_version: str = "0.1.0"
-    ) -> Dict[str, Any]:
+        self, dataset_name: str | None = None, adri_version: str = "0.1.0"
+    ) -> dict[str, Any]:
         """Convert assessment result to ADRI v0.1.0 compliant format."""
         from datetime import datetime
 
@@ -355,7 +506,7 @@ class AssessmentResult:
 
         return report
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert assessment result to dictionary format."""
         return self.to_v2_standard_dict()
 
@@ -367,8 +518,8 @@ class DimensionScore:
         self,
         score: float,
         max_score: float = 20.0,
-        issues: Optional[List[Any]] = None,
-        details: Optional[Dict[str, Any]] = None,
+        issues: list[Any] | None = None,
+        details: dict[str, Any] | None = None,
     ):
         """Initialize dimension score with value and metadata."""
         self.score = score
@@ -387,14 +538,14 @@ class FieldAnalysis:
     def __init__(
         self,
         field_name: str,
-        data_type: Optional[str] = None,
-        null_count: Optional[int] = None,
-        total_count: Optional[int] = None,
-        rules_applied: Optional[List[Any]] = None,
-        overall_field_score: Optional[float] = None,
-        total_failures: Optional[int] = None,
-        ml_readiness: Optional[str] = None,
-        recommended_actions: Optional[List[Any]] = None,
+        data_type: str | None = None,
+        null_count: int | None = None,
+        total_count: int | None = None,
+        rules_applied: list[Any] | None = None,
+        overall_field_score: float | None = None,
+        total_failures: int | None = None,
+        ml_readiness: str | None = None,
+        recommended_actions: list[Any] | None = None,
     ):
         """Initialize field analysis with statistics and recommendations."""
         self.field_name = field_name
@@ -409,13 +560,13 @@ class FieldAnalysis:
 
         # Calculate completeness if we have the data
         if total_count is not None and null_count is not None:
-            self.completeness: Optional[float] = (
+            self.completeness: float | None = (
                 (total_count - null_count) / total_count if total_count > 0 else 0.0
             )
         else:
             self.completeness = None
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert field analysis to dictionary."""
         result = {
             "field_name": self.field_name,
@@ -444,20 +595,20 @@ class RuleExecutionResult:
 
     def __init__(
         self,
-        rule_id: Optional[str] = None,
-        dimension: Optional[str] = None,
-        field: Optional[str] = None,
-        rule_definition: Optional[str] = None,
+        rule_id: str | None = None,
+        dimension: str | None = None,
+        field: str | None = None,
+        rule_definition: str | None = None,
         total_records: int = 0,
         passed: int = 0,
         failed: int = 0,
         rule_score: float = 0.0,
         rule_weight: float = 1.0,
         execution_time_ms: int = 0,
-        sample_failures: Optional[List[Any]] = None,
-        failure_patterns: Optional[Dict[str, Any]] = None,
-        rule_name: Optional[str] = None,
-        score: Optional[float] = None,
+        sample_failures: list[Any] | None = None,
+        failure_patterns: dict[str, Any] | None = None,
+        rule_name: str | None = None,
+        score: float | None = None,
         message: str = "",
     ):
         """Initialize rule execution result with performance and failure data."""
@@ -498,7 +649,7 @@ class RuleExecutionResult:
             self.failure_patterns = failure_patterns or {}
             self.message = message
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert rule execution result to dictionary."""
         # Fix passed count to be numeric, not boolean
         passed_count = (
@@ -555,7 +706,7 @@ class DataQualityAssessor:
     Refactored to use ValidationPipeline for modular dimension assessment.
     """
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: dict[str, Any] | None = None):
         """Initialize the DataQualityAssessor with optional configuration."""
         from .pipeline import ValidationPipeline
 
@@ -563,7 +714,8 @@ class DataQualityAssessor:
         self.engine = ValidationEngine()  # Keep for backward compatibility
 
         # IMPORTANT: Distinguish between None (auto-discover) and {} (explicit empty config)
-        # When config={} is explicitly passed, skip all auto-discovery and use minimal defaults
+        # When config={} is explicitly passed, skip all auto-discovery and use
+        # minimal defaults
         self.config = config if config is not None else {}
         self._explicit_config = (
             config is not None
@@ -890,7 +1042,7 @@ class DataQualityAssessor:
 
     def _collect_validation_failures(
         self, data: pd.DataFrame, result: AssessmentResult
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Collect detailed validation failures from all dimension assessors.
 
         Args:
@@ -988,17 +1140,17 @@ class ValidationEngine:
             self.pipeline = None  # Fallback if pipeline not available
 
         # Legacy support for explain data collection
-        self._scoring_warnings: List[str] = []
-        self._explain: Dict[str, Any] = {}
+        self._scoring_warnings: list[str] = []
+        self._explain: dict[str, Any] = {}
 
     def _reset_explain(self):
         """Reset explain data for new assessment."""
         self._scoring_warnings = []
         self._explain = {}
 
-    def _normalize_nonneg_weights(self, weights: Dict[str, float]) -> Dict[str, float]:
+    def _normalize_nonneg_weights(self, weights: dict[str, float]) -> dict[str, float]:
         """Clamp negatives to 0.0 and coerce to float for weight dictionaries."""
-        norm: Dict[str, float] = {}
+        norm: dict[str, float] = {}
         for k, v in weights.items():
             try:
                 w = float(v)
@@ -1010,8 +1162,8 @@ class ValidationEngine:
         return norm
 
     def _equalize_if_zero(
-        self, weights: Dict[str, float], label: str
-    ) -> Dict[str, float]:
+        self, weights: dict[str, float], label: str
+    ) -> dict[str, float]:
         """If all weights sum to 0, assign equal weight of 1.0 to each present key and record a warning."""
         total = sum(weights.values())
         if len(weights) > 0 and total <= 0.0:
@@ -1024,12 +1176,12 @@ class ValidationEngine:
 
     def _normalize_rule_weights(
         self,
-        rule_weights_cfg: Dict[str, float],
-        rule_keys: List[str],
-        counts: Dict[str, Dict[str, int]],
-    ) -> Dict[str, float]:
+        rule_weights_cfg: dict[str, float],
+        rule_keys: list[str],
+        counts: dict[str, dict[str, int]],
+    ) -> dict[str, float]:
         """Normalize validity rule weights: clamp negatives, drop unknowns, and equalize when all zero for active rule-types."""
-        applied: Dict[str, float] = {}
+        applied: dict[str, float] = {}
         for rk, w in (rule_weights_cfg or {}).items():
             if rk not in rule_keys:
                 continue
@@ -1057,7 +1209,7 @@ class ValidationEngine:
 
     # --------------------- Validity scoring helper methods ---------------------
     def _compute_validity_rule_counts(
-        self, data: pd.DataFrame, field_requirements: Dict[str, Any]
+        self, data: pd.DataFrame, field_requirements: dict[str, Any]
     ):
         """
         Compute totals and passes per rule type and per field for validity scoring.
@@ -1086,7 +1238,7 @@ class ValidationEngine:
         ]
 
         counts = {rk: {"passed": 0, "total": 0} for rk in RULE_KEYS}
-        per_field_counts: Dict[str, Dict[str, Dict[str, int]]] = defaultdict(
+        per_field_counts: dict[str, dict[str, dict[str, int]]] = defaultdict(
             lambda: {rk: {"passed": 0, "total": 0} for rk in RULE_KEYS}
         )
 
@@ -1163,9 +1315,9 @@ class ValidationEngine:
 
     def _apply_global_rule_weights(
         self,
-        counts: Dict[str, Dict[str, int]],
-        rule_weights_cfg: Dict[str, float],
-        rule_keys: List[str],
+        counts: dict[str, dict[str, int]],
+        rule_weights_cfg: dict[str, float],
+        rule_keys: list[str],
     ):
         """
         Apply normalized global rule weights to aggregate score.
@@ -1191,9 +1343,9 @@ class ValidationEngine:
 
     def _apply_field_overrides(
         self,
-        per_field_counts: Dict[str, Dict[str, Dict[str, int]]],
-        overrides_cfg: Dict[str, Dict[str, float]],
-        rule_keys: List[str],
+        per_field_counts: dict[str, dict[str, dict[str, int]]],
+        overrides_cfg: dict[str, dict[str, float]],
+        rule_keys: list[str],
     ):
         """
         Apply field-level overrides to aggregate score.
@@ -1202,7 +1354,7 @@ class ValidationEngine:
         """
         S_add = 0.0
         W_add = 0.0
-        applied_overrides: Dict[str, Dict[str, float]] = {}
+        applied_overrides: dict[str, dict[str, float]] = {}
 
         if isinstance(overrides_cfg, dict):
             for field_name, overrides in overrides_cfg.items():
@@ -1237,11 +1389,11 @@ class ValidationEngine:
 
     def _assemble_validity_explain(
         self,
-        counts: Dict[str, Any],
-        per_field_counts: Dict[str, Any],
-        applied_global: Dict[str, float],
-        applied_overrides: Dict[str, Dict[str, float]],
-    ) -> Dict[str, Any]:
+        counts: dict[str, Any],
+        per_field_counts: dict[str, Any],
+        applied_global: dict[str, float],
+        applied_overrides: dict[str, dict[str, float]],
+    ) -> dict[str, Any]:
         """Assemble the validity explain payload preserving existing schema."""
         return {
             "rule_counts": counts,
@@ -1347,9 +1499,7 @@ class ValidationEngine:
         passed = overall_score >= min_score
 
         # Build metadata with explain and warnings
-        metadata = {
-            "applied_dimension_weights": applied_weights,
-        }
+        metadata = {"applied_dimension_weights": applied_weights}
         if getattr(self, "_scoring_warnings", None):
             metadata["scoring_warnings"] = list(self._scoring_warnings)
         if getattr(self, "_explain", None):
@@ -1360,7 +1510,7 @@ class ValidationEngine:
         )
 
     def assess_with_standard_dict(
-        self, data: pd.DataFrame, standard_dict: Dict[str, Any]
+        self, data: pd.DataFrame, standard_dict: dict[str, Any]
     ) -> AssessmentResult:
         """
         Run assessment on data using a bundled standard dictionary.
@@ -1401,7 +1551,8 @@ class ValidationEngine:
                 "plausibility": DimensionScore(plausibility_score),
             }
 
-            # Calculate overall score using per-dimension weights if provided (parity with assess())
+            # Calculate overall score using per-dimension weights if provided (parity
+            # with assess())
             try:
                 dim_reqs = standard_wrapper.get_dimension_requirements()
             except Exception:  # noqa: E722
@@ -1443,9 +1594,7 @@ class ValidationEngine:
             passed = overall_score >= min_score
 
             # Build metadata with explain and warnings
-            metadata: Dict[str, Any] = {
-                "applied_dimension_weights": applied_weights,
-            }
+            metadata: dict[str, Any] = {"applied_dimension_weights": applied_weights}
             if getattr(self, "_scoring_warnings", None):
                 metadata["scoring_warnings"] = list(self._scoring_warnings)
             # Include explain even if it's an empty dict (some dimensions may return {})
@@ -1508,8 +1657,8 @@ class ValidationEngine:
             dim_reqs = standard.get_dimension_requirements()
             validity_cfg = dim_reqs.get("validity", {})
             scoring_cfg = validity_cfg.get("scoring", {})
-            rule_weights_cfg: Dict[str, float] = scoring_cfg.get("rule_weights", {})
-            field_overrides_cfg: Dict[str, Dict[str, float]] = scoring_cfg.get(
+            rule_weights_cfg: dict[str, float] = scoring_cfg.get("rule_weights", {})
+            field_overrides_cfg: dict[str, dict[str, float]] = scoring_cfg.get(
                 "field_overrides", {}
             )
         except Exception:  # noqa: E722
@@ -1608,8 +1757,8 @@ class ValidationEngine:
         return S * 20.0
 
     def _compute_completeness_breakdown(
-        self, data: pd.DataFrame, field_requirements: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, data: pd.DataFrame, field_requirements: dict[str, Any]
+    ) -> dict[str, Any]:
         """Compute detailed completeness breakdown for required (non-nullable) fields."""
         required_fields = [
             col
@@ -1618,7 +1767,7 @@ class ValidationEngine:
         ]
         required_total = len(data) * len(required_fields) if len(data) > 0 else 0
 
-        per_field_missing: Dict[str, int] = {}
+        per_field_missing: dict[str, int] = {}
         for col in required_fields:
             if col in data.columns:
                 try:
@@ -1685,7 +1834,7 @@ class ValidationEngine:
                 if isinstance(consistency_cfg, dict)
                 else {}
             )
-            rule_weights_cfg: Dict[str, float] = (
+            rule_weights_cfg: dict[str, float] = (
                 scoring_cfg.get("rule_weights", {})
                 if isinstance(scoring_cfg, dict)
                 else {}
@@ -1828,7 +1977,8 @@ class ValidationEngine:
         has_meta = bool(as_of_str and date_field and wd_val is not None)
         if not has_meta:
             return self._assess_freshness(data)
-        # If metadata present but rule weight is inactive (<=0), attach informational explain with baseline.
+        # If metadata present but rule weight is inactive (<=0), attach
+        # informational explain with baseline.
         if rw <= 0.0:
             self._explain["freshness"] = {
                 "date_field": date_field,
@@ -1913,7 +2063,8 @@ class ValidationEngine:
             }
             return 20.0
 
-        # Compute recency: rows within window_days of as_of (future-dated rows also pass)
+        # Compute recency: rows within window_days of as_of (future-dated rows
+        # also pass)
         deltas = as_of - parsed
         # Days can be negative for future dates; treat negative as within window (fresh)
         days = deltas.dt.days
@@ -1997,7 +2148,7 @@ class ValidationEngine:
             scoring_cfg = (
                 plaus_cfg.get("scoring", {}) if isinstance(plaus_cfg, dict) else {}
             )
-            rule_weights_cfg: Dict[str, float] = (
+            rule_weights_cfg: dict[str, float] = (
                 scoring_cfg.get("rule_weights", {})
                 if isinstance(scoring_cfg, dict)
                 else {}
@@ -2043,10 +2194,7 @@ class ValidationEngine:
 
         # Build explain payload
         rule_counts = {
-            rule: {
-                "passed": result.get("passed", 0),
-                "total": result.get("total", 0),
-            }
+            rule: {"passed": result.get("passed", 0), "total": result.get("total", 0)}
             for rule, result in rule_results.items()
         }
         # Fill in zero counts for inactive rules
@@ -2074,16 +2222,18 @@ class ValidationEngine:
         return float(score)
 
     def _execute_plausibility_rules(
-        self, data: pd.DataFrame, active_weights: Dict[str, float]
-    ) -> Dict[str, Any]:
+        self, data: pd.DataFrame, active_weights: dict[str, float]
+    ) -> dict[str, Any]:
         """Execute plausibility rules that are distinct from validity rules."""
         results = {}
 
-        # Statistical outliers - IQR-based outlier detection (different from validity bounds)
+        # Statistical outliers - IQR-based outlier detection (different from
+        # validity bounds)
         if "statistical_outliers" in active_weights:
             results["statistical_outliers"] = self._assess_statistical_outliers(data)
 
-        # Categorical frequency - flag rare categories (different from validity allowed_values)
+        # Categorical frequency - flag rare categories (different from validity
+        # allowed_values)
         if "categorical_frequency" in active_weights:
             results["categorical_frequency"] = self._assess_categorical_frequency(data)
 
@@ -2091,7 +2241,8 @@ class ValidationEngine:
         if "business_logic" in active_weights:
             results["business_logic"] = self._assess_business_logic(data)
 
-        # Cross-field consistency - relationships between fields (placeholder for future)
+        # Cross-field consistency - relationships between fields (placeholder for
+        # future)
         if "cross_field_consistency" in active_weights:
             results["cross_field_consistency"] = self._assess_cross_field_consistency(
                 data
@@ -2099,7 +2250,7 @@ class ValidationEngine:
 
         return results
 
-    def _assess_statistical_outliers(self, data: pd.DataFrame) -> Dict[str, Any]:
+    def _assess_statistical_outliers(self, data: pd.DataFrame) -> dict[str, Any]:
         """Assess statistical outliers using IQR method (distinct from validity bounds)."""
         passed = 0
         total = 0
@@ -2130,7 +2281,7 @@ class ValidationEngine:
             "pass_rate": (passed / total) if total > 0 else 1.0,
         }
 
-    def _assess_categorical_frequency(self, data: pd.DataFrame) -> Dict[str, Any]:
+    def _assess_categorical_frequency(self, data: pd.DataFrame) -> dict[str, Any]:
         """Assess categorical frequency - flag rare categories (distinct from validity allowed_values)."""
         passed = 0
         total = 0
@@ -2142,7 +2293,8 @@ class ValidationEngine:
                 if len(non_null) == 0:
                     continue
 
-                # Calculate frequency threshold (categories appearing in <5% of data are "rare")
+                # Calculate frequency threshold (categories appearing in <5% of data are
+                # "rare")
                 value_counts = non_null.value_counts()
                 threshold = len(non_null) * 0.05
 
@@ -2157,27 +2309,19 @@ class ValidationEngine:
             "pass_rate": (passed / total) if total > 0 else 1.0,
         }
 
-    def _assess_business_logic(self, data: pd.DataFrame) -> Dict[str, Any]:
+    def _assess_business_logic(self, data: pd.DataFrame) -> dict[str, Any]:
         """Assess business logic rules (placeholder - could be extended with domain rules)."""
         # Placeholder implementation - assume all values pass business logic for now
         # In a real implementation, this would check domain-specific rules
         total = len(data) if not data.empty else 0
-        return {
-            "passed": total,
-            "total": total,
-            "pass_rate": 1.0,
-        }
+        return {"passed": total, "total": total, "pass_rate": 1.0}
 
-    def _assess_cross_field_consistency(self, data: pd.DataFrame) -> Dict[str, Any]:
+    def _assess_cross_field_consistency(self, data: pd.DataFrame) -> dict[str, Any]:
         """Assess cross-field consistency (placeholder - could check field relationships)."""
         # Placeholder implementation - assume all records are consistent for now
         # In a real implementation, this would check relationships between fields
         total = len(data) if not data.empty else 0
-        return {
-            "passed": total,
-            "total": total,
-            "pass_rate": 1.0,
-        }
+        return {"passed": total, "total": total, "pass_rate": 1.0}
 
     def _assess_plausibility(self, data: pd.DataFrame) -> float:
         """Assess data plausibility (fallback when no standard available)."""
@@ -2198,7 +2342,7 @@ class ValidationEngine:
 
     # Public methods for backward compatibility with tests
     def assess_validity(
-        self, data: pd.DataFrame, field_requirements: Optional[Dict[str, Any]] = None
+        self, data: pd.DataFrame, field_requirements: dict[str, Any] | None = None
     ) -> float:
         """Public method for validity assessment."""
         if field_requirements:
@@ -2212,7 +2356,7 @@ class ValidationEngine:
         return self._assess_validity(data)
 
     def assess_completeness(
-        self, data: pd.DataFrame, requirements: Optional[Dict[str, Any]] = None
+        self, data: pd.DataFrame, requirements: dict[str, Any] | None = None
     ) -> float:
         """Public method for completeness assessment."""
         if requirements:
@@ -2233,7 +2377,7 @@ class ValidationEngine:
         return self._assess_completeness(data)
 
     def assess_consistency(
-        self, data: pd.DataFrame, consistency_rules: Optional[Dict[str, Any]] = None
+        self, data: pd.DataFrame, consistency_rules: dict[str, Any] | None = None
     ) -> float:
         """Public method for consistency assessment."""
         if consistency_rules:
@@ -2258,7 +2402,7 @@ class ValidationEngine:
         return self._assess_consistency(data)
 
     def assess_freshness(
-        self, data: pd.DataFrame, freshness_config: Optional[Dict[str, Any]] = None
+        self, data: pd.DataFrame, freshness_config: dict[str, Any] | None = None
     ) -> float:
         """Public method for freshness assessment."""
         if freshness_config:
@@ -2270,7 +2414,7 @@ class ValidationEngine:
         return self._assess_freshness(data)
 
     def assess_plausibility(
-        self, data: pd.DataFrame, plausibility_config: Optional[Dict[str, Any]] = None
+        self, data: pd.DataFrame, plausibility_config: dict[str, Any] | None = None
     ) -> float:
         """Public method for plausibility assessment."""
         if plausibility_config:

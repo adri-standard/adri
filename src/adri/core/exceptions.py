@@ -34,38 +34,26 @@ class ADRIError(Exception):
 class ConfigurationError(ADRIError):
     """Raised when there are configuration-related issues."""
 
-    pass
-
 
 class ProjectNotFoundError(ConfigurationError):
     """Raised when ADRI project root cannot be located."""
 
-    pass
-
 
 class EnvironmentError(ConfigurationError):
     """Raised when there are environment-related configuration issues."""
-
-    pass
 
 
 # Data Loading and Processing Errors
 class DataLoadingError(ADRIError):
     """Raised when data cannot be loaded from the specified source."""
 
-    pass
-
 
 class DataFormatError(DataLoadingError):
     """Raised when data is in an unexpected or invalid format."""
 
-    pass
-
 
 class DataValidationError(ADRIError):
     """Raised when data fails validation checks."""
-
-    pass
 
 
 # Backward compatibility alias for tests
@@ -76,32 +64,22 @@ ValidationError = DataValidationError
 class StandardError(ADRIError):
     """Base class for standard-related errors."""
 
-    pass
-
 
 class StandardNotFoundError(StandardError):
     """Raised when a requested standard cannot be found."""
-
-    pass
 
 
 class StandardValidationError(StandardError):
     """Raised when a standard file is invalid or malformed."""
 
-    pass
-
 
 class StandardGenerationError(StandardError):
     """Raised when standard generation fails."""
-
-    pass
 
 
 # Assessment and Validation Errors
 class AssessmentError(ADRIError):
     """Base class for assessment-related errors."""
-
-    pass
 
 
 class DimensionAssessmentError(AssessmentError):
@@ -160,13 +138,9 @@ class ValidationRuleError(AssessmentError):
 class CommandError(ADRIError):
     """Base class for CLI command errors."""
 
-    pass
-
 
 class CommandNotFoundError(CommandError):
     """Raised when a requested command cannot be found."""
-
-    pass
 
 
 class CommandExecutionError(CommandError):
@@ -198,14 +172,10 @@ class CommandExecutionError(CommandError):
 class ArgumentValidationError(CommandError):
     """Raised when command arguments are invalid."""
 
-    pass
-
 
 # Registry and Component Errors
 class RegistryError(ADRIError):
     """Base class for component registry errors."""
-
-    pass
 
 
 class ComponentNotFoundError(RegistryError):
@@ -229,51 +199,35 @@ class ComponentNotFoundError(RegistryError):
 class ComponentRegistrationError(RegistryError):
     """Raised when a component cannot be registered."""
 
-    pass
-
 
 # File and I/O Errors
 class FileOperationError(ADRIError):
     """Base class for file operation errors."""
 
-    pass
-
 
 class FileNotFoundError(FileOperationError):
     """Raised when a required file cannot be found."""
-
-    pass
 
 
 class FilePermissionError(FileOperationError):
     """Raised when there are insufficient permissions to access a file."""
 
-    pass
-
 
 class SerializationError(ADRIError):
     """Raised when serialization or deserialization fails."""
-
-    pass
 
 
 # Performance and Resource Errors
 class PerformanceError(ADRIError):
     """Raised when performance constraints are violated."""
 
-    pass
-
 
 class ResourceExhaustedError(ADRIError):
     """Raised when system resources are exhausted."""
 
-    pass
-
 
 class TimeoutError(ADRIError):
     """Raised when an operation times out."""
-
-    pass
 
 
 # Utility functions for error handling

@@ -89,8 +89,8 @@ def process_customers(data):
     return results
 ```
 
-First run with good data → ADRI generates quality standard  
-Future runs → ADRI validates against that standard  
+First run with good data → ADRI generates quality standard
+Future runs → ADRI validates against that standard
 Bad data → Blocked with detailed quality report
 
 ### Documentation

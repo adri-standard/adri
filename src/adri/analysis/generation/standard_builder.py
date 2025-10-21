@@ -5,7 +5,7 @@ construction and assembly of ADRI standards from analyzed components.
 """
 
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import pandas as pd
 
@@ -31,9 +31,9 @@ class StandardBuilder:
         self,
         data: pd.DataFrame,
         data_name: str,
-        data_profile: Dict[str, Any],
-        generation_config: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
+        data_profile: dict[str, Any],
+        generation_config: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         """Build a complete ADRI standard from data and profile.
 
         Args:
@@ -89,7 +89,7 @@ class StandardBuilder:
 
         return standard
 
-    def _build_standards_metadata(self, data_name: str) -> Dict[str, Any]:
+    def _build_standards_metadata(self, data_name: str) -> dict[str, Any]:
         """Build the standards section metadata.
 
         Args:
@@ -108,7 +108,7 @@ class StandardBuilder:
 
     def _detect_primary_key_fields(
         self, data: pd.DataFrame, config: InferenceConfig
-    ) -> List[str]:
+    ) -> list[str]:
         """Detect primary key fields in the data.
 
         Args:
@@ -126,7 +126,7 @@ class StandardBuilder:
 
         return pk_fields or []
 
-    def _build_record_identification(self, pk_fields: List[str]) -> Dict[str, Any]:
+    def _build_record_identification(self, pk_fields: list[str]) -> dict[str, Any]:
         """Build record identification configuration.
 
         Args:
@@ -140,7 +140,7 @@ class StandardBuilder:
             "strategy": "primary_key_with_fallback",
         }
 
-    def _build_base_metadata(self) -> Dict[str, Any]:
+    def _build_base_metadata(self) -> dict[str, Any]:
         """Build base metadata structure for the standard.
 
         Returns:
@@ -158,11 +158,11 @@ class StandardBuilder:
             "explanations": {},  # Will be populated by ExplanationGenerator
         }
 
-    def _populate_rule_weights(self, standard: Dict[str, Any]) -> None:
+    def _populate_rule_weights(self, standard: dict[str, Any]) -> None:
         """Populate rule weights dynamically based on detected rules.
 
-        Only creates weight entries for rule types that have actual rules,
-        then normalizes weights to sum to 1.0.
+        Now supports both old format (field constraints) and new format (validation_rules).
+        Counts validation_rules by dimension and rule_type for weight population.
 
         Args:
             standard: Standard dictionary to populate
@@ -172,109 +172,204 @@ class StandardBuilder:
             field_reqs = standard["requirements"]["field_requirements"]
             pk_fields = standard["record_identification"]["primary_key_fields"]
 
-            # Populate validity rule weights based on field_requirements
-            validity_weights = dimension_reqs["validity"]["scoring"]["rule_weights"]
-            for field_name, field_req in field_reqs.items():
-                if not isinstance(field_req, dict):
-                    continue
-
-                # Type rule
-                if "type" in field_req:
-                    validity_weights["type"] = validity_weights.get("type", 0) + 1
-
-                # Allowed values rule
-                if "allowed_values" in field_req:
-                    validity_weights["allowed_values"] = (
-                        validity_weights.get("allowed_values", 0) + 1
-                    )
-
-                # Pattern rule
-                if "pattern" in field_req:
-                    validity_weights["pattern"] = validity_weights.get("pattern", 0) + 1
-
-                # Length bounds rule
-                if "min_length" in field_req or "max_length" in field_req:
-                    validity_weights["length_bounds"] = (
-                        validity_weights.get("length_bounds", 0) + 1
-                    )
-
-                # Numeric bounds rule
-                if "min_value" in field_req or "max_value" in field_req:
-                    validity_weights["numeric_bounds"] = (
-                        validity_weights.get("numeric_bounds", 0) + 1
-                    )
-
-                # Date bounds rule
-                if "after_date" in field_req or "before_date" in field_req:
-                    validity_weights["date_bounds"] = (
-                        validity_weights.get("date_bounds", 0) + 1
-                    )
-
-            # Normalize validity weights
-            self.dimension_builder.normalize_rule_weights(dimension_reqs, "validity")
-
-            # Populate consistency rule weights based on detected patterns
-            consistency_weights = dimension_reqs["consistency"]["scoring"][
-                "rule_weights"
-            ]
-
-            # Primary key uniqueness: Add if PK fields detected
-            if pk_fields:
-                consistency_weights["primary_key_uniqueness"] = 1.0
-
-            # Format consistency: Add if string fields exist (format patterns matter)
-            has_string_fields = any(
-                field_req.get("type") == "string"
+            # Check if using new validation_rules format
+            using_validation_rules = any(
+                isinstance(field_req, dict) and "validation_rules" in field_req
                 for field_req in field_reqs.values()
-                if isinstance(field_req, dict)
             )
-            if has_string_fields:
-                consistency_weights["format_consistency"] = 1.0
 
-            # Cross-field logic: Add if multiple fields exist (enables date range, total checks)
-            if len(field_reqs) >= 2:
-                consistency_weights["cross_field_logic"] = 1.0
-
-            # Normalize consistency weights
-            self.dimension_builder.normalize_rule_weights(dimension_reqs, "consistency")
-
-            # Populate plausibility rule weights based on field types
-            plausibility_weights = dimension_reqs["plausibility"]["scoring"][
-                "rule_weights"
-            ]
-            has_numeric = False
-            has_categorical = False
-
-            for field_name, field_req in field_reqs.items():
-                if not isinstance(field_req, dict):
-                    continue
-                field_type = field_req.get("type", "")
-                if field_type in ["number", "integer"]:
-                    has_numeric = True
-                elif field_type == "string":
-                    has_categorical = True
-
-            # Add plausibility rule types that are applicable
-            if has_numeric:
-                plausibility_weights["statistical_outliers"] = 0.4
-            if has_categorical:
-                plausibility_weights["categorical_frequency"] = 0.3
-            if has_numeric or has_categorical:
-                plausibility_weights["business_logic"] = 0.2
-                plausibility_weights["cross_field_consistency"] = 0.1
-
-            # Normalize plausibility weights
-            self.dimension_builder.normalize_rule_weights(
-                dimension_reqs, "plausibility"
-            )
+            if using_validation_rules:
+                # New format: Count validation_rules by dimension and rule_type
+                self._populate_rule_weights_from_validation_rules(
+                    dimension_reqs, field_reqs, pk_fields
+                )
+            else:
+                # Old format: Count field constraints (backward compatible)
+                self._populate_rule_weights_from_constraints(
+                    dimension_reqs, field_reqs, pk_fields
+                )
 
         except Exception:
             # Non-fatal - dimension weights will remain empty or with default values
             pass
 
+    def _populate_rule_weights_from_validation_rules(
+        self,
+        dimension_reqs: dict[str, Any],
+        field_reqs: dict[str, Any],
+        pk_fields: list[str],
+    ) -> None:
+        """Populate rule weights from validation_rules structure.
+
+        Args:
+            dimension_reqs: Dimension requirements dictionary
+            field_reqs: Field requirements dictionary with validation_rules
+            pk_fields: Primary key field names
+        """
+        # Count rules by dimension and rule_type
+        rule_counts = {}
+
+        for field_name, field_req in field_reqs.items():
+            if not isinstance(field_req, dict):
+                continue
+
+            validation_rules = field_req.get("validation_rules", [])
+            if not validation_rules:
+                continue
+
+            for rule in validation_rules:
+                if not isinstance(rule, dict):
+                    continue
+
+                dimension = rule.get("dimension")
+                rule_type = rule.get("rule_type")
+
+                if dimension and rule_type:
+                    rule_counts.setdefault(dimension, {})
+                    rule_counts[dimension][rule_type] = (
+                        rule_counts[dimension].get(rule_type, 0) + 1
+                    )
+
+        # Add consistency rules (dataset-level, not in field validation_rules)
+        consistency_counts = rule_counts.setdefault("consistency", {})
+
+        if pk_fields:
+            consistency_counts["primary_key_uniqueness"] = 1.0
+
+        has_string_fields = any(
+            field_req.get("type") == "string"
+            for field_req in field_reqs.values()
+            if isinstance(field_req, dict)
+        )
+        if has_string_fields:
+            consistency_counts["format_consistency"] = 1.0
+
+        if len(field_reqs) >= 2:
+            consistency_counts["cross_field_logic"] = 1.0
+
+        # Populate weights for each dimension
+        for dimension_name, dimension_config in dimension_reqs.items():
+            if not isinstance(dimension_config, dict):
+                continue
+
+            scoring = dimension_config.get("scoring", {})
+            if not isinstance(scoring, dict):
+                continue
+
+            rule_weights = scoring.get("rule_weights", {})
+            if not isinstance(rule_weights, dict):
+                continue
+
+            # Set weights based on rule counts for this dimension
+            dimension_rule_counts = rule_counts.get(dimension_name, {})
+            for rule_type, count in dimension_rule_counts.items():
+                rule_weights[rule_type] = float(count)
+
+            # Normalize weights
+            self.dimension_builder.normalize_rule_weights(
+                dimension_reqs, dimension_name
+            )
+
+    def _populate_rule_weights_from_constraints(
+        self,
+        dimension_reqs: dict[str, Any],
+        field_reqs: dict[str, Any],
+        pk_fields: list[str],
+    ) -> None:
+        """Populate rule weights from old-style field constraints (backward compatible).
+
+        Args:
+            dimension_reqs: Dimension requirements dictionary
+            field_reqs: Field requirements dictionary with constraints
+            pk_fields: Primary key field names
+        """
+        # Original logic for old format
+        validity_weights = dimension_reqs["validity"]["scoring"]["rule_weights"]
+        for field_name, field_req in field_reqs.items():
+            if not isinstance(field_req, dict):
+                continue
+
+            # Type rule
+            if "type" in field_req:
+                validity_weights["type"] = validity_weights.get("type", 0) + 1
+
+            # Allowed values rule
+            if "allowed_values" in field_req:
+                validity_weights["allowed_values"] = (
+                    validity_weights.get("allowed_values", 0) + 1
+                )
+
+            # Pattern rule
+            if "pattern" in field_req:
+                validity_weights["pattern"] = validity_weights.get("pattern", 0) + 1
+
+            # Length bounds rule
+            if "min_length" in field_req or "max_length" in field_req:
+                validity_weights["length_bounds"] = (
+                    validity_weights.get("length_bounds", 0) + 1
+                )
+
+            # Numeric bounds rule
+            if "min_value" in field_req or "max_value" in field_req:
+                validity_weights["numeric_bounds"] = (
+                    validity_weights.get("numeric_bounds", 0) + 1
+                )
+
+            # Date bounds rule
+            if "after_date" in field_req or "before_date" in field_req:
+                validity_weights["date_bounds"] = (
+                    validity_weights.get("date_bounds", 0) + 1
+                )
+
+        # Normalize validity weights
+        self.dimension_builder.normalize_rule_weights(dimension_reqs, "validity")
+
+        # Populate consistency rule weights
+        consistency_weights = dimension_reqs["consistency"]["scoring"]["rule_weights"]
+
+        if pk_fields:
+            consistency_weights["primary_key_uniqueness"] = 1.0
+
+        has_string_fields = any(
+            field_req.get("type") == "string"
+            for field_req in field_reqs.values()
+            if isinstance(field_req, dict)
+        )
+        if has_string_fields:
+            consistency_weights["format_consistency"] = 1.0
+
+        if len(field_reqs) >= 2:
+            consistency_weights["cross_field_logic"] = 1.0
+
+        self.dimension_builder.normalize_rule_weights(dimension_reqs, "consistency")
+
+        # Populate plausibility rule weights
+        plausibility_weights = dimension_reqs["plausibility"]["scoring"]["rule_weights"]
+        has_numeric = False
+        has_categorical = False
+
+        for field_name, field_req in field_reqs.items():
+            if not isinstance(field_req, dict):
+                continue
+            field_type = field_req.get("type", "")
+            if field_type in ["number", "integer"]:
+                has_numeric = True
+            elif field_type == "string":
+                has_categorical = True
+
+        if has_numeric:
+            plausibility_weights["statistical_outliers"] = 0.4
+        if has_categorical:
+            plausibility_weights["categorical_frequency"] = 0.3
+        if has_numeric or has_categorical:
+            plausibility_weights["business_logic"] = 0.2
+            plausibility_weights["cross_field_consistency"] = 0.1
+
+        self.dimension_builder.normalize_rule_weights(dimension_reqs, "plausibility")
+
     def enforce_training_pass_guarantee(
-        self, data: pd.DataFrame, standard: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, data: pd.DataFrame, standard: dict[str, Any]
+    ) -> dict[str, Any]:
         """Ensure the generated standard passes on its training data.
 
         Args:
@@ -336,8 +431,8 @@ class StandardBuilder:
         return standard
 
     def detect_and_configure_freshness(
-        self, data: pd.DataFrame, standard: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, data: pd.DataFrame, standard: dict[str, Any]
+    ) -> dict[str, Any]:
         """Detect date fields and configure freshness checking if appropriate.
 
         Args:
@@ -355,7 +450,8 @@ class StandardBuilder:
             series = data[col]
 
             # Skip numeric columns - they are not date fields
-            # This prevents selecting fields like 'amount' (1250.00, 2500.00) as date candidates
+            # This prevents selecting fields like 'amount' (1250.00, 2500.00) as date
+            # candidates
             if series.dtype in ["int64", "float64", "int32", "float32", "int", "float"]:
                 continue
 
@@ -424,8 +520,8 @@ class StandardBuilder:
         return standard
 
     def add_generation_metadata(
-        self, standard: Dict[str, Any], data_name: str
-    ) -> Dict[str, Any]:
+        self, standard: dict[str, Any], data_name: str
+    ) -> dict[str, Any]:
         """Add generation-specific metadata to the standard.
 
         Args:
@@ -445,13 +541,65 @@ class StandardBuilder:
             "tags": ["data_quality", "auto_generated", f"{data_name}_data"],
         }
 
+        # Add severity config lineage for traceability
+        severity_config_info = self._get_severity_config_lineage()
+        if severity_config_info:
+            generation_metadata["severity_config"] = severity_config_info
+
         # Merge with existing metadata
         existing_metadata = standard.get("metadata", {}) or {}
         standard["metadata"] = {**generation_metadata, **existing_metadata}
 
         return standard
 
-    def add_plausibility_templates(self, standard: Dict[str, Any]) -> Dict[str, Any]:
+    def _get_severity_config_lineage(self) -> dict[str, Any] | None:
+        """Get lineage information for severity config used in generation.
+
+        Returns:
+            Dictionary with config file path, checksum, and timestamp
+        """
+        try:
+            import hashlib
+            import os
+            from pathlib import Path
+
+            # Determine which config file was used
+            env_config = os.environ.get("ADRI_SEVERITY_CONFIG")
+            if env_config and os.path.exists(env_config):
+                config_path = Path(env_config)
+            else:
+                # Default config path
+                config_path = (
+                    Path(__file__).parent.parent.parent
+                    / "config"
+                    / "severity_defaults.yaml"
+                )
+
+            if not config_path.exists():
+                return None
+
+            # Calculate checksum
+            with open(config_path, "rb") as f:
+                content = f.read()
+                checksum = hashlib.sha256(content).hexdigest()
+
+            # Get file modification time
+            mtime = config_path.stat().st_mtime
+            modified_date = datetime.fromtimestamp(mtime).isoformat()
+
+            return {
+                "config_file": str(config_path.resolve()),
+                "config_checksum": f"sha256:{checksum[:16]}",
+                "loaded_at": datetime.now().isoformat(),
+                "modified_date": modified_date,
+                "version": "1.0.0",
+            }
+
+        except Exception:
+            # Non-fatal - just skip lineage if can't be determined
+            return None
+
+    def add_plausibility_templates(self, standard: dict[str, Any]) -> dict[str, Any]:
         """Add plausibility configuration templates to metadata.
 
         Args:
@@ -525,7 +673,7 @@ class StandardBuilder:
 
         return df
 
-    def validate_standard_structure(self, standard: Dict[str, Any]) -> List[str]:
+    def validate_standard_structure(self, standard: dict[str, Any]) -> list[str]:
         """Validate the structure of a generated standard.
 
         Args:
@@ -590,7 +738,7 @@ class StandardBuilder:
 
         return errors
 
-    def get_generation_summary(self, standard: Dict[str, Any]) -> Dict[str, Any]:
+    def get_generation_summary(self, standard: dict[str, Any]) -> dict[str, Any]:
         """Generate a summary of the created standard.
 
         Args:

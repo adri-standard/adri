@@ -5,7 +5,7 @@ This module contains the CompletenessAssessor class that evaluates data complete
 ADRI standards.
 """
 
-from typing import Any, Dict
+from typing import Any
 
 import pandas as pd
 
@@ -23,7 +23,7 @@ class CompletenessAssessor(DimensionAssessor):
         """Get the name of this dimension."""
         return "completeness"
 
-    def assess(self, data: Any, requirements: Dict[str, Any]) -> float:
+    def assess(self, data: Any, requirements: dict[str, Any]) -> float:
         """Assess completeness dimension for the given data.
 
         Args:
@@ -44,6 +44,14 @@ class CompletenessAssessor(DimensionAssessor):
         if not field_requirements:
             return self._assess_completeness_basic(data)
 
+        # Check if using new validation_rules format
+        using_validation_rules = self._has_validation_rules_format(field_requirements)
+
+        if using_validation_rules:
+            # New format: Use validation_rules with severity filtering
+            return self._assess_completeness_with_rules(data, field_requirements)
+
+        # Old format: Use nullable-based assessment
         return self._assess_completeness_with_requirements(data, field_requirements)
 
     def _assess_completeness_basic(self, data: pd.DataFrame) -> float:
@@ -54,7 +62,7 @@ class CompletenessAssessor(DimensionAssessor):
         return float(completeness_rate * 20.0)
 
     def _assess_completeness_with_requirements(
-        self, data: pd.DataFrame, field_requirements: Dict[str, Any]
+        self, data: pd.DataFrame, field_requirements: dict[str, Any]
     ) -> float:
         """Assess completeness using field requirements (focusing on non-nullable fields)."""
         # Identify required (non-nullable) fields
@@ -87,8 +95,8 @@ class CompletenessAssessor(DimensionAssessor):
         return float(completeness_rate * 20.0)
 
     def get_completeness_breakdown(
-        self, data: pd.DataFrame, field_requirements: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, data: pd.DataFrame, field_requirements: dict[str, Any]
+    ) -> dict[str, Any]:
         """Get detailed completeness breakdown for reporting.
 
         Args:
@@ -105,7 +113,7 @@ class CompletenessAssessor(DimensionAssessor):
         ]
 
         required_total = len(data) * len(required_fields) if len(data) > 0 else 0
-        per_field_missing: Dict[str, int] = {}
+        per_field_missing: dict[str, int] = {}
 
         for col in required_fields:
             if col in data.columns:
@@ -142,7 +150,7 @@ class CompletenessAssessor(DimensionAssessor):
         }
 
     def assess_with_requirements(
-        self, data: pd.DataFrame, requirements: Dict[str, Any]
+        self, data: pd.DataFrame, requirements: dict[str, Any]
     ) -> float:
         """Assess completeness with explicit requirements for backward compatibility.
 
@@ -171,7 +179,7 @@ class CompletenessAssessor(DimensionAssessor):
         return self._assess_completeness_basic(data)
 
     def get_validation_failures(
-        self, data: pd.DataFrame, requirements: Dict[str, Any]
+        self, data: pd.DataFrame, requirements: dict[str, Any]
     ) -> list:
         """Extract detailed completeness failures for audit logging.
 
@@ -182,9 +190,8 @@ class CompletenessAssessor(DimensionAssessor):
         Returns:
             List of failure records with details about missing required values
         """
-        from typing import List
 
-        failures: List[Dict[str, Any]] = []
+        failures: list[dict[str, Any]] = []
         field_requirements = requirements.get("field_requirements", {})
 
         if not field_requirements:
@@ -243,3 +250,83 @@ class CompletenessAssessor(DimensionAssessor):
                     )
 
         return failures
+
+    def _has_validation_rules_format(self, field_requirements: dict[str, Any]) -> bool:
+        """Check if field_requirements use new validation_rules format.
+
+        Args:
+            field_requirements: Field requirements dictionary
+
+        Returns:
+            True if using validation_rules format, False for old format
+        """
+        # Check if any field has validation_rules
+        for field_config in field_requirements.values():
+            if isinstance(field_config, dict) and "validation_rules" in field_config:
+                return True
+        return False
+
+    def _assess_completeness_with_rules(
+        self, data: pd.DataFrame, field_requirements: dict[str, Any]
+    ) -> float:
+        """Assess completeness using validation_rules with severity-aware scoring.
+
+        Only CRITICAL severity rules affect the score. WARNING and INFO rules
+        are executed and logged but don't penalize the score.
+
+        Args:
+            data: DataFrame to assess
+            field_requirements: Field requirements with validation_rules
+
+        Returns:
+            Completeness score (0.0 to 20.0)
+        """
+        from src.adri.core.severity import Severity
+        from src.adri.core.validation_rule import ValidationRule
+
+        from ..rules import execute_validation_rule
+
+        total_critical_checks = 0
+        failed_critical_checks = 0
+
+        # Process each field
+        for column in data.columns:
+            if column not in field_requirements:
+                continue
+
+            field_config = field_requirements[column]
+            if not isinstance(field_config, dict):
+                continue
+
+            validation_rules = field_config.get("validation_rules", [])
+            if not validation_rules:
+                continue
+
+            # Filter to only CRITICAL rules for completeness dimension
+            critical_rules = [
+                r
+                for r in validation_rules
+                if isinstance(r, ValidationRule)
+                and r.dimension == "completeness"
+                and r.severity == Severity.CRITICAL
+            ]
+
+            if not critical_rules:
+                continue
+
+            # Execute CRITICAL completeness rules against data
+            series = data[column]  # Include nulls for completeness checking
+            for value in series:
+                for rule in critical_rules:
+                    total_critical_checks += 1
+                    if not execute_validation_rule(value, rule, field_config):
+                        failed_critical_checks += 1
+
+        # Calculate score based on CRITICAL rules only
+        if total_critical_checks == 0:
+            return 20.0  # No CRITICAL rules = perfect score
+
+        success_rate = (
+            total_critical_checks - failed_critical_checks
+        ) / total_critical_checks
+        return success_rate * 20.0

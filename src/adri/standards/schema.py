@@ -6,7 +6,7 @@ for ADRI standard files, providing the foundation for comprehensive validation.
 """
 
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any
 
 
 @dataclass
@@ -26,10 +26,10 @@ class FieldSchema:
 
     name: str
     required: bool
-    field_type: type | Tuple[type, ...]
-    valid_values: Optional[Set[Any]] = None
-    min_value: Optional[float] = None
-    max_value: Optional[float] = None
+    field_type: type | tuple[type, ...]
+    valid_values: set[Any] | None = None
+    min_value: float | None = None
+    max_value: float | None = None
     description: str = ""
 
 
@@ -43,7 +43,7 @@ class StandardSchema:
 
     # Top-level sections
     REQUIRED_SECTIONS = ["standards", "requirements"]
-    OPTIONAL_SECTIONS: List[str] = ["record_identification", "metadata", "dimensions"]
+    OPTIONAL_SECTIONS: list[str] = ["record_identification", "metadata", "dimensions"]
 
     # Standards section required fields
     STANDARDS_REQUIRED_FIELDS = ["id", "name", "version", "description"]
@@ -91,8 +91,42 @@ class StandardSchema:
         "custom_function",
     }
 
+    # Validation rule severity levels (new format)
+    VALID_SEVERITY_LEVELS = {"CRITICAL", "WARNING", "INFO"}
+
+    # Required fields for ValidationRule objects (new format)
+    REQUIRED_VALIDATION_RULE_FIELDS = [
+        "name",
+        "dimension",
+        "severity",
+        "rule_type",
+        "rule_expression",
+    ]
+
+    # Valid rule types per dimension for validation_rules
+    VALID_RULE_TYPES_BY_DIMENSION = {
+        "validity": {
+            "type",
+            "allowed_values",
+            "pattern",
+            "numeric_bounds",
+            "date_bounds",
+            "length_bounds",
+            "custom",
+        },
+        "completeness": {"not_null", "not_empty", "required_fields"},
+        "consistency": {"format", "case", "uniqueness", "cross_field", "primary_key"},
+        "freshness": {"age_check", "recency", "staleness"},
+        "plausibility": {
+            "range_check",
+            "categorical_frequency",
+            "statistical_outlier",
+            "business_rule",
+        },
+    }
+
     @classmethod
-    def get_standards_section_schema(cls) -> Dict[str, FieldSchema]:
+    def get_standards_section_schema(cls) -> dict[str, FieldSchema]:
         """
         Get field schema for the 'standards' section.
 
@@ -151,7 +185,7 @@ class StandardSchema:
         }
 
     @classmethod
-    def get_dimension_requirement_schema(cls) -> Dict[str, FieldSchema]:
+    def get_dimension_requirement_schema(cls) -> dict[str, FieldSchema]:
         """
         Get field schema for dimension requirements.
 
@@ -184,7 +218,7 @@ class StandardSchema:
         }
 
     @classmethod
-    def validate_top_level_structure(cls, standard: Dict[str, Any]) -> List[str]:
+    def validate_top_level_structure(cls, standard: dict[str, Any]) -> list[str]:
         """
         Validate top-level structure of a standard.
 
@@ -214,8 +248,8 @@ class StandardSchema:
 
     @classmethod
     def validate_field_type(
-        cls, value: Any, expected_type: type | Tuple[type, ...], field_path: str
-    ) -> Optional[str]:
+        cls, value: Any, expected_type: type | tuple[type, ...], field_path: str
+    ) -> str | None:
         """
         Validate that a field has the expected type.
 
@@ -246,10 +280,10 @@ class StandardSchema:
     def validate_numeric_range(
         cls,
         value: float | int,
-        min_value: Optional[float],
-        max_value: Optional[float],
+        min_value: float | None,
+        max_value: float | None,
         field_path: str,
-    ) -> Optional[str]:
+    ) -> str | None:
         """
         Validate that a numeric value is within the expected range.
 
@@ -272,8 +306,8 @@ class StandardSchema:
 
     @classmethod
     def validate_value_in_set(
-        cls, value: Any, valid_values: Set[Any], field_path: str
-    ) -> Optional[str]:
+        cls, value: Any, valid_values: set[Any], field_path: str
+    ) -> str | None:
         """
         Validate that a value is in the set of valid values.
 
@@ -293,7 +327,7 @@ class StandardSchema:
         return None
 
     @classmethod
-    def get_dimension_names(cls) -> Set[str]:
+    def get_dimension_names(cls) -> set[str]:
         """
         Get the set of valid dimension names.
 
@@ -316,7 +350,7 @@ class StandardSchema:
         return dimension in cls.VALID_DIMENSIONS
 
     @classmethod
-    def validate_version_string(cls, version: str) -> Optional[str]:
+    def validate_version_string(cls, version: str) -> str | None:
         """
         Validate version string format.
 
@@ -340,7 +374,7 @@ class StandardSchema:
         return None
 
     @classmethod
-    def validate_overall_minimum(cls, overall_minimum: Any) -> Optional[str]:
+    def validate_overall_minimum(cls, overall_minimum: Any) -> str | None:
         """
         Validate overall_minimum field.
 
@@ -361,3 +395,113 @@ class StandardSchema:
             cls.SCORE_MAX,
             "requirements.overall_minimum",
         )
+
+    @classmethod
+    def validate_validation_rule(
+        cls, rule: dict[str, Any], field_path: str
+    ) -> list[str]:
+        """
+        Validate a single validation rule structure (new format).
+
+        Args:
+            rule: Validation rule dictionary
+            field_path: Path to the field containing this rule (for error messages)
+
+        Returns:
+            List of error messages (empty if valid)
+        """
+        errors = []
+
+        # Check required fields
+        for required_field in cls.REQUIRED_VALIDATION_RULE_FIELDS:
+            if required_field not in rule:
+                errors.append(
+                    f"Validation rule at '{field_path}' is missing required field: '{required_field}'"
+                )
+
+        # If missing required fields, return early
+        if errors:
+            return errors
+
+        # Validate severity
+        severity = rule.get("severity")
+        if severity not in cls.VALID_SEVERITY_LEVELS:
+            errors.append(
+                f"Validation rule '{rule.get('name')}' at '{field_path}' has invalid severity: '{severity}'. "
+                f"Must be one of: {', '.join(sorted(cls.VALID_SEVERITY_LEVELS))}"
+            )
+
+        # Validate dimension
+        dimension = rule.get("dimension")
+        if dimension not in cls.VALID_DIMENSIONS:
+            errors.append(
+                f"Validation rule '{rule.get('name')}' at '{field_path}' has invalid dimension: '{dimension}'. "
+                f"Must be one of: {', '.join(sorted(cls.VALID_DIMENSIONS))}"
+            )
+
+        # Validate rule_type for the dimension
+        rule_type = rule.get("rule_type")
+        if dimension in cls.VALID_RULE_TYPES_BY_DIMENSION:
+            valid_types = cls.VALID_RULE_TYPES_BY_DIMENSION[dimension]
+            if rule_type not in valid_types:
+                errors.append(
+                    f"Validation rule '{rule.get('name')}' at '{field_path}' has invalid rule_type '{rule_type}' "
+                    f"for dimension '{dimension}'. Valid types: {', '.join(sorted(valid_types))}"
+                )
+
+        # Validate optional penalty_weight if present
+        if "penalty_weight" in rule:
+            penalty_weight = rule["penalty_weight"]
+            if not isinstance(penalty_weight, (int, float)):
+                errors.append(
+                    f"Validation rule '{rule.get('name')}' at '{field_path}' has invalid penalty_weight type. "
+                    f"Expected number, got {type(penalty_weight).__name__}"
+                )
+            elif penalty_weight < 0:
+                errors.append(
+                    f"Validation rule '{rule.get('name')}' at '{field_path}' has negative penalty_weight: {penalty_weight}"
+                )
+
+        return errors
+
+    @classmethod
+    def validate_validation_rules_list(
+        cls, rules: list[dict[str, Any]], field_path: str
+    ) -> list[str]:
+        """
+        Validate a list of validation rules (new format).
+
+        Args:
+            rules: List of validation rule dictionaries
+            field_path: Path to the field containing these rules (for error messages)
+
+        Returns:
+            List of error messages (empty if valid)
+        """
+        errors = []
+
+        if not isinstance(rules, list):
+            errors.append(
+                f"validation_rules at '{field_path}' must be a list, got {type(rules).__name__}"
+            )
+            return errors
+
+        if len(rules) == 0:
+            errors.append(
+                f"validation_rules at '{field_path}' is empty. At least one rule is required."
+            )
+            return errors
+
+        # Validate each rule
+        for idx, rule in enumerate(rules):
+            if not isinstance(rule, dict):
+                errors.append(
+                    f"Validation rule #{idx + 1} at '{field_path}' must be a dictionary, "
+                    f"got {type(rule).__name__}"
+                )
+                continue
+
+            rule_errors = cls.validate_validation_rule(rule, f"{field_path}[{idx}]")
+            errors.extend(rule_errors)
+
+        return errors

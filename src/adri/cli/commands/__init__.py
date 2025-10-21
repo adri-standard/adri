@@ -13,6 +13,7 @@ from .config import (
     ValidateStandardCommand,
 )
 from .generate_standard import GenerateStandardCommand
+from .guide import GuideCommand
 from .list_assessments import ListAssessmentsCommand
 from .scoring import ScoringExplainCommand, ScoringPresetApplyCommand
 from .setup import SetupCommand
@@ -22,6 +23,7 @@ __all__ = [
     "SetupCommand",
     "AssessCommand",
     "GenerateStandardCommand",
+    "GuideCommand",
     "ListAssessmentsCommand",
     "ViewLogsCommand",
     "ShowConfigCommand",

@@ -43,14 +43,14 @@ from langchain_openai import ChatOpenAI
 @adri_protected(standard="customer_data", data_param="customer_data")
 def process_customers_chain(customer_data):
     """Process customer data through LangChain."""
-    
+
     llm = ChatOpenAI(temperature=0)
-    
+
     prompt = PromptTemplate(
         input_variables=["customers"],
         template="Analyze these customers: {customers}"
     )
-    
+
     chain = LLMChain(llm=llm, prompt=prompt)
     return chain.run(customers=customer_data)
 ```
@@ -75,10 +75,10 @@ from langchain.agents import AgentExecutor, create_openai_functions_agent
 @adri_protected(standard="context_data", data_param="context_data")
 def create_protected_agent(context_data, tools):
     """Create agent with protected context."""
-    
+
     llm = ChatOpenAI(temperature=0)
     agent = create_openai_functions_agent(llm, tools, prompt)
-    
+
     return AgentExecutor(
         agent=agent,
         tools=tools,
@@ -285,10 +285,10 @@ from llama_index import VectorStoreIndex, Document
 @adri_protected(standard="documents", data_param="documents")
 def index_documents(documents):
     """Index documents with data validation."""
-    
+
     # Validate document structure
     validated_docs = [Document(text=doc) for doc in documents]
-    
+
     # Create index
     index = VectorStoreIndex.from_documents(validated_docs)
     return index
@@ -351,7 +351,7 @@ from haystack.document_stores import InMemoryDocumentStore
 @adri_protected(standard="raw_documents", data_param="raw_documents")
 def load_document_store(raw_documents):
     """Load documents into store with validation."""
-    
+
     doc_store = InMemoryDocumentStore()
     doc_store.write_documents(raw_documents)
     return doc_store
@@ -372,7 +372,7 @@ class ProtectedPlugin:
     def analyze_data(self, input_data: str):
         """Analyze data with validation."""
         return perform_analysis(input_data)
-    
+
     @kernel_function(name="transform")
     @adri_protected(standard="raw_data", data_param="raw_data")
     def transform_data(self, raw_data: str):
@@ -472,10 +472,10 @@ def merge_sources(combined_data):
 def integrate_sources():
     data_a = fetch_source_a()
     data_b = fetch_source_b()
-    
+
     validated_a = process_source_a(data_a)
     validated_b = process_source_b(data_b)
-    
+
     combined = {"source_a": validated_a, "source_b": validated_b}
     return merge_sources(combined)
 ```
@@ -565,7 +565,7 @@ standard:
   name: "customer_data"
   version: "1.0.0"
   description: "Customer records from CRM system. Must include valid contact info and purchase history."
-  
+
   fields:
     # ... field definitions
 ```
@@ -591,7 +591,7 @@ Always test your protected functions with bad data:
 ```python
 def test_protection():
     bad_data = {"invalid": "structure"}
-    
+
     try:
         result = protected_function(bad_data)
         assert False, "Should have raised exception"

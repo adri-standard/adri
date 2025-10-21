@@ -37,7 +37,7 @@ class TestStandardsParserIntegration(unittest.TestCase):
         os.chdir(self.temp_dir)
 
         # Set environment variable for standards path
-        os.environ["ADRI_STANDARDS_PATH"] = str(self.standards_dir)
+        os.environ["ADRI_STANDARDS_DIR"] = str(self.standards_dir)
 
     def tearDown(self):
         """Clean up test environment."""
@@ -45,8 +45,8 @@ class TestStandardsParserIntegration(unittest.TestCase):
         shutil.rmtree(self.temp_dir)
 
         # Clean up environment variable
-        if "ADRI_STANDARDS_PATH" in os.environ:
-            del os.environ["ADRI_STANDARDS_PATH"]
+        if "ADRI_STANDARDS_DIR" in os.environ:
+            del os.environ["ADRI_STANDARDS_DIR"]
 
     def test_complete_standard_parsing_workflow(self):
         """Test end-to-end standard parsing workflow with validation."""
@@ -476,23 +476,23 @@ class TestStandardsParserErrorHandling(unittest.TestCase):
         shutil.rmtree(self.temp_dir)
 
         # Clean up environment variable
-        if "ADRI_STANDARDS_PATH" in os.environ:
-            del os.environ["ADRI_STANDARDS_PATH"]
+        if "ADRI_STANDARDS_DIR" in os.environ:
+            del os.environ["ADRI_STANDARDS_DIR"]
 
     def test_missing_environment_variable_error(self):
-        """Test error handling when ADRI_STANDARDS_PATH is not set."""
+        """Test error handling when ADRI_STANDARDS_DIR is not set."""
         # Ensure environment variable is not set
-        if "ADRI_STANDARDS_PATH" in os.environ:
-            del os.environ["ADRI_STANDARDS_PATH"]
+        if "ADRI_STANDARDS_DIR" in os.environ:
+            del os.environ["ADRI_STANDARDS_DIR"]
 
         with self.assertRaises(StandardsDirectoryNotFoundError) as cm:
             StandardsParser()
-        self.assertIn("ADRI_STANDARDS_PATH environment variable must be set", str(cm.exception))
+        self.assertIn("ADRI_STANDARDS_DIR environment variable must be set", str(cm.exception))
 
     def test_nonexistent_standards_directory_error(self):
         """Test error handling when standards directory doesn't exist."""
         nonexistent_path = "/nonexistent/standards/path"
-        os.environ["ADRI_STANDARDS_PATH"] = nonexistent_path
+        os.environ["ADRI_STANDARDS_DIR"] = nonexistent_path
 
         with self.assertRaises(StandardsDirectoryNotFoundError) as cm:
             StandardsParser()
@@ -504,7 +504,7 @@ class TestStandardsParserErrorHandling(unittest.TestCase):
         file_path = Path(self.temp_dir) / "not_a_directory.txt"
         file_path.touch()
 
-        os.environ["ADRI_STANDARDS_PATH"] = str(file_path)
+        os.environ["ADRI_STANDARDS_DIR"] = str(file_path)
 
         with self.assertRaises(StandardsDirectoryNotFoundError) as cm:
             StandardsParser()
@@ -512,7 +512,7 @@ class TestStandardsParserErrorHandling(unittest.TestCase):
 
     def test_standard_not_found_errors(self):
         """Test comprehensive standard not found error handling."""
-        os.environ["ADRI_STANDARDS_PATH"] = str(self.standards_dir)
+        os.environ["ADRI_STANDARDS_DIR"] = str(self.standards_dir)
         parser = StandardsParser()
 
         # Test parsing non-existent standard
@@ -529,7 +529,7 @@ class TestStandardsParserErrorHandling(unittest.TestCase):
 
     def test_invalid_yaml_syntax_errors(self):
         """Test error handling for invalid YAML syntax."""
-        os.environ["ADRI_STANDARDS_PATH"] = str(self.standards_dir)
+        os.environ["ADRI_STANDARDS_DIR"] = str(self.standards_dir)
 
         # Create file with invalid YAML
         invalid_yaml_file = self.standards_dir / "invalid_syntax.yaml"
@@ -544,7 +544,7 @@ class TestStandardsParserErrorHandling(unittest.TestCase):
 
     def test_invalid_standard_structure_errors(self):
         """Test error handling for invalid standard structures."""
-        os.environ["ADRI_STANDARDS_PATH"] = str(self.standards_dir)
+        os.environ["ADRI_STANDARDS_DIR"] = str(self.standards_dir)
         parser = StandardsParser()
 
         # Test missing required sections
@@ -579,7 +579,7 @@ class TestStandardsParserErrorHandling(unittest.TestCase):
 
     def test_non_dict_yaml_content_error(self):
         """Test error handling when YAML content is not a dictionary."""
-        os.environ["ADRI_STANDARDS_PATH"] = str(self.standards_dir)
+        os.environ["ADRI_STANDARDS_DIR"] = str(self.standards_dir)
 
         # Create YAML file with list instead of dict
         list_yaml_file = self.standards_dir / "list_content.yaml"
@@ -598,7 +598,7 @@ class TestStandardsParserErrorHandling(unittest.TestCase):
         if os.name == 'nt':  # Skip on Windows
             self.skipTest("File permission tests not applicable on Windows")
 
-        os.environ["ADRI_STANDARDS_PATH"] = str(self.standards_dir)
+        os.environ["ADRI_STANDARDS_DIR"] = str(self.standards_dir)
 
         # Create standard file and remove read permissions
         restricted_file = self.standards_dir / "restricted.yaml"
@@ -624,7 +624,7 @@ class TestStandardsParserErrorHandling(unittest.TestCase):
 
     def test_validation_file_errors(self):
         """Test validation errors for file operations."""
-        os.environ["ADRI_STANDARDS_PATH"] = str(self.standards_dir)
+        os.environ["ADRI_STANDARDS_DIR"] = str(self.standards_dir)
         parser = StandardsParser()
 
         # Test validation of non-existent file
@@ -643,7 +643,7 @@ class TestStandardsParserErrorHandling(unittest.TestCase):
 
     def test_concurrent_access_errors(self):
         """Test error handling in concurrent access scenarios."""
-        os.environ["ADRI_STANDARDS_PATH"] = str(self.standards_dir)
+        os.environ["ADRI_STANDARDS_DIR"] = str(self.standards_dir)
 
         # Create test standard
         standard_content = {
@@ -701,14 +701,14 @@ class TestStandardsParserPerformance(unittest.TestCase):
         self.standards_dir.mkdir()
         self.original_cwd = os.getcwd()
         os.chdir(self.temp_dir)
-        os.environ["ADRI_STANDARDS_PATH"] = str(self.standards_dir)
+        os.environ["ADRI_STANDARDS_DIR"] = str(self.standards_dir)
 
     def tearDown(self):
         """Clean up test environment."""
         os.chdir(self.original_cwd)
         shutil.rmtree(self.temp_dir)
-        if "ADRI_STANDARDS_PATH" in os.environ:
-            del os.environ["ADRI_STANDARDS_PATH"]
+        if "ADRI_STANDARDS_DIR" in os.environ:
+            del os.environ["ADRI_STANDARDS_DIR"]
 
     @pytest.mark.benchmark(group="standards_parsing")
     def test_standard_parsing_performance(self, benchmark=None):
@@ -1028,14 +1028,14 @@ class TestStandardsParserEdgeCases(unittest.TestCase):
         self.standards_dir.mkdir()
         self.original_cwd = os.getcwd()
         os.chdir(self.temp_dir)
-        os.environ["ADRI_STANDARDS_PATH"] = str(self.standards_dir)
+        os.environ["ADRI_STANDARDS_DIR"] = str(self.standards_dir)
 
     def tearDown(self):
         """Clean up test environment."""
         os.chdir(self.original_cwd)
         shutil.rmtree(self.temp_dir)
-        if "ADRI_STANDARDS_PATH" in os.environ:
-            del os.environ["ADRI_STANDARDS_PATH"]
+        if "ADRI_STANDARDS_DIR" in os.environ:
+            del os.environ["ADRI_STANDARDS_DIR"]
 
     def test_yaml_with_special_characters(self):
         """Test YAML parsing with special characters and Unicode."""

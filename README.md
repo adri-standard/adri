@@ -172,6 +172,7 @@ No manual configuration. ADRI learns from your data:
 ### 🔧 CLI Tools
 
 ```bash
+adri guide                                      # Interactive walkthrough (recommended for first-time users)
 adri setup                                      # Initialize ADRI
 adri generate-standard data.json                # Generate standard
 adri assess data.csv --standard my_standard     # Assess data quality
@@ -195,8 +196,8 @@ Developer-friendly insights during development:
 def process_api_data(response):
     return transform(response)
 ```
-**What it protects**: API response data structure  
-**Sample data**: [examples/data/api_response.json](examples/data/api_response.json)  
+**What it protects**: API response data structure
+**Sample data**: [examples/data/api_response.json](examples/data/api_response.json)
 **Use when**: Validating third-party API responses before processing
 
 ### Multi-Agent Workflows
@@ -205,8 +206,8 @@ def process_api_data(response):
 def crew_task(context):
     return crew.kickoff(context)
 ```
-**What it protects**: Agent communication context  
-**Sample data**: [examples/data/crew_context.json](examples/data/crew_context.json)  
+**What it protects**: Agent communication context
+**Sample data**: [examples/data/crew_context.json](examples/data/crew_context.json)
 **Use when**: Coordinating multi-agent workflows (CrewAI, AutoGen, custom)
 
 ### RAG Pipelines
@@ -215,8 +216,8 @@ def crew_task(context):
 def index_documents(docs):
     return index.insert(docs)
 ```
-**What it protects**: Document structure before indexing  
-**Sample data**: [examples/data/rag_documents.json](examples/data/rag_documents.json)  
+**What it protects**: Document structure before indexing
+**Sample data**: [examples/data/rag_documents.json](examples/data/rag_documents.json)
 **Use when**: Validating documents before vector store indexing (LlamaIndex, Haystack)
 
 > **Note**: ADRI validates data structure, not content. For RAG, it ensures each document has required fields (id, text, metadata) and correct types, preventing indexing failures from malformed data.
@@ -229,7 +230,7 @@ def index_documents(docs):
 
 ### Business Domains
 - 🎧 **[Customer Service](ADRI/standards/domains/customer_service_standard.yaml)** - Support tickets, interactions
-- 🛒 **[E-commerce Orders](ADRI/standards/domains/ecommerce_order_standard.yaml)** - Order processing, fulfillment  
+- 🛒 **[E-commerce Orders](ADRI/standards/domains/ecommerce_order_standard.yaml)** - Order processing, fulfillment
 - 💰 **[Financial Transactions](ADRI/standards/domains/financial_transaction_standard.yaml)** - Payments, accounting
 - 🏥 **[Healthcare Patients](ADRI/standards/domains/healthcare_patient_standard.yaml)** - EHR systems, patient records
 - 📊 **[Marketing Campaigns](ADRI/standards/domains/marketing_campaign_standard.yaml)** - Campaign tracking, ROI
@@ -258,7 +259,7 @@ def index_documents(docs):
 
 **Why contribute?**
 - 🎯 Get featured in the catalog
-- 💬 Connect with others in your domain  
+- 💬 Connect with others in your domain
 - 🚀 Help the community solve similar problems
 
 [Start Contributing](CONTRIBUTING.md) | [Discuss Ideas](https://github.com/adri-standard/adri/discussions)
@@ -306,7 +307,7 @@ Apache 2.0 License. See [LICENSE](LICENSE) for details.
 
 ### Get Help
 - 💬 **[GitHub Discussions](https://github.com/adri-standard/adri/discussions)** - Ask questions, share use cases
-- 🐛 **[GitHub Issues](https://github.com/adri-standard/adri/issues)** - Report bugs, request features  
+- 🐛 **[GitHub Issues](https://github.com/adri-standard/adri/issues)** - Report bugs, request features
 - 📚 **[Documentation](docs/)** - Comprehensive guides and tutorials
 
 ### Connect with the Team

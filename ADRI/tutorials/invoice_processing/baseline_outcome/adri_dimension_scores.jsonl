@@ -1,0 +1,5 @@
+{"assessment_id": "adri_20251020_135422_05640e", "dimension_name": "validity", "dimension_score": 20.0, "dimension_passed": true, "issues_found": 0, "details": {"score": 20.0, "max_score": 20, "percentage": 100.0}, "write_seq": 1}
+{"assessment_id": "adri_20251020_135422_05640e", "dimension_name": "completeness", "dimension_score": 20.0, "dimension_passed": true, "issues_found": 0, "details": {"score": 20.0, "max_score": 20, "percentage": 100.0}, "write_seq": 1}
+{"assessment_id": "adri_20251020_135422_05640e", "dimension_name": "consistency", "dimension_score": 20.0, "dimension_passed": true, "issues_found": 2, "details": {"score": 20.0, "max_score": 20, "percentage": 100.0}, "write_seq": 1}
+{"assessment_id": "adri_20251020_135422_05640e", "dimension_name": "freshness", "dimension_score": 20.0, "dimension_passed": true, "issues_found": 0, "details": {"score": 20.0, "max_score": 20, "percentage": 100.0}, "write_seq": 1}
+{"assessment_id": "adri_20251020_135422_05640e", "dimension_name": "plausibility", "dimension_score": 20.0, "dimension_passed": true, "issues_found": 0, "details": {"score": 20.0, "max_score": 20, "percentage": 100.0}, "write_seq": 1}

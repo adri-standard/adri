@@ -644,5 +644,117 @@ class TestNewConstraintValidation(unittest.TestCase):
         self.assertFalse(validate_field("event_date", "2025-01-01", field_requirements)["passed"])
 
 
+class TestExecuteValidationRule(unittest.TestCase):
+    """Test execute_validation_rule dispatcher function."""
+
+    def test_execute_validation_rule_not_null_pass(self):
+        """Test not_null rule execution when value is present."""
+        from src.adri.core.validation_rule import ValidationRule
+        from src.adri.core.severity import Severity
+        from src.adri.validator.rules import execute_validation_rule
+
+        rule = ValidationRule(
+            name="Field required",
+            dimension="completeness",
+            severity=Severity.CRITICAL,
+            rule_type="not_null",
+            rule_expression="IS_NOT_NULL"
+        )
+
+        assert execute_validation_rule("test value", rule) is True
+        assert execute_validation_rule("", rule) is False
+        assert execute_validation_rule(None, rule) is False
+
+    def test_execute_validation_rule_format_lowercase(self):
+        """Test format rule for lowercase checking."""
+        from src.adri.core.validation_rule import ValidationRule
+        from src.adri.core.severity import Severity
+        from src.adri.validator.rules import execute_validation_rule
+
+        rule = ValidationRule(
+            name="Lowercase format",
+            dimension="consistency",
+            severity=Severity.WARNING,
+            rule_type="format",
+            rule_expression="IS_LOWERCASE"
+        )
+
+        assert execute_validation_rule("lowercase", rule) is True
+        assert execute_validation_rule("UPPERCASE", rule) is False
+        assert execute_validation_rule("MixedCase", rule) is False
+
+    def test_execute_validation_rule_type_string(self):
+        """Test type rule for string validation."""
+        from src.adri.core.validation_rule import ValidationRule
+        from src.adri.core.severity import Severity
+        from src.adri.validator.rules import execute_validation_rule
+
+        rule = ValidationRule(
+            name="String type",
+            dimension="validity",
+            severity=Severity.CRITICAL,
+            rule_type="type",
+            rule_expression="IS_STRING"
+        )
+
+        assert execute_validation_rule("test", rule) is True
+        assert execute_validation_rule(123, rule) is False
+
+
+class TestGetRuleTypeForFieldConstraint(unittest.TestCase):
+    """Test constraint name to rule_type mapping."""
+
+    def test_get_rule_type_nullable(self):
+        """Test mapping nullable to not_null."""
+        from src.adri.validator.rules import get_rule_type_for_field_constraint
+
+        assert get_rule_type_for_field_constraint("nullable") == "not_null"
+
+    def test_get_rule_type_type(self):
+        """Test mapping type to type."""
+        from src.adri.validator.rules import get_rule_type_for_field_constraint
+
+        assert get_rule_type_for_field_constraint("type") == "type"
+
+    def test_get_rule_type_allowed_values(self):
+        """Test mapping allowed_values to allowed_values."""
+        from src.adri.validator.rules import get_rule_type_for_field_constraint
+
+        assert get_rule_type_for_field_constraint("allowed_values") == "allowed_values"
+
+    def test_get_rule_type_pattern(self):
+        """Test mapping pattern to pattern."""
+        from src.adri.validator.rules import get_rule_type_for_field_constraint
+
+        assert get_rule_type_for_field_constraint("pattern") == "pattern"
+
+    def test_get_rule_type_numeric_bounds(self):
+        """Test mapping min/max_value to numeric_bounds."""
+        from src.adri.validator.rules import get_rule_type_for_field_constraint
+
+        assert get_rule_type_for_field_constraint("min_value") == "numeric_bounds"
+        assert get_rule_type_for_field_constraint("max_value") == "numeric_bounds"
+
+    def test_get_rule_type_length_bounds(self):
+        """Test mapping min/max_length to length_bounds."""
+        from src.adri.validator.rules import get_rule_type_for_field_constraint
+
+        assert get_rule_type_for_field_constraint("min_length") == "length_bounds"
+        assert get_rule_type_for_field_constraint("max_length") == "length_bounds"
+
+    def test_get_rule_type_date_bounds(self):
+        """Test mapping date constraints to date_bounds."""
+        from src.adri.validator.rules import get_rule_type_for_field_constraint
+
+        assert get_rule_type_for_field_constraint("after_date") == "date_bounds"
+        assert get_rule_type_for_field_constraint("before_date") == "date_bounds"
+
+    def test_get_rule_type_unknown(self):
+        """Test unknown constraint returns custom."""
+        from src.adri.validator.rules import get_rule_type_for_field_constraint
+
+        assert get_rule_type_for_field_constraint("unknown_constraint") == "custom"
+
+
 if __name__ == '__main__':
     unittest.main()

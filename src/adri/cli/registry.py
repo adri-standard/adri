@@ -4,13 +4,12 @@ This module provides command registration and discovery functionality
 for the new modular CLI architecture.
 """
 
-from typing import Dict
-
 from ..core.protocols import Command
 from ..core.registry import get_global_registry
 from .commands import (
     AssessCommand,
     GenerateStandardCommand,
+    GuideCommand,
     ListAssessmentsCommand,
     ListStandardsCommand,
     ScoringExplainCommand,
@@ -33,6 +32,7 @@ def register_all_commands() -> None:
         ("setup", SetupCommand),
         ("assess", AssessCommand),
         ("generate-standard", GenerateStandardCommand),
+        ("guide", GuideCommand),
         # Information commands
         ("list-assessments", ListAssessmentsCommand),
         ("list-standards", ListStandardsCommand),
@@ -53,7 +53,7 @@ def register_all_commands() -> None:
             registry.commands.register(command_name, command_class)
 
 
-def create_command_registry() -> Dict[str, Command]:
+def create_command_registry() -> dict[str, Command]:
     """Create a dictionary of all registered commands.
 
     Returns:

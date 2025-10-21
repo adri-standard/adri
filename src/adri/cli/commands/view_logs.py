@@ -8,7 +8,7 @@ import json
 import sys
 import time
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
 import click
 
@@ -38,7 +38,7 @@ class ViewLogsCommand(Command):
         """Get command description."""
         return "View audit logs from CSV files"
 
-    def execute(self, args: Dict[str, Any]) -> int:
+    def execute(self, args: dict[str, Any]) -> int:
         """Execute the view-logs command.
 
         Args:
@@ -154,7 +154,7 @@ class ViewLogsCommand(Command):
         total_failed = 0
 
         try:
-            with open(failed_val_path, "r", encoding="utf-8") as f:
+            with open(failed_val_path, encoding="utf-8") as f:
                 for line in f:
                     line = line.strip()
                     if not line:
@@ -183,13 +183,13 @@ class ViewLogsCommand(Command):
 
     def _parse_audit_log_entries(
         self, main_log_file: Path, today: bool
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Parse audit log entries from JSONL file."""
         from datetime import date, datetime
 
         log_entries = []
 
-        with open(main_log_file, "r", encoding="utf-8") as f:
+        with open(main_log_file, encoding="utf-8") as f:
             for line in f:
                 line = line.strip()
                 if not line:
@@ -239,8 +239,8 @@ class ViewLogsCommand(Command):
         return log_entries
 
     def _format_log_table_data(
-        self, log_entries: List[Dict[str, Any]], audit_logs_dir: Path
-    ) -> List[Dict[str, Any]]:
+        self, log_entries: list[dict[str, Any]], audit_logs_dir: Path
+    ) -> list[dict[str, Any]]:
         """Format log entries for table display."""
         table_data = []
 
@@ -326,8 +326,8 @@ class ViewLogsCommand(Command):
 
     def _display_audit_logs_table(
         self,
-        table_data: List[Dict[str, Any]],
-        log_entries: List[Dict[str, Any]],
+        table_data: list[dict[str, Any]],
+        log_entries: list[dict[str, Any]],
         audit_logs_dir: Path,
         verbose: bool,
     ) -> None:
@@ -401,7 +401,7 @@ class ViewLogsCommand(Command):
         failed_val_count = 0
         if failed_val_path.exists():
             try:
-                with open(failed_val_path, "r", encoding="utf-8") as f:
+                with open(failed_val_path, encoding="utf-8") as f:
                     failed_val_count = sum(1 for _ in f)
             except Exception:
                 pass
@@ -420,7 +420,7 @@ class ViewLogsCommand(Command):
             click.echo()
             click.echo("🔍 Recent Validation Failures:")
             try:
-                with open(failed_val_path, "r", encoding="utf-8") as f:
+                with open(failed_val_path, encoding="utf-8") as f:
                     lines = f.readlines()
                     # Show last 5 failures
                     for line in lines[-5:]:

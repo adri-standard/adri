@@ -375,7 +375,7 @@ standard:
   name: "standard_name"
   version: "1.0.0"
   description: "Description"
-  
+
   # Field definitions
   fields:
     field_name:
@@ -387,7 +387,7 @@ standard:
       max_length: integer (optional)
       pattern: "regex" (optional)
       max_age_days: integer (optional)
-  
+
   # Cross-field rules
   rules:
     - name: "Rule name"
@@ -416,14 +416,14 @@ Bundled Standards:
 ```python
 class StandardCache:
     """LRU cache for loaded standards"""
-    
+
     def __init__(self, max_size: int = 100):
         self._cache = {}
         self._max_size = max_size
-    
+
     def get(self, key: str) -> Optional[Standard]:
         return self._cache.get(key)
-    
+
     def set(self, key: str, standard: Standard):
         if len(self._cache) >= self._max_size:
             self._evict_oldest()
@@ -441,7 +441,7 @@ from adri.validator.core.assessor import DimensionAssessor
 
 class CustomDimensionAssessor(DimensionAssessor):
     """Custom validation dimension"""
-    
+
     def assess(self, data, standard) -> float:
         # Your validation logic
         score = calculate_score(data, standard)
@@ -460,7 +460,7 @@ from adri.validator.standards.loader import StandardLoader
 
 class CustomStandardLoader(StandardLoader):
     """Load standards from custom source"""
-    
+
     def load(self, standard_name: str) -> Standard:
         # Load from database, API, etc.
         return standard
@@ -478,7 +478,7 @@ from adri.validator.core.report_generator import ReportGenerator
 
 class CustomReportGenerator(ReportGenerator):
     """Generate custom format reports"""
-    
+
     def generate(self, assessment) -> str:
         # Your format logic
         return formatted_report

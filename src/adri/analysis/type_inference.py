@@ -5,7 +5,7 @@ Data type inference and validation rule generation.
 Migrated and updated for the new src/ layout architecture.
 """
 
-from typing import Any, Dict, Optional
+from typing import Any
 
 import pandas as pd
 
@@ -44,7 +44,6 @@ class TypeInference:
 
     def __init__(self):
         """Initialize the type inference engine."""
-        pass
 
     def infer_types(self, data: pd.DataFrame) -> "InferenceResult":
         """
@@ -143,7 +142,7 @@ class TypeInference:
 
         return InferenceResult(field_types, confidence_scores)
 
-    def _detect_specialized_type(self, series: pd.Series) -> Optional[str]:
+    def _detect_specialized_type(self, series: pd.Series) -> str | None:
         """Detect specialized types for string data."""
         if len(series) == 0:
             return None
@@ -283,7 +282,7 @@ class TypeInference:
 
     def infer_field_constraints(
         self, series: pd.Series, field_type: str
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Infer appropriate constraints for a field.
 
@@ -314,7 +313,7 @@ class TypeInference:
 
         return constraints
 
-    def _infer_numeric_constraints(self, series: pd.Series) -> Dict[str, Any]:
+    def _infer_numeric_constraints(self, series: pd.Series) -> dict[str, Any]:
         """Infer constraints for numeric fields."""
         constraints = {}
 
@@ -328,7 +327,7 @@ class TypeInference:
 
         return constraints
 
-    def _infer_string_constraints(self, series: pd.Series) -> Dict[str, Any]:
+    def _infer_string_constraints(self, series: pd.Series) -> dict[str, Any]:
         """Infer constraints for string fields."""
         constraints = {}
         string_series = series.astype(str)
@@ -350,7 +349,7 @@ class TypeInference:
 
         return constraints
 
-    def _detect_string_pattern(self, series: pd.Series) -> Optional[str]:
+    def _detect_string_pattern(self, series: pd.Series) -> str | None:
         """Detect common string patterns."""
         sample_values = series.head(100)
 
@@ -374,7 +373,7 @@ class TypeInference:
 
         return None
 
-    def _infer_date_constraints(self, series: pd.Series) -> Dict[str, Any]:
+    def _infer_date_constraints(self, series: pd.Series) -> dict[str, Any]:
         """Infer constraints for date/datetime fields."""
         constraints = {}
 
@@ -389,7 +388,7 @@ class TypeInference:
 
         return constraints
 
-    def infer_validation_rules(self, data: pd.DataFrame) -> Dict[str, Dict[str, Any]]:
+    def infer_validation_rules(self, data: pd.DataFrame) -> dict[str, dict[str, Any]]:
         """
         Infer complete validation rules for all fields in a DataFrame.
 
@@ -411,7 +410,7 @@ class TypeInference:
 
 
 # Convenience functions
-def infer_types_from_dataframe(data: pd.DataFrame) -> Dict[str, str]:
+def infer_types_from_dataframe(data: pd.DataFrame) -> dict[str, str]:
     """
     Infer ADRI types for all columns in a DataFrame.
 
@@ -425,7 +424,7 @@ def infer_types_from_dataframe(data: pd.DataFrame) -> Dict[str, str]:
     return {col: inference.infer_field_type(data[col]) for col in data.columns}
 
 
-def infer_validation_rules_from_data(data: pd.DataFrame) -> Dict[str, Dict[str, Any]]:
+def infer_validation_rules_from_data(data: pd.DataFrame) -> dict[str, dict[str, Any]]:
     """
     Infer complete validation rules from a DataFrame.
 
@@ -439,7 +438,7 @@ def infer_validation_rules_from_data(data: pd.DataFrame) -> Dict[str, Dict[str, 
     return inference.infer_validation_rules(data)
 
 
-def check_allowed_values(series: pd.Series, max_unique: int = 10) -> Optional[list]:
+def check_allowed_values(series: pd.Series, max_unique: int = 10) -> list | None:
     """
     Check if a series has a small set of allowed values.
 

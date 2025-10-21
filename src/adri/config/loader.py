@@ -7,7 +7,7 @@ Removes complex configuration management while preserving essential functionalit
 
 import os
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any
 
 import yaml
 
@@ -22,9 +22,8 @@ class ConfigurationLoader:
 
     def __init__(self):
         """Initialize the configuration loader."""
-        pass
 
-    def create_default_config(self, project_name: str) -> Dict[str, Any]:
+    def create_default_config(self, project_name: str) -> dict[str, Any]:
         """
         Create a default ADRI configuration.
 
@@ -89,7 +88,7 @@ class ConfigurationLoader:
             }
         }
 
-    def validate_config(self, config: Dict[str, Any]) -> bool:
+    def validate_config(self, config: dict[str, Any]) -> bool:
         """
         Validate basic configuration structure.
 
@@ -139,7 +138,7 @@ class ConfigurationLoader:
             return False
 
     def save_config(
-        self, config: Dict[str, Any], config_path: str = "adri-config.yaml"
+        self, config: dict[str, Any], config_path: str = "adri-config.yaml"
     ) -> None:
         """
         Save configuration to YAML file.
@@ -153,7 +152,7 @@ class ConfigurationLoader:
 
     def load_config(
         self, config_path: str = "adri-config.yaml"
-    ) -> Optional[Dict[str, Any]]:
+    ) -> dict[str, Any] | None:
         """
         Load configuration from YAML file.
 
@@ -167,13 +166,13 @@ class ConfigurationLoader:
             return None
 
         try:
-            with open(config_path, "r", encoding="utf-8") as f:
+            with open(config_path, encoding="utf-8") as f:
                 config_data = yaml.safe_load(f)
                 return config_data if isinstance(config_data, dict) else None
-        except (yaml.YAMLError, IOError):
+        except (yaml.YAMLError, OSError):
             return None
 
-    def find_config_file(self, start_path: str = ".") -> Optional[str]:
+    def find_config_file(self, start_path: str = ".") -> str | None:
         """
         Find ADRI config file by searching up the directory tree.
 
@@ -211,8 +210,8 @@ class ConfigurationLoader:
         return None
 
     def get_active_config(
-        self, config_path: Optional[str] = None
-    ) -> Optional[Dict[str, Any]]:
+        self, config_path: str | None = None
+    ) -> dict[str, Any] | None:
         """
         Get the active configuration with environment variable precedence.
 
@@ -263,7 +262,7 @@ class ConfigurationLoader:
         return None
 
     def _get_effective_environment(
-        self, config: Optional[Dict[str, Any]], environment: Optional[str] = None
+        self, config: dict[str, Any] | None, environment: str | None = None
     ) -> str:
         """
         Get the effective environment with ADRI_ENV override support.
@@ -298,8 +297,8 @@ class ConfigurationLoader:
         return "development"
 
     def get_environment_config(
-        self, config: Dict[str, Any], environment: Optional[str] = None
-    ) -> Dict[str, Any]:
+        self, config: dict[str, Any], environment: str | None = None
+    ) -> dict[str, Any]:
         """
         Get configuration for a specific environment with ADRI_ENV override.
 
@@ -324,9 +323,11 @@ class ConfigurationLoader:
         requested_env = environment  # Store original request
         environment = self._get_effective_environment(config, environment)
 
-        # If effective environment doesn't exist, only fall back if it came from ADRI_ENV
+        # If effective environment doesn't exist, only fall back if it came from
+        # ADRI_ENV
         if environment not in adri_config["environments"]:
-            # Only fall back to default if the invalid environment came from ADRI_ENV (not explicit request)
+            # Only fall back to default if the invalid environment came from ADRI_ENV
+            # (not explicit request)
             if from_adri_env and not requested_env:
                 default_env = adri_config.get("default_environment", "development")
                 if default_env in adri_config["environments"]:
@@ -346,9 +347,7 @@ class ConfigurationLoader:
 
         return env_config
 
-    def get_protection_config(
-        self, environment: Optional[str] = None
-    ) -> Dict[str, Any]:
+    def get_protection_config(self, environment: str | None = None) -> dict[str, Any]:
         """
         Get protection configuration with environment-specific overrides.
 
@@ -388,7 +387,7 @@ class ConfigurationLoader:
         return protection_config
 
     def resolve_standard_path(
-        self, standard_name: str, environment: Optional[str] = None
+        self, standard_name: str, environment: str | None = None
     ) -> str:
         """
         Resolve a standard name to full absolute path with ADRI_STANDARDS_DIR override.
@@ -466,7 +465,7 @@ class ConfigurationLoader:
             standard_path = base_dir / "ADRI" / env_dir / "standards" / standard_name
             return str(standard_path)
 
-    def create_directory_structure(self, config: Dict[str, Any]) -> None:
+    def create_directory_structure(self, config: dict[str, Any]) -> None:
         """
         Create the directory structure based on configuration.
 
@@ -482,7 +481,7 @@ class ConfigurationLoader:
             for path_type, path_value in paths.items():
                 Path(path_value).mkdir(parents=True, exist_ok=True)
 
-    def get_assessments_dir(self, environment: Optional[str] = None) -> str:
+    def get_assessments_dir(self, environment: str | None = None) -> str:
         """
         Get the assessments directory for an environment with ADRI_ENV override.
 
@@ -508,7 +507,7 @@ class ConfigurationLoader:
             env_dir = "dev" if environment != "production" else "prod"
             return f"./ADRI/{env_dir}/assessments"
 
-    def get_training_data_dir(self, environment: Optional[str] = None) -> str:
+    def get_training_data_dir(self, environment: str | None = None) -> str:
         """
         Get the training data directory for an environment with ADRI_ENV override.
 
@@ -536,7 +535,7 @@ class ConfigurationLoader:
 
 
 # Convenience functions for simplified usage
-def load_adri_config(config_path: Optional[str] = None) -> Optional[Dict[str, Any]]:
+def load_adri_config(config_path: str | None = None) -> dict[str, Any] | None:
     """
     Load ADRI configuration using simplified interface.
 
@@ -550,7 +549,7 @@ def load_adri_config(config_path: Optional[str] = None) -> Optional[Dict[str, An
     return loader.get_active_config(config_path)
 
 
-def get_protection_settings(environment: Optional[str] = None) -> Dict[str, Any]:
+def get_protection_settings(environment: str | None = None) -> dict[str, Any]:
     """
     Get protection settings for an environment.
 
@@ -564,7 +563,7 @@ def get_protection_settings(environment: Optional[str] = None) -> Dict[str, Any]
     return loader.get_protection_config(environment)
 
 
-def resolve_standard_file(standard_name: str, environment: Optional[str] = None) -> str:
+def resolve_standard_file(standard_name: str, environment: str | None = None) -> str:
     """
     Resolve standard name to file path.
 

@@ -297,14 +297,14 @@ The ADRI Standards Library is a community-driven catalog of reusable data qualit
        @adri_protected(standard="your_standard_name")
        def process_data(data):
            return data
-       
+
        # Create sample data matching all required fields
        data = pd.DataFrame([{
            "field1": "value1",
            "field2": 123,
            # ... all required fields
        }])
-       
+
        result = process_data(data)
        assert result is not None
    ```

@@ -9,14 +9,17 @@ import csv
 import json
 import os
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
 # Standard pandas import for data operations
 import pandas as pd
 import yaml
 
+# Import for standard validation (avoid circular import by importing here)
+from ..standards.exceptions import SchemaValidationError
 
-def load_data(file_path: str) -> List[Dict[str, Any]]:
+
+def load_data(file_path: str) -> list[dict[str, Any]]:
     """
     Load data from file (CSV, JSON, or Parquet).
 
@@ -45,7 +48,7 @@ def load_data(file_path: str) -> List[Dict[str, Any]]:
         raise ValueError(f"Unsupported file format: {file_path_obj.suffix}")
 
 
-def load_csv(file_path: Path) -> List[Dict[str, Any]]:
+def load_csv(file_path: Path) -> list[dict[str, Any]]:
     """
     Load data from CSV file.
 
@@ -59,7 +62,7 @@ def load_csv(file_path: Path) -> List[Dict[str, Any]]:
         ValueError: If CSV file is empty or invalid
     """
     data = []
-    with open(file_path, "r", encoding="utf-8") as f:
+    with open(file_path, encoding="utf-8") as f:
         reader = csv.DictReader(f)
         for row in reader:
             data.append(dict(row))
@@ -67,7 +70,7 @@ def load_csv(file_path: Path) -> List[Dict[str, Any]]:
     # Check if no data was loaded (empty file)
     if not data:
         # Re-read to check if file is truly empty
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, encoding="utf-8") as f:
             content = f.read()
             if not content.strip():
                 raise ValueError("CSV file is empty")
@@ -75,7 +78,7 @@ def load_csv(file_path: Path) -> List[Dict[str, Any]]:
     return data
 
 
-def load_json(file_path: Path) -> List[Dict[str, Any]]:
+def load_json(file_path: Path) -> list[dict[str, Any]]:
     """
     Load data from JSON file.
 
@@ -88,7 +91,7 @@ def load_json(file_path: Path) -> List[Dict[str, Any]]:
     Raises:
         ValueError: If JSON file doesn't contain a list of objects
     """
-    with open(file_path, "r", encoding="utf-8") as f:
+    with open(file_path, encoding="utf-8") as f:
         data = json.load(f)
 
     # Ensure data is a list of dictionaries
@@ -98,7 +101,7 @@ def load_json(file_path: Path) -> List[Dict[str, Any]]:
     return data
 
 
-def load_parquet(file_path: Path) -> List[Dict[str, Any]]:
+def load_parquet(file_path: Path) -> list[dict[str, Any]]:
     """
     Load data from Parquet file.
 
@@ -127,7 +130,7 @@ def load_parquet(file_path: Path) -> List[Dict[str, Any]]:
 
         # Convert DataFrame to list of dictionaries
         # Use .to_dict('records') to convert each row to a dictionary
-        data: List[Dict[str, Any]] = df.to_dict("records")
+        data: list[dict[str, Any]] = df.to_dict("records")
 
         return data
 
@@ -138,34 +141,37 @@ def load_parquet(file_path: Path) -> List[Dict[str, Any]]:
             raise
 
 
-def load_standard(file_path: str, validate: bool = True) -> Dict[str, Any]:
+def load_standard(file_path: str, validate: bool = True) -> dict[str, Any]:
     """
     Load YAML standard from file with optional validation.
+
+    Parses validation_rules from field_requirements and converts them to
+    ValidationRule objects for use by dimension assessors.
 
     Args:
         file_path: Path to YAML standard file
         validate: Whether to validate the standard schema (default: True)
 
     Returns:
-        Standard dictionary
+        Standard dictionary with parsed ValidationRule objects
 
     Raises:
         FileNotFoundError: If file doesn't exist
         yaml.YAMLError: If YAML is invalid
         Exception: If standard validation fails (when validate=True)
     """
+    # Import validator inside function to avoid circular import at module load time
+    from ..standards.validator import get_validator
+
     if not os.path.exists(file_path):
         raise FileNotFoundError(f"Standard file not found: {file_path}")
 
     try:
-        with open(file_path, "r", encoding="utf-8") as f:
-            yaml_content: Dict[Any, Any] = yaml.safe_load(f)
+        with open(file_path, encoding="utf-8") as f:
+            yaml_content: dict[Any, Any] = yaml.safe_load(f)
 
         # Validate standard if requested
         if validate:
-            from adri.standards.exceptions import SchemaValidationError
-            from adri.standards.validator import get_validator
-
             validator = get_validator()
             result = validator.validate_standard(
                 yaml_content, file_path, use_cache=True
@@ -177,6 +183,9 @@ def load_standard(file_path: str, validate: bool = True) -> Dict[str, Any]:
                     validation_result=result,
                     standard_path=file_path,
                 )
+
+        # Parse validation_rules into ValidationRule objects
+        yaml_content = _parse_validation_rules(yaml_content)
 
         return yaml_content
 
@@ -217,7 +226,7 @@ def detect_format(file_path: str) -> str:
         return "unknown"
 
 
-def get_data_info(file_path: str) -> Dict[str, Any]:
+def get_data_info(file_path: str) -> dict[str, Any]:
     """
     Get basic information about a data file without fully loading it.
 
@@ -255,9 +264,9 @@ def get_data_info(file_path: str) -> Dict[str, Any]:
     return info
 
 
-def _get_csv_info(file_path: Path) -> Dict[str, Any]:
+def _get_csv_info(file_path: Path) -> dict[str, Any]:
     """Get information about a CSV file."""
-    with open(file_path, "r", encoding="utf-8") as f:
+    with open(file_path, encoding="utf-8") as f:
         # Get header
         first_line = f.readline()
         if first_line:
@@ -276,9 +285,9 @@ def _get_csv_info(file_path: Path) -> Dict[str, Any]:
     return {"columns": 0, "estimated_rows": 0}
 
 
-def _get_json_info(file_path: Path) -> Dict[str, Any]:
+def _get_json_info(file_path: Path) -> dict[str, Any]:
     """Get information about a JSON file."""
-    with open(file_path, "r", encoding="utf-8") as f:
+    with open(file_path, encoding="utf-8") as f:
         data = json.load(f)
 
         if isinstance(data, list):
@@ -296,13 +305,10 @@ def _get_json_info(file_path: Path) -> Dict[str, Any]:
                 "column_names": column_names,
             }
         else:
-            return {
-                "type": type(data).__name__,
-                "is_list": False,
-            }
+            return {"type": type(data).__name__, "is_list": False}
 
 
-def _get_parquet_info(file_path: Path) -> Dict[str, Any]:
+def _get_parquet_info(file_path: Path) -> dict[str, Any]:
     """Get information about a Parquet file."""
     if pd is None:
         return {"error": "pandas not available"}
@@ -317,3 +323,79 @@ def _get_parquet_info(file_path: Path) -> Dict[str, Any]:
         }
     except Exception as e:
         return {"error": str(e)}
+
+
+def _parse_validation_rules(standard: dict[str, Any]) -> dict[str, Any]:
+    """
+    Parse validation_rules from field_requirements into ValidationRule objects.
+
+    Traverses the standard dictionary and converts any validation_rules lists
+    into ValidationRule objects for easier use by dimension assessors.
+
+    Args:
+        standard: Standard dictionary loaded from YAML
+
+    Returns:
+        Modified standard with ValidationRule objects
+
+    Note:
+        This modifies field_requirements in place, converting:
+        - Old format: field_requirements with simple constraints
+        - New format: field_requirements with validation_rules lists
+    """
+    from ..core.validation_rule import ValidationRule
+
+    # Check if standard has requirements section
+    if "requirements" not in standard:
+        return standard
+
+    requirements = standard["requirements"]
+
+    # Check if dimension_requirements exist
+    if "dimension_requirements" not in requirements:
+        return standard
+
+    dimension_requirements = requirements["dimension_requirements"]
+
+    # Process each dimension
+    for dimension_name, dimension_config in dimension_requirements.items():
+        if not isinstance(dimension_config, dict):
+            continue
+
+        # Check if this dimension has field_requirements
+        if "field_requirements" not in dimension_config:
+            continue
+
+        field_requirements = dimension_config["field_requirements"]
+        if not isinstance(field_requirements, dict):
+            continue
+
+        # Process each field
+        for field_name, field_config in field_requirements.items():
+            if not isinstance(field_config, dict):
+                continue
+
+            # Check if field has validation_rules (new format)
+            if "validation_rules" in field_config:
+                validation_rules_data = field_config["validation_rules"]
+
+                if isinstance(validation_rules_data, list):
+                    # Parse each rule into a ValidationRule object
+                    parsed_rules = []
+                    for rule_dict in validation_rules_data:
+                        try:
+                            rule = ValidationRule.from_dict(rule_dict)
+                            parsed_rules.append(rule)
+                        except Exception as e:
+                            # Log warning but continue - validation will catch issues
+                            import warnings
+
+                            warnings.warn(
+                                f"Failed to parse validation rule for field '{field_name}' "
+                                f"in dimension '{dimension_name}': {e}"
+                            )
+
+                    # Replace the list of dicts with list of ValidationRule objects
+                    field_config["validation_rules"] = parsed_rules
+
+    return standard

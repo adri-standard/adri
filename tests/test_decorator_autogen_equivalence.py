@@ -155,37 +155,53 @@ def compare_standards_deeply(standard1: Dict[str, Any], standard2: Dict[str, Any
                     f"Field '{field_name}' type differs: '{field1.get('type')}' vs '{field2.get('type')}'"
                 )
 
-            # Compare validation rules
+            # Compare validation rules (handle both dict and list formats)
             rules1 = field1.get('validation_rules', {})
             rules2 = field2.get('validation_rules', {})
 
-            rules1_keys = set(rules1.keys())
-            rules2_keys = set(rules2.keys())
-
-            if rules1_keys != rules2_keys:
-                comparison.validation_rules_match = False
-                missing_in_2 = rules1_keys - rules2_keys
-                missing_in_1 = rules2_keys - rules1_keys
-                if missing_in_2:
-                    comparison.differences.append(
-                        f"Field '{field_name}' rules in standard1 but not standard2: {missing_in_2}"
-                    )
-                if missing_in_1:
-                    comparison.differences.append(
-                        f"Field '{field_name}' rules in standard2 but not standard1: {missing_in_1}"
-                    )
-
-            # Compare rule values for common rules
-            common_rules = rules1_keys & rules2_keys
-            for rule_name in common_rules:
-                rule1_value = rules1[rule_name]
-                rule2_value = rules2[rule_name]
-
-                if rule1_value != rule2_value:
+            # Handle list format (new schema) vs dict format (old schema)
+            if isinstance(rules1, list) and isinstance(rules2, list):
+                # Both are lists - compare as sets
+                if set(str(r) for r in rules1) != set(str(r) for r in rules2):
                     comparison.validation_rules_match = False
                     comparison.differences.append(
-                        f"Field '{field_name}' rule '{rule_name}' differs: {rule1_value} vs {rule2_value}"
+                        f"Field '{field_name}' validation rules differ (list format)"
                     )
+            elif isinstance(rules1, dict) and isinstance(rules2, dict):
+                # Both are dicts - compare keys and values
+                rules1_keys = set(rules1.keys())
+                rules2_keys = set(rules2.keys())
+
+                if rules1_keys != rules2_keys:
+                    comparison.validation_rules_match = False
+                    missing_in_2 = rules1_keys - rules2_keys
+                    missing_in_1 = rules2_keys - rules1_keys
+                    if missing_in_2:
+                        comparison.differences.append(
+                            f"Field '{field_name}' rules in standard1 but not standard2: {missing_in_2}"
+                        )
+                    if missing_in_1:
+                        comparison.differences.append(
+                            f"Field '{field_name}' rules in standard2 but not standard1: {missing_in_1}"
+                        )
+
+                # Compare rule values for common rules
+                common_rules = rules1_keys & rules2_keys
+                for rule_name in common_rules:
+                    rule1_value = rules1[rule_name]
+                    rule2_value = rules2[rule_name]
+
+                    if rule1_value != rule2_value:
+                        comparison.validation_rules_match = False
+                        comparison.differences.append(
+                            f"Field '{field_name}' rule '{rule_name}' differs: {rule1_value} vs {rule2_value}"
+                        )
+            elif rules1 or rules2:
+                # Type mismatch - one is list, one is dict
+                comparison.validation_rules_match = False
+                comparison.differences.append(
+                    f"Field '{field_name}' validation_rules format differs: {type(rules1).__name__} vs {type(rules2).__name__}"
+                )
 
     return comparison
 
@@ -271,6 +287,9 @@ class TestDecoratorAutoGeneration:
         test_standard_name = "test_autogen_invoice"
         os.environ['ADRI_ENV'] = 'development'
 
+        # CRITICAL: Unset ADRI_STANDARDS_DIR so config file takes precedence
+        os.environ.pop('ADRI_STANDARDS_DIR', None)
+
         # Get project root and set absolute config path
         project_root = invoice_scenario['tutorial_dir'].parent.parent.parent
         config_path = (project_root / 'adri-config.yaml').resolve()
@@ -279,16 +298,20 @@ class TestDecoratorAutoGeneration:
         # Load training data
         training_data = pd.read_csv(invoice_scenario['training_data_path'])
 
-        # Ensure standard doesn't exist
-        standard_dir = project_root / 'ADRI' / 'dev' / 'standards'
-        standard_path = standard_dir / f"{test_standard_name}.yaml"
-        if standard_path.exists():
-            standard_path.unlink()
-
         # Change to project root for path resolution to work correctly
         original_cwd = os.getcwd()
         try:
             os.chdir(project_root)
+
+            # Ensure standard doesn't exist - delete both resolved and unresolved paths
+            standard_dir = project_root / 'ADRI' / 'dev' / 'standards'
+            standard_path_resolved = (standard_dir / f"{test_standard_name}.yaml").resolve()
+            standard_path_unresolved = Path('ADRI') / 'dev' / 'standards' / f"{test_standard_name}.yaml"
+
+            if standard_path_resolved.exists():
+                standard_path_resolved.unlink()
+            if standard_path_unresolved.exists():
+                standard_path_unresolved.unlink()
 
             # Use decorator with auto_generate (default)
             @adri_protected(standard=test_standard_name)
@@ -297,15 +320,25 @@ class TestDecoratorAutoGeneration:
 
             # Execute function - should trigger auto-generation
             result = process_invoices(training_data)
+
+            # Search for created file instead of checking exact path (handles macOS symlinks)
+            standards_dir = Path('ADRI') / 'dev' / 'standards'
+            assert standards_dir.exists(), f"Standards directory should exist: {standards_dir}"
+
+            found_files = list(standards_dir.glob(f"{test_standard_name}.yaml"))
+            assert len(found_files) > 0, \
+                f"Standard {test_standard_name}.yaml should be auto-generated in {standards_dir}. Found files: {list(standards_dir.glob('*.yaml'))}"
+
+            # Use the found file for subsequent checks
+            standard_path = found_files[0]
+
+            # Read the file WHILE still in chdir context
+            with open(standard_path, 'r', encoding='utf-8') as f:
+                standard_content = yaml.safe_load(f)
         finally:
             os.chdir(original_cwd)
 
-        # Verify standard was created
-        assert standard_path.exists(), "Standard should be auto-generated"
-
         # Verify it's a valid standard (new schema format)
-        with open(standard_path, 'r', encoding='utf-8') as f:
-            standard_content = yaml.safe_load(f)
 
         # New schema has requirements.field_requirements instead of fields
         assert 'requirements' in standard_content
@@ -326,6 +359,9 @@ class TestDecoratorAutoGeneration:
 
         # Set up environment
         os.environ['ADRI_ENV'] = 'development'
+
+        # CRITICAL: Unset ADRI_STANDARDS_DIR so config file takes precedence
+        os.environ.pop('ADRI_STANDARDS_DIR', None)
 
         # Get project root and set absolute config path
         project_root = invoice_scenario['tutorial_dir'].parent.parent.parent
@@ -349,17 +385,18 @@ class TestDecoratorAutoGeneration:
         with open(cli_standard_path, 'w', encoding='utf-8') as f:
             yaml.dump(cli_standard, f, default_flow_style=False, sort_keys=False)
 
-        # Step 2: Delete standard to force decorator auto-generation
+        # Step 2: Use decorator to trigger auto-generation
         decorator_standard_name = "test_decorator_invoice"
-        decorator_standard_path = standard_dir / f"{decorator_standard_name}.yaml"
-        if decorator_standard_path.exists():
-            decorator_standard_path.unlink()
 
-        # Step 3: Use decorator to trigger auto-generation
         # Change to project root for path resolution
         original_cwd = os.getcwd()
         try:
             os.chdir(project_root)
+
+            # Delete standard to force decorator auto-generation (after chdir)
+            decorator_standard_path = (standard_dir / f"{decorator_standard_name}.yaml").resolve()
+            if decorator_standard_path.exists():
+                decorator_standard_path.unlink()
 
             @adri_protected(standard=decorator_standard_name)
             def process_invoices(data):
@@ -367,14 +404,23 @@ class TestDecoratorAutoGeneration:
 
             # Execute to trigger auto-generation
             result = process_invoices(training_data)
+
+            # Search for created file instead of checking exact path
+            standards_dir_rel = Path('ADRI') / 'dev' / 'standards'
+            assert standards_dir_rel.exists(), f"Standards directory should exist: {standards_dir_rel}"
+
+            found_files = list(standards_dir_rel.glob(f"{decorator_standard_name}.yaml"))
+            assert len(found_files) > 0, \
+                f"Decorator should auto-generate {decorator_standard_name}.yaml. Found files: {list(standards_dir_rel.glob('*.yaml'))}"
+
+            # Use the found file and read it WHILE still in chdir context
+            decorator_standard_path = found_files[0]
+
+            # Step 4: Read decorator-generated standard
+            with open(decorator_standard_path, 'r', encoding='utf-8') as f:
+                decorator_standard = yaml.safe_load(f)
         finally:
             os.chdir(original_cwd)
-
-        # Step 4: Load decorator-generated standard
-        assert decorator_standard_path.exists(), "Decorator should auto-generate standard"
-
-        with open(decorator_standard_path, 'r', encoding='utf-8') as f:
-            decorator_standard = yaml.safe_load(f)
 
         # Step 5: Deep comparison
         comparison = compare_standards_deeply(cli_standard, decorator_standard)
@@ -406,6 +452,9 @@ class TestDecoratorAutoGeneration:
         # Set up environment
         os.environ['ADRI_ENV'] = 'development'
 
+        # CRITICAL: Unset ADRI_STANDARDS_DIR so config file takes precedence
+        os.environ.pop('ADRI_STANDARDS_DIR', None)
+
         # Set absolute config path
         project_root = invoice_scenario['tutorial_dir'].parent.parent.parent
         config_path = (project_root / 'adri-config.yaml').resolve()
@@ -425,25 +474,35 @@ class TestDecoratorAutoGeneration:
         # Auto-generate decorator standard
         standard_dir = project_root / 'ADRI' / 'dev' / 'standards'
         decorator_standard_name = "test_fields_decorator"
-        decorator_standard_path = standard_dir / f"{decorator_standard_name}.yaml"
-        if decorator_standard_path.exists():
-            decorator_standard_path.unlink()
 
         # Change to project root for path resolution
         original_cwd = os.getcwd()
         try:
             os.chdir(project_root)
 
+            # Delete standard and resolve path after chdir
+            decorator_standard_path = (standard_dir / f"{decorator_standard_name}.yaml").resolve()
+            if decorator_standard_path.exists():
+                decorator_standard_path.unlink()
+
             @adri_protected(standard=decorator_standard_name)
             def process_data(data):
                 return data
 
             process_data(training_data)
+
+            # Search for created file and read it WHILE still in chdir context
+            standards_dir_rel = Path('ADRI') / 'dev' / 'standards'
+            if standards_dir_rel.exists():
+                found_files = list(standards_dir_rel.glob(f"{decorator_standard_name}.yaml"))
+                if len(found_files) > 0:
+                    decorator_standard_path = found_files[0]
+
+            # Read the file before exiting chdir context
+            with open(decorator_standard_path, 'r', encoding='utf-8') as f:
+                decorator_standard = yaml.safe_load(f)
         finally:
             os.chdir(original_cwd)
-
-        with open(decorator_standard_path, 'r', encoding='utf-8') as f:
-            decorator_standard = yaml.safe_load(f)
 
         # Compare fields (new schema: requirements.field_requirements)
         cli_fields = set(cli_standard['requirements']['field_requirements'].keys())
@@ -474,6 +533,9 @@ class TestDecoratorAutoGeneration:
         # Set up environment
         os.environ['ADRI_ENV'] = 'development'
 
+        # CRITICAL: Unset ADRI_STANDARDS_DIR so config file takes precedence
+        os.environ.pop('ADRI_STANDARDS_DIR', None)
+
         # Set absolute config path
         project_root = invoice_scenario['tutorial_dir'].parent.parent.parent
         config_path = (project_root / 'adri-config.yaml').resolve()
@@ -493,14 +555,16 @@ class TestDecoratorAutoGeneration:
         # Auto-generate decorator standard
         standard_dir = project_root / 'ADRI' / 'dev' / 'standards'
         decorator_standard_name = "test_rules_decorator"
-        decorator_standard_path = standard_dir / f"{decorator_standard_name}.yaml"
-        if decorator_standard_path.exists():
-            decorator_standard_path.unlink()
 
         # Change to project root for path resolution
         original_cwd = os.getcwd()
         try:
             os.chdir(project_root)
+
+            # Delete standard and resolve path after chdir
+            decorator_standard_path = (standard_dir / f"{decorator_standard_name}.yaml").resolve()
+            if decorator_standard_path.exists():
+                decorator_standard_path.unlink()
 
             @adri_protected(standard=decorator_standard_name)
             def process_data(data):
@@ -552,6 +616,9 @@ class TestDecoratorAutoGeneration:
         # Set up environment
         os.environ['ADRI_ENV'] = 'development'
 
+        # CRITICAL: Unset ADRI_STANDARDS_DIR so config file takes precedence
+        os.environ.pop('ADRI_STANDARDS_DIR', None)
+
         # Set absolute config path
         project_root = invoice_scenario['tutorial_dir'].parent.parent.parent
         config_path = (project_root / 'adri-config.yaml').resolve()
@@ -578,14 +645,16 @@ class TestDecoratorAutoGeneration:
 
         # Auto-generate decorator standard
         decorator_standard_name = "test_assessment_decorator"
-        decorator_standard_path = standard_dir / f"{decorator_standard_name}.yaml"
-        if decorator_standard_path.exists():
-            decorator_standard_path.unlink()
 
         # Change to project root for path resolution
         original_cwd = os.getcwd()
         try:
             os.chdir(project_root)
+
+            # Delete standard and resolve path after chdir
+            decorator_standard_path = (standard_dir / f"{decorator_standard_name}.yaml").resolve()
+            if decorator_standard_path.exists():
+                decorator_standard_path.unlink()
 
             @adri_protected(standard=decorator_standard_name)
             def process_data(data):
@@ -629,7 +698,7 @@ class TestDecoratorAutoGeneration:
         # Create a standard manually
         standard_dir = project_root / 'ADRI' / 'dev' / 'standards'
         test_standard_name = "test_reuse_standard"
-        standard_path = standard_dir / f"{test_standard_name}.yaml"
+        standard_path = (standard_dir / f"{test_standard_name}.yaml").resolve()
 
         existing_standard = {
             'metadata': {'data_name': test_standard_name, 'version': '1.0'},
@@ -683,7 +752,7 @@ class TestDecoratorAutoGeneration:
         # Ensure standard doesn't exist
         standard_dir = project_root / 'ADRI' / 'dev' / 'standards'
         test_standard_name = "test_disabled_autogen"
-        standard_path = standard_dir / f"{test_standard_name}.yaml"
+        standard_path = (standard_dir / f"{test_standard_name}.yaml").resolve()
         if standard_path.exists():
             standard_path.unlink()
 

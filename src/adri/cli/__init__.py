@@ -9,7 +9,7 @@ import json
 import os
 import sys
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import click
 import yaml
@@ -28,10 +28,9 @@ from .commands.config import (
 )
 from .commands.generate_standard import GenerateStandardCommand
 from .commands.list_assessments import ListAssessmentsCommand
-from .commands.scoring import ScoringExplainCommand
 from .commands.setup import SetupCommand
 from .commands.view_logs import ViewLogsCommand
-from .registry import create_command_registry, get_command, register_all_commands
+from .registry import get_command
 
 # Import needed components
 try:
@@ -80,7 +79,7 @@ def _debug_io_enabled() -> bool:
 # ---------------- Path discovery and helpers -----------------
 
 
-def _find_adri_project_root(start_path: Optional[Path] = None) -> Optional[Path]:
+def _find_adri_project_root(start_path: Path | None = None) -> Path | None:
     """
     Find the ADRI project root directory by searching for ADRI/config.yaml.
 
@@ -184,7 +183,7 @@ def _get_threshold_from_standard(standard_path: Path) -> float:
     try:
         std = load_standard(str(standard_path)) if load_standard else None
         if std is None:
-            with open(standard_path, "r", encoding="utf-8") as f:
+            with open(standard_path, encoding="utf-8") as f:
                 std = yaml.safe_load(f) or {}
         req = std.get("requirements", {}) if isinstance(std, dict) else {}
         thr = float(req.get("overall_minimum", 75.0))
@@ -232,7 +231,7 @@ INV-110,DUPLICATE-ID,875.25,2024-02-24,paid,credit_card"""
 
 
 def show_config_command(
-    paths_only: bool = False, environment: Optional[str] = None
+    paths_only: bool = False, environment: str | None = None
 ) -> int:
     """Show current ADRI configuration (standalone function for tests)."""
     try:
@@ -255,7 +254,7 @@ def show_standard_command(standard_path: str, verbose: bool = False) -> int:
         if load_standard:
             standard = load_standard(standard_path)
         else:
-            with open(standard_file, "r", encoding="utf-8") as f:
+            with open(standard_file, encoding="utf-8") as f:
                 standard = yaml.safe_load(f)
 
         if standard:
@@ -270,7 +269,7 @@ def show_standard_command(standard_path: str, verbose: bool = False) -> int:
 
 
 def setup_command(
-    force: bool = False, project_name: Optional[str] = None, guide: bool = False
+    force: bool = False, project_name: str | None = None, guide: bool = False
 ) -> int:
     """Initialize ADRI in a project (standalone function for tests)."""
     try:
@@ -289,7 +288,7 @@ def setup_command(
 def assess_command(
     data_path: str,
     standard_path: str,
-    output_path: Optional[str] = None,
+    output_path: str | None = None,
     guide: bool = False,
 ) -> int:
     """Run data quality assessment (standalone function for tests)."""
@@ -308,10 +307,7 @@ def assess_command(
 
 
 def generate_standard_command(
-    data_path: str,
-    force: bool = False,
-    output: Optional[str] = None,
-    guide: bool = False,
+    data_path: str, force: bool = False, output: str | None = None, guide: bool = False
 ) -> int:
     """Generate ADRI standard from data (standalone function for tests)."""
     try:
@@ -376,68 +372,10 @@ def view_logs_command(
         return 1
 
 
-def show_help_guide() -> int:
-    """Show first-time user guide."""
-    click.echo("🚀 ADRI - First Time User Guide")
-    click.echo("===============================")
-    click.echo("")
-    click.echo(_get_project_root_display())
-    click.echo("")
-    click.echo("📁 Directory Structure:")
-    click.echo("   tutorials/          → Packaged learning examples")
-    click.echo("   dev/standards/      → Development YAML rules")
-    click.echo("   dev/assessments/    → Development assessment reports")
-    click.echo("   dev/training-data/  → Development data snapshots")
-    click.echo("   dev/audit-logs/     → Development audit trail")
-    click.echo("   prod/standards/     → Production YAML rules")
-    click.echo("   prod/assessments/   → Production assessment reports")
-    click.echo("   prod/training-data/ → Production data snapshots")
-    click.echo("   prod/audit-logs/    → Production audit trail")
-    click.echo("")
-    click.echo("🌍 Environment Information:")
-    click.echo("   • Default: Development environment (ADRI/dev/)")
-    click.echo("   • Switch: Edit ADRI/config.yaml to change default_environment")
-    click.echo("   • Purpose: Separate development from production workflows")
-    click.echo("")
-    click.echo("💡 Smart Path Resolution:")
-    click.echo("   • Commands work from any directory within your project")
-    click.echo("   • ADRI automatically finds your project root")
-    click.echo("   • Use relative paths like: tutorials/invoice_processing/data.csv")
-    click.echo("")
-    click.echo("New to ADRI? Follow this complete walkthrough:")
-    click.echo("")
-    click.echo("📋 Step 1 of 4: Setup Your Project")
-    click.echo("   adri setup --guide")
-    click.echo("   → Sets up folders & samples")
-    click.echo("   Expected: ✅ Project initialized with sample data")
-    click.echo("")
-    click.echo("📋 Step 2 of 4: Create Your First Standard")
-    click.echo(
-        "   adri generate-standard tutorials/invoice_processing/invoice_data.csv --guide"
-    )
-    click.echo("   → Creates quality rules from clean data")
-    click.echo("   Expected: ✅ Standard saved to standards/")
-    click.echo("")
-    click.echo("📋 Step 3 of 4: Test Data Quality")
-    click.echo(
-        "   adri assess tutorials/invoice_processing/test_invoice_data.csv --standard dev/standards/invoice_data_ADRI_standard.yaml --guide"
-    )
-    click.echo("   → Tests data with issues")
-    click.echo("   Expected: Score: 88.5/100 ✅ PASSED → Safe for AI agents")
-    click.echo("")
-    click.echo("📋 Step 4 of 4: Review Results")
-    click.echo("   adri list-assessments")
-    click.echo("   → View assessment history")
-    click.echo("   Expected: Table showing all assessment results")
-    click.echo("")
-    click.echo("🎯 Ready? Start with: adri setup --guide")
-    return 0
-
-
 # ---------------- Configuration helpers -----------------
 
 
-def _get_default_audit_config() -> Dict[str, Any]:
+def _get_default_audit_config() -> dict[str, Any]:
     return {
         "enabled": True,
         "log_dir": "ADRI/dev/audit-logs",
@@ -448,8 +386,8 @@ def _get_default_audit_config() -> Dict[str, Any]:
     }
 
 
-def _load_assessor_config() -> Dict[str, Any]:
-    assessor_config: Dict[str, Any] = {}
+def _load_assessor_config() -> dict[str, Any]:
+    assessor_config: dict[str, Any] = {}
     if ConfigurationLoader:
         config_loader = ConfigurationLoader()
         config = config_loader.get_active_config()
@@ -469,7 +407,7 @@ def _load_assessor_config() -> Dict[str, Any]:
 # ---------------- Assessment helpers -----------------
 
 
-def _generate_record_id(row, row_index, primary_key_fields: List[str]) -> str:
+def _generate_record_id(row, row_index, primary_key_fields: list[str]) -> str:
     import pandas as pd
 
     if primary_key_fields:
@@ -639,10 +577,10 @@ def _analyze_failed_records(data):
             issues.append(("invalid_date_format", None))
 
         if issues:
-            record_id = row.get("invoice_id", f"Row {i+1}")
+            record_id = row.get("invoice_id", f"Row {i + 1}")
             try:
                 if pd.isna(record_id):
-                    record_id = f"Row {i+1}"
+                    record_id = f"Row {i + 1}"
             except Exception:
                 pass
 
@@ -731,7 +669,7 @@ def _generate_file_hash(file_path: Path) -> str:
     return hash_sha256.hexdigest()[:8]
 
 
-def _create_training_snapshot(data_path: str) -> Optional[str]:
+def _create_training_snapshot(data_path: str) -> str | None:
     try:
         source_file = Path(data_path)
         if not source_file.exists():
@@ -759,12 +697,12 @@ def _create_training_snapshot(data_path: str) -> Optional[str]:
 
 
 def _create_lineage_metadata(
-    data_path: str, snapshot_path: Optional[str] = None
-) -> Dict[str, Any]:
+    data_path: str, snapshot_path: str | None = None
+) -> dict[str, Any]:
     from datetime import datetime
 
     source_file = Path(data_path)
-    metadata: Dict[str, Any] = {
+    metadata: dict[str, Any] = {
         "source_path": str(source_file.resolve()),
         "timestamp": datetime.now().isoformat(),
         "file_hash": _generate_file_hash(source_file) if source_file.exists() else None,
@@ -808,11 +746,11 @@ def _get_assessments_directory() -> Path:
     return assessments_dir
 
 
-def _parse_assessment_files(assessment_files: List[Path]) -> List[Dict[str, Any]]:
-    table_data: List[Dict[str, Any]] = []
+def _parse_assessment_files(assessment_files: list[Path]) -> list[dict[str, Any]]:
+    table_data: list[dict[str, Any]] = []
     for file_path in assessment_files:
         try:
-            with open(file_path, "r", encoding="utf-8") as f:
+            with open(file_path, encoding="utf-8") as f:
                 assessment_data = json.load(f)
             adri_report = assessment_data.get("adri_assessment_report", {})
             summary = adri_report.get("summary", {})
@@ -841,13 +779,13 @@ def _parse_assessment_files(assessment_files: List[Path]) -> List[Dict[str, Any]
     return table_data
 
 
-def _load_audit_entries() -> List[Dict[str, Any]]:
+def _load_audit_entries() -> list[dict[str, Any]]:
     """Load audit entries from JSONL files using ADRILogReader."""
     from datetime import datetime
 
     from .logging import ADRILogReader
 
-    audit_entries: List[Dict[str, Any]] = []
+    audit_entries: list[dict[str, Any]] = []
 
     try:
         if ConfigurationLoader:
@@ -969,7 +907,7 @@ def _parse_audit_log_entries(main_log_file: Path, today: bool):
     from datetime import date, datetime
 
     log_entries = []
-    with open(main_log_file, "r", encoding="utf-8") as f:
+    with open(main_log_file, encoding="utf-8") as f:
         reader = csv.DictReader(f)
         for row in reader:
             try:
@@ -1140,7 +1078,6 @@ def _compute_dimension_contributions(dimension_scores, applied_dimension_weights
 @click.version_option(version=__version__, prog_name="adri")
 def cli():
     """ADRI - Stop Your AI Agents Breaking on Bad Data."""
-    pass
 
 
 # Initialize command registry on module load
@@ -1199,10 +1136,12 @@ def generate_standard(data_path, force, output, guide):
     sys.exit(command.execute(args))
 
 
-@cli.command("help-guide")
-def help_guide():
-    """Show first-time user guide and tutorial."""
-    sys.exit(show_help_guide())
+@cli.command("guide")
+def guide():
+    """Interactive guide for first-time users (replaces --guide flags)."""
+    command = get_command("guide")
+    args = {}
+    sys.exit(command.execute(args))
 
 
 @cli.command("validate-standard")
@@ -1316,7 +1255,6 @@ def scoring_preset_apply(preset, standard_path, output_path):
 @click.group("standards-catalog")
 def standards_catalog():
     """Remote standards catalog commands."""
-    pass
 
 
 @standards_catalog.command("list")
@@ -1488,7 +1426,7 @@ def standards_catalog_list_command(json_output: bool = False) -> int:
 def standards_catalog_fetch_command(
     name_or_id: str,
     dest: str = "dev",
-    filename: Optional[str] = None,
+    filename: str | None = None,
     overwrite: bool = False,
     json_output: bool = False,
 ) -> int:
@@ -1618,6 +1556,87 @@ def standards_catalog_fetch_command(
             click.echo(json.dumps({"error": "unexpected_error", "details": str(e)}))
         else:
             click.echo(f"❌ Failed to fetch standard: {e}")
+        return 1
+
+
+def show_help_guide() -> int:
+    """Show environment information and directory structure explanation.
+
+    Displays comprehensive ADRI environment documentation including:
+    - Environment configuration details
+    - Directory structure explanations
+    - Configuration file locations
+    - Best practices and usage guidelines
+
+    Returns:
+        0 for success, 1 for failure
+    """
+    try:
+        # Get project root for context
+        project_root = _find_adri_project_root()
+
+        # Display Environment Information
+        click.echo("🌍 Environment Information:")
+        click.echo(
+            f"   Current Environment: {os.environ.get('ADRI_ENV', 'development')}"
+        )
+        click.echo("Default: Development environment")
+        click.echo("   Switch: Edit ADRI/config.yaml (set default_environment)")
+        click.echo(
+            f"   Project Root: {project_root if project_root else 'Not detected'}"
+        )
+        click.echo("")
+
+        # Display Directory Structure
+        click.echo("📁 Directory Structure:")
+        click.echo("   ADRI/")
+        click.echo("   ├── tutorials/           # Tutorial and example data")
+        click.echo("   ├── dev/                 # Development environment")
+        click.echo("   │   ├── dev/standards/       # Draft/testing standards")
+        click.echo("   │   ├── dev/assessments/     # Development assessment reports")
+        click.echo(
+            "   │   ├── dev/training-data/   # Development training data snapshots"
+        )
+        click.echo("   │   └── dev/audit-logs/      # Development audit logs")
+        click.echo("   └── prod/                # Production environment")
+        click.echo("       ├── prod/standards/       # Validated/approved standards")
+        click.echo("       ├── prod/assessments/     # Production assessment reports")
+        click.echo(
+            "       ├── prod/training-data/   # Production training data snapshots"
+        )
+        click.echo("       └── prod/audit-logs/      # Production audit logs")
+        click.echo("")
+
+        # Display Configuration Info
+        click.echo("⚙️  Configuration:")
+        click.echo("   File: adri-config.yaml (in project root)")
+        click.echo("   Purpose: Centralized configuration for all ADRI functionality")
+        click.echo("   Sections:")
+        click.echo("     - environments: Development and production settings")
+        click.echo("     - protection: Data protection and decorator settings")
+        click.echo("     - audit: Audit logging configuration")
+        click.echo("     - standards: Standards discovery and validation")
+        click.echo("")
+
+        # Display Environment Variables
+        click.echo("🔧 Environment Variables:")
+        click.echo("   ADRI_ENV: Current environment (development/production)")
+        click.echo("   ADRI_CONFIG_PATH: Override config file location")
+        click.echo("   ADRI_STANDARDS_DIR: Override standards directory")
+        click.echo("")
+
+        # Display Smart Path Resolution
+        click.echo("🎯 Smart Path Resolution:")
+        click.echo("   Standards resolve automatically based on environment:")
+        click.echo("   - dev/ environment → ADRI/dev/standards/")
+        click.echo("   - prod/ environment → ADRI/prod/standards/")
+        click.echo("")
+
+        click.echo(f"📦 ADRI Version: {__version__}")
+
+        return 0
+    except Exception as e:
+        click.echo(f"❌ Error showing help guide: {e}")
         return 1
 
 

@@ -94,21 +94,6 @@ class TestLicenseCompliance(unittest.TestCase):
         self.assertIn("adri@verodat.com", pyproject_content)
         self.assertNotIn("ThinkVeolvesolve", pyproject_content, "Old copyright holder should be removed")
 
-    @unittest.skip("Docusaurus removed in v5.0.0 documentation simplification")
-    def test_docusaurus_legal_section_exists(self):
-        """Verify Docusaurus documentation includes legal section."""
-        pass
-
-    @unittest.skip("Docusaurus removed in v5.0.0 documentation simplification")
-    def test_docusaurus_sidebar_configuration(self):
-        """Verify Docusaurus sidebar includes legal section."""
-        pass
-
-    @unittest.skip("Docusaurus removed in v5.0.0 documentation simplification")
-    def test_docusaurus_footer_attribution(self):
-        """Verify Docusaurus footer contains Verodat attribution."""
-        pass
-
     def test_no_conflicting_copyright_statements(self):
         """Verify no conflicting or old copyright statements remain."""
         # Check key files for any remaining "ThinkVeolvesolve" references

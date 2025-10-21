@@ -5,7 +5,7 @@ explanations for generated field requirements and validation rules.
 """
 
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import pandas as pd
 
@@ -22,15 +22,14 @@ class ExplanationGenerator:
 
     def __init__(self):
         """Initialize the explanation generator."""
-        pass
 
     def build_explanations(
         self,
         data: pd.DataFrame,
-        data_profile: Dict[str, Any],
-        field_requirements: Dict[str, Any],
+        data_profile: dict[str, Any],
+        field_requirements: dict[str, Any],
         config: InferenceConfig,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Build comprehensive explanations for all field requirements.
 
         Args:
@@ -42,7 +41,7 @@ class ExplanationGenerator:
         Returns:
             Dictionary mapping field names to their explanations
         """
-        explanations: Dict[str, Any] = {}
+        explanations: dict[str, Any] = {}
 
         for col, field_req in field_requirements.items():
             series = data[col] if col in data.columns else pd.Series([], dtype=object)
@@ -54,8 +53,8 @@ class ExplanationGenerator:
         return explanations
 
     def _build_field_explanation(
-        self, series: pd.Series, field_req: Dict[str, Any], config: InferenceConfig
-    ) -> Dict[str, Any]:
+        self, series: pd.Series, field_req: dict[str, Any], config: InferenceConfig
+    ) -> dict[str, Any]:
         """Build explanation for a single field's requirements.
 
         Args:
@@ -66,7 +65,7 @@ class ExplanationGenerator:
         Returns:
             Field explanation dictionary
         """
-        explanation: Dict[str, Any] = {}
+        explanation: dict[str, Any] = {}
 
         # Type explanation
         type_exp = self._explain_type(field_req)
@@ -105,7 +104,7 @@ class ExplanationGenerator:
 
         return explanation
 
-    def _explain_type(self, field_req: Dict[str, Any]) -> Optional[str]:
+    def _explain_type(self, field_req: dict[str, Any]) -> str | None:
         """Explain type requirement.
 
         Args:
@@ -117,8 +116,8 @@ class ExplanationGenerator:
         return str(field_req.get("type")) if "type" in field_req else None
 
     def _explain_nullable(
-        self, series: pd.Series, field_req: Dict[str, Any]
-    ) -> Optional[Dict[str, Any]]:
+        self, series: pd.Series, field_req: dict[str, Any]
+    ) -> dict[str, Any] | None:
         """Explain nullability requirement.
 
         Args:
@@ -151,8 +150,8 @@ class ExplanationGenerator:
         }
 
     def _explain_allowed_values(
-        self, series: pd.Series, field_req: Dict[str, Any], config: InferenceConfig
-    ) -> Optional[Dict[str, Any]]:
+        self, series: pd.Series, field_req: dict[str, Any], config: InferenceConfig
+    ) -> dict[str, Any] | None:
         """Explain allowed values (enum) requirement.
 
         Args:
@@ -193,8 +192,8 @@ class ExplanationGenerator:
         }
 
     def _explain_length_bounds(
-        self, series: pd.Series, field_req: Dict[str, Any]
-    ) -> Optional[Dict[str, Any]]:
+        self, series: pd.Series, field_req: dict[str, Any]
+    ) -> dict[str, Any] | None:
         """Explain length bounds requirement.
 
         Args:
@@ -229,8 +228,8 @@ class ExplanationGenerator:
         }
 
     def _explain_range(
-        self, series: pd.Series, field_req: Dict[str, Any], config: InferenceConfig
-    ) -> Optional[Dict[str, Any]]:
+        self, series: pd.Series, field_req: dict[str, Any], config: InferenceConfig
+    ) -> dict[str, Any] | None:
         """Explain numeric range requirement.
 
         Args:
@@ -248,7 +247,7 @@ class ExplanationGenerator:
             return None
 
         strategy = getattr(config, "range_strategy", "iqr")
-        stats: Dict[str, Any] = {}
+        stats: dict[str, Any] = {}
 
         try:
             numeric_data = pd.to_numeric(series.dropna(), errors="coerce").dropna()
@@ -312,8 +311,8 @@ class ExplanationGenerator:
         }
 
     def _explain_date_bounds(
-        self, series: pd.Series, field_req: Dict[str, Any], config: InferenceConfig
-    ) -> Optional[Dict[str, Any]]:
+        self, series: pd.Series, field_req: dict[str, Any], config: InferenceConfig
+    ) -> dict[str, Any] | None:
         """Explain date bounds requirement.
 
         Args:
@@ -367,8 +366,8 @@ class ExplanationGenerator:
         }
 
     def _explain_pattern(
-        self, series: pd.Series, field_req: Dict[str, Any]
-    ) -> Optional[Dict[str, Any]]:
+        self, series: pd.Series, field_req: dict[str, Any]
+    ) -> dict[str, Any] | None:
         """Explain pattern (regex) requirement.
 
         Args:
@@ -404,7 +403,7 @@ class ExplanationGenerator:
             "stats": {"coverage": coverage},
         }
 
-    def create_glossary(self) -> Dict[str, str]:
+    def create_glossary(self) -> dict[str, str]:
         """Create a glossary of explanation terms.
 
         Returns:
@@ -431,7 +430,7 @@ class ExplanationGenerator:
         """
         return "Explanations are for human review; only requirements.field_requirements are enforced."
 
-    def format_adjustment_summary(self, explanations: Dict[str, Any]) -> Dict[str, Any]:
+    def format_adjustment_summary(self, explanations: dict[str, Any]) -> dict[str, Any]:
         """Format a summary of training-pass adjustments made.
 
         Args:
@@ -472,11 +471,11 @@ class ExplanationGenerator:
 
     def add_explanations_to_standard(
         self,
-        standard: Dict[str, Any],
+        standard: dict[str, Any],
         data: pd.DataFrame,
-        data_profile: Dict[str, Any],
+        data_profile: dict[str, Any],
         config: InferenceConfig,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Add comprehensive explanations to a standard.
 
         Args:
@@ -514,7 +513,7 @@ class ExplanationGenerator:
 
         return standard
 
-    def validate_explanations(self, explanations: Dict[str, Any]) -> List[str]:
+    def validate_explanations(self, explanations: dict[str, Any]) -> list[str]:
         """Validate explanation structure and content.
 
         Args:
@@ -578,10 +577,8 @@ class ExplanationGenerator:
         return errors
 
     def create_generation_report(
-        self,
-        standard: Dict[str, Any],
-        generation_stats: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
+        self, standard: dict[str, Any], generation_stats: dict[str, Any] | None = None
+    ) -> dict[str, Any]:
         """Create a comprehensive generation report.
 
         Args:

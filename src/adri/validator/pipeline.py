@@ -7,7 +7,7 @@ of dimension assessors and aggregates results into a comprehensive assessment.
 import os
 import sys
 import time
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import pandas as pd
 
@@ -198,9 +198,7 @@ class ValidationPipeline:
         duration_ms = int((time.time() - start_time) * 1000)
 
         # Build metadata
-        metadata = {
-            "applied_dimension_weights": applied_weights,
-        }
+        metadata = {"applied_dimension_weights": applied_weights}
 
         if explain_data and collect_explain:
             metadata["explain"] = explain_data
@@ -236,8 +234,8 @@ class ValidationPipeline:
         self,
         data: pd.DataFrame,
         dimension_name: str,
-        dimension_requirements: Dict[str, Any],
-        field_requirements: Dict[str, Any],
+        dimension_requirements: dict[str, Any],
+        field_requirements: dict[str, Any],
         collect_explain: bool,
     ) -> tuple:
         """Assess a single dimension and return score and explanation.
@@ -304,9 +302,9 @@ class ValidationPipeline:
         self,
         assessor: DimensionAssessor,
         data: pd.DataFrame,
-        requirements: Dict[str, Any],
+        requirements: dict[str, Any],
         dimension_name: str,
-    ) -> Optional[Dict[str, Any]]:
+    ) -> dict[str, Any] | None:
         """Collect detailed explanation from dimension assessor."""
         try:
             # Check if assessor has a breakdown method
@@ -340,8 +338,8 @@ class ValidationPipeline:
 
     def _calculate_overall_score(
         self,
-        dimension_scores: Dict[str, DimensionScore],
-        dimension_requirements: Dict[str, Any],
+        dimension_scores: dict[str, DimensionScore],
+        dimension_requirements: dict[str, Any],
     ) -> tuple:
         """Calculate overall score using dimension weights.
 
@@ -374,7 +372,7 @@ class ValidationPipeline:
 
         return overall_score, applied_weights
 
-    def _normalize_weights(self, weights: Dict[str, float]) -> Dict[str, float]:
+    def _normalize_weights(self, weights: dict[str, float]) -> dict[str, float]:
         """Normalize dimension weights, handling edge cases."""
         # Clamp negative weights to 0
         normalized = {}
@@ -446,7 +444,7 @@ class ValidationPipeline:
         except Exception:  # noqa: E722
             return False
 
-    def list_available_dimensions(self) -> List[str]:
+    def list_available_dimensions(self) -> list[str]:
         """List all available dimension names.
 
         Returns:

@@ -11,8 +11,8 @@ The ADRI Standards Library provides a curated collection of production-ready sta
 Real-world business use case standards ready for production use.
 
 #### Customer Service Standard
-**File**: `customer_service_standard.yaml`  
-**Use Case**: Support ticket tracking, customer interaction data  
+**File**: `customer_service_standard.yaml`
+**Use Case**: Support ticket tracking, customer interaction data
 **Quality Threshold**: 85%
 
 Validates customer service interaction records including:
@@ -31,8 +31,8 @@ def process_support_tickets(tickets_df):
 ```
 
 #### E-commerce Order Standard
-**File**: `ecommerce_order_standard.yaml`  
-**Use Case**: Order processing, fulfillment pipelines  
+**File**: `ecommerce_order_standard.yaml`
+**Use Case**: Order processing, fulfillment pipelines
 **Quality Threshold**: 90%
 
 Validates e-commerce order records including:
@@ -51,8 +51,8 @@ def process_orders(orders_df):
 ```
 
 #### Financial Transaction Standard
-**File**: `financial_transaction_standard.yaml`  
-**Use Case**: Payment processing, accounting systems  
+**File**: `financial_transaction_standard.yaml`
+**Use Case**: Payment processing, accounting systems
 **Quality Threshold**: 95%
 
 Validates financial transaction records including:
@@ -71,8 +71,8 @@ def process_transactions(txn_df):
 ```
 
 #### Healthcare Patient Standard
-**File**: `healthcare_patient_standard.yaml`  
-**Use Case**: EHR systems, patient management  
+**File**: `healthcare_patient_standard.yaml`
+**Use Case**: EHR systems, patient management
 **Quality Threshold**: 92%
 
 Validates healthcare patient records including:
@@ -93,8 +93,8 @@ def process_patient_records(patients_df):
 ```
 
 #### Marketing Campaign Standard
-**File**: `marketing_campaign_standard.yaml`  
-**Use Case**: Campaign management, ROI tracking  
+**File**: `marketing_campaign_standard.yaml`
+**Use Case**: Campaign management, ROI tracking
 **Quality Threshold**: 85%
 
 Validates marketing campaign performance data including:
@@ -119,8 +119,8 @@ def analyze_campaigns(campaigns_df):
 Framework-specific standards for popular AI agent and RAG systems.
 
 #### LangChain Chain Input Standard
-**File**: `langchain_chain_input_standard.yaml`  
-**Framework**: LangChain 0.1.x+  
+**File**: `langchain_chain_input_standard.yaml`
+**Framework**: LangChain 0.1.x+
 **Quality Threshold**: 80%
 
 Validates LangChain chain input data including:
@@ -139,8 +139,8 @@ def process_chain_inputs(inputs_df):
 ```
 
 #### CrewAI Task Context Standard
-**File**: `crewai_task_context_standard.yaml`  
-**Framework**: CrewAI 0.1.x+  
+**File**: `crewai_task_context_standard.yaml`
+**Framework**: CrewAI 0.1.x+
 **Quality Threshold**: 85%
 
 Validates CrewAI task context for multi-agent workflows including:
@@ -159,8 +159,8 @@ def process_crew_tasks(tasks_df):
 ```
 
 #### LlamaIndex Document Standard
-**File**: `llamaindex_document_standard.yaml`  
-**Framework**: LlamaIndex 0.9.x+  
+**File**: `llamaindex_document_standard.yaml`
+**Framework**: LlamaIndex 0.9.x+
 **Quality Threshold**: 85%
 
 Validates LlamaIndex document data for RAG pipelines including:
@@ -179,8 +179,8 @@ def process_documents(docs_df):
 ```
 
 #### AutoGen Message Standard
-**File**: `autogen_message_standard.yaml`  
-**Framework**: AutoGen 0.2.x+  
+**File**: `autogen_message_standard.yaml`
+**Framework**: AutoGen 0.2.x+
 **Quality Threshold**: 80%
 
 Validates AutoGen agent message data including:
@@ -205,8 +205,8 @@ def process_messages(messages_df):
 Customizable templates for common data patterns.
 
 #### API Response Template
-**File**: `api_response_template.yaml`  
-**Use Case**: API monitoring, integration testing  
+**File**: `api_response_template.yaml`
+**Use Case**: API monitoring, integration testing
 **Quality Threshold**: 85%
 
 Generic template for REST API response structures including:
@@ -227,8 +227,8 @@ def process_api_responses(responses_df):
 ```
 
 #### Time Series Template
-**File**: `time_series_template.yaml`  
-**Use Case**: Sensor data, metrics, monitoring  
+**File**: `time_series_template.yaml`
+**Use Case**: Sensor data, metrics, monitoring
 **Quality Threshold**: 85%
 
 Generic template for time series data including:
@@ -249,8 +249,8 @@ def process_time_series(metrics_df):
 ```
 
 #### Key-Value Template
-**File**: `key_value_template.yaml`  
-**Use Case**: Configuration data, feature flags, settings  
+**File**: `key_value_template.yaml`
+**Use Case**: Configuration data, feature flags, settings
 **Quality Threshold**: 85%
 
 Generic template for key-value pair configurations including:
@@ -271,8 +271,8 @@ def process_config(config_df):
 ```
 
 #### Nested JSON Template
-**File**: `nested_json_template.yaml`  
-**Use Case**: Complex configurations, tree structures  
+**File**: `nested_json_template.yaml`
+**Use Case**: Complex configurations, tree structures
 **Quality Threshold**: 80%
 
 Generic template for nested/hierarchical JSON data including:
@@ -354,12 +354,12 @@ The ADRI Standards Library thrives on community contributions. Share your standa
      version: 1.0.0
      authority: ADRI Standards Catalog
      description: What this standard validates
-   
+
    record_identification:
      primary_key_fields:
        - id_field
      strategy: primary_key_with_fallback
-   
+
    requirements:
      overall_minimum: 85.0
      field_requirements:
@@ -385,14 +385,14 @@ def test_your_standard():
     @adri_protected(standard="your_standard_name")
     def process_data(data):
         return data
-    
+
     # Create sample data
     data = pd.DataFrame([{
         "field1": "value1",
         "field2": 123,
         # ... all required fields
     }])
-    
+
     result = process_data(data)
     assert result is not None
 ```
@@ -488,7 +488,7 @@ status:
   type: string
   nullable: false
   valid_values: [Active, Inactive, Pending]
-  
+
 # Numeric range
 score:
   type: float
