@@ -5,6 +5,24 @@ All notable changes to ADRI will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.1.0] - 2025-10-21
+
+**Documentation Improvements for Open-Source Adoption**
+
+### Changed
+- Enhanced documentation structure and clarity for better developer experience
+- Improved getting started guides with clearer onboarding paths
+- Optimized README for first-time users and quick adoption
+- Refined code examples and usage patterns
+- Updated architecture documentation for better understanding
+- Streamlined contribution guidelines
+- Enhanced API reference documentation
+
+### Fixed
+- Documentation consistency across all guides
+- Code example accuracy and completeness
+- Cross-reference links and navigation
+
 ## [5.0.1] - 2026-01-17
 
 **Standards Library & Documentation Updates**
