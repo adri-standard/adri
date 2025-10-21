@@ -88,6 +88,20 @@ repos:
         pass_filenames: false
         always_run: true
 
+      - id: pytest-smoke-test
+        name: Run quick smoke tests (config, fixtures, imports)
+        entry: python -m pytest
+        args:
+          - tests/test_config.py
+          - tests/test_tutorial_framework.py
+          - tests/integration/test_cli_imports.py
+          - -x
+          - -q
+          - --tb=short
+        language: system
+        pass_filenames: false
+        always_run: true
+
   # Documentation validation is handled by CI workflow (docs-check job)
   # Jekyll requires Ruby/bundle which may not be available in all environments
 
