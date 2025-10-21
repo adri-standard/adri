@@ -65,7 +65,7 @@ class TestTutorialProjectStructure:
 
         config_path = os.environ.get('ADRI_CONFIG_PATH')
         assert config_path is not None
-        assert 'ADRI' / 'config.yaml' in config_path
+        assert 'ADRI/config.yaml' in config_path
 
 
 class TestConfigTemplate:

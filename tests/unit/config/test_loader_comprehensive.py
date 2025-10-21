@@ -68,8 +68,10 @@ class TestConfigurationLoaderComprehensive:
     def test_config_file_discovery(self, temp_workspace):
         """Test configuration file discovery in various locations."""
 
-        # Test discovery in current directory
-        config_file = temp_workspace / "ADRI" / "config.yaml"
+        # Test discovery in current directory - create ADRI directory first
+        adri_dir = temp_workspace / "ADRI"
+        adri_dir.mkdir(parents=True, exist_ok=True)
+        config_file = adri_dir / "config.yaml"
         with open(config_file, 'w', encoding='utf-8') as f:
             yaml.dump(self.complete_config, f)
 
@@ -78,7 +80,11 @@ class TestConfigurationLoaderComprehensive:
         try:
             os.chdir(temp_workspace)
 
-            discovered_config = self.loader.load_config()
+            # Use find_config_file to locate it, then load it
+            found_path = self.loader.find_config_file()
+            assert found_path is not None
+
+            discovered_config = self.loader.load_config(config_path=found_path)
             assert discovered_config is not None
             assert discovered_config["adri"]["version"] == "4.0.0"
 
@@ -518,7 +524,10 @@ class TestConfigurationLoaderComprehensive:
 
         for i, location in enumerate(locations):
             location.mkdir(parents=True, exist_ok=True)
-            config_file = location / "ADRI" / "config.yaml"
+            # Create ADRI directory first
+            adri_dir = location / "ADRI"
+            adri_dir.mkdir(parents=True, exist_ok=True)
+            config_file = adri_dir / "config.yaml"
 
             config = {
                 "adri": {

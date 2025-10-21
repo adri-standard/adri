@@ -38,7 +38,7 @@ def setup_isolated_environment(base_path: Path) -> Dict[str, Path]:
 
     standards_dir = dev_dir / "standards"
     assessments_dir = dev_dir / "assessments"
-    logs_dir = dev_dir / "logs"
+    logs_dir = dev_dir / "audit-logs"
 
     for directory in [standards_dir, assessments_dir, logs_dir]:
         directory.mkdir(parents=True, exist_ok=True)
