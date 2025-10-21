@@ -104,7 +104,7 @@ pip install adri
 
 ---
 
-⭐ **If ADRI helps your project, [star us on GitHub](https://github.com/adri-standard/adri)** - takes 2 seconds, helps us grow!
+⭐ **[Star us if ADRI saves you time](https://github.com/adri-standard/adri)** - it helps us grow!
 
 ---
 
@@ -264,21 +264,6 @@ def index_documents(docs):
 
 [Start Contributing](CONTRIBUTING.md) | [Discuss Ideas](https://github.com/adri-standard/adri/discussions)
 
-## Scaling to Production
-
-**Open-source ADRI gives you everything to build reliable agents** - local validation, auto-generation, comprehensive logging.
-
-**When you're ready to scale**, Verodat Enterprise adds centralized infrastructure:
-
-- **Team Dashboards** - Monitor data quality across all agents and teams
-- **Workflow Replay** - Reproduce any agent run with complete data context
-- **Data Orchestration** - Managed data feeds for production reliability
-- **Compliance Tools** - Audit trails and provenance for regulated industries
-
-**ADRI is 100% functional open-source.** Enterprise just makes collaboration and compliance easier at scale.
-
-[Learn more](docs/FAQ.md#enterprise) or [contact us](https://verodat.com) for production deployments.
-
 ## Development
 
 ```bash
@@ -317,7 +302,7 @@ Apache 2.0 License. See [LICENSE](LICENSE) for details.
 
 ### Support This Project
 **If ADRI saves you time, show your support:**
-- ⭐ **[Star on GitHub](https://github.com/adri-standard/adri)** - Takes 2 seconds, helps us reach more developers
+- ⭐ **[Star on GitHub](https://github.com/adri-standard/adri)** - Helps us reach more developers
 - 🗣️ **Share your wins**: "Solved [your use case] with #ADRI #AIAgents"
 - 🤝 **Contribute a standard**: Your use case could help hundreds - [Guide](CONTRIBUTING.md#contributing-standards-to-the-library)
 - 💬 **Discuss ideas**: [Propose new standards](https://github.com/adri-standard/adri/discussions) or share what you're building
