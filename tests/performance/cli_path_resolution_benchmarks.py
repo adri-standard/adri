@@ -287,11 +287,11 @@ class TestPathResolutionPerformance(unittest.TestCase):
     def test_environment_path_resolution_performance(self):
         """Benchmark dev/prod environment path resolution performance."""
         env_paths = [
-            "dev/standards/invoice_standard.yaml",
+            "dev/contracts/invoice_standard.yaml",
             "dev/assessments/report_001.json",
             "dev/training-data/snapshot_123.csv",
             "dev/audit-logs/audit_log.csv",
-            "prod/standards/prod_standard.yaml",
+            "prod/contracts/prod_standard.yaml",
             "prod/assessments/prod_report.json",
             "prod/training-data/prod_snapshot.csv",
             "prod/audit-logs/prod_audit.csv",
@@ -318,7 +318,7 @@ class TestPathResolutionPerformance(unittest.TestCase):
         """Benchmark mixed path type resolution performance."""
         mixed_paths = [
             "tutorials/invoice_processing/data.csv",
-            "dev/standards/test.yaml",
+            "dev/contracts/test.yaml",
             "ADRI/tutorials/customer_service/data.csv",
             "prod/assessments/report.json",
             "config/settings.yaml",
@@ -368,7 +368,7 @@ class TestConcurrentPerformance(unittest.TestCase):
         """Benchmark concurrent path resolution operations."""
         paths_to_test = [
             "tutorials/invoice_processing/data.csv",
-            "dev/standards/test.yaml",
+            "dev/contracts/test.yaml",
             "prod/assessments/report.json",
             "tutorials/customer_service/customer_data.csv",
             "dev/training-data/snapshot.csv",
@@ -430,7 +430,7 @@ class TestConcurrentPerformance(unittest.TestCase):
             # Perform intensive path operations
             paths = [
                 "tutorials/invoice_processing/data.csv",
-                "dev/standards/test.yaml",
+                "dev/contracts/test.yaml",
                 "prod/assessments/report.json",
             ] * 100  # 300 path operations
 
@@ -684,7 +684,7 @@ def run_comprehensive_performance_suite():
         print("📊 Benchmarking path resolution...")
         paths = [
             "tutorials/invoice_processing/data.csv",
-            "dev/standards/test.yaml",
+            "dev/contracts/test.yaml",
             "prod/assessments/report.json"
         ]
 

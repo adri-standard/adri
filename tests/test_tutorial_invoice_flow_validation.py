@@ -18,7 +18,7 @@ import pytest
 import yaml
 from pathlib import Path
 
-from src.adri.analysis.standard_generator import StandardGenerator
+from src.adri.analysis.contract_generator import ContractGenerator
 from src.adri.analysis.types import (
     is_valid_standard,
     get_standard_name,
@@ -61,7 +61,7 @@ class TestInvoiceTutorialFlowValidation:
         training_data = pd.read_csv(invoice_scenario['training_data_path'])
 
         # Generate standard using API (simulates CLI workflow)
-        generator = StandardGenerator()
+        generator = ContractGenerator()
         standard = generator.generate(
             data=training_data,
             data_name='invoice_data',
@@ -140,7 +140,7 @@ class TestInvoiceTutorialFlowValidation:
         training_data = pd.read_csv(invoice_scenario['training_data_path'])
 
         # Create decorated function using generated standard name
-        @adri_protected(standard=invoice_scenario['generated_standard_name'])
+        @adri_protected(contract=invoice_scenario['generated_standard_name'])
         def process_invoices(data):
             return {
                 'processed': True,
@@ -170,7 +170,7 @@ class TestInvoiceTutorialFlowValidation:
 
         # Create decorated function
         @adri_protected(
-            standard=invoice_scenario['generated_standard_name'],
+            contract=invoice_scenario['generated_standard_name'],
             on_failure='warn'  # Allow through but warn
         )
         def process_invoices(data):
@@ -199,7 +199,7 @@ class TestInvoiceTutorialFlowValidation:
         training_data = pd.read_csv(invoice_scenario['training_data_path'])
 
         # Generate standard via API
-        generator = StandardGenerator()
+        generator = ContractGenerator()
         cli_standard = generator.generate(
             data=training_data,
             data_name='invoice_data',
@@ -249,7 +249,7 @@ class TestInvoiceTutorialFlowValidation:
 
         # === COMPARISON 5: Decorator Behavior ===
         # Both pathways should allow clean data through
-        @adri_protected(standard=invoice_scenario['generated_standard_name'])
+        @adri_protected(contract=invoice_scenario['generated_standard_name'])
         def process_with_decorator(data):
             return len(data)
 
@@ -276,7 +276,7 @@ class TestInvoiceTutorialFlowValidation:
         test_data = pd.read_csv(invoice_scenario['test_data_path'])
 
         # === Method 1: Direct generation ===
-        generator = StandardGenerator()
+        generator = ContractGenerator()
         direct_standard = generator.generate(training_data, 'invoice_data')
 
         # === Method 2: Load from file ===
@@ -284,7 +284,7 @@ class TestInvoiceTutorialFlowValidation:
             file_standard = yaml.safe_load(f)
 
         # === Method 3: Decorator pathway ===
-        @adri_protected(standard=invoice_scenario['generated_standard_name'])
+        @adri_protected(contract=invoice_scenario['generated_standard_name'])
         def validate_data(data):
             return {
                 'valid': True,
@@ -520,7 +520,7 @@ class TestInvoiceTutorialFlowValidation:
         consistency regardless of which pathway users choose.
 
         Test Flow:
-        1. Generate standard via CLI/API (StandardGenerator directly)
+        1. Generate standard via CLI/API (ContractGenerator directly)
         2. Delete the standard file
         3. Trigger decorator auto-generation
         4. Compare both standards structurally and semantically
@@ -531,7 +531,7 @@ class TestInvoiceTutorialFlowValidation:
 
         # Set up environment
         os.environ['ADRI_ENV'] = 'development'
-        config_path = invoice_scenario['tutorial_dir'].parent.parent / 'adri-config.yaml'
+        config_path = invoice_scenario['tutorial_dir'].parent.parent / 'ADRI' / 'config.yaml'
         os.environ['ADRI_CONFIG_PATH'] = str(config_path)
 
         # Load training data
@@ -539,7 +539,7 @@ class TestInvoiceTutorialFlowValidation:
         test_data = pd.read_csv(invoice_scenario['test_data_path'])
 
         # === STEP 1: Generate standard via CLI/API ===
-        generator = StandardGenerator()
+        generator = ContractGenerator()
         cli_standard = generator.generate(
             data=training_data,
             data_name="autogen_test_cli",
@@ -547,7 +547,7 @@ class TestInvoiceTutorialFlowValidation:
         )
 
         # Save CLI-generated standard
-        standard_dir = invoice_scenario['tutorial_dir'].parent.parent / 'ADRI' / 'dev' / 'standards'
+        standard_dir = invoice_scenario['tutorial_dir'].parent.parent / 'ADRI' / 'dev' / 'contracts'
         standard_dir.mkdir(parents=True, exist_ok=True)  # Ensure directory exists
         cli_standard_path = standard_dir / "autogen_test_cli.yaml"
         with open(cli_standard_path, 'w', encoding='utf-8') as f:
@@ -558,12 +558,12 @@ class TestInvoiceTutorialFlowValidation:
         # Use ConfigurationLoader to get the correct path (same as decorator uses)
         from src.adri.config.loader import ConfigurationLoader
         loader = ConfigurationLoader()
-        decorator_standard_path = Path(loader.resolve_standard_path(decorator_standard_name))
+        decorator_standard_path = Path(loader.resolve_contract_path(decorator_standard_name))
         if decorator_standard_path.exists():
             decorator_standard_path.unlink()
 
         # === STEP 3: Trigger decorator auto-generation ===
-        @adri_protected(standard=decorator_standard_name)
+        @adri_protected(contract=decorator_standard_name)
         def process_invoices(data):
             return f"Processed {len(data)} invoices"
 

@@ -1,0 +1,153 @@
+# Healthcare Domain ADRI Standard
+# Demonstrates domain-specific type patterns for healthcare data
+
+# Domain-specific type patterns for healthcare
+type_patterns:
+  # Patient and record identifiers should be integers
+  integer:
+    - indicators:
+        - "^patient_id$"
+        - "^record_id$"
+        - "^encounter_id$"
+        - "^provider_id$"
+        - "_number$"
+        - "_count$"
+      constraints:
+        min_value: 1
+  
+  # Date fields for healthcare events
+  date:
+    - indicators:
+        - "admission_date"
+        - "discharge_date"
+        - "birth_date"
+        - "death_date"
+        - "procedure_date"
+        - "lab_date"
+        - "_timestamp$"
+  
+  # Medical codes and identifiers
+  string:
+    - indicators:
+        - "diagnosis_code"
+        - "procedure_code"
+        - "medication_code"
+        - "patient_name"
+        - "provider_name"
+        - "_code$"
+  
+  # Boolean flags for healthcare
+  boolean:
+    - indicators:
+        - "is_allergic"
+        - "is_smoker"
+        - "is_deceased"
+        - "has_insurance"
+
+# SQL compatibility for healthcare databases
+sql_compatibility:
+  target_dialects:
+    - postgresql  # Common for healthcare apps
+    - mysql       # Common for legacy systems
+  strict_mode: true  # Strict for healthcare compliance
+  custom_reserved_words:
+    - PHI  # Protected Health Information
+    - HIPAA
+    - CLINICAL_DATA
+
+# Field requirements following healthcare naming conventions
+field_requirements:
+  patient_id:
+    type: integer
+    description: Unique patient identifier (MRN)
+    min_value: 1
+  
+  patient_name:
+    type: string
+    description: Full legal name of patient
+    min_length: 1
+    max_length: 200
+  
+  birth_date:
+    type: date
+    description: Patient date of birth (for age calculation)
+  
+  admission_date:
+    type: date
+    description: Hospital admission date
+  
+  discharge_date:
+    type: date
+    description: Hospital discharge date (null if currently admitted)
+  
+  diagnosis_code:
+    type: string
+    description: Primary ICD-10 diagnosis code
+    pattern: "^[A-Z][0-9]{2}(\\.[0-9]{1,2})?$"
+    min_length: 3
+    max_length: 8
+  
+  procedure_code:
+    type: string
+    description: CPT procedure code
+    pattern: "^[0-9]{5}$"
+    min_length: 5
+    max_length: 5
+  
+  is_allergic:
+    type: boolean
+    description: Whether patient has known allergies
+  
+  is_smoker:
+    type: boolean
+    description: Current smoking status
+  
+  encounter_id:
+    type: integer
+    description: Unique encounter identifier
+    min_value: 1
+  
+  lab_results:
+    type: array
+    description: Array of laboratory test results
+    items:
+      type: string
+    min_items: 0
+    max_items: 100
+  
+  vital_signs:
+    type: array
+    description: Array of vital sign measurements
+    items:
+      type: string
+    min_items: 1
+    max_items: 50
+  
+  provider_id:
+    type: integer
+    description: Attending physician identifier (NPI)
+    min_value: 1
+  
+  room_number:
+    type: string
+    description: Hospital room assignment
+    pattern: "^[A-Z0-9]{1,10}$"
+    max_length: 10
+  
+  insurance_verification:
+    type: boolean
+    description: Whether insurance has been verified
+  
+  # Examples that would violate type patterns (commented out):
+  
+  # patient_id_wrong:
+  #   type: string  # Should be integer based on patient_id pattern
+  #   description: Patient identifier
+  
+  # admission_date_wrong:
+  #   type: string  # Should be date based on admission_date pattern
+  #   description: Admission date
+  
+  # diagnosis_code_wrong:
+  #   type: integer  # Should be string based on _code pattern
+  #   description: Diagnosis code

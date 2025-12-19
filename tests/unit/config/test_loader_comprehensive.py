@@ -68,8 +68,10 @@ class TestConfigurationLoaderComprehensive:
     def test_config_file_discovery(self, temp_workspace):
         """Test configuration file discovery in various locations."""
 
-        # Test discovery in current directory
-        config_file = temp_workspace / "adri-config.yaml"
+        # Test discovery in current directory - create ADRI directory first
+        adri_dir = temp_workspace / "ADRI"
+        adri_dir.mkdir(parents=True, exist_ok=True)
+        config_file = adri_dir / "config.yaml"
         with open(config_file, 'w', encoding='utf-8') as f:
             yaml.dump(self.complete_config, f)
 
@@ -78,7 +80,11 @@ class TestConfigurationLoaderComprehensive:
         try:
             os.chdir(temp_workspace)
 
-            discovered_config = self.loader.load_config()
+            # Use find_config_file to locate it, then load it
+            found_path = self.loader.find_config_file()
+            assert found_path is not None
+
+            discovered_config = self.loader.load_config(config_path=found_path)
             assert discovered_config is not None
             assert discovered_config["adri"]["version"] == "4.0.0"
 
@@ -93,7 +99,7 @@ class TestConfigurationLoaderComprehensive:
         """Test environment-specific configuration loading."""
 
         # Create config file with multiple environments
-        config_file = temp_workspace / "adri-config.yaml"
+        config_file = temp_workspace / "ADRI" / "config.yaml"
         with open(config_file, 'w', encoding='utf-8') as f:
             yaml.dump(self.complete_config, f)
 
@@ -125,7 +131,7 @@ class TestConfigurationLoaderComprehensive:
                 "environments": {
                     "test": {
                         "paths": {
-                            "standards": "standards",  # Relative path
+                            "contracts": "standards",  # Relative path
                             "assessments": str(temp_workspace / "assessments"),  # Absolute path
                             "training_data": "~/training-data"  # Home directory path
                         }
@@ -142,7 +148,7 @@ class TestConfigurationLoaderComprehensive:
         config = self.loader.load_config(config_path=str(config_file))
 
         # Test standard path resolution
-        standards_path = self.loader.resolve_standard_path("test_standard", "test")
+        standards_path = self.loader.resolve_contract_path("test_standard", "test")
         assert standards_path.endswith("test_standard.yaml")
 
         # Test assessments directory resolution
@@ -331,7 +337,7 @@ class TestConfigurationLoaderComprehensive:
         for i in range(50):
             large_config["adri"]["environments"][f"env_{i}"] = {
                 "paths": {
-                    "standards": f"/path/to/standards_{i}",
+                    "contracts": f"/path/to/standards_{i}",
                     "assessments": f"/path/to/assessments_{i}",
                     "training_data": f"/path/to/training_{i}"
                 },
@@ -433,7 +439,7 @@ class TestConfigurationLoaderComprehensive:
                 "environments": {
                     "development": {
                         "paths": {
-                            "standards": "./standards",
+                            "contracts": "./standards",
                             "assessments": "./assessments",
                             "training_data": "./training-data",
                             "audit_logs": "./audit-logs"
@@ -456,7 +462,7 @@ class TestConfigurationLoaderComprehensive:
                 "environments": {
                     "development": {
                         "paths": {
-                            "standards": "./standards",
+                            "contracts": "./standards",
                             "assessments": "./assessments",
                             "training_data": "./training-data",
                             "audit_logs": "./audit-logs"
@@ -468,7 +474,7 @@ class TestConfigurationLoaderComprehensive:
                     },
                     "production": {
                         "paths": {
-                            "standards": "./prod-standards",
+                            "contracts": "./prod-standards",
                             "assessments": "./prod-assessments",
                             "training_data": "./prod-training-data",
                             "audit_logs": "./prod-audit-logs"
@@ -518,7 +524,10 @@ class TestConfigurationLoaderComprehensive:
 
         for i, location in enumerate(locations):
             location.mkdir(parents=True, exist_ok=True)
-            config_file = location / "adri-config.yaml"
+            # Create ADRI directory first
+            adri_dir = location / "ADRI"
+            adri_dir.mkdir(parents=True, exist_ok=True)
+            config_file = adri_dir / "config.yaml"
 
             config = {
                 "adri": {

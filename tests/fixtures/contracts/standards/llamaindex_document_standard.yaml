@@ -1,0 +1,875 @@
+contracts:
+  id: llamaindex_document_standard_standard
+  name: Llamaindex Document Standard
+  version: 1.0.0
+  authority: ADRI Framework
+  description: Auto-generated standard for llamaindex_document_standard data
+record_identification:
+  primary_key_fields:
+  - chunk_id
+  strategy: primary_key_with_fallback
+requirements:
+  overall_minimum: 75.0
+  field_requirements:
+    doc_id:
+      type: string
+      nullable: false
+      min_length: 14
+      max_length: 14
+      pattern: ^[A-Za-z0-9\-_]+$
+      validation_rules:
+      - name: doc_id is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: doc_id must not be empty
+      - name: doc_id type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: doc_id must be of type string
+      - name: doc_id length bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: length_bounds
+        rule_expression: LENGTH >= 14 AND LENGTH <= 14
+        error_message: doc_id length must be between 14 and 14
+      - name: doc_id pattern validation
+        dimension: validity
+        severity: WARNING
+        rule_type: pattern
+        rule_expression: REGEX_MATCH('^[A-Za-z0-9\-_]+$')
+        error_message: 'doc_id must match pattern: ^[A-Za-z0-9\-_]+$'
+    text:
+      type: string
+      nullable: false
+      allowed_values:
+      - This is a sample document for RAG indexing.
+      min_length: 43
+      max_length: 43
+      validation_rules:
+      - name: text is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: text must not be empty
+      - name: text type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: text must be of type string
+      - name: text must be valid value
+        dimension: validity
+        severity: CRITICAL
+        rule_type: allowed_values
+        rule_expression: VALUE_IN(['This is a sample document for RAG indexing.'])
+        error_message: 'text must be one of: This is a sample document for RAG indexing.'
+      - name: text length bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: length_bounds
+        rule_expression: LENGTH >= 43 AND LENGTH <= 43
+        error_message: text length must be between 43 and 43
+    source:
+      type: string
+      nullable: false
+      allowed_values:
+      - https://example.com/docs/sample
+      min_length: 31
+      max_length: 31
+      validation_rules:
+      - name: source is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: source must not be empty
+      - name: source type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: source must be of type string
+      - name: source must be valid value
+        dimension: validity
+        severity: CRITICAL
+        rule_type: allowed_values
+        rule_expression: VALUE_IN(['https://example.com/docs/sample'])
+        error_message: 'source must be one of: https://example.com/docs/sample'
+      - name: source length bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: length_bounds
+        rule_expression: LENGTH >= 31 AND LENGTH <= 31
+        error_message: source length must be between 31 and 31
+    document_type:
+      type: string
+      nullable: false
+      allowed_values:
+      - Text
+      min_length: 4
+      max_length: 4
+      pattern: ^[A-Za-z0-9\-_]+$
+      validation_rules:
+      - name: document_type is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: document_type must not be empty
+      - name: document_type type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: document_type must be of type string
+      - name: document_type must be valid value
+        dimension: validity
+        severity: CRITICAL
+        rule_type: allowed_values
+        rule_expression: VALUE_IN(['Text'])
+        error_message: 'document_type must be one of: Text'
+      - name: document_type length bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: length_bounds
+        rule_expression: LENGTH >= 4 AND LENGTH <= 4
+        error_message: document_type length must be between 4 and 4
+      - name: document_type pattern validation
+        dimension: validity
+        severity: WARNING
+        rule_type: pattern
+        rule_expression: REGEX_MATCH('^[A-Za-z0-9\-_]+$')
+        error_message: 'document_type must match pattern: ^[A-Za-z0-9\-_]+$'
+    title:
+      type: string
+      nullable: false
+      allowed_values:
+      - Sample Document
+      min_length: 15
+      max_length: 15
+      validation_rules:
+      - name: title is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: title must not be empty
+      - name: title type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: title must be of type string
+      - name: title must be valid value
+        dimension: validity
+        severity: CRITICAL
+        rule_type: allowed_values
+        rule_expression: VALUE_IN(['Sample Document'])
+        error_message: 'title must be one of: Sample Document'
+      - name: title length bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: length_bounds
+        rule_expression: LENGTH >= 15 AND LENGTH <= 15
+        error_message: title length must be between 15 and 15
+    author:
+      type: string
+      nullable: false
+      allowed_values:
+      - John Doe
+      min_length: 8
+      max_length: 8
+      validation_rules:
+      - name: author is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: author must not be empty
+      - name: author type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: author must be of type string
+      - name: author must be valid value
+        dimension: validity
+        severity: CRITICAL
+        rule_type: allowed_values
+        rule_expression: VALUE_IN(['John Doe'])
+        error_message: 'author must be one of: John Doe'
+      - name: author length bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: length_bounds
+        rule_expression: LENGTH >= 8 AND LENGTH <= 8
+        error_message: author length must be between 8 and 8
+    created_date:
+      type: date
+      nullable: false
+      after_date: '2025-01-12'
+      before_date: '2025-01-18'
+      validation_rules:
+      - name: created_date is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: created_date must not be empty
+      - name: created_date type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_DATE
+        error_message: created_date must be of type date
+      - name: created_date date bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: date_bounds
+        rule_expression: DATE >= '2025-01-12' AND DATE <= '2025-01-18'
+        error_message: created_date must be within date range
+    chunk_id:
+      type: float
+      nullable: false
+      min_value: 0.0
+      max_value: 0.0
+      validation_rules:
+      - name: chunk_id is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: chunk_id must not be empty
+      - name: chunk_id type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_FLOAT
+        error_message: chunk_id must be of type float
+      - name: chunk_id numeric bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: numeric_bounds
+        rule_expression: VALUE >= 0.0 AND VALUE <= 0.0
+        error_message: chunk_id must be between 0.0 and 0.0
+    chunk_size:
+      type: float
+      nullable: false
+      min_value: 512.0
+      max_value: 512.0
+      validation_rules:
+      - name: chunk_size is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: chunk_size must not be empty
+      - name: chunk_size type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_FLOAT
+        error_message: chunk_size must be of type float
+      - name: chunk_size numeric bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: numeric_bounds
+        rule_expression: VALUE >= 512.0 AND VALUE <= 512.0
+        error_message: chunk_size must be between 512.0 and 512.0
+    total_chunks:
+      type: float
+      nullable: false
+      min_value: 1.0
+      max_value: 1.0
+      validation_rules:
+      - name: total_chunks is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: total_chunks must not be empty
+      - name: total_chunks type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_FLOAT
+        error_message: total_chunks must be of type float
+      - name: total_chunks numeric bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: numeric_bounds
+        rule_expression: VALUE >= 1.0 AND VALUE <= 1.0
+        error_message: total_chunks must be between 1.0 and 1.0
+    embedding_model:
+      type: string
+      nullable: false
+      allowed_values:
+      - text-embedding-ada-002
+      min_length: 22
+      max_length: 22
+      pattern: ^[A-Za-z0-9\-_]+$
+      validation_rules:
+      - name: embedding_model is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: embedding_model must not be empty
+      - name: embedding_model type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: embedding_model must be of type string
+      - name: embedding_model must be valid value
+        dimension: validity
+        severity: CRITICAL
+        rule_type: allowed_values
+        rule_expression: VALUE_IN(['text-embedding-ada-002'])
+        error_message: 'embedding_model must be one of: text-embedding-ada-002'
+      - name: embedding_model length bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: length_bounds
+        rule_expression: LENGTH >= 22 AND LENGTH <= 22
+        error_message: embedding_model length must be between 22 and 22
+      - name: embedding_model pattern validation
+        dimension: validity
+        severity: WARNING
+        rule_type: pattern
+        rule_expression: REGEX_MATCH('^[A-Za-z0-9\-_]+$')
+        error_message: 'embedding_model must match pattern: ^[A-Za-z0-9\-_]+$'
+    embedding_dimension:
+      type: float
+      nullable: false
+      min_value: 1536.0
+      max_value: 1536.0
+      validation_rules:
+      - name: embedding_dimension is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: embedding_dimension must not be empty
+      - name: embedding_dimension type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_FLOAT
+        error_message: embedding_dimension must be of type float
+      - name: embedding_dimension numeric bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: numeric_bounds
+        rule_expression: VALUE >= 1536.0 AND VALUE <= 1536.0
+        error_message: embedding_dimension must be between 1536.0 and 1536.0
+    keywords:
+      type: string
+      nullable: false
+      min_length: 21
+      max_length: 21
+      validation_rules:
+      - name: keywords is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: keywords must not be empty
+      - name: keywords type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: keywords must be of type string
+      - name: keywords length bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: length_bounds
+        rule_expression: LENGTH >= 21 AND LENGTH <= 21
+        error_message: keywords length must be between 21 and 21
+    category:
+      type: string
+      nullable: false
+      allowed_values:
+      - Documentation
+      min_length: 13
+      max_length: 13
+      pattern: ^[A-Za-z0-9\-_]+$
+      validation_rules:
+      - name: category is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: category must not be empty
+      - name: category type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: category must be of type string
+      - name: category must be valid value
+        dimension: validity
+        severity: CRITICAL
+        rule_type: allowed_values
+        rule_expression: VALUE_IN(['Documentation'])
+        error_message: 'category must be one of: Documentation'
+      - name: category length bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: length_bounds
+        rule_expression: LENGTH >= 13 AND LENGTH <= 13
+        error_message: category length must be between 13 and 13
+      - name: category pattern validation
+        dimension: validity
+        severity: WARNING
+        rule_type: pattern
+        rule_expression: REGEX_MATCH('^[A-Za-z0-9\-_]+$')
+        error_message: 'category must match pattern: ^[A-Za-z0-9\-_]+$'
+    language:
+      type: string
+      nullable: false
+      allowed_values:
+      - en
+      min_length: 2
+      max_length: 2
+      pattern: ^[A-Za-z0-9\-_]+$
+      validation_rules:
+      - name: language is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: language must not be empty
+      - name: language type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: language must be of type string
+      - name: language must be valid value
+        dimension: validity
+        severity: CRITICAL
+        rule_type: allowed_values
+        rule_expression: VALUE_IN(['en'])
+        error_message: 'language must be one of: en'
+      - name: language length bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: length_bounds
+        rule_expression: LENGTH >= 2 AND LENGTH <= 2
+        error_message: language length must be between 2 and 2
+      - name: language pattern validation
+        dimension: validity
+        severity: WARNING
+        rule_type: pattern
+        rule_expression: REGEX_MATCH('^[A-Za-z0-9\-_]+$')
+        error_message: 'language must match pattern: ^[A-Za-z0-9\-_]+$'
+  dimension_requirements:
+    validity:
+      minimum_score: 15.0
+      weight: 1.0
+      scoring:
+        rule_weights:
+          type: 0.3488372093023256
+          length_bounds: 0.23255813953488372
+          pattern: 0.11627906976744186
+          allowed_values: 0.18604651162790697
+          date_bounds: 0.023255813953488372
+          numeric_bounds: 0.09302325581395349
+        field_overrides: {}
+    completeness:
+      minimum_score: 15.0
+      weight: 1.0
+      scoring:
+        rule_weights:
+          missing_required: 0.0625
+          not_null: 0.9375
+        field_overrides: {}
+    consistency:
+      minimum_score: 12.0
+      weight: 1.0
+      scoring:
+        rule_weights:
+          primary_key_uniqueness: 0.3333333333333333
+          format_consistency: 0.3333333333333333
+          cross_field_logic: 0.3333333333333333
+        field_overrides: {}
+    freshness:
+      minimum_score: 15.0
+      weight: 1.0
+      scoring:
+        rule_weights:
+          recency_window: 1.0
+        field_overrides: {}
+    plausibility:
+      minimum_score: 12.0
+      weight: 1.0
+      scoring:
+        rule_weights: {}
+        field_overrides: {}
+metadata:
+  explanations_note: Explanations are for human review; only requirements.field_requirements
+    are enforced.
+  explanations_glossary:
+    iqr: 'Interquartile Range (Q3 - Q1): a robust measure of spread, less sensitive
+      to outliers.'
+    q1: 25th percentile of the training values.
+    q3: 75th percentile of the training values.
+    coverage: Share of non-null training values that satisfy the rule.
+    unique_count: Number of distinct non-null values observed in training.
+    mad: 'Median Absolute Deviation: robust measure of variability around the median.'
+    quantile: Statistical measure dividing data into equal-sized intervals.
+    training_pass: Guarantee that generated rules pass on the training data used for
+      generation.
+    enum_strategy: Method used for allowed values inference (coverage or tolerant).
+    margin_days: Buffer added to date ranges to allow for reasonable variations.
+  explanations:
+    doc_id:
+      type: string
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      length_bounds:
+        active_min: 14
+        active_max: 14
+        stats:
+          observed_min: 14
+          observed_max: 14
+      pattern:
+        regex: ^[A-Za-z0-9\-_]+$
+        reason: 100% coverage on training non-nulls
+        stats:
+          coverage: 1.0
+    text:
+      type: string
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      allowed_values:
+        values:
+        - This is a sample document for RAG indexing.
+        reason: High coverage stable set
+        stats:
+          coverage: 1.0
+          unique_count: 1
+          strategy: coverage
+      length_bounds:
+        active_min: 43
+        active_max: 43
+        stats:
+          observed_min: 43
+          observed_max: 43
+    source:
+      type: string
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      allowed_values:
+        values:
+        - https://example.com/docs/sample
+        reason: High coverage stable set
+        stats:
+          coverage: 1.0
+          unique_count: 1
+          strategy: coverage
+      length_bounds:
+        active_min: 31
+        active_max: 31
+        stats:
+          observed_min: 31
+          observed_max: 31
+    document_type:
+      type: string
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      allowed_values:
+        values:
+        - Text
+        reason: High coverage stable set
+        stats:
+          coverage: 1.0
+          unique_count: 1
+          strategy: coverage
+      length_bounds:
+        active_min: 4
+        active_max: 4
+        stats:
+          observed_min: 4
+          observed_max: 4
+      pattern:
+        regex: ^[A-Za-z0-9\-_]+$
+        reason: 100% coverage on training non-nulls
+        stats:
+          coverage: 1.0
+    title:
+      type: string
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      allowed_values:
+        values:
+        - Sample Document
+        reason: High coverage stable set
+        stats:
+          coverage: 1.0
+          unique_count: 1
+          strategy: coverage
+      length_bounds:
+        active_min: 15
+        active_max: 15
+        stats:
+          observed_min: 15
+          observed_max: 15
+    author:
+      type: string
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      allowed_values:
+        values:
+        - John Doe
+        reason: High coverage stable set
+        stats:
+          coverage: 1.0
+          unique_count: 1
+          strategy: coverage
+      length_bounds:
+        active_min: 8
+        active_max: 8
+        stats:
+          observed_min: 8
+          observed_max: 8
+    created_date:
+      type: date
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      date_bounds:
+        active_after: '2025-01-12'
+        active_before: '2025-01-18'
+        reason: Plausible date window widened by margin days
+        stats:
+          observed_min: '2025-01-15'
+          observed_max: '2025-01-15'
+          margin_days: 3
+    chunk_id:
+      type: float
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      range:
+        strategy: iqr
+        active_min: 0.0
+        active_max: 0.0
+        reason: Robust range (IQR/Quantile/MAD) clamped to training min/max for pass
+          guarantee
+        stats:
+          q1: 0.0
+          q3: 0.0
+          iqr_k: 1.5
+          observed_min: 0.0
+          observed_max: 0.0
+    chunk_size:
+      type: float
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      range:
+        strategy: iqr
+        active_min: 512.0
+        active_max: 512.0
+        reason: Robust range (IQR/Quantile/MAD) clamped to training min/max for pass
+          guarantee
+        stats:
+          q1: 512.0
+          q3: 512.0
+          iqr_k: 1.5
+          observed_min: 512.0
+          observed_max: 512.0
+    total_chunks:
+      type: float
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      range:
+        strategy: iqr
+        active_min: 1.0
+        active_max: 1.0
+        reason: Robust range (IQR/Quantile/MAD) clamped to training min/max for pass
+          guarantee
+        stats:
+          q1: 1.0
+          q3: 1.0
+          iqr_k: 1.5
+          observed_min: 1.0
+          observed_max: 1.0
+    embedding_model:
+      type: string
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      allowed_values:
+        values:
+        - text-embedding-ada-002
+        reason: High coverage stable set
+        stats:
+          coverage: 1.0
+          unique_count: 1
+          strategy: coverage
+      length_bounds:
+        active_min: 22
+        active_max: 22
+        stats:
+          observed_min: 22
+          observed_max: 22
+      pattern:
+        regex: ^[A-Za-z0-9\-_]+$
+        reason: 100% coverage on training non-nulls
+        stats:
+          coverage: 1.0
+    embedding_dimension:
+      type: float
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      range:
+        strategy: iqr
+        active_min: 1536.0
+        active_max: 1536.0
+        reason: Robust range (IQR/Quantile/MAD) clamped to training min/max for pass
+          guarantee
+        stats:
+          q1: 1536.0
+          q3: 1536.0
+          iqr_k: 1.5
+          observed_min: 1536.0
+          observed_max: 1536.0
+    keywords:
+      type: string
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      length_bounds:
+        active_min: 21
+        active_max: 21
+        stats:
+          observed_min: 21
+          observed_max: 21
+    category:
+      type: string
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      allowed_values:
+        values:
+        - Documentation
+        reason: High coverage stable set
+        stats:
+          coverage: 1.0
+          unique_count: 1
+          strategy: coverage
+      length_bounds:
+        active_min: 13
+        active_max: 13
+        stats:
+          observed_min: 13
+          observed_max: 13
+      pattern:
+        regex: ^[A-Za-z0-9\-_]+$
+        reason: 100% coverage on training non-nulls
+        stats:
+          coverage: 1.0
+    language:
+      type: string
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      allowed_values:
+        values:
+        - en
+        reason: High coverage stable set
+        stats:
+          coverage: 1.0
+          unique_count: 1
+          strategy: coverage
+      length_bounds:
+        active_min: 2
+        active_max: 2
+        stats:
+          observed_min: 2
+          observed_max: 2
+      pattern:
+        regex: ^[A-Za-z0-9\-_]+$
+        reason: 100% coverage on training non-nulls
+        stats:
+          coverage: 1.0
+  freshness:
+    as_of: '2025-01-16T00:00:00Z'
+    window_days: 365
+    date_field: created_date
+  plausibility_templates: '# plausibility:
+
+    #   scoring:
+
+    #     rule_weights:
+
+    #       numeric_sigma: 1.0      # enable if not overlapping with validity numeric_bounds
+
+    #       categorical_tail: 1.0   # enable to flag rare categories
+
+    #   notes: "Disabled by default to avoid overlap with Validity. Review before
+    enabling."
+
+    '

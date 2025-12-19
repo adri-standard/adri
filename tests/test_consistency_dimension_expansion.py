@@ -16,19 +16,19 @@ class TestConsistencyRuleWeights:
     """Test that Consistency has all 4 rule types configured."""
 
     def test_consistency_starts_empty_populated_by_generator(self):
-        """Ensure consistency dimension starts with empty weights (populated by StandardBuilder)."""
+        """Ensure consistency dimension starts with empty weights (populated by ContractBuilder)."""
         builder = DimensionRequirementsBuilder()
         dim_reqs = builder.build_dimension_requirements({})
 
         consistency_weights = dim_reqs["consistency"]["scoring"]["rule_weights"]
 
-        # DimensionBuilder returns empty dict - weights are populated by StandardBuilder
+        # DimensionBuilder returns empty dict - weights are populated by ContractBuilder
         assert isinstance(consistency_weights, dict), "rule_weights must be a dict"
         assert len(consistency_weights) == 0, "DimensionBuilder should return empty rule_weights"
 
     def test_consistency_weights_populated_dynamically(self):
-        """Ensure consistency rule weights are populated by StandardBuilder and sum to 1.0."""
-        from adri.analysis.generation.standard_builder import StandardBuilder
+        """Ensure consistency rule weights are populated by ContractBuilder and sum to 1.0."""
+        from adri.analysis.generation.contract_builder import ContractBuilder
 
         # Create test data
         data = pd.DataFrame({
@@ -36,8 +36,8 @@ class TestConsistencyRuleWeights:
             "name": ["Alice", "Bob", "Charlie"]
         })
 
-        # Build standard using StandardBuilder (populates weights)
-        builder = StandardBuilder()
+        # Build standard using ContractBuilder (populates weights)
+        builder = ContractBuilder()
         profile = {col: {"dtype": str(data[col].dtype)} for col in data.columns}
         standard = builder.build_standard(
             data,

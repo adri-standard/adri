@@ -5,14 +5,11 @@ and handling path operations consistently across the ADRI system.
 """
 
 from pathlib import Path
-from typing import Optional, Union
 
 from ..core.exceptions import FileOperationError, ProjectNotFoundError
 
 
-def find_adri_project_root(
-    start_path: Optional[Union[str, Path]] = None,
-) -> Optional[Path]:
+def find_adri_project_root(start_path: str | Path | None = None) -> Path | None:
     """Find the ADRI project root directory by searching for ADRI/config.yaml.
 
     Searches upward from the current directory until it finds a directory
@@ -41,7 +38,7 @@ def find_adri_project_root(
 
 
 def resolve_project_path(
-    relative_path: Union[str, Path], project_root: Optional[Path] = None
+    relative_path: str | Path, project_root: Path | None = None
 ) -> Path:
     """Resolve a path relative to the ADRI project root.
 
@@ -79,7 +76,7 @@ def resolve_project_path(
         return project_root / "ADRI" / relative_path
 
 
-def shorten_home_path(path: Union[str, Path]) -> str:
+def shorten_home_path(path: str | Path) -> str:
     """Return a home-shortened absolute path, e.g. ~/project/file.txt.
 
     Args:
@@ -103,7 +100,7 @@ def shorten_home_path(path: Union[str, Path]) -> str:
 
 
 def get_relative_to_project_root(
-    path: Union[str, Path], project_root: Optional[Path] = None
+    path: str | Path, project_root: Path | None = None
 ) -> str:
     """Return path relative to ADRI project root if under it, else home-shortened path.
 
@@ -142,7 +139,7 @@ def get_relative_to_project_root(
         return shorten_home_path(path)
 
 
-def get_project_root_display(project_root: Optional[Path] = None) -> str:
+def get_project_root_display(project_root: Path | None = None) -> str:
     """Get a display string for the project root.
 
     Args:
@@ -160,7 +157,7 @@ def get_project_root_display(project_root: Optional[Path] = None) -> str:
         return "📂 Project Root: (not detected)"
 
 
-def ensure_directory_exists(path: Union[str, Path]) -> Path:
+def ensure_directory_exists(path: str | Path) -> Path:
     """Ensure that a directory exists, creating it if necessary.
 
     Args:
@@ -181,7 +178,7 @@ def ensure_directory_exists(path: Union[str, Path]) -> Path:
         raise FileOperationError(f"Failed to create directory: {path}", str(e))
 
 
-def safe_file_operation(operation_name: str, file_path: Union[str, Path]) -> None:
+def safe_file_operation(operation_name: str, file_path: str | Path) -> None:
     """Context manager for safe file operations with error handling.
 
     This is a helper that can be used to wrap file operations and provide
@@ -217,9 +214,7 @@ def safe_file_operation(operation_name: str, file_path: Union[str, Path]) -> Non
     return decorator
 
 
-def is_safe_path(
-    path: Union[str, Path], base_directory: Optional[Union[str, Path]] = None
-) -> bool:
+def is_safe_path(path: str | Path, base_directory: str | Path | None = None) -> bool:
     """Check if a path is safe (doesn't contain directory traversal attempts).
 
     Args:
@@ -250,7 +245,7 @@ def is_safe_path(
         return False
 
 
-def get_file_extension(file_path: Union[str, Path]) -> str:
+def get_file_extension(file_path: str | Path) -> str:
     """Get the file extension in lowercase.
 
     Args:
@@ -262,7 +257,7 @@ def get_file_extension(file_path: Union[str, Path]) -> str:
     return Path(file_path).suffix.lower()
 
 
-def normalize_path_separators(path: Union[str, Path]) -> str:
+def normalize_path_separators(path: str | Path) -> str:
     """Normalize path separators for cross-platform compatibility.
 
     Args:
@@ -274,7 +269,7 @@ def normalize_path_separators(path: Union[str, Path]) -> str:
     return str(Path(path)).replace("\\", "/")
 
 
-def get_common_path_prefix(*paths: Union[str, Path]) -> Optional[Path]:
+def get_common_path_prefix(*paths: str | Path) -> Path | None:
     """Find the common path prefix among multiple paths.
 
     Args:
@@ -319,7 +314,7 @@ class PathResolver:
     project root discovery for better performance.
     """
 
-    def __init__(self, project_root: Optional[Union[str, Path]] = None):
+    def __init__(self, project_root: str | Path | None = None):
         """Initialize the path resolver.
 
         Args:
@@ -329,7 +324,7 @@ class PathResolver:
         self._project_root_cached = False
 
     @property
-    def project_root(self) -> Optional[Path]:
+    def project_root(self) -> Path | None:
         """Get the project root, caching the result."""
         if not self._project_root_cached:
             if self._project_root is None:
@@ -337,7 +332,7 @@ class PathResolver:
             self._project_root_cached = True
         return self._project_root
 
-    def resolve(self, relative_path: Union[str, Path]) -> Path:
+    def resolve(self, relative_path: str | Path) -> Path:
         """Resolve a path relative to the project root.
 
         Args:
@@ -351,7 +346,7 @@ class PathResolver:
         """
         return resolve_project_path(relative_path, self.project_root)
 
-    def relative_to_root(self, path: Union[str, Path]) -> str:
+    def relative_to_root(self, path: str | Path) -> str:
         """Get path relative to project root for display.
 
         Args:
@@ -362,7 +357,7 @@ class PathResolver:
         """
         return get_relative_to_project_root(path, self.project_root)
 
-    def ensure_under_project(self, path: Union[str, Path]) -> bool:
+    def ensure_under_project(self, path: str | Path) -> bool:
         """Ensure a path is under the project root.
 
         Args:

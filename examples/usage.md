@@ -10,7 +10,7 @@ Note: Our canonical example variable name in user docs is `invoice_rows`. See do
 ```python
 from adri import adri_protected
 
-@adri_protected(standard="customer_data_standard", data_param="invoice_rows")
+@adri_protected(contract="customer_data_standard", data_param="invoice_rows")
 def process_customer_data(invoice_rows):
     # Your AI agent logic here
     return analyze_customer_sentiment(invoice_rows)
@@ -103,7 +103,7 @@ class CustomerAnalysisTool(BaseTool):
     name = "customer_analysis"
     description = "Analyze customer data for insights"
 
-    @adri_protected(standard="customer_data_standard", data_param="invoice_rows")
+    @adri_protected(contract="customer_data_standard", data_param="invoice_rows")
     def _run(self, invoice_rows):
         return self.analyze_customers(invoice_rows)
 ```

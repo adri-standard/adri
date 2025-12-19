@@ -27,7 +27,7 @@ class TestWhatIfBoundaryValues:
             # Create test standard
             standard_path = Path(tmpdir) / "test_standard.yaml"
             standard = {
-                "standards": {
+                "contracts": {
                     "id": "test",
                     "name": "Test Standard",
                     "version": "1.0.0",
@@ -181,7 +181,7 @@ class TestWhatIfDataEdgeCases:
         with tempfile.TemporaryDirectory() as tmpdir:
             standard_path = Path(tmpdir) / "standard.yaml"
             standard = {
-                "standards": {"id": "test", "name": "Test", "version": "1.0.0", "authority": "Test"},
+                "contracts": {"id": "test", "name": "Test", "version": "1.0.0", "authority": "Test"},
                 "requirements": {"overall_minimum": 75}
             }
             with open(standard_path, 'w', encoding='utf-8') as f:
@@ -206,7 +206,7 @@ class TestWhatIfDataEdgeCases:
         with tempfile.TemporaryDirectory() as tmpdir:
             standard_path = Path(tmpdir) / "standard.yaml"
             standard = {
-                "standards": {"id": "test", "name": "Test", "version": "1.0.0", "authority": "Test"},
+                "contracts": {"id": "test", "name": "Test", "version": "1.0.0", "authority": "Test"},
                 "requirements": {"overall_minimum": 75}
             }
             with open(standard_path, 'w', encoding='utf-8') as f:
@@ -287,7 +287,7 @@ class TestWhatIfInvalidInputs:
         with tempfile.TemporaryDirectory() as tmpdir:
             standard_path = Path(tmpdir) / "standard.yaml"
             standard = {
-                "standards": {"id": "test", "name": "Test", "version": "1.0.0", "authority": "Test"},
+                "contracts": {"id": "test", "name": "Test", "version": "1.0.0", "authority": "Test"},
                 "requirements": {"overall_minimum": 75}
             }
             with open(standard_path, 'w', encoding='utf-8') as f:

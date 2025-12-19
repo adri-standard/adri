@@ -1,0 +1,41 @@
+[
+  {
+    "user_id": "user_001",
+    "status": "success",
+    "data": {
+      "name": "Alice Johnson",
+      "email": "alice@example.com",
+      "account_type": "premium",
+      "credits": 250,
+      "last_login": "2024-10-15T14:30:00Z"
+    },
+    "timestamp": "2024-10-17T10:00:00Z",
+    "request_id": "req_abc123"
+  },
+  {
+    "user_id": "user_002",
+    "status": "success",
+    "data": {
+      "name": "Bob Smith",
+      "email": "bob@example.com",
+      "account_type": "standard",
+      "credits": 100,
+      "last_login": "2024-10-16T09:15:00Z"
+    },
+    "timestamp": "2024-10-17T10:01:00Z",
+    "request_id": "req_def456"
+  },
+  {
+    "user_id": "user_003",
+    "status": "success",
+    "data": {
+      "name": "Carol Williams",
+      "email": "carol@example.com",
+      "account_type": "premium",
+      "credits": 500,
+      "last_login": "2024-10-17T08:45:00Z"
+    },
+    "timestamp": "2024-10-17T10:02:00Z",
+    "request_id": "req_ghi789"
+  }
+]

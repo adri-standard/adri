@@ -11,6 +11,20 @@ repos:
       - id: debug-statements
       - id: mixed-line-ending
 
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v3.15.0
+    hooks:
+      - id: pyupgrade
+        args: [--py310-plus]
+        exclude: ^(tests/|examples/|scripts/|development/|tools/)
+
+  - repo: https://github.com/PyCQA/autoflake
+    rev: v2.2.1
+    hooks:
+      - id: autoflake
+        args: [--remove-all-unused-imports, --in-place]
+        exclude: ^(tests/|examples/|scripts/|development/|tools/)
+
   - repo: https://github.com/psf/black
     rev: 25.1.0
     hooks:
@@ -53,9 +67,46 @@ repos:
   # UTF-8 encoding check for cross-platform compatibility
   - repo: local
     hooks:
+      - id: validate-adri-schemas
+        name: Validate ADRI schema consistency
+        entry: python .pre-commit-hooks/validate-adri-schemas.py
+        language: system
+        files: \.(yaml|yml)$
+        pass_filenames: true
+        description: Validates ADRI schemas for type conflicts, SQL reserved words, and consistency issues
+
       - id: check-utf8-encoding
         name: Check UTF-8 encoding in file operations
         entry: python .pre-commit-hooks/check-utf8-encoding.py
+        language: system
+        pass_filenames: false
+        always_run: true
+
+      - id: python-syntax-check
+        name: Check Python syntax (compile check)
+        entry: python -m py_compile
+        language: system
+        files: \.py$
+        exclude: ^(\.eggs/|\.git/|\.tox/|\.venv/|venv/|build/|dist/)
+
+      - id: pytest-collection-check
+        name: Verify pytest can collect all tests
+        entry: bash -c 'python -m pytest tests/ --collect-only -q > /dev/null 2>&1 || (echo "ERROR Test collection failed. Run pytest tests/ --collect-only to see details." && exit 1)'
+        language: system
+        pass_filenames: false
+        always_run: true
+
+      - id: pytest-smoke-test
+        name: Run quick smoke tests (critical components only)
+        entry: python -m pytest
+        args:
+          - tests/test_config.py
+          - tests/test_decorator.py
+          - tests/test_guard_modes.py
+          - tests/integration/test_cli_imports.py
+          - -x
+          - -q
+          - --tb=line
         language: system
         pass_filenames: false
         always_run: true

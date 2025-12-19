@@ -29,9 +29,9 @@
 | FailFastMode | `src/adri/guard/modes.py` | ✅ Verified |
 | SelectiveMode | `src/adri/guard/modes.py` | ✅ Verified |
 | WarnOnlyMode | `src/adri/guard/modes.py` | ✅ Verified |
-| StandardsParser | `src/adri/standards/parser.py` | ✅ Verified |
-| **StandardValidator** | `src/adri/standards/validator.py` | ✅ **VERIFIED** |
-| StandardSchema | `src/adri/standards/schema.py` | ✅ Verified |
+| StandardsParser | `src/adri/contracts/parser.py` | ✅ Verified |
+| **StandardValidator** | `src/adri/contracts/validator.py` | ✅ **VERIFIED** |
+| StandardSchema | `src/adri/contracts/schema.py` | ✅ Verified |
 | ConfigurationLoader | `src/adri/config/loader.py` | ✅ Verified |
 | LocalLogger | `src/adri/logging/local.py` | ✅ Verified |
 | EnterpriseLogger | `src/adri/logging/enterprise.py` | ✅ Verified |
@@ -137,8 +137,8 @@ load_standard() → StandardsParser.parse()
 ```
 
 **Verification against codebase:**
-- ✅ Parser calls validator - CONFIRMED in `src/adri/standards/parser.py`
-- ✅ Validator uses schema - CONFIRMED in `src/adri/standards/validator.py`
+- ✅ Parser calls validator - CONFIRMED in `src/adri/contracts/parser.py`
+- ✅ Validator uses schema - CONFIRMED in `src/adri/contracts/validator.py`
 - ✅ Results are cached - CONFIRMED (mtime-based caching)
 - ✅ Validated standards go to cache - CONFIRMED in flow
 
@@ -194,10 +194,10 @@ All code file paths in diagrams and descriptions verified:
 | src/adri/validator/rules.py | Exists | ✅ Valid |
 | src/adri/validator/loaders.py | Exists | ✅ Valid |
 | src/adri/guard/modes.py | Exists | ✅ Valid |
-| src/adri/standards/parser.py | Exists | ✅ Valid |
-| src/adri/standards/validator.py | Exists | ✅ Valid |
-| src/adri/standards/schema.py | Exists | ✅ Valid |
-| src/adri/standards/exceptions.py | Exists | ✅ Valid |
+| src/adri/contracts/parser.py | Exists | ✅ Valid |
+| src/adri/contracts/validator.py | Exists | ✅ Valid |
+| src/adri/contracts/schema.py | Exists | ✅ Valid |
+| src/adri/contracts/exceptions.py | Exists | ✅ Valid |
 | src/adri/config/loader.py | Exists | ✅ Valid |
 | src/adri/logging/local.py | Exists | ✅ Valid |
 | src/adri/logging/enterprise.py | Exists | ✅ Valid |

@@ -60,9 +60,9 @@ def mock_registry():
     # Create mock commands
     mock_commands = {}
     command_names = [
-        "setup", "assess", "generate-standard", "list-assessments",
-        "list-standards", "view-logs", "show-config", "validate-standard",
-        "show-standard", "scoring-explain", "scoring-preset-apply"
+        "setup", "assess", "generate-contract", "list-assessments",
+        "list-contracts", "view-logs", "show-config", "validate-contract",
+        "show-contract", "scoring-explain", "scoring-preset-apply"
     ]
 
     for name in command_names:
@@ -92,7 +92,7 @@ def sample_data():
 def sample_standard():
     """Provide a sample ADRI standard for testing."""
     return {
-        "standards": {
+        "contracts": {
             "id": "test_data_standard",
             "name": "Test Data Standard",
             "version": "1.0.0",
@@ -169,7 +169,7 @@ class TestWorkspace:
                 "environments": {
                     "development": {
                         "paths": {
-                            "standards": "ADRI/dev/standards",
+                            "contracts": "ADRI/dev/contracts",
                             "assessments": "ADRI/dev/assessments",
                             "training_data": "ADRI/dev/training-data",
                             "audit_logs": "ADRI/dev/audit-logs",
@@ -185,7 +185,7 @@ class TestWorkspace:
                     },
                     "production": {
                         "paths": {
-                            "standards": "ADRI/prod/standards",
+                            "contracts": "ADRI/prod/contracts",
                             "assessments": "ADRI/prod/assessments",
                             "training_data": "ADRI/prod/training-data",
                             "audit_logs": "ADRI/prod/audit-logs",

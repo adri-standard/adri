@@ -4,21 +4,20 @@ This module provides command registration and discovery functionality
 for the new modular CLI architecture.
 """
 
-from typing import Dict
-
 from ..core.protocols import Command
 from ..core.registry import get_global_registry
 from .commands import (
     AssessCommand,
-    GenerateStandardCommand,
+    GenerateContractCommand,
+    GuideCommand,
     ListAssessmentsCommand,
-    ListStandardsCommand,
+    ListContractsCommand,
     ScoringExplainCommand,
     ScoringPresetApplyCommand,
     SetupCommand,
     ShowConfigCommand,
-    ShowStandardCommand,
-    ValidateStandardCommand,
+    ShowContractCommand,
+    ValidateContractCommand,
     ViewLogsCommand,
 )
 
@@ -32,15 +31,16 @@ def register_all_commands() -> None:
         # Core commands
         ("setup", SetupCommand),
         ("assess", AssessCommand),
-        ("generate-standard", GenerateStandardCommand),
+        ("generate-contract", GenerateContractCommand),
+        ("guide", GuideCommand),
         # Information commands
         ("list-assessments", ListAssessmentsCommand),
-        ("list-standards", ListStandardsCommand),
+        ("list-contracts", ListContractsCommand),
         ("view-logs", ViewLogsCommand),
         # Configuration commands
         ("show-config", ShowConfigCommand),
-        ("validate-standard", ValidateStandardCommand),
-        ("show-standard", ShowStandardCommand),
+        ("validate-contract", ValidateContractCommand),
+        ("show-contract", ShowContractCommand),
         # Scoring commands
         ("scoring-explain", ScoringExplainCommand),
         ("scoring-preset-apply", ScoringPresetApplyCommand),
@@ -53,7 +53,7 @@ def register_all_commands() -> None:
             registry.commands.register(command_name, command_class)
 
 
-def create_command_registry() -> Dict[str, Command]:
+def create_command_registry() -> dict[str, Command]:
     """Create a dictionary of all registered commands.
 
     Returns:

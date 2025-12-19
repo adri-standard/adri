@@ -1,0 +1,371 @@
+name: Release Enterprise (verodat-adri)
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'  # Matches v1.0.0, v6.1.0, etc.
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to release (e.g., v6.1.0)'
+        required: true
+        type: string
+
+env:
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  validate-tag:
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.get-tag.outputs.tag }}
+      version: ${{ steps.get-tag.outputs.version }}
+
+    steps:
+    - uses: actions/checkout@v5
+      with:
+        fetch-depth: 0
+
+    - name: Get tag
+      id: get-tag
+      run: |
+        if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+          TAG="${{ github.event.inputs.tag }}"
+        else
+          TAG=${GITHUB_REF#refs/tags/}
+        fi
+
+        echo "tag=${TAG}" >> $GITHUB_OUTPUT
+
+        # Extract version (remove 'v' prefix)
+        VERSION=${TAG#v}
+        echo "version=${VERSION}" >> $GITHUB_OUTPUT
+
+        # Validate tag format
+        if [[ ! $TAG =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+          echo "Invalid tag format: $TAG. Expected format: v1.2.3"
+          exit 1
+        fi
+
+        echo "✅ Valid tag: $TAG (version: $VERSION)"
+
+  build:
+    needs: validate-tag
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v5
+      with:
+        fetch-depth: 0  # Needed for setuptools_scm
+
+    - name: Set up Python ${{ env.PYTHON_VERSION }}
+      uses: actions/setup-python@v6
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install build dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install build twine setuptools_scm
+
+    - name: Verify setuptools_scm version
+      run: |
+        DETECTED_VERSION=$(python -c "from setuptools_scm import get_version; print(get_version())")
+        EXPECTED_VERSION="${{ needs.validate-tag.outputs.version }}"
+
+        echo "Detected version: $DETECTED_VERSION"
+        echo "Expected version: $EXPECTED_VERSION"
+
+        if [[ "$DETECTED_VERSION" != "$EXPECTED_VERSION" ]]; then
+          echo "❌ Version mismatch!"
+          echo "setuptools_scm detected: $DETECTED_VERSION"
+          echo "Git tag indicates: $EXPECTED_VERSION"
+          exit 1
+        fi
+
+        echo "✅ Version verification passed"
+
+    - name: Verify package name is verodat-adri
+      run: |
+        PACKAGE_NAME=$(python -c "import tomllib; print(tomllib.load(open('pyproject.toml', 'rb'))['project']['name'])")
+        echo "Package name: $PACKAGE_NAME"
+        
+        if [[ "$PACKAGE_NAME" != "verodat-adri" ]]; then
+          echo "❌ Package name is not 'verodat-adri'!"
+          echo "Found: $PACKAGE_NAME"
+          exit 1
+        fi
+        
+        echo "✅ Package name verification passed"
+
+    - name: Build package
+      run: |
+        python -m build
+
+    - name: Check package integrity
+      run: |
+        twine check dist/*
+
+    - name: Verify package contents include enterprise module
+      run: |
+        # Extract and check the wheel
+        python -c "
+        import zipfile
+        import sys
+        from pathlib import Path
+        
+        wheel = list(Path('dist').glob('verodat_adri-*.whl'))[0]
+        print(f'Checking wheel: {wheel}')
+        
+        with zipfile.ZipFile(wheel, 'r') as z:
+            files = z.namelist()
+            
+        # Check for enterprise module
+        enterprise_files = [f for f in files if 'adri_enterprise' in f]
+        if not enterprise_files:
+            print('❌ ERROR: adri_enterprise module not found in wheel!')
+            sys.exit(1)
+        
+        print(f'✅ Found {len(enterprise_files)} enterprise files:')
+        for f in enterprise_files[:10]:
+            print(f'  - {f}')
+        if len(enterprise_files) > 10:
+            print(f'  ... and {len(enterprise_files) - 10} more')
+        
+        # Check for license module specifically
+        license_files = [f for f in files if 'license.py' in f]
+        if not any('adri_enterprise' in f for f in license_files):
+            print('❌ ERROR: License validation module not found!')
+            sys.exit(1)
+        
+        print('✅ License validation module included')
+        "
+
+    - name: List build artifacts
+      run: |
+        python -c "import os; print('\\n'.join(f'{f}' for f in os.listdir('dist')))"
+        python -c "import os; [print(f'{f}: {os.path.getsize(os.path.join(\"dist\", f))} bytes') for f in os.listdir('dist')]"
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: dist-${{ needs.validate-tag.outputs.tag }}
+        path: dist/
+        retention-days: 30
+
+  test-install:
+    needs: [validate-tag, build]
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ['3.10', '3.11', '3.12', '3.13']
+
+    steps:
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v6
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Download build artifacts
+      uses: actions/download-artifact@v5
+      with:
+        name: dist-${{ needs.validate-tag.outputs.tag }}
+        path: dist/
+
+    - name: Test wheel installation
+      run: |
+        python -c "import os; print('Available files:'); [print(f'  {f}') for f in os.listdir('dist')]"
+        python -c "import os, glob; wheel = glob.glob('dist/verodat_adri-*.whl')[0]; os.system(f'pip install {wheel}')"
+
+    - name: Test CLI functionality
+      run: |
+        adri --version
+        adri --help
+
+    - name: Test Python imports
+      run: |
+        python -c "
+        import adri
+        print(f'Successfully imported ADRI version: {adri.__version__}')
+
+        # Verify version matches expectation
+        expected = '${{ needs.validate-tag.outputs.version }}'
+        if adri.__version__ != expected:
+            print(f'Version mismatch: {adri.__version__} != {expected}')
+            exit(1)
+
+        print('Version verification passed')
+        
+        # Test enterprise module is importable
+        import adri_enterprise
+        print(f'Successfully imported adri_enterprise')
+        
+        # Test license module is available
+        from adri_enterprise.license import validate_license, LicenseValidationError
+        print('License validation module imported successfully')
+        "
+
+    - name: Test license validation fails without API key
+      run: |
+        python -c "
+        from adri_enterprise.license import validate_license, LicenseValidationError
+        
+        try:
+            validate_license()
+            print('ERROR: Should have raised LicenseValidationError')
+            exit(1)
+        except LicenseValidationError as e:
+            print(f'[PASS] License validation correctly failed: {e.message}')
+        "
+
+  publish-test-pypi:
+    needs: [validate-tag, build, test-install]
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v5
+      with:
+        fetch-depth: 0
+
+    - name: Download build artifacts
+      uses: actions/download-artifact@v5
+      with:
+        name: dist-${{ needs.validate-tag.outputs.tag }}
+        path: dist/
+
+    - name: Publish to TestPyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        repository-url: https://test.pypi.org/legacy/
+        password: ${{ secrets.TEST_PYPI_API_TOKEN }}
+
+    - name: Test installation from TestPyPI
+      run: |
+        sleep 180  # Wait for TestPyPI CDN propagation
+        pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ verodat-adri==${{ needs.validate-tag.outputs.version }}
+        adri --version
+        
+        # Verify enterprise module
+        python -c "
+        import adri_enterprise
+        from adri_enterprise.license import validate_license
+        print('✅ Enterprise package installed from TestPyPI successfully')
+        "
+
+  publish-pypi:
+    needs: [validate-tag, build, test-install, publish-test-pypi]
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Download build artifacts
+      uses: actions/download-artifact@v5
+      with:
+        name: dist-${{ needs.validate-tag.outputs.tag }}
+        path: dist/
+
+    - name: Publish to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        password: ${{ secrets.PYPI_API_TOKEN }}
+
+  create-github-release:
+    needs: [validate-tag, build, test-install, publish-pypi]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+    - uses: actions/checkout@v5
+      with:
+        fetch-depth: 0
+
+    - name: Generate release notes
+      id: release-notes
+      run: |
+        # Get the previous tag for comparison
+        PREVIOUS_TAG=$(git tag --sort=-version:refname | grep -v "${{ needs.validate-tag.outputs.tag }}" | head -n1)
+
+        # Create release notes
+        cat > release_notes.md << 'EOF_HEADER'
+        ## verodat-adri ${{ needs.validate-tag.outputs.version }}
+        
+        Enterprise data quality layer for AI agents with Verodat cloud integration.
+        
+        ### 🔑 License Requirement
+        
+        This package requires a valid Verodat API key. Set the `VERODAT_API_KEY` environment variable before using enterprise features.
+        
+        ### What's Changed
+        EOF_HEADER
+
+        if [[ -n "$PREVIOUS_TAG" ]]; then
+          echo "Generating changelog from $PREVIOUS_TAG to ${{ needs.validate-tag.outputs.tag }}"
+          git log --pretty=format:"- %s (%h)" "$PREVIOUS_TAG..${{ needs.validate-tag.outputs.tag }}" >> release_notes.md
+        fi
+
+        cat >> release_notes.md << 'EOF_FOOTER'
+
+        ### Installation
+
+        ```bash
+        pip install verodat-adri==${{ needs.validate-tag.outputs.version }}
+        ```
+
+        ### Quick Start
+
+        ```python
+        import os
+        os.environ["VERODAT_API_KEY"] = "your-api-key"
+
+        from verodat_adri import adri_protected
+
+        @adri_protected(contract="customer_data")
+        def process_data(data):
+            return data
+        ```
+
+        ### Links
+
+        - 📦 [PyPI Package](https://pypi.org/project/verodat-adri/${{ needs.validate-tag.outputs.version }}/)
+        - 📖 [Documentation](https://github.com/Verodat/verodat-adri/blob/main/README.md)
+        - 🐛 [Report Issues](https://github.com/Verodat/verodat-adri/issues)
+        - 🌐 [Verodat](https://verodat.com)
+        EOF_FOOTER
+
+        # Save to GitHub output
+        {
+          echo "RELEASE_NOTES<<EOF"
+          cat release_notes.md
+          echo "EOF"
+        } >> $GITHUB_OUTPUT
+
+    - name: Create GitHub Release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ needs.validate-tag.outputs.tag }}
+        release_name: verodat-adri ${{ needs.validate-tag.outputs.version }}
+        body: ${{ steps.release-notes.outputs.RELEASE_NOTES }}
+        draft: false
+        prerelease: false
+
+  notify-success:
+    needs: [validate-tag, create-github-release]
+    runs-on: ubuntu-latest
+    if: success()
+
+    steps:
+    - name: Success notification
+      run: |
+        echo "🎉 Successfully released verodat-adri ${{ needs.validate-tag.outputs.version }}!"
+        echo ""
+        echo "✅ Package built and tested"
+        echo "✅ Published to TestPyPI"
+        echo "✅ Published to PyPI"
+        echo "✅ GitHub release created"
+        echo ""
+        echo "🔗 Links:"
+        echo "   PyPI: https://pypi.org/project/verodat-adri/${{ needs.validate-tag.outputs.version }}/"
+        echo "   GitHub: https://github.com/Verodat/verodat-adri/releases/tag/${{ needs.validate-tag.outputs.tag }}"

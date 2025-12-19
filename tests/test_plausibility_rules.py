@@ -8,7 +8,7 @@ from src.adri.validator.engine import ValidationEngine
 def _make_plausibility_standard(rule_weights: Dict[str, float], extra: Dict[str, Any] = None) -> Dict[str, Any]:
     """Create a standard with plausibility rules for testing."""
     std: Dict[str, Any] = {
-        "standards": {"id": "test_standard", "name": "Test Standard", "version": "1.0.0", "authority": "ADRI Framework"},
+        "contracts": {"id": "test_standard", "name": "Test Standard", "version": "1.0.0", "authority": "ADRI Framework"},
         "requirements": {
             "overall_minimum": 75.0,
             "field_requirements": {

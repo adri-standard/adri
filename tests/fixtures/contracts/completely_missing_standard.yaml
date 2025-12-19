@@ -1,0 +1,41 @@
+contracts:
+  id: completely_missing_standard
+  name: completely_missing ADRI Standard
+  version: 1.0.0
+  authority: ADRI Framework
+  description: Auto-generated standard for completely_missing data
+requirements:
+  overall_minimum: 75.0
+  field_requirements:
+    customer_id:
+      type: integer
+      nullable: false
+    name:
+      type: string
+      nullable: true
+    email:
+      type: string
+      nullable: false
+    age:
+      type: float
+      nullable: true
+    salary:
+      type: float
+      nullable: true
+    registration_date:
+      type: string
+      nullable: true
+    status:
+      type: string
+      nullable: true
+  dimension_requirements:
+    validity:
+      minimum_score: 15.0
+    completeness:
+      minimum_score: 15.0
+    consistency:
+      minimum_score: 12.0
+    freshness:
+      minimum_score: 15.0
+    plausibility:
+      minimum_score: 12.0

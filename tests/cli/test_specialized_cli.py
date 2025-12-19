@@ -99,12 +99,12 @@ class TestCatalogCommands(ModernCLITestBase):
 
         # Simulate having fetched a standard from catalog
         catalog_standard = create_sample_standard("catalog_standard")
-        standard_path = Path("ADRI/dev/standards/catalog_standard.yaml")
+        standard_path = Path("ADRI/dev/contracts/catalog_standard.yaml")
         with open(standard_path, 'w', encoding='utf-8') as f:
             yaml.dump(catalog_standard, f)
 
         # Should be able to validate the catalog standard
-        validate_command = get_command("validate-standard")
+        validate_command = get_command("validate-contract")
         result = validate_command.execute({
             "standard_path": str(standard_path)
         })
@@ -112,7 +112,7 @@ class TestCatalogCommands(ModernCLITestBase):
         assert result == 0
 
         # Should be able to list it
-        list_standards_command = get_command("list-standards")
+        list_standards_command = get_command("list-contracts")
         result = list_standards_command.execute({
             "environment": "development",
             "json_output": False
@@ -172,7 +172,7 @@ class TestEnhancedCommands(ModernCLITestBase):
         test_file.write_text(test_data)
 
         # Generate standard which should create snapshot
-        generate_command = get_command("generate-standard")
+        generate_command = get_command("generate-contract")
         result = generate_command.execute({
             "data_path": str(test_file),
             "force": False,
@@ -187,7 +187,7 @@ class TestEnhancedCommands(ModernCLITestBase):
         assert training_data_dir.exists()
 
         # Check that standard was created
-        standard_path = Path("ADRI/dev/standards/training_data_ADRI_standard.yaml")
+        standard_path = Path("ADRI/dev/contracts/training_data_ADRI_standard.yaml")
         assert standard_path.exists()
 
     @patch('src.adri.validator.loaders.load_data')
@@ -205,7 +205,7 @@ class TestEnhancedCommands(ModernCLITestBase):
         test_file.write_text(test_data)
 
         # Generate standard
-        generate_command = get_command("generate-standard")
+        generate_command = get_command("generate-contract")
         result = generate_command.execute({
             "data_path": str(test_file),
             "force": False,
@@ -216,7 +216,7 @@ class TestEnhancedCommands(ModernCLITestBase):
         assert result == 0
 
         # Verify standard includes enhanced sections
-        standard_path = Path("ADRI/dev/standards/lineage_test_ADRI_standard.yaml")
+        standard_path = Path("ADRI/dev/contracts/lineage_test_ADRI_standard.yaml")
         assert standard_path.exists()
 
         with open(standard_path, 'r', encoding='utf-8') as f:
@@ -241,7 +241,7 @@ class TestEnhancedCommands(ModernCLITestBase):
         with patch('src.adri.validator.loaders.load_data') as mock_load_data:
             mock_load_data.return_value = create_sample_data("invoice")
 
-            generate_command = get_command("generate-standard")
+            generate_command = get_command("generate-contract")
             result = generate_command.execute({
                 "data_path": "ADRI/tutorials/invoice_processing/invoice_data.csv",
                 "force": False,
@@ -252,7 +252,7 @@ class TestEnhancedCommands(ModernCLITestBase):
             assert result == 0
 
             # Verify standard was created
-            standard_path = Path("ADRI/dev/standards/invoice_data_ADRI_standard.yaml")
+            standard_path = Path("ADRI/dev/contracts/invoice_data_ADRI_standard.yaml")
             assert standard_path.exists()
 
     def test_record_identification_configuration(self):
@@ -268,12 +268,12 @@ class TestEnhancedCommands(ModernCLITestBase):
             "strategy": "primary_key_with_fallback"
         }
 
-        standard_path = Path("ADRI/dev/standards/record_id_test.yaml")
+        standard_path = Path("ADRI/dev/contracts/record_id_test.yaml")
         with open(standard_path, 'w', encoding='utf-8') as f:
             yaml.dump(standard_content, f)
 
         # Validate the standard
-        validate_command = get_command("validate-standard")
+        validate_command = get_command("validate-contract")
         result = validate_command.execute({
             "standard_path": str(standard_path)
         })
@@ -281,7 +281,7 @@ class TestEnhancedCommands(ModernCLITestBase):
         assert result == 0
 
         # Show the standard to verify structure
-        show_standard_command = get_command("show-standard")
+        show_standard_command = get_command("show-contract")
         result = show_standard_command.execute({
             "standard_path": str(standard_path)
         })
@@ -293,13 +293,13 @@ class TestFunctionalWorkflows(ModernCLITestBase):
     """Test functional CLI workflows using modern patterns."""
 
     @patch('src.adri.validator.loaders.load_data')
-    @patch('src.adri.validator.loaders.load_standard')
+    @patch('src.adri.validator.loaders.load_contract')
     @patch('src.adri.validator.engine.DataQualityAssessor')
-    def test_complete_data_quality_workflow(self, mock_assessor_class, mock_load_standard, mock_load_data):
+    def test_complete_data_quality_workflow(self, mock_assessor_class, mock_load_contract, mock_load_data):
         """Test complete data quality workflow."""
         # Setup mocks
         mock_load_data.return_value = create_sample_data("invoice")
-        mock_load_standard.return_value = create_sample_standard()
+        mock_load_contract.return_value = create_sample_standard()
 
         mock_result = Mock()
         mock_result.overall_score = 85.0
@@ -321,7 +321,7 @@ class TestFunctionalWorkflows(ModernCLITestBase):
         assert setup_result == 0
 
         # Step 2: Generate standard from tutorial data
-        generate_command = get_command("generate-standard")
+        generate_command = get_command("generate-contract")
         generate_result = generate_command.execute({
             "data_path": "ADRI/tutorials/invoice_processing/invoice_data.csv",
             "force": False,
@@ -331,8 +331,8 @@ class TestFunctionalWorkflows(ModernCLITestBase):
         assert generate_result == 0
 
         # Step 3: Validate the generated standard
-        standard_path = Path("ADRI/dev/standards/invoice_data_ADRI_standard.yaml")
-        validate_command = get_command("validate-standard")
+        standard_path = Path("ADRI/dev/contracts/invoice_data_ADRI_standard.yaml")
+        validate_command = get_command("validate-contract")
         validate_result = validate_command.execute({
             "standard_path": str(standard_path)
         })
@@ -364,19 +364,19 @@ class TestFunctionalWorkflows(ModernCLITestBase):
 
         # Create standard in development
         dev_standard = create_sample_standard("dev_standard")
-        dev_path = Path("ADRI/dev/standards/dev_standard.yaml")
+        dev_path = Path("ADRI/dev/contracts/dev_standard.yaml")
         with open(dev_path, 'w', encoding='utf-8') as f:
             yaml.dump(dev_standard, f)
 
         # Validate in development environment
-        validate_command = get_command("validate-standard")
+        validate_command = get_command("validate-contract")
         dev_result = validate_command.execute({
             "standard_path": str(dev_path)
         })
         assert dev_result == 0
 
         # Copy to production (simulated)
-        prod_path = Path("ADRI/prod/standards/prod_standard.yaml")
+        prod_path = Path("ADRI/prod/contracts/prod_standard.yaml")
         prod_path.parent.mkdir(parents=True, exist_ok=True)
         with open(prod_path, 'w', encoding='utf-8') as f:
             yaml.dump(dev_standard, f)
@@ -388,7 +388,7 @@ class TestFunctionalWorkflows(ModernCLITestBase):
         assert prod_result == 0
 
         # List standards in both environments
-        list_standards_command = get_command("list-standards")
+        list_standards_command = get_command("list-contracts")
 
         dev_list_result = list_standards_command.execute({
             "environment": "development",
@@ -410,12 +410,12 @@ class TestFunctionalWorkflows(ModernCLITestBase):
 
         # Create invalid standard file
         invalid_content = {"invalid": "structure"}
-        invalid_path = Path("ADRI/dev/standards/invalid.yaml")
+        invalid_path = Path("ADRI/dev/contracts/invalid.yaml")
         with open(invalid_path, 'w', encoding='utf-8') as f:
             yaml.dump(invalid_content, f)
 
         # Attempt to validate - should fail
-        validate_command = get_command("validate-standard")
+        validate_command = get_command("validate-contract")
         failed_result = validate_command.execute({
             "standard_path": str(invalid_path)
         })
@@ -534,14 +534,14 @@ class TestPathResolutionIntegration(ModernCLITestBase):
                 yaml.dump(standard_content, f)
 
             # Validate using relative path
-            validate_command = get_command("validate-standard")
+            validate_command = get_command("validate-contract")
             result = validate_command.execute({
                 "standard_path": "standards/relative_test.yaml"
             })
             assert result == 0
 
             # Show using relative path
-            show_standard_command = get_command("show-standard")
+            show_standard_command = get_command("show-contract")
             show_result = show_standard_command.execute({
                 "standard_path": "standards/relative_test.yaml"
             })
@@ -619,7 +619,7 @@ class TestSpecializedErrorHandling(ModernCLITestBase):
         setup_command.execute({"force": False, "project_name": "error_test", "guide": False})
 
         # Test generate standard with missing data file
-        generate_command = get_command("generate-standard")
+        generate_command = get_command("generate-contract")
         result = generate_command.execute({
             "data_path": "nonexistent_file.csv",
             "force": False,
@@ -663,12 +663,12 @@ class TestSpecializedErrorHandling(ModernCLITestBase):
         setup_command.execute({"force": False, "project_name": "yaml_test", "guide": False})
 
         # Create invalid YAML file
-        invalid_yaml_path = Path("ADRI/dev/standards/invalid.yaml")
+        invalid_yaml_path = Path("ADRI/dev/contracts/invalid.yaml")
         with open(invalid_yaml_path, 'w', encoding='utf-8') as f:
             f.write("invalid: yaml: content: [unclosed")
 
         # Attempt to validate - should handle YAML error gracefully
-        validate_command = get_command("validate-standard")
+        validate_command = get_command("validate-contract")
         result = validate_command.execute({
             "standard_path": str(invalid_yaml_path)
         })

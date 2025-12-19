@@ -1,33 +1,26 @@
 # ADRI Assessment Log - Complete Explanation
 
-> **📝 IMPORTANT:** This document provides detailed field-level documentation for the assessment logs. For the most current and comprehensive logging documentation covering all 5 log files (including AI reasoning logs), see:
->
-> **[Audit Trail & Logging](docs/users/audit-and-logging.md)** - Complete guide to ADRI's logging system
->
-> The new documentation includes:
-> - All 5 log files (3 JSONL + 2 CSV)
-> - AI reasoning logs (prompts & responses)
-> - Query examples (Python, SQL, jq)
-> - Integration patterns
-> - Use cases and best practices
+> **📝 NOTE:** This document describes ADRI's open-source JSONL logging system. For complete feature scope, see [OPEN_SOURCE_FEATURES.md](OPEN_SOURCE_FEATURES.md).
 
-**Date:** January 8, 2025
+**Date:** October 21, 2025
+**Format:** JSONL (JSON Lines)
 **Purpose:** Comprehensive guide to understanding ADRI's assessment audit logs
 
 ---
 
 ## Executive Summary
 
-The **Assessment Log** (`adri_assessment_logs.csv`) is ADRI's primary audit trail that records **every single data quality assessment** performed by the system. It provides a complete, immutable record of:
+The **Assessment Log** (`.adri/logs/assessments.jsonl`) is ADRI's primary audit trail that records **every single data quality assessment** performed by the system. It provides a complete, immutable record of:
 
 - What data was assessed
 - When it was assessed
 - What quality score it received
 - Whether it passed or failed
-- What action was taken (allowed, blocked, warned)
-- System context and performance metrics
+- Dimension-specific scores
+- Failed validation details
+- System context and metadata
 
-Think of it as a **"flight recorder" for AI data quality** - it captures everything needed to audit, debug, and prove compliance.
+Think of it as a **"flight recorder" for AI data quality"** - it captures everything needed to audit, debug, and prove compliance.
 
 ---
 
@@ -45,25 +38,57 @@ When AI systems process data:
 
 The Assessment Log provides:
 1. **Complete Audit Trail:** Every assessment is logged with timestamp
-2. **Forensic Details:** Exact data checksums, versions, system info
+2. **Forensic Details:** Exact scores, validation failures, system info
 3. **Decision Record:** What action was taken and why
-4. **Performance Metrics:** How fast assessments ran
-5. **Compliance Evidence:** Immutable CSV record for regulators
+4. **Performance Metrics:** How assessments performed
+5. **Compliance Evidence:** Immutable JSONL record for auditors
 
 ---
 
-## Part 2: Structure Overview
+## Part 2: JSONL Format
 
-The Assessment Log is a **CSV file** with 25 columns organized into 6 logical groups:
+### What is JSONL?
 
-```
-📋 ASSESSMENT LOG STRUCTURE
-├── 🆔 Core Identification (4 fields)
-├── 📍 Assessment Context (4 fields)
-├── 💻 System Information (3 fields)
-├── 📊 Standard & Data Details (9 fields)
-├── ✅ Assessment Results (3 fields)
-└── ⚡ Performance Metrics (4 fields)
+JSONL (JSON Lines) is a format where:
+- Each line is a complete, valid JSON object
+- Lines are separated by newlines (`\n`)
+- Easy to stream and process line-by-line
+- Human-readable and machine-parseable
+
+### Example Log Entry
+
+Each line in `.adri/logs/assessments.jsonl` is a JSON object like this:
+
+```json
+{
+  "assessment_id": "20250117_143022_abc123",
+  "timestamp": "2025-01-17T14:30:22.123456",
+  "standard_name": "customer_service_quality",
+  "overall_score": 0.87,
+  "passed": true,
+  "dimension_scores": {
+    "completeness": 0.92,
+    "validity": 0.85,
+    "consistency": 0.88,
+    "plausibility": 0.84,
+    "accuracy": 0.86
+  },
+  "failed_validations": [
+    {
+      "rule": "email_format",
+      "severity": "critical",
+      "failed_count": 3,
+      "message": "Invalid email format detected"
+    }
+  ],
+  "metadata": {
+    "function_name": "process_tickets",
+    "data_rows": 1500,
+    "data_columns": 12,
+    "environment": "production",
+    "adri_version": "5.0.1"
+  }
+}
 ```
 
 ---
@@ -72,196 +97,43 @@ The Assessment Log is a **CSV file** with 25 columns organized into 6 logical gr
 
 ### 🆔 Core Identification Fields
 
-These uniquely identify each assessment and when it occurred.
-
-#### 1. `assessment_id` (REQUIRED)
-- **Format:** `adri_YYYYMMDD_HHMMSS_hexhash`
-- **Example:** `adri_20251003_175905_780ea9`
-- **Purpose:** Unique identifier for this specific assessment
+#### `assessment_id` (Required)
+- **Format:** `YYYYMMDD_HHMMSS_hexhash`
+- **Example:** `"20250117_143022_abc123"`
+- **Purpose:** Unique identifier for this assessment
 - **Pattern:**
-  - `adri_` prefix
-  - Date: `20251003` = October 3, 2025
-  - Time: `175905` = 17:59:05 (5:59:05 PM)
-  - Hash: `780ea9` = unique 6-character hex identifier
+  - Date: `20250117` = January 17, 2025
+  - Time: `143022` = 14:30:22 (2:30:22 PM)
+  - Hash: `abc123` = unique identifier
 
-**Why It Matters:** Links this assessment to related logs (dimension scores, failed validations)
+**Why It Matters:** Links related log entries and enables correlation
 
 ---
 
-#### 2. `timestamp` (REQUIRED)
+#### `timestamp` (Required)
 - **Format:** ISO 8601 with microseconds
-- **Example:** `2025-10-03T17:59:05.897069`
-- **Purpose:** Exact moment assessment started
-- **Precision:** Down to microseconds for ordering
+- **Example:** `"2025-01-17T14:30:22.123456"`
+- **Purpose:** Exact moment assessment occurred
+- **Precision:** Microseconds for precise ordering
 
 **Why It Matters:** Establishes exact timeline for compliance and debugging
 
 ---
 
-#### 3. `adri_version` (REQUIRED)
-- **Format:** Semantic version with git metadata
-- **Example:** `4.0.1.post128+gdac52c588.d20251003`
-- **Breakdown:**
-  - `4.0.1` = Base version
-  - `post128` = 128 commits after release
-  - `+gdac52c588` = Git commit hash
-  - `.d20251003` = Dirty build from Oct 3, 2025
+### 📊 Assessment Results
 
-**Why It Matters:** Tracks which ADRI version performed assessment (for bug tracking, behavior changes)
+#### `standard_name` (Required)
+- **Example:** `"customer_service_quality"`
+- **Purpose:** Name of the standard used for validation
+
+**Why It Matters:** Shows which quality rules were applied
 
 ---
 
-#### 4. `assessment_type` (REQUIRED)
-- **Valid Values:**
-  - `QUALITY_CHECK` = Standard data quality assessment
-  - `VALIDATION` = Validation-only check
-  - `PROFILING` = Data profiling operation
-- **Example:** `QUALITY_CHECK`
-
-**Why It Matters:** Different assessment types have different compliance requirements
-
----
-
-### 📍 Assessment Context Fields
-
-These show where and how the assessment was triggered.
-
-#### 5. `function_name` (REQUIRED)
-- **Examples:**
-  - `assess` = Direct engine call
-  - `adri_protected` = Decorator wrapper
-  - `validate_data` = CLI command
-- **Purpose:** Which function triggered the assessment
-
-**Why It Matters:** Helps trace assessment back to source code location
-
----
-
-#### 6. `module_path` (REQUIRED)
-- **Examples:**
-  - `adri.validator.engine` = Engine module
-  - `adri.cli` = CLI module
-  - `my_app.data_pipeline` = User code
-- **Purpose:** Python module path where assessment originated
-
-**Why It Matters:** Shows if assessment came from ADRI internals or user code
-
----
-
-#### 7. `environment` (REQUIRED)
-- **Valid Values:**
-  - `PRODUCTION` = Live production system
-  - `DEVELOPMENT` = Dev/test environment
-  - `TESTING` = Automated test run
-  - `STAGING` = Pre-production staging
-- **Example:** `PRODUCTION`
-
-**Why It Matters:** Critical for compliance - distinguishes production vs. dev assessments
-
----
-
-#### 8. `hostname` (REQUIRED)
-- **Example:** `Thomass-MacBook-Air.local`
-- **Purpose:** Name of the machine that ran the assessment
-
-**Why It Matters:** Identifies which server/container performed assessment
-
----
-
-### 💻 System Information Fields
-
-These provide forensic details about the execution environment.
-
-#### 9. `process_id` (REQUIRED)
-- **Example:** `49803`
-- **Type:** Integer (0 or greater)
-- **Purpose:** Operating system process ID
-
-**Why It Matters:** Helps correlate with system logs, distinguish parallel assessments
-
----
-
-#### 10. `standard_id` (REQUIRED)
-- **Example:** `invoice_data_ADRI_standard`
-- **Purpose:** Identifier of the standard used for assessment
-
-**Why It Matters:** Links assessment to specific quality rules that were applied
-
----
-
-#### 11. `standard_version` (REQUIRED)
-- **Examples:**
-  - `1.0.0` = Explicit version from standard file
-  - `unknown` = Version not specified in standard
-- **Purpose:** Version of the standard used
-
-**Why It Matters:** Standards evolve - this tracks which version of rules were applied
-
----
-
-#### 12. `standard_checksum` (OPTIONAL)
-- **Example:** `e5f2a1b9c3d4e7f8` (SHA-256 truncated)
-- **Purpose:** Cryptographic hash of standard file content
-- **Can be null:** `""` when not calculated
-
-**Why It Matters:** Proves exact standard content (file wasn't modified after assessment)
-
----
-
-### 📊 Standard & Data Details
-
-These describe the data that was assessed.
-
-#### 13. `data_row_count` (REQUIRED)
-- **Example:** `10`
-- **Type:** Integer (0 or greater)
-- **Purpose:** Number of rows in the assessed dataset
-
-**Why It Matters:** Shows scale of data assessment
-
----
-
-#### 14. `data_column_count` (REQUIRED)
-- **Example:** `6`
-- **Type:** Integer (0 or greater)
-- **Purpose:** Number of columns in the assessed dataset
-
-**Why It Matters:** Helps understand data dimensionality
-
----
-
-#### 15. `data_columns` (REQUIRED)
-- **Format:** JSON array as string
-- **Example:** `["invoice_id", "customer_id", "amount", "date", "status", "payment_method"]`
-- **Purpose:** Exact list of column names in assessment order
-
-**Why It Matters:**
-- Shows what fields were assessed
-- Critical for debugging field mapping issues
-- Proves which data was examined
-
----
-
-#### 16. `data_checksum` (REQUIRED)
-- **Example:** `e46214176cf78804`
-- **Type:** Hexadecimal string (MD5 or SHA-256)
-- **Purpose:** Cryptographic hash of the data content
-
-**Why It Matters:**
-- **Immutability Proof:** Data hasn't changed since assessment
-- **Deduplication:** Detect identical datasets
-- **Cache Key:** Reuse assessment results for same data
-
----
-
-### ✅ Assessment Results
-
-These show the quality scores and pass/fail decision.
-
-#### 17. `overall_score` (REQUIRED)
-- **Range:** 0.0 to 100.0
-- **Example:** `88.5`
-- **Purpose:** Overall data quality score (0 = worst, 100 = perfect)
+#### `overall_score` (Required)
+- **Range:** 0.0 to 1.0 (or 0 to 100 if legacy)
+- **Example:** `0.87` (87%)
+- **Purpose:** Overall data quality score
 
 **Why It Matters:**
 - Main quality metric
@@ -270,22 +142,10 @@ These show the quality scores and pass/fail decision.
 
 ---
 
-#### 18. `required_score` (REQUIRED)
-- **Range:** 0.0 to 100.0
-- **Example:** `75.0`
-- **Purpose:** Minimum score required to pass
-
-**Why It Matters:**
-- Threshold for acceptance
-- Shows quality bar for this assessment
-- Can vary by environment or use case
-
----
-
-#### 19. `passed` (REQUIRED)
-- **Type:** Boolean (TRUE/FALSE)
-- **Example:** `TRUE`
-- **Logic:** `overall_score >= required_score`
+#### `passed` (Required)
+- **Type:** Boolean
+- **Example:** `true`
+- **Logic:** `overall_score >= min_score`
 
 **Why It Matters:**
 - Clear pass/fail indicator
@@ -294,333 +154,626 @@ These show the quality scores and pass/fail decision.
 
 ---
 
-#### 20. `execution_decision` (REQUIRED)
-- **Valid Values:**
-  - `ALLOWED` = Data passed, function executed
-  - `BLOCKED` = Data failed, function not executed
-  - `WARNED` = Data failed but function executed anyway (warning mode)
-- **Example:** `ALLOWED`
+### 📐 Dimension Scores
+
+#### `dimension_scores` (Required)
+- **Type:** Object with dimension names as keys
+- **Example:**
+```json
+{
+  "completeness": 0.92,
+  "validity": 0.85,
+  "consistency": 0.88,
+  "plausibility": 0.84,
+  "accuracy": 0.86
+}
+```
+
+**Available Dimensions:**
+- `completeness` - No missing/null values
+- `validity` - Correct data types and formats
+- `consistency` - Cross-field consistency
+- `plausibility` - Reasonable value ranges
+- `accuracy` - Matches reference data
 
 **Why It Matters:**
-- Shows what action ADRI took
-- Critical for accountability
-- Proves enforcement
+- Shows which quality dimensions passed/failed
+- Enables dimension-specific analysis
+- Helps identify specific data issues
 
 ---
 
-#### 21. `failure_mode` (REQUIRED)
-- **Valid Values:**
-  - `raise` = Raise exception on failure (strict)
-  - `warn` = Log warning on failure (lenient)
-  - `log` = Only log, no warning (silent)
-- **Example:** `raise`
+### ❌ Failed Validations
+
+#### `failed_validations` (Optional)
+- **Type:** Array of validation failure objects
+- **Example:**
+```json
+[
+  {
+    "rule": "email_format",
+    "severity": "critical",
+    "failed_count": 3,
+    "message": "Invalid email format detected",
+    "field": "customer_email"
+  },
+  {
+    "rule": "age_range",
+    "severity": "warning",
+    "failed_count": 1,
+    "message": "Age outside expected range",
+    "field": "customer_age"
+  }
+]
+```
+
+**Validation Object Fields:**
+- `rule` - Name of the validation rule that failed
+- `severity` - "critical" or "warning"
+- `failed_count` - Number of records that failed
+- `message` - Human-readable description
+- `field` - (Optional) Specific field that failed
 
 **Why It Matters:**
-- Shows enforcement policy
-- Affects system behavior
-- Compliance requirement
+- Shows exact validation failures
+- Enables targeted data remediation
+- Critical for debugging
 
 ---
 
-#### 22. `function_executed` (REQUIRED)
-- **Type:** Boolean (TRUE/FALSE)
-- **Example:** `TRUE`
-- **Purpose:** Whether the protected function actually ran
+### 💻 Metadata
+
+#### `metadata` (Required)
+- **Type:** Object with contextual information
+- **Example:**
+```json
+{
+  "function_name": "process_tickets",
+  "data_rows": 1500,
+  "data_columns": 12,
+  "environment": "production",
+  "adri_version": "5.0.1",
+  "min_score": 0.8,
+  "on_failure": "raise"
+}
+```
+
+**Common Metadata Fields:**
+- `function_name` - Function that triggered assessment
+- `data_rows` - Number of rows assessed
+- `data_columns` - Number of columns assessed
+- `environment` - "production", "development", "testing"
+- `adri_version` - ADRI version used
+- `min_score` - Required threshold
+- `on_failure` - Failure handling mode
 
 **Why It Matters:**
-- Confirms enforcement
-- Proves function was blocked if data failed
-- Audit requirement
+- Provides execution context
+- Enables filtering and analysis
+- Tracks system configuration
 
 ---
 
-### ⚡ Performance Metrics
+## Part 4: Reading JSONL Logs
 
-These track how fast the assessment ran.
+### Python - Basic Reading
 
-#### 23. `assessment_duration_ms` (REQUIRED)
-- **Example:** `29` (milliseconds)
-- **Type:** Integer (0 or greater)
-- **Purpose:** How long the assessment took
+```python
+import json
 
-**Why It Matters:**
-- Performance monitoring
-- SLA compliance
-- Optimization opportunities
+# Read all assessments
+with open(".adri/logs/assessments.jsonl", "r") as f:
+    assessments = [json.loads(line) for line in f]
+
+# Print summary
+for assessment in assessments:
+    print(f"{assessment['timestamp']}: {assessment['overall_score']:.2%} - {'PASS' if assessment['passed'] else 'FAIL'}")
+```
+
+### Python - Filtering
+
+```python
+import json
+
+# Read and filter
+with open(".adri/logs/assessments.jsonl", "r") as f:
+    assessments = [json.loads(line) for line in f]
+
+# Get failed assessments
+failed = [a for a in assessments if not a['passed']]
+
+# Get assessments for specific standard
+customer_checks = [
+    a for a in assessments
+    if a['standard_name'] == 'customer_service_quality'
+]
+
+# Get recent assessments (last 24 hours)
+from datetime import datetime, timedelta
+recent = [
+    a for a in assessments
+    if datetime.fromisoformat(a['timestamp']) > datetime.now() - timedelta(days=1)
+]
+```
+
+### Python - Analytics with Pandas
+
+```python
+import json
+import pandas as pd
+
+# Load into DataFrame
+with open(".adri/logs/assessments.jsonl", "r") as f:
+    assessments = [json.loads(line) for line in f]
+
+df = pd.DataFrame(assessments)
+
+# Convert timestamp to datetime
+df['timestamp'] = pd.to_datetime(df['timestamp'])
+
+# Summary statistics
+print(df['overall_score'].describe())
+
+# Average score by standard
+print(df.groupby('standard_name')['overall_score'].mean())
+
+# Failed assessments
+failed_df = df[~df['passed']]
+print(f"Failure rate: {len(failed_df) / len(df):.2%}")
+
+# Scores over time
+import matplotlib.pyplot as plt
+df.set_index('timestamp')['overall_score'].plot()
+plt.title('Quality Scores Over Time')
+plt.ylabel('Score')
+plt.show()
+```
+
+### Command Line - jq
+
+```bash
+# Count total assessments
+jq -s 'length' .adri/logs/assessments.jsonl
+
+# Get average score
+jq -s 'map(.overall_score) | add / length' .adri/logs/assessments.jsonl
+
+# Find failed assessments
+jq 'select(.passed == false)' .adri/logs/assessments.jsonl
+
+# Get assessments for specific standard
+jq 'select(.standard_name == "customer_quality")' .adri/logs/assessments.jsonl
+
+# Extract dimension scores
+jq '.dimension_scores' .adri/logs/assessments.jsonl
+
+# Count assessments by standard
+jq -s 'group_by(.standard_name) | map({standard: .[0].standard_name, count: length})' .adri/logs/assessments.jsonl
+```
 
 ---
 
-#### 24. `rows_per_second` (REQUIRED)
-- **Example:** `344.8275862068965`
-- **Type:** Float (0.0 or greater)
-- **Calculation:** `data_row_count / (assessment_duration_ms / 1000)`
-- **Purpose:** Processing throughput
+## Part 5: Real-World Examples
 
-**Why It Matters:**
-- Performance benchmarking
-- Capacity planning
-- Bottleneck detection
+### Example 1: Perfect Score Assessment
 
----
-
-#### 25. `cache_used` (REQUIRED)
-- **Type:** Boolean (TRUE/FALSE)
-- **Example:** `FALSE`
-- **Purpose:** Whether cached assessment results were used
-
-**Why It Matters:**
-- Performance optimization tracking
-- Explains why some assessments are instant
-- Cache hit rate analytics
-
----
-
-## Part 4: Real-World Examples
-
-### Example 1: Successful Production Assessment
-
-```csv
-assessment_id: adri_20251003_175905_780ea9
-timestamp: 2025-10-03T17:59:05.897069
-adri_version: 4.0.1.post128+gdac52c588.d20251003
-assessment_type: QUALITY_CHECK
-function_name: assess
-module_path: adri.validator.engine
-environment: development
-hostname: Thomass-MacBook-Air.local
-process_id: 49803
-standard_id: invoice_data
-standard_version: unknown
-standard_checksum:
-data_row_count: 10
-data_column_count: 6
-data_columns: ["invoice_id", "customer_id", "amount", "date", "status", "payment_method"]
-data_checksum: e46214176cf78804
-overall_score: 100.0
-required_score: 75.0
-passed: TRUE
-execution_decision: ALLOWED
-failure_mode: raise
-function_executed: TRUE
-assessment_duration_ms: 29
-rows_per_second: 344.83
-cache_used: FALSE
+```json
+{
+  "assessment_id": "20250117_143022_abc123",
+  "timestamp": "2025-01-17T14:30:22.123456",
+  "standard_name": "invoice_data",
+  "overall_score": 1.0,
+  "passed": true,
+  "dimension_scores": {
+    "completeness": 1.0,
+    "validity": 1.0,
+    "consistency": 1.0,
+    "plausibility": 1.0,
+    "accuracy": 1.0
+  },
+  "failed_validations": [],
+  "metadata": {
+    "function_name": "process_invoice",
+    "data_rows": 100,
+    "data_columns": 8,
+    "environment": "production",
+    "adri_version": "5.0.1",
+    "min_score": 0.8
+  }
+}
 ```
 
 **What This Tells Us:**
-- ✅ Perfect score (100.0) - data is excellent quality
-- ✅ Well above threshold (75.0) - passed easily
-- ✅ Function executed - processing was allowed
-- ⚡ Fast assessment - 29ms for 10 rows (345 rows/sec)
-- 🔍 Development environment - not production
-- 📊 6 invoice fields assessed
+- ✅ Perfect score (1.0 = 100%)
+- ✅ All dimensions perfect
+- ✅ No validation failures
+- ✅ Passed in production environment
+- 📊 100 invoice rows assessed
 
 ---
 
-### Example 2: Large Dataset Assessment
+### Example 2: Failed Assessment with Issues
 
-```csv
-assessment_id: adri_20251003_143614_3554d1
-overall_score: 91.53
-required_score: 75.0
-data_row_count: 35
-data_column_count: 20
-assessment_duration_ms: 29
-rows_per_second: 1206.90
+```json
+{
+  "assessment_id": "20250117_151545_def456",
+  "timestamp": "2025-01-17T15:15:45.789012",
+  "standard_name": "customer_data",
+  "overall_score": 0.72,
+  "passed": false,
+  "dimension_scores": {
+    "completeness": 0.68,
+    "validity": 0.75,
+    "consistency": 0.85,
+    "plausibility": 0.70,
+    "accuracy": 0.62
+  },
+  "failed_validations": [
+    {
+      "rule": "email_format",
+      "severity": "critical",
+      "failed_count": 15,
+      "message": "Invalid email format",
+      "field": "email"
+    },
+    {
+      "rule": "required_fields",
+      "severity": "critical",
+      "failed_count": 8,
+      "message": "Missing required field",
+      "field": "phone"
+    },
+    {
+      "rule": "age_range",
+      "severity": "warning",
+      "failed_count": 3,
+      "message": "Age outside plausible range",
+      "field": "age"
+    }
+  ],
+  "metadata": {
+    "function_name": "import_customers",
+    "data_rows": 250,
+    "data_columns": 15,
+    "environment": "production",
+    "adri_version": "5.0.1",
+    "min_score": 0.8,
+    "on_failure": "raise"
+  }
+}
 ```
 
 **What This Tells Us:**
-- ✅ Good score (91.53) - minor issues but acceptable
-- ✅ Passed threshold
-- 📊 Larger dataset - 35 rows, 20 columns
-- ⚡ Very fast - 1,207 rows/sec throughput
+- ❌ Failed (0.72 < 0.8 required)
+- ❌ Completeness lowest (0.68) - missing data
+- ❌ Accuracy poor (0.62) - invalid values
+- 🔴 15 email format violations
+- 🔴 8 missing phone numbers
+- ⚠️ 3 age range warnings
+- 🛑 Function blocked due to "raise" mode
 
 ---
 
-## Part 5: How It's Used
+### Example 3: Warning Mode Assessment
 
-### 1. **Compliance & Audit**
-
-**Question:** "Can you prove this AI system validates data quality?"
-
-**Answer:** Show assessment log entries:
+```json
+{
+  "assessment_id": "20250117_162030_ghi789",
+  "timestamp": "2025-01-17T16:20:30.456789",
+  "standard_name": "analytics_data",
+  "overall_score": 0.75,
+  "passed": false,
+  "dimension_scores": {
+    "completeness": 0.80,
+    "validity": 0.78,
+    "consistency": 0.72,
+    "plausibility": 0.70,
+    "accuracy": 0.75
+  },
+  "failed_validations": [
+    {
+      "rule": "date_consistency",
+      "severity": "warning",
+      "failed_count": 5,
+      "message": "Start date after end date",
+      "field": "date_range"
+    }
+  ],
+  "metadata": {
+    "function_name": "generate_report",
+    "data_rows": 1000,
+    "data_columns": 20,
+    "environment": "development",
+    "adri_version": "5.0.1",
+    "min_score": 0.8,
+    "on_failure": "warn",
+    "execution_allowed": true
+  }
+}
 ```
-✅ Assessment performed on 2025-10-03 at 17:59:05
-✅ Used standard: invoice_data
-✅ Score: 100.0/100.0 - PASSED
-✅ Function ALLOWED to execute
-✅ Environment: PRODUCTION
+
+**What This Tells Us:**
+- ⚠️ Failed (0.75 < 0.8) but execution continued
+- ⚠️ "warn" mode - logs warning but doesn't block
+- 🔍 Development environment - testing in progress
+- 📊 Large dataset - 1000 rows
+- ✅ Execution allowed despite failure
+
+---
+
+## Part 6: Common Use Cases
+
+### 1. **Compliance Audit**
+
+**Question:** "Can you prove data validation occurred?"
+
+```python
+import json
+from datetime import datetime
+
+# Load logs
+with open(".adri/logs/assessments.jsonl", "r") as f:
+    assessments = [json.loads(line) for line in f]
+
+# Generate audit report
+print("ADRI Data Quality Audit Report")
+print("="*50)
+print(f"Total Assessments: {len(assessments)}")
+print(f"Passed: {sum(1 for a in assessments if a['passed'])}")
+print(f"Failed: {sum(1 for a in assessments if not a['passed'])}")
+print(f"Average Score: {sum(a['overall_score'] for a in assessments) / len(assessments):.2%}")
 ```
 
 ---
 
-### 2. **Debugging & Forensics**
+### 2. **Debugging Data Issues**
 
-**Question:** "Why did my data fail validation yesterday?"
+**Question:** "What validation failures occurred today?"
 
-**Answer:** Look up assessment by timestamp:
-1. Find `assessment_id` for that time
-2. Check `overall_score` and `passed` fields
-3. Link to `failed_validations.csv` using same `assessment_id`
-4. Review specific failures
+```python
+import json
+from datetime import datetime, date
+
+with open(".adri/logs/assessments.jsonl", "r") as f:
+    today = date.today()
+    todays_assessments = [
+        json.loads(line) for line in f
+        if datetime.fromisoformat(json.loads(line)['timestamp']).date() == today
+    ]
+
+# Show failures
+for assessment in todays_assessments:
+    if not assessment['passed']:
+        print(f"\nAssessment: {assessment['assessment_id']}")
+        print(f"Standard: {assessment['standard_name']}")
+        print(f"Score: {assessment['overall_score']:.2%}")
+        print("Failed Validations:")
+        for failure in assessment.get('failed_validations', []):
+            print(f"  - {failure['rule']}: {failure['message']} ({failure['failed_count']} failures)")
+```
 
 ---
 
 ### 3. **Performance Monitoring**
 
-**Question:** "Is our data quality degrading over time?"
+**Question:** "Is data quality degrading?"
 
-**Answer:** Query assessment log:
-```sql
-SELECT
-  DATE(timestamp) as date,
-  AVG(overall_score) as avg_score,
-  COUNT(*) as assessments,
-  AVG(assessment_duration_ms) as avg_ms
-FROM adri_assessment_logs
-WHERE environment = 'PRODUCTION'
-GROUP BY DATE(timestamp)
-ORDER BY date DESC;
+```python
+import json
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Load and analyze
+with open(".adri/logs/assessments.jsonl", "r") as f:
+    assessments = [json.loads(line) for line in f]
+
+df = pd.DataFrame(assessments)
+df['timestamp'] = pd.to_datetime(df['timestamp'])
+df['date'] = df['timestamp'].dt.date
+
+# Daily average scores
+daily_scores = df.groupby('date')['overall_score'].mean()
+
+# Plot
+daily_scores.plot(kind='line', figsize=(12, 6))
+plt.title('Data Quality Trend')
+plt.ylabel('Average Score')
+plt.xlabel('Date')
+plt.axhline(y=0.8, color='r', linestyle='--', label='Threshold')
+plt.legend()
+plt.show()
 ```
 
 ---
 
-### 4. **System Health**
+### 4. **Standard Effectiveness**
 
-**Question:** "Are assessments running too slow?"
+**Question:** "Which standards have the highest failure rate?"
 
-**Answer:** Check performance metrics:
-- `assessment_duration_ms` > 1000ms = potential issue
-- `rows_per_second` trending down = performance degradation
-- `cache_used = FALSE` always = cache not working
+```python
+import json
+import pandas as pd
 
----
+with open(".adri/logs/assessments.jsonl", "r") as f:
+    assessments = [json.loads(line) for line in f]
 
-## Part 6: Integration with Other Logs
+df = pd.DataFrame(assessments)
 
-The Assessment Log is the **anchor** that links to other audit files:
+# Calculate failure rates by standard
+standard_stats = df.groupby('standard_name').agg({
+    'passed': ['count', 'sum', 'mean']
+}).round(3)
 
-```
-📋 Assessment Log (ANCHOR)
-  ├─ assessment_id: adri_20251003_175905_780ea9
-  │
-  ├─➡️ Dimension Scores Log
-  │    └─ Detailed breakdown by dimension (validity, completeness, etc.)
-  │
-  └─➡️ Failed Validations Log
-       └─ Specific validation failures with field details
-```
+standard_stats.columns = ['total', 'passed', 'pass_rate']
+standard_stats['fail_rate'] = 1 - standard_stats['pass_rate']
+standard_stats = standard_stats.sort_values('fail_rate', ascending=False)
 
-**Example Query:**
-```sql
--- Get assessment with all related details
-SELECT
-  a.assessment_id,
-  a.overall_score,
-  a.passed,
-  d.dimension_name,
-  d.dimension_score,
-  f.field,
-  f.issue,
-  f.remediation
-FROM adri_assessment_logs a
-LEFT JOIN adri_dimension_scores d ON a.assessment_id = d.assessment_id
-LEFT JOIN adri_failed_validations f ON a.assessment_id = f.assessment_id
-WHERE a.assessment_id = 'adri_20251003_175905_780ea9';
+print(standard_stats)
 ```
 
 ---
 
-## Part 7: Validation Rules
-
-The standard itself (`ADRI_audit_log.yaml`) validates that assessment logs are complete and correct:
-
-### Key Validations:
-
-1. **Required Fields:** All 25 fields must be present
-2. **Data Types:** Strings, integers, floats, booleans must match
-3. **Ranges:** Scores must be 0-100, process_id >= 0, etc.
-4. **Patterns:** assessment_id must match `adri_YYYYMMDD_HHMMSS_[hex]`
-5. **Enums:** environment, assessment_type, etc. must be valid values
-
-### Why Validate the Validator?
-
-**Meta-Quality:** ADRI validates its own audit logs to ensure:
-- No data corruption
-- Complete audit trail
-- Compliance-grade quality
-- System integrity
-
----
-
-## Part 8: Common Questions
-
-### Q1: "Why are there duplicate assessment_ids?"
-**A:** Each assessment ID is unique. If you see what looks like duplicates, check the full log - they're different assessments at slightly different timestamps.
-
-### Q2: "What if assessment_duration_ms is 0?"
-**A:** This can happen for:
-- Very fast assessments (< 1ms)
-- Cached results (instant return)
-- Timing precision limitations
-
-### Q3: "Why is standard_version 'unknown'?"
-**A:** The standard YAML file didn't include a version field. Consider adding:
-```yaml
-standards:
-  version: 1.0.0
-```
-
-### Q4: "Can I query this with SQL?"
-**A:** Yes! Import CSV into SQLite, PostgreSQL, or any database:
-```bash
-sqlite3 audit.db
-.mode csv
-.import adri_assessment_logs.csv assessments
-SELECT * FROM assessments WHERE passed = 'FALSE';
-```
-
----
-
-## Part 9: Best Practices
+## Part 7: Best Practices
 
 ### For Developers
 
-1. **Always Review Logs:** Check assessment logs after deployment
-2. **Monitor Trends:** Track score changes over time
-3. **Performance Alerts:** Alert if assessment_duration_ms > threshold
-4. **Archive Properly:** Keep logs for compliance period (often 7 years)
+1. **Monitor Regularly:** Check logs daily for failures
+2. **Set Alerts:** Alert on failure rate spikes
+3. **Archive Properly:** Rotate logs to prevent disk filling
+4. **Version Control:** Track log format changes
 
 ### For Data Scientists
 
-1. **Validate Training Data:** Check assessment logs for training datasets
-2. **Track Data Drift:** Monitor overall_score trends
-3. **Correlate with Model Performance:** Link assessments to model metrics
+1. **Validate Training Data:** Check assessments before model training
+2. **Track Drift:** Monitor score trends over time
+3. **Correlate Metrics:** Link assessments to model performance
+4. **Document Thresholds:** Record why specific thresholds are set
 
 ### For Compliance Officers
 
-1. **Audit Trail:** Assessment logs prove validation occurred
-2. **Retention:** Keep in immutable storage (append-only)
-3. **Access Control:** Restrict modification of audit logs
-4. **Regular Review:** Periodically audit the logs themselves
+1. **Retention Policy:** Keep logs for required period
+2. **Immutable Storage:** Store in append-only systems
+3. **Access Control:** Restrict log modification
+4. **Regular Audits:** Review logs periodically
+
+---
+
+## Part 8: Log Rotation & Management
+
+### Automatic Rotation
+
+ADRI automatically manages log files:
+
+```
+.adri/logs/
+├── assessments.jsonl          # Current log
+├── assessments.2025-01-16.jsonl  # Previous day
+└── assessments.2025-01-15.jsonl  # Older logs
+```
+
+### Manual Archiving
+
+```bash
+# Archive old logs
+cd .adri/logs
+gzip assessments.2025-01-*.jsonl
+
+# Upload to S3 for long-term storage
+aws s3 cp assessments.2025-01-15.jsonl.gz s3://my-bucket/adri-logs/
+```
+
+### Cleanup Script
+
+```python
+import os
+from datetime import datetime, timedelta
+from pathlib import Path
+
+# Delete logs older than 90 days
+log_dir = Path(".adri/logs")
+cutoff = datetime.now() - timedelta(days=90)
+
+for log_file in log_dir.glob("assessments.*.jsonl"):
+    # Extract date from filename
+    date_str = log_file.stem.split('.')[-1]
+    try:
+        file_date = datetime.strptime(date_str, "%Y-%m-%d")
+        if file_date < cutoff:
+            log_file.unlink()
+            print(f"Deleted old log: {log_file}")
+    except ValueError:
+        continue  # Skip if filename doesn't match pattern
+```
+
+---
+
+## Part 9: Integration Examples
+
+### Elasticsearch
+
+```python
+import json
+from elasticsearch import Elasticsearch
+
+# Connect to Elasticsearch
+es = Elasticsearch(['localhost:9200'])
+
+# Index assessments
+with open(".adri/logs/assessments.jsonl", "r") as f:
+    for line in f:
+        assessment = json.loads(line)
+        es.index(
+            index='adri-assessments',
+            id=assessment['assessment_id'],
+            document=assessment
+        )
+
+# Search for failures
+results = es.search(
+    index='adri-assessments',
+    body={
+        'query': {
+            'term': {'passed': False}
+        }
+    }
+)
+```
+
+### Splunk
+
+```bash
+# Forward logs to Splunk
+tail -f .adri/logs/assessments.jsonl | \
+  splunk add forward-server splunk-server:9997
+```
+
+### CloudWatch
+
+```python
+import json
+import boto3
+
+cloudwatch = boto3.client('logs')
+
+with open(".adri/logs/assessments.jsonl", "r") as f:
+    for line in f:
+        assessment = json.loads(line)
+        cloudwatch.put_log_events(
+            logGroupName='/adri/assessments',
+            logStreamName='production',
+            logEvents=[{
+                'timestamp': int(datetime.fromisoformat(assessment['timestamp']).timestamp() * 1000),
+                'message': json.dumps(assessment)
+            }]
+        )
+```
 
 ---
 
 ## Part 10: Summary
 
-The Assessment Log is ADRI's **permanent record** of every data quality check performed. It provides:
+The Assessment Log provides:
 
-✅ **Complete Accountability** - Every assessment is logged
-✅ **Forensic Details** - Enough info to recreate assessment
-✅ **Compliance Evidence** - Immutable audit trail
-✅ **Performance Metrics** - Track system health
-✅ **Integration Point** - Links to other audit logs
+✅ **Complete Audit Trail** - Every assessment recorded
+✅ **Machine-Readable** - JSONL format for easy parsing
+✅ **Rich Context** - Dimension scores and validation failures
+✅ **Flexible Analysis** - Use Python, jq, or any JSON tool
+✅ **Compliance Ready** - Immutable append-only format
 
-**Key Takeaway:** If it's not in the assessment log, it didn't happen. This log is your proof that data quality validation occurred and what the results were.
+**Key Takeaway:** JSONL format makes logs both human-readable and machine-parseable, enabling powerful analytics while maintaining a complete audit trail.
 
 ---
 
-**Document Version:** 1.0
-**Last Updated:** January 8, 2025
-**Related Standards:** ADRI_audit_log.yaml
-**Related Logs:** adri_dimension_scores.csv, adri_failed_validations.csv
+## Related Documentation
+
+- **[Open-Source Features](OPEN_SOURCE_FEATURES.md)** - Complete feature reference
+- **[API Reference](API_REFERENCE.md)** - Programmatic access
+- **[Getting Started](GETTING_STARTED.md)** - Quick start guide
+- **[CLI Reference](CLI_REFERENCE.md)** - Command line tools
+
+---
+
+**Document Version:** 2.0
+**Last Updated:** October 21, 2025
+**Format:** JSONL
+**Location:** `.adri/logs/assessments.jsonl`

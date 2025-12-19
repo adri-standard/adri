@@ -1,3 +1,5 @@
+# @ADRI_FEATURE[logging_local_jsonl, scope=SHARED]
+# Description: Local JSONL audit logging system used by both enterprise and open source
 """
 ADRI Local Logging - JSONL-based Audit Logging.
 
@@ -13,13 +15,9 @@ import socket
 import threading
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, TYPE_CHECKING
+from typing import Any
 
-if TYPE_CHECKING:
-    try:
-        from ..logging.enterprise import VerodatLogger
-    except ImportError:
-        from adri.core.verodat_logger import VerodatLogger
+# Enterprise logging functionality is available in the enterprise package
 
 # Clean import for version info
 from ..version import __version__
@@ -88,7 +86,7 @@ class AuditRecord:
             "remediation_suggested": [],
         }
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert audit record to dictionary format."""
         return {
             "assessment_metadata": self.assessment_metadata,
@@ -116,7 +114,7 @@ class AuditRecord:
         """Convert audit record to JSON string."""
         return json.dumps(self.to_dict(), default=str)
 
-    def to_verodat_format(self) -> Dict[str, Any]:
+    def to_verodat_format(self) -> dict[str, Any]:
         """
         Convert audit record to Verodat-compatible format.
 
@@ -195,11 +193,15 @@ class AuditRecord:
                         "validation_id": f"val_{idx:03d}",
                         "dimension": check.get("dimension", "unknown"),
                         "field_name": check.get("field", ""),
-                        "issue_type": check.get("issue", "unknown"),
+                        # Support both "issue_type" and "issue" keys for compatibility
+                        "issue_type": check.get("issue_type")
+                        or check.get("issue", "unknown"),
                         "affected_rows": check.get("affected_rows", 0),
                         "affected_percentage": check.get("affected_percentage", 0.0),
                         "sample_failures": json.dumps(check.get("samples", [])),
                         "remediation": check.get("remediation", ""),
+                        "severity": check.get("severity", ""),
+                        "auto_fix_available": check.get("auto_fix_available", False),
                     }
                 )
 
@@ -277,9 +279,11 @@ class LocalLogger:
         "affected_percentage",
         "sample_failures",
         "remediation",
+        "severity",
+        "auto_fix_available",
     ]
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: dict[str, Any] | None = None):
         """
         Initialize the local CSV audit logger with configuration.
 
@@ -335,7 +339,7 @@ class LocalLogger:
         self._lock = threading.Lock()
 
         # Optional Verodat logger for external integration
-        self.verodat_logger: Optional["VerodatLogger"] = None
+        self.verodat_config: dict[str, Any] | None = None
 
         # Initialize JSONL files and load write sequence if enabled
         if self.enabled:
@@ -365,9 +369,9 @@ class LocalLogger:
         with self._lock:
             if self.write_seq_file.exists():
                 try:
-                    with open(self.write_seq_file, "r", encoding="utf-8") as f:
+                    with open(self.write_seq_file, encoding="utf-8") as f:
                         self.write_seq_counter = int(f.read().strip())
-                except (ValueError, IOError):
+                except (ValueError, OSError):
                     self.write_seq_counter = 0
             else:
                 self.write_seq_counter = 0
@@ -382,7 +386,7 @@ class LocalLogger:
                 if self.sync_writes:
                     f.flush()
                     os.fsync(f.fileno())
-        except (IOError, OSError):
+        except OSError:
             # If write fails, counter is still in memory
             pass
         return self.write_seq_counter
@@ -397,14 +401,14 @@ class LocalLogger:
     def log_assessment(
         self,
         assessment_result: Any,
-        execution_context: Dict[str, Any],
-        data_info: Optional[Dict[str, Any]] = None,
-        performance_metrics: Optional[Dict[str, Any]] = None,
-        failed_checks: Optional[List[Dict[str, Any]]] = None,
-        execution_id: Optional[str] = None,
-        prompt_id: Optional[str] = None,
-        response_id: Optional[str] = None,
-    ) -> Optional[AuditRecord]:
+        execution_context: dict[str, Any],
+        data_info: dict[str, Any] | None = None,
+        performance_metrics: dict[str, Any] | None = None,
+        failed_checks: list[dict[str, Any]] | None = None,
+        execution_id: str | None = None,
+        prompt_id: str | None = None,
+        response_id: str | None = None,
+    ) -> AuditRecord | None:
         """
         Log an assessment directly to JSONL files.
 
@@ -424,7 +428,8 @@ class LocalLogger:
         if not self.enabled:
             return None
 
-        # Use pre-generated assessment ID from result if available, otherwise generate one
+        # Use pre-generated assessment ID from result if available, otherwise
+        # generate one
         timestamp = datetime.now()
         assessment_id = getattr(assessment_result, "assessment_id", None)
         if not assessment_id:
@@ -661,10 +666,11 @@ class LocalLogger:
                 try:
                     file_path.touch()
                 except (OSError, PermissionError):
-                    # If recreation fails, continue - file will be recreated on next write
+                    # If recreation fails, continue - file will be recreated on next
+                    # write
                     pass
 
-    def get_log_files(self) -> Dict[str, Path]:
+    def get_log_files(self) -> dict[str, Path]:
         """Get the paths to the current log files."""
         return {
             "assessment_logs": self.assessment_log_path,
@@ -674,7 +680,7 @@ class LocalLogger:
             "reasoning_responses": self.reasoning_responses_path,
         }
 
-    def to_verodat_format(self, log_type: str) -> Dict[str, Any]:
+    def to_verodat_format(self, log_type: str) -> dict[str, Any]:
         """
         Export logs in Verodat-compatible format with headers and rows.
 
@@ -704,7 +710,7 @@ class LocalLogger:
 
         # Read all JSONL records
         records = []
-        with open(log_file, "r", encoding="utf-8") as f:
+        with open(log_file, encoding="utf-8") as f:
             for line in f:
                 line = line.strip()
                 if line:
@@ -780,12 +786,12 @@ class LocalLogger:
 # Helper function for backward compatibility
 def log_to_jsonl(
     assessment_result: Any,
-    execution_context: Dict[str, Any],
-    data_info: Optional[Dict[str, Any]] = None,
-    performance_metrics: Optional[Dict[str, Any]] = None,
-    failed_checks: Optional[List[Dict[str, Any]]] = None,
-    config: Optional[Dict[str, Any]] = None,
-) -> Optional[AuditRecord]:
+    execution_context: dict[str, Any],
+    data_info: dict[str, Any] | None = None,
+    performance_metrics: dict[str, Any] | None = None,
+    failed_checks: list[dict[str, Any]] | None = None,
+    config: dict[str, Any] | None = None,
+) -> AuditRecord | None:
     """
     Log an assessment to JSONL files.
 
@@ -832,3 +838,6 @@ class LogRotator:
         self.log_directory = log_directory
         self.max_file_size = max_file_size
         self.max_files = max_files
+
+
+# @ADRI_FEATURE_END[logging_local_jsonl]

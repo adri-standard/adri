@@ -6,7 +6,7 @@ and other core components.
 """
 
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Protocol
+from typing import Any, Protocol
 
 
 class ValidationRule(Protocol):
@@ -16,7 +16,7 @@ class ValidationRule(Protocol):
     consistent behavior across the validation system.
     """
 
-    def validate(self, value: Any, context: Dict[str, Any]) -> bool:
+    def validate(self, value: Any, context: dict[str, Any]) -> bool:
         """Validate a value against this rule.
 
         Args:
@@ -48,7 +48,7 @@ class DimensionAssessor(ABC):
     """
 
     @abstractmethod
-    def assess(self, data: Any, requirements: Dict[str, Any]) -> float:
+    def assess(self, data: Any, requirements: dict[str, Any]) -> float:
         """Assess the quality dimension for the given data.
 
         Args:
@@ -69,7 +69,7 @@ class DimensionAssessor(ABC):
         """
         ...
 
-    def get_weight(self, requirements: Dict[str, Any]) -> float:
+    def get_weight(self, requirements: dict[str, Any]) -> float:
         """Get the weight for this dimension from requirements.
 
         Args:
@@ -80,7 +80,7 @@ class DimensionAssessor(ABC):
         """
         return requirements.get("weight", 1.0)
 
-    def get_minimum_score(self, requirements: Dict[str, Any]) -> float:
+    def get_minimum_score(self, requirements: dict[str, Any]) -> float:
         """Get the minimum acceptable score for this dimension.
 
         Args:
@@ -100,7 +100,7 @@ class Command(ABC):
     """
 
     @abstractmethod
-    def execute(self, args: Dict[str, Any]) -> int:
+    def execute(self, args: dict[str, Any]) -> int:
         """Execute the command with the given arguments.
 
         Args:
@@ -141,7 +141,7 @@ class DataLoader(Protocol):
     Defines the interface for loading data from various file formats.
     """
 
-    def load(self, file_path: str) -> List[Dict[str, Any]]:
+    def load(self, file_path: str) -> list[dict[str, Any]]:
         """Load data from a file.
 
         Args:
@@ -152,7 +152,7 @@ class DataLoader(Protocol):
         """
         ...
 
-    def get_supported_formats(self) -> List[str]:
+    def get_supported_formats(self) -> list[str]:
         """Get the file formats supported by this loader.
 
         Returns:
@@ -167,7 +167,7 @@ class StandardLoader(Protocol):
     Defines the interface for loading ADRI standards from various sources.
     """
 
-    def load(self, source: str) -> Dict[str, Any]:
+    def load(self, source: str) -> dict[str, Any]:
         """Load a standard from the given source.
 
         Args:
@@ -178,7 +178,7 @@ class StandardLoader(Protocol):
         """
         ...
 
-    def validate_standard(self, standard: Dict[str, Any]) -> List[str]:
+    def validate_standard(self, standard: dict[str, Any]) -> list[str]:
         """Validate that a standard has the required structure.
 
         Args:

@@ -121,7 +121,7 @@ class TestStandardStructureConsistency:
     def test_is_valid_standard_accepts_normalized(self):
         """Test that valid normalized structure is accepted."""
         normalized = {
-            'standards': {'id': 'test', 'name': 'Test'},
+            'contracts': {'id': 'test', 'name': 'Test'},
             'requirements': {'field_requirements': {}}
         }
 
@@ -137,8 +137,8 @@ class TestStandardStructureConsistency:
 
         assert is_valid_standard(legacy) is False
 
-    def test_is_valid_standard_rejects_missing_standards(self):
-        """Test that structure missing 'standards' section is rejected."""
+    def test_is_valid_standard_rejects_missing_contracts(self):
+        """Test that structure missing 'contracts' section is rejected."""
         invalid = {
             'requirements': {'field_requirements': {}}
         }
@@ -148,7 +148,7 @@ class TestStandardStructureConsistency:
     def test_is_valid_standard_rejects_missing_requirements(self):
         """Test that structure missing 'requirements' section is rejected."""
         invalid = {
-            'standards': {'id': 'test', 'name': 'Test'}
+            'contracts': {'id': 'test', 'name': 'Test'}
         }
 
         assert is_valid_standard(invalid) is False
@@ -156,7 +156,7 @@ class TestStandardStructureConsistency:
     def test_get_standard_name_from_normalized(self):
         """Test extracting name from normalized format."""
         normalized = {
-            'standards': {'name': 'Customer Data'},
+            'contracts': {'name': 'Customer Data'},
             'requirements': {}
         }
 
@@ -175,7 +175,7 @@ class TestStandardStructureConsistency:
     def test_get_field_requirements_from_normalized(self):
         """Test extracting field requirements from normalized format."""
         normalized = {
-            'standards': {},
+            'contracts': {},
             'requirements': {
                 'field_requirements': {
                     'field1': {'type': 'string'},
@@ -212,13 +212,13 @@ class TestParameterNaming:
         from adri import adri_protected
 
         # This should work with a name string
-        @adri_protected(standard="test_standard")
+        @adri_protected(contract="test_standard")
         def process_data(data):
             return data
 
         # Check the decorator configuration
         assert hasattr(process_data, '_adri_protected')
-        assert process_data._adri_config['standard'] == 'test_standard'
+        assert process_data._adri_config['contract'] == 'test_standard'
 
     def test_decorator_standard_parameter_requires_value(self):
         """Test that decorator raises clear error when standard is missing."""
@@ -230,16 +230,16 @@ class TestParameterNaming:
                 return data
 
         error_msg = str(exc_info.value)
-        assert 'standard' in error_msg.lower()
+        assert 'contract' in error_msg.lower()
         assert 'required' in error_msg.lower() or 'missing' in error_msg.lower()
 
 
-class TestStandardGeneratorFormat:
-    """Validate StandardGenerator produces normalized format only."""
+class TestContractGeneratorFormat:
+    """Validate ContractGenerator produces normalized format only."""
 
     def test_generate_produces_normalized_format(self):
         """Test that generate() produces normalized format."""
-        from src.adri.analysis.standard_generator import StandardGenerator
+        from src.adri.analysis.contract_generator import ContractGenerator
 
         data = pd.DataFrame({
             'name': ['Alice', 'Bob', 'Charlie'],
@@ -247,12 +247,12 @@ class TestStandardGeneratorFormat:
             'city': ['NYC', 'LA', 'Chicago']
         })
 
-        generator = StandardGenerator()
+        generator = ContractGenerator()
         standard = generator.generate(data, 'test_data')
 
         # Verify normalized structure
         assert is_valid_standard(standard)
-        assert 'standards' in standard
+        assert 'contracts' in standard
         assert 'requirements' in standard
 
         # Verify we can use utility functions
@@ -266,16 +266,16 @@ class TestStandardGeneratorFormat:
 
     def test_convenience_function_produces_normalized_format(self):
         """Test that convenience function produces normalized format."""
-        from src.adri.analysis.standard_generator import generate_standard_from_data
+        from src.adri.analysis.contract_generator import generate_contract_from_data
 
         data = pd.DataFrame({
             'id': [1, 2, 3],
             'value': [100, 200, 300]
         })
 
-        standard = generate_standard_from_data(data, 'test_standard')
+        standard = generate_contract_from_data(data, 'test_standard')
 
         # Verify normalized structure
         assert is_valid_standard(standard)
-        assert 'standards' in standard
+        assert 'contracts' in standard
         assert 'requirements' in standard

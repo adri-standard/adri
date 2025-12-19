@@ -1,0 +1,107 @@
+# Multi-Database Enterprise ADRI Standard
+# Enterprise feature: Demonstrates sql_compatibility for multi-database deployments
+
+# SQL Compatibility Configuration (Enterprise Only)
+# Validates field names against reserved words for multiple SQL dialects
+sql_compatibility:
+  # Target database dialects to validate against
+  target_dialects:
+    - postgresql
+    - mysql
+    - oracle
+  
+  # Strict mode: Fail on reserved words vs warn
+  strict_mode: false
+  
+  # Custom reserved words specific to your organization
+  custom_reserved_words:
+    - INTERNAL_ID
+    - SYSTEM_FLAG
+    - AUDIT_TIMESTAMP
+
+# Domain-specific type patterns
+type_patterns:
+  # Enterprise data patterns
+  integer:
+    - indicators:
+        - "_id$"
+        - "_count$"
+        - "^record_number"
+      constraints:
+        min_value: 0
+  
+  date:
+    - indicators:
+        - "_date$"
+        - "_timestamp$"
+        - "created_"
+        - "modified_"
+  
+  string:
+    - indicators:
+        - "_name$"
+        - "_code$"
+        - "_status$"
+
+# Field requirements compatible with PostgreSQL, MySQL, and Oracle
+field_requirements:
+  # Safe field names (avoid SQL reserved words)
+  customer_id:
+    type: integer
+    description: Unique customer identifier
+    min_value: 1
+  
+  customer_name:
+    type: string
+    description: Full customer name
+    min_length: 1
+    max_length: 200
+  
+  account_status:
+    type: string
+    description: Current account status
+    enum: ["ACTIVE", "INACTIVE", "SUSPENDED", "CLOSED"]
+  
+  created_date:
+    type: date
+    description: Date the record was created
+  
+  modified_date:
+    type: date
+    description: Date the record was last modified
+  
+  record_count:
+    type: integer
+    description: Number of associated records
+    min_value: 0
+  
+  is_verified:
+    type: boolean
+    description: Whether the customer is verified
+  
+  notes:
+    type: string
+    description: Additional notes or comments
+    max_length: 1000
+  
+  # Examples of fields that would trigger SQL dialect warnings (commented out):
+  
+  # ARRAY:  # Reserved in PostgreSQL
+  #   type: string
+  #   description: Field name conflicts with PostgreSQL
+  
+  # ACCESSIBLE:  # Reserved in MySQL
+  #   type: string
+  #   description: Field name conflicts with MySQL
+  
+  # MINUS:  # Reserved in Oracle
+  #   type: string
+  #   description: Field name conflicts with Oracle
+  
+  # FLOAT:  # Reserved in MySQL (as data type)
+  #   type: string
+  #   description: Field name conflicts with MySQL
+  
+  # INTERNAL_ID:  # Custom reserved word
+  #   type: integer
+  #   description: Conflicts with custom reserved word

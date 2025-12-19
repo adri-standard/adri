@@ -25,8 +25,8 @@
 1. **Standard File Persistence**: Standards are not being saved to disk in the expected locations.
 
 2. **Path Resolution Issue**: Tests reveal a path doubling bug:
-   - Expected path: `/test_project/ADRI/dev/standards/test_autogen_invoice.yaml`
-   - Actual path attempted: `/test_project/ADRI/ADRI/dev/standards/test_autogen_invoice.yaml`
+   - Expected path: `/test_project/ADRI/dev/contracts/test_autogen_invoice.yaml`
+   - Actual path attempted: `/test_project/ADRI/ADRI/dev/contracts/test_autogen_invoice.yaml`
    - Note the double "ADRI" in the path
 
 3. **Auto-Generate Flag**: The `auto_generate=False` flag is not being respected (test shows data passed through without error when it should have raised `ProtectionError`).
@@ -50,12 +50,12 @@
 
 The logs show:
 ```
-WARNING  src.adri.guard.modes:modes.py:318 Standard file not found at resolved path: ADRI/dev/standards/test_autogen_invoice.yaml
+WARNING  src.adri.guard.modes:modes.py:318 Standard file not found at resolved path: ADRI/dev/contracts/test_autogen_invoice.yaml
 ```
 
 But the actual path construction results in:
 ```
-/test_project/ADRI/ADRI/dev/standards/test_autogen_invoice.yaml
+/test_project/ADRI/ADRI/dev/contracts/test_autogen_invoice.yaml
 ```
 
 This suggests the `_resolve_standard_file_path()` method is appending to a base path that already contains "ADRI".

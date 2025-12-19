@@ -75,13 +75,13 @@ from src.adri.decorator import adri_protected
 from src.adri.validator.engine import ValidationEngine
 from src.adri.guard.modes import ProtectionMode, DataProtectionEngine
 from src.adri.config.loader import ConfigurationLoader
-from src.adri.standards.parser import StandardsParser
+from src.adri.contracts.parser import ContractsParser
 from src.adri.core.exceptions import ValidationError, ConfigurationError
 from src.adri.analysis.data_profiler import DataProfiler
-from src.adri.analysis.standard_generator import StandardGenerator
+from src.adri.analysis.contract_generator import ContractGenerator
 from src.adri.analysis.type_inference import TypeInference
 from src.adri.logging.local import LocalLogger
-from src.adri.logging.enterprise import EnterpriseLogger
+from adri_enterprise.logging.verodat import send_to_verodat
 from tests.quality_framework import TestCategory, ComponentTester, performance_monitor
 from tests.fixtures.modern_fixtures import ModernFixtures, ErrorSimulator
 from tests.performance_thresholds import get_performance_threshold
@@ -117,7 +117,7 @@ class TestComponentInteractions:
 
             # Test complete protection workflow with name-only governance
             @adri_protected(
-                standard=sample_standard_name,
+                contract=sample_standard_name,
                 on_failure="warn"
             )
             def protected_data_processing(data):
@@ -166,10 +166,10 @@ class TestComponentInteractions:
         config = config_loader.load_config(config_path=str(config_file))
 
         # 2. Parse standard using configuration paths (mock for test isolation)
-        with patch.object(StandardsParser, 'parse_standard') as mock_parse:
+        with patch.object(ContractsParser, 'parse_contract') as mock_parse:
             mock_parse.return_value = self.comprehensive_standard
-            standards_parser = StandardsParser()
-            parsed_standard = standards_parser.parse_standard("integration_standard")
+            standards_parser = ContractsParser()
+            parsed_standard = standards_parser.parse_contract("integration_standard")
 
         # 3. Use validator with parsed standard
         validator = ValidationEngine()
@@ -180,7 +180,7 @@ class TestComponentInteractions:
 
         # Verify integration worked end-to-end
         assert config["adri"]["version"] == "4.0.0"
-        assert parsed_standard["standards"]["id"] == self.comprehensive_standard["standards"]["id"]
+        assert parsed_standard["contracts"]["id"] == self.comprehensive_standard["contracts"]["id"]
         assert assessment_result.overall_score > 0
         assert hasattr(assessment_result, 'dimension_scores')
 
@@ -193,7 +193,7 @@ class TestComponentInteractions:
         profile_result = profiler.profile_data(self.high_quality_data)
 
         # Step 2: Generate standard from profile
-        generator = StandardGenerator()
+        generator = ContractGenerator()
         generated_standard = generator.generate(
             data=self.high_quality_data,
             data_name="pipeline_generated_standard"
@@ -208,7 +208,7 @@ class TestComponentInteractions:
 
         # Verify complete pipeline worked
         assert profile_result.get('quality_assessment', {}).get('overall_completeness', 0) > 0
-        assert "Pipeline Generated Standard" in generated_standard["standards"]["name"]
+        assert "Pipeline Generated Standard" in generated_standard["contracts"]["name"]
         assert validation_result.overall_score > 0
 
         # Data should score well against its own generated standard
@@ -371,7 +371,7 @@ class TestComponentInteractions:
             # Test error propagation through decorator → validator → standards parser
             # The decorator should handle missing/malformed standards gracefully
             @adri_protected(
-                standard="malformed_test",
+                contract="malformed_test",
                 on_failure="raise"  # This should trigger an error due to malformed standard
             )
             def test_function(data):
@@ -399,7 +399,7 @@ class TestComponentInteractions:
             mock_engine2.return_value = mock_engine_instance2
 
             @adri_protected(
-                standard="completely_missing_standard",
+                contract="completely_missing_standard",
                 on_failure="warn"  # Use warn mode for graceful handling
             )
             def test_function_missing(data):
@@ -437,7 +437,7 @@ class TestComponentInteractions:
         profile_result = profiler.profile_data(large_dataset)
 
         # Step 2: Generate standard
-        generator = StandardGenerator()
+        generator = ContractGenerator()
         generated_standard = generator.generate(
             data=large_dataset,
             data_name="integration_performance_test"
@@ -457,7 +457,7 @@ class TestComponentInteractions:
 
         # Verify all steps completed successfully
         assert profile_result.get('quality_assessment', {}).get('overall_completeness', 0) > 0
-        assert "Integration Performance Test" in generated_standard["standards"]["name"]
+        assert "Integration Performance Test" in generated_standard["contracts"]["name"]
         assert validation_result.overall_score > 0
 
     @pytest.mark.integration
@@ -473,7 +473,7 @@ class TestComponentInteractions:
 
             # Run complete workflow
             profiler = DataProfiler()
-            generator = StandardGenerator()
+            generator = ContractGenerator()
             validator = ValidationEngine()
 
             # Profile → Generate → Validate
@@ -531,7 +531,7 @@ class TestComponentInteractions:
                 "environments": {
                     "test": {
                         "paths": {
-                            "standards": str(temp_workspace / "standards"),
+                            "contracts": str(temp_workspace / "standards"),
                             "assessments": str(temp_workspace / "assessments"),
                             "training_data": str(temp_workspace / "training-data"),
                             "logs": str(temp_workspace / "logs")
@@ -570,7 +570,7 @@ class TestComponentInteractions:
         test_env = loaded_config["adri"]["environments"]["test"]
 
         # Verify paths are accessible
-        assert "standards" in test_env["paths"]
+        assert "contracts" in test_env["paths"]
         assert "assessments" in test_env["paths"]
 
         # Verify protection settings
@@ -656,7 +656,7 @@ class TestComponentInteractions:
             mock_profiler.side_effect = RuntimeError("Profiler failed")
 
             # Other components should still work
-            generator = StandardGenerator()
+            generator = ContractGenerator()
             validator = ValidationEngine()
 
             # Generate standard without profiler (direct from data)
@@ -685,7 +685,7 @@ class TestComponentInteractions:
         with performance_tester.memory_monitor():
             # Run complete workflow
             profiler = DataProfiler()
-            generator = StandardGenerator()
+            generator = ContractGenerator()
             validator = ValidationEngine()
 
             # Profile data
@@ -713,7 +713,7 @@ class TestComponentInteractions:
         """Test complete standard lifecycle: generation → storage → loading → validation."""
 
         # Step 1: Generate standard from data
-        generator = StandardGenerator()
+        generator = ContractGenerator()
         generated_standard = generator.generate(
             data=self.high_quality_data,
             data_name="lifecycle_test_standard"
@@ -725,10 +725,10 @@ class TestComponentInteractions:
             yaml.dump(generated_standard, f)
 
         # Step 3: Load standard using parser (mock for test isolation)
-        with patch.object(StandardsParser, 'parse_standard') as mock_parse:
+        with patch.object(ContractsParser, 'parse_contract') as mock_parse:
             mock_parse.return_value = generated_standard
-            parser = StandardsParser()
-            parsed_standard = parser.parse_standard("lifecycle_test_standard")
+            parser = ContractsParser()
+            parsed_standard = parser.parse_contract("lifecycle_test_standard")
 
         # Step 4: Validate original data against loaded standard
         validator = ValidationEngine()
@@ -738,8 +738,8 @@ class TestComponentInteractions:
         )
 
         # Verify complete lifecycle worked
-        assert "Lifecycle Test Standard" in generated_standard["standards"]["name"]
-        assert parsed_standard["standards"]["id"] == generated_standard["standards"]["id"]
+        assert "Lifecycle Test Standard" in generated_standard["contracts"]["name"]
+        assert parsed_standard["contracts"]["id"] == generated_standard["contracts"]["id"]
         assert validation_result.overall_score > 0
 
         # Data should validate well against its own generated and reloaded standard

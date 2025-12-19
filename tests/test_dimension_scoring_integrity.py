@@ -10,7 +10,7 @@ import pytest
 from pathlib import Path
 
 from adri.analysis.generation.dimension_builder import DimensionRequirementsBuilder
-from adri.analysis.generation.standard_builder import StandardBuilder
+from adri.analysis.generation.contract_builder import ContractBuilder
 from adri.validator.engine import DataQualityAssessor
 
 
@@ -18,18 +18,18 @@ class TestDimensionRuleWeights:
     """Test that all rule types have proper weights configured."""
 
     def test_validity_starts_empty_populated_by_generator(self):
-        """Ensure validity dimension starts with empty weights (populated by StandardBuilder)."""
+        """Ensure validity dimension starts with empty weights (populated by ContractBuilder)."""
         builder = DimensionRequirementsBuilder()
         dim_reqs = builder.build_dimension_requirements({})
 
         validity_weights = dim_reqs["validity"]["scoring"]["rule_weights"]
 
-        # DimensionBuilder returns empty dict - weights are populated by StandardBuilder
+        # DimensionBuilder returns empty dict - weights are populated by ContractBuilder
         assert isinstance(validity_weights, dict), "rule_weights must be a dict"
         assert len(validity_weights) == 0, "DimensionBuilder should return empty rule_weights"
 
     def test_validity_weights_sum_to_one_after_normalization(self):
-        """Ensure validity rule weights sum to 1.0 after StandardBuilder populates them."""
+        """Ensure validity rule weights sum to 1.0 after ContractBuilder populates them."""
         # Create test data with various field types
         data = pd.DataFrame({
             "id": ["A", "B", "C"],
@@ -38,8 +38,8 @@ class TestDimensionRuleWeights:
             "date": ["2024-01-15", "2024-01-16", "2024-01-17"]
         })
 
-        # Build standard using StandardBuilder
-        builder = StandardBuilder()
+        # Build standard using ContractBuilder
+        builder = ContractBuilder()
         profile = {col: {"dtype": str(data[col].dtype)} for col in data.columns}
         standard = builder.build_standard(
             data,
@@ -80,24 +80,24 @@ class TestDimensionRuleWeights:
         assert comp_weights["missing_required"] > 0
 
     def test_consistency_starts_empty_populated_by_generator(self):
-        """Ensure consistency dimension starts with empty weights (populated by StandardBuilder)."""
+        """Ensure consistency dimension starts with empty weights (populated by ContractBuilder)."""
         builder = DimensionRequirementsBuilder()
         dim_reqs = builder.build_dimension_requirements({})
 
         cons_weights = dim_reqs["consistency"]["scoring"]["rule_weights"]
 
-        # DimensionBuilder returns empty dict - weights are populated by StandardBuilder
+        # DimensionBuilder returns empty dict - weights are populated by ContractBuilder
         assert isinstance(cons_weights, dict), "rule_weights must be a dict"
         assert len(cons_weights) == 0, "DimensionBuilder should return empty rule_weights"
 
     def test_plausibility_starts_empty_populated_by_generator(self):
-        """Ensure plausibility dimension starts with empty weights (populated by StandardBuilder)."""
+        """Ensure plausibility dimension starts with empty weights (populated by ContractBuilder)."""
         builder = DimensionRequirementsBuilder()
         dim_reqs = builder.build_dimension_requirements({})
 
         plaus_weights = dim_reqs["plausibility"]["scoring"]["rule_weights"]
 
-        # DimensionBuilder returns empty dict - weights are populated by StandardBuilder
+        # DimensionBuilder returns empty dict - weights are populated by ContractBuilder
         assert isinstance(plaus_weights, dict), "rule_weights must be a dict"
         assert len(plaus_weights) == 0, "DimensionBuilder should return empty rule_weights"
 
@@ -126,7 +126,7 @@ class TestScoringAccuracy:
         })
 
         # Build standard from subset
-        builder = StandardBuilder()
+        builder = ContractBuilder()
         train_data = data.iloc[:2]  # Only first 2 rows
 
         # Create minimal profile
@@ -161,7 +161,7 @@ class TestScoringAccuracy:
             "date": ["2024-01-01", "2024-01-02", "2024-01-03", "2024-01-04", "2099-12-31"]  # Last is way off
         })
 
-        builder = StandardBuilder()
+        builder = ContractBuilder()
         profile = {col: {"dtype": str(data[col].dtype)} for col in data.columns}
 
         # Build standard from clean subset
@@ -198,7 +198,7 @@ class TestInvoiceGuidedTourScenario:
         })
 
         # Build standard from training data
-        builder = StandardBuilder()
+        builder = ContractBuilder()
         profile = {col: {"dtype": str(train_data[col].dtype)} for col in train_data.columns}
 
         standard = builder.build_standard(
@@ -230,7 +230,7 @@ class TestInvoiceGuidedTourScenario:
 
 
 class TestDynamicWeightPopulation:
-    """Test dynamic weight population by StandardBuilder."""
+    """Test dynamic weight population by ContractBuilder."""
 
     def test_only_active_rule_types_have_weights(self):
         """Verify only rule types with actual rules get weights."""
@@ -240,7 +240,7 @@ class TestDynamicWeightPopulation:
             "name": ["Alice", "Bob", "Charlie"]
         })
 
-        builder = StandardBuilder()
+        builder = ContractBuilder()
         profile = {col: {"dtype": str(data[col].dtype)} for col in data.columns}
         standard = builder.build_standard(
             data,
@@ -280,7 +280,7 @@ class TestDynamicWeightPopulation:
             "score": [8.5, 9.0, 7.5]
         })
 
-        builder = StandardBuilder()
+        builder = ContractBuilder()
         profile = {col: {"dtype": str(data[col].dtype)} for col in data.columns}
         standard = builder.build_standard(
             data,

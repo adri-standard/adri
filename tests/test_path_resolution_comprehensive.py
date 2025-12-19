@@ -155,7 +155,7 @@ class TestPathResolutionCore(unittest.TestCase):
     def test_resolve_project_path_dev_environment_paths(self):
         """Test resolving development environment paths."""
         test_cases = [
-            ("dev/standards/invoice_standard.yaml", "ADRI/dev/standards/invoice_standard.yaml"),
+            ("dev/contracts/invoice_standard.yaml", "ADRI/dev/contracts/invoice_standard.yaml"),
             ("dev/assessments/report_001.json", "ADRI/dev/assessments/report_001.json"),
             ("dev/training-data/snapshot_123.csv", "ADRI/dev/training-data/snapshot_123.csv"),
             ("dev/audit-logs/audit_log.csv", "ADRI/dev/audit-logs/audit_log.csv"),
@@ -175,7 +175,7 @@ class TestPathResolutionCore(unittest.TestCase):
     def test_resolve_project_path_prod_environment_paths(self):
         """Test resolving production environment paths."""
         test_cases = [
-            ("prod/standards/customer_standard.yaml", "ADRI/prod/standards/customer_standard.yaml"),
+            ("prod/contracts/customer_standard.yaml", "ADRI/prod/contracts/customer_standard.yaml"),
             ("prod/assessments/prod_report_001.json", "ADRI/prod/assessments/prod_report_001.json"),
             ("prod/training-data/prod_snapshot_456.csv", "ADRI/prod/training-data/prod_snapshot_456.csv"),
             ("prod/audit-logs/prod_audit_log.csv", "ADRI/prod/audit-logs/prod_audit_log.csv"),
@@ -196,7 +196,7 @@ class TestPathResolutionCore(unittest.TestCase):
         """Test resolving paths that already include ADRI/ prefix."""
         test_cases = [
             ("ADRI/tutorials/test/data.csv", "ADRI/tutorials/test/data.csv"),
-            ("ADRI/dev/standards/test.yaml", "ADRI/dev/standards/test.yaml"),
+            ("ADRI/dev/contracts/test.yaml", "ADRI/dev/contracts/test.yaml"),
             ("ADRI/prod/assessments/prod.json", "ADRI/prod/assessments/prod.json"),
         ]
 
@@ -259,11 +259,11 @@ class TestPathResolutionCrossDirectory(unittest.TestCase):
             "ADRI",
             "ADRI/tutorials/invoice_processing",
             "ADRI/tutorials/customer_service",
-            "ADRI/dev/standards",
+            "ADRI/dev/contracts",
             "ADRI/dev/assessments",
             "ADRI/dev/training-data",
             "ADRI/dev/audit-logs",
-            "ADRI/prod/standards",
+            "ADRI/prod/contracts",
             "ADRI/prod/assessments",
             "docs",
             "docs/src",
@@ -292,7 +292,7 @@ class TestPathResolutionCrossDirectory(unittest.TestCase):
         test_files = [
             "ADRI/tutorials/invoice_processing/invoice_data.csv",
             "ADRI/tutorials/customer_service/agent_data.csv",
-            "ADRI/dev/standards/invoice_standard.yaml",
+            "ADRI/dev/contracts/invoice_standard.yaml",
         ]
 
         for file_path in test_files:
@@ -324,8 +324,8 @@ class TestPathResolutionCrossDirectory(unittest.TestCase):
         os.chdir(nested_dir)
 
         # Test dev standards path resolution
-        result = adri_cli._resolve_project_path("dev/standards/invoice_standard.yaml")
-        expected = self.project_root / "ADRI/dev/standards/invoice_standard.yaml"
+        result = adri_cli._resolve_project_path("dev/contracts/invoice_standard.yaml")
+        expected = self.project_root / "ADRI/dev/contracts/invoice_standard.yaml"
 
         # Use resolve() for cross-platform symlink handling
         self.assertEqual(result.resolve(), expected.resolve())
@@ -352,7 +352,7 @@ class TestPathResolutionCrossDirectory(unittest.TestCase):
         # Test multiple path types
         test_cases = [
             ("tutorials/invoice_processing/invoice_data.csv", "ADRI/tutorials/invoice_processing/invoice_data.csv"),
-            ("dev/standards/invoice_standard.yaml", "ADRI/dev/standards/invoice_standard.yaml"),
+            ("dev/contracts/invoice_standard.yaml", "ADRI/dev/contracts/invoice_standard.yaml"),
             ("prod/assessments/report.json", "ADRI/prod/assessments/report.json"),
         ]
 
@@ -389,7 +389,7 @@ class TestPathResolutionCrossDirectory(unittest.TestCase):
         test_cases = [
             "tutorials/invoice_processing/data.csv",
             "tutorials\\invoice_processing\\data.csv" if os.name == 'nt' else "tutorials/invoice_processing/data.csv",
-            "dev/standards/test.yaml",
+            "dev/contracts/test.yaml",
             "prod\\assessments\\report.json" if os.name == 'nt' else "prod/assessments/report.json",
         ]
 
@@ -427,7 +427,7 @@ class TestPathResolutionIntegration(unittest.TestCase):
         # Create directory structure
         directories = [
             "ADRI/tutorials/invoice_processing",
-            "ADRI/dev/standards",
+            "ADRI/dev/contracts",
             "ADRI/dev/assessments",
             "ADRI/dev/training-data",
             "ADRI/dev/audit-logs",
@@ -445,7 +445,7 @@ class TestPathResolutionIntegration(unittest.TestCase):
                 "environments": {
                     "development": {
                         "paths": {
-                            "standards": "ADRI/dev/standards",
+                            "contracts": "ADRI/dev/contracts",
                             "assessments": "ADRI/dev/assessments",
                             "training_data": "ADRI/dev/training-data",
                             "audit_logs": "ADRI/dev/audit-logs",
@@ -507,20 +507,20 @@ class TestPathResolutionIntegration(unittest.TestCase):
         # Check both possible locations due to path resolution
         standard_path1 = self.project_root / "ADRI" / "dev" / "standards" / "invoice_data_ADRI_standard.yaml"
         # Path relative to current working directory in subdirectory
-        standard_path2 = Path("ADRI/dev/standards/invoice_data_ADRI_standard.yaml")
+        standard_path2 = Path("ADRI/dev/contracts/invoice_data_ADRI_standard.yaml")
 
         # Should exist in the project root location
         self.assertTrue(standard_path1.exists() or standard_path2.exists(),
             f"Standard should exist at {standard_path1} or {standard_path2}")
 
     @patch('src.adri.cli.commands.assess.load_data')
-    @patch('src.adri.cli.commands.assess.load_standard')
+    @patch('src.adri.cli.commands.assess.load_contract')
     @patch('src.adri.cli.commands.assess.DataQualityAssessor')
-    def test_assess_command_path_resolution(self, mock_assessor_class, mock_load_standard, mock_load_data):
+    def test_assess_command_path_resolution(self, mock_assessor_class, mock_load_contract, mock_load_data):
         """Test assess command works with path resolution."""
         # Setup mocks
         mock_load_data.return_value = [{"invoice_id": "INV-001", "amount": 1250.00}]
-        mock_load_standard.return_value = {"standards": {"name": "test"}, "requirements": {}}
+        mock_load_contract.return_value = {"contracts": {"name": "test"}, "requirements": {}}
 
         mock_result = Mock()
         mock_result.overall_score = 85.0
@@ -534,10 +534,10 @@ class TestPathResolutionIntegration(unittest.TestCase):
 
         # Create standard file for testing
         standard_content = {
-            "standards": {"name": "Test Standard"},
+            "contracts": {"name": "Test Standard"},
             "requirements": {"overall_minimum": 75.0}
         }
-        standard_path = self.project_root / "ADRI" / "dev" / "standards" / "test_standard.yaml"
+        standard_path = self.project_root / "ADRI" / "dev" / "contracts" / "test_standard.yaml"
         with open(standard_path, 'w', encoding='utf-8') as f:
             yaml.dump(standard_content, f)
 
@@ -549,7 +549,7 @@ class TestPathResolutionIntegration(unittest.TestCase):
         # Run assess command with relative paths
         result = adri_cli.assess_command(
             "tutorials/invoice_processing/invoice_data.csv",
-            "dev/standards/test_standard.yaml"
+            "dev/contracts/test_standard.yaml"
         )
 
         self.assertEqual(result, 0)
@@ -638,7 +638,7 @@ class TestPathResolutionPerformance(unittest.TestCase):
 
         test_paths = [
             "tutorials/test1/data.csv",
-            "dev/standards/standard1.yaml",
+            "dev/contracts/standard1.yaml",
             "prod/assessments/report1.json",
             "tutorials/test2/data.json",
             "dev/training-data/snapshot1.csv",

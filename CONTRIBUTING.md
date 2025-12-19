@@ -1,488 +1,380 @@
-# Contributing to verodat-adri
+# Contributing to ADRI
 
-**Enterprise Edition: Stop AI Agents Breaking on Bad Data**
+Thank you for your interest in contributing to ADRI! We welcome contributions that help make data quality protection easier for AI agent engineers.
 
-Thank you for your interest in contributing to verodat-adri! We welcome contributions from the AI framework community to help protect agents from bad data with enterprise-grade features.
+## Quick Start
 
-**Join the Movement**: Help make AI agents bulletproof across LangChain, CrewAI, AutoGen, LlamaIndex, Haystack, LangGraph, and Semantic Kernel.
-
----
-
-## 🚀 **Quick Start - New Contributors**
-
-**Want to jump right in?** Check out our **[Quick Contribution Guide](development/docs/QUICK_CONTRIBUTION_GUIDE.md)** for the fastest path to contributing!
-
-- 🌟 **First time?** → [Browse good first issues](https://github.com/Verodat/verodat-adri/labels/good%20first%20issue)
-- 🔧 **Have an idea?** → [Create an issue](https://github.com/Verodat/verodat-adri/issues/new/choose)
-- 📚 **See a typo?** → Just fix it and create a PR!
-
-**Our smart automation adapts to your changes** - documentation updates are super easy, core functionality gets extra quality attention.
-
----
-
-## Table of Contents
-
-- [Code of Conduct](#code-of-conduct)
-- [Getting Started](#getting-started)
-- [Development Setup](#development-setup)
-- [How to Contribute](#how-to-contribute)
-- [Reporting Issues](#reporting-issues)
-- [Submitting Pull Requests](#submitting-pull-requests)
-- [Coding Standards](#coding-standards)
-- [Testing Guidelines](#testing-guidelines)
-- [Documentation](#documentation)
-- [Community](#community)
-
-## Code of Conduct
-
-Please read and follow our [Code of Conduct](CODE_OF_CONDUCT.md) to ensure a welcoming environment for all contributors.
-
-## Getting Started
-
-1. Fork the repository on GitHub
-2. Clone your fork locally:
+1. **Fork** the repository on GitHub
+2. **Clone** your fork:
    ```bash
-   git clone https://github.com/YOUR_USERNAME/verodat-adri.git
-   cd verodat-adri
+   git clone https://github.com/YOUR_USERNAME/adri.git
+   cd adri
    ```
-3. Add the upstream repository as a remote (for syncing with community ADRI):
-   ```bash
-   git remote add upstream https://github.com/adri-standard/adri.git
-   ```
-   Note: This upstream points to community ADRI for core module synchronization.
 
-## Development Setup
-
-### Prerequisites
-
-- Python 3.10 or higher
-- pip and virtualenv (or conda)
-- Git
-
-### Setting Up Your Development Environment
-
-1. Create a virtual environment:
+3. **Set up** development environment:
    ```bash
    python -m venv venv
    source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-
-2. Install the package in development mode with all dependencies:
-   ```bash
    pip install -e ".[dev]"
-   ```
-
-3. Set up pre-commit hooks:
-   ```bash
    pre-commit install
    ```
 
-4. Run the test suite to verify everything is working:
+4. **Make your changes** and test:
    ```bash
-   pytest
+   pytest tests/
    ```
 
-## How to Contribute
+5. **Submit** a pull request
 
-### Issue-First Workflow ⚠️ ENFORCED
+## What We're Looking For
 
-**All contributions MUST start with a GitHub issue.** This is automatically enforced by our CI pipeline - branches that don't follow the issue-first convention will be rejected.
+### High Priority
 
-📚 **Complete Guide**: See our detailed [Issue-Driven Development Workflow](docs/CONTRIBUTOR_DOCS/ISSUE_DRIVEN_WORKFLOW.md) for comprehensive instructions and examples.
+- 🐛 **Bug fixes** - Especially for decorator behavior
+- 🔧 **Framework integrations** - New AI agent framework examples
+- 📝 **Documentation** - Clearer examples, better guides
+- ✨ **Usability improvements** - Make ADRI easier to use
 
-#### Before You Code
+### Welcome Contributions
 
-1. **Check existing issues** - Your idea might already be discussed
-2. **Create an issue** - Use our comprehensive issue templates for consistency:
+- 🧪 **Tests** - Increase coverage
+- 📊 **Standards** - Domain-specific quality standards
+- 💡 **Examples** - Real-world use cases
+- 🎨 **Code quality** - Performance, clarity, maintainability
 
-### Available Issue Templates
+### Not Currently Accepting
 
-We provide specialized templates to streamline different types of contributions:
+- 🚫 **Major architectural changes** - Discuss first in issues
+- 🚫 **Breaking changes** - Must maintain decorator API stability
 
-**General Templates:**
-- **🚀 Feature Request** - For completely new functionality
-- **⚡ Enhancement** - For improvements to existing features
-- **🐛 Bug Report** - For general bugs or unexpected behavior
-- **🐛 Data Quality Bug Report** - For issues specific to data quality assessment or validation
-- **💬 Discussion** - For architectural decisions or community input
+## Development Workflow
 
-**Framework-Specific Templates:**
-- **AutoGen Integration** - Issues with Microsoft AutoGen framework
-- **CrewAI Integration** - Issues with CrewAI framework
-- **LangChain Integration** - Issues with LangChain framework
-
-**Template Features:**
-- Pre-filled labels and assignees
-- Structured sections for consistent reporting
-- Framework compatibility checkboxes
-- Integration with our issue-driven workflow
-- Automatic branch naming guidance
-
-**Choosing the Right Template:**
-- Use **Bug Report** for general issues
-- Use **Data Quality Bug Report** for validation/assessment problems
-- Use framework-specific templates when the issue is framework-related
-- Use **Feature Request** for new capabilities
-- Use **Enhancement** for improving existing features
-- Use **Discussion** for broader topics requiring community input
-3. **Get feedback** - Allow time for community input before implementation
-4. **Issue assignment** - Comment on the issue to request assignment
-
-#### Branch Naming Convention ⚠️ AUTOMATICALLY ENFORCED
-
-Create branches that reference the issue number using our standardized format:
+### 1. Create a Branch
 
 ```bash
-# Format: type/issue-{number}-brief-description
-feat/issue-123-user-authentication
-fix/issue-456-memory-leak
-docs/issue-789-api-documentation
-enhance/issue-321-performance-improvement
+git checkout -b feature/your-feature-name
+# or
+git checkout -b fix/bug-description
 ```
 
-**Valid types**: `feat`, `fix`, `docs`, `chore`, `refactor`, `test`, `style`, `perf`, `enhance`, `hotfix`
+### 2. Make Changes
 
-🚨 **IMPORTANT**: Our branch validation workflow will automatically reject branches that don't follow this convention. You'll get immediate feedback with helpful guidance on how to fix the branch name.
+Focus on:
+- **Decorator-first** patterns
+- **Developer experience**
+- **Framework agnostic** solutions
+- **Clear, simple code**
 
-#### What Happens If You Don't Follow Convention:
-
-```bash
-❌ BRANCH REJECTED: Invalid naming convention
-Required format: type/issue-{number}-description
-
-To fix this:
-1. Create a GitHub issue for your work
-2. Rename your branch: git branch -m type/issue-{number}-description
-3. Push again: git push -u origin HEAD
-```
-
-### Types of Contributions
-
-We welcome various types of contributions:
-
-- **Bug Fixes**: Fix issues reported in our issue tracker
-- **Features**: Implement new features or enhance existing ones
-- **Documentation**: Improve documentation, add examples, or fix typos
-- **Tests**: Add missing tests or improve test coverage
-- **Standards**: Contribute new data quality standards or improve existing ones
-- **Framework Integration**: Add support for new AI agent frameworks
-- **Performance**: Optimize code for better performance
-
-### Finding Issues to Work On
-
-- Check our [issue tracker](https://github.com/Verodat/verodat-adri/issues) for open issues
-- Look for issues labeled `good first issue` if you're new to the project
-- Issues labeled `help wanted` are particularly important to the project
-- **No issue for your idea?** Create one using our templates!
-
-## Reporting Issues
-
-### Before Reporting
-
-1. Check if the issue has already been reported
-2. Ensure you're using the latest version of ADRI
-3. Verify the issue is reproducible
-
-### How to Report
-
-When creating an issue, please include:
-
-- A clear, descriptive title
-- Steps to reproduce the issue
-- Expected behavior vs actual behavior
-- Your environment details (Python version, OS, etc.)
-- Any relevant code samples or error messages
-- Screenshots if applicable
-
-## Submitting Pull Requests
-
-### Before You Submit
-
-1. Ensure your code follows our coding standards
-2. Write or update tests for your changes
-3. Update documentation if needed
-4. Run the full test suite locally
-5. Ensure all pre-commit hooks pass
-
-### Pull Request Process
-
-1. **Ensure you have a linked issue** - All PRs must reference a GitHub issue
-
-2. Create a new branch following our naming convention:
-   ```bash
-   git checkout -b feat/issue-123-your-feature-name
-   ```
-
-3. Make your changes and commit them with descriptive messages:
-   ```bash
-   git commit -m "feat: add new validation for data completeness (fixes #123)"
-   ```
-
-4. Push your branch to your fork:
-   ```bash
-   git push origin feat/issue-123-your-feature-name
-   ```
-
-5. Open a Pull Request on GitHub using the PR template:
-   - **Required**: Link to the GitHub issue (e.g., "Fixes #123")
-   - Clear title and description
-   - Completed testing checklist
-   - Documentation updates (if applicable)
-   - Screenshots or examples if applicable
-
-6. **Automated checks**: Our GitHub Actions will verify:
-   - Issue is properly linked
-   - Branch naming follows convention
-   - All tests pass
-   - Code quality standards are met
-
-7. Address any feedback from reviewers promptly
-
-#### PR Requirements
-
-✅ **Must Have:**
-- Linked GitHub issue
-- Proper branch naming
-- Passing automated tests
-- Updated documentation (if needed)
-- Conventional commit messages
-
-❌ **Will Block Merge:**
-- No linked issue
-- Failing tests
-- Code quality issues
-- Missing documentation for new features
-
-### Commit Message Format
-
-We follow the [Conventional Commits](https://www.conventionalcommits.org/) specification:
-
-- `feat:` New feature
-- `fix:` Bug fix
-- `docs:` Documentation changes
-- `style:` Code style changes (formatting, etc.)
-- `refactor:` Code refactoring
-- `test:` Test additions or modifications
-- `chore:` Maintenance tasks
-- `perf:` Performance improvements
-
-## Coding Standards
-
-### Python Style Guide
-
-- Follow [PEP 8](https://www.python.org/dev/peps/pep-0008/)
-- Use type hints for function parameters and return values
-- Maximum line length: 88 characters (enforced by Black)
-- Use descriptive variable and function names
-
-### Cross-Platform Compatibility ⚠️ CRITICAL
-
-**ADRI runs on Windows, macOS, and Linux.** Always specify `encoding='utf-8'` when opening text files:
-
-```python
-# ✅ CORRECT - Works on all platforms
-with open('file.yaml', 'r', encoding='utf-8') as f:
-    content = f.read()
-
-# ❌ WRONG - Fails on Windows (uses cp1252 instead of UTF-8)
-with open('file.yaml', 'r') as f:
-    content = f.read()
-```
-
-**Why this matters**: Windows uses cp1252 encoding by default, while macOS/Linux use UTF-8. Code that works on your Mac will fail on Windows CI if you don't specify encoding.
-
-**VS Code Snippets**: Type `openr`, `openw`, `yamlload`, etc. for auto-completion with correct encoding.
-
-**Pre-commit Hook**: Our encoding check will catch missing encoding parameters before commit.
-
-**See**: [Cross-Platform Best Practices Guide](docs/development/CROSS_PLATFORM_BEST_PRACTICES.md)
-
-### Code Quality Tools
-
-We use the following tools to maintain code quality:
-
-- **Black**: Code formatting
-- **isort**: Import sorting
-- **flake8**: Linting
-- **mypy**: Type checking
-- **bandit**: Security analysis
-
-Run all checks with:
-```bash
-pre-commit run --all-files
-```
-
-## Testing Guidelines
-
-### Writing Tests
-
-- Write tests for all new features and bug fixes
-- Place tests in the appropriate directory under `tests/`
-- Use descriptive test names that explain what is being tested
-- Include both positive and negative test cases
-- Mock external dependencies when appropriate
-
-### Test Structure
-
-```python
-def test_descriptive_name():
-    """Test that [specific behavior] works correctly."""
-    # Arrange
-    input_data = prepare_test_data()
-
-    # Act
-    result = function_under_test(input_data)
-
-    # Assert
-    assert result == expected_value
-```
-
-### Running Tests
+### 3. Write Tests
 
 ```bash
 # Run all tests
 pytest
 
+# Run specific test file
+pytest tests/unit/decorators/test_guard.py
+
 # Run with coverage
 pytest --cov=adri --cov-report=html
+```
 
-# Run specific test file
-pytest tests/unit/test_specific.py
+### 4. Update Documentation
 
-# Run with verbose output
+If you're adding features:
+- Update relevant docs in `docs/`
+- Add examples if applicable
+- Update `CHANGELOG.md`
+
+### 5. Run Quality Checks
+
+```bash
+# Format code
+black adri/
+
+# Check style
+flake8 adri/
+
+# Run pre-commit hooks
+pre-commit run --all-files
+```
+
+### 6. Submit Pull Request
+
+- Write a clear title and description
+- Reference any related issues
+- Ensure CI passes
+
+## Code Standards
+
+### Python Style
+
+- Follow **PEP 8** (enforced by flake8)
+- Use **Black** formatting (automatic with pre-commit)
+- Write **docstrings** for public functions
+- Add **type hints** where helpful
+
+### Testing
+
+- Write tests for new features
+- Maintain high test coverage
+- Use descriptive test names
+- Test edge cases
+
+### Documentation
+
+- Keep docs concise and actionable
+- Use code examples liberally
+- Focus on developer workflow
+- Maintain decorator-first narrative
+
+## Commit Messages
+
+Use clear, descriptive commit messages:
+
+```bash
+# Good
+git commit -m "Add LangGraph integration example"
+git commit -m "Fix: Decorator fails with empty DataFrame"
+git commit -m "Docs: Update QUICKSTART with CLI section"
+
+# Avoid
+git commit -m "Fix bug"
+git commit -m "Update files"
+git commit -m "Changes"
+```
+
+## Pull Request Guidelines
+
+### Title Format
+
+- **feat:** New feature
+- **fix:** Bug fix
+- **docs:** Documentation
+- **test:** Tests
+- **refactor:** Code refactoring
+- **perf:** Performance improvement
+
+### Description Template
+
+```markdown
+## Summary
+Brief description of changes
+
+## Motivation
+Why is this change needed?
+
+## Changes
+- Change 1
+- Change 2
+- Change 3
+
+## Testing
+How was this tested?
+
+## Related Issues
+Fixes #123
+```
+
+## Reporting Issues
+
+### Bug Reports
+
+Include:
+- **Clear description** of the problem
+- **Steps to reproduce**
+- **Expected behavior**
+- **Actual behavior**
+- **Environment** (Python version, OS, ADRI version)
+- **Code example** (if applicable)
+
+### Feature Requests
+
+Include:
+- **Use case** - What problem does this solve?
+- **Proposed solution** - How should it work?
+- **Alternatives** - Other approaches considered?
+- **Impact** - Who benefits from this?
+
+## Getting Help
+
+- 📖 **Documentation**: [Full docs](https://github.com/adri-standard/adri)
+- 💬 **Discussions**: [GitHub Discussions](https://github.com/adri-standard/adri/discussions)
+- 🐛 **Issues**: [Search existing issues](https://github.com/adri-standard/adri/issues)
+- 📝 **Examples**: [examples/](examples/)
+
+## Development Tips
+
+### Running Specific Tests
+
+```bash
+# Unit tests only
+pytest tests/unit/
+
+# Integration tests
+pytest tests/integration/
+
+# Specific test
+pytest tests/unit/decorators/test_guard.py::test_basic_protection
+```
+
+### Debugging
+
+```bash
+# Verbose output
 pytest -v
+
+# Stop on first failure
+pytest -x
+
+# Enter debugger on failure
+pytest --pdb
 ```
 
-## Documentation
+### Local Documentation
 
-### Docstring Format
-
-Use Google-style docstrings:
-
-```python
-def function_name(param1: str, param2: int) -> bool:
-    """Brief description of function.
-
-    Longer description if needed, explaining the function's
-    purpose and behavior in more detail.
-
-    Args:
-        param1: Description of param1
-        param2: Description of param2
-
-    Returns:
-        Description of return value
-
-    Raises:
-        ValueError: When param1 is invalid
-
-    Example:
-        >>> function_name("test", 42)
-        True
-    """
+```bash
+# Generate HTML docs (if using Sphinx)
+cd docs
+make html
+open _build/html/index.html
 ```
 
-### Updating Documentation
+## Project Structure
 
-- Update relevant documentation when adding or modifying features
-- Ensure examples in documentation are working and tested
-- Keep the README.md up to date with new features
-- Document any breaking changes in CHANGELOG.md
-
-## Creating New Standards
-
-If you're contributing a new data quality standard:
-
-1. Create a YAML file in `adri/standards/bundled/`
-2. Follow the existing standard template structure
-3. Include comprehensive test cases
-4. Document the standard's purpose and usage
-5. Add examples demonstrating the standard
-
-Example standard structure:
-```yaml
-meta:
-  name: "your_standard_name"
-  version: "1.0.0"
-  description: "Clear description of what this standard validates"
-  author: "Your Name"
-
-fields:
-  - name: "field_name"
-    type: "string"
-    required: true
-    constraints:
-      - type: "pattern"
-        value: "^[A-Z]+$"
-        message: "Field must contain only uppercase letters"
+```
+adri/
+├── adri/                      # Main package
+│   ├── __init__.py           # Public API
+│   └── validator/            # Core implementation
+│       ├── decorators/       # @adri_protected
+│       ├── core/             # Protection engine
+│       ├── analysis/         # Profiling & generation
+│       ├── standards/        # Standard loading
+│       ├── config/           # Configuration
+│       └── cli/              # CLI commands
+├── docs/                     # Documentation
+├── examples/                 # Framework examples
+├── tests/                    # Test suite
+└── standards/                # Bundled standards
 ```
 
-## Framework Integration
+## Code of Conduct
 
-When adding support for a new AI agent framework:
-
-1. Create an example in `examples/` directory
-2. Ensure the @adri_protected decorator works seamlessly
-3. Document any framework-specific considerations
-4. Add integration tests
-5. Update the README with the new framework
-
-## Performance Considerations
-
-- Avoid premature optimization
-- Profile code before optimizing
-- Consider memory usage for large datasets
-- Use generators for processing large files
-- Cache expensive computations when appropriate
-
-## Release Process
-
-We follow semantic versioning (MAJOR.MINOR.PATCH):
-
-- MAJOR: Breaking changes
-- MINOR: New features (backward compatible)
-- PATCH: Bug fixes (backward compatible)
-
-## Community
-
-### Getting Help
-
-- Check the documentation first
-- Search existing issues and discussions
-- Ask questions in GitHub Discussions
-- Join our community chat (if available)
-
-### Staying Updated
-
-- Watch the repository for updates
-- Subscribe to release notifications
-- Follow our blog/changelog for major updates
+Be respectful, inclusive, and constructive. See [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
 
 ## Recognition
 
-Contributors who make significant contributions will be:
-- Added to the AUTHORS file
-- Mentioned in release notes
-- Given credit in the documentation
+Contributors are recognized in:
+- Pull request comments
+- Release notes
+- Project README
+
+## Contributing Standards to the Library
+
+The ADRI Standards Library is a community-driven catalog of reusable data quality standards. Contributing standards helps others adopt ADRI faster and builds the ecosystem.
+
+### What Makes a Good Standard Contribution?
+
+**Good Candidates**:
+- ✅ Common business domains (retail, healthcare, finance, logistics)
+- ✅ Popular AI frameworks (LangChain, CrewAI, AutoGen, LlamaIndex)
+- ✅ Generic patterns (event logs, audit trails, user activity)
+- ✅ Industry-specific formats (HL7, FHIR, financial reporting)
+
+**Not Suitable**:
+- ❌ Company-specific internal standards
+- ❌ Standards with proprietary/confidential fields
+- ❌ Overly narrow use cases (single-application standards)
+
+### Standard Contribution Process
+
+1. **Create your standard** following the v5.0.0 format (see [STANDARDS_LIBRARY.md](docs/STANDARDS_LIBRARY.md))
+
+2. **Write comprehensive tests**:
+   ```python
+   def test_your_standard():
+       """Test your contributed standard."""
+       @adri_protected(standard="your_standard_name")
+       def process_data(data):
+           return data
+
+       # Create sample data matching all required fields
+       data = pd.DataFrame([{
+           "field1": "value1",
+           "field2": 123,
+           # ... all required fields
+       }])
+
+       result = process_data(data)
+       assert result is not None
+   ```
+
+3. **Document thoroughly**:
+   - Clear description of use case
+   - Field descriptions explaining purpose
+   - Example usage code in metadata
+   - Tags for discoverability
+
+4. **Choose the right location**:
+   - `adri/standards/domains/` - Business domain standards
+   - `adri/standards/frameworks/` - AI framework-specific
+   - `adri/standards/templates/` - Generic reusable templates
+
+5. **Submit pull request** with:
+   - Standard YAML file
+   - Tests in `tests/test_standards_catalog.py`
+   - Entry in `docs/STANDARDS_LIBRARY.md`
+
+### Standard Quality Checklist
+
+- [ ] Unique, descriptive standard ID and name
+- [ ] All fields have descriptions
+- [ ] Appropriate quality threshold (85-95% for production)
+- [ ] Example usage in metadata section
+- [ ] No SQL reserved words in field names
+- [ ] Tests passing with sample data
+- [ ] Clear tags for discoverability
+
+### Standard Format Reference
+
+Required sections:
+```yaml
+standards:
+  id: unique_identifier
+  name: Human Readable Name
+  version: 1.0.0
+  authority: ADRI Standards Catalog
+  description: What this validates
+
+record_identification:
+  primary_key_fields: [id_field]
+  strategy: primary_key_with_fallback
+
+requirements:
+  overall_minimum: 85.0
+  field_requirements:
+    # Your fields here
+
+metadata:
+  purpose: Why this standard exists
+  example_usage: |
+    from adri import adri_protected
+    @adri_protected(standard="your_standard")
+    def process(data):
+        return data
+  created_by: ADRI Standards Catalog
+  created_date: YYYY-MM-DD
+  tags: [tag1, tag2]
+```
+
+See [STANDARDS_LIBRARY.md](docs/STANDARDS_LIBRARY.md) for complete documentation and examples.
 
 ## License
 
-By contributing to verodat-adri, you agree that your contributions will be licensed under the same license as the project (Apache 2.0).
+By contributing, you agree that your contributions will be licensed under the MIT License.
 
-## Enterprise Features
+---
 
-When contributing to verodat-adri, be aware of:
-- **Protected Enterprise Modules**: src/adri/logging/enterprise.py, src/adri/events/, src/adri/callbacks/
-- **Syncable Core Modules**: src/adri/decorator.py, src/adri/validator/, src/adri/guard/
-- See [UPSTREAM_SYNC.md](UPSTREAM_SYNC.md) for synchronization guidelines
-- See [ENTERPRISE_FEATURES.md](ENTERPRISE_FEATURES.md) for feature differentiation
+**Thank you for contributing to ADRI!** Every improvement helps AI agent engineers build more reliable workflows. 🙏
 
-## Questions?
-
-If you have questions about contributing, feel free to:
-- Open a discussion on GitHub: https://github.com/Verodat/verodat-adri/discussions
-- Contact the Verodat team: adri@verodat.com
-- Check our FAQ section
-- Review community ADRI: https://github.com/adri-standard/adri
-
-Thank you for helping make verodat-adri better for everyone! 🎉
+Questions? Open a [discussion](https://github.com/adri-standard/adri/discussions) or reach out in an [issue](https://github.com/adri-standard/adri/issues).

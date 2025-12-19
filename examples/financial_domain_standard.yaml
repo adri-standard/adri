@@ -1,0 +1,97 @@
+# Financial Domain ADRI Standard
+# Demonstrates type_patterns for domain-specific type validation
+
+# Domain-specific type patterns
+# These patterns help ensure fields are typed correctly based on naming conventions
+type_patterns:
+  # Fields with these patterns should be typed as 'float'
+  float:
+    - indicators:
+        - "_amount$"
+        - "_price$"
+        - "_rate$"
+        - "_percentage$"
+        - "^balance_"
+      constraints:
+        min_value: 0
+  
+  # Fields with these patterns should be typed as 'integer'
+  integer:
+    - indicators:
+        - "_count$"
+        - "_id$"
+        - "^number_"
+        - "_quantity$"
+      constraints:
+        min_value: 0
+  
+  # Fields with these patterns should be typed as 'date'
+  date:
+    - indicators:
+        - "_date$"
+        - "_timestamp$"
+        - "^posted_"
+        - "^effective_"
+  
+  # Fields with these patterns should be typed as 'string'
+  string:
+    - indicators:
+        - "_code$"
+        - "_name$"
+        - "_description$"
+        - "^customer_"
+
+# Field requirements using financial domain conventions
+field_requirements:
+  # Correctly typed fields (follow patterns)
+  transaction_id:
+    type: integer
+    description: Unique transaction identifier
+    min_value: 1
+  
+  transaction_amount:
+    type: float
+    description: Transaction amount in USD
+    min_value: 0.01
+  
+  interest_rate:
+    type: float
+    description: Annual interest rate as percentage
+    min_value: 0
+    max_value: 100
+  
+  account_balance:
+    type: float
+    description: Current account balance
+  
+  transaction_date:
+    type: date
+    description: Date transaction was posted
+  
+  customer_name:
+    type: string
+    description: Full name of the customer
+    min_length: 1
+    max_length: 200
+  
+  currency_code:
+    type: string
+    description: ISO 4217 currency code
+    min_length: 3
+    max_length: 3
+    pattern: "^[A-Z]{3}$"
+  
+  transaction_count:
+    type: integer
+    description: Number of transactions
+    min_value: 0
+  
+  # Example of incorrectly typed field (will trigger type_patterns validation)
+  # Uncomment to see validation error:
+  # account_balance_wrong:
+  #   type: string  # Should be float based on _balance pattern
+  #   description: Account balance (incorrectly typed)
+  
+  # fee_amount_wrong:
+  #   type: integer  # Should be float based on _amount pattern
+  #   description: Transaction fee amount

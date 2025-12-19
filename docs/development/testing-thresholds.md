@@ -85,7 +85,7 @@ assert stress_test_time < 360.0      # was 120.0s
 ```
 tests/performance/test_quality_benchmarks.py:          33 thresholds
 tests/unit/analysis/test_data_profiler_comprehensive.py: 2 thresholds
-tests/unit/standards/test_parser_comprehensive.py:      7 thresholds
+tests/unit/contracts/test_parser_comprehensive.py:      7 thresholds
 tests/unit/config/test_loader_comprehensive.py:         6 thresholds
 tests/unit/validator/test_engine_comprehensive.py:      3 thresholds
 tests/integration/test_component_interactions.py:       4 thresholds

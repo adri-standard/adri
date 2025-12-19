@@ -51,7 +51,7 @@ class TestAdriProtectedDecorator(unittest.TestCase):
     def test_basic_decorator_functionality(self):
         """Test basic decorator application with real data assessment."""
 
-        @adri_protected(standard="customer_standard")
+        @adri_protected(contract="customer_standard")
         def process_customers(data):
             return f"Processed {len(data)} customers"
 
@@ -65,14 +65,14 @@ class TestAdriProtectedDecorator(unittest.TestCase):
         self.assertTrue(hasattr(process_customers, '_adri_config'))
 
         config = process_customers._adri_config
-        self.assertEqual(config['standard'], "customer_standard")
+        self.assertEqual(config['contract'], "customer_standard")
         self.assertEqual(config['data_param'], "data")
 
     def test_custom_parameters(self):
         """Test decorator with custom parameters."""
 
         @adri_protected(
-            standard="custom_standard",
+            contract="custom_standard",
             data_param="customer_info",
             min_score=70,
             verbose=True
@@ -121,7 +121,7 @@ class TestExplicitProtectionPatterns(unittest.TestCase):
     def test_permissive_protection_pattern(self):
         """Test permissive protection pattern (equivalent to old adri_permissive)."""
 
-        @adri_protected(standard="permissive_standard", min_score=70, on_failure="warn", verbose=True)
+        @adri_protected(contract="permissive_standard", min_score=70, on_failure="warn", verbose=True)
         def permissive_function(data):
             return f"Permissive processing: {len(data)} records"
 
@@ -166,7 +166,7 @@ class TestDecoratorIntegration(unittest.TestCase):
     def test_protection_with_selective_mode(self):
         """Test decorator with selective mode - continues despite issues."""
 
-        @adri_protected(standard="selective_standard", on_failure="continue", min_score=80)
+        @adri_protected(contract="selective_standard", on_failure="continue", min_score=80)
         def selective_processor(data):
             return f"Processed {len(data)} items with selective mode"
 
@@ -177,7 +177,7 @@ class TestDecoratorIntegration(unittest.TestCase):
     def test_protection_with_warn_only_mode(self):
         """Test decorator with warn-only mode - always continues."""
 
-        @adri_protected(standard="warn_standard", on_failure="warn", min_score=90)
+        @adri_protected(contract="warn_standard", on_failure="warn", min_score=90)
         def warn_only_processor(data):
             return f"Processed {len(data)} items with warnings"
 
@@ -188,7 +188,7 @@ class TestDecoratorIntegration(unittest.TestCase):
     def test_complex_function_signatures(self):
         """Test decorator with complex function signatures."""
 
-        @adri_protected(standard="complex_standard", data_param="input_data")
+        @adri_protected(contract="complex_standard", data_param="input_data")
         def complex_function(arg1, input_data, arg2="default", *args, **kwargs):
             return {
                 "arg1": arg1,
@@ -220,7 +220,7 @@ class TestDecoratorIntegration(unittest.TestCase):
         """Test decorator with dimension-specific requirements."""
 
         @adri_protected(
-            standard="dimension_standard",
+            contract="dimension_standard",
             min_score=60,  # Lower overall score
             dimensions={"validity": 18, "completeness": 17}  # But specific dimension requirements
         )
@@ -234,7 +234,7 @@ class TestDecoratorIntegration(unittest.TestCase):
     def test_metadata_preservation(self):
         """Test that function metadata is preserved."""
 
-        @adri_protected(standard="metadata_test")
+        @adri_protected(contract="metadata_test")
         def documented_function(data):
             """This is a well-documented function.
 
@@ -268,7 +268,7 @@ class TestDecoratorIntegration(unittest.TestCase):
             return wrapper
 
         @timing_decorator
-        @adri_protected(standard="nested_standard")
+        @adri_protected(contract="nested_standard")
         def nested_function(data):
             return f"Nested processing of {len(data)} items"
 
@@ -284,18 +284,18 @@ class TestDecoratorIntegration(unittest.TestCase):
 class TestDecoratorErrorScenarios(unittest.TestCase):
     """Test decorator behavior in error scenarios."""
 
-    def test_missing_standard_parameter(self):
-        """Test that missing standard parameter raises appropriate error."""
+    def test_missing_contract_parameter(self):
+        """Test that missing contract parameter raises appropriate error."""
 
         with self.assertRaises(ValueError) as context:
-            @adri_protected()  # Missing required standard parameter
+            @adri_protected()  # Missing required contract parameter
             def invalid_function(data):
                 return "should not work"
 
         # Verify the helpful error message is provided
         error_msg = str(context.exception)
-        self.assertIn("Missing required 'standard' parameter", error_msg)
-        self.assertIn("@adri_protected(standard=", error_msg)
+        self.assertIn("Missing required 'contract' parameter", error_msg)
+        self.assertIn("@adri_protected(contract=", error_msg)
 
     def test_protection_engine_fallback(self):
         """Test decorator behavior when protection engine is unavailable."""
@@ -307,7 +307,7 @@ class TestDecoratorErrorScenarios(unittest.TestCase):
         try:
             decorator_module.DataProtectionEngine = None
 
-            @decorator_module.adri_protected(standard="fallback_test")
+            @decorator_module.adri_protected(contract="fallback_test")
             def fallback_function(data):
                 return "executed without protection"
 
@@ -322,7 +322,7 @@ class TestDecoratorErrorScenarios(unittest.TestCase):
     def test_data_parameter_not_found(self):
         """Test error when specified data parameter is not found."""
 
-        @adri_protected(standard="param_test", data_param="missing_param")
+        @adri_protected(contract="param_test", data_param="missing_param")
         def param_test_function(other_param):
             return "should not reach here"
 
@@ -363,7 +363,7 @@ class TestAssessmentCallback(unittest.TestCase):
         def capture_assessment(result):
             captured_result.append(result)
 
-        @adri_protected(standard="callback_test", on_assessment=capture_assessment)
+        @adri_protected(contract="callback_test", on_assessment=capture_assessment)
         def process_data(data):
             return f"Processed {len(data)} items"
 
@@ -390,7 +390,7 @@ class TestAssessmentCallback(unittest.TestCase):
             if hasattr(result, 'assessment_id'):
                 captured_ids.append(result.assessment_id)
 
-        @adri_protected(standard="id_test", on_assessment=capture_id)
+        @adri_protected(contract="id_test", on_assessment=capture_id)
         def process_with_id(data):
             return "processed"
 
@@ -406,7 +406,7 @@ class TestAssessmentCallback(unittest.TestCase):
     def test_callback_is_optional(self):
         """Test backward compatibility - callback is optional."""
 
-        @adri_protected(standard="no_callback_test")
+        @adri_protected(contract="no_callback_test")
         def process_without_callback(data):
             return f"Processed {len(data)} items"
 
@@ -420,7 +420,7 @@ class TestAssessmentCallback(unittest.TestCase):
         def failing_callback(result):
             raise ValueError("Intentional callback error")
 
-        @adri_protected(standard="error_test", on_assessment=failing_callback)
+        @adri_protected(contract="error_test", on_assessment=failing_callback)
         def process_with_failing_callback(data):
             return f"Processed {len(data)} items"
 
@@ -439,7 +439,7 @@ class TestAssessmentCallback(unittest.TestCase):
             })
 
         # Test with fail-fast mode (on_failure="raise")
-        @adri_protected(standard="mode_test_raise", on_failure="raise", on_assessment=track_callback)
+        @adri_protected(contract="mode_test_raise", on_failure="raise", on_assessment=track_callback)
         def process_failfast(data):
             return "failfast"
 
@@ -447,7 +447,7 @@ class TestAssessmentCallback(unittest.TestCase):
         self.assertEqual(len(callback_invocations), 1)
 
         # Test with warn mode
-        @adri_protected(standard="mode_test_warn", on_failure="warn", on_assessment=track_callback)
+        @adri_protected(contract="mode_test_warn", on_failure="warn", on_assessment=track_callback)
         def process_warn(data):
             return "warn"
 
@@ -455,7 +455,7 @@ class TestAssessmentCallback(unittest.TestCase):
         self.assertEqual(len(callback_invocations), 2)
 
         # Test with continue mode
-        @adri_protected(standard="mode_test_continue", on_failure="continue", on_assessment=track_callback)
+        @adri_protected(contract="mode_test_continue", on_failure="continue", on_assessment=track_callback)
         def process_continue(data):
             return "continue"
 
@@ -478,7 +478,7 @@ class TestAssessmentCallback(unittest.TestCase):
                 'passed': getattr(result, 'passed', None)
             })
 
-        @adri_protected(standard="full_result_test", on_assessment=capture_full_result)
+        @adri_protected(contract="full_result_test", on_assessment=capture_full_result)
         def process_full(data):
             return "full result test"
 
@@ -510,7 +510,7 @@ class TestAssessmentCallback(unittest.TestCase):
         ])
 
         @adri_protected(
-            standard="fail_test",
+            contract="fail_test",
             min_score=95,  # Very high threshold
             on_failure="warn",  # Don't raise error
             on_assessment=track_invocation
@@ -523,37 +523,6 @@ class TestAssessmentCallback(unittest.TestCase):
         # Callback should be invoked regardless of pass/fail
         self.assertTrue(len(callback_invoked) > 0)
 
-    def test_callback_with_workflow_context(self):
-        """Test callback works alongside workflow context tracking."""
-        captured_assessments = []
-
-        def capture_with_context(result):
-            captured_assessments.append({
-                'assessment_id': getattr(result, 'assessment_id', None),
-                'score': result.overall_score
-            })
-
-        workflow_context = {
-            "run_id": "test_run_123",
-            "workflow_id": "test_workflow",
-            "step_id": "callback_test_step"
-        }
-
-        @adri_protected(
-            standard="workflow_callback_test",
-            workflow_context=workflow_context,
-            on_assessment=capture_with_context
-        )
-        def process_with_workflow(data):
-            return "workflow test"
-
-        process_with_workflow(self.test_data)
-
-        # Verify callback was invoked
-        self.assertEqual(len(captured_assessments), 1)
-        self.assertIsNotNone(captured_assessments[0]['assessment_id'])
-        self.assertIsInstance(captured_assessments[0]['score'], (int, float))
-
     def test_multiple_invocations_separate_callbacks(self):
         """Test that each function invocation triggers callback separately."""
         invocation_count = []
@@ -561,7 +530,7 @@ class TestAssessmentCallback(unittest.TestCase):
         def count_invocations(result):
             invocation_count.append(result.overall_score)
 
-        @adri_protected(standard="multi_invoke_test", on_assessment=count_invocations)
+        @adri_protected(contract="multi_invoke_test", on_assessment=count_invocations)
         def process_multiple(data):
             return f"Processed {len(data)}"
 

@@ -6,7 +6,7 @@ centralized, type-safe configuration handling throughout the ADRI system.
 
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 from .exceptions import ConfigurationError
 
@@ -53,7 +53,7 @@ class InferenceConfig:
     inference_timeout_seconds: int = 300
     """Timeout for inference operations in seconds"""
 
-    def validate(self) -> List[str]:
+    def validate(self) -> list[str]:
         """Validate configuration values.
 
         Returns:
@@ -124,7 +124,7 @@ class ValidationConfig:
     parallel_processing: bool = False
     """Whether to enable parallel processing of validation tasks"""
 
-    max_workers: Optional[int] = None
+    max_workers: int | None = None
     """Maximum number of worker threads (None for auto-detection)"""
 
     # Result settings
@@ -138,7 +138,7 @@ class ValidationConfig:
     """Maximum number of sample failures to include"""
 
     # Dimension-specific settings
-    dimension_weights: Dict[str, float] = field(
+    dimension_weights: dict[str, float] = field(
         default_factory=lambda: {
             "validity": 1.0,
             "completeness": 1.0,
@@ -149,7 +149,7 @@ class ValidationConfig:
     )
     """Default weights for quality dimensions"""
 
-    def validate(self) -> List[str]:
+    def validate(self) -> list[str]:
         """Validate configuration values.
 
         Returns:
@@ -224,7 +224,7 @@ class EnvironmentConfig:
     name: str
     """Environment name (e.g., 'development', 'production')"""
 
-    paths: Dict[str, str] = field(default_factory=dict)
+    paths: dict[str, str] = field(default_factory=dict)
     """Directory paths for this environment"""
 
     audit: AuditConfig = field(default_factory=AuditConfig)
@@ -253,12 +253,10 @@ class ProjectConfig:
     default_environment: str = "development"
     """Default environment to use"""
 
-    environments: Dict[str, EnvironmentConfig] = field(default_factory=dict)
+    environments: dict[str, EnvironmentConfig] = field(default_factory=dict)
     """Available environments and their configurations"""
 
-    def get_environment(
-        self, environment_name: Optional[str] = None
-    ) -> EnvironmentConfig:
+    def get_environment(self, environment_name: str | None = None) -> EnvironmentConfig:
         """Get configuration for a specific environment.
 
         Args:
@@ -280,7 +278,7 @@ class ProjectConfig:
 
         return self.environments[env_name]
 
-    def validate(self) -> List[str]:
+    def validate(self) -> list[str]:
         """Validate the entire project configuration.
 
         Returns:
@@ -325,18 +323,16 @@ class ConfigurationManager:
     configuration across the ADRI framework.
     """
 
-    def __init__(self, config_path: Optional[Union[str, Path]] = None):
+    def __init__(self, config_path: str | Path | None = None):
         """Initialize the configuration manager.
 
         Args:
             config_path: Path to configuration file (auto-discovered if None)
         """
         self.config_path = Path(config_path) if config_path else None
-        self._project_config: Optional[ProjectConfig] = None
+        self._project_config: ProjectConfig | None = None
 
-    def load_config(
-        self, config_path: Optional[Union[str, Path]] = None
-    ) -> ProjectConfig:
+    def load_config(self, config_path: str | Path | None = None) -> ProjectConfig:
         """Load project configuration from file.
 
         Args:
@@ -362,7 +358,7 @@ class ConfigurationManager:
             )
 
         try:
-            with open(self.config_path, "r", encoding="utf-8") as f:
+            with open(self.config_path, encoding="utf-8") as f:
                 config_data = yaml.safe_load(f) or {}
 
             # Extract ADRI configuration section
@@ -390,7 +386,7 @@ class ConfigurationManager:
         except Exception as e:
             raise ConfigurationError("Failed to load configuration", str(e))
 
-    def get_active_config(self) -> Optional[ProjectConfig]:
+    def get_active_config(self) -> ProjectConfig | None:
         """Get the currently active project configuration.
 
         Returns:
@@ -400,8 +396,8 @@ class ConfigurationManager:
 
     def get_environment_config(
         self,
-        project_config: Optional[ProjectConfig] = None,
-        environment_name: Optional[str] = None,
+        project_config: ProjectConfig | None = None,
+        environment_name: str | None = None,
     ) -> EnvironmentConfig:
         """Get configuration for a specific environment.
 
@@ -421,7 +417,7 @@ class ConfigurationManager:
 
         return config.get_environment(environment_name)
 
-    def _find_config_file(self) -> Optional[Path]:
+    def _find_config_file(self) -> Path | None:
         """Find the ADRI configuration file by searching upward from current directory.
 
         Returns:
@@ -439,7 +435,7 @@ class ConfigurationManager:
         config_file = current_path / "ADRI" / "config.yaml"
         return config_file if config_file.exists() else None
 
-    def _parse_project_config(self, config_data: Dict[str, Any]) -> ProjectConfig:
+    def _parse_project_config(self, config_data: dict[str, Any]) -> ProjectConfig:
         """Parse configuration data into ProjectConfig dataclass.
 
         Args:

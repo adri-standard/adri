@@ -4,18 +4,20 @@ adri:
   environments:
     development:
       paths:
-        standards: "./ADRI/dev/standards"
+        contracts: "./ADRI/dev/contracts"
         assessments: "./ADRI/dev/assessments"
         training_data: "./ADRI/dev/training-data"
+        audit_logs: "./ADRI/dev/audit-logs"
       protection:
         default_failure_mode: "warn"
         default_min_score: 75
         cache_duration_hours: 0.5
     production:
       paths:
-        standards: "./ADRI/prod/standards"
+        contracts: "./ADRI/prod/contracts"
         assessments: "./ADRI/prod/assessments"
         training_data: "./ADRI/prod/training-data"
+        audit_logs: "./ADRI/prod/audit-logs"
       protection:
         default_failure_mode: "raise"
         default_min_score: 85

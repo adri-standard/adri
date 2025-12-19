@@ -43,7 +43,7 @@ class TestModernCLICommands(ModernCLITestBase):
         # Verify ADRI structure was created
         assert Path("ADRI").exists()
         assert Path("ADRI/config.yaml").exists()
-        assert Path("ADRI/dev/standards").exists()
+        assert Path("ADRI/dev/contracts").exists()
         assert Path("ADRI/dev/assessments").exists()
 
         # Verify config content
@@ -121,7 +121,7 @@ class TestModernCLICommands(ModernCLITestBase):
         test_data = "invoice_id,customer_id,amount\nINV-001,CUST-101,1250.00"
         Path("test_data.csv").write_text(test_data)
 
-        generate_command = get_command("generate-standard")
+        generate_command = get_command("generate-contract")
         result = generate_command.execute({
             "data_path": "test_data.csv",
             "force": False,
@@ -132,7 +132,7 @@ class TestModernCLICommands(ModernCLITestBase):
         assert result == 0
 
         # Verify standard was created
-        expected_standard_path = Path("ADRI/dev/standards/test_data_ADRI_standard.yaml")
+        expected_standard_path = Path("ADRI/dev/contracts/test_data_ADRI_standard.yaml")
         assert expected_standard_path.exists()
 
         # Verify standard content
@@ -144,13 +144,13 @@ class TestModernCLICommands(ModernCLITestBase):
         assert standard["requirements"]["overall_minimum"] == 75.0
 
     @patch('src.adri.validator.loaders.load_data')
-    @patch('src.adri.validator.loaders.load_standard')
+    @patch('src.adri.validator.loaders.load_contract')
     @patch('src.adri.validator.engine.DataQualityAssessor')
-    def test_assess_command_success(self, mock_assessor_class, mock_load_standard, mock_load_data):
+    def test_assess_command_success(self, mock_assessor_class, mock_load_contract, mock_load_data):
         """Test assess command through registry."""
         # Setup mocks
         mock_load_data.return_value = create_sample_data("invoice")
-        mock_load_standard.return_value = create_sample_standard()
+        mock_load_contract.return_value = create_sample_standard()
 
         mock_result = Mock()
         mock_result.overall_score = 85.0
@@ -171,7 +171,7 @@ class TestModernCLICommands(ModernCLITestBase):
         Path("test_data.csv").write_text(test_data)
 
         standard_content = create_sample_standard()
-        standard_path = Path("ADRI/dev/standards/test_standard.yaml")
+        standard_path = Path("ADRI/dev/contracts/test_standard.yaml")
         with open(standard_path, 'w', encoding='utf-8') as f:
             yaml.dump(standard_content, f)
 
@@ -179,7 +179,7 @@ class TestModernCLICommands(ModernCLITestBase):
         assess_command = get_command("assess")
         result = assess_command.execute({
             "data_path": "test_data.csv",
-            "standard_path": "ADRI/dev/standards/test_standard.yaml",
+            "standard_path": "ADRI/dev/contracts/test_standard.yaml",
             "output": None,
             "guide": False
         })
@@ -222,11 +222,11 @@ class TestModernCLICommands(ModernCLITestBase):
 
         # Create valid standard file
         standard_content = create_sample_standard()
-        standard_path = Path("ADRI/dev/standards/valid_standard.yaml")
+        standard_path = Path("ADRI/dev/contracts/valid_standard.yaml")
         with open(standard_path, 'w', encoding='utf-8') as f:
             yaml.dump(standard_content, f)
 
-        validate_command = get_command("validate-standard")
+        validate_command = get_command("validate-contract")
         result = validate_command.execute({
             "standard_path": str(standard_path)
         })
@@ -241,7 +241,7 @@ class TestModernCLICommands(ModernCLITestBase):
         with open(invalid_path, 'w', encoding='utf-8') as f:
             yaml.dump(invalid_content, f)
 
-        validate_command = get_command("validate-standard")
+        validate_command = get_command("validate-contract")
         result = validate_command.execute({
             "standard_path": str(invalid_path)
         })
@@ -257,11 +257,11 @@ class TestModernCLICommands(ModernCLITestBase):
         # Create some standard files
         for i in range(3):
             standard_content = create_sample_standard(f"standard_{i}")
-            standard_path = Path(f"ADRI/dev/standards/standard_{i}.yaml")
+            standard_path = Path(f"ADRI/dev/contracts/standard_{i}.yaml")
             with open(standard_path, 'w', encoding='utf-8') as f:
                 yaml.dump(standard_content, f)
 
-        list_standards_command = get_command("list-standards")
+        list_standards_command = get_command("list-contracts")
         result = list_standards_command.execute({
             "environment": "development",
             "json_output": False
@@ -275,7 +275,7 @@ class TestModernCLICommands(ModernCLITestBase):
         setup_command = get_command("setup")
         setup_command.execute({"force": False, "project_name": "test", "guide": False})
 
-        list_standards_command = get_command("list-standards")
+        list_standards_command = get_command("list-contracts")
         result = list_standards_command.execute({
             "environment": "development",
             "json_output": False
@@ -291,11 +291,11 @@ class TestModernCLICommands(ModernCLITestBase):
 
         # Create standard file
         standard_content = create_sample_standard()
-        standard_path = Path("ADRI/dev/standards/test_standard.yaml")
+        standard_path = Path("ADRI/dev/contracts/test_standard.yaml")
         with open(standard_path, 'w', encoding='utf-8') as f:
             yaml.dump(standard_content, f)
 
-        show_standard_command = get_command("show-standard")
+        show_standard_command = get_command("show-contract")
         result = show_standard_command.execute({
             "standard_path": str(standard_path)
         })
@@ -304,7 +304,7 @@ class TestModernCLICommands(ModernCLITestBase):
 
     def test_show_standard_command_file_not_found(self):
         """Test show-standard command with non-existent file."""
-        show_standard_command = get_command("show-standard")
+        show_standard_command = get_command("show-contract")
         result = show_standard_command.execute({
             "standard_path": "nonexistent_standard.yaml"
         })
@@ -436,7 +436,7 @@ class TestCLIPathResolution(ModernCLITestBase):
             os.chdir(Path("ADRI/dev"))
 
             # Should be able to access tutorial data with relative path
-            show_standard_command = get_command("show-standard")
+            show_standard_command = get_command("show-contract")
 
             # Create a standard to show
             standard_content = create_sample_standard()
@@ -505,7 +505,7 @@ class TestCLIErrorHandling(ModernCLITestBase):
             # Create test data file
             Path("test_data.csv").write_text("test,data\n1,value")
 
-            generate_command = get_command("generate-standard")
+            generate_command = get_command("generate-contract")
             result = generate_command.execute({
                 "data_path": "test_data.csv",
                 "force": False,
@@ -521,13 +521,13 @@ class TestCLIIntegration(ModernCLITestBase):
     """Test end-to-end CLI workflow integration."""
 
     @patch('src.adri.validator.loaders.load_data')
-    @patch('src.adri.validator.loaders.load_standard')
+    @patch('src.adri.validator.loaders.load_contract')
     @patch('src.adri.validator.engine.DataQualityAssessor')
-    def test_complete_workflow_integration(self, mock_assessor_class, mock_load_standard, mock_load_data):
+    def test_complete_workflow_integration(self, mock_assessor_class, mock_load_contract, mock_load_data):
         """Test complete CLI workflow from setup to assessment."""
         # Setup mocks
         mock_load_data.return_value = create_sample_data("invoice")
-        mock_load_standard.return_value = create_sample_standard()
+        mock_load_contract.return_value = create_sample_standard()
 
         mock_result = Mock()
         mock_result.overall_score = 85.0
@@ -549,7 +549,7 @@ class TestCLIIntegration(ModernCLITestBase):
         assert setup_result == 0
 
         # Step 2: Generate standard from tutorial data
-        generate_command = get_command("generate-standard")
+        generate_command = get_command("generate-contract")
         generate_result = generate_command.execute({
             "data_path": "ADRI/tutorials/invoice_processing/invoice_data.csv",
             "force": False,
@@ -559,10 +559,10 @@ class TestCLIIntegration(ModernCLITestBase):
         assert generate_result == 0
 
         # Step 3: Validate the generated standard
-        standard_path = Path("ADRI/dev/standards/invoice_data_ADRI_standard.yaml")
+        standard_path = Path("ADRI/dev/contracts/invoice_data_ADRI_standard.yaml")
         assert standard_path.exists()
 
-        validate_command = get_command("validate-standard")
+        validate_command = get_command("validate-contract")
         validate_result = validate_command.execute({
             "standard_path": str(standard_path)
         })
@@ -579,7 +579,7 @@ class TestCLIIntegration(ModernCLITestBase):
         assert assess_result == 0
 
         # Step 5: List created assets
-        list_standards_command = get_command("list-standards")
+        list_standards_command = get_command("list-contracts")
         list_result = list_standards_command.execute({
             "environment": "development",
             "json_output": False
@@ -598,7 +598,7 @@ class TestCLIIntegration(ModernCLITestBase):
         assert setup_result == 0
 
         # Step 2: Try to generate standard with missing file
-        generate_command = get_command("generate-standard")
+        generate_command = get_command("generate-contract")
         failed_result = generate_command.execute({
             "data_path": "nonexistent_file.csv",
             "force": False,
@@ -663,7 +663,7 @@ class TestCLIPerformance(ModernCLITestBase):
             mock_large_data = create_sample_data("invoice") * 250  # 1000 records
             mock_load_data.return_value = mock_large_data
 
-            generate_command = get_command("generate-standard")
+            generate_command = get_command("generate-contract")
             result = generate_command.execute({
                 "data_path": "large_data.csv",
                 "force": False,

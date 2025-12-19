@@ -1,0 +1,761 @@
+contracts:
+  id: time_series_template_standard
+  name: Time Series Template ADRI Standard
+  version: 1.0.0
+  authority: ADRI Framework
+  description: Auto-generated standard for time_series_template data
+record_identification:
+  primary_key_fields:
+  - confidence
+  strategy: primary_key_with_fallback
+requirements:
+  overall_minimum: 75.0
+  field_requirements:
+    timestamp:
+      type: string
+      nullable: false
+      validation_rules:
+      - name: timestamp is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: timestamp must not be empty
+      - name: timestamp type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_DATE
+        error_message: timestamp must be of type date
+      - name: timestamp date bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: date_bounds
+        rule_expression: DATE >= '2025-01-14' AND DATE <= '2025-01-20'
+        error_message: timestamp must be within date range
+    metric_name:
+      type: string
+      nullable: false
+      allowed_values:
+      - cpu_usage
+      min_length: 9
+      max_length: 9
+      pattern: ^[A-Za-z0-9\-_]+$
+      validation_rules:
+      - name: metric_name is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: metric_name must not be empty
+      - name: metric_name type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: metric_name must be of type string
+      - name: metric_name must be valid value
+        dimension: validity
+        severity: CRITICAL
+        rule_type: allowed_values
+        rule_expression: VALUE_IN(['cpu_usage'])
+        error_message: 'metric_name must be one of: cpu_usage'
+      - name: metric_name length bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: length_bounds
+        rule_expression: LENGTH >= 9 AND LENGTH <= 9
+        error_message: metric_name length must be between 9 and 9
+      - name: metric_name pattern validation
+        dimension: validity
+        severity: WARNING
+        rule_type: pattern
+        rule_expression: REGEX_MATCH('^[A-Za-z0-9\-_]+$')
+        error_message: 'metric_name must match pattern: ^[A-Za-z0-9\-_]+$'
+    metric_id:
+      type: string
+      nullable: false
+      min_length: 14
+      max_length: 14
+      pattern: ^[A-Za-z0-9\-_]+$
+      validation_rules:
+      - name: metric_id is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: metric_id must not be empty
+      - name: metric_id type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: metric_id must be of type string
+      - name: metric_id length bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: length_bounds
+        rule_expression: LENGTH >= 14 AND LENGTH <= 14
+        error_message: metric_id length must be between 14 and 14
+      - name: metric_id pattern validation
+        dimension: validity
+        severity: WARNING
+        rule_type: pattern
+        rule_expression: REGEX_MATCH('^[A-Za-z0-9\-_]+$')
+        error_message: 'metric_id must match pattern: ^[A-Za-z0-9\-_]+$'
+    value:
+      type: float
+      nullable: false
+      min_value: 65.5
+      max_value: 65.5
+      validation_rules:
+      - name: value is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: value must not be empty
+      - name: value type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_FLOAT
+        error_message: value must be of type float
+      - name: value numeric bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: numeric_bounds
+        rule_expression: VALUE >= 65.5 AND VALUE <= 65.5
+        error_message: value must be between 65.5 and 65.5
+    unit:
+      type: string
+      nullable: false
+      allowed_values:
+      - percent
+      min_length: 7
+      max_length: 7
+      pattern: ^[A-Za-z0-9\-_]+$
+      validation_rules:
+      - name: unit is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: unit must not be empty
+      - name: unit type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: unit must be of type string
+      - name: unit must be valid value
+        dimension: validity
+        severity: CRITICAL
+        rule_type: allowed_values
+        rule_expression: VALUE_IN(['percent'])
+        error_message: 'unit must be one of: percent'
+      - name: unit length bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: length_bounds
+        rule_expression: LENGTH >= 7 AND LENGTH <= 7
+        error_message: unit length must be between 7 and 7
+      - name: unit pattern validation
+        dimension: validity
+        severity: WARNING
+        rule_type: pattern
+        rule_expression: REGEX_MATCH('^[A-Za-z0-9\-_]+$')
+        error_message: 'unit must match pattern: ^[A-Za-z0-9\-_]+$'
+    source_id:
+      type: string
+      nullable: false
+      min_length: 10
+      max_length: 10
+      pattern: ^[A-Za-z]+-\d{3,}$
+      validation_rules:
+      - name: source_id is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: source_id must not be empty
+      - name: source_id type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: source_id must be of type string
+      - name: source_id length bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: length_bounds
+        rule_expression: LENGTH >= 10 AND LENGTH <= 10
+        error_message: source_id length must be between 10 and 10
+      - name: source_id pattern validation
+        dimension: validity
+        severity: WARNING
+        rule_type: pattern
+        rule_expression: REGEX_MATCH('^[A-Za-z]+-\d{3,}$')
+        error_message: 'source_id must match pattern: ^[A-Za-z]+-\d{3,}$'
+    source_type:
+      type: string
+      nullable: false
+      allowed_values:
+      - system
+      min_length: 6
+      max_length: 6
+      pattern: ^[A-Za-z0-9\-_]+$
+      validation_rules:
+      - name: source_type is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: source_type must not be empty
+      - name: source_type type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: source_type must be of type string
+      - name: source_type must be valid value
+        dimension: validity
+        severity: CRITICAL
+        rule_type: allowed_values
+        rule_expression: VALUE_IN(['system'])
+        error_message: 'source_type must be one of: system'
+      - name: source_type length bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: length_bounds
+        rule_expression: LENGTH >= 6 AND LENGTH <= 6
+        error_message: source_type length must be between 6 and 6
+      - name: source_type pattern validation
+        dimension: validity
+        severity: WARNING
+        rule_type: pattern
+        rule_expression: REGEX_MATCH('^[A-Za-z0-9\-_]+$')
+        error_message: 'source_type must match pattern: ^[A-Za-z0-9\-_]+$'
+    quality_score:
+      type: float
+      nullable: false
+      min_value: 95.0
+      max_value: 95.0
+      validation_rules:
+      - name: quality_score is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: quality_score must not be empty
+      - name: quality_score type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_FLOAT
+        error_message: quality_score must be of type float
+      - name: quality_score numeric bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: numeric_bounds
+        rule_expression: VALUE >= 95.0 AND VALUE <= 95.0
+        error_message: quality_score must be between 95.0 and 95.0
+    confidence:
+      type: float
+      nullable: false
+      min_value: 0.98
+      max_value: 0.98
+      validation_rules:
+      - name: confidence is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: confidence must not be empty
+      - name: confidence type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_FLOAT
+        error_message: confidence must be of type float
+      - name: confidence numeric bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: numeric_bounds
+        rule_expression: VALUE >= 0.98 AND VALUE <= 0.98
+        error_message: confidence must be between 0.98 and 0.98
+    is_anomaly:
+      type: boolean
+      nullable: false
+      validation_rules:
+      - name: is_anomaly is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: is_anomaly must not be empty
+      - name: is_anomaly type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_BOOLEAN
+        error_message: is_anomaly must be of type boolean
+    aggregation_type:
+      type: string
+      nullable: false
+      allowed_values:
+      - average
+      min_length: 7
+      max_length: 7
+      pattern: ^[A-Za-z0-9\-_]+$
+      validation_rules:
+      - name: aggregation_type is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: aggregation_type must not be empty
+      - name: aggregation_type type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: aggregation_type must be of type string
+      - name: aggregation_type must be valid value
+        dimension: validity
+        severity: CRITICAL
+        rule_type: allowed_values
+        rule_expression: VALUE_IN(['average'])
+        error_message: 'aggregation_type must be one of: average'
+      - name: aggregation_type length bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: length_bounds
+        rule_expression: LENGTH >= 7 AND LENGTH <= 7
+        error_message: aggregation_type length must be between 7 and 7
+      - name: aggregation_type pattern validation
+        dimension: validity
+        severity: WARNING
+        rule_type: pattern
+        rule_expression: REGEX_MATCH('^[A-Za-z0-9\-_]+$')
+        error_message: 'aggregation_type must match pattern: ^[A-Za-z0-9\-_]+$'
+    aggregation_window:
+      type: string
+      nullable: false
+      allowed_values:
+      - 1m
+      min_length: 2
+      max_length: 2
+      pattern: ^[A-Za-z0-9\-_]+$
+      validation_rules:
+      - name: aggregation_window is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: aggregation_window must not be empty
+      - name: aggregation_window type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: aggregation_window must be of type string
+      - name: aggregation_window must be valid value
+        dimension: validity
+        severity: CRITICAL
+        rule_type: allowed_values
+        rule_expression: VALUE_IN(['1m'])
+        error_message: 'aggregation_window must be one of: 1m'
+      - name: aggregation_window length bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: length_bounds
+        rule_expression: LENGTH >= 2 AND LENGTH <= 2
+        error_message: aggregation_window length must be between 2 and 2
+      - name: aggregation_window pattern validation
+        dimension: validity
+        severity: WARNING
+        rule_type: pattern
+        rule_expression: REGEX_MATCH('^[A-Za-z0-9\-_]+$')
+        error_message: 'aggregation_window must match pattern: ^[A-Za-z0-9\-_]+$'
+    tags:
+      type: string
+      nullable: false
+      allowed_values:
+      - production,web-server
+      min_length: 21
+      max_length: 21
+      validation_rules:
+      - name: tags is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: tags must not be empty
+      - name: tags type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: tags must be of type string
+      - name: tags must be valid value
+        dimension: validity
+        severity: CRITICAL
+        rule_type: allowed_values
+        rule_expression: VALUE_IN(['production,web-server'])
+        error_message: 'tags must be one of: production,web-server'
+      - name: tags length bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: length_bounds
+        rule_expression: LENGTH >= 21 AND LENGTH <= 21
+        error_message: tags length must be between 21 and 21
+  dimension_requirements:
+    validity:
+      minimum_score: 15.0
+      weight: 1.0
+      scoring:
+        rule_weights:
+          type: 0.34210526315789475
+          date_bounds: 0.02631578947368421
+          allowed_values: 0.15789473684210525
+          length_bounds: 0.21052631578947367
+          pattern: 0.18421052631578946
+          numeric_bounds: 0.07894736842105263
+        field_overrides: {}
+    completeness:
+      minimum_score: 15.0
+      weight: 1.0
+      scoring:
+        rule_weights:
+          missing_required: 0.07142857142857142
+          not_null: 0.9285714285714286
+        field_overrides: {}
+    consistency:
+      minimum_score: 12.0
+      weight: 1.0
+      scoring:
+        rule_weights:
+          primary_key_uniqueness: 0.3333333333333333
+          format_consistency: 0.3333333333333333
+          cross_field_logic: 0.3333333333333333
+        field_overrides: {}
+    freshness:
+      minimum_score: 15.0
+      weight: 1.0
+      scoring:
+        rule_weights:
+          recency_window: 1.0
+        field_overrides: {}
+    plausibility:
+      minimum_score: 12.0
+      weight: 1.0
+      scoring:
+        rule_weights: {}
+        field_overrides: {}
+metadata:
+  explanations_note: Explanations are for human review; only requirements.field_requirements
+    are enforced.
+  explanations_glossary:
+    iqr: 'Interquartile Range (Q3 - Q1): a robust measure of spread, less sensitive
+      to outliers.'
+    q1: 25th percentile of the training values.
+    q3: 75th percentile of the training values.
+    coverage: Share of non-null training values that satisfy the rule.
+    unique_count: Number of distinct non-null values observed in training.
+    mad: 'Median Absolute Deviation: robust measure of variability around the median.'
+    quantile: Statistical measure dividing data into equal-sized intervals.
+    training_pass: Guarantee that generated rules pass on the training data used for
+      generation.
+    enum_strategy: Method used for allowed values inference (coverage or tolerant).
+    margin_days: Buffer added to date ranges to allow for reasonable variations.
+  explanations:
+    timestamp:
+      type: string
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+    metric_name:
+      type: string
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      allowed_values:
+        values:
+        - cpu_usage
+        reason: High coverage stable set
+        stats:
+          coverage: 1.0
+          unique_count: 1
+          strategy: coverage
+      length_bounds:
+        active_min: 9
+        active_max: 9
+        stats:
+          observed_min: 9
+          observed_max: 9
+      pattern:
+        regex: ^[A-Za-z0-9\-_]+$
+        reason: 100% coverage on training non-nulls
+        stats:
+          coverage: 1.0
+    metric_id:
+      type: string
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      length_bounds:
+        active_min: 14
+        active_max: 14
+        stats:
+          observed_min: 14
+          observed_max: 14
+      pattern:
+        regex: ^[A-Za-z0-9\-_]+$
+        reason: 100% coverage on training non-nulls
+        stats:
+          coverage: 1.0
+    value:
+      type: float
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      range:
+        strategy: iqr
+        active_min: 65.5
+        active_max: 65.5
+        reason: Robust range (IQR/Quantile/MAD) clamped to training min/max for pass
+          guarantee
+        stats:
+          q1: 65.5
+          q3: 65.5
+          iqr_k: 1.5
+          observed_min: 65.5
+          observed_max: 65.5
+    unit:
+      type: string
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      allowed_values:
+        values:
+        - percent
+        reason: High coverage stable set
+        stats:
+          coverage: 1.0
+          unique_count: 1
+          strategy: coverage
+      length_bounds:
+        active_min: 7
+        active_max: 7
+        stats:
+          observed_min: 7
+          observed_max: 7
+      pattern:
+        regex: ^[A-Za-z0-9\-_]+$
+        reason: 100% coverage on training non-nulls
+        stats:
+          coverage: 1.0
+    source_id:
+      type: string
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      length_bounds:
+        active_min: 10
+        active_max: 10
+        stats:
+          observed_min: 10
+          observed_max: 10
+      pattern:
+        regex: ^[A-Za-z]+-\d{3,}$
+        reason: 100% coverage on training non-nulls
+        stats:
+          coverage: 1.0
+    source_type:
+      type: string
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      allowed_values:
+        values:
+        - system
+        reason: High coverage stable set
+        stats:
+          coverage: 1.0
+          unique_count: 1
+          strategy: coverage
+      length_bounds:
+        active_min: 6
+        active_max: 6
+        stats:
+          observed_min: 6
+          observed_max: 6
+      pattern:
+        regex: ^[A-Za-z0-9\-_]+$
+        reason: 100% coverage on training non-nulls
+        stats:
+          coverage: 1.0
+    quality_score:
+      type: float
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      range:
+        strategy: iqr
+        active_min: 95.0
+        active_max: 95.0
+        reason: Robust range (IQR/Quantile/MAD) clamped to training min/max for pass
+          guarantee
+        stats:
+          q1: 95.0
+          q3: 95.0
+          iqr_k: 1.5
+          observed_min: 95.0
+          observed_max: 95.0
+    confidence:
+      type: float
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      range:
+        strategy: iqr
+        active_min: 0.98
+        active_max: 0.98
+        reason: Robust range (IQR/Quantile/MAD) clamped to training min/max for pass
+          guarantee
+        stats:
+          q1: 0.98
+          q3: 0.98
+          iqr_k: 1.5
+          observed_min: 0.98
+          observed_max: 0.98
+    is_anomaly:
+      type: boolean
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+    aggregation_type:
+      type: string
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      allowed_values:
+        values:
+        - average
+        reason: High coverage stable set
+        stats:
+          coverage: 1.0
+          unique_count: 1
+          strategy: coverage
+      length_bounds:
+        active_min: 7
+        active_max: 7
+        stats:
+          observed_min: 7
+          observed_max: 7
+      pattern:
+        regex: ^[A-Za-z0-9\-_]+$
+        reason: 100% coverage on training non-nulls
+        stats:
+          coverage: 1.0
+    aggregation_window:
+      type: string
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      allowed_values:
+        values:
+        - 1m
+        reason: High coverage stable set
+        stats:
+          coverage: 1.0
+          unique_count: 1
+          strategy: coverage
+      length_bounds:
+        active_min: 2
+        active_max: 2
+        stats:
+          observed_min: 2
+          observed_max: 2
+      pattern:
+        regex: ^[A-Za-z0-9\-_]+$
+        reason: 100% coverage on training non-nulls
+        stats:
+          coverage: 1.0
+    tags:
+      type: string
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      allowed_values:
+        values:
+        - production,web-server
+        reason: High coverage stable set
+        stats:
+          coverage: 1.0
+          unique_count: 1
+          strategy: coverage
+      length_bounds:
+        active_min: 21
+        active_max: 21
+        stats:
+          observed_min: 21
+          observed_max: 21
+  freshness:
+    as_of: '2025-01-18T10:00:00Z'
+    window_days: 365
+    date_field: timestamp
+  plausibility_templates: '# plausibility:
+
+    #   scoring:
+
+    #     rule_weights:
+
+    #       numeric_sigma: 1.0      # enable if not overlapping with validity numeric_bounds
+
+    #       categorical_tail: 1.0   # enable to flag rare categories
+
+    #   notes: "Disabled by default to avoid overlap with Validity. Review before
+    enabling."
+
+    '

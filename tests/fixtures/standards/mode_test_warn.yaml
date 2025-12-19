@@ -1,0 +1,326 @@
+contracts:
+  id: mode_test_warn_standard
+  name: Mode Test Warn ADRI Standard
+  version: 1.0.0
+  authority: ADRI Framework
+  description: Auto-generated standard for mode_test_warn data
+record_identification:
+  primary_key_fields:
+  - id
+  strategy: primary_key_with_fallback
+requirements:
+  overall_minimum: 75.0
+  field_requirements:
+    id:
+      type: float
+      nullable: false
+      min_value: -1.0
+      max_value: 7.0
+      validation_rules:
+      - name: id is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: id must not be empty
+      - name: id type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_FLOAT
+        error_message: id must be of type float
+      - name: id numeric bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: numeric_bounds
+        rule_expression: VALUE >= -1.0 AND VALUE <= 7.0
+        error_message: id must be between -1.0 and 7.0
+    name:
+      type: string
+      nullable: false
+      allowed_values:
+      - Item_1
+      - Item_2
+      - Item_3
+      - Item_4
+      - Item_5
+      min_length: 6
+      max_length: 6
+      pattern: ^[A-Za-z0-9\-_]+$
+      validation_rules:
+      - name: name is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: name must not be empty
+      - name: name type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: name must be of type string
+      - name: name must be valid value
+        dimension: validity
+        severity: CRITICAL
+        rule_type: allowed_values
+        rule_expression: VALUE_IN(['Item_1', 'Item_2', 'Item_3', 'Item_4', 'Item_5'])
+        error_message: 'name must be one of: Item_1, Item_2, Item_3, Item_4, Item_5'
+      - name: name length bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: length_bounds
+        rule_expression: LENGTH >= 6 AND LENGTH <= 6
+        error_message: name length must be between 6 and 6
+      - name: name pattern validation
+        dimension: validity
+        severity: WARNING
+        rule_type: pattern
+        rule_expression: REGEX_MATCH('^[A-Za-z0-9\-_]+$')
+        error_message: 'name must match pattern: ^[A-Za-z0-9\-_]+$'
+    value:
+      type: float
+      nullable: false
+      min_value: 90.0
+      max_value: 170.0
+      validation_rules:
+      - name: value is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: value must not be empty
+      - name: value type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_FLOAT
+        error_message: value must be of type float
+      - name: value numeric bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: numeric_bounds
+        rule_expression: VALUE >= 90.0 AND VALUE <= 170.0
+        error_message: value must be between 90.0 and 170.0
+    status:
+      type: string
+      nullable: false
+      allowed_values:
+      - active
+      min_length: 6
+      max_length: 6
+      pattern: ^[A-Za-z0-9\-_]+$
+      validation_rules:
+      - name: status is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: status must not be empty
+      - name: status type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: status must be of type string
+      - name: status must be valid value
+        dimension: validity
+        severity: CRITICAL
+        rule_type: allowed_values
+        rule_expression: VALUE_IN(['active'])
+        error_message: 'status must be one of: active'
+      - name: status length bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: length_bounds
+        rule_expression: LENGTH >= 6 AND LENGTH <= 6
+        error_message: status length must be between 6 and 6
+      - name: status pattern validation
+        dimension: validity
+        severity: WARNING
+        rule_type: pattern
+        rule_expression: REGEX_MATCH('^[A-Za-z0-9\-_]+$')
+        error_message: 'status must match pattern: ^[A-Za-z0-9\-_]+$'
+  dimension_requirements:
+    validity:
+      minimum_score: 15.0
+      weight: 1.0
+      scoring:
+        rule_weights:
+          type: 0.3333333333333333
+          numeric_bounds: 0.16666666666666666
+          allowed_values: 0.16666666666666666
+          length_bounds: 0.16666666666666666
+          pattern: 0.16666666666666666
+        field_overrides: {}
+    completeness:
+      minimum_score: 15.0
+      weight: 1.0
+      scoring:
+        rule_weights:
+          missing_required: 0.2
+          not_null: 0.8
+        field_overrides: {}
+    consistency:
+      minimum_score: 12.0
+      weight: 1.0
+      scoring:
+        rule_weights:
+          primary_key_uniqueness: 0.3333333333333333
+          format_consistency: 0.3333333333333333
+          cross_field_logic: 0.3333333333333333
+        field_overrides: {}
+    freshness:
+      minimum_score: 15.0
+      weight: 1.0
+      scoring:
+        rule_weights:
+          recency_window: 0.0
+        field_overrides: {}
+    plausibility:
+      minimum_score: 12.0
+      weight: 1.0
+      scoring:
+        rule_weights: {}
+        field_overrides: {}
+metadata:
+  explanations_note: Explanations are for human review; only requirements.field_requirements
+    are enforced.
+  explanations_glossary:
+    iqr: 'Interquartile Range (Q3 - Q1): a robust measure of spread, less sensitive
+      to outliers.'
+    q1: 25th percentile of the training values.
+    q3: 75th percentile of the training values.
+    coverage: Share of non-null training values that satisfy the rule.
+    unique_count: Number of distinct non-null values observed in training.
+    mad: 'Median Absolute Deviation: robust measure of variability around the median.'
+    quantile: Statistical measure dividing data into equal-sized intervals.
+    training_pass: Guarantee that generated rules pass on the training data used for
+      generation.
+    enum_strategy: Method used for allowed values inference (coverage or tolerant).
+    margin_days: Buffer added to date ranges to allow for reasonable variations.
+  explanations:
+    id:
+      type: float
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 5
+      range:
+        strategy: iqr
+        active_min: -1.0
+        active_max: 7.0
+        reason: Robust range (IQR/Quantile/MAD) clamped to training min/max for pass
+          guarantee
+        stats:
+          q1: 2.0
+          q3: 4.0
+          iqr_k: 1.5
+          observed_min: 1.0
+          observed_max: 5.0
+    name:
+      type: string
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 5
+      allowed_values:
+        values:
+        - Item_1
+        - Item_2
+        - Item_3
+        - Item_4
+        - Item_5
+        reason: High coverage stable set
+        stats:
+          coverage: 1.0
+          unique_count: 5
+          strategy: coverage
+      length_bounds:
+        active_min: 6
+        active_max: 6
+        stats:
+          observed_min: 6
+          observed_max: 6
+      pattern:
+        regex: ^[A-Za-z0-9\-_]+$
+        reason: 100% coverage on training non-nulls
+        stats:
+          coverage: 1.0
+    value:
+      type: float
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 5
+      range:
+        strategy: iqr
+        active_min: 90.0
+        active_max: 170.0
+        reason: Robust range (IQR/Quantile/MAD) clamped to training min/max for pass
+          guarantee
+        stats:
+          q1: 120.0
+          q3: 140.0
+          iqr_k: 1.5
+          observed_min: 110.0
+          observed_max: 150.0
+    status:
+      type: string
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 5
+      allowed_values:
+        values:
+        - active
+        reason: High coverage stable set
+        stats:
+          coverage: 1.0
+          unique_count: 1
+          strategy: coverage
+      length_bounds:
+        active_min: 6
+        active_max: 6
+        stats:
+          observed_min: 6
+          observed_max: 6
+      pattern:
+        regex: ^[A-Za-z0-9\-_]+$
+        reason: 100% coverage on training non-nulls
+        stats:
+          coverage: 1.0
+  freshness_scaffolding: '# freshness:
+
+    #   as_of: 2025-10-22T16:06:09.442136Z
+
+    #   window_days: 365
+
+    #   date_field: <your_date_field>
+
+    #   how_to_enable: set requirements.dimension_requirements.freshness.scoring.rule_weights.recency_window
+    to 1.0
+
+    '
+  plausibility_templates: '# plausibility:
+
+    #   scoring:
+
+    #     rule_weights:
+
+    #       numeric_sigma: 1.0      # enable if not overlapping with validity numeric_bounds
+
+    #       categorical_tail: 1.0   # enable to flag rare categories
+
+    #   notes: "Disabled by default to avoid overlap with Validity. Review before
+    enabling."
+
+    '

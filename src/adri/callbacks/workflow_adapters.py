@@ -187,9 +187,7 @@ class AirflowAdapter(WorkflowAdapter):
     """
 
     def __init__(
-        self,
-        xcom_key_prefix: str = "adri_assessment",
-        push_to_xcom: bool = True,
+        self, xcom_key_prefix: str = "adri_assessment", push_to_xcom: bool = True
     ):
         """Initialize Airflow adapter.
 

@@ -1,41 +1,52 @@
 """
-verodat-adri - Enterprise Edition: Stop Your AI Agents Breaking on Bad Data.
+ADRI - Agent Data Readiness Index.
 
-An enterprise data quality assessment framework with Verodat cloud integration,
-event-driven logging, and workflow orchestration. Built on community ADRI foundation.
+The missing data layer for AI agents. Auto-validates data quality with one decorator.
 
-Key Features:
-- @adri_protected decorator for automatic data quality checks
-- Enterprise: Verodat cloud integration with 5s flush (vs 60s community)
-- Enterprise: Fast-path logging for <10ms assessment ID capture
-- Enterprise: Event-driven architecture for real-time workflow coordination
-- Enterprise: Async callbacks and workflow adapters (Prefect, Airflow)
-- CLI tools for assessment, standard generation, and reporting
-- YAML-based standards for transparency and collaboration
-- Five-dimension quality assessment (validity, completeness, freshness, consistency, plausibility)
-- Framework integrations for LangChain, CrewAI, LangGraph, and more
+AI agents break on bad data. ADRI fixes that by:
+- Auto-validating data quality across 5 dimensions
+- Auto-generating quality contracts from your data
+- Blocking or warning on quality failures
+- Working with any framework (LangChain, CrewAI, AutoGen, LlamaIndex, etc.)
 
 Quick Start:
     from adri import adri_protected
 
-    @adri_protected(standard="customer_data_standard")
-    def my_agent_function(customer_data):
-        # Your agent logic here
-        return process_data(customer_data)
+    @adri_protected(contract="customer_data", data_param="data")
+    def my_agent_function(data):
+        # Your agent logic here - now protected!
+        return process_data(data)
 
-CLI Usage:
-    adri setup                              # Initialize ADRI in project
-    adri generate-standard data.csv         # Generate quality standard
-    adri assess data.csv --standard std.yaml  # Run assessment
+What happens:
+- First run with good data → ADRI generates quality contract
+- Future runs → ADRI validates against that contract
+- Bad data → Blocked with quality report
+
+CLI Tools:
+    adri setup --guide                     # Initialize ADRI
+    adri generate-contract data.csv        # Generate contract
+    adri assess data.csv --contract std    # Check quality
+
+Five Quality Dimensions:
+1. Validity - Data types and formats
+2. Completeness - Required fields present
+3. Consistency - Cross-field relationships
+4. Accuracy - Value ranges and patterns
+5. Timeliness - Data freshness
+
+Framework Agnostic:
+Works seamlessly with LangChain, CrewAI, AutoGen, LlamaIndex, Haystack,
+Semantic Kernel, and any Python function.
+
+Learn more: https://github.com/adri-standard/adri
 """
 
-from .analysis import DataProfiler, StandardGenerator, TypeInference
+from .analysis import DataProfiler, ContractGenerator, TypeInference
 from .config.loader import ConfigurationLoader
 
 # Core public API imports
 from .decorator import adri_protected
 from .guard.modes import DataProtectionEngine
-from .logging.enterprise import EnterpriseLogger
 from .logging.local import LocalLogger
 
 # Core component imports
@@ -53,22 +64,19 @@ __all__ = [
     "ValidationEngine",
     "DataProtectionEngine",
     "LocalLogger",
-    "EnterpriseLogger",
     "ConfigurationLoader",
     "DataProfiler",
-    "StandardGenerator",
+    "ContractGenerator",
     "TypeInference",
 ]
 
 # Package metadata
-__author__ = "Verodat"
-__email__ = "adri@verodat.com"
-__license__ = "Apache-2.0"
+__author__ = "Thomas"
+__email__ = "thomas@adri.dev"
+__license__ = "MIT"
 __description__ = (
-    "Enterprise Edition: Stop Your AI Agents Breaking on Bad Data - "
-    "Data Quality Assessment with Verodat Cloud Integration, Event-Driven Logging, "
-    "and Workflow Orchestration"
+    "Stop Your AI Agents Breaking on Bad Data - Data Quality Assessment Framework"
 )
-__url__ = "https://github.com/Verodat/verodat-adri"
-# verodat-adri v5.0.0 - Enterprise Edition First Release
-# Forked from community ADRI v4.4.0 with enterprise features
+__url__ = "https://github.com/adri-framework/adri"
+# ADRI v5.1.0 - Documentation improvements for open-source adoption
+# CI trigger for minor release validation

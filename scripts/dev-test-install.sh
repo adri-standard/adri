@@ -147,6 +147,7 @@ start_interactive_session() {
     echo -e "${BLUE}Your ADRI development environment is ready!${NC}"
     echo ""
     echo "Available commands to try:"
+    echo "  🎓 adri guide                     # Interactive tutorial (recommended for first-time users!)"
     echo "  📋 adri --help                    # Show all available commands"
     echo "  📋 adri --version                 # Show version (your local build)"
     echo "  📋 adri list-standards             # List available standards"

@@ -40,7 +40,7 @@ class TestPathResolutionFromDifferentDirectories:
                     "environments": {
                         "development": {
                             "paths": {
-                                "standards": str(adri_dir / "dev" / "standards"),
+                                "contracts": str(adri_dir / "dev" / "standards"),
                                 "training_data": str(adri_dir / "dev" / "training-data"),
                                 "assessments": str(adri_dir / "dev" / "assessments"),
                                 "audit_logs": str(adri_dir / "dev" / "audit-logs")
@@ -48,7 +48,7 @@ class TestPathResolutionFromDifferentDirectories:
                         },
                         "production": {
                             "paths": {
-                                "standards": str(adri_dir / "prod" / "standards"),
+                                "contracts": str(adri_dir / "prod" / "standards"),
                                 "training_data": str(adri_dir / "prod" / "training-data"),
                                 "assessments": str(adri_dir / "prod" / "assessments"),
                                 "audit_logs": str(adri_dir / "prod" / "audit-logs")
@@ -227,7 +227,7 @@ class TestPathResolutionErrorMessages:
                     "default_environment": "development",
                     "environments": {
                         "development": {
-                            "paths": {"standards": "ADRI/dev/standards"}
+                            "paths": {"contracts": "ADRI/dev/contracts"}
                         }
                     }
                 }
@@ -281,7 +281,7 @@ class TestRelativePathResolution:
                     "environments": {
                         "development": {
                             "paths": {
-                                "standards": "ADRI/dev/standards",
+                                "contracts": "ADRI/dev/contracts",
                                 "training_data": "ADRI/dev/training-data",
                                 "assessments": "ADRI/dev/assessments",
                                 "audit_logs": "ADRI/dev/audit-logs"
@@ -313,7 +313,7 @@ class TestRelativePathResolution:
             dev_env = loader.get_environment_config(config, "development")
 
             # Paths should be resolved relative to project root
-            assert "ADRI/dev/standards" in dev_env["paths"]["standards"]
+            assert "ADRI/dev/contracts" in dev_env["paths"]["contracts"]
         finally:
             os.chdir(original_dir)
 
@@ -351,7 +351,7 @@ class TestCrossPlatformPaths:
                     "environments": {
                         "development": {
                             "paths": {
-                                "standards": "ADRI/dev/standards",  # Forward slash
+                                "contracts": "ADRI/dev/contracts",  # Forward slash
                                 "training_data": "ADRI/dev/training-data"
                             }
                         }
@@ -378,7 +378,7 @@ class TestCrossPlatformPaths:
     def test_path_normalization(self):
         """Test that paths are normalized for the current platform."""
         # Path should use os.sep for the current platform
-        path = Path("ADRI/dev/standards")
+        path = Path("ADRI/dev/contracts")
         normalized = str(path)
 
         # On Windows, should convert to backslashes
@@ -406,7 +406,7 @@ class TestPathResolutionEdgeCases:
                     "environments": {
                         "development": {
                             "paths": {
-                                "standards": "ADRI/dev/standards"
+                                "contracts": "ADRI/dev/contracts"
                             }
                         }
                     }

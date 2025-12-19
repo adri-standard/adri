@@ -124,7 +124,7 @@ Add to `.pre-commit-config.yaml`:
 **Any code that opens text files must use `encoding='utf-8'`:**
 
 1. **YAML file reading**:
-   - `src/adri/standards/parser.py`
+   - `src/adri/contracts/parser.py`
    - `src/adri/config/loader.py`
    - `tests/*` (all test files)
 

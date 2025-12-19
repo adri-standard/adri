@@ -1,0 +1,12 @@
+# Overall minimum outside valid range (0-100)
+contracts:
+  id: "test_invalid_overall"
+  name: "Invalid Overall Minimum Test"
+  version: "1.0.0"
+  description: "Standard with overall_minimum outside valid range"
+
+requirements:
+  dimension_requirements:
+    validity:
+      weight: 3
+  overall_minimum: 150  # Invalid: exceeds maximum of 100

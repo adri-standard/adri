@@ -32,7 +32,7 @@ class TestInvoiceProcessingWithTutorialFramework:
         - Name-only resolution
         """
         # Define protected function using name-only standard reference
-        @adri_protected(standard=invoice_scenario['generated_standard_name'])
+        @adri_protected(contract=invoice_scenario['generated_standard_name'])
         def process_invoices(data: pd.DataFrame) -> pd.DataFrame:
             """Process invoice data with ADRI protection."""
             # Business logic would go here
@@ -58,7 +58,7 @@ class TestInvoiceProcessingWithTutorialFramework:
         - Realistic error scenarios from tutorials
         """
         @adri_protected(
-            standard=invoice_scenario['generated_standard_name'],
+            contract=invoice_scenario['generated_standard_name'],
             on_failure='warn'  # Allow processing with warnings
         )
         def process_invoices_with_warnings(data: pd.DataFrame) -> pd.DataFrame:
@@ -84,7 +84,7 @@ class TestInvoiceProcessingWithTutorialFramework:
         - Protection against low-quality data processing
         """
         @adri_protected(
-            standard=invoice_scenario['generated_standard_name'],
+            contract=invoice_scenario['generated_standard_name'],
             on_failure='raise'  # Strict mode
         )
         def process_invoices_strict(data: pd.DataFrame) -> pd.DataFrame:
@@ -187,7 +187,7 @@ class TestComparisonWithLegacyPattern:
             yaml.dump(standard_dict, f)
 
         # 4. Use decorator with full path (less user-friendly)
-        @adri_protected(standard=str(standard_file))  # Full path required
+        @adri_protected(contract=str(standard_file))  # Full path required
         def process_legacy_data(data: pd.DataFrame) -> pd.DataFrame:
             return data
 
@@ -216,7 +216,7 @@ class TestComparisonWithLegacyPattern:
         #    - Provides metadata
 
         # 2. Use name-only standard (how users work)
-        @adri_protected(standard=invoice_scenario['generated_standard_name'])
+        @adri_protected(contract=invoice_scenario['generated_standard_name'])
         def process_tutorial_data(data: pd.DataFrame) -> pd.DataFrame:
             return data
 
@@ -271,11 +271,11 @@ class TestCustomScenarioCreation:
         # Verify custom standard created
         assert standard_name == 'custom_invoice_standard'
 
-        standard_path = tutorial_project / "ADRI" / "dev" / "standards" / f"{standard_name}.yaml"
+        standard_path = tutorial_project / "ADRI" / "dev" / "contracts" / f"{standard_name}.yaml"
         assert standard_path.exists()
 
         # Use custom standard
-        @adri_protected(standard=standard_name)
+        @adri_protected(contract=standard_name)
         def process_with_custom_standard(data: pd.DataFrame) -> pd.DataFrame:
             return data
 
@@ -303,7 +303,7 @@ class TestCustomScenarioCreation:
 
         # Can validate specific sections if needed
         # (Exact structure depends on ADRI CLI output)
-        assert 'metadata' in standard_dict or 'name' in standard_dict or 'standards' in standard_dict
+        assert 'metadata' in standard_dict or 'name' in standard_dict or 'contracts' in standard_dict
 
 
 class TestMigrationGuidelines:
@@ -330,7 +330,8 @@ class TestMigrationGuidelines:
         data = ModernFixtures.create_comprehensive_mock_data(rows=10)
         standard = ModernFixtures.create_standards_data("minimal")
 
-        standard_file = temp_workspace / "ADRI" / "dev" / "standards" / "test.yaml"
+        standard_file = temp_workspace / "ADRI" / "dev" / "contracts" / "test.yaml"
+        standard_file.parent.mkdir(parents=True, exist_ok=True)
         with open(standard_file, 'w', encoding='utf-8') as f:
             yaml.dump(standard, f)
 
@@ -349,7 +350,7 @@ class TestMigrationGuidelines:
         5. Use scenario fixture
         """
         # Much simpler with tutorial framework!
-        @adri_protected(standard=invoice_scenario['generated_standard_name'])
+        @adri_protected(contract=invoice_scenario['generated_standard_name'])
         def process_data(data: pd.DataFrame) -> pd.DataFrame:
             return data
 

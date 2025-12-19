@@ -46,7 +46,7 @@ flowchart TB
         FIELD_INFER[FieldInference<br/>field_inference.py]
     end
 
-    subgraph Standards["📋 Standards System (src/adri/standards/)"]
+    subgraph Standards["📋 Standards System (src/adri/contracts/)"]
         STD_PARSER[StandardsParser<br/>parser.py]
         STD_VALIDATOR[StandardValidator<br/>validator.py]
         STD_SCHEMA[StandardSchema<br/>schema.py]
@@ -234,7 +234,7 @@ This diagram should be used in:
 
 ## StandardValidator Integration ⭐
 
-**Critical Addition**: The `StandardValidator` component was missing from previous architecture documentation but exists in the codebase at `src/adri/standards/validator.py`.
+**Critical Addition**: The `StandardValidator` component was missing from previous architecture documentation but exists in the codebase at `src/adri/contracts/validator.py`.
 
 **Role in Architecture**:
 1. **Validates standards at load time** - Ensures YAML standards conform to schema before use

@@ -5,16 +5,16 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "verodat-adri"
 dynamic = ["version"]
-description = "AI Data Reliability Intelligence - Enterprise Edition: Comprehensive data quality assessment with Verodat cloud integration, event-driven logging, and workflow orchestration"
+description = "Enterprise data quality layer for AI agents - Validates data quality with Verodat cloud integration. Requires Verodat API key."
 readme = "README.md"
 license = {file = "LICENSE"}
 authors = [
-    {name = "Verodat", email = "adri@verodat.com"}
+    {name = "Thomas Russell", email = "adri@verodat.com"}
 ]
 maintainers = [
-    {name = "Verodat", email = "adri@verodat.com"}
+    {name = "Thomas Russell", email = "adri@verodat.com"}
 ]
-keywords = ["data-quality", "ai", "validation", "assessment", "reliability", "enterprise", "verodat", "workflow-orchestration"]
+keywords = ["data-quality", "ai", "validation", "assessment", "reliability", "enterprise", "verodat"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
@@ -29,7 +29,6 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
     "Topic :: Software Development :: Quality Assurance",
     "Topic :: Software Development :: Testing",
-    "Topic :: System :: Monitoring",
 ]
 requires-python = ">=3.10"
 dependencies = [
@@ -39,22 +38,10 @@ dependencies = [
     "pyarrow>=16.1.0",  # For parquet support
     "tabulate>=0.9.0",  # For benchmark comparison output
     "requests>=2.32.3",  # For HTTP requests in verodat_logger
+    "jsonschema>=4.0.0",  # For JSON Schema validation
 ]
 
 [project.optional-dependencies]
-# Event-driven logging dependencies
-redis = [
-    "redis>=5.0.0",
-]
-# Workflow orchestration framework integrations
-workflows = [
-    "prefect>=2.0.0",
-    "apache-airflow>=2.0.0",
-]
-# Complete event-driven logging stack
-events = [
-    "verodat-adri[redis,workflows]",
-]
 dev = [
     "pytest>=8.2.0",
     "pytest-cov>=5.0.0",
@@ -88,10 +75,6 @@ security = [
     "safety>=3.2.8",
     "pip-audit>=2.7.3",
 ]
-# Full installation with all features
-full = [
-    "verodat-adri[redis,workflows,dev,test,security]",
-]
 
 [project.urls]
 Homepage = "https://github.com/Verodat/verodat-adri"
@@ -105,7 +88,7 @@ adri = "adri.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
-include = ["adri*"]
+include = ["adri*", "adri_enterprise*"]
 exclude = [
     "development*",
     "*_example.py",
@@ -134,6 +117,9 @@ adri = [
 line-length = 88
 target-version = ['py310', 'py311', 'py312', 'py313']
 include = '\.pyi?$'
+# Prevent black from breaking f-strings and other strings across lines
+skip-string-normalization = false
+skip-magic-trailing-comma = true
 extend-exclude = '''
 /(
   # directories
@@ -207,7 +193,7 @@ max-statements = 60
 # bandit configuration
 [tool.bandit]
 exclude_dirs = ["development"]
-skips = ["B101", "B601", "B110"]  # Skip assert_used, shell_injection_process_args, and try_except_pass
+skips = ["B101", "B601", "B110", "B112"]  # Skip assert_used, shell_injection_process_args, try_except_pass, and try_except_continue
 
 # pytest configuration - Modern ADRI Test Framework (80% Coverage Target)
 [tool.pytest.ini_options]
@@ -275,7 +261,7 @@ norecursedirs = [
 
 # coverage configuration
 [tool.coverage.run]
-source = ["src/adri"]
+source = ["src/adri", "src/adri_enterprise"]
 omit = [
     "*/tests/*",
     "*/test_*",
@@ -356,4 +342,4 @@ ignore = [
 version_scheme = "post-release"
 local_scheme = "node-and-date"
 write_to = "src/adri/_version.py"
-fallback_version = "5.0.1"
+fallback_version = "6.1.0"

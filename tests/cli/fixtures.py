@@ -85,11 +85,11 @@ def create_test_workspace() -> Path:
 
     # Create ADRI directory structure
     directories = [
-        "ADRI/dev/standards",
+        "ADRI/dev/contracts",
         "ADRI/dev/assessments",
         "ADRI/dev/training-data",
         "ADRI/dev/audit-logs",
-        "ADRI/prod/standards",
+        "ADRI/prod/contracts",
         "ADRI/prod/assessments",
         "ADRI/prod/training-data",
         "ADRI/prod/audit-logs",
@@ -109,7 +109,7 @@ def create_test_workspace() -> Path:
             "environments": {
                 "development": {
                     "paths": {
-                        "standards": "ADRI/dev/standards",
+                        "contracts": "ADRI/dev/contracts",
                         "assessments": "ADRI/dev/assessments",
                         "training_data": "ADRI/dev/training-data",
                         "audit_logs": "ADRI/dev/audit-logs",
@@ -125,7 +125,7 @@ def create_test_workspace() -> Path:
                 },
                 "production": {
                     "paths": {
-                        "standards": "ADRI/prod/standards",
+                        "contracts": "ADRI/prod/contracts",
                         "assessments": "ADRI/prod/assessments",
                         "training_data": "ADRI/prod/training-data",
                         "audit_logs": "ADRI/prod/audit-logs",
@@ -216,9 +216,9 @@ def setup_mock_commands() -> Dict[str, Mock]:
     mock_commands = {}
 
     command_names = [
-        "setup", "assess", "generate-standard", "list-assessments",
-        "list-standards", "view-logs", "show-config", "validate-standard",
-        "show-standard", "scoring-explain", "scoring-preset-apply"
+        "setup", "assess", "generate-contract", "list-assessments",
+        "list-contracts", "view-logs", "show-config", "validate-contract",
+        "show-contract", "scoring-explain", "scoring-preset-apply"
     ]
 
     for name in command_names:
@@ -284,7 +284,7 @@ def create_sample_standard(
         Dictionary containing standard structure
     """
     return {
-        "standards": {
+        "contracts": {
             "id": f"{name}_id",
             "name": name.replace("_", " ").title(),
             "version": version,
@@ -361,12 +361,12 @@ def assert_workspace_structure(workspace_path: Path) -> None:
     required_dirs = [
         "ADRI",
         "ADRI/dev",
-        "ADRI/dev/standards",
+        "ADRI/dev/contracts",
         "ADRI/dev/assessments",
         "ADRI/dev/training-data",
         "ADRI/dev/audit-logs",
         "ADRI/prod",
-        "ADRI/prod/standards",
+        "ADRI/prod/contracts",
         "ADRI/prod/assessments",
         "ADRI/prod/training-data",
         "ADRI/prod/audit-logs",

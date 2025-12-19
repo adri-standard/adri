@@ -5,7 +5,7 @@ breakdown and explanation operations.
 """
 
 import json
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import click
 import pandas as pd
@@ -17,7 +17,7 @@ from ...utils.path_utils import (
     resolve_project_path,
 )
 from ...validator.engine import DataQualityAssessor
-from ...validator.loaders import load_data, load_standard
+from ...validator.loaders import load_data, load_contract
 
 
 class ScoringExplainCommand(Command):
@@ -31,7 +31,7 @@ class ScoringExplainCommand(Command):
         """Get command description."""
         return "Explain scoring breakdown for a dataset against a standard"
 
-    def execute(self, args: Dict[str, Any]) -> int:
+    def execute(self, args: dict[str, Any]) -> int:
         """Execute the scoring-explain command.
 
         Args:
@@ -102,11 +102,11 @@ class ScoringExplainCommand(Command):
             click.echo(f"❌ Scoring explain failed: {e}")
             return 1
 
-    def _load_assessor_config(self) -> Dict[str, Any]:
+    def _load_assessor_config(self) -> dict[str, Any]:
         """Load configuration for the data quality assessor."""
         from ...config.loader import ConfigurationLoader
 
-        assessor_config: Dict[str, Any] = {}
+        assessor_config: dict[str, Any] = {}
 
         try:
             config_loader = ConfigurationLoader()
@@ -123,7 +123,7 @@ class ScoringExplainCommand(Command):
 
         return assessor_config
 
-    def _get_default_audit_config(self) -> Dict[str, Any]:
+    def _get_default_audit_config(self) -> dict[str, Any]:
         """Get default audit configuration."""
         return {
             "enabled": True,
@@ -137,7 +137,7 @@ class ScoringExplainCommand(Command):
     def _get_threshold_from_standard(self, standard_path) -> float:
         """Read requirements.overall_minimum from a standard YAML."""
         try:
-            std = load_standard(str(standard_path))
+            std = load_contract(str(standard_path))
             req = std.get("requirements", {}) if isinstance(std, dict) else {}
             thr = float(req.get("overall_minimum", 75.0))
             return max(0.0, min(100.0, thr))  # Clamp to [0, 100]
@@ -145,8 +145,8 @@ class ScoringExplainCommand(Command):
             return 75.0
 
     def _extract_scoring_information(
-        self, result, metadata: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, result, metadata: dict[str, Any]
+    ) -> dict[str, Any]:
         """Extract scoring information from assessment result."""
         # Convert dimension scores to simple numbers
         dim_scores_obj = result.dimension_scores or {}
@@ -175,7 +175,7 @@ class ScoringExplainCommand(Command):
 
     def _compute_dimension_contributions(
         self, dimension_scores, applied_dimension_weights
-    ) -> Dict[str, float]:
+    ) -> dict[str, float]:
         """Compute contribution (%) of each dimension to overall score."""
         try:
             scores = {}
@@ -207,7 +207,7 @@ class ScoringExplainCommand(Command):
             return {}
 
     def _display_json_output(
-        self, result, threshold: float, scoring_info: Dict[str, Any]
+        self, result, threshold: float, scoring_info: dict[str, Any]
     ) -> None:
         """Display scoring breakdown as JSON."""
         explain = scoring_info["explain"]
@@ -244,7 +244,7 @@ class ScoringExplainCommand(Command):
         click.echo(json.dumps(payload, indent=2))
 
     def _display_text_output(
-        self, result, threshold: float, scoring_info: Dict[str, Any]
+        self, result, threshold: float, scoring_info: dict[str, Any]
     ) -> None:
         """Display scoring breakdown as formatted text."""
         status_icon = "✅" if result.passed else "❌"
@@ -286,8 +286,8 @@ class ScoringExplainCommand(Command):
                 click.echo(f" - {warning}")
 
     def _format_dimension_explanation(
-        self, dimension: str, dim_explain: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, dimension: str, dim_explain: dict[str, Any]
+    ) -> dict[str, Any]:
         """Format dimension explanation for JSON output."""
         if dimension == "validity":
             return {
@@ -325,7 +325,7 @@ class ScoringExplainCommand(Command):
         else:
             return dim_explain
 
-    def _display_dimension_explanations(self, explain: Dict[str, Any]) -> None:
+    def _display_dimension_explanations(self, explain: dict[str, Any]) -> None:
         """Display dimension-specific explanations in text format."""
         # Validity explanation
         validity_explain = explain.get("validity", {})
@@ -350,7 +350,7 @@ class ScoringExplainCommand(Command):
             click.echo("")
             click.echo("Freshness: no active rules configured")
 
-    def _display_validity_explanation(self, validity_explain: Dict[str, Any]) -> None:
+    def _display_validity_explanation(self, validity_explain: dict[str, Any]) -> None:
         """Display validity dimension explanation."""
         rule_counts = validity_explain.get("rule_counts", {})
         applied_weights = validity_explain.get("applied_weights", {})
@@ -382,7 +382,7 @@ class ScoringExplainCommand(Command):
                 )
 
     def _display_completeness_explanation(
-        self, completeness_explain: Dict[str, Any]
+        self, completeness_explain: dict[str, Any]
     ) -> None:
         """Display completeness dimension explanation."""
         click.echo("")
@@ -406,7 +406,7 @@ class ScoringExplainCommand(Command):
                     pass
 
     def _display_consistency_explanation(
-        self, consistency_explain: Dict[str, Any]
+        self, consistency_explain: dict[str, Any]
     ) -> None:
         """Display consistency dimension explanation."""
         click.echo("")
@@ -426,7 +426,7 @@ class ScoringExplainCommand(Command):
             f" - primary_key_uniqueness: {passed_c}/{total} passed, failed={failed_c}, pass_rate={pr:.1f}%, weight={float(rw):.2f}"
         )
 
-    def _display_freshness_explanation(self, freshness_explain: Dict[str, Any]) -> None:
+    def _display_freshness_explanation(self, freshness_explain: dict[str, Any]) -> None:
         """Display freshness dimension explanation."""
         click.echo("")
         click.echo("Freshness breakdown:")
@@ -462,7 +462,7 @@ class ScoringPresetApplyCommand(Command):
         """Get command description."""
         return "Apply a scoring preset to a standard's dimension requirements"
 
-    def execute(self, args: Dict[str, Any]) -> int:
+    def execute(self, args: dict[str, Any]) -> int:
         """Execute the scoring-preset-apply command.
 
         Args:
@@ -481,7 +481,7 @@ class ScoringPresetApplyCommand(Command):
         return self._apply_scoring_preset(preset, standard_path, output_path)
 
     def _apply_scoring_preset(
-        self, preset: str, standard_path: str, output_path: Optional[str] = None
+        self, preset: str, standard_path: str, output_path: str | None = None
     ) -> int:
         """Apply a scoring preset to a standard's dimension requirements."""
         try:
@@ -497,7 +497,7 @@ class ScoringPresetApplyCommand(Command):
                 return 1
 
             # Load standard
-            std = load_standard(str(resolved_standard_path))
+            std = load_contract(str(resolved_standard_path))
             if not isinstance(std, dict):
                 click.echo("❌ Invalid standard structure")
                 return 1
@@ -544,7 +544,7 @@ class ScoringPresetApplyCommand(Command):
             click.echo(f"❌ Failed to apply preset: {e}")
             return 1
 
-    def _get_preset_config(self, preset: str) -> Optional[Dict[str, Any]]:
+    def _get_preset_config(self, preset: str) -> dict[str, Any] | None:
         """Get configuration for the specified preset."""
         presets = {
             "balanced": {
@@ -621,8 +621,8 @@ class ScoringPresetApplyCommand(Command):
         return presets.get(preset)
 
     def _apply_preset_to_standard(
-        self, std: Dict[str, Any], preset_config: Dict[str, Any]
-    ) -> List[str]:
+        self, std: dict[str, Any], preset_config: dict[str, Any]
+    ) -> list[str]:
         """Apply preset configuration to standard."""
         req = std.setdefault("requirements", {})
         dim_reqs = req.setdefault("dimension_requirements", {})

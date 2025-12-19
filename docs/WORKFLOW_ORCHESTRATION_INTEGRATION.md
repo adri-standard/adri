@@ -367,7 +367,7 @@ latest_id = reader.get_latest_assessment_id()
 
 ## Configuration
 
-Standard ADRI configuration file (`adri-config.yaml`):
+Standard ADRI configuration file (`ADRI/config.yaml`):
 
 ```yaml
 paths:

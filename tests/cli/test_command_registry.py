@@ -34,9 +34,9 @@ class TestCommandRegistry:
 
             # Verify all expected commands were registered
             expected_commands = [
-                "setup", "assess", "generate-standard", "list-assessments",
-                "list-standards", "view-logs", "show-config", "validate-standard",
-                "show-standard", "scoring-explain", "scoring-preset-apply"
+                "setup", "assess", "generate-contract", "list-assessments",
+                "list-contracts", "view-logs", "show-config", "validate-contract",
+                "show-contract", "scoring-explain", "scoring-preset-apply", "guide"
             ]
 
             # Should have attempted to register each command
@@ -61,9 +61,9 @@ class TestCommandRegistry:
 
             # Should only register commands that weren't already registered
             expected_new_commands = [
-                "generate-standard", "list-assessments", "list-standards",
-                "view-logs", "show-config", "validate-standard", "show-standard",
-                "scoring-explain", "scoring-preset-apply"
+                "generate-contract", "list-assessments", "list-contracts",
+                "view-logs", "show-config", "validate-contract", "show-contract",
+                "scoring-explain", "scoring-preset-apply", "guide"
             ]
 
             assert mock_commands_manager.register.call_count == len(expected_new_commands)
@@ -151,7 +151,7 @@ class TestCommandRegistry:
                 mock_commands_manager = Mock()
                 mock_registry.commands = mock_commands_manager
 
-                expected_commands = ["setup", "assess", "generate-standard"]
+                expected_commands = ["setup", "assess", "generate-contract"]
                 mock_commands_manager.list_components.return_value = expected_commands
                 mock_registry_func.return_value = mock_registry
 
@@ -358,7 +358,7 @@ class TestCommandRegistryPerformance(ModernCLITestBase):
             mock_commands = {
                 "setup": Mock(),
                 "assess": Mock(),
-                "generate-standard": Mock()
+                "generate-contract": Mock()
             }
 
             mock_commands_manager.list_components.return_value = list(mock_commands.keys())

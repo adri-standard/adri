@@ -7,12 +7,13 @@ following the Command pattern.
 
 from .assess import AssessCommand
 from .config import (
-    ListStandardsCommand,
+    ListContractsCommand,
     ShowConfigCommand,
-    ShowStandardCommand,
-    ValidateStandardCommand,
+    ShowContractCommand,
+    ValidateContractCommand,
 )
-from .generate_standard import GenerateStandardCommand
+from .generate_contract import GenerateContractCommand
+from .guide import GuideCommand
 from .list_assessments import ListAssessmentsCommand
 from .scoring import ScoringExplainCommand, ScoringPresetApplyCommand
 from .setup import SetupCommand
@@ -21,13 +22,14 @@ from .view_logs import ViewLogsCommand
 __all__ = [
     "SetupCommand",
     "AssessCommand",
-    "GenerateStandardCommand",
+    "GenerateContractCommand",
+    "GuideCommand",
     "ListAssessmentsCommand",
     "ViewLogsCommand",
     "ShowConfigCommand",
-    "ValidateStandardCommand",
-    "ListStandardsCommand",
-    "ShowStandardCommand",
+    "ValidateContractCommand",
+    "ListContractsCommand",
+    "ShowContractCommand",
     "ScoringExplainCommand",
     "ScoringPresetApplyCommand",
 ]

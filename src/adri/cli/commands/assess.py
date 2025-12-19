@@ -1,3 +1,5 @@
+# @ADRI_FEATURE[cli_assess_command, scope=OPEN_SOURCE]
+# Description: CLI assess command for running data quality assessments
 """Assess command implementation for ADRI CLI.
 
 This module contains the AssessCommand class that handles data quality assessment
@@ -8,7 +10,7 @@ import json
 import sys
 import time
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any
 
 import click
 import pandas as pd
@@ -20,7 +22,7 @@ from ...utils.path_utils import (
     resolve_project_path,
 )
 from ...validator.engine import DataQualityAssessor
-from ...validator.loaders import load_data, load_standard
+from ...validator.loaders import load_data, load_contract
 
 
 def _progressive_echo(text: str, delay: float = 0.0) -> None:
@@ -46,7 +48,7 @@ class AssessCommand(Command):
         """Get command description."""
         return "Run data quality assessment"
 
-    def execute(self, args: Dict[str, Any]) -> int:
+    def execute(self, args: dict[str, Any]) -> int:
         """Execute the assess command.
 
         Args:
@@ -70,7 +72,7 @@ class AssessCommand(Command):
         self,
         data_path: str,
         standard_path: str,
-        output_path: Optional[str] = None,
+        output_path: str | None = None,
         guide: bool = False,
     ) -> int:
         """Run data quality assessment."""
@@ -136,11 +138,11 @@ class AssessCommand(Command):
         else:
             click.echo(f"❌ Assessment failed: {file_type} not found: {original_path}")
 
-    def _load_assessor_config(self) -> Dict[str, Any]:
+    def _load_assessor_config(self) -> dict[str, Any]:
         """Load configuration for the data quality assessor."""
         from ...config.loader import ConfigurationLoader
 
-        assessor_config: Dict[str, Any] = {}
+        assessor_config: dict[str, Any] = {}
 
         # Try to load configuration
         try:
@@ -161,7 +163,7 @@ class AssessCommand(Command):
 
         return assessor_config
 
-    def _get_default_audit_config(self) -> Dict[str, Any]:
+    def _get_default_audit_config(self) -> dict[str, Any]:
         """Get default audit configuration."""
         return {
             "enabled": True,
@@ -175,7 +177,7 @@ class AssessCommand(Command):
     def _get_threshold_from_standard(self, standard_path: Path) -> float:
         """Read requirements.overall_minimum from a standard YAML."""
         try:
-            std = load_standard(str(standard_path))
+            std = load_contract(str(standard_path))
             req = std.get("requirements", {}) if isinstance(std, dict) else {}
             thr = float(req.get("overall_minimum", 75.0))
             return max(0.0, min(100.0, thr))  # Clamp to [0, 100]
@@ -373,10 +375,10 @@ class AssessCommand(Command):
 
             # If there are issues, format them for display
             if issues:
-                record_id = row.get("invoice_id", f"Row {i+1}")
+                record_id = row.get("invoice_id", f"Row {i + 1}")
                 try:
                     if pd.isna(record_id):
-                        record_id = f"Row {i+1}"
+                        record_id = f"Row {i + 1}"
                 except Exception:
                     pass
 
@@ -414,3 +416,6 @@ class AssessCommand(Command):
     def get_name(self) -> str:
         """Get the command name."""
         return "assess"
+
+
+# @ADRI_FEATURE_END[cli_assess_command]

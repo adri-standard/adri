@@ -144,15 +144,15 @@ class TestCommand:
     def test_get_name_with_command_suffix(self):
         """Test name generation strips 'Command' suffix."""
 
-        class GenerateStandardCommand(Command):
+        class GenerateContractCommand(Command):
             def execute(self, args: Dict[str, Any]) -> int:
                 return 0
 
             def get_description(self) -> str:
                 return "Generate standard command"
 
-        command = GenerateStandardCommand()
-        assert command.get_name() == "generatestandard"
+        command = GenerateContractCommand()
+        assert command.get_name() == "generatecontract"
 
     def test_get_name_with_underscores(self):
         """Test name generation converts underscores to hyphens."""

@@ -18,19 +18,19 @@ This document describes the comprehensive standard validation system implemented
 
 ### Components Created
 
-1. **`src/adri/standards/exceptions.py`** (~260 lines)
+1. **`src/adri/contracts/exceptions.py`** (~260 lines)
    - `ValidationError`: Individual validation error with path, message, severity
    - `ValidationResult`: Container for validation outcome with errors/warnings
    - `SchemaValidationError`: Exception raised for invalid standards
    - Specialized exceptions for different validation failures
 
-2. **`src/adri/standards/schema.py`** (~320 lines)
+2. **`src/adri/contracts/schema.py`** (~320 lines)
    - `StandardSchema`: Complete schema definition for ADRI standards
    - Field schemas with type, range, and validation rules
    - Constants for valid dimensions, ranges (weights 0-5, scores 0-100)
    - Helper methods for validation operations
 
-3. **`src/adri/standards/validator.py`** (~500 lines)
+3. **`src/adri/contracts/validator.py`** (~500 lines)
    - `StandardValidator`: Main validation engine with caching
    - Comprehensive validation of structure, types, ranges
    - Thread-safe caching with mtime-based invalidation
@@ -54,7 +54,7 @@ The validator was integrated into all standard loading paths:
    - Can disable with `validate=False` parameter
    - Raises `SchemaValidationError` for invalid standards
 
-2. **`src/adri/standards/parser.py`**
+2. **`src/adri/contracts/parser.py`**
    - `StandardsParser._validate_standard_structure()` uses validator
    - Fallback to basic validation if validator unavailable
    - Consistent error messages across loading methods

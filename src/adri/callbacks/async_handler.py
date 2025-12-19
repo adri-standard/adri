@@ -44,11 +44,7 @@ class AsyncCallbackManager:
         manager.close()
     """
 
-    def __init__(
-        self,
-        thread_pool_size: int = 4,
-        enable_async: bool = True,
-    ):
+    def __init__(self, thread_pool_size: int = 4, enable_async: bool = True):
         """Initialize callback manager.
 
         Args:

@@ -1,3 +1,5 @@
+# @ADRI_FEATURE[config_loader, scope=SHARED]
+# Description: Configuration management and environment-based contract resolution
 """
 ADRI Configuration Loader.
 
@@ -7,7 +9,7 @@ Removes complex configuration management while preserving essential functionalit
 
 import os
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any
 
 import yaml
 
@@ -22,9 +24,8 @@ class ConfigurationLoader:
 
     def __init__(self):
         """Initialize the configuration loader."""
-        pass
 
-    def create_default_config(self, project_name: str) -> Dict[str, Any]:
+    def create_default_config(self, project_name: str) -> dict[str, Any]:
         """
         Create a default ADRI configuration.
 
@@ -42,7 +43,7 @@ class ConfigurationLoader:
                 "environments": {
                     "development": {
                         "paths": {
-                            "standards": "./ADRI/dev/standards",
+                            "contracts": "./ADRI/dev/contracts",
                             "assessments": "./ADRI/dev/assessments",
                             "training_data": "./ADRI/dev/training-data",
                             "audit_logs": "./ADRI/dev/audit-logs",
@@ -55,7 +56,7 @@ class ConfigurationLoader:
                     },
                     "production": {
                         "paths": {
-                            "standards": "./ADRI/prod/standards",
+                            "contracts": "./ADRI/prod/contracts",
                             "assessments": "./ADRI/prod/assessments",
                             "training_data": "./ADRI/prod/training-data",
                             "audit_logs": "./ADRI/prod/audit-logs",
@@ -71,7 +72,7 @@ class ConfigurationLoader:
                     "default_failure_mode": "raise",
                     "default_min_score": 80,
                     "cache_duration_hours": 1,
-                    "auto_generate_standards": True,
+                    "auto_generate_contracts": True,
                     "verbose_protection": False,
                 },
                 "assessment": {
@@ -89,7 +90,7 @@ class ConfigurationLoader:
             }
         }
 
-    def validate_config(self, config: Dict[str, Any]) -> bool:
+    def validate_config(self, config: dict[str, Any]) -> bool:
         """
         Validate basic configuration structure.
 
@@ -124,7 +125,7 @@ class ConfigurationLoader:
 
                 paths = env_config["paths"]
                 required_paths = [
-                    "standards",
+                    "contracts",
                     "assessments",
                     "training_data",
                     "audit_logs",
@@ -139,21 +140,25 @@ class ConfigurationLoader:
             return False
 
     def save_config(
-        self, config: Dict[str, Any], config_path: str = "adri-config.yaml"
+        self, config: dict[str, Any], config_path: str = "ADRI/config.yaml"
     ) -> None:
         """
         Save configuration to YAML file.
 
         Args:
             config: Configuration dictionary to save
-            config_path: Path to save the configuration file
+            config_path: Path to save the configuration file (default: ADRI/config.yaml)
         """
+        # Ensure parent directory exists
+        config_file = Path(config_path)
+        config_file.parent.mkdir(parents=True, exist_ok=True)
+
         with open(config_path, "w", encoding="utf-8") as f:
             yaml.dump(config, f, default_flow_style=False, indent=2)
 
     def load_config(
         self, config_path: str = "adri-config.yaml"
-    ) -> Optional[Dict[str, Any]]:
+    ) -> dict[str, Any] | None:
         """
         Load configuration from YAML file.
 
@@ -167,42 +172,37 @@ class ConfigurationLoader:
             return None
 
         try:
-            with open(config_path, "r", encoding="utf-8") as f:
+            with open(config_path, encoding="utf-8") as f:
                 config_data = yaml.safe_load(f)
                 return config_data if isinstance(config_data, dict) else None
-        except (yaml.YAMLError, IOError):
+        except (yaml.YAMLError, OSError):
             return None
 
-    def find_config_file(self, start_path: str = ".") -> Optional[str]:
+    def find_config_file(self, start_path: str = ".") -> str | None:
         """
-        Find ADRI config file by searching up the directory tree.
+        Find ADRI config file at standard location.
 
-        Stops at the user's home directory.
+        Searches up the directory tree for ADRI/config.yaml, stopping at
+        the user's home directory.
 
         Args:
             start_path: Directory to start searching from
 
         Returns:
-            Path to config file or None if not found
+            Path to config file if found at ADRI/config.yaml, None otherwise
+
+        Note:
+            Configuration file must be located at ADRI/config.yaml.
+            Run 'adri setup' to initialize if not found.
         """
         current_path = Path(start_path).resolve()
         home_path = Path.home().resolve()
 
         # Search up the directory tree, stopping at home directory
         for path in [current_path] + list(current_path.parents):
-            # Check common config file locations (new location first)
-            config_names = [
-                "ADRI/config.yaml",
-                "adri-config.yaml",  # backward compatibility
-                "adri-config.yml",  # backward compatibility
-                "ADRI/adri-config.yaml",  # backward compatibility
-                ".adri.yaml",
-            ]
-
-            for config_name in config_names:
-                config_path = path / config_name
-                if config_path.exists():
-                    return str(config_path)
+            config_path = path / "ADRI" / "config.yaml"
+            if config_path.exists():
+                return str(config_path)
 
             # Stop after checking home directory - don't search above it
             if path == home_path:
@@ -211,8 +211,8 @@ class ConfigurationLoader:
         return None
 
     def get_active_config(
-        self, config_path: Optional[str] = None
-    ) -> Optional[Dict[str, Any]]:
+        self, config_path: str | None = None
+    ) -> dict[str, Any] | None:
         """
         Get the active configuration with environment variable precedence.
 
@@ -220,14 +220,18 @@ class ConfigurationLoader:
         1. ADRI_CONFIG (inline YAML string)
         2. ADRI_CONFIG_PATH or ADRI_CONFIG_FILE (explicit file path)
         3. config_path parameter
-        4. Auto-discovered config file
-        5. None (no config)
+        4. ADRI/config.yaml in current or parent directories
+        5. None (no config found)
 
         Args:
             config_path: Specific config file path, or None to search
 
         Returns:
             Configuration dictionary or None if no config found
+
+        Note:
+            Configuration file must be located at ADRI/config.yaml.
+            Run 'adri setup' to initialize if not found.
         """
         # Highest precedence: ADRI_CONFIG environment variable (inline YAML)
         inline_config = os.environ.get("ADRI_CONFIG")
@@ -263,7 +267,7 @@ class ConfigurationLoader:
         return None
 
     def _get_effective_environment(
-        self, config: Optional[Dict[str, Any]], environment: Optional[str] = None
+        self, config: dict[str, Any] | None, environment: str | None = None
     ) -> str:
         """
         Get the effective environment with ADRI_ENV override support.
@@ -298,8 +302,8 @@ class ConfigurationLoader:
         return "development"
 
     def get_environment_config(
-        self, config: Dict[str, Any], environment: Optional[str] = None
-    ) -> Dict[str, Any]:
+        self, config: dict[str, Any], environment: str | None = None
+    ) -> dict[str, Any]:
         """
         Get configuration for a specific environment with ADRI_ENV override.
 
@@ -324,9 +328,11 @@ class ConfigurationLoader:
         requested_env = environment  # Store original request
         environment = self._get_effective_environment(config, environment)
 
-        # If effective environment doesn't exist, only fall back if it came from ADRI_ENV
+        # If effective environment doesn't exist, only fall back if it came from
+        # ADRI_ENV
         if environment not in adri_config["environments"]:
-            # Only fall back to default if the invalid environment came from ADRI_ENV (not explicit request)
+            # Only fall back to default if the invalid environment came from ADRI_ENV
+            # (not explicit request)
             if from_adri_env and not requested_env:
                 default_env = adri_config.get("default_environment", "development")
                 if default_env in adri_config["environments"]:
@@ -346,9 +352,7 @@ class ConfigurationLoader:
 
         return env_config
 
-    def get_protection_config(
-        self, environment: Optional[str] = None
-    ) -> Dict[str, Any]:
+    def get_protection_config(self, environment: str | None = None) -> dict[str, Any]:
         """
         Get protection configuration with environment-specific overrides.
 
@@ -365,7 +369,7 @@ class ConfigurationLoader:
                 "default_failure_mode": "raise",
                 "default_min_score": 80,
                 "cache_duration_hours": 1,
-                "auto_generate_standards": True,
+                "auto_generate_contracts": True,
                 "verbose_protection": False,
             }
 
@@ -387,35 +391,35 @@ class ConfigurationLoader:
 
         return protection_config
 
-    def resolve_standard_path(
-        self, standard_name: str, environment: Optional[str] = None
+    def resolve_contract_path(
+        self, contract_name: str, environment: str | None = None
     ) -> str:
         """
-        Resolve a standard name to full absolute path with ADRI_STANDARDS_DIR override.
+        Resolve a contract name to full absolute path with ADRI_CONTRACTS_DIR override.
 
-        Precedence for standards directory:
-        1. ADRI_STANDARDS_DIR environment variable (if set)
+        Precedence for contracts directory:
+        1. ADRI_CONTRACTS_DIR environment variable (if set)
         2. Config file paths
-        3. Default ADRI/{env}/standards structure
+        3. Default ADRI/{env}/contracts structure
 
         Args:
-            standard_name: Name of standard (with or without .yaml extension)
+            contract_name: Name of contract (with or without .yaml extension)
             environment: Environment to use
 
         Returns:
-            Full absolute path to standard file
+            Full absolute path to contract file
         """
         # Add .yaml extension if not present
-        if not standard_name.endswith((".yaml", ".yml")):
-            standard_name += ".yaml"
+        if not contract_name.endswith((".yaml", ".yml")):
+            contract_name += ".yaml"
 
-        # Highest precedence: ADRI_STANDARDS_DIR environment variable
-        env_standards_dir = os.environ.get("ADRI_STANDARDS_DIR")
-        if env_standards_dir:
-            standards_path = Path(env_standards_dir)
-            if not standards_path.is_absolute():
-                standards_path = Path.cwd() / standards_path
-            full_path = (standards_path / standard_name).resolve()
+        # Highest precedence: ADRI_CONTRACTS_DIR environment variable
+        env_contracts_dir = os.environ.get("ADRI_CONTRACTS_DIR")
+        if env_contracts_dir:
+            contracts_path = Path(env_contracts_dir)
+            if not contracts_path.is_absolute():
+                contracts_path = Path.cwd() / contracts_path
+            full_path = (contracts_path / contract_name).resolve()
             return str(full_path)
 
         config = self.get_active_config()
@@ -440,33 +444,33 @@ class ConfigurationLoader:
         if not config:
             # Fallback to default path structure
             env_dir = "dev" if environment != "production" else "prod"
-            standard_path = base_dir / "ADRI" / env_dir / "standards" / standard_name
-            return str(standard_path)
+            contract_path = base_dir / "ADRI" / env_dir / "contracts" / contract_name
+            return str(contract_path)
 
         try:
             env_config = self.get_environment_config(config, environment)
-            standards_dir = env_config["paths"]["standards"]
+            contracts_dir = env_config["paths"]["contracts"]
 
             # Convert relative path to absolute based on config file location
-            standards_path = Path(standards_dir)
+            contracts_path = Path(contracts_dir)
 
             # If relative path, resolve from config file directory
-            if not standards_path.is_absolute():
-                standards_path = (base_dir / standards_dir).resolve()
+            if not contracts_path.is_absolute():
+                contracts_path = (base_dir / contracts_dir).resolve()
             else:
-                standards_path = standards_path.resolve()
+                contracts_path = contracts_path.resolve()
 
-            # Combine with standard filename and ensure absolute path
-            full_path = (standards_path / standard_name).resolve()
+            # Combine with contract filename and ensure absolute path
+            full_path = (contracts_path / contract_name).resolve()
             return str(full_path)
 
         except (KeyError, ValueError, AttributeError):
             # Fallback on any error
             env_dir = "dev" if environment != "production" else "prod"
-            standard_path = base_dir / "ADRI" / env_dir / "standards" / standard_name
-            return str(standard_path)
+            contract_path = base_dir / "ADRI" / env_dir / "contracts" / contract_name
+            return str(contract_path)
 
-    def create_directory_structure(self, config: Dict[str, Any]) -> None:
+    def create_directory_structure(self, config: dict[str, Any]) -> None:
         """
         Create the directory structure based on configuration.
 
@@ -482,7 +486,7 @@ class ConfigurationLoader:
             for path_type, path_value in paths.items():
                 Path(path_value).mkdir(parents=True, exist_ok=True)
 
-    def get_assessments_dir(self, environment: Optional[str] = None) -> str:
+    def get_assessments_dir(self, environment: str | None = None) -> str:
         """
         Get the assessments directory for an environment with ADRI_ENV override.
 
@@ -508,7 +512,7 @@ class ConfigurationLoader:
             env_dir = "dev" if environment != "production" else "prod"
             return f"./ADRI/{env_dir}/assessments"
 
-    def get_training_data_dir(self, environment: Optional[str] = None) -> str:
+    def get_training_data_dir(self, environment: str | None = None) -> str:
         """
         Get the training data directory for an environment with ADRI_ENV override.
 
@@ -536,7 +540,7 @@ class ConfigurationLoader:
 
 
 # Convenience functions for simplified usage
-def load_adri_config(config_path: Optional[str] = None) -> Optional[Dict[str, Any]]:
+def load_adri_config(config_path: str | None = None) -> dict[str, Any] | None:
     """
     Load ADRI configuration using simplified interface.
 
@@ -550,7 +554,7 @@ def load_adri_config(config_path: Optional[str] = None) -> Optional[Dict[str, An
     return loader.get_active_config(config_path)
 
 
-def get_protection_settings(environment: Optional[str] = None) -> Dict[str, Any]:
+def get_protection_settings(environment: str | None = None) -> dict[str, Any]:
     """
     Get protection settings for an environment.
 
@@ -564,20 +568,21 @@ def get_protection_settings(environment: Optional[str] = None) -> Dict[str, Any]
     return loader.get_protection_config(environment)
 
 
-def resolve_standard_file(standard_name: str, environment: Optional[str] = None) -> str:
+def resolve_contract_file(contract_name: str, environment: str | None = None) -> str:
     """
-    Resolve standard name to file path.
+    Resolve contract name to file path.
 
     Args:
-        standard_name: Name of standard
+        contract_name: Name of contract
         environment: Environment to use
 
     Returns:
-        Full path to standard file
+        Full path to contract file
     """
     loader = ConfigurationLoader()
-    return loader.resolve_standard_path(standard_name, environment)
+    return loader.resolve_contract_path(contract_name, environment)
 
 
 # Backward compatibility alias
 ConfigManager = ConfigurationLoader
+# @ADRI_FEATURE_END[config_loader]

@@ -144,13 +144,13 @@ This ensures relative path resolution works correctly in both CLI and decorator 
    ```python
    generator = StandardGenerator()
    cli_standard = generator.generate(data=df, data_name='invoice_data')
-   # Save to cli_env/ADRI/dev/standards/invoice_data.yaml
+   # Save to cli_env/ADRI/dev/contracts/invoice_data.yaml
    ```
    Uses the same StandardGenerator that CLI uses internally.
 
 3. **Decorator Path**
    ```python
-   @adri_protected(standard='invoice_data')
+   @adri_protected(contract='invoice_data')
    def process_data(data):
        return data
 

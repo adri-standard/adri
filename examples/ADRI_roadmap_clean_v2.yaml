@@ -1,0 +1,572 @@
+# ADRI v2.0 Enhanced Standard Example
+# Roadmap Project Analysis with Field Categories and Derivation Rules
+
+standards:
+  id: roadmap_clean_standard_v2
+  name: Roadmap Clean ADRI Standard v2
+  version: 2.0.0
+  authority: ADRI Framework
+  description: |
+    Enhanced standard demonstrating field categories and derivation rules.
+    Shows distinction between AI decision fields, AI narrative fields, and standard fields.
+
+requirements:
+  overall_minimum: 100.0
+  strict_schema_match: true
+
+  field_requirements:
+    # =========================================================================
+    # STANDARD FIELDS - Regular data fields without special AI reasoning
+    # =========================================================================
+    
+    project_id:
+      type: float
+      field_category: standard
+      mandatory: true
+      constraints:
+        - type: min_value
+          value: 984.0
+        - type: max_value
+          value: 1052.0
+      validation_rules:
+        - name: project_id is required
+          dimension: completeness
+          severity: CRITICAL
+          rule_type: not_null
+        - name: project_id type validation
+          dimension: validity
+          severity: CRITICAL
+          rule_type: type
+          rule_expression: IS_FLOAT
+        - name: project_id numeric bounds
+          dimension: validity
+          severity: CRITICAL
+          rule_type: numeric_bounds
+          rule_expression: VALUE >= 984.0 AND VALUE <= 1052.0
+    
+    project_name:
+      type: string
+      field_category: standard
+      mandatory: true
+      constraints:
+        - type: min_length
+          value: 16
+        - type: max_length
+          value: 34
+      validation_rules:
+        - name: project_name is required
+          dimension: completeness
+          severity: CRITICAL
+          rule_type: not_null
+        - name: project_name length bounds
+          dimension: validity
+          severity: CRITICAL
+          rule_type: length_bounds
+          rule_expression: LENGTH >= 16 AND LENGTH <= 34
+    
+    priority_order:
+      type: float
+      field_category: standard
+      mandatory: true
+      constraints:
+        - type: min_value
+          value: -0.5
+        - type: max_value
+          value: 3.5
+      validation_rules:
+        - name: priority_order is required
+          dimension: completeness
+          severity: CRITICAL
+          rule_type: not_null
+        - name: priority_order numeric bounds
+          dimension: validity
+          severity: CRITICAL
+          rule_type: numeric_bounds
+          rule_expression: VALUE >= -0.5 AND VALUE <= 3.5
+    
+    project_status:
+      type: string
+      field_category: standard
+      mandatory: true
+      constraints:
+        - type: allowed_values
+          values: ["In Progress", "Not Started", "At Risk", "Waiting"]
+        - type: min_length
+          value: 7
+        - type: max_length
+          value: 11
+      validation_rules:
+        - name: project_status is required
+          dimension: completeness
+          severity: CRITICAL
+          rule_type: not_null
+        - name: project_status must be valid value
+          dimension: validity
+          severity: CRITICAL
+          rule_type: allowed_values
+          rule_expression: VALUE_IN(['In Progress', 'Not Started', 'At Risk', 'Waiting'])
+    
+    start_date:
+      type: date
+      field_category: standard
+      mandatory: true
+      constraints:
+        - type: after_date
+          value: "2024-08-29"
+        - type: before_date
+          value: "2024-11-04"
+      validation_rules:
+        - name: start_date is required
+          dimension: completeness
+          severity: CRITICAL
+          rule_type: not_null
+        - name: start_date date bounds
+          dimension: validity
+          severity: CRITICAL
+          rule_type: date_bounds
+          rule_expression: DATE >= '2024-08-29' AND DATE <= '2024-11-04'
+    
+    end_date:
+      type: date
+      field_category: standard
+      mandatory: true
+      constraints:
+        - type: after_date
+          value: "2024-09-27"
+        - type: before_date
+          value: "2025-02-02"
+      validation_rules:
+        - name: end_date is required
+          dimension: completeness
+          severity: CRITICAL
+          rule_type: not_null
+        - name: end_date date bounds
+          dimension: validity
+          severity: CRITICAL
+          rule_type: date_bounds
+          rule_expression: DATE >= '2024-09-27' AND DATE <= '2025-02-02'
+    
+    manager_owner:
+      type: string
+      field_category: standard
+      mandatory: true
+      constraints:
+        - type: allowed_values
+          values: ["Aaron", "Katie", "Mark (Ops)", "Mark Kavanagh", "Sandra"]
+        - type: min_length
+          value: 5
+        - type: max_length
+          value: 13
+      validation_rules:
+        - name: manager_owner is required
+          dimension: completeness
+          severity: CRITICAL
+          rule_type: not_null
+        - name: manager_owner must be valid value
+          dimension: validity
+          severity: CRITICAL
+          rule_type: allowed_values
+    
+    notes:
+      type: string
+      field_category: standard
+      mandatory: true
+      constraints:
+        - type: min_length
+          value: 57
+        - type: max_length
+          value: 78
+      validation_rules:
+        - name: notes is required
+          dimension: completeness
+          severity: CRITICAL
+          rule_type: not_null
+        - name: notes length bounds
+          dimension: validity
+          severity: CRITICAL
+          rule_type: length_bounds
+    
+    # =========================================================================
+    # AI DECISION FIELDS - Enum/calculated fields with deterministic logic
+    # =========================================================================
+    
+    RISK_LEVEL:
+      type: string
+      field_category: ai_decision
+      mandatory: true
+      constraints:
+        - type: allowed_values
+          values: ["Critical", "High", "Medium", "Low"]
+      derivation:
+        strategy: ordered_precedence
+        inputs: [priority_order, project_status]
+        rules:
+          - precedence: 1
+            condition: "priority_order = 1 AND project_status = 'At Risk'"
+            value: "Critical"
+            note: "Highest priority project explicitly flagged at risk"
+          - precedence: 2
+            condition: "priority_order = 1 OR project_status = 'At Risk'"
+            value: "High"
+            note: "Top priority project OR project flagged at risk"
+          - precedence: 3
+            condition: "project_status = 'In Progress' AND priority_order >= 2"
+            value: "Medium"
+            note: "Active project with priority 2-3"
+          - precedence: 4
+            is_default: true
+            value: "Low"
+            note: "Not started, waiting, or low priority projects"
+        metadata:
+          auto_generated: false
+          confidence: high
+          note: "Manually defined business rules for risk classification"
+      validation_rules:
+        - name: RISK_LEVEL is required
+          dimension: completeness
+          severity: CRITICAL
+          rule_type: not_null
+        - name: RISK_LEVEL must be valid value
+          dimension: validity
+          severity: CRITICAL
+          rule_type: allowed_values
+          rule_expression: VALUE_IN(['Critical', 'High', 'Medium', 'Low'])
+    
+    TIMELINE_STATUS:
+      type: string
+      field_category: ai_decision
+      mandatory: true
+      constraints:
+        - type: allowed_values
+          values: ["At Risk", "On Track"]
+      derivation:
+        strategy: direct_mapping
+        source_field: project_status
+        mappings:
+          "At Risk": "At Risk"
+          "*": "On Track"
+        metadata:
+          auto_generated: false
+          confidence: high
+          note: "Direct 1:1 mapping with wildcard catch-all"
+      validation_rules:
+        - name: TIMELINE_STATUS is required
+          dimension: completeness
+          severity: CRITICAL
+          rule_type: not_null
+        - name: TIMELINE_STATUS must be valid value
+          dimension: validity
+          severity: CRITICAL
+          rule_type: allowed_values
+          rule_expression: VALUE_IN(['At Risk', 'On Track'])
+    
+    HEALTH_SCORE:
+      type: integer
+      field_category: ai_decision
+      mandatory: true
+      constraints:
+        - type: min_value
+          value: 0
+        - type: max_value
+          value: 100
+      derivation:
+        strategy: explicit_lookup
+        inputs: [TIMELINE_STATUS, priority_order]
+        lookup_table:
+          - keys: {TIMELINE_STATUS: "On Track", priority_order: 1}
+            value: 100
+            note: "Optimal health - On Track with Priority 1"
+          - keys: {TIMELINE_STATUS: "On Track", priority_order: 2}
+            value: 95
+            note: "Strong health - On Track with Priority 2"
+          - keys: {TIMELINE_STATUS: "On Track", priority_order: 3}
+            value: 90
+            note: "Good health - On Track with Priority 3"
+          - keys: {TIMELINE_STATUS: "At Risk", priority_order: 1}
+            value: 60
+            note: "Moderate concern - At Risk with Priority 1"
+          - keys: {TIMELINE_STATUS: "At Risk", priority_order: 2}
+            value: 55
+            note: "Elevated concern - At Risk with Priority 2"
+          - keys: {TIMELINE_STATUS: "At Risk", priority_order: 3}
+            value: 50
+            note: "High concern - At Risk with Priority 3"
+          - is_default: true
+            value: 50
+            note: "Default fallback score"
+        metadata:
+          auto_generated: false
+          confidence: high
+          note: "Lookup table based on timeline status and priority"
+      validation_rules:
+        - name: HEALTH_SCORE is required
+          dimension: completeness
+          severity: CRITICAL
+          rule_type: not_null
+        - name: HEALTH_SCORE must be valid value
+          dimension: validity
+          severity: CRITICAL
+          rule_type: allowed_values
+          rule_expression: VALUE_IN([100, 95, 90, 60, 55, 50])
+        - name: HEALTH_SCORE bounds
+          dimension: validity
+          severity: CRITICAL
+          rule_type: numeric_bounds
+          rule_expression: VALUE >= 0 AND VALUE <= 100
+    
+    # =========================================================================
+    # AI NARRATIVE FIELDS - Free-form text with semantic variation allowed
+    # =========================================================================
+    
+    RISK_RATIONALE:
+      type: string
+      field_category: ai_narrative
+      mandatory: true
+      constraints:
+        - type: min_length
+          value: 20
+        - type: max_length
+          value: 500
+      reasoning_guidance: |
+        Explain the specific risk factors for this project based on available data.
+        
+        Consider:
+        - Priority level and timeline status
+        - Information from the NOTES field
+        - Resource constraints or dependencies
+        - Budget concerns if applicable
+        
+        Template: "Project shows [RISK_LEVEL] risk due to [specific factors]. [Additional context]."
+        
+        Example: "Project shows High risk due to priority 1 classification and critical deadline. 
+        Resource allocation needs immediate review to prevent delays."
+      validation_rules:
+        - name: RISK_RATIONALE is required
+          dimension: completeness
+          severity: CRITICAL
+          rule_type: not_null
+        - name: RISK_RATIONALE length
+          dimension: validity
+          severity: CRITICAL
+          rule_type: length_bounds
+          rule_expression: LENGTH >= 20 AND LENGTH <= 500
+    
+    TIMELINE_RATIONALE:
+      type: string
+      field_category: ai_narrative
+      mandatory: true
+      constraints:
+        - type: min_length
+          value: 20
+        - type: max_length
+          value: 500
+      reasoning_guidance: |
+        Explain the timeline status assessment for this project.
+        
+        Consider:
+        - Current project_status value
+        - Start and end dates
+        - Progress indicators from NOTES
+        - Expected vs actual progress
+        
+        Template: "Project is [TIMELINE_STATUS] with [progress details]. [Key factors]. [Expected delivery]."
+        
+        Example: "Project is On Track with steady progress through Q4. All milestones met on schedule. 
+        Expected completion by end date with no blockers identified."
+      validation_rules:
+        - name: TIMELINE_RATIONALE is required
+          dimension: completeness
+          severity: CRITICAL
+          rule_type: not_null
+        - name: TIMELINE_RATIONALE length
+          dimension: validity
+          severity: CRITICAL
+          rule_type: length_bounds
+          rule_expression: LENGTH >= 20 AND LENGTH <= 500
+    
+    HEALTH_RATIONALE:
+      type: string
+      field_category: ai_narrative
+      mandatory: true
+      constraints:
+        - type: min_length
+          value: 20
+        - type: max_length
+          value: 500
+      reasoning_guidance: |
+        Explain the overall health score calculation and assessment.
+        
+        Consider:
+        - HEALTH_SCORE value and what it represents
+        - Timeline, priority, and status factors
+        - Budget performance if mentioned in NOTES
+        - Team performance and stakeholder engagement
+        
+        Template: "Health score of [HEALTH_SCORE] reflects [primary factors]. [Details]. [Stakeholder status]."
+        
+        Example: "Health score of 95 reflects strong on-track status with priority 2 classification. 
+        Budget within 5% of target. Stakeholders actively engaged with positive feedback."
+      validation_rules:
+        - name: HEALTH_RATIONALE is required
+          dimension: completeness
+          severity: CRITICAL
+          rule_type: not_null
+        - name: HEALTH_RATIONALE length
+          dimension: validity
+          severity: CRITICAL
+          rule_type: length_bounds
+          rule_expression: LENGTH >= 20 AND LENGTH <= 500
+    
+    AI_STATUS_SUMMARY:
+      type: string
+      field_category: ai_narrative
+      mandatory: true
+      constraints:
+        - type: min_length
+          value: 50
+        - type: max_length
+          value: 300
+      reasoning_guidance: |
+        Provide a concise executive summary of the project status.
+        
+        Focus on:
+        - Current status and trajectory
+        - Key achievements or challenges
+        - Critical action items if any
+        - Overall confidence in delivery
+        
+        This should be scannable by executives - emphasize the most important information.
+        
+        Example: "Project progressing well with 65% completion. Key milestone of API integration 
+        achieved ahead of schedule. Minor budget overrun (8%) offset by timeline gains. 
+        On track for Q1 delivery with medium confidence."
+      validation_rules:
+        - name: AI_STATUS_SUMMARY is required
+          dimension: completeness
+          severity: CRITICAL
+          rule_type: not_null
+        - name: AI_STATUS_SUMMARY length
+          dimension: validity
+          severity: CRITICAL
+          rule_type: length_bounds
+          rule_expression: LENGTH >= 50 AND LENGTH <= 300
+    
+    AI_RISK_FACTORS:
+      type: array
+      field_category: ai_narrative
+      mandatory: true
+      constraints:
+        - type: min_items
+          value: 1
+      reasoning_guidance: |
+        Extract specific risk factors from the available project data (especially NOTES field).
+        
+        Format as short phrases (5-15 words each).
+        Each factor should be actionable and specific.
+        
+        Examples:
+        - "Resource shortage in Q4 due to competing priorities"
+        - "Dependency on external vendor with history of delays"
+        - "Budget overrun risk from scope creep"
+        - "Key stakeholder availability limited"
+        
+        Provide 1-5 factors, prioritized by severity.
+      validation_rules:
+        - name: AI_RISK_FACTORS is required
+          dimension: completeness
+          severity: CRITICAL
+          rule_type: not_null
+        - name: AI_RISK_FACTORS must have items
+          dimension: completeness
+          severity: CRITICAL
+          rule_type: min_items
+          rule_expression: COUNT >= 1
+    
+    AI_RECOMMENDATIONS:
+      type: array
+      field_category: ai_narrative
+      mandatory: true
+      constraints:
+        - type: min_items
+          value: 1
+      reasoning_guidance: |
+        Based on RISK_LEVEL, TIMELINE_STATUS, and project data, provide actionable recommendations.
+        
+        Format as short action statements (5-15 words each).
+        Each recommendation should be specific and measurable.
+        
+        Examples:
+        - "Schedule weekly status reviews with stakeholders"
+        - "Allocate additional developer resource for Q4"
+        - "Review and prioritize feature backlog to reduce scope"
+        - "Engage vendor management for dependency tracking"
+        
+        Provide 1-5 recommendations, prioritized by impact.
+      validation_rules:
+        - name: AI_RECOMMENDATIONS is required
+          dimension: completeness
+          severity: CRITICAL
+          rule_type: not_null
+        - name: AI_RECOMMENDATIONS must have items
+          dimension: completeness
+          severity: CRITICAL
+          rule_type: min_items
+          rule_expression: COUNT >= 1
+
+  dimension_requirements:
+    validity:
+      minimum_score: 15.0
+      weight: 1.0
+    completeness:
+      minimum_score: 15.0
+      weight: 1.0
+    consistency:
+      minimum_score: 12.0
+      weight: 1.0
+
+metadata:
+  version_history:
+    - version: 2.0.0
+      date: 2025-01-11
+      changes: |
+        - Added explicit field_category to all fields
+        - Converted AI decision fields (RISK_LEVEL, TIMELINE_STATUS, HEALTH_SCORE) to use derivation rules
+        - Added reasoning_guidance to AI narrative fields
+        - Separated derivation logic from field definitions
+        - Maintained all existing validation rules
+      migration_notes: |
+        This v2 format is functionally equivalent to v1 but with explicit field categories.
+        AI decision fields now have testable derivation logic.
+        AI narrative fields can vary semantically without triggering divergence alerts.
+  
+  field_category_summary:
+    standard_fields: 8
+    ai_decision_fields: 3
+    ai_narrative_fields: 5
+    total_fields: 16
+  
+  usage_notes: |
+    This enhanced standard demonstrates ADRI v2.0 capabilities:
+    
+    1. Standard Fields (project_id, project_name, etc.):
+       - Regular validation applies
+       - Included in divergence testing
+       - No special AI reasoning behavior
+    
+    2. AI Decision Fields (RISK_LEVEL, TIMELINE_STATUS, HEALTH_SCORE):
+       - Have deterministic derivation rules
+       - Full semantic validation (must match allowed values)
+       - Included in divergence testing (should be consistent)
+       - Derivation logic can be used by Veroplay to generate prompts
+    
+    3. AI Narrative Fields (RISK_RATIONALE, AI_STATUS_SUMMARY, etc.):
+       - Free-form text with reasoning guidance
+       - Only structural validation (length constraints)
+       - EXCLUDED from divergence testing (semantic variation allowed)
+       - Guidance used by Veroplay to instruct AI on content
+    
+    This structure enables:
+    - Reliable AI decision making (deterministic outputs)
+    - Flexible AI reasoning (variable explanations)
+    - Accurate divergence detection (only test decision fields)
+    - Self-documenting standards (derivation rules are explicit)

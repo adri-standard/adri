@@ -1,0 +1,184 @@
+name: Sync to Open Source
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'src/adri/**'
+      - 'tests/open_source/**'
+      - 'tests/shared/**'
+      - 'tests/conftest.py'
+      - 'tests/test_decorator.py'
+  workflow_dispatch:
+
+jobs:
+  extract-and-sync:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Enterprise Repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+          pip install pytest pytest-cov
+      
+      - name: Test Enterprise Code
+        run: |
+          echo "Running enterprise test suite..."
+          python -m pytest tests/test_decorator.py tests/enterprise/ -v --tb=short
+          
+          if [ $? -ne 0 ]; then
+            echo "Enterprise tests failed - aborting sync"
+            exit 1
+          fi
+          
+          echo "✓ All enterprise tests passed"
+      
+      - name: Extract Open Source Code
+        run: |
+          python scripts/extract_opensource.py --output /tmp/adri-opensource
+      
+      - name: Check Extraction Status
+        run: |
+          if [ ! -f /tmp/adri-opensource/SYNC_REPORT.md ]; then
+            echo "Extraction failed - no sync report generated"
+            exit 1
+          fi
+          
+          # Check if validation passed
+          if grep -q "FAILED" /tmp/adri-opensource/SYNC_REPORT.md; then
+            echo "Validation failed - enterprise code detected"
+            cat /tmp/adri-opensource/SYNC_REPORT.md
+            exit 1
+          fi
+          
+          echo "Extraction validated successfully"
+      
+      - name: Test Extracted Open Source Code
+        run: |
+          echo "Running open source test suite on extracted code..."
+          cd /tmp/adri-opensource
+          
+          # Install dependencies for standalone open source package
+          python -m pip install -e .
+          
+          # Run open source tests
+          python -m pytest tests/test_decorator.py -v --tb=short
+          
+          if [ $? -ne 0 ]; then
+            echo "Open source tests failed in extracted code - aborting sync"
+            exit 1
+          fi
+          
+          echo "✓ All open source tests passed in extracted code"
+          
+          # Return to enterprise repo directory
+          cd -
+      
+      - name: Checkout Open Source Repo
+        uses: actions/checkout@v4
+        with:
+          repository: adri-standard/adri
+          token: ${{ secrets.OPENSOURCE_SYNC_TOKEN }}
+          path: opensource-repo
+      
+      - name: Sync Changes
+        run: |
+          # Copy extracted code to open source repo
+          rm -rf opensource-repo/src/adri
+          cp -r /tmp/adri-opensource/src/adri opensource-repo/src/
+          
+          # Copy tests
+          rm -rf opensource-repo/tests/open_source
+          rm -rf opensource-repo/tests/shared
+          cp -r /tmp/adri-opensource/tests/open_source opensource-repo/tests/ || true
+          cp -r /tmp/adri-opensource/tests/shared opensource-repo/tests/ || true
+          cp /tmp/adri-opensource/tests/conftest.py opensource-repo/tests/ || true
+          cp /tmp/adri-opensource/tests/test_decorator.py opensource-repo/tests/ || true
+          
+          # Copy supporting files
+          cp /tmp/adri-opensource/README.md opensource-repo/
+          cp /tmp/adri-opensource/LICENSE opensource-repo/
+          cp /tmp/adri-opensource/CHANGELOG.md opensource-repo/
+          cp /tmp/adri-opensource/pyproject.toml opensource-repo/
+      
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.OPENSOURCE_SYNC_TOKEN }}
+          path: opensource-repo
+          commit-message: |
+            sync: Update from enterprise repo
+            
+            Automated sync from enterprise repository
+            Enterprise commit: ${{ github.sha }}
+          branch: sync/${{ github.run_number }}
+          title: 'Sync: Update from Enterprise (${{ github.sha }})'
+          body: |
+            ## Automated Sync from Enterprise Repository
+            
+            This PR synchronizes changes from the enterprise repository to the open source repository.
+            
+            **Enterprise Commit:** ${{ github.sha }}
+            **Triggered By:** ${{ github.actor }}
+            **Workflow Run:** ${{ github.run_number }}
+            
+            ### Pre-Sync Testing ✅
+            
+            The following tests were executed before creating this PR:
+            
+            **1. Enterprise Test Suite**
+            - Ran all enterprise tests (decorator + enterprise features)
+            - Status: ✅ PASSED
+            - Ensures enterprise code is stable before extraction
+            
+            **2. Code Extraction**
+            - Extracted `src/adri/` directory wholesale
+            - Copied open source and shared tests
+            - Generated validation report
+            
+            **3. Extraction Validation**
+            - ✅ No enterprise imports detected
+            - ✅ Python syntax validated
+            - ✅ All files validated successfully
+            
+            **4. Open Source Test Suite**
+            - Ran extracted code in isolation
+            - Tested standalone open source package
+            - Status: ✅ PASSED
+            - Ensures open source code works independently
+            
+            ### Extraction Report
+            
+            See attached SYNC_REPORT.md for detailed statistics.
+            
+            ### Manual Verification (Optional)
+            
+            The code has been pre-tested, but you can run additional tests:
+            ```bash
+            pytest tests/
+            ```
+            
+            ### Ready to Merge
+            
+            This PR has passed all automated checks and is ready for review and merge.
+          labels: |
+            sync
+            automated
+      
+      - name: Upload Sync Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: sync-report
+          path: /tmp/adri-opensource/SYNC_REPORT.md

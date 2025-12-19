@@ -1,0 +1,51 @@
+name: Validate Feature Markers
+
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+  push:
+    branches:
+      - main
+      - develop
+
+jobs:
+  validate-markers:
+    name: Validate ADRI Feature Markers
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyyaml
+      
+      - name: Validate markers
+        run: |
+          python scripts/validate_markers.py
+      
+      - name: Check registry is up-to-date
+        run: |
+          python scripts/generate_feature_registry.py
+          # Ignore timestamp line (Last Generated) when comparing
+          if ! git diff --exit-code -I'^\*\*Last Generated:\*\*' FEATURE_REGISTRY.md; then
+            echo "ERROR: FEATURE_REGISTRY.md is out of date!"
+            echo "Please run: python scripts/generate_feature_registry.py"
+            echo "Then commit the updated FEATURE_REGISTRY.md"
+            exit 1
+          fi
+      
+      - name: Report validation success
+        if: success()
+        run: |
+          echo "✅ All feature markers are valid!"
+          echo "✅ Feature registry is up-to-date!"

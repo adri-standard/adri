@@ -186,8 +186,8 @@ class TestConfigPrecedence:
             "adri": {
                 "default_environment": "development",
                 "environments": {
-                    "development": {"paths": {"standards": "./dev/standards"}},
-                    "production": {"paths": {"standards": "./prod/standards"}},
+                    "development": {"paths": {"contracts": "./dev/contracts"}},
+                    "production": {"paths": {"contracts": "./prod/contracts"}},
                 },
             }
         }
@@ -201,20 +201,20 @@ class TestConfigPrecedence:
             del os.environ["ADRI_ENV"]
 
     def test_adri_standards_dir_overrides_config(self):
-        """Verify ADRI_STANDARDS_DIR overrides config paths."""
+        """Verify ADRI_CONTRACTS_DIR overrides config paths."""
         loader = ConfigurationLoader()
 
         with tempfile.TemporaryDirectory() as tmpdir:
-            os.environ["ADRI_STANDARDS_DIR"] = tmpdir
+            os.environ["ADRI_CONTRACTS_DIR"] = tmpdir
             try:
-                path = loader.resolve_standard_path("test_standard")
+                path = loader.resolve_contract_path("test_standard")
                 # Normalize paths to handle Windows short path vs long path names
                 normalized_tmpdir = os.path.normpath(os.path.realpath(tmpdir))
                 normalized_path = os.path.normpath(os.path.realpath(path))
-                assert normalized_tmpdir in normalized_path, "ADRI_STANDARDS_DIR should override config"
+                assert normalized_tmpdir in normalized_path, "ADRI_CONTRACTS_DIR should override config"
                 assert path.endswith("test_standard.yaml")
             finally:
-                del os.environ["ADRI_STANDARDS_DIR"]
+                del os.environ["ADRI_CONTRACTS_DIR"]
 
     def test_adri_log_dir_enables_audit_logging(self):
         """Verify ADRI_LOG_DIR enables audit logging in DataQualityAssessor."""

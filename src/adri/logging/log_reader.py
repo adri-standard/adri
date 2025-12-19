@@ -11,8 +11,9 @@ The reader supports:
 """
 
 import json
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, TypedDict
+from typing import Any, TypedDict
 
 
 class AssessmentLogRecord(TypedDict):
@@ -33,7 +34,7 @@ class AssessmentLogRecord(TypedDict):
     standard_path: str
     data_row_count: int
     data_column_count: int
-    data_columns: List[str]
+    data_columns: list[str]
     data_checksum: str
     overall_score: float
     required_score: float
@@ -58,7 +59,7 @@ class DimensionScoreRecord(TypedDict):
     dimension_score: float
     dimension_passed: bool
     issues_found: int
-    details: Dict[str, Any]
+    details: dict[str, Any]
     write_seq: int
 
 
@@ -72,7 +73,7 @@ class FailedValidationRecord(TypedDict):
     issue_type: str
     affected_rows: int
     affected_percentage: float
-    sample_failures: List[Any]
+    sample_failures: list[Any]
     remediation: str
     write_seq: int
 
@@ -110,7 +111,7 @@ class ADRILogReader:
     Thread-safety: This class is read-only and thread-safe for concurrent reads.
     """
 
-    def __init__(self, config: Dict[str, Any]) -> None:
+    def __init__(self, config: dict[str, Any]) -> None:
         """Initialize log reader with configuration.
 
         Args:
@@ -129,9 +130,9 @@ class ADRILogReader:
 
     def read_assessment_logs(
         self,
-        limit: Optional[int] = None,
-        filter_fn: Optional[Callable[[AssessmentLogRecord], bool]] = None,
-    ) -> List[AssessmentLogRecord]:
+        limit: int | None = None,
+        filter_fn: Callable[[AssessmentLogRecord], bool] | None = None,
+    ) -> list[AssessmentLogRecord]:
         """Read assessment log records from JSONL file.
 
         Reads the assessment log file line by line, parsing each line as JSON.
@@ -157,10 +158,10 @@ class ADRILogReader:
         if not self.assessment_log_path.exists():
             return []
 
-        records: List[AssessmentLogRecord] = []
+        records: list[AssessmentLogRecord] = []
 
         try:
-            with open(self.assessment_log_path, "r", encoding="utf-8") as f:
+            with open(self.assessment_log_path, encoding="utf-8") as f:
                 for line_num, line in enumerate(f, 1):
                     line = line.strip()
                     if not line:
@@ -195,7 +196,7 @@ class ADRILogReader:
 
         return records
 
-    def read_dimension_scores(self, assessment_id: str) -> List[DimensionScoreRecord]:
+    def read_dimension_scores(self, assessment_id: str) -> list[DimensionScoreRecord]:
         """Read dimension scores for a specific assessment.
 
         Args:
@@ -208,10 +209,10 @@ class ADRILogReader:
         if not self.dimension_score_path.exists():
             return []
 
-        records: List[DimensionScoreRecord] = []
+        records: list[DimensionScoreRecord] = []
 
         try:
-            with open(self.dimension_score_path, "r", encoding="utf-8") as f:
+            with open(self.dimension_score_path, encoding="utf-8") as f:
                 for line_num, line in enumerate(f, 1):
                     line = line.strip()
                     if not line:
@@ -241,7 +242,7 @@ class ADRILogReader:
 
     def read_failed_validations(
         self, assessment_id: str
-    ) -> List[FailedValidationRecord]:
+    ) -> list[FailedValidationRecord]:
         """Read failed validations for a specific assessment.
 
         Args:
@@ -254,10 +255,10 @@ class ADRILogReader:
         if not self.failed_validation_path.exists():
             return []
 
-        records: List[FailedValidationRecord] = []
+        records: list[FailedValidationRecord] = []
 
         try:
-            with open(self.failed_validation_path, "r", encoding="utf-8") as f:
+            with open(self.failed_validation_path, encoding="utf-8") as f:
                 for line_num, line in enumerate(f, 1):
                     line = line.strip()
                     if not line:
@@ -285,7 +286,7 @@ class ADRILogReader:
 
         return records
 
-    def get_latest_assessments(self, limit: int = 10) -> List[AssessmentLogRecord]:
+    def get_latest_assessments(self, limit: int = 10) -> list[AssessmentLogRecord]:
         """Get N most recent assessments.
 
         Convenience method to get the most recent assessments sorted by
@@ -308,7 +309,7 @@ class ADRILogReader:
 
     # Workflow Orchestration Methods
 
-    def get_latest_assessment_id(self) -> Optional[str]:
+    def get_latest_assessment_id(self) -> str | None:
         """Get the most recent assessment ID.
 
         Used by workflow engines to quickly access the ID of the most
@@ -329,7 +330,7 @@ class ADRILogReader:
             return latest[0]["assessment_id"]
         return None
 
-    def get_assessments_since(self, timestamp: str) -> List[AssessmentLogRecord]:
+    def get_assessments_since(self, timestamp: str) -> list[AssessmentLogRecord]:
         """Get assessments after a given timestamp.
 
         Used by workflow engines to retrieve assessments that occurred
@@ -356,9 +357,7 @@ class ADRILogReader:
             filter_fn=lambda r: r.get("timestamp", "") > timestamp
         )
 
-    def read_assessment_by_id(
-        self, assessment_id: str
-    ) -> Optional[AssessmentLogRecord]:
+    def read_assessment_by_id(self, assessment_id: str) -> AssessmentLogRecord | None:
         """Get full assessment details by ID.
 
         Used by workflow engines to retrieve complete information about

@@ -1,0 +1,325 @@
+contracts:
+  id: adri_reasoning_prompts
+  name: ADRI Reasoning Prompts Standard
+  version: 1.0.0
+  authority: ADRI Framework
+  description: Standard for validating ADRI reasoning prompts JSONL structure and content
+record_identification:
+  primary_key_fields:
+  - prompt_id
+  strategy: primary_key_with_fallback
+requirements:
+  overall_minimum: 95.0
+  field_requirements:
+    prompt_id:
+      type: string
+      nullable: false
+      pattern: ^prompt_\d{8}_\d{6}_[a-f0-9]+$
+      description: Unique prompt identifier
+      validation_rules:
+      - name: prompt_id is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: prompt_id must not be empty
+      - name: prompt_id type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: prompt_id must be of type string
+      - name: prompt_id pattern validation
+        dimension: validity
+        severity: WARNING
+        rule_type: pattern
+        rule_expression: REGEX_MATCH('^prompt_\d{8}_\d{6}_[a-f0-9]+$')
+        error_message: 'prompt_id must match pattern: ^prompt_\d{8}_\d{6}_[a-f0-9]+$'
+    assessment_id:
+      type: string
+      nullable: false
+      pattern: ^adri_\d{8}_\d{6}_[a-f0-9]+$
+      description: Associated assessment identifier
+      validation_rules:
+      - name: assessment_id is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: assessment_id must not be empty
+      - name: assessment_id type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: assessment_id must be of type string
+      - name: assessment_id pattern validation
+        dimension: validity
+        severity: WARNING
+        rule_type: pattern
+        rule_expression: REGEX_MATCH('^adri_\d{8}_\d{6}_[a-f0-9]+$')
+        error_message: 'assessment_id must match pattern: ^adri_\d{8}_\d{6}_[a-f0-9]+$'
+    run_id:
+      type: string
+      nullable: false
+      description: Run identifier for workflow tracking
+      validation_rules:
+      - name: run_id is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: run_id must not be empty
+      - name: run_id type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: run_id must be of type string
+    step_id:
+      type: string
+      nullable: false
+      description: Step identifier in reasoning workflow
+      validation_rules:
+      - name: step_id is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: step_id must not be empty
+      - name: step_id type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: step_id must be of type string
+    prompt_hash:
+      type: string
+      nullable: false
+      pattern: ^[a-f0-9]{16}$
+      description: SHA-256 hash (first 16 chars) of prompt content
+      validation_rules:
+      - name: prompt_hash is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: prompt_hash must not be empty
+      - name: prompt_hash type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: prompt_hash must be of type string
+      - name: prompt_hash pattern validation
+        dimension: validity
+        severity: WARNING
+        rule_type: pattern
+        rule_expression: REGEX_MATCH('^[a-f0-9]{16}$')
+        error_message: 'prompt_hash must match pattern: ^[a-f0-9]{16}$'
+    model:
+      type: string
+      nullable: false
+      description: LLM model identifier (e.g., 'claude-3-5-sonnet', 'gpt-4')
+      validation_rules:
+      - name: model is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: model must not be empty
+      - name: model type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: model must be of type string
+    temperature:
+      type: float
+      nullable: false
+      min_value: 0.0
+      max_value: 2.0
+      description: Temperature parameter for LLM sampling
+      validation_rules:
+      - name: temperature is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: temperature must not be empty
+      - name: temperature type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_FLOAT
+        error_message: temperature must be of type float
+      - name: temperature numeric bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: numeric_bounds
+        rule_expression: VALUE >= 0.0 AND VALUE <= 2.0
+        error_message: temperature must be between 0.0 and 2.0
+    seed:
+      type: integer
+      nullable: true
+      min_value: 0
+      description: Random seed for reproducibility (optional)
+      validation_rules:
+      - name: seed type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_INTEGER
+        error_message: seed must be of type integer
+      - name: seed numeric bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: numeric_bounds
+        rule_expression: VALUE >= 0
+        error_message: seed must be between 0 and None
+    max_tokens:
+      type: integer
+      nullable: true
+      min_value: 1
+      description: Maximum tokens in response (optional)
+      validation_rules:
+      - name: max_tokens type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_INTEGER
+        error_message: max_tokens must be of type integer
+      - name: max_tokens numeric bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: numeric_bounds
+        rule_expression: VALUE >= 1
+        error_message: max_tokens must be between 1 and None
+    system_prompt:
+      type: string
+      nullable: false
+      description: System/instruction prompt text
+      validation_rules:
+      - name: system_prompt is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: system_prompt must not be empty
+      - name: system_prompt type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: system_prompt must be of type string
+    user_prompt:
+      type: string
+      nullable: false
+      description: User/context prompt text
+      validation_rules:
+      - name: user_prompt is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: user_prompt must not be empty
+      - name: user_prompt type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: user_prompt must be of type string
+    timestamp:
+      type: string
+      nullable: false
+      pattern: ^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+$
+      description: ISO 8601 timestamp of prompt creation
+      validation_rules:
+      - name: timestamp is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: timestamp must not be empty
+      - name: timestamp type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: timestamp must be of type string
+      - name: timestamp pattern validation
+        dimension: validity
+        severity: WARNING
+        rule_type: pattern
+        rule_expression: REGEX_MATCH('^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+$')
+        error_message: 'timestamp must match pattern: ^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+$'
+  dimension_requirements:
+    validity:
+      minimum_score: 19.0
+      weight: 1.0
+      scoring:
+        rule_weights:
+          data_types: 1.0
+          value_ranges: 1.0
+        field_overrides: {}
+    completeness:
+      minimum_score: 19.0
+      weight: 1.0
+      scoring:
+        rule_weights:
+          required_fields: 1.0
+        field_overrides: {}
+    consistency:
+      minimum_score: 19.0
+      weight: 1.0
+      scoring:
+        rule_weights:
+          field_consistency: 1.0
+        field_overrides: {}
+    freshness:
+      minimum_score: 18.0
+      weight: 1.0
+      scoring:
+        rule_weights:
+          timestamp_validity: 1.0
+        field_overrides: {}
+    plausibility:
+      minimum_score: 18.0
+      weight: 1.0
+      scoring:
+        rule_weights:
+          hash_format: 1.0
+          id_patterns: 1.0
+        field_overrides: {}
+metadata:
+  purpose: Validation of ADRI reasoning prompt logging
+  usage: 'This standard validates that ADRI reasoning prompts JSONL files contain:
+
+    1. All required prompt tracking fields with correct types
+
+    2. Valid identifiers and timestamps
+
+    3. Proper LLM configuration parameters
+
+    4. Complete prompt content (system and user)
+
+    5. Cryptographic hashes for content verification
+
+    '
+  validation_notes: '- prompt_id must follow pattern: prompt_YYYYMMDD_HHMMSS_hexhash
+
+    - assessment_id links to main ADRI assessment log
+
+    - prompt_hash is SHA-256 truncated to 16 hex characters
+
+    - temperature must be in typical range 0.0-2.0
+
+    - seed and max_tokens are optional (may be empty)
+
+    - timestamp must be valid ISO 8601 format
+
+    - system_prompt and user_prompt must not be empty
+
+    '
+  created_by: ADRI Framework
+  created_date: 2025-06-10

@@ -18,7 +18,7 @@ import pytest
 from pathlib import Path
 
 from src.adri.decorator import adri_protected
-from src.adri.analysis.standard_generator import StandardGenerator
+from src.adri.analysis.contract_generator import ContractGenerator
 from tests.fixtures.parity_helpers import (
     compare_standards,
     compare_assessment_logs,
@@ -36,7 +36,7 @@ class TestStandardGenerationParity:
         Verify CLI and Decorator generate identical standards from clean training data.
 
         This test:
-        1. Generates standard via StandardGenerator API (used by both CLI and Decorator)
+        1. Generates standard via ContractGenerator API (used by both CLI and Decorator)
         2. Generates standard via Decorator auto-generation
         3. Compares both standards are identical
         """
@@ -49,10 +49,11 @@ class TestStandardGenerationParity:
         df = pd.read_csv(training_data_path)
 
         # 1. Generate via Python API (same as CLI uses)
+        os.environ.pop('ADRI_CONTRACTS_DIR', None)  # Let config file take precedence
         os.environ['ADRI_CONFIG_PATH'] = str(cli_env['config'])
         os.environ['ADRI_ENV'] = 'development'
 
-        generator = StandardGenerator()
+        generator = ContractGenerator()
         cli_standard_dict = generator.generate(
             data=df,
             data_name='invoice_data',
@@ -60,12 +61,13 @@ class TestStandardGenerationParity:
         )
 
         # Save CLI standard
-        cli_standard_path = cli_env['standards_dir'] / 'invoice_data.yaml'
+        cli_standard_path = cli_env['contracts_dir'] / 'invoice_data.yaml'
         import yaml
         with open(cli_standard_path, 'w', encoding='utf-8') as f:
             yaml.dump(cli_standard_dict, f, default_flow_style=False, sort_keys=False)
 
         # 2. Generate via Decorator auto-generation
+        os.environ.pop('ADRI_CONTRACTS_DIR', None)  # Let config file take precedence
         os.environ['ADRI_CONFIG_PATH'] = str(dec_env['config'])
         os.environ['ADRI_ENV'] = 'development'
 
@@ -75,7 +77,7 @@ class TestStandardGenerationParity:
         try:
             os_module.chdir(dec_env['base_path'])
 
-            @adri_protected(standard='invoice_data')
+            @adri_protected(contract='invoice_data')
             def process_data(data):
                 return data
 
@@ -84,7 +86,7 @@ class TestStandardGenerationParity:
         finally:
             os_module.chdir(original_cwd)
 
-        dec_standard_path = dec_env['standards_dir'] / 'invoice_data.yaml'
+        dec_standard_path = dec_env['contracts_dir'] / 'invoice_data.yaml'
 
         # 3. Compare standards
         assert cli_standard_path.exists(), "CLI standard not created"
@@ -112,12 +114,14 @@ class TestAssessmentParity:
 
         # Copy standard to environment
         standard_source = invoice_scenario['standard_path']
-        standard_dest = env['standards_dir'] / 'invoice_data.yaml'
+        standard_dest = env['contracts_dir'] / 'invoice_data.yaml'
         copy_standard(standard_source, standard_dest)
 
         # Configure environment
+        os.environ.pop('ADRI_CONTRACTS_DIR', None)  # Let config file take precedence
         os.environ['ADRI_CONFIG_PATH'] = str(env['config'])
         os.environ['ADRI_ENV'] = 'development'
+        os.environ['ADRI_LOG_DIR'] = str(env['logs_dir'])  # Enable audit logging
 
         # Change to environment directory for path resolution
         import os as os_module
@@ -126,7 +130,7 @@ class TestAssessmentParity:
             os_module.chdir(env['base_path'])
 
             # Assess via Decorator
-            @adri_protected(standard='invoice_data', on_failure='warn')
+            @adri_protected(contract='invoice_data', on_failure='warn')
             def process_data(data):
                 return data
 
@@ -162,12 +166,14 @@ class TestAssessmentParity:
 
         # Copy standard to environment
         standard_source = invoice_scenario['standard_path']
-        standard_dest = env['standards_dir'] / 'invoice_data.yaml'
+        standard_dest = env['contracts_dir'] / 'invoice_data.yaml'
         copy_standard(standard_source, standard_dest)
 
         # Configure environment
+        os.environ.pop('ADRI_CONTRACTS_DIR', None)  # Let config file take precedence
         os.environ['ADRI_CONFIG_PATH'] = str(env['config'])
         os.environ['ADRI_ENV'] = 'development'
+        os.environ['ADRI_LOG_DIR'] = str(env['logs_dir'])  # Enable audit logging
 
         # Change to environment directory for path resolution
         import os as os_module
@@ -176,7 +182,7 @@ class TestAssessmentParity:
             os_module.chdir(env['base_path'])
 
             # Assess via Decorator (use warn mode to allow processing)
-            @adri_protected(standard='invoice_data', on_failure='warn')
+            @adri_protected(contract='invoice_data', on_failure='warn')
             def process_data(data):
                 return data
 
@@ -218,18 +224,20 @@ class TestStandardPathConsistency:
         # Setup isolated environment
         env = setup_isolated_environment(tmp_path / "path_consistency")
 
-        # Copy a known standard to the dev/standards directory
+        # Copy a known standard to the dev/contracts directory
         standard_source = invoice_scenario['standard_path']
         standard_name = 'invoice_data.yaml'
-        standard_dest = env['standards_dir'] / standard_name
+        standard_dest = env['contracts_dir'] / standard_name
         copy_standard(standard_source, standard_dest)
 
         # Get the expected standard path from config (absolute path)
         config_standard_path = standard_dest.resolve()
 
         # Configure environment
+        os.environ.pop('ADRI_CONTRACTS_DIR', None)  # Let config file take precedence
         os.environ['ADRI_CONFIG_PATH'] = str(env['config'])
         os.environ['ADRI_ENV'] = 'development'
+        os.environ['ADRI_LOG_DIR'] = str(env['logs_dir'])  # Enable audit logging
 
         # Load test data
         training_data_path = invoice_scenario['training_data_path']
@@ -242,7 +250,7 @@ class TestStandardPathConsistency:
         try:
             os_module.chdir(env['base_path'])
 
-            @adri_protected(standard='invoice_data', on_failure='warn')
+            @adri_protected(contract='invoice_data', on_failure='warn')
             def process_with_decorator(data):
                 return data
 
@@ -370,18 +378,19 @@ class TestEndToEndParity:
         df = pd.read_csv(training_data_path)
 
         # === CLI PATH ===
+        os.environ.pop('ADRI_CONTRACTS_DIR', None)  # Let config file take precedence
         os.environ['ADRI_CONFIG_PATH'] = str(cli_env['config'])
         os.environ['ADRI_ENV'] = 'development'
 
         # Step 1: Generate standard
-        generator = StandardGenerator()
+        generator = ContractGenerator()
         cli_standard_dict = generator.generate(
             data=df,
             data_name='invoice_data',
             generation_config={'overall_minimum': 75.0}
         )
 
-        cli_standard_path = cli_env['standards_dir'] / 'invoice_data.yaml'
+        cli_standard_path = cli_env['contracts_dir'] / 'invoice_data.yaml'
         import yaml
         with open(cli_standard_path, 'w', encoding='utf-8') as f:
             yaml.dump(cli_standard_dict, f, default_flow_style=False, sort_keys=False)
@@ -399,8 +408,10 @@ class TestEndToEndParity:
         cli_result = assessor.assess(df, str(cli_standard_path))
 
         # === DECORATOR PATH ===
+        os.environ.pop('ADRI_CONTRACTS_DIR', None)  # Let config file take precedence
         os.environ['ADRI_CONFIG_PATH'] = str(dec_env['config'])
         os.environ['ADRI_ENV'] = 'development'
+        os.environ['ADRI_LOG_DIR'] = str(dec_env['logs_dir'])  # Enable audit logging
 
         # Change to environment directory for path resolution
         import os as os_module
@@ -409,7 +420,7 @@ class TestEndToEndParity:
             os_module.chdir(dec_env['base_path'])
 
             # Step 1 & 2 combined: Auto-generate + assess
-            @adri_protected(standard='invoice_data', on_failure='warn')
+            @adri_protected(contract='invoice_data', on_failure='warn')
             def process_data(data):
                 return data
 
@@ -417,7 +428,7 @@ class TestEndToEndParity:
         finally:
             os_module.chdir(original_cwd)
 
-        dec_standard_path = dec_env['standards_dir'] / 'invoice_data.yaml'
+        dec_standard_path = dec_env['contracts_dir'] / 'invoice_data.yaml'
 
         # === COMPARE RESULTS ===
         # Compare standards
@@ -444,18 +455,19 @@ class TestEndToEndParity:
         df = pd.read_csv(test_data_path)
 
         # === CLI PATH ===
+        os.environ.pop('ADRI_CONTRACTS_DIR', None)  # Let config file take precedence
         os.environ['ADRI_CONFIG_PATH'] = str(cli_env['config'])
         os.environ['ADRI_ENV'] = 'development'
 
         # Step 1: Generate standard
-        generator = StandardGenerator()
+        generator = ContractGenerator()
         cli_standard_dict = generator.generate(
             data=df,
             data_name='test_invoice_data',
             generation_config={'overall_minimum': 75.0}
         )
 
-        cli_standard_path = cli_env['standards_dir'] / 'test_invoice_data.yaml'
+        cli_standard_path = cli_env['contracts_dir'] / 'test_invoice_data.yaml'
         import yaml
         with open(cli_standard_path, 'w', encoding='utf-8') as f:
             yaml.dump(cli_standard_dict, f, default_flow_style=False, sort_keys=False)
@@ -473,8 +485,10 @@ class TestEndToEndParity:
         cli_result = assessor.assess(df, str(cli_standard_path))
 
         # === DECORATOR PATH ===
+        os.environ.pop('ADRI_CONTRACTS_DIR', None)  # Let config file take precedence
         os.environ['ADRI_CONFIG_PATH'] = str(dec_env['config'])
         os.environ['ADRI_ENV'] = 'development'
+        os.environ['ADRI_LOG_DIR'] = str(dec_env['logs_dir'])  # Enable audit logging
 
         # Change to environment directory for path resolution
         import os as os_module
@@ -483,7 +497,7 @@ class TestEndToEndParity:
             os_module.chdir(dec_env['base_path'])
 
             # Step 1 & 2 combined: Auto-generate + assess
-            @adri_protected(standard='test_invoice_data', on_failure='warn')
+            @adri_protected(contract='test_invoice_data', on_failure='warn')
             def process_data(data):
                 return data
 
@@ -491,7 +505,7 @@ class TestEndToEndParity:
         finally:
             os_module.chdir(original_cwd)
 
-        dec_standard_path = dec_env['standards_dir'] / 'test_invoice_data.yaml'
+        dec_standard_path = dec_env['contracts_dir'] / 'test_invoice_data.yaml'
 
         # === COMPARE RESULTS ===
         # Compare standards

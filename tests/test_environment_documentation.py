@@ -146,9 +146,9 @@ class TestEnvironmentDocumentation(unittest.TestCase):
 
                 # Development environment purpose documentation
                 dev_purposes = [
-                    "Standard creation, testing, and experimentation",
-                    "Creating new data quality standards",
-                    "Testing standards against various datasets",
+                    "Contract creation, testing, and experimentation",
+                    "Creating new data quality contracts",
+                    "Testing contracts against various datasets",
                     "tutorial data",
                 ]
 
@@ -159,8 +159,8 @@ class TestEnvironmentDocumentation(unittest.TestCase):
 
                 # Production environment purpose documentation
                 prod_purposes = [
-                    "Validated standards and production data quality",
-                    "Deploying proven standards",
+                    "Validated contracts and production data quality",
+                    "Deploying proven contracts",
                     "Enterprise governance",
                     "CI/CD pipelines",
                 ]
@@ -189,9 +189,9 @@ class TestEnvironmentDocumentation(unittest.TestCase):
                 # Check for workflow steps
                 workflow_steps = [
                     "Production Workflow:",
-                    "Create and test standards in development",
-                    "Validate standards with various test datasets",
-                    "Copy proven standards from dev/standards/",
+                    "Create and test contracts in development",
+                    "Validate contracts with various test datasets",
+                    "Copy proven contracts from dev/contracts/",
                     "Switch to production environment",
                     "Monitor production audit logs",
                 ]
@@ -221,7 +221,7 @@ class TestEnvironmentDocumentation(unittest.TestCase):
                 directory_docs = [
                     "Directory Structure Created:",
                     "tutorials/",
-                    "standards/",
+                    "contracts/",
                     "assessments/",
                     "training-data/",
                     "audit-logs/",
@@ -282,11 +282,11 @@ class TestEnvironmentDocumentation(unittest.TestCase):
 
                 # Check for path explanations
                 path_explanations = [
-                    "YAML standard files are stored (quality validation rules)",
+                    "YAML contract files are stored (quality validation rules)",
                     "assessment reports are saved (JSON quality reports)",
                     "training data snapshots are preserved (SHA256 integrity tracking)",
                     "audit logs are stored (CSV activity tracking)",
-                    "Production-validated YAML standards",
+                    "Production-validated YAML contracts",
                     "business-critical quality reports",
                     "regulatory compliance tracking",
                     "compliance and security logging",
@@ -370,7 +370,7 @@ class TestConfigurationValidation(unittest.TestCase):
                 paths = env_config["paths"]
 
                 # Verify all required path types exist
-                required_paths = ["standards", "assessments", "training_data", "audit_logs"]
+                required_paths = ["contracts", "assessments", "training_data", "audit_logs"]
                 for path_type in required_paths:
                     self.assertIn(path_type, paths,
                         f"Missing {path_type} path in {env_name}")
@@ -492,11 +492,11 @@ class TestHelpGuideEnvironmentInformation(unittest.TestCase):
         # Check for directory structure explanations
         directory_explanations = [
             "tutorials/",
-            "dev/standards/",
+            "dev/contracts/",
             "dev/assessments/",
             "dev/training-data/",
             "dev/audit-logs/",
-            "prod/standards/",
+            "prod/contracts/",
             "prod/assessments/",
             "prod/training-data/",
             "prod/audit-logs/",
@@ -554,7 +554,7 @@ class TestShowConfigEnvironmentDisplay(unittest.TestCase):
             environment_indicators = [
                 "Development Environment:",
                 "Production Environment:",
-                "standards:",
+                "contracts:",
                 "assessments:",
                 "training_data:",
                 "audit_logs:",
@@ -660,27 +660,27 @@ class TestEnvironmentDocumentationIntegration(unittest.TestCase):
         result = adri_cli.setup_command(force=True, project_name="workflow_test")
         self.assertEqual(result, 0)
 
-        # Test step: "Copy proven standards from dev/standards/ to prod/standards/"
-        dev_standards = Path("ADRI/dev/standards")
-        prod_standards = Path("ADRI/prod/standards")
+        # Test step: "Copy proven contracts from dev/contracts/ to prod/contracts/"
+        dev_contracts = Path("ADRI/dev/contracts")
+        prod_contracts = Path("ADRI/prod/contracts")
 
         # Both directories should exist as documented
-        self.assertTrue(dev_standards.exists())
-        self.assertTrue(prod_standards.exists())
+        self.assertTrue(dev_contracts.exists())
+        self.assertTrue(prod_contracts.exists())
 
-        # Create test standard in dev
-        test_standard = dev_standards / "test_standard.yaml"
-        standard_content = {"standards": {"name": "Test Standard"}}
-        with open(test_standard, 'w', encoding='utf-8') as f:
-            yaml.dump(standard_content, f)
+        # Create test contract in dev
+        test_contract = dev_contracts / "test_contract.yaml"
+        contract_content = {"contracts": {"name": "Test Contract"}}
+        with open(test_contract, 'w', encoding='utf-8') as f:
+            yaml.dump(contract_content, f)
 
         # Copy to prod as documented workflow recommends
         import shutil
-        shutil.copy2(test_standard, prod_standards / "test_standard.yaml")
+        shutil.copy2(test_contract, prod_contracts / "test_contract.yaml")
 
         # Verify workflow step completed successfully
-        prod_standard = prod_standards / "test_standard.yaml"
-        self.assertTrue(prod_standard.exists())
+        prod_contract = prod_contracts / "test_contract.yaml"
+        self.assertTrue(prod_contract.exists())
 
 
 class TestDocumentationConsistency(unittest.TestCase):
@@ -728,7 +728,7 @@ class TestDocumentationConsistency(unittest.TestCase):
         common_concepts = [
             "dev/",
             "prod/",
-            "standards",
+            "contracts",
             "assessments",
             "training-data",
             "audit-logs",

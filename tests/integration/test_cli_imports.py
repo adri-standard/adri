@@ -87,12 +87,12 @@ class TestCLIImportValidation:
         # Test all command class imports
         from src.adri.cli.commands.setup import SetupCommand
         from src.adri.cli.commands.assess import AssessCommand
-        from src.adri.cli.commands.generate_standard import GenerateStandardCommand
+        from src.adri.cli.commands.generate_contract import GenerateContractCommand
         from src.adri.cli.commands.config import (
-            ValidateStandardCommand,
-            ListStandardsCommand,
+            ValidateContractCommand,
+            ListContractsCommand,
             ShowConfigCommand,
-            ShowStandardCommand
+            ShowContractCommand
         )
         from src.adri.cli.commands.list_assessments import ListAssessmentsCommand
         from src.adri.cli.commands.view_logs import ViewLogsCommand
@@ -126,14 +126,14 @@ class TestCLIImportValidation:
 
         from src.adri.cli.commands.setup import SetupCommand
         from src.adri.cli.commands.assess import AssessCommand
-        from src.adri.cli.commands.generate_standard import GenerateStandardCommand
-        from src.adri.cli.commands.config import ValidateStandardCommand, ShowConfigCommand
+        from src.adri.cli.commands.generate_contract import GenerateContractCommand
+        from src.adri.cli.commands.config import ValidateContractCommand, ShowConfigCommand
 
         commands = [
             SetupCommand(),
             AssessCommand(),
-            GenerateStandardCommand(),
-            ValidateStandardCommand(),
+            GenerateContractCommand(),
+            ValidateContractCommand(),
             ShowConfigCommand()
         ]
 

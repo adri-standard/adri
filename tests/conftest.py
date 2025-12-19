@@ -23,11 +23,12 @@ sys.path.insert(0, str(src_path))
 from tests.quality_framework import QualityFramework, ComponentTester, quality_framework
 from tests.fixtures.modern_fixtures import *  # Import all modern fixtures
 from tests.fixtures.tutorial_scenarios import tutorial_project, invoice_scenario  # Import tutorial fixtures
+from tests.fixtures.standards_cache_cleanup import clear_standards_cache  # Import cache cleanup fixture
 
 # Set up modern test environment
 os.environ["ADRI_ENV"] = "TEST"
 os.environ["ADRI_LOG_LEVEL"] = "DEBUG"
-os.environ["ADRI_STANDARDS_PATH"] = str(Path(__file__).parent / "fixtures" / "standards")
+os.environ["ADRI_CONTRACTS_DIR"] = str(Path(__file__).parent / "fixtures" / "standards")  # Single unified standards directory
 os.environ["ADRI_COVERAGE_TARGET"] = "80"  # Production coverage target
 
 
@@ -228,7 +229,7 @@ def clean_adri_env_vars():
     preserved_vars = {
         'ADRI_ENV': os.environ.get('ADRI_ENV'),
         'ADRI_LOG_LEVEL': os.environ.get('ADRI_LOG_LEVEL'),
-        'ADRI_STANDARDS_PATH': os.environ.get('ADRI_STANDARDS_PATH'),
+        'ADRI_CONTRACTS_DIR': os.environ.get('ADRI_CONTRACTS_DIR'),
         'ADRI_COVERAGE_TARGET': os.environ.get('ADRI_COVERAGE_TARGET'),
     }
 
@@ -302,7 +303,7 @@ def assert_quality_target_met(component_name: str, metrics: Dict[str, float]):
 def create_minimal_standard(name: str = "test") -> Dict[str, Any]:
     """Create a minimal valid ADRI standard."""
     return {
-        "standards": {
+        "contracts": {
             "id": f"{name}_standard",
             "name": f"{name.title()} Standard",
             "version": "1.0.0",

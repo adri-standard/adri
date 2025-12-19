@@ -27,7 +27,12 @@ class TestIssue35ActualData:
         return Path(__file__).parent.parent / "fixtures" / "issue_35_test_standard.yaml"
 
     def test_direct_assessment_with_bug_data(self, bug_data_path, bug_standard_path):
-        """Test direct assessment with bug report data and standard."""
+        """Test direct assessment with bug report data and standard.
+        
+        Note: This test uses intentionally mismatched data (project fields) against
+        a standard expecting customer fields. The new stricter schema validation
+        correctly rejects this with 0% field match.
+        """
 
         # Load data
         data = pd.read_csv(bug_data_path)
@@ -39,47 +44,25 @@ class TestIssue35ActualData:
         print(f"Data columns: {list(data.columns)}")
         print(f"Standard: {bug_standard_path}")
 
-        # Capture diagnostic output
-        import io
-        old_stderr = sys.stderr
-        sys.stderr = io.StringIO()
-
-        try:
-            assessor = DataQualityAssessor()
-            result = assessor.assess(data, str(bug_standard_path))
-
-            diagnostic_output = sys.stderr.getvalue()
-        finally:
-            sys.stderr = old_stderr
-
-        # Print diagnostic output
+        # The standard has customer fields (customer_id, email, age, etc.)
+        # but data contains project fields (project_id, project_name, client, kpi, business_function)
+        # The new stricter schema validation correctly rejects 0% field match
+        assessor = DataQualityAssessor()
+        
+        with pytest.raises(ValueError) as exc_info:
+            assessor.assess(data, str(bug_standard_path))
+        
+        # Verify the error message indicates schema validation failure
+        error_message = str(exc_info.value)
+        assert "Schema validation failed" in error_message or "field match" in error_message.lower()
+        
         print(f"\n{'='*80}")
-        print("DIAGNOSTIC OUTPUT")
+        print("EXPECTED BEHAVIOR: Schema validation correctly rejected mismatched fields")
+        print(f"Error: {error_message}")
         print(f"{'='*80}")
-        print(diagnostic_output)
-
-        # Print results
-        print(f"\n{'='*80}")
-        print("ASSESSMENT RESULTS")
-        print(f"{'='*80}")
-        print(f"Overall Score: {result.overall_score:.2f}/100")
-        print(f"Passed: {result.passed}")
-        print(f"\nDimension Scores:")
-        for dim, score_obj in result.dimension_scores.items():
-            score = score_obj.score if hasattr(score_obj, 'score') else score_obj
-            print(f"  {dim}: {score:.2f}/20")
-
-        if hasattr(result, 'metadata') and result.metadata:
-            if 'applied_dimension_weights' in result.metadata:
-                print(f"\nApplied Weights: {result.metadata['applied_dimension_weights']}")
-
-        print(f"\n{'='*80}")
-
-        # The bug report mentions the standard has customer fields but data has project fields
-        # This field mismatch should cause validation failures
         print(f"\nNote: Standard defines customer fields (customer_id, email, age, etc.)")
         print(f"      but data contains project fields ({', '.join(data.columns)})")
-        print(f"      This mismatch should affect validity scoring.")
+        print(f"      The stricter schema validation now correctly rejects 0% field match.")
 
 
 if __name__ == "__main__":

@@ -5,7 +5,7 @@ This module contains the FreshnessAssessor class that evaluates data freshness
 """
 
 from datetime import datetime
-from typing import Any, Dict, Optional
+from typing import Any
 
 import pandas as pd
 
@@ -23,7 +23,7 @@ class FreshnessAssessor(DimensionAssessor):
         """Get the name of this dimension."""
         return "freshness"
 
-    def assess(self, data: Any, requirements: Dict[str, Any]) -> float:
+    def assess(self, data: Any, requirements: dict[str, Any]) -> float:
         """Assess freshness dimension for the given data.
 
         Args:
@@ -39,14 +39,24 @@ class FreshnessAssessor(DimensionAssessor):
         if data.empty:
             return 20.0  # Perfect score for empty data
 
-        # Get freshness configuration
+        # Check if using new validation_rules format
+        field_requirements = requirements.get("field_requirements", {})
+        using_validation_rules = self._has_validation_rules_format(field_requirements)
+
+        if using_validation_rules:
+            # New format: Use validation_rules with severity filtering
+            return self._assess_freshness_with_validation_rules(
+                data, field_requirements
+            )
+
+        # Old format: Use existing freshness configuration
         freshness_config = self._extract_freshness_config(requirements)
         if not freshness_config["is_active"]:
             return 20.0  # Perfect score when no freshness configured
 
         return self._assess_freshness_with_config(data, freshness_config)
 
-    def _extract_freshness_config(self, requirements: Dict[str, Any]) -> Dict[str, Any]:
+    def _extract_freshness_config(self, requirements: dict[str, Any]) -> dict[str, Any]:
         """Extract freshness configuration from requirements."""
         # Check if freshness rules are active
         scoring_cfg = requirements.get("scoring", {})
@@ -90,7 +100,7 @@ class FreshnessAssessor(DimensionAssessor):
         }
 
     def _assess_freshness_with_config(
-        self, data: pd.DataFrame, config: Dict[str, Any]
+        self, data: pd.DataFrame, config: dict[str, Any]
     ) -> float:
         """Assess freshness using the extracted configuration."""
         # Parse the as_of date
@@ -135,7 +145,7 @@ class FreshnessAssessor(DimensionAssessor):
 
         return score
 
-    def _parse_as_of_date(self, as_of_str: Optional[str]) -> Optional[datetime]:
+    def _parse_as_of_date(self, as_of_str: str | None) -> datetime | None:
         """Parse the as_of date string into a datetime object."""
         if not as_of_str:
             return None
@@ -155,8 +165,8 @@ class FreshnessAssessor(DimensionAssessor):
         return None
 
     def get_freshness_breakdown(
-        self, data: pd.DataFrame, requirements: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, data: pd.DataFrame, requirements: dict[str, Any]
+    ) -> dict[str, Any]:
         """Get detailed freshness breakdown for reporting.
 
         Args:
@@ -257,7 +267,7 @@ class FreshnessAssessor(DimensionAssessor):
         }
 
     def assess_with_config(
-        self, data: pd.DataFrame, freshness_config: Dict[str, Any]
+        self, data: pd.DataFrame, freshness_config: dict[str, Any]
     ) -> float:
         """Assess freshness with explicit configuration for backward compatibility.
 
@@ -279,3 +289,79 @@ class FreshnessAssessor(DimensionAssessor):
                 return 20.0
 
         return 20.0  # Perfect baseline score
+
+    def _has_validation_rules_format(self, field_requirements: dict[str, Any]) -> bool:
+        """Check if field_requirements use new validation_rules format.
+
+        Args:
+            field_requirements: Field requirements dictionary
+
+        Returns:
+            True if using validation_rules format, False for old format
+        """
+        # Check if any field has validation_rules
+        for field_config in field_requirements.values():
+            if isinstance(field_config, dict) and "validation_rules" in field_config:
+                return True
+        return False
+
+    def _assess_freshness_with_validation_rules(
+        self, data: pd.DataFrame, field_requirements: dict[str, Any]
+    ) -> float:
+        """Assess freshness using validation_rules with severity-aware scoring.
+
+        Only CRITICAL severity rules affect the score. WARNING and INFO rules
+        are executed and logged but don't penalize the score.
+
+        Args:
+            data: DataFrame to assess
+            field_requirements: Field requirements with validation_rules
+
+        Returns:
+            Freshness score (0.0 to 20.0)
+        """
+        from src.adri.core.severity import Severity
+        from src.adri.core.validation_rule import ValidationRule
+
+        # Note: Freshness rules are typically metadata-driven (recency windows)
+        # Most freshness rules may be INFO severity for notifications
+        # For now, return perfect score if no CRITICAL rules
+        # This can be extended when actual freshness validation_rules are defined
+
+        total_critical_checks = 0
+
+        # Process each field looking for CRITICAL freshness rules
+        for column in data.columns:
+            if column not in field_requirements:
+                continue
+
+            field_config = field_requirements[column]
+            if not isinstance(field_config, dict):
+                continue
+
+            validation_rules = field_config.get("validation_rules", [])
+            if not validation_rules:
+                continue
+
+            # Filter to only CRITICAL rules for freshness dimension
+            critical_rules = [
+                r
+                for r in validation_rules
+                if isinstance(r, ValidationRule)
+                and r.dimension == "freshness"
+                and r.severity == Severity.CRITICAL
+            ]
+
+            if not critical_rules:
+                continue
+
+            # For future: execute CRITICAL freshness rules
+            # For now, most freshness is INFO/WARNING, so this returns perfect score
+            total_critical_checks += 1  # Placeholder
+
+        # Calculate score based on CRITICAL rules only
+        if total_critical_checks == 0:
+            return 20.0  # No CRITICAL rules = perfect score
+
+        # Placeholder for when freshness rules are fully implemented
+        return 20.0

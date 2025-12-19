@@ -14,10 +14,11 @@ This module provides dataset-agnostic inference helpers:
 from __future__ import annotations
 
 import re
+from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from itertools import combinations
-from typing import Any, Iterable, List, Optional, Sequence, Tuple
+from typing import Any
 
 import pandas as pd
 
@@ -32,7 +33,8 @@ class InferenceConfig:
     enum_max_unique: int = 30
     enum_min_coverage: float = 0.95  # fraction of total rows covered by non-null values
     range_margin_pct: float = (
-        0.10  # widen numeric range by +/- margin% of range (used when range_strategy='span')
+        # widen numeric range by +/- margin% of range (used when range_strategy='span')
+        0.10
     )
     date_margin_days: int = 3  # widen date bounds by +/- this many days
     nullable_zero_is_required: bool = True
@@ -57,7 +59,7 @@ class InferenceConfig:
 # -----------------------------
 def infer_allowed_values(
     series: pd.Series, max_unique: int, min_coverage: float
-) -> Optional[List[Any]]:
+) -> list[Any] | None:
     """
     Infer an allowed_values set (enumeration) for a series.
 
@@ -71,7 +73,8 @@ def infer_allowed_values(
     if total_rows == 0 or non_null_count == 0:
         return None
 
-    # Bail out if any unhashable types present (e.g., dicts) to avoid "unhashable type" errors
+    # Bail out if any unhashable types present (e.g., dicts) to avoid
+    # "unhashable type" errors
     try:
         for v in non_null:
             hash(v)
@@ -90,14 +93,15 @@ def infer_allowed_values(
     if unique_count <= max_unique and coverage >= min_coverage:
         # Convert numpy types to native Python for YAML-friendliness
         vals = [v.item() if hasattr(v, "item") else v for v in unique_vals]
-        # Keep original order of appearance (unique() in pandas preserves order since 0.24)
+        # Keep original order of appearance (unique() in pandas preserves order
+        # since 0.24)
         return list(vals)
     return None
 
 
 def infer_allowed_values_tolerant(
     series: pd.Series, min_coverage: float, top_k: int, max_unique: int
-) -> Optional[List[Any]]:
+) -> list[Any] | None:
     """
     Tolerant enum inference:
     - pick top-K most frequent values whose cumulative coverage >= min_coverage
@@ -118,7 +122,7 @@ def infer_allowed_values_tolerant(
 
     vc = non_null.value_counts(dropna=False)
     cumulative = 0
-    selected: List[Any] = []
+    selected: list[Any] = []
     for val, cnt in vc.items():
         selected.append(val.item() if hasattr(val, "item") else val)
         cumulative += cnt
@@ -135,7 +139,7 @@ def infer_allowed_values_tolerant(
 # -----------------------------
 def infer_numeric_range(
     series: pd.Series, margin_pct: float
-) -> Optional[Tuple[float, float]]:
+) -> tuple[float, float] | None:
     """
     Infer numeric min/max, widened outward by +/- margin_pct of the observed span.
     """
@@ -161,7 +165,7 @@ def infer_numeric_range_robust(
     quantile_low: float = 0.005,
     quantile_high: float = 0.995,
     mad_k: float = 3.0,
-) -> Optional[Tuple[float, float]]:
+) -> tuple[float, float] | None:
     """
     Robust range inference options:
     - iqr: [Q1 - iqr_k*IQR, Q3 + iqr_k*IQR]
@@ -211,8 +215,8 @@ def infer_numeric_range_robust(
 # String Length Bounds
 # -----------------------------
 def infer_length_bounds(
-    series: pd.Series, widen: Optional[float] = None
-) -> Optional[Tuple[int, int]]:
+    series: pd.Series, widen: float | None = None
+) -> tuple[int, int] | None:
     """
     Infer string length min/max; optionally widen by a fractional amount (e.g., 0.1 -> +-10%).
     """
@@ -236,7 +240,7 @@ def infer_length_bounds(
 # -----------------------------
 # Regex Pattern Inference
 # -----------------------------
-_CANDIDATE_PATTERNS: List[Tuple[str, re.Pattern]] = [
+_CANDIDATE_PATTERNS: list[tuple[str, re.Pattern]] = [
     ("email", re.compile(r"^[^@]+@[^@]+\.[^@]+$")),
     ("phone", re.compile(r"^[\+]?[0-9\s\-\(\)]+$")),
     ("iso_date", re.compile(r"^\d{4}-\d{2}-\d{2}$")),
@@ -248,7 +252,7 @@ _CANDIDATE_PATTERNS: List[Tuple[str, re.Pattern]] = [
 ]
 
 
-def infer_regex_pattern(series: pd.Series) -> Optional[str]:
+def infer_regex_pattern(series: pd.Series) -> str | None:
     """
     Infer a regex pattern only if 100% of non-null values match the same candidate pattern.
     Uses a small, safe set of known patterns to avoid overfitting.
@@ -268,7 +272,7 @@ def infer_regex_pattern(series: pd.Series) -> Optional[str]:
 # -----------------------------
 # Date Bounds
 # -----------------------------
-def _try_parse_date(val: Any) -> Optional[datetime]:
+def _try_parse_date(val: Any) -> datetime | None:
     """
     Attempt to parse various common date/datetime formats; return None if parsing fails.
     """
@@ -306,7 +310,7 @@ def _try_parse_date(val: Any) -> Optional[datetime]:
     return None
 
 
-def infer_date_bounds(series: pd.Series, margin_days: int) -> Optional[Tuple[str, str]]:
+def infer_date_bounds(series: pd.Series, margin_days: int) -> tuple[str, str] | None:
     """
     Infer min/max date bounds (inclusive) widened by +/- margin_days.
     Returns (after_date_iso, before_date_iso) as ISO date strings (YYYY-MM-DD).
@@ -326,7 +330,7 @@ def infer_date_bounds(series: pd.Series, margin_days: int) -> Optional[Tuple[str
 # -----------------------------
 # Primary Key Detection
 # -----------------------------
-def detect_primary_key(df: pd.DataFrame, max_combo: int = 2) -> List[str]:  # noqa: C901
+def detect_primary_key(df: pd.DataFrame, max_combo: int = 2) -> list[str]:  # noqa: C901
     """
     Detect a minimal primary key with strong heuristics:
     - Prefer a single column that is unique/no-nulls AND name looks identifier-like (id/key/code/number/uuid/guid)
@@ -372,7 +376,7 @@ def detect_primary_key(df: pd.DataFrame, max_combo: int = 2) -> List[str]:  # no
             return False
 
     # Single-column unique candidates
-    unique_cols: List[str] = []
+    unique_cols: list[str] = []
     for col in df.columns:
         s = df[col]
         if not _is_series_hashable(s):
@@ -403,7 +407,7 @@ def detect_primary_key(df: pd.DataFrame, max_combo: int = 2) -> List[str]:  # no
 
     # Try combinations up to max_combo, prefer those including id-like columns
     cols = list(df.columns)
-    best_combo: Optional[List[str]] = None
+    best_combo: list[str] | None = None
     best_score = -1  # number of id-like columns in combo
 
     for k in range(2, max(2, max_combo) + 1):
@@ -428,7 +432,8 @@ def detect_primary_key(df: pd.DataFrame, max_combo: int = 2) -> List[str]:  # no
                 continue
 
             score = sum(1 for c in subset if _is_id_like(c))
-            # Prefer combos with more id-like columns; break ties using shorter combined average length
+            # Prefer combos with more id-like columns; break ties using shorter
+            # combined average length
             if score > best_score:
                 best_combo = subset
                 best_score = score

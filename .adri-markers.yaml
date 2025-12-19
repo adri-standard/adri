@@ -1,0 +1,72 @@
+# ADRI Feature Marker System Configuration
+# This file controls how feature markers are scanned, validated, and synced.
+
+# Scanning configuration
+scan:
+  # File patterns to include when scanning for markers
+  include_patterns:
+    - "src/**/*.py"
+    - "scripts/**/*.py"
+  
+  # File patterns to exclude from scanning
+  exclude_patterns:
+    - "**/__pycache__/**"
+    - "**/node_modules/**"
+    - "**/.egg-info/**"
+    - "**/build/**"
+    - "**/dist/**"
+    - "**/.pytest_cache/**"
+    - "tests/**"  # Tests reference features but don't define them
+    - "docs/**"  # Documentation contains example markers
+    - "*.md"  # Exclude markdown files with example markers
+
+# Feature naming conventions
+feature_naming:
+  # Recommended domain prefixes for feature names
+  domain_prefixes:
+    - core_           # Core shared functionality
+    - cli_            # Command-line interface
+    - api_            # API and remote integrations
+    - auth_           # Authentication and authorization
+    - validator_      # Validation engine
+    - logging_        # Logging systems
+    - contracts_      # Contract management
+    - analysis_       # Analysis and assessment
+    - decorator_      # Decorator functionality
+    - config_         # Configuration management
+  
+  # Default scope suggestions based on prefix
+  # (These are suggestions; actual scope can differ with justification)
+  scope_defaults:
+    core_: SHARED
+    cli_: OPEN_SOURCE
+    api_: ENTERPRISE
+    auth_: ENTERPRISE
+    validator_: OPEN_SOURCE
+    logging_: SHARED
+    contracts_: OPEN_SOURCE
+    analysis_: OPEN_SOURCE
+    decorator_: OPEN_SOURCE
+    config_: SHARED
+
+# Sync to open source repository
+sync:
+  # Path to open source repository (relative or absolute)
+  upstream_repo: ../adri
+  
+  # Default branch to sync to
+  default_branch: main
+  
+  # Prefix for sync commits
+  commit_prefix: "sync: "
+  
+  # Whether to automatically create pull requests
+  create_pr: true
+  
+  # Labels to apply to auto-created PRs
+  pr_labels:
+    - sync
+    - automated
+  
+  # Reviewers to request for PRs
+  pr_reviewers: []

@@ -1,0 +1,955 @@
+contracts:
+  id: marketing_campaign_standard_standard
+  name: Marketing Campaign Standard
+  version: 1.0.0
+  authority: ADRI Framework
+  description: Auto-generated standard for marketing_campaign_standard data
+record_identification:
+  primary_key_fields:
+  - campaign_id
+  strategy: primary_key_with_fallback
+requirements:
+  overall_minimum: 75.0
+  field_requirements:
+    campaign_id:
+      type: string
+      nullable: false
+      min_length: 10
+      max_length: 10
+      pattern: ^[A-Za-z]+-\d{3,}$
+      validation_rules:
+      - name: campaign_id is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: campaign_id must not be empty
+      - name: campaign_id type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: campaign_id must be of type string
+      - name: campaign_id length bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: length_bounds
+        rule_expression: LENGTH >= 10 AND LENGTH <= 10
+        error_message: campaign_id length must be between 10 and 10
+      - name: campaign_id pattern validation
+        dimension: validity
+        severity: WARNING
+        rule_type: pattern
+        rule_expression: REGEX_MATCH('^[A-Za-z]+-\d{3,}$')
+        error_message: 'campaign_id must match pattern: ^[A-Za-z]+-\d{3,}$'
+    campaign_name:
+      type: string
+      nullable: false
+      allowed_values:
+      - Spring Sale 2025
+      min_length: 16
+      max_length: 16
+      validation_rules:
+      - name: campaign_name is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: campaign_name must not be empty
+      - name: campaign_name type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: campaign_name must be of type string
+      - name: campaign_name must be valid value
+        dimension: validity
+        severity: CRITICAL
+        rule_type: allowed_values
+        rule_expression: VALUE_IN(['Spring Sale 2025'])
+        error_message: 'campaign_name must be one of: Spring Sale 2025'
+      - name: campaign_name length bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: length_bounds
+        rule_expression: LENGTH >= 16 AND LENGTH <= 16
+        error_message: campaign_name length must be between 16 and 16
+    start_date:
+      type: date
+      nullable: false
+      after_date: '2025-02-26'
+      before_date: '2025-03-04'
+      validation_rules:
+      - name: start_date is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: start_date must not be empty
+      - name: start_date type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_DATE
+        error_message: start_date must be of type date
+      - name: start_date date bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: date_bounds
+        rule_expression: DATE >= '2025-02-26' AND DATE <= '2025-03-04'
+        error_message: start_date must be within date range
+    end_date:
+      type: date
+      nullable: false
+      after_date: '2025-03-28'
+      before_date: '2025-04-03'
+      validation_rules:
+      - name: end_date is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: end_date must not be empty
+      - name: end_date type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_DATE
+        error_message: end_date must be of type date
+      - name: end_date date bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: date_bounds
+        rule_expression: DATE >= '2025-03-28' AND DATE <= '2025-04-03'
+        error_message: end_date must be within date range
+    campaign_type:
+      type: string
+      nullable: false
+      allowed_values:
+      - Email
+      min_length: 5
+      max_length: 5
+      pattern: ^[A-Za-z0-9\-_]+$
+      validation_rules:
+      - name: campaign_type is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: campaign_type must not be empty
+      - name: campaign_type type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: campaign_type must be of type string
+      - name: campaign_type must be valid value
+        dimension: validity
+        severity: CRITICAL
+        rule_type: allowed_values
+        rule_expression: VALUE_IN(['Email'])
+        error_message: 'campaign_type must be one of: Email'
+      - name: campaign_type length bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: length_bounds
+        rule_expression: LENGTH >= 5 AND LENGTH <= 5
+        error_message: campaign_type length must be between 5 and 5
+      - name: campaign_type pattern validation
+        dimension: validity
+        severity: WARNING
+        rule_type: pattern
+        rule_expression: REGEX_MATCH('^[A-Za-z0-9\-_]+$')
+        error_message: 'campaign_type must match pattern: ^[A-Za-z0-9\-_]+$'
+    campaign_status:
+      type: string
+      nullable: false
+      allowed_values:
+      - Active
+      min_length: 6
+      max_length: 6
+      pattern: ^[A-Za-z0-9\-_]+$
+      validation_rules:
+      - name: campaign_status is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: campaign_status must not be empty
+      - name: campaign_status type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: campaign_status must be of type string
+      - name: campaign_status must be valid value
+        dimension: validity
+        severity: CRITICAL
+        rule_type: allowed_values
+        rule_expression: VALUE_IN(['Active'])
+        error_message: 'campaign_status must be one of: Active'
+      - name: campaign_status length bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: length_bounds
+        rule_expression: LENGTH >= 6 AND LENGTH <= 6
+        error_message: campaign_status length must be between 6 and 6
+      - name: campaign_status pattern validation
+        dimension: validity
+        severity: WARNING
+        rule_type: pattern
+        rule_expression: REGEX_MATCH('^[A-Za-z0-9\-_]+$')
+        error_message: 'campaign_status must match pattern: ^[A-Za-z0-9\-_]+$'
+    budget:
+      type: float
+      nullable: false
+      min_value: 10000.0
+      max_value: 10000.0
+      validation_rules:
+      - name: budget is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: budget must not be empty
+      - name: budget type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_FLOAT
+        error_message: budget must be of type float
+      - name: budget numeric bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: numeric_bounds
+        rule_expression: VALUE >= 10000.0 AND VALUE <= 10000.0
+        error_message: budget must be between 10000.0 and 10000.0
+    spent:
+      type: float
+      nullable: false
+      min_value: 7500.0
+      max_value: 7500.0
+      validation_rules:
+      - name: spent is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: spent must not be empty
+      - name: spent type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_FLOAT
+        error_message: spent must be of type float
+      - name: spent numeric bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: numeric_bounds
+        rule_expression: VALUE >= 7500.0 AND VALUE <= 7500.0
+        error_message: spent must be between 7500.0 and 7500.0
+    impressions:
+      type: float
+      nullable: false
+      min_value: 50000.0
+      max_value: 50000.0
+      validation_rules:
+      - name: impressions is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: impressions must not be empty
+      - name: impressions type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_FLOAT
+        error_message: impressions must be of type float
+      - name: impressions numeric bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: numeric_bounds
+        rule_expression: VALUE >= 50000.0 AND VALUE <= 50000.0
+        error_message: impressions must be between 50000.0 and 50000.0
+    clicks:
+      type: float
+      nullable: false
+      min_value: 2500.0
+      max_value: 2500.0
+      validation_rules:
+      - name: clicks is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: clicks must not be empty
+      - name: clicks type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_FLOAT
+        error_message: clicks must be of type float
+      - name: clicks numeric bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: numeric_bounds
+        rule_expression: VALUE >= 2500.0 AND VALUE <= 2500.0
+        error_message: clicks must be between 2500.0 and 2500.0
+    conversions:
+      type: float
+      nullable: false
+      min_value: 250.0
+      max_value: 250.0
+      validation_rules:
+      - name: conversions is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: conversions must not be empty
+      - name: conversions type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_FLOAT
+        error_message: conversions must be of type float
+      - name: conversions numeric bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: numeric_bounds
+        rule_expression: VALUE >= 250.0 AND VALUE <= 250.0
+        error_message: conversions must be between 250.0 and 250.0
+    revenue:
+      type: float
+      nullable: false
+      min_value: 25000.0
+      max_value: 25000.0
+      validation_rules:
+      - name: revenue is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: revenue must not be empty
+      - name: revenue type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_FLOAT
+        error_message: revenue must be of type float
+      - name: revenue numeric bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: numeric_bounds
+        rule_expression: VALUE >= 25000.0 AND VALUE <= 25000.0
+        error_message: revenue must be between 25000.0 and 25000.0
+    click_through_rate:
+      type: float
+      nullable: false
+      min_value: 5.0
+      max_value: 5.0
+      validation_rules:
+      - name: click_through_rate is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: click_through_rate must not be empty
+      - name: click_through_rate type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_FLOAT
+        error_message: click_through_rate must be of type float
+      - name: click_through_rate numeric bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: numeric_bounds
+        rule_expression: VALUE >= 5.0 AND VALUE <= 5.0
+        error_message: click_through_rate must be between 5.0 and 5.0
+    conversion_rate:
+      type: float
+      nullable: false
+      min_value: 10.0
+      max_value: 10.0
+      validation_rules:
+      - name: conversion_rate is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: conversion_rate must not be empty
+      - name: conversion_rate type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_FLOAT
+        error_message: conversion_rate must be of type float
+      - name: conversion_rate numeric bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: numeric_bounds
+        rule_expression: VALUE >= 10.0 AND VALUE <= 10.0
+        error_message: conversion_rate must be between 10.0 and 10.0
+    cost_per_click:
+      type: float
+      nullable: false
+      min_value: 3.0
+      max_value: 3.0
+      validation_rules:
+      - name: cost_per_click is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: cost_per_click must not be empty
+      - name: cost_per_click type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_FLOAT
+        error_message: cost_per_click must be of type float
+      - name: cost_per_click numeric bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: numeric_bounds
+        rule_expression: VALUE >= 3.0 AND VALUE <= 3.0
+        error_message: cost_per_click must be between 3.0 and 3.0
+    return_on_ad_spend:
+      type: float
+      nullable: false
+      min_value: 3.33
+      max_value: 3.33
+      validation_rules:
+      - name: return_on_ad_spend is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: return_on_ad_spend must not be empty
+      - name: return_on_ad_spend type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_FLOAT
+        error_message: return_on_ad_spend must be of type float
+      - name: return_on_ad_spend numeric bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: numeric_bounds
+        rule_expression: VALUE >= 3.33 AND VALUE <= 3.33
+        error_message: return_on_ad_spend must be between 3.33 and 3.33
+    target_audience:
+      type: string
+      nullable: false
+      allowed_values:
+      - Ages 25-45, Tech-savvy
+      min_length: 22
+      max_length: 22
+      validation_rules:
+      - name: target_audience is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: target_audience must not be empty
+      - name: target_audience type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: target_audience must be of type string
+      - name: target_audience must be valid value
+        dimension: validity
+        severity: CRITICAL
+        rule_type: allowed_values
+        rule_expression: VALUE_IN(['Ages 25-45, Tech-savvy'])
+        error_message: 'target_audience must be one of: Ages 25-45, Tech-savvy'
+      - name: target_audience length bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: length_bounds
+        rule_expression: LENGTH >= 22 AND LENGTH <= 22
+        error_message: target_audience length must be between 22 and 22
+    geographic_region:
+      type: string
+      nullable: false
+      allowed_values:
+      - North America
+      min_length: 13
+      max_length: 13
+      validation_rules:
+      - name: geographic_region is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: geographic_region must not be empty
+      - name: geographic_region type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: geographic_region must be of type string
+      - name: geographic_region must be valid value
+        dimension: validity
+        severity: CRITICAL
+        rule_type: allowed_values
+        rule_expression: VALUE_IN(['North America'])
+        error_message: 'geographic_region must be one of: North America'
+      - name: geographic_region length bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: length_bounds
+        rule_expression: LENGTH >= 13 AND LENGTH <= 13
+        error_message: geographic_region length must be between 13 and 13
+  dimension_requirements:
+    validity:
+      minimum_score: 15.0
+      weight: 1.0
+      scoring:
+        rule_weights:
+          type: 0.4090909090909091
+          length_bounds: 0.13636363636363635
+          pattern: 0.06818181818181818
+          allowed_values: 0.11363636363636363
+          date_bounds: 0.045454545454545456
+          numeric_bounds: 0.22727272727272727
+        field_overrides: {}
+    completeness:
+      minimum_score: 15.0
+      weight: 1.0
+      scoring:
+        rule_weights:
+          missing_required: 0.05263157894736842
+          not_null: 0.9473684210526315
+        field_overrides: {}
+    consistency:
+      minimum_score: 12.0
+      weight: 1.0
+      scoring:
+        rule_weights:
+          primary_key_uniqueness: 0.3333333333333333
+          format_consistency: 0.3333333333333333
+          cross_field_logic: 0.3333333333333333
+        field_overrides: {}
+    freshness:
+      minimum_score: 15.0
+      weight: 1.0
+      scoring:
+        rule_weights:
+          recency_window: 1.0
+        field_overrides: {}
+    plausibility:
+      minimum_score: 12.0
+      weight: 1.0
+      scoring:
+        rule_weights: {}
+        field_overrides: {}
+metadata:
+  explanations_note: Explanations are for human review; only requirements.field_requirements
+    are enforced.
+  explanations_glossary:
+    iqr: 'Interquartile Range (Q3 - Q1): a robust measure of spread, less sensitive
+      to outliers.'
+    q1: 25th percentile of the training values.
+    q3: 75th percentile of the training values.
+    coverage: Share of non-null training values that satisfy the rule.
+    unique_count: Number of distinct non-null values observed in training.
+    mad: 'Median Absolute Deviation: robust measure of variability around the median.'
+    quantile: Statistical measure dividing data into equal-sized intervals.
+    training_pass: Guarantee that generated rules pass on the training data used for
+      generation.
+    enum_strategy: Method used for allowed values inference (coverage or tolerant).
+    margin_days: Buffer added to date ranges to allow for reasonable variations.
+  explanations:
+    campaign_id:
+      type: string
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      length_bounds:
+        active_min: 10
+        active_max: 10
+        stats:
+          observed_min: 10
+          observed_max: 10
+      pattern:
+        regex: ^[A-Za-z]+-\d{3,}$
+        reason: 100% coverage on training non-nulls
+        stats:
+          coverage: 1.0
+    campaign_name:
+      type: string
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      allowed_values:
+        values:
+        - Spring Sale 2025
+        reason: High coverage stable set
+        stats:
+          coverage: 1.0
+          unique_count: 1
+          strategy: coverage
+      length_bounds:
+        active_min: 16
+        active_max: 16
+        stats:
+          observed_min: 16
+          observed_max: 16
+    start_date:
+      type: date
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      date_bounds:
+        active_after: '2025-02-26'
+        active_before: '2025-03-04'
+        reason: Plausible date window widened by margin days
+        stats:
+          observed_min: '2025-03-01'
+          observed_max: '2025-03-01'
+          margin_days: 3
+    end_date:
+      type: date
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      date_bounds:
+        active_after: '2025-03-28'
+        active_before: '2025-04-03'
+        reason: Plausible date window widened by margin days
+        stats:
+          observed_min: '2025-03-31'
+          observed_max: '2025-03-31'
+          margin_days: 3
+    campaign_type:
+      type: string
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      allowed_values:
+        values:
+        - Email
+        reason: High coverage stable set
+        stats:
+          coverage: 1.0
+          unique_count: 1
+          strategy: coverage
+      length_bounds:
+        active_min: 5
+        active_max: 5
+        stats:
+          observed_min: 5
+          observed_max: 5
+      pattern:
+        regex: ^[A-Za-z0-9\-_]+$
+        reason: 100% coverage on training non-nulls
+        stats:
+          coverage: 1.0
+    campaign_status:
+      type: string
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      allowed_values:
+        values:
+        - Active
+        reason: High coverage stable set
+        stats:
+          coverage: 1.0
+          unique_count: 1
+          strategy: coverage
+      length_bounds:
+        active_min: 6
+        active_max: 6
+        stats:
+          observed_min: 6
+          observed_max: 6
+      pattern:
+        regex: ^[A-Za-z0-9\-_]+$
+        reason: 100% coverage on training non-nulls
+        stats:
+          coverage: 1.0
+    budget:
+      type: float
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      range:
+        strategy: iqr
+        active_min: 10000.0
+        active_max: 10000.0
+        reason: Robust range (IQR/Quantile/MAD) clamped to training min/max for pass
+          guarantee
+        stats:
+          q1: 10000.0
+          q3: 10000.0
+          iqr_k: 1.5
+          observed_min: 10000.0
+          observed_max: 10000.0
+    spent:
+      type: float
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      range:
+        strategy: iqr
+        active_min: 7500.0
+        active_max: 7500.0
+        reason: Robust range (IQR/Quantile/MAD) clamped to training min/max for pass
+          guarantee
+        stats:
+          q1: 7500.0
+          q3: 7500.0
+          iqr_k: 1.5
+          observed_min: 7500.0
+          observed_max: 7500.0
+    impressions:
+      type: float
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      range:
+        strategy: iqr
+        active_min: 50000.0
+        active_max: 50000.0
+        reason: Robust range (IQR/Quantile/MAD) clamped to training min/max for pass
+          guarantee
+        stats:
+          q1: 50000.0
+          q3: 50000.0
+          iqr_k: 1.5
+          observed_min: 50000.0
+          observed_max: 50000.0
+    clicks:
+      type: float
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      range:
+        strategy: iqr
+        active_min: 2500.0
+        active_max: 2500.0
+        reason: Robust range (IQR/Quantile/MAD) clamped to training min/max for pass
+          guarantee
+        stats:
+          q1: 2500.0
+          q3: 2500.0
+          iqr_k: 1.5
+          observed_min: 2500.0
+          observed_max: 2500.0
+    conversions:
+      type: float
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      range:
+        strategy: iqr
+        active_min: 250.0
+        active_max: 250.0
+        reason: Robust range (IQR/Quantile/MAD) clamped to training min/max for pass
+          guarantee
+        stats:
+          q1: 250.0
+          q3: 250.0
+          iqr_k: 1.5
+          observed_min: 250.0
+          observed_max: 250.0
+    revenue:
+      type: float
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      range:
+        strategy: iqr
+        active_min: 25000.0
+        active_max: 25000.0
+        reason: Robust range (IQR/Quantile/MAD) clamped to training min/max for pass
+          guarantee
+        stats:
+          q1: 25000.0
+          q3: 25000.0
+          iqr_k: 1.5
+          observed_min: 25000.0
+          observed_max: 25000.0
+    click_through_rate:
+      type: float
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      range:
+        strategy: iqr
+        active_min: 5.0
+        active_max: 5.0
+        reason: Robust range (IQR/Quantile/MAD) clamped to training min/max for pass
+          guarantee
+        stats:
+          q1: 5.0
+          q3: 5.0
+          iqr_k: 1.5
+          observed_min: 5.0
+          observed_max: 5.0
+    conversion_rate:
+      type: float
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      range:
+        strategy: iqr
+        active_min: 10.0
+        active_max: 10.0
+        reason: Robust range (IQR/Quantile/MAD) clamped to training min/max for pass
+          guarantee
+        stats:
+          q1: 10.0
+          q3: 10.0
+          iqr_k: 1.5
+          observed_min: 10.0
+          observed_max: 10.0
+    cost_per_click:
+      type: float
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      range:
+        strategy: iqr
+        active_min: 3.0
+        active_max: 3.0
+        reason: Robust range (IQR/Quantile/MAD) clamped to training min/max for pass
+          guarantee
+        stats:
+          q1: 3.0
+          q3: 3.0
+          iqr_k: 1.5
+          observed_min: 3.0
+          observed_max: 3.0
+    return_on_ad_spend:
+      type: float
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      range:
+        strategy: iqr
+        active_min: 3.33
+        active_max: 3.33
+        reason: Robust range (IQR/Quantile/MAD) clamped to training min/max for pass
+          guarantee
+        stats:
+          q1: 3.33
+          q3: 3.33
+          iqr_k: 1.5
+          observed_min: 3.33
+          observed_max: 3.33
+    target_audience:
+      type: string
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      allowed_values:
+        values:
+        - Ages 25-45, Tech-savvy
+        reason: High coverage stable set
+        stats:
+          coverage: 1.0
+          unique_count: 1
+          strategy: coverage
+      length_bounds:
+        active_min: 22
+        active_max: 22
+        stats:
+          observed_min: 22
+          observed_max: 22
+    geographic_region:
+      type: string
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      allowed_values:
+        values:
+        - North America
+        reason: High coverage stable set
+        stats:
+          coverage: 1.0
+          unique_count: 1
+          strategy: coverage
+      length_bounds:
+        active_min: 13
+        active_max: 13
+        stats:
+          observed_min: 13
+          observed_max: 13
+  freshness:
+    as_of: '2025-03-02T00:00:00Z'
+    window_days: 365
+    date_field: start_date
+  plausibility_templates: '# plausibility:
+
+    #   scoring:
+
+    #     rule_weights:
+
+    #       numeric_sigma: 1.0      # enable if not overlapping with validity numeric_bounds
+
+    #       categorical_tail: 1.0   # enable to flag rare categories
+
+    #   notes: "Disabled by default to avoid overlap with Validity. Review before
+    enabling."
+
+    '

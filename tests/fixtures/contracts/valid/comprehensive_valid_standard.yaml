@@ -1,0 +1,46 @@
+contracts:
+  id: "test_comprehensive_standard"
+  name: "Comprehensive Test Standard"
+  version: "2.1.3"
+  description: "A comprehensive ADRI standard with all dimensions"
+  author: "Test Author"
+  created: "2025-01-01T00:00:00Z"
+  updated: "2025-04-05T12:00:00Z"
+  tags:
+    - "testing"
+    - "comprehensive"
+    - "validation"
+
+requirements:
+  dimension_requirements:
+    validity:
+      weight: 5
+      minimum_score: 80
+      field_requirements:
+        email:
+          regex: "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+        age:
+          min_value: 0
+          max_value: 120
+
+    completeness:
+      weight: 4
+      minimum_score: 75
+      field_requirements:
+        customer_name:
+          not_null: true
+          not_empty: true
+
+    consistency:
+      weight: 3
+      minimum_score: 70
+
+    freshness:
+      weight: 2
+      minimum_score: 60
+
+    plausibility:
+      weight: 1
+      minimum_score: 50
+
+  overall_minimum: 75

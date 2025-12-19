@@ -25,7 +25,7 @@ class TestThresholdExplanationAccuracy:
         with tempfile.TemporaryDirectory() as tmpdir:
             standard_path = Path(tmpdir) / "standard_75.yaml"
             standard = {
-                "standards": {
+                "contracts": {
                     "id": "test_75",
                     "name": "Test Standard 75",
                     "version": "1.0.0",
@@ -91,7 +91,7 @@ class TestExplanationWithDifferentStandards:
         with tempfile.TemporaryDirectory() as tmpdir:
             standard_path = Path(tmpdir) / "custom_90.yaml"
             standard = {
-                "standards": {
+                "contracts": {
                     "id": "custom_90",
                     "name": "Custom 90",
                     "version": "1.0.0",
@@ -115,7 +115,7 @@ class TestExplanationWithDifferentStandards:
         with tempfile.TemporaryDirectory() as tmpdir:
             standard_path = Path(tmpdir) / "no_required.yaml"
             standard = {
-                "standards": {
+                "contracts": {
                     "id": "no_req",
                     "name": "No Required",
                     "version": "1.0.0",
@@ -143,7 +143,7 @@ class TestExplanationWithDifferentStandards:
         with tempfile.TemporaryDirectory() as tmpdir:
             standard_path = Path(tmpdir) / "all_required.yaml"
             standard = {
-                "standards": {
+                "contracts": {
                     "id": "all_req",
                     "name": "All Required",
                     "version": "1.0.0",
@@ -173,7 +173,7 @@ class TestExplanationWithDifferentStandards:
         with tempfile.TemporaryDirectory() as tmpdir:
             standard_path = Path(tmpdir) / "threshold_50.yaml"
             standard = {
-                "standards": {
+                "contracts": {
                     "id": "thresh_50",
                     "name": "Threshold 50",
                     "version": "1.0.0",
@@ -319,7 +319,7 @@ class TestExplanationErrorHandling:
         with tempfile.TemporaryDirectory() as tmpdir:
             standard_path = Path(tmpdir) / "incomplete.yaml"
             standard = {
-                "standards": {
+                "contracts": {
                     "id": "incomplete",
                     "name": "Incomplete",
                     "version": "1.0.0",
