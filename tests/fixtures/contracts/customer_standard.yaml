@@ -1,0 +1,41 @@
+contracts:
+  id: "customer-data-test-v1"
+  name: "Customer Data Quality Standard"
+  version: "1.0.0"
+  authority: "ADRI Test Suite"
+  effective_date: "2024-01-01"
+  description: "Test standard for customer data validation"
+
+requirements:
+  overall_minimum: 75.0
+
+  dimension_requirements:
+    validity:
+      minimum_score: 15.0
+    completeness:
+      minimum_score: 14.0
+    consistency:
+      minimum_score: 12.0
+    freshness:
+      minimum_score: 15.0
+    plausibility:
+      minimum_score: 12.0
+
+  field_requirements:
+    customer_id:
+      type: "integer"
+      nullable: false
+      description: "Unique customer identifier"
+
+    email:
+      type: "string"
+      nullable: false
+      pattern: "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+      description: "Customer email address"
+
+    age:
+      type: "integer"
+      nullable: false
+      min_value: 18
+      max_value: 120
+      description: "Customer age in years"

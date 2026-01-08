@@ -1,17 +1,17 @@
 """Auto-discovery utilities for ADRI standards catalog.
 
 This module provides functions for discovering and validating standards in the
-adri/standards/ directory. Standards are organized in subdirectories by category
+adri/contracts/ directory. Standards are organized in subdirectories by category
 (domains, frameworks, templates) and follow a YAML-based v5.0.0 structure.
 
 Directory Structure:
-    adri/standards/
+    adri/contracts/
     ├── domains/              # Business domain standards (5 standards)
     ├── frameworks/           # AI framework standards (4 standards)
     └── templates/            # Generic template standards (4 standards)
 
 Discovery Process:
-    1. Scan adri/standards/{domains,frameworks,templates}/ for .yaml files
+    1. Scan adri/contracts/{domains,frameworks,templates}/ for .yaml files
     2. Validate each file has proper v5.0.0 structure
     3. Extract standard metadata (id, name, version, etc.)
     4. Return metadata for test parametrization
@@ -60,12 +60,12 @@ class StandardMetadata:
 def find_catalog_standards(standards_root: Optional[Path] = None) -> List[StandardMetadata]:
     """Find all valid standards in the catalog directories.
 
-    Scans adri/standards/{domains,frameworks,templates}/ for .yaml files
+    Scans adri/contracts/{domains,frameworks,templates}/ for .yaml files
     and extracts metadata from each standard.
 
     Args:
         standards_root: Optional path to standards directory.
-                       If None, uses adri/standards/ relative to project root.
+                       If None, uses adri/contracts/ relative to project root.
 
     Returns:
         List of StandardMetadata for each valid standard found.
@@ -81,7 +81,7 @@ def find_catalog_standards(standards_root: Optional[Path] = None) -> List[Standa
         # This file is in tests/fixtures/
         current_file = Path(__file__)
         project_root = current_file.parent.parent.parent
-        standards_root = project_root / "adri" / "standards"
+        standards_root = project_root / "ADRI" / "contracts"
 
     # Return empty list if directory doesn't exist
     if not standards_root.exists():
@@ -105,14 +105,14 @@ def find_catalog_standards(standards_root: Optional[Path] = None) -> List[Standa
 
         # Validate each file and collect metadata
         for yaml_file in yaml_files:
-            is_valid, metadata = validate_standard_file(yaml_file, category)
+            is_valid, metadata = validate_contract_file(yaml_file, category)
             if is_valid and metadata:
                 valid_standards.append(metadata)
 
     return valid_standards
 
 
-def validate_standard_file(file_path: Path, category: str) -> Tuple[bool, Optional[StandardMetadata]]:
+def validate_contract_file(file_path: Path, category: str) -> Tuple[bool, Optional[StandardMetadata]]:
     """Validate a standard YAML file and extract metadata.
 
     Checks:
@@ -140,12 +140,12 @@ def validate_standard_file(file_path: Path, category: str) -> Tuple[bool, Option
             return False, None
 
         # Check for required top-level sections
-        required_sections = ['standards', 'record_identification', 'requirements', 'metadata']
+        required_sections = ['contracts', 'record_identification', 'requirements', 'metadata']
         if not all(section in standard_data for section in required_sections):
             return False, None
 
         # Extract standards section
-        standards_section = standard_data.get('standards', {})
+        standards_section = standard_data.get('contracts', {})
 
         # Verify required fields in standards section
         if 'id' not in standards_section or 'name' not in standards_section:
@@ -214,7 +214,7 @@ def extract_standard_identifier(file_path: Path) -> str:
     """Extract the standard identifier/name used for @adri_protected.
 
     The identifier is the filename without extension, which should match
-    how users reference standards in @adri_protected(standard="...").
+    how users reference standards in @adri_protected(contract="...").
 
     Args:
         file_path: Path to standard YAML file

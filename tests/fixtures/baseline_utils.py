@@ -163,12 +163,17 @@ def check_baseline_status(tutorial_metadata) -> BaselineStatus:
         )
 
     # Count baseline artifacts
+    # Note: Standard filename can be either format depending on when baseline was captured
+    # - {use_case}_data.yaml (current format from TutorialScenarios)
+    # - {use_case}_data_ADRI_standard.yaml (legacy format)
     expected_artifacts = [
-        f"{tutorial_metadata.use_case_name}_data_ADRI_standard.yaml",
+        f"{tutorial_metadata.use_case_name}_data.yaml",  # Current standard filename
         "adri_assessment_logs.jsonl",
         "adri_dimension_scores.jsonl",
         "adri_failed_validations.jsonl"
     ]
+    # Also check for legacy standard filename
+    legacy_standard_name = f"{tutorial_metadata.use_case_name}_data_ADRI_standard.yaml"
 
     existing_artifacts = []
     missing_artifacts = []
@@ -199,7 +204,7 @@ def get_generated_artifacts(project_root: Path, use_case_name: str) -> Dict[str,
     """Collects all artifacts generated during tutorial test.
 
     Locates the 4 artifact types:
-    1. Standard YAML in ADRI/dev/standards/
+    1. Standard YAML in ADRI/dev/contracts/
     2. Assessment log JSONL in ADRI/dev/audit-logs/
     3. Dimension scores JSONL in ADRI/dev/audit-logs/
     4. Failed validations JSONL in ADRI/dev/audit-logs/
@@ -214,17 +219,23 @@ def get_generated_artifacts(project_root: Path, use_case_name: str) -> Dict[str,
     Example:
         artifacts = get_generated_artifacts(project_root, "invoice")
         # Returns: {
-        #   'standard': Path('ADRI/dev/standards/invoice_data_ADRI_standard.yaml'),
+        #   'standard': Path('ADRI/dev/contracts/invoice_data.yaml'),
         #   'assessment_log': Path('ADRI/dev/audit-logs/adri_assessment_logs.jsonl'),
         #   ...
         # }
     """
     artifacts = {}
 
-    # 1. Standard YAML
-    standard_path = project_root / "ADRI" / "dev" / "standards" / f"{use_case_name}_data_ADRI_standard.yaml"
+    # 1. Standard YAML - check contracts/ directory with simple naming (actual location)
+    # TutorialScenarios.generate_standard_from_data saves to contracts/{use_case}_data.yaml
+    standard_path = project_root / "ADRI" / "dev" / "contracts" / f"{use_case_name}_data.yaml"
     if standard_path.exists():
         artifacts['standard'] = standard_path
+    else:
+        # Fallback: check standards/ directory with _ADRI_standard suffix (legacy location)
+        standard_path_legacy = project_root / "ADRI" / "dev" / "standards" / f"{use_case_name}_data_ADRI_standard.yaml"
+        if standard_path_legacy.exists():
+            artifacts['standard'] = standard_path_legacy
 
     # 2. Assessment log JSONL
     audit_logs_dir = project_root / "ADRI" / "dev" / "audit-logs"

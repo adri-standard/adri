@@ -1,3 +1,5 @@
+# @ADRI_FEATURE[analysis_data_profiler, scope=OPEN_SOURCE]
+# Description: Data profiling engine for analyzing dataset patterns and quality
 """
 ADRI Data Profiler.
 
@@ -568,3 +570,6 @@ def profile_dataframe(
     """
     profiler = DataProfiler()
     return profiler.profile_data(data, max_rows)
+
+
+# @ADRI_FEATURE_END[analysis_data_profiler]

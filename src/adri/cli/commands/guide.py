@@ -240,9 +240,9 @@ class GuideCommand(Command):
         _progressive_echo("", 0.5)
 
         # Run generate-standard command
-        from .generate_standard import GenerateStandardCommand
+        from .generate_contract import GenerateContractCommand
 
-        gen_cmd = GenerateStandardCommand()
+        gen_cmd = GenerateContractCommand()
         result = gen_cmd.execute(
             {
                 "data_path": "tutorials/invoice_processing/invoice_data.csv",
@@ -273,7 +273,7 @@ class GuideCommand(Command):
 
         # Check if test data exists
         test_file = self.tutorial_path / "test_invoice_data.csv"
-        standard_file = Path("ADRI/dev/standards/invoice_data_ADRI_standard.yaml")
+        standard_file = Path("ADRI/dev/contracts/invoice_data_ADRI_standard.yaml")
 
         if not test_file.exists():
             click.echo(f"❌ Test data not found: {test_file}")
@@ -294,7 +294,7 @@ class GuideCommand(Command):
         result = assess_cmd.execute(
             {
                 "data_path": "ADRI/tutorials/invoice_processing/test_invoice_data.csv",
-                "standard_path": "ADRI/dev/standards/invoice_data_ADRI_standard.yaml",
+                "standard_path": "ADRI/dev/contracts/invoice_data_ADRI_standard.yaml",
                 "output_path": None,
                 "guide": True,
             }
@@ -364,11 +364,11 @@ class GuideCommand(Command):
         _progressive_echo("", 0.0)
         _progressive_echo("2️⃣  Create standards for your own data:", 0.0)
         _progressive_echo("", 0.0)
-        _progressive_echo("   adri generate-standard your_data.csv", 0.5)
+        _progressive_echo("   adri generate-contract your_data.csv", 0.5)
         _progressive_echo("", 0.0)
         _progressive_echo("3️⃣  Explore additional commands:", 0.0)
         _progressive_echo("", 0.0)
-        _progressive_echo("   adri list-standards     # View all standards", 0.0)
+        _progressive_echo("   adri list-contracts     # View all contracts", 0.0)
         _progressive_echo("   adri list-assessments   # View assessment history", 0.0)
         _progressive_echo("   adri show-config        # View configuration", 0.5)
         _progressive_echo("", 0.0)

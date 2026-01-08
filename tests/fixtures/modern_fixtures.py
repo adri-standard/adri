@@ -26,7 +26,7 @@ The tutorial framework provides:
 Example tutorial fixture usage:
     def test_invoice_validation(invoice_scenario):
         # invoice_scenario provides tutorial data and generated standards
-        @adri_protected(standard=invoice_scenario['generated_standard_name'])
+        @adri_protected(contract=invoice_scenario['generated_standard_name'])
         def process_invoices(data):
             return data
 
@@ -142,7 +142,7 @@ class ModernFixtures:
         """Create various types of ADRI standards for testing."""
 
         base_standard = {
-            "standards": {
+            "contracts": {
                 "id": f"test_{standard_type}_standard",
                 "name": f"Test {standard_type.title()} Standard",
                 "version": "1.0.0",
@@ -243,7 +243,7 @@ class ModernFixtures:
             base_config["adri"]["environments"] = {
                 "development": {
                     "paths": {
-                        "standards": "/tmp/test/standards",
+                        "contracts": "/tmp/test/standards",
                         "assessments": "/tmp/test/assessments",
                         "training_data": "/tmp/test/training-data",
                         "audit_logs": "/tmp/test/audit-logs"
@@ -259,7 +259,7 @@ class ModernFixtures:
                 },
                 "production": {
                     "paths": {
-                        "standards": "/prod/standards",
+                        "contracts": "/prod/contracts",
                         "assessments": "/prod/assessments",
                         "training_data": "/prod/training-data",
                         "audit_logs": "/prod/audit-logs"

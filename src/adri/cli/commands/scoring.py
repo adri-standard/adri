@@ -17,7 +17,7 @@ from ...utils.path_utils import (
     resolve_project_path,
 )
 from ...validator.engine import DataQualityAssessor
-from ...validator.loaders import load_data, load_standard
+from ...validator.loaders import load_data, load_contract
 
 
 class ScoringExplainCommand(Command):
@@ -137,7 +137,7 @@ class ScoringExplainCommand(Command):
     def _get_threshold_from_standard(self, standard_path) -> float:
         """Read requirements.overall_minimum from a standard YAML."""
         try:
-            std = load_standard(str(standard_path))
+            std = load_contract(str(standard_path))
             req = std.get("requirements", {}) if isinstance(std, dict) else {}
             thr = float(req.get("overall_minimum", 75.0))
             return max(0.0, min(100.0, thr))  # Clamp to [0, 100]
@@ -497,7 +497,7 @@ class ScoringPresetApplyCommand(Command):
                 return 1
 
             # Load standard
-            std = load_standard(str(resolved_standard_path))
+            std = load_contract(str(resolved_standard_path))
             if not isinstance(std, dict):
                 click.echo("❌ Invalid standard structure")
                 return 1

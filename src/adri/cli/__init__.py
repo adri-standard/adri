@@ -22,11 +22,11 @@ from .commands.config import (
     ConfigGetCommand,
     ConfigSetCommand,
     ExplainThresholdsCommand,
-    ListStandardsCommand,
+    ListContractsCommand,
     ShowConfigCommand,
     WhatIfCommand,
 )
-from .commands.generate_standard import GenerateStandardCommand
+from .commands.generate_contract import GenerateContractCommand
 from .commands.list_assessments import ListAssessmentsCommand
 from .commands.setup import SetupCommand
 from .commands.view_logs import ViewLogsCommand
@@ -44,10 +44,10 @@ except ImportError:
     DataQualityAssessor = None
 
 try:
-    from ..standards import load_standard
+    from ..validator.loaders import load_contract
 except ImportError:
     try:
-        from ..standards.loader import load_standard
+        from ..contracts.loader import load_standard
     except ImportError:
         load_standard = None
 
@@ -311,7 +311,7 @@ def generate_standard_command(
 ) -> int:
     """Generate ADRI standard from data (standalone function for tests)."""
     try:
-        cmd = GenerateStandardCommand()
+        cmd = GenerateContractCommand()
         args = {
             "data_path": data_path,
             "force": force,
@@ -327,9 +327,9 @@ def generate_standard_command(
 def validate_standard_command(standard_path: str) -> int:
     """Validate YAML standard file (standalone function for tests)."""
     try:
-        from .commands.config import ValidateStandardCommand
+        from .commands.config import ValidateContractCommand
 
-        cmd = ValidateStandardCommand()
+        cmd = ValidateContractCommand()
         args = {"standard_path": standard_path}
         return cmd.execute(args)
     except Exception as e:
@@ -340,7 +340,7 @@ def validate_standard_command(standard_path: str) -> int:
 def list_standards_command(include_catalog: bool = False) -> int:
     """List available YAML standards (standalone function for tests)."""
     try:
-        cmd = ListStandardsCommand()
+        cmd = ListContractsCommand()
         args = {"include_catalog": include_catalog}
         return cmd.execute(args)
     except Exception as e:
@@ -1118,20 +1118,20 @@ def assess(data_path, standard_path, output_path, guide):
     sys.exit(command.execute(args))
 
 
-@cli.command("generate-standard")
+@cli.command("generate-contract")
 @click.argument("data_path")
-@click.option("--force", is_flag=True, help="Overwrite existing standard file")
+@click.option("--force", is_flag=True, help="Overwrite existing contract file")
 @click.option(
     "-o",
     "--output",
-    help="Output path for generated standard file (ignored; uses config paths)",
+    help="Output path for generated contract file (ignored; uses config paths)",
 )
 @click.option(
     "--guide", is_flag=True, help="Show detailed generation explanation and next steps"
 )
-def generate_standard(data_path, force, output, guide):
-    """Generate ADRI standard from data file analysis."""
-    command = get_command("generate-standard")
+def generate_contract(data_path, force, output, guide):
+    """Generate ADRI contract from data file analysis."""
+    command = get_command("generate-contract")
     args = {"data_path": data_path, "force": force, "output": output, "guide": guide}
     sys.exit(command.execute(args))
 
@@ -1144,25 +1144,25 @@ def guide():
     sys.exit(command.execute(args))
 
 
-@cli.command("validate-standard")
+@cli.command("validate-contract")
 @click.argument("standard_path")
-def validate_standard(standard_path):
-    """Validate YAML standard file."""
-    command = get_command("validate-standard")
+def validate_contract(standard_path):
+    """Validate YAML contract file."""
+    command = get_command("validate-contract")
     args = {"standard_path": standard_path}
     sys.exit(command.execute(args))
 
 
-@cli.command("list-standards")
+@cli.command("list-contracts")
 @click.option(
     "--catalog",
     "include_catalog",
     is_flag=True,
     help="Also show remote catalog entries",
 )
-def list_standards(include_catalog):
-    """List available YAML standards."""
-    command = get_command("list-standards")
+def list_contracts(include_catalog):
+    """List available YAML contracts."""
+    command = get_command("list-contracts")
     args = {"include_catalog": include_catalog}
     sys.exit(command.execute(args))
 
@@ -1472,9 +1472,9 @@ def standards_catalog_fetch_command(
 
         # Determine destination directory
         if dest == "dev":
-            dest_dir = Path("ADRI/dev/standards")
+            dest_dir = Path("ADRI/dev/contracts")
         elif dest == "prod":
-            dest_dir = Path("ADRI/prod/standards")
+            dest_dir = Path("ADRI/prod/contracts")
         else:
             if json_output:
                 import json
@@ -1592,14 +1592,14 @@ def show_help_guide() -> int:
         click.echo("   ADRI/")
         click.echo("   ├── tutorials/           # Tutorial and example data")
         click.echo("   ├── dev/                 # Development environment")
-        click.echo("   │   ├── dev/standards/       # Draft/testing standards")
+        click.echo("   │   ├── dev/contracts/       # Draft/testing contracts")
         click.echo("   │   ├── dev/assessments/     # Development assessment reports")
         click.echo(
             "   │   ├── dev/training-data/   # Development training data snapshots"
         )
         click.echo("   │   └── dev/audit-logs/      # Development audit logs")
         click.echo("   └── prod/                # Production environment")
-        click.echo("       ├── prod/standards/       # Validated/approved standards")
+        click.echo("       ├── prod/contracts/       # Validated/approved contracts")
         click.echo("       ├── prod/assessments/     # Production assessment reports")
         click.echo(
             "       ├── prod/training-data/   # Production training data snapshots"
@@ -1615,21 +1615,21 @@ def show_help_guide() -> int:
         click.echo("     - environments: Development and production settings")
         click.echo("     - protection: Data protection and decorator settings")
         click.echo("     - audit: Audit logging configuration")
-        click.echo("     - standards: Standards discovery and validation")
+        click.echo("     - contracts: Contract discovery and validation")
         click.echo("")
 
         # Display Environment Variables
         click.echo("🔧 Environment Variables:")
         click.echo("   ADRI_ENV: Current environment (development/production)")
         click.echo("   ADRI_CONFIG_PATH: Override config file location")
-        click.echo("   ADRI_STANDARDS_DIR: Override standards directory")
+        click.echo("   ADRI_CONTRACTS_DIR: Override contracts directory")
         click.echo("")
 
         # Display Smart Path Resolution
         click.echo("🎯 Smart Path Resolution:")
-        click.echo("   Standards resolve automatically based on environment:")
-        click.echo("   - dev/ environment → ADRI/dev/standards/")
-        click.echo("   - prod/ environment → ADRI/prod/standards/")
+        click.echo("   Contracts resolve automatically based on environment:")
+        click.echo("   - dev/ environment → ADRI/dev/contracts/")
+        click.echo("   - prod/ environment → ADRI/prod/contracts/")
         click.echo("")
 
         click.echo(f"📦 ADRI Version: {__version__}")

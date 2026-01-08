@@ -1,3 +1,5 @@
+# @ADRI_FEATURE[guard_protection_modes, scope=OPEN_SOURCE]
+# Description: Data protection modes (fail-fast, selective, warn-only) for guard decorator
 """
 ADRI Guard Modes.
 
@@ -5,6 +7,7 @@ Protection mode classes extracted and refactored from the original core/protecti
 Provides clean separation of different protection strategies.
 """
 
+import json
 import logging
 import os
 import time
@@ -17,7 +20,7 @@ import pandas as pd
 import yaml
 
 # Clean imports for modular architecture
-from ..analysis.standard_generator import StandardGenerator
+from ..analysis.contract_generator import ContractGenerator
 from ..config.loader import ConfigurationLoader
 from ..validator.engine import DataQualityAssessor
 
@@ -99,10 +102,19 @@ class FailFastMode(ProtectionMode):
         self.logger.error("Fail-fast mode: %s", error_message)
         raise ProtectionError(error_message)
 
-    def handle_success(self, assessment_result: Any, success_message: str) -> None:
-        """Log success and continue execution."""
+    def handle_success(
+        self, assessment_result: Any, success_message: str, verbose: bool = False
+    ) -> None:
+        """Log success and continue execution.
+
+        Args:
+            assessment_result: The successful assessment result
+            success_message: Formatted success message
+            verbose: Whether to print to stdout (default: False to avoid corrupting JSON pipelines)
+        """
         self.logger.info(f"Fail-fast mode success: {success_message}")
-        print(success_message)
+        if verbose:
+            print(success_message)
 
     def get_description(self) -> str:
         """Return a description of this protection mode."""
@@ -122,20 +134,40 @@ class SelectiveMode(ProtectionMode):
         """Return the mode name."""
         return "selective"
 
-    def handle_failure(self, assessment_result: Any, error_message: str) -> None:
-        """Log failure but continue execution."""
+    def handle_failure(
+        self, assessment_result: Any, error_message: str, verbose: bool = False
+    ) -> None:
+        """Log failure but continue execution.
+
+        Args:
+            assessment_result: The failed assessment result
+            error_message: Formatted error message
+            verbose: Whether to print to stdout (default: False to avoid corrupting JSON pipelines)
+        """
         self.logger.warning(
             f"Selective mode: Data quality issue detected but continuing - {error_message}"
         )
-        print("⚠️  ADRI Warning: Data quality below threshold but continuing execution")
-        print(f"📊 Score: {assessment_result.overall_score:.1f}")
+        if verbose:
+            print(
+                "⚠️  ADRI Warning: Data quality below threshold but continuing execution"
+            )
+            print(f"📊 Score: {assessment_result.overall_score:.1f}")
 
-    def handle_success(self, assessment_result: Any, success_message: str) -> None:
-        """Log success and continue execution."""
+    def handle_success(
+        self, assessment_result: Any, success_message: str, verbose: bool = False
+    ) -> None:
+        """Log success and continue execution.
+
+        Args:
+            assessment_result: The successful assessment result
+            success_message: Formatted success message
+            verbose: Whether to print to stdout (default: False to avoid corrupting JSON pipelines)
+        """
         self.logger.debug(f"Selective mode success: {success_message}")
-        print(
-            f"✅ ADRI: Quality check passed ({assessment_result.overall_score:.1f}/100)"
-        )
+        if verbose:
+            print(
+                f"✅ ADRI: Quality check passed ({assessment_result.overall_score:.1f}/100)"
+            )
 
     def get_description(self) -> str:
         """Return a description of this protection mode."""
@@ -155,17 +187,35 @@ class WarnOnlyMode(ProtectionMode):
         """Return the mode name."""
         return "warn-only"
 
-    def handle_failure(self, assessment_result: Any, error_message: str) -> None:
-        """Show warning but continue execution."""
-        self.logger.warning(f"Warn-only mode: {error_message}")
-        print("⚠️  ADRI Data Quality Warning:")
-        print(f"📊 Score: {assessment_result.overall_score:.1f} (below threshold)")
-        print("💡 Consider improving data quality for better AI agent performance")
+    def handle_failure(
+        self, assessment_result: Any, error_message: str, verbose: bool = False
+    ) -> None:
+        """Show warning but continue execution.
 
-    def handle_success(self, assessment_result: Any, success_message: str) -> None:
-        """Log success quietly."""
+        Args:
+            assessment_result: The failed assessment result
+            error_message: Formatted error message
+            verbose: Whether to print to stdout (default: False to avoid corrupting JSON pipelines)
+        """
+        self.logger.warning(f"Warn-only mode: {error_message}")
+        if verbose:
+            print("⚠️  ADRI Data Quality Warning:")
+            print(f"📊 Score: {assessment_result.overall_score:.1f} (below threshold)")
+            print("💡 Consider improving data quality for better AI agent performance")
+
+    def handle_success(
+        self, assessment_result: Any, success_message: str, verbose: bool = False
+    ) -> None:
+        """Log success quietly.
+
+        Args:
+            assessment_result: The successful assessment result
+            success_message: Formatted success message
+            verbose: Whether to print to stdout (default: False to avoid corrupting JSON pipelines)
+        """
         self.logger.debug(f"Warn-only mode success: {success_message}")
-        print("✅ ADRI: Data quality check passed")
+        if verbose:
+            print("✅ ADRI: Data quality check passed")
 
     def get_description(self) -> str:
         """Return a description of this protection mode."""
@@ -254,7 +304,7 @@ class DataProtectionEngine:
         return {
             "default_min_score": 80,
             "default_failure_mode": "raise",
-            "auto_generate_standards": True,
+            "auto_generate_contracts": True,
             "cache_duration_hours": 1,
             "verbose_protection": False,
         }
@@ -266,7 +316,7 @@ class DataProtectionEngine:
         kwargs: dict,
         data_param: str,
         function_name: str,
-        standard_name: str | None = None,
+        contract_name: str | None = None,
         min_score: float | None = None,
         dimensions: dict[str, float] | None = None,
         on_failure: str | None = None,
@@ -275,11 +325,7 @@ class DataProtectionEngine:
         cache_assessments: bool | None = None,
         verbose: bool | None = None,
         reasoning_mode: bool = False,
-        store_prompt: bool = True,
-        store_response: bool = True,
-        llm_config: dict | None = None,
         workflow_context: dict | None = None,
-        data_provenance: dict | None = None,
     ) -> Any:
         """
         Protect a function call with data quality checks.
@@ -290,19 +336,13 @@ class DataProtectionEngine:
             kwargs: Function keyword arguments
             data_param: Name of parameter containing data to check
             function_name: Name of the function being protected
-            standard_name: Standard name (name-only, resolved via environment config)
+            contract_name: Contract name (name-only, resolved via environment config)
             min_score: Minimum quality score required
             dimensions: Specific dimension requirements
             on_failure: How to handle quality failures (overrides protection mode)
-            auto_generate: Whether to auto-generate missing standards
+            auto_generate: Whether to auto-generate missing contracts
             cache_assessments: Whether to cache assessment results
             verbose: Whether to show verbose output
-            reasoning_mode: Enable AI/LLM reasoning step validation
-            store_prompt: Store AI prompts to JSONL audit logs
-            store_response: Store AI responses to JSONL audit logs
-            llm_config: LLM configuration dict
-            workflow_context: Workflow execution metadata for orchestration tracking (optional)
-            data_provenance: Data source provenance for lineage tracking (optional)
 
         Returns:
             Result of the protected function call
@@ -314,18 +354,18 @@ class DataProtectionEngine:
         # Use unified threshold resolution for consistency with CLI
         from ..validator.engine import ThresholdResolver
 
-        # Resolve standard name to file path using environment configuration
-        resolved_standard_path = None
-        if standard_name:
-            resolved_standard_path = self._resolve_standard_file_path(standard_name)
+        # Resolve contract name to file path using environment configuration
+        resolved_contract_path = None
+        if contract_name:
+            resolved_contract_path = self._resolve_contract_file_path(contract_name)
 
         # Apply unified threshold resolution (same logic as CLI)
         # Note: We don't check if file exists here - let _ensure_standard_exists
         # handle it
         threshold_info = ThresholdResolver.resolve_assessment_threshold(
             standard_path=(
-                resolved_standard_path
-                if (resolved_standard_path and os.path.exists(resolved_standard_path))
+                resolved_contract_path
+                if (resolved_contract_path and os.path.exists(resolved_contract_path))
                 else None
             ),
             min_score_override=min_score,
@@ -364,32 +404,34 @@ class DataProtectionEngine:
             # Extract data from function parameters
             data = self._extract_data_parameter(func, args, kwargs, data_param)
 
-            # Resolve standard name to filename
-            standard_filename = self._resolve_standard(
-                function_name, data_param, standard_name
+            # Resolve contract name to filename
+            contract_filename = self._resolve_contract(
+                function_name, data_param, contract_name
             )
 
             # Get full path using environment config
-            if not resolved_standard_path:
-                resolved_standard_path = self._resolve_standard_file_path(
-                    standard_filename.replace(".yaml", "")
+            if not resolved_contract_path:
+                resolved_contract_path = self._resolve_contract_file_path(
+                    contract_filename.replace(".yaml", "")
                 )
 
             # Determine if auto-generation should be enabled
             should_auto_generate = (
                 auto_generate
                 if auto_generate is not None
-                else self.protection_config.get("auto_generate_standards", True)
+                else self.protection_config.get("auto_generate_contracts", True)
             )
 
-            # Ensure standard exists at the resolved path
-            self._ensure_standard_exists(
-                resolved_standard_path, data, auto_generate=should_auto_generate
+            # Ensure contract exists at the resolved path
+            self._ensure_contract_exists(
+                resolved_contract_path, data, auto_generate=should_auto_generate
             )
 
             # Assess data quality using the resolved path
             start_time = time.time()
-            assessment_result = self._assess_data_quality(data, resolved_standard_path)
+            assessment_result = self._assess_data_quality(
+                data, resolved_contract_path, reasoning_mode=reasoning_mode
+            )
             assessment_duration = time.time() - start_time
 
             if verbose:
@@ -399,14 +441,6 @@ class DataProtectionEngine:
 
             # Invoke assessment callback if provided (before pass/fail checking)
             self._invoke_assessment_callback(on_assessment, assessment_result, verbose)
-
-            # Workflow logging not available in open-source version
-            # For workflow orchestration and data provenance tracking, use
-            # adri-enterprise
-            if workflow_context and verbose:
-                self.logger.info(
-                    "Workflow context provided but logging not available in open-source version"
-                )
 
             # Check if assessment passed
             assessment_passed = assessment_result.overall_score >= min_score
@@ -422,23 +456,18 @@ class DataProtectionEngine:
                 success_message = self._format_success_message(
                     assessment_result,
                     min_score,
-                    resolved_standard_path,
+                    resolved_contract_path,
                     function_name,
                     verbose,
                 )
-                effective_mode.handle_success(assessment_result, success_message)
+                effective_mode.handle_success(
+                    assessment_result, success_message, verbose=verbose
+                )
             else:
                 error_message = self._format_error_message(
-                    assessment_result, min_score, resolved_standard_path
+                    assessment_result, min_score, resolved_contract_path
                 )
                 effective_mode.handle_failure(assessment_result, error_message)
-
-            # Reasoning mode not available in open-source version
-            # For AI reasoning logging and validation, use adri-enterprise
-            if reasoning_mode and verbose:
-                self.logger.warning(
-                    "Reasoning mode requested but not available in open-source version"
-                )
 
             # Execute the protected function
             return func(*args, **kwargs)
@@ -477,61 +506,61 @@ class DataProtectionEngine:
             f"Available positional args: {len(args)} arguments"
         )
 
-    def _resolve_standard(
-        self, function_name: str, data_param: str, standard_name: str | None = None
+    def _resolve_contract(
+        self, function_name: str, data_param: str, contract_name: str | None = None
     ) -> str:
         """
-        Resolve which standard to use for protection.
+        Resolve which contract to use for protection.
 
         Uses name-only resolution for governance compliance.
         """
-        if standard_name:
-            return f"{standard_name}.yaml"
+        if contract_name:
+            return f"{contract_name}.yaml"
 
-        # Auto-generate standard name from function and parameter
+        # Auto-generate contract name from function and parameter
         pattern = self.protection_config.get(
-            "standard_naming_pattern", "{function_name}_{data_param}_standard.yaml"
+            "contract_naming_pattern", "{function_name}_{data_param}_contract.yaml"
         )
         return pattern.format(function_name=function_name, data_param=data_param)
 
-    def _ensure_standard_exists(
-        self, standard_path: str, sample_data: Any, auto_generate: bool = True
+    def _ensure_contract_exists(
+        self, contract_path: str, sample_data: Any, auto_generate: bool = True
     ) -> None:
-        """Ensure a standard exists, using full StandardGenerator for rich rules.
+        """Ensure a contract exists, using full ContractGenerator for rich rules.
 
-        This uses the SAME StandardGenerator as the CLI to ensure consistent,
-        high-quality standards with full profiling and rule inference.
+        This uses the SAME ContractGenerator as the CLI to ensure consistent,
+        high-quality contracts with full profiling and rule inference.
 
         Args:
-            standard_path: Full path to the standard file
-            sample_data: Sample data to generate standard from
-            auto_generate: Whether to auto-generate the standard if missing
+            contract_path: Full path to the contract file
+            sample_data: Sample data to generate contract from
+            auto_generate: Whether to auto-generate the contract if missing
 
         Raises:
-            ProtectionError: If standard doesn't exist and auto_generate is False
+            ProtectionError: If contract doesn't exist and auto_generate is False
         """
         # Resolve path to handle macOS symlinks (/var -> /private/var)
-        standard_path = str(Path(standard_path).resolve())
+        contract_path = str(Path(contract_path).resolve())
 
-        self.logger.info("Checking if standard exists at: %s", standard_path)
-        if os.path.exists(standard_path):
-            self.logger.info("Standard already exists, skipping auto-generation")
+        self.logger.info("Checking if contract exists at: %s", contract_path)
+        if os.path.exists(contract_path):
+            self.logger.info("Contract already exists, skipping auto-generation")
             return
 
         # Check if auto-generation is enabled
         if not auto_generate:
             raise ProtectionError(
-                f"Standard file not found at: {standard_path}\n"
+                f"Contract file not found at: {contract_path}\n"
                 f"Auto-generation is disabled (auto_generate=False)"
             )
 
         self.logger.info(
-            "Auto-generating standard with full profiling: %s", standard_path
+            "Auto-generating contract with full profiling: %s", contract_path
         )
 
         try:
             # Create directory if needed
-            dir_path = os.path.dirname(standard_path)
+            dir_path = os.path.dirname(contract_path)
             if dir_path:
                 os.makedirs(dir_path, exist_ok=True)
                 self.logger.debug("Created directory: %s", dir_path)
@@ -544,58 +573,58 @@ class DataProtectionEngine:
                     df = pd.DataFrame([sample_data])
                 else:
                     raise ProtectionError(
-                        f"Cannot generate standard from data type: {type(sample_data)}"
+                        f"Cannot generate contract from data type: {type(sample_data)}"
                     )
             else:
                 df = sample_data
 
-            # Extract data name from standard path
-            data_name = Path(standard_path).stem.replace("_standard", "")
+            # Extract data name from contract path
+            data_name = Path(contract_path).stem.replace("_contract", "")
 
             # Use SAME generator as CLI for consistency and rich rule generation
-            generator = StandardGenerator()
+            generator = ContractGenerator()
 
-            # Generate rich standard with full profiling and rule inference
+            # Generate rich contract with full profiling and rule inference
             # This includes: allowed_values, min/max_value, patterns, length_bounds,
             # date_bounds, etc.
-            standard_dict = generator.generate(
+            contract_dict = generator.generate(
                 data=df,
                 data_name=data_name,
                 generation_config={"overall_minimum": 75.0},  # Match CLI defaults
             )
 
             # Save to YAML
-            with open(standard_path, "w", encoding="utf-8") as f:
-                yaml.dump(standard_dict, f, default_flow_style=False, sort_keys=False)
+            with open(contract_path, "w", encoding="utf-8") as f:
+                yaml.dump(contract_dict, f, default_flow_style=False, sort_keys=False)
 
             self.logger.info(
-                "Successfully generated rich standard at: %s", standard_path
+                "Successfully generated rich contract at: %s", contract_path
             )
 
-            # Validate the generated standard to ensure it's valid
+            # Validate the generated contract to ensure it's valid
             try:
-                from ..standards.validator import get_validator
+                from ..contracts.validator import get_validator
 
                 validator = get_validator()
-                result = validator.validate_standard_file(
-                    standard_path, use_cache=False
+                result = validator.validate_contract_file(
+                    contract_path, use_cache=False
                 )
 
                 if not result.is_valid:
                     self.logger.error(
-                        "Generated standard failed validation: %s",
+                        "Generated contract failed validation: %s",
                         result.format_errors(),
                     )
                     raise ProtectionError(
-                        f"Generated standard is invalid:\n{result.format_errors()}"
+                        f"Generated contract is invalid:\n{result.format_errors()}"
                     )
 
-                self.logger.debug("Generated standard passed validation")
+                self.logger.debug("Generated contract passed validation")
 
             except ImportError:
                 # Validator not available, skip validation
                 self.logger.debug(
-                    "StandardValidator not available, skipping validation"
+                    "ContractValidator not available, skipping validation"
                 )
 
         except ProtectionError:
@@ -604,12 +633,49 @@ class DataProtectionEngine:
         except Exception as e:
             # Log the actual error for debugging
             self.logger.error(
-                "Failed to generate standard at %s: %s", standard_path, e, exc_info=True
+                "Failed to generate contract at %s: %s", contract_path, e, exc_info=True
             )
-            raise ProtectionError(f"Failed to generate standard: {e}")
+            raise ProtectionError(f"Failed to generate contract: {e}")
 
-    def _assess_data_quality(self, data: Any, standard_path: str) -> Any:
+    def _assess_data_quality(
+        self, data: Any, standard_path: str, reasoning_mode: bool = False
+    ) -> Any:
         """Assess data quality against a standard using same engine as CLI."""
+        # Handle JSON strings from AI reasoning steps
+        if reasoning_mode and isinstance(data, str):
+            self.logger.info("🤖 Reasoning mode: Parsing JSON string from AI response")
+            try:
+                # Remove markdown code fences if present
+                content = data.strip()
+                if content.startswith("```json"):
+                    content = content[7:]
+                if content.startswith("```"):
+                    content = content[3:]
+                if content.endswith("```"):
+                    content = content[:-3]
+                content = content.strip()
+
+                # Parse JSON
+                parsed_data = json.loads(content)
+                self.logger.info(
+                    f"✅ JSON parsed successfully (type: {type(parsed_data).__name__})"
+                )
+
+                # Use parsed data for assessment
+                data = parsed_data
+
+            except json.JSONDecodeError as e:
+                # JSON syntax error - this is a schema validation failure
+                error_msg = (
+                    f"AI response contains invalid JSON syntax: {e}\n"
+                    f"Error location: {getattr(e, 'msg', 'unknown')}\n"
+                    f"Line {getattr(e, 'lineno', 'unknown')}, column {getattr(e, 'colno', 'unknown')}\n"
+                    f"Character position: {getattr(e, 'pos', 'unknown')}\n"
+                    f"Response preview: {content[:500]}..."
+                )
+                self.logger.error(f"❌ JSON Parse Error: {error_msg}")
+                raise ProtectionError(error_msg)
+
         # Convert data to DataFrame if needed (same logic as CLI)
         if not isinstance(data, pd.DataFrame):
             if isinstance(data, list):
@@ -660,72 +726,132 @@ class DataProtectionEngine:
         return True
 
     def _format_error_message(
-        self, assessment_result: Any, min_score: float, standard: str
+        self, assessment_result: Any, min_score: float, contract: str
     ) -> str:
-        """Format a detailed error message."""
-        standard_name = Path(standard).stem.replace("_standard", "")
+        """Format a detailed error message with schema validation feedback."""
+        contract_name = Path(contract).stem.replace("_contract", "")
 
-        message_lines = [
-            "🛡️ ADRI Protection: BLOCKED ❌",
-            "",
-            f"📊 Quality Score: {assessment_result.overall_score:.1f}/100 (Required: {min_score:.1f}/100)",
-            f"📋 Standard: {standard_name}",
-            "",
-            "🔧 Fix This:",
-            f"   1. Review standard: adri show-standard {standard_name}",
-            "   2. Fix data issues and retry",
-            f"   3. Test fixes: adri assess <data> --standard {standard_name}",
-        ]
+        message_lines = ["🛡️ ADRI Protection: BLOCKED ❌", ""]
+
+        # NEW: Check for schema validation issues FIRST
+        if (
+            hasattr(assessment_result, "metadata")
+            and "schema_validation" in assessment_result.metadata
+        ):
+            schema_info = assessment_result.metadata["schema_validation"]
+            warnings = schema_info.get("warnings", [])
+
+            # Show CRITICAL and ERROR schema issues prominently
+            critical_or_error_warnings = [
+                w for w in warnings if w.get("severity") in ["CRITICAL", "ERROR"]
+            ]
+
+            if critical_or_error_warnings:
+                message_lines.extend(
+                    [
+                        "⚠️  SCHEMA VALIDATION ISSUES DETECTED:",
+                        f"   Field Match Rate: {schema_info.get('match_percentage', 0):.1f}%",
+                        f"   Exact Matches: {schema_info.get('exact_matches', 0)}/{schema_info.get('total_standard_fields', 0)}",
+                        "",
+                    ]
+                )
+
+                # Show up to 3 most critical warnings
+                for warning in critical_or_error_warnings[:3]:
+                    severity_marker = (
+                        "🔴" if warning.get("severity") == "CRITICAL" else "⚠️ "
+                    )
+                    message_lines.extend(
+                        [
+                            f"   {severity_marker} [{warning.get('severity')}] {warning.get('message', '')}"
+                        ]
+                    )
+
+                    # Show remediation (truncated)
+                    remediation = warning.get("remediation", "")
+                    if remediation:
+                        # Take first line or first 100 chars
+                        remediation_preview = remediation.split("\n")[0][:100]
+                        message_lines.append(f"   Fix: {remediation_preview}...")
+
+                    # Show auto-fix hint for case mismatches
+                    if (
+                        warning.get("auto_fix_available")
+                        and warning.get("type") == "FIELD_CASE_MISMATCH"
+                    ):
+                        case_matches = warning.get("case_insensitive_matches", {})
+                        if case_matches:
+                            # Show first 2 examples
+                            examples = list(case_matches.items())[:2]
+                            example_str = ", ".join(
+                                [f"'{d}'→'{s}'" for d, s in examples]
+                            )
+                            message_lines.append(f"   Example fixes: {example_str}")
+
+                    message_lines.append("")
+
+        # Quality score information
+        message_lines.extend(
+            [
+                f"📊 Quality Score: {assessment_result.overall_score:.1f}/100 (Required: {min_score:.1f}/100)",
+                f"📋 Contract: {contract_name}",
+                "",
+                "🔧 Fix This:",
+                f"   1. Review contract: adri show-contract {contract_name}",
+                "   2. Fix data issues and retry",
+                f"   3. Test fixes: adri assess <data> --contract {contract_name}",
+            ]
+        )
 
         return "\n".join(message_lines)
 
-    def _resolve_standard_file_path(self, standard_name: str | None) -> str | None:
+    def _resolve_contract_file_path(self, contract_name: str | None) -> str | None:
         """
-        Resolve standard name to file path using environment configuration.
+        Resolve contract name to file path using environment configuration.
 
-        Standard resolution is governance-controlled via adri-config.yaml.
-        Only standard names are accepted (not file paths) to ensure:
-        - Centralized control of standard locations
+        Contract resolution is governance-controlled via adri-config.yaml.
+        Only contract names are accepted (not file paths) to ensure:
+        - Centralized control of contract locations
         - Environment-based resolution (dev/prod)
         - No path injection or security issues
 
         Args:
-            standard_name: Name of the standard (e.g., "customer_data")
+            contract_name: Name of the contract (e.g., "customer_data")
 
         Returns:
-            Full path to standard file resolved via environment config
+            Full path to contract file resolved via environment config
         """
-        if not standard_name:
+        if not contract_name:
             return None
 
         loader = ConfigurationLoader()
         # Environment-based resolution:
-        # dev -> ./ADRI/dev/standards/{name}.yaml
-        # prod -> ./ADRI/prod/standards/{name}.yaml
-        return loader.resolve_standard_path(standard_name)
+        # dev -> ./ADRI/dev/contracts/{name}.yaml
+        # prod -> ./ADRI/prod/contracts/{name}.yaml
+        return loader.resolve_contract_path(contract_name)
 
     def _format_success_message(
         self,
         assessment_result: Any,
         min_score: float,
-        standard: str,
+        contract: str,
         function_name: str,
         verbose: bool,
     ) -> str:
         """Format a success message."""
-        standard_name = Path(standard).stem.replace("_standard", "")
+        contract_name = Path(contract).stem.replace("_contract", "")
 
         if verbose:
             return (
                 f"🛡️ ADRI Protection: ALLOWED ✅\n"
                 f"📊 Quality Score: {assessment_result.overall_score:.1f}/100 (Required: {min_score:.1f}/100)\n"
-                f"📋 Standard: {standard_name}\n"
+                f"📋 Contract: {contract_name}\n"
                 f"🚀 Function: {function_name}"
             )
         else:
             return (
                 f"🛡️ ADRI Protection: ALLOWED ✅\n"
-                f"📊 Score: {assessment_result.overall_score:.1f}/100 | Standard: {standard_name}"
+                f"📊 Score: {assessment_result.overall_score:.1f}/100 | Contract: {contract_name}"
             )
 
     def _invoke_assessment_callback(
@@ -785,3 +911,6 @@ def selective_mode(config: dict[str, Any] | None = None) -> SelectiveMode:
 def warn_only_mode(config: dict[str, Any] | None = None) -> WarnOnlyMode:
     """Create a warn-only protection mode."""
     return WarnOnlyMode(config)
+
+
+# @ADRI_FEATURE_END[guard_protection_modes]

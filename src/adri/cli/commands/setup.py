@@ -109,15 +109,15 @@ class SetupCommand(Command):
 #
 # Directory Structure Created:
 # - tutorials/                → Packaged learning examples for onboarding and tutorial data
-# - standards/                → Generic directory name used throughout documentation
+# - contracts/                → Generic directory name used throughout documentation
 # - assessments/              → Generic directory name used throughout documentation
 # - training-data/            → Generic directory name used throughout documentation
 # - audit-logs/               → Generic directory name used throughout documentation
-# - ADRI/dev/standards        → Development YAML standard files are stored (quality validation rules)
+# - ADRI/dev/contracts        → Development YAML contract files are stored (quality validation rules)
 # - ADRI/dev/assessments      → Development assessment reports are saved (JSON quality reports)
 # - ADRI/dev/training-data    → Development training data snapshots are preserved (SHA256 integrity tracking)
 # - ADRI/dev/audit-logs       → Development audit logs are stored (CSV activity tracking)
-# - ADRI/prod/standards       → Production-validated YAML standards
+# - ADRI/prod/contracts       → Production-validated YAML contracts
 # - ADRI/prod/assessments     → Production business-critical quality reports
 # - ADRI/prod/training-data   → Production training data snapshots for lineage tracking
 # - ADRI/prod/audit-logs      → Production regulatory compliance tracking and compliance and security logging
@@ -131,13 +131,13 @@ class SetupCommand(Command):
 #
 # Environment purposes:
 # Development:
-#   - Standard creation, testing, and experimentation
-#   - Creating new data quality standards
-#   - Testing standards against various datasets
+#   - Contract creation, testing, and experimentation
+#   - Creating new data quality contracts
+#   - Testing contracts against various datasets
 #   - tutorial data
 # Production:
-#   - Validated standards and production data quality
-#   - Deploying proven standards
+#   - Validated contracts and production data quality
+#   - Deploying proven contracts
 #   - Enterprise governance
 #   - CI/CD pipelines
 #
@@ -161,9 +161,9 @@ class SetupCommand(Command):
 # - regulatory compliance
 #
 # Production Workflow:
-# - Create and test standards in development
-# - Validate standards with various test datasets
-# - Copy proven standards from dev/standards/ to prod/standards/
+# - Create and test contracts in development
+# - Validate contracts with various test datasets
+# - Copy proven contracts from dev/contracts/ to prod/contracts/
 # - Switch to production environment
 # - Monitor production audit logs
 #
@@ -186,7 +186,7 @@ class SetupCommand(Command):
                 "environments": {
                     "development": {
                         "paths": {
-                            "standards": "ADRI/dev/standards",
+                            "contracts": "ADRI/dev/contracts",
                             "assessments": "ADRI/dev/assessments",
                             "training_data": "ADRI/dev/training-data",
                             "audit_logs": "ADRI/dev/audit-logs",
@@ -202,7 +202,7 @@ class SetupCommand(Command):
                     },
                     "production": {
                         "paths": {
-                            "standards": "ADRI/prod/standards",
+                            "contracts": "ADRI/prod/contracts",
                             "assessments": "ADRI/prod/assessments",
                             "training_data": "ADRI/prod/training-data",
                             "audit_logs": "ADRI/prod/audit-logs",
@@ -270,7 +270,7 @@ INV-110,DUPLICATE-ID,875.25,2024-02-24,paid,credit_card"""
             click.echo(
                 "   📚 tutorials/invoice_processing/ - Invoice processing tutorial"
             )
-            click.echo("   📋 dev/standards/     - Quality rules")
+            click.echo("   📋 dev/contracts/     - Quality rules")
             click.echo("   📊 dev/assessments/   - Assessment reports")
             click.echo("   📄 dev/training-data/ - Preserved data snapshots")
             click.echo("   📈 dev/audit-logs/    - Comprehensive audit trail")
@@ -278,7 +278,7 @@ INV-110,DUPLICATE-ID,875.25,2024-02-24,paid,credit_card"""
             click.echo("💡 Note: Commands use relative paths from project root")
             click.echo("")
             click.echo(
-                "▶ Next Step 2 of 4: adri generate-standard tutorials/invoice_processing/invoice_data.csv --guide"
+                "▶ Next Step 2 of 4: adri generate-contract tutorials/invoice_processing/invoice_data.csv --guide"
             )
 
     def get_name(self) -> str:

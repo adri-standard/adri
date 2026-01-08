@@ -1,3 +1,5 @@
+# @ADRI_FEATURE[core_validator_engine, scope=SHARED]
+# Description: Core validation engine for data quality assessment used by both enterprise and open source
 """
 ADRI Validator Engine.
 
@@ -6,7 +8,9 @@ Migrated from adri/core/assessor.py for the new src/ layout.
 """
 
 import os
+import sys
 import time
+import logging
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -15,6 +19,9 @@ import pandas as pd
 
 # Clean imports for new modular architecture
 from ..logging.local import CSVAuditLogger
+
+# Get logger for this module
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -63,9 +70,9 @@ class ThresholdResolver:
         # Priority 2: Standard file overall_minimum
         if standard_path:
             try:
-                from .loaders import load_standard
+                from .loaders import load_contract
 
-                standard_dict = load_standard(standard_path)
+                standard_dict = load_contract(standard_path)
                 overall_minimum = standard_dict.get("requirements", {}).get(
                     "overall_minimum"
                 )
@@ -798,8 +805,6 @@ class DataQualityAssessor:
         # DIAGNOSTIC LOGGING - Issue #35 Parity Investigation
         # Only enabled when ADRI_DEBUG environment variable is set
         if _should_enable_debug():
-            import sys
-
             diagnostic_log = []
 
             # Log entry point
@@ -807,6 +812,20 @@ class DataQualityAssessor:
             diagnostic_log.append(f"standard_path: {standard_path}")
             diagnostic_log.append(f"data shape: {getattr(data, 'shape', 'N/A')}")
             diagnostic_log.append(f"data type: {type(data).__name__}")
+
+        # EMPTY DATASET VALIDATION (MUST FAIL IMMEDIATELY)
+        # Data contracts REQUIRE data to exist - empty datasets ALWAYS fail
+        # Check for zero records BEFORE any other validation or processing
+        record_count = len(data) if hasattr(data, "__len__") else 0
+
+        if record_count == 0:
+            error_msg = (
+                "Data contract validation failed: No data received.\n"
+                "Data contracts require at least one record to validate.\n"
+                "Check data source availability before processing."
+            )
+            logger.error(f"🔴 [EMPTY_DATASET] {error_msg}")
+            raise ValueError(error_msg)
 
         # Handle different data formats
         if hasattr(data, "to_frame"):
@@ -830,10 +849,13 @@ class DataQualityAssessor:
             diagnostic_log.append(f"Final data columns: {list(data.columns)}")
 
         # Run assessment using pipeline
+        schema_result = None  # Initialize schema result
+
         if standard_path:
-            # Load standard and use pipeline
+            # Load standard for schema validation - use lenient YAML loading for schema check
             try:
-                from .loaders import load_standard
+                from .schema_validator import validate_schema_compatibility
+                import yaml
 
                 if _should_enable_debug():
                     diagnostic_log.append(f"Loading standard from: {standard_path}")
@@ -841,7 +863,198 @@ class DataQualityAssessor:
                         f"Standard file exists: {os.path.exists(standard_path)}"
                     )
 
-                standard_dict = load_standard(standard_path)
+                # Load YAML directly without contract validation for schema purposes
+                with open(standard_path, "r", encoding="utf-8") as f:
+                    standard_dict = yaml.safe_load(f)
+
+                field_requirements = standard_dict.get("requirements", {}).get(
+                    "field_requirements", {}
+                )
+
+                # Run schema validation BEFORE dimension assessments
+                if _should_enable_debug():
+                    diagnostic_log.append("Running schema validation...")
+
+                # Read strict_case_matching from config (default: False)
+                strict_case_matching = self.config.get("schema_validation", {}).get(
+                    "strict_case_matching", False
+                )
+
+                schema_result = validate_schema_compatibility(
+                    data, field_requirements, strict_mode=strict_case_matching
+                )
+
+                if _should_enable_debug():
+                    diagnostic_log.append(
+                        f"Schema validation complete: {schema_result.match_percentage:.1f}% match"
+                    )
+                    diagnostic_log.append(
+                        f"Schema warnings: {len(schema_result.warnings)}"
+                    )
+
+                # AUTO-FIX: Apply case-insensitive matching by default (unless strict mode)
+                if (
+                    not strict_case_matching
+                    and schema_result.case_insensitive_matches > 0
+                ):
+                    # Find case mismatch warning
+                    case_mismatch_warnings = [
+                        w
+                        for w in schema_result.warnings
+                        if w.type.value == "FIELD_CASE_MISMATCH"
+                        and w.case_insensitive_matches
+                    ]
+
+                    if case_mismatch_warnings:
+                        # Auto-rename columns to match standard case
+                        rename_dict = case_mismatch_warnings[0].case_insensitive_matches
+                        data = data.rename(columns=rename_dict)
+
+                        if _should_enable_debug():
+                            diagnostic_log.append(
+                                f"Auto-fixed {len(rename_dict)} field names to match standard case"
+                            )
+
+                        # Clear case mismatch warnings since we auto-fixed
+                        schema_result.warnings = [
+                            w
+                            for w in schema_result.warnings
+                            if w.type.value != "FIELD_CASE_MISMATCH"
+                        ]
+                        # Update match statistics
+                        schema_result.exact_matches += (
+                            schema_result.case_insensitive_matches
+                        )
+                        schema_result.match_percentage = (
+                            (
+                                schema_result.exact_matches
+                                / schema_result.total_standard_fields
+                                * 100
+                            )
+                            if schema_result.total_standard_fields
+                            else 100.0
+                        )
+                        schema_result.case_insensitive_matches = 0
+
+                # DATA CONTRACT ENFORCEMENT: Filter to schema-defined fields only
+                # This ensures only contract-compliant fields exist in the data
+                # Extra fields are removed to enforce clean data contracts
+                # This is ALWAYS enabled - no flag needed (contracts are mandatory)
+                if field_requirements:
+                    original_fields = set(data.columns)
+                    schema_fields = set(field_requirements.keys())
+                    extra_fields = original_fields - schema_fields
+
+                    if extra_fields:
+                        # Filter dataframe to only include schema fields
+                        data = data[
+                            [col for col in data.columns if col in schema_fields]
+                        ]
+
+                        if _should_enable_debug():
+                            diagnostic_log.append(
+                                f"Contract enforcement: Removed {len(extra_fields)} non-schema fields"
+                            )
+
+                        # Update schema warnings - remove UNEXPECTED_FIELDS warning since we filtered them
+                        schema_result.warnings = [
+                            w
+                            for w in schema_result.warnings
+                            if w.type.value != "UNEXPECTED_FIELDS"
+                        ]
+
+                        # Add INFO-level log that fields were filtered for contract compliance
+                        logger.info(
+                            f"🛡️  Data contract enforced: Removed {len(extra_fields)} non-schema fields"
+                        )
+
+                # BINARY SCHEMA VALIDATION: Fail immediately if field match is not 100%
+                # After auto-fixes and filtering, we require perfect schema alignment
+                if schema_result.match_percentage < 100.0:
+                    # Log schema warnings for context
+                    if schema_result.warnings:
+                        self._log_schema_warnings(schema_result, data)
+
+                    # Raise error with clear message
+                    missing_fields = [
+                        w.affected_fields
+                        for w in schema_result.warnings
+                        if w.type.value in ["MISSING_REQUIRED_FIELDS", "MISSING_FIELDS"]
+                    ]
+                    missing_list = []
+                    for fields in missing_fields:
+                        if fields:
+                            missing_list.extend(fields)
+
+                    error_msg = (
+                        f"Schema validation failed: {schema_result.match_percentage:.1f}% field match "
+                        f"({schema_result.exact_matches}/{schema_result.total_standard_fields} fields matched). "
+                        f"Required: 100% exact match. "
+                    )
+                    if missing_list:
+                        error_msg += (
+                            f"Missing required fields: {', '.join(missing_list[:5])}"
+                        )
+
+                    raise ValueError(error_msg)
+
+                # Log schema warnings if any remain (for info only - validation passed)
+                if schema_result.warnings:
+                    self._log_schema_warnings(schema_result, data)
+
+            except ValueError as e:
+                # ValueError from schema validation MUST fail the assessment
+                # This is raised when strict_schema_match: true and fields don't match 100%
+                import traceback
+
+                # Log the error for visibility
+                print(
+                    f"[SCHEMA ERROR] Schema validation failed: {str(e)}",
+                    file=sys.stderr,
+                )
+                print(
+                    f"[SCHEMA ERROR] Traceback:\n{traceback.format_exc()}",
+                    file=sys.stderr,
+                )
+                if _should_enable_debug():
+                    diagnostic_log.append(
+                        f"Schema validation raised ValueError: {str(e)}"
+                    )
+                    diagnostic_log.append(f"Traceback: {traceback.format_exc()}")
+                # RE-RAISE the ValueError - do NOT continue execution
+                raise
+            except Exception as e:
+                # Other exceptions (not ValueError) can be handled more gracefully
+                import traceback
+
+                print(
+                    f"[SCHEMA ERROR] Non-fatal schema validation error: {type(e).__name__}: {str(e)}",
+                    file=sys.stderr,
+                )
+                print(
+                    f"[SCHEMA ERROR] Traceback:\n{traceback.format_exc()}",
+                    file=sys.stderr,
+                )
+                if _should_enable_debug():
+                    diagnostic_log.append(
+                        f"Schema validation skipped due to error: {type(e).__name__}: {str(e)}"
+                    )
+                    diagnostic_log.append(f"Traceback: {traceback.format_exc()}")
+                schema_result = None
+
+        # Continue with standard assessment flow
+        if standard_path:
+            # Load standard and use pipeline
+            try:
+                from .loaders import load_contract
+
+                if _should_enable_debug():
+                    diagnostic_log.append(f"Loading standard from: {standard_path}")
+                    diagnostic_log.append(
+                        f"Standard file exists: {os.path.exists(standard_path)}"
+                    )
+
+                standard_dict = load_contract(standard_path)
 
                 if _should_enable_debug():
                     diagnostic_log.append("Standard loaded successfully")
@@ -908,6 +1121,10 @@ class DataQualityAssessor:
                     "No standard_path provided - using basic assessment"
                 )
             result = self.engine._basic_assessment(data)
+
+        # Store schema validation result in metadata if available (for all paths)
+        if schema_result is not None:
+            result.metadata["schema_validation"] = schema_result.to_dict()
 
         # Log dimension scores (debug mode only)
         if _should_enable_debug():
@@ -1040,6 +1257,43 @@ class DataQualityAssessor:
         except Exception as e:
             logging.getLogger(__name__).warning(f"Failed to log effective config: {e}")
 
+    def _log_schema_warnings(self, schema_result: Any, data: pd.DataFrame) -> None:
+        """Log schema validation warnings prominently for user visibility.
+
+        Args:
+            schema_result: SchemaValidationResult object with warnings
+            data: DataFrame that was validated
+        """
+        import logging
+
+        logger = logging.getLogger(__name__)
+
+        # Log summary
+        logger.warning(
+            f"[ADRI SCHEMA] Field match rate: {schema_result.match_percentage:.1f}% "
+            f"({schema_result.exact_matches}/{schema_result.total_standard_fields} exact matches)"
+        )
+
+        # Log each warning with severity
+        for warning in schema_result.warnings:
+            severity_marker = "🔴" if warning.severity == "CRITICAL" else "⚠️"
+            logger.warning(
+                f"{severity_marker} [ADRI SCHEMA] {warning.severity}: {warning.message}"
+            )
+
+            # Log remediation for ERROR and CRITICAL issues
+            if warning.severity in ["CRITICAL", "ERROR"]:
+                logger.warning(f"   Remediation: {warning.remediation[:200]}")
+
+                # For case mismatches, show auto-fix suggestion
+                if warning.auto_fix_available and warning.type == "FIELD_CASE_MISMATCH":
+                    # Show first 3 field mappings as example
+                    if warning.case_insensitive_matches:
+                        examples = list(warning.case_insensitive_matches.items())[:3]
+                        logger.warning("   Auto-fix suggestion available:")
+                        for data_field, std_field in examples:
+                            logger.warning(f"     • {data_field} → {std_field}")
+
     def _collect_validation_failures(
         self, data: pd.DataFrame, result: AssessmentResult
     ) -> list[dict[str, Any]]:
@@ -1054,14 +1308,43 @@ class DataQualityAssessor:
         """
         all_failures = []
 
+        # NEW: Collect schema validation failures FIRST
+        if "schema_validation" in result.metadata:
+            schema_info = result.metadata["schema_validation"]
+            warnings = schema_info.get("warnings", [])
+
+            for warning in warnings:
+                # Only log CRITICAL and ERROR severity schema issues to failed validations
+                if warning.get("severity") in ["CRITICAL", "ERROR"]:
+                    all_failures.append(
+                        {
+                            "dimension": "schema",
+                            "field": ", ".join(
+                                warning.get("affected_fields", [])[:5]
+                            ),  # First 5 fields
+                            "issue_type": warning.get("type", "UNKNOWN"),
+                            "affected_rows": 0,  # Schema issues affect structure, not rows
+                            "affected_percentage": 0.0,
+                            "samples": [],
+                            "remediation": warning.get("remediation", ""),
+                            "severity": warning.get("severity", "ERROR"),
+                            "auto_fix_available": warning.get(
+                                "auto_fix_available", False
+                            ),
+                            "case_insensitive_matches": warning.get(
+                                "case_insensitive_matches"
+                            ),
+                        }
+                    )
+
         try:
             # Get the standard that was used for assessment
             if not hasattr(result, "standard_path") or not result.standard_path:
                 return all_failures
 
-            from .loaders import load_standard
+            from .loaders import load_contract
 
-            standard_dict = load_standard(result.standard_path)
+            standard_dict = load_contract(result.standard_path)
             standard_wrapper = BundledStandardWrapper(standard_dict)
 
             # Get dimension requirements
@@ -1416,13 +1699,28 @@ class ValidationEngine:
 
         Returns:
             AssessmentResult object
+
+        Raises:
+            ValueError: If dataset is empty (0 records)
         """
+        # EMPTY DATASET VALIDATION (MUST FAIL IMMEDIATELY)
+        # Data contracts REQUIRE data to exist - empty datasets ALWAYS fail
+        # Check for zero records BEFORE any other validation or processing
+        if len(data) == 0:
+            error_msg = (
+                "Data contract validation failed: No data received.\n"
+                "Data contracts require at least one record to validate.\n"
+                "Check data source availability before processing."
+            )
+            logger.error(f"🔴 [EMPTY_DATASET] {error_msg}")
+            raise ValueError(error_msg)
+
         if self.pipeline:
             try:
                 # Load standard
-                from .loaders import load_standard
+                from .loaders import load_contract
 
-                yaml_dict = load_standard(standard_path)
+                yaml_dict = load_contract(standard_path)
                 standard_wrapper = BundledStandardWrapper(yaml_dict)
 
                 # Use pipeline for assessment
@@ -1444,9 +1742,9 @@ class ValidationEngine:
 
         # Load the YAML standard
         try:
-            from .loaders import load_standard
+            from .loaders import load_contract
 
-            yaml_dict = load_standard(standard_path)
+            yaml_dict = load_contract(standard_path)
             standard = BundledStandardWrapper(yaml_dict)
         except Exception:  # noqa: E722
             return self._basic_assessment(data)
@@ -2479,3 +2777,4 @@ class ValidationEngine:
 
 # Alias for backward compatibility
 AssessmentEngine = ValidationEngine
+# @ADRI_FEATURE_END[core_validator_engine]

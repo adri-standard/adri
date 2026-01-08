@@ -1,0 +1,667 @@
+contracts:
+  id: langchain_chain_input_standard
+  name: Langchain Chain Input ADRI Standard
+  version: 1.0.0
+  authority: ADRI Framework
+  description: Auto-generated standard for langchain_chain_input data
+record_identification:
+  primary_key_fields:
+  - user_id
+  strategy: primary_key_with_fallback
+requirements:
+  overall_minimum: 75.0
+  field_requirements:
+    input_id:
+      type: string
+      nullable: false
+      min_length: 9
+      max_length: 9
+      pattern: ^[A-Za-z]+-\d{3,}$
+      validation_rules:
+      - name: input_id is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: input_id must not be empty
+      - name: input_id type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: input_id must be of type string
+      - name: input_id length bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: length_bounds
+        rule_expression: LENGTH >= 9 AND LENGTH <= 9
+        error_message: input_id length must be between 9 and 9
+      - name: input_id pattern validation
+        dimension: validity
+        severity: WARNING
+        rule_type: pattern
+        rule_expression: REGEX_MATCH('^[A-Za-z]+-\d{3,}$')
+        error_message: 'input_id must match pattern: ^[A-Za-z]+-\d{3,}$'
+    chain_type:
+      type: string
+      nullable: false
+      allowed_values:
+      - ConversationChain
+      min_length: 17
+      max_length: 17
+      pattern: ^[A-Za-z0-9\-_]+$
+      validation_rules:
+      - name: chain_type is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: chain_type must not be empty
+      - name: chain_type type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: chain_type must be of type string
+      - name: chain_type must be valid value
+        dimension: validity
+        severity: CRITICAL
+        rule_type: allowed_values
+        rule_expression: VALUE_IN(['ConversationChain'])
+        error_message: 'chain_type must be one of: ConversationChain'
+      - name: chain_type length bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: length_bounds
+        rule_expression: LENGTH >= 17 AND LENGTH <= 17
+        error_message: chain_type length must be between 17 and 17
+      - name: chain_type pattern validation
+        dimension: validity
+        severity: WARNING
+        rule_type: pattern
+        rule_expression: REGEX_MATCH('^[A-Za-z0-9\-_]+$')
+        error_message: 'chain_type must match pattern: ^[A-Za-z0-9\-_]+$'
+    user_input:
+      type: string
+      nullable: false
+      allowed_values:
+      - What is the weather today?
+      min_length: 26
+      max_length: 26
+      validation_rules:
+      - name: user_input is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: user_input must not be empty
+      - name: user_input type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: user_input must be of type string
+      - name: user_input must be valid value
+        dimension: validity
+        severity: CRITICAL
+        rule_type: allowed_values
+        rule_expression: VALUE_IN(['What is the weather today?'])
+        error_message: 'user_input must be one of: What is the weather today?'
+      - name: user_input length bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: length_bounds
+        rule_expression: LENGTH >= 26 AND LENGTH <= 26
+        error_message: user_input length must be between 26 and 26
+    context:
+      type: string
+      nullable: false
+      allowed_values:
+      - User is located in San Francisco
+      min_length: 32
+      max_length: 32
+      validation_rules:
+      - name: context is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: context must not be empty
+      - name: context type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: context must be of type string
+      - name: context must be valid value
+        dimension: validity
+        severity: CRITICAL
+        rule_type: allowed_values
+        rule_expression: VALUE_IN(['User is located in San Francisco'])
+        error_message: 'context must be one of: User is located in San Francisco'
+      - name: context length bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: length_bounds
+        rule_expression: LENGTH >= 32 AND LENGTH <= 32
+        error_message: context length must be between 32 and 32
+    temperature:
+      type: float
+      nullable: false
+      min_value: 0.7
+      max_value: 0.7
+      validation_rules:
+      - name: temperature is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: temperature must not be empty
+      - name: temperature type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_FLOAT
+        error_message: temperature must be of type float
+      - name: temperature numeric bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: numeric_bounds
+        rule_expression: VALUE >= 0.7 AND VALUE <= 0.7
+        error_message: temperature must be between 0.7 and 0.7
+    max_tokens:
+      type: float
+      nullable: false
+      min_value: 500.0
+      max_value: 500.0
+      validation_rules:
+      - name: max_tokens is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: max_tokens must not be empty
+      - name: max_tokens type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_FLOAT
+        error_message: max_tokens must be of type float
+      - name: max_tokens numeric bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: numeric_bounds
+        rule_expression: VALUE >= 500.0 AND VALUE <= 500.0
+        error_message: max_tokens must be between 500.0 and 500.0
+    model_name:
+      type: string
+      nullable: false
+      allowed_values:
+      - gpt-4
+      min_length: 5
+      max_length: 5
+      pattern: ^[A-Za-z0-9\-_]+$
+      validation_rules:
+      - name: model_name is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: model_name must not be empty
+      - name: model_name type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: model_name must be of type string
+      - name: model_name must be valid value
+        dimension: validity
+        severity: CRITICAL
+        rule_type: allowed_values
+        rule_expression: VALUE_IN(['gpt-4'])
+        error_message: 'model_name must be one of: gpt-4'
+      - name: model_name length bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: length_bounds
+        rule_expression: LENGTH >= 5 AND LENGTH <= 5
+        error_message: model_name length must be between 5 and 5
+      - name: model_name pattern validation
+        dimension: validity
+        severity: WARNING
+        rule_type: pattern
+        rule_expression: REGEX_MATCH('^[A-Za-z0-9\-_]+$')
+        error_message: 'model_name must match pattern: ^[A-Za-z0-9\-_]+$'
+    timestamp:
+      type: string
+      nullable: false
+      validation_rules:
+      - name: timestamp is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: timestamp must not be empty
+      - name: timestamp type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_DATE
+        error_message: timestamp must be of type date
+      - name: timestamp date bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: date_bounds
+        rule_expression: DATE >= '2025-01-14' AND DATE <= '2025-01-20'
+        error_message: timestamp must be within date range
+    user_id:
+      type: string
+      nullable: false
+      min_length: 8
+      max_length: 8
+      pattern: ^[A-Za-z]+-\d{3,}$
+      validation_rules:
+      - name: user_id is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: user_id must not be empty
+      - name: user_id type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: user_id must be of type string
+      - name: user_id length bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: length_bounds
+        rule_expression: LENGTH >= 8 AND LENGTH <= 8
+        error_message: user_id length must be between 8 and 8
+      - name: user_id pattern validation
+        dimension: validity
+        severity: WARNING
+        rule_type: pattern
+        rule_expression: REGEX_MATCH('^[A-Za-z]+-\d{3,}$')
+        error_message: 'user_id must match pattern: ^[A-Za-z]+-\d{3,}$'
+    session_id:
+      type: string
+      nullable: false
+      min_length: 11
+      max_length: 11
+      pattern: ^[A-Za-z]+-\d{3,}$
+      validation_rules:
+      - name: session_id is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: session_id must not be empty
+      - name: session_id type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: session_id must be of type string
+      - name: session_id length bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: length_bounds
+        rule_expression: LENGTH >= 11 AND LENGTH <= 11
+        error_message: session_id length must be between 11 and 11
+      - name: session_id pattern validation
+        dimension: validity
+        severity: WARNING
+        rule_type: pattern
+        rule_expression: REGEX_MATCH('^[A-Za-z]+-\d{3,}$')
+        error_message: 'session_id must match pattern: ^[A-Za-z]+-\d{3,}$'
+    memory_enabled:
+      type: boolean
+      nullable: false
+      validation_rules:
+      - name: memory_enabled is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: memory_enabled must not be empty
+      - name: memory_enabled type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_BOOLEAN
+        error_message: memory_enabled must be of type boolean
+    history_length:
+      type: float
+      nullable: false
+      min_value: 5.0
+      max_value: 5.0
+      validation_rules:
+      - name: history_length is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: history_length must not be empty
+      - name: history_length type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_FLOAT
+        error_message: history_length must be of type float
+      - name: history_length numeric bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: numeric_bounds
+        rule_expression: VALUE >= 5.0 AND VALUE <= 5.0
+        error_message: history_length must be between 5.0 and 5.0
+  dimension_requirements:
+    validity:
+      minimum_score: 15.0
+      weight: 1.0
+      scoring:
+        rule_weights:
+          type: 0.375
+          length_bounds: 0.21875
+          pattern: 0.15625
+          allowed_values: 0.125
+          numeric_bounds: 0.09375
+          date_bounds: 0.03125
+        field_overrides: {}
+    completeness:
+      minimum_score: 15.0
+      weight: 1.0
+      scoring:
+        rule_weights:
+          missing_required: 0.07692307692307693
+          not_null: 0.9230769230769231
+        field_overrides: {}
+    consistency:
+      minimum_score: 12.0
+      weight: 1.0
+      scoring:
+        rule_weights:
+          primary_key_uniqueness: 0.3333333333333333
+          format_consistency: 0.3333333333333333
+          cross_field_logic: 0.3333333333333333
+        field_overrides: {}
+    freshness:
+      minimum_score: 15.0
+      weight: 1.0
+      scoring:
+        rule_weights:
+          recency_window: 1.0
+        field_overrides: {}
+    plausibility:
+      minimum_score: 12.0
+      weight: 1.0
+      scoring:
+        rule_weights: {}
+        field_overrides: {}
+metadata:
+  explanations_note: Explanations are for human review; only requirements.field_requirements
+    are enforced.
+  explanations_glossary:
+    iqr: 'Interquartile Range (Q3 - Q1): a robust measure of spread, less sensitive
+      to outliers.'
+    q1: 25th percentile of the training values.
+    q3: 75th percentile of the training values.
+    coverage: Share of non-null training values that satisfy the rule.
+    unique_count: Number of distinct non-null values observed in training.
+    mad: 'Median Absolute Deviation: robust measure of variability around the median.'
+    quantile: Statistical measure dividing data into equal-sized intervals.
+    training_pass: Guarantee that generated rules pass on the training data used for
+      generation.
+    enum_strategy: Method used for allowed values inference (coverage or tolerant).
+    margin_days: Buffer added to date ranges to allow for reasonable variations.
+  explanations:
+    input_id:
+      type: string
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      length_bounds:
+        active_min: 9
+        active_max: 9
+        stats:
+          observed_min: 9
+          observed_max: 9
+      pattern:
+        regex: ^[A-Za-z]+-\d{3,}$
+        reason: 100% coverage on training non-nulls
+        stats:
+          coverage: 1.0
+    chain_type:
+      type: string
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      allowed_values:
+        values:
+        - ConversationChain
+        reason: High coverage stable set
+        stats:
+          coverage: 1.0
+          unique_count: 1
+          strategy: coverage
+      length_bounds:
+        active_min: 17
+        active_max: 17
+        stats:
+          observed_min: 17
+          observed_max: 17
+      pattern:
+        regex: ^[A-Za-z0-9\-_]+$
+        reason: 100% coverage on training non-nulls
+        stats:
+          coverage: 1.0
+    user_input:
+      type: string
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      allowed_values:
+        values:
+        - What is the weather today?
+        reason: High coverage stable set
+        stats:
+          coverage: 1.0
+          unique_count: 1
+          strategy: coverage
+      length_bounds:
+        active_min: 26
+        active_max: 26
+        stats:
+          observed_min: 26
+          observed_max: 26
+    context:
+      type: string
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      allowed_values:
+        values:
+        - User is located in San Francisco
+        reason: High coverage stable set
+        stats:
+          coverage: 1.0
+          unique_count: 1
+          strategy: coverage
+      length_bounds:
+        active_min: 32
+        active_max: 32
+        stats:
+          observed_min: 32
+          observed_max: 32
+    temperature:
+      type: float
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      range:
+        strategy: iqr
+        active_min: 0.7
+        active_max: 0.7
+        reason: Robust range (IQR/Quantile/MAD) clamped to training min/max for pass
+          guarantee
+        stats:
+          q1: 0.7
+          q3: 0.7
+          iqr_k: 1.5
+          observed_min: 0.7
+          observed_max: 0.7
+    max_tokens:
+      type: float
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      range:
+        strategy: iqr
+        active_min: 500.0
+        active_max: 500.0
+        reason: Robust range (IQR/Quantile/MAD) clamped to training min/max for pass
+          guarantee
+        stats:
+          q1: 500.0
+          q3: 500.0
+          iqr_k: 1.5
+          observed_min: 500.0
+          observed_max: 500.0
+    model_name:
+      type: string
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      allowed_values:
+        values:
+        - gpt-4
+        reason: High coverage stable set
+        stats:
+          coverage: 1.0
+          unique_count: 1
+          strategy: coverage
+      length_bounds:
+        active_min: 5
+        active_max: 5
+        stats:
+          observed_min: 5
+          observed_max: 5
+      pattern:
+        regex: ^[A-Za-z0-9\-_]+$
+        reason: 100% coverage on training non-nulls
+        stats:
+          coverage: 1.0
+    timestamp:
+      type: string
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+    user_id:
+      type: string
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      length_bounds:
+        active_min: 8
+        active_max: 8
+        stats:
+          observed_min: 8
+          observed_max: 8
+      pattern:
+        regex: ^[A-Za-z]+-\d{3,}$
+        reason: 100% coverage on training non-nulls
+        stats:
+          coverage: 1.0
+    session_id:
+      type: string
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      length_bounds:
+        active_min: 11
+        active_max: 11
+        stats:
+          observed_min: 11
+          observed_max: 11
+      pattern:
+        regex: ^[A-Za-z]+-\d{3,}$
+        reason: 100% coverage on training non-nulls
+        stats:
+          coverage: 1.0
+    memory_enabled:
+      type: boolean
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+    history_length:
+      type: float
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      range:
+        strategy: iqr
+        active_min: 5.0
+        active_max: 5.0
+        reason: Robust range (IQR/Quantile/MAD) clamped to training min/max for pass
+          guarantee
+        stats:
+          q1: 5.0
+          q3: 5.0
+          iqr_k: 1.5
+          observed_min: 5.0
+          observed_max: 5.0
+  freshness:
+    as_of: '2025-01-18T10:00:00Z'
+    window_days: 365
+    date_field: timestamp
+  plausibility_templates: '# plausibility:
+
+    #   scoring:
+
+    #     rule_weights:
+
+    #       numeric_sigma: 1.0      # enable if not overlapping with validity numeric_bounds
+
+    #       categorical_tail: 1.0   # enable to flag rare categories
+
+    #   notes: "Disabled by default to avoid overlap with Validity. Review before
+    enabling."
+
+    '

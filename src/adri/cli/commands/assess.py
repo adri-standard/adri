@@ -1,3 +1,5 @@
+# @ADRI_FEATURE[cli_assess_command, scope=OPEN_SOURCE]
+# Description: CLI assess command for running data quality assessments
 """Assess command implementation for ADRI CLI.
 
 This module contains the AssessCommand class that handles data quality assessment
@@ -20,7 +22,7 @@ from ...utils.path_utils import (
     resolve_project_path,
 )
 from ...validator.engine import DataQualityAssessor
-from ...validator.loaders import load_data, load_standard
+from ...validator.loaders import load_data, load_contract
 
 
 def _progressive_echo(text: str, delay: float = 0.0) -> None:
@@ -175,7 +177,7 @@ class AssessCommand(Command):
     def _get_threshold_from_standard(self, standard_path: Path) -> float:
         """Read requirements.overall_minimum from a standard YAML."""
         try:
-            std = load_standard(str(standard_path))
+            std = load_contract(str(standard_path))
             req = std.get("requirements", {}) if isinstance(std, dict) else {}
             thr = float(req.get("overall_minimum", 75.0))
             return max(0.0, min(100.0, thr))  # Clamp to [0, 100]
@@ -414,3 +416,6 @@ class AssessCommand(Command):
     def get_name(self) -> str:
         """Get the command name."""
         return "assess"
+
+
+# @ADRI_FEATURE_END[cli_assess_command]

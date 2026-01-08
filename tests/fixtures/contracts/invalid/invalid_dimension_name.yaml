@@ -1,0 +1,12 @@
+# Invalid dimension name
+contracts:
+  id: "test_invalid_dimension"
+  name: "Invalid Dimension Name Test"
+  version: "1.0.0"
+  description: "Standard with invalid dimension name"
+
+requirements:
+  dimension_requirements:
+    invalid_dimension:  # Invalid: not a recognized ADRI dimension
+      weight: 3
+  overall_minimum: 70

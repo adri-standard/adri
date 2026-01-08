@@ -1,3 +1,5 @@
+# @ADRI_FEATURE[cli_view_logs, scope=OPEN_SOURCE]
+# Description: CLI command for viewing and analyzing ADRI audit logs
 """View logs command implementation for ADRI CLI.
 
 This module contains the ViewLogsCommand class that handles audit log
@@ -462,3 +464,6 @@ class ViewLogsCommand(Command):
     def get_name(self) -> str:
         """Get the command name."""
         return "view-logs"
+
+
+# @ADRI_FEATURE_END[cli_view_logs]

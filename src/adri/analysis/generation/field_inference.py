@@ -31,6 +31,7 @@ class FieldInferenceEngine:
 
     def __init__(self):
         """Initialize the field inference engine."""
+        self._correlation_threshold = 0.7  # Threshold for detecting derived fields
 
     def infer_field_requirements(
         self,
@@ -125,6 +126,372 @@ class FieldInferenceEngine:
 
         return req
 
+    def detect_derived_fields(
+        self, data: pd.DataFrame, field_requirements: dict[str, Any]
+    ) -> dict[str, dict[str, Any]]:
+        """Detect fields that appear to be derived from other fields.
+
+        Analyzes categorical fields to identify those that may be computed
+        from other fields based on statistical correlations and patterns.
+
+        Args:
+            data: DataFrame containing the data to analyze
+            field_requirements: Existing field requirements
+
+        Returns:
+            Dictionary mapping field names to their derivation metadata
+        """
+        derived_fields = {}
+
+        # Only analyze categorical fields with allowed_values
+        categorical_fields = {
+            name: req
+            for name, req in field_requirements.items()
+            if "allowed_values" in req and isinstance(req["allowed_values"], list)
+        }
+
+        for field_name, field_req in categorical_fields.items():
+            if field_name not in data.columns:
+                continue
+
+            # Analyze correlations with other fields
+            correlated_fields = self._find_correlated_fields(
+                field_name, data, field_requirements
+            )
+
+            if correlated_fields:
+                derived_fields[field_name] = {
+                    "is_derived": True,
+                    "input_fields": correlated_fields,
+                    "allowed_values": field_req["allowed_values"],
+                    "confidence": self._calculate_derivation_confidence(
+                        field_name, correlated_fields, data
+                    ),
+                }
+
+        return derived_fields
+
+    def _find_correlated_fields(
+        self, target_field: str, data: pd.DataFrame, field_requirements: dict[str, Any]
+    ) -> list[str]:
+        """Find fields that correlate with the target categorical field.
+
+        Args:
+            target_field: Name of the categorical field to analyze
+            data: DataFrame containing the data
+            field_requirements: Field requirements for type information
+
+        Returns:
+            List of field names that correlate with the target
+        """
+        correlated = []
+        target_series = data[target_field]
+
+        for other_field in data.columns:
+            if other_field == target_field:
+                continue
+
+            # Skip if other field is also categorical with many values
+            if other_field in field_requirements:
+                other_req = field_requirements[other_field]
+                if "allowed_values" in other_req:
+                    if len(other_req["allowed_values"]) > 10:
+                        continue
+
+            # Calculate correlation based on field type
+            try:
+                correlation = self._calculate_categorical_correlation(
+                    target_series, data[other_field]
+                )
+
+                if correlation >= self._correlation_threshold:
+                    correlated.append(other_field)
+            except Exception:
+                # Skip fields that can't be analyzed
+                continue
+
+        return correlated
+
+    def _calculate_categorical_correlation(
+        self, target: pd.Series, predictor: pd.Series
+    ) -> float:
+        """Calculate correlation between categorical target and predictor field.
+
+        Uses Cramér's V for categorical predictors and correlation ratio for numeric.
+
+        Args:
+            target: Target categorical series
+            predictor: Predictor series (categorical or numeric)
+
+        Returns:
+            Correlation coefficient between 0 and 1
+        """
+        # Remove missing values
+        mask = target.notna() & predictor.notna()
+        if mask.sum() < 10:  # Need at least 10 samples
+            return 0.0
+
+        target_clean = target[mask]
+        predictor_clean = predictor[mask]
+
+        # Check if predictor is numeric
+        try:
+            predictor_numeric = pd.to_numeric(predictor_clean, errors="coerce")
+            if predictor_numeric.notna().sum() / len(predictor_numeric) > 0.8:
+                # Use correlation ratio (eta) for numeric predictor
+                return self._correlation_ratio(target_clean, predictor_numeric)
+        except Exception:
+            pass
+
+        # Use Cramér's V for categorical predictor
+        return self._cramers_v(target_clean, predictor_clean)
+
+    def _correlation_ratio(self, categories: pd.Series, values: pd.Series) -> float:
+        """Calculate correlation ratio (eta) between categorical and numeric variables.
+
+        Args:
+            categories: Categorical variable
+            values: Numeric variable
+
+        Returns:
+            Correlation ratio between 0 and 1
+        """
+        # Calculate overall mean
+        overall_mean = values.mean()
+
+        # Calculate sum of squares between groups
+        ss_between = 0.0
+        for category in categories.unique():
+            category_values = values[categories == category]
+            if len(category_values) > 0:
+                category_mean = category_values.mean()
+                ss_between += len(category_values) * (category_mean - overall_mean) ** 2
+
+        # Calculate total sum of squares
+        ss_total = ((values - overall_mean) ** 2).sum()
+
+        if ss_total == 0:
+            return 0.0
+
+        # Correlation ratio is sqrt(SS_between / SS_total)
+        eta_squared = ss_between / ss_total
+        return eta_squared**0.5
+
+    def _cramers_v(self, x: pd.Series, y: pd.Series) -> float:
+        """Calculate Cramér's V statistic for categorical association.
+
+        Args:
+            x: First categorical variable
+            y: Second categorical variable
+
+        Returns:
+            Cramér's V between 0 and 1
+        """
+        # Create contingency table
+        contingency_table = pd.crosstab(x, y)
+
+        # Calculate chi-square statistic
+        n = contingency_table.sum().sum()
+        if n == 0:
+            return 0.0
+
+        # Calculate expected frequencies and chi-square
+        row_sums = contingency_table.sum(axis=1)
+        col_sums = contingency_table.sum(axis=0)
+
+        chi_square = 0.0
+        for i in range(len(row_sums)):
+            for j in range(len(col_sums)):
+                expected = (row_sums.iloc[i] * col_sums.iloc[j]) / n
+                if expected > 0:
+                    observed = contingency_table.iloc[i, j]
+                    chi_square += ((observed - expected) ** 2) / expected
+
+        # Calculate Cramér's V
+        min_dim = min(len(row_sums) - 1, len(col_sums) - 1)
+        if min_dim == 0:
+            return 0.0
+
+        cramers_v = (chi_square / (n * min_dim)) ** 0.5
+        return min(cramers_v, 1.0)  # Cap at 1.0
+
+    def _calculate_derivation_confidence(
+        self, target_field: str, input_fields: list[str], data: pd.DataFrame
+    ) -> float:
+        """Calculate confidence score for derived field detection.
+
+        Args:
+            target_field: Name of the target field
+            input_fields: List of correlated input fields
+            data: DataFrame containing the data
+
+        Returns:
+            Confidence score between 0 and 1
+        """
+        if not input_fields:
+            return 0.0
+
+        # Average correlation strength across all input fields
+        correlations = []
+        target_series = data[target_field]
+
+        for input_field in input_fields:
+            try:
+                corr = self._calculate_categorical_correlation(
+                    target_series, data[input_field]
+                )
+                correlations.append(corr)
+            except Exception:
+                continue
+
+        if not correlations:
+            return 0.0
+
+        return sum(correlations) / len(correlations)
+
+    def generate_derivation_rules(
+        self, field_name: str, derivation_metadata: dict[str, Any], data: pd.DataFrame
+    ) -> dict[str, Any]:
+        """Generate placeholder derivation rules for a derived field.
+
+        Creates enhanced allowed_values structure with derivation rules
+        based on detected correlations and data patterns.
+
+        Args:
+            field_name: Name of the field
+            derivation_metadata: Metadata about the derivation
+            data: DataFrame containing the data
+
+        Returns:
+            Enhanced allowed_values dictionary with derivation rules
+        """
+        allowed_values = derivation_metadata["allowed_values"]
+        input_fields = derivation_metadata["input_fields"]
+
+        # Create enhanced allowed_values structure
+        enhanced_values = {}
+
+        # Analyze patterns for each category value
+        target_series = data[field_name]
+        for precedence, category_value in enumerate(sorted(allowed_values), start=1):
+            # Find records with this category value
+            category_mask = target_series == category_value
+            category_data = data[category_mask]
+
+            if len(category_data) == 0:
+                continue
+
+            # Generate definition based on data characteristics
+            definition = self._generate_category_definition(
+                category_value, category_data, input_fields, data
+            )
+
+            # Generate placeholder derivation rule
+            derivation_rule = self._generate_placeholder_rule(
+                category_value, category_data, input_fields, data
+            )
+
+            enhanced_values[str(category_value)] = {
+                "definition": definition,
+                "precedence": precedence,
+                "derivation_rule": derivation_rule,
+            }
+
+        return enhanced_values
+
+    def _generate_category_definition(
+        self,
+        category_value: Any,
+        category_data: pd.DataFrame,
+        input_fields: list[str],
+        all_data: pd.DataFrame,
+    ) -> str:
+        """Generate a human-readable definition for a category.
+
+        Args:
+            category_value: The category value
+            category_data: Data records with this category
+            input_fields: Input fields that correlate with this category
+            all_data: Complete dataset
+
+        Returns:
+            Human-readable definition string
+        """
+        if not input_fields:
+            return f"Records categorized as '{category_value}'"
+
+        # Analyze most common values in input fields for this category
+        characteristics = []
+        for field in input_fields[:2]:  # Use top 2 most correlated fields
+            if field in category_data.columns:
+                # Find most common value for this field in this category
+                value_counts = category_data[field].value_counts()
+                if len(value_counts) > 0:
+                    most_common = value_counts.index[0]
+                    frequency = value_counts.iloc[0] / len(category_data)
+
+                    if frequency > 0.5:  # If more than 50% have this value
+                        characteristics.append(f"{field} = '{most_common}'")
+
+        if characteristics:
+            return f"{category_value}: Typically when {' AND '.join(characteristics)}"
+        else:
+            return f"{category_value} category"
+
+    def _generate_placeholder_rule(
+        self,
+        category_value: Any,
+        category_data: pd.DataFrame,
+        input_fields: list[str],
+        all_data: pd.DataFrame,
+    ) -> dict[str, Any]:
+        """Generate a placeholder derivation rule.
+
+        Args:
+            category_value: The category value
+            category_data: Data records with this category
+            input_fields: Input fields that correlate with this category
+            all_data: Complete dataset
+
+        Returns:
+            Derivation rule dictionary
+        """
+        if not input_fields:
+            return {
+                "type": "ordered_conditions",
+                "inputs": [],
+                "logic": f"TODO: Define conditions for '{category_value}'",
+            }
+
+        # Analyze patterns to suggest rule logic
+        conditions = []
+        for field in input_fields[:2]:  # Top 2 fields
+            if field in category_data.columns:
+                # Find most common value
+                value_counts = category_data[field].value_counts()
+                if len(value_counts) > 0:
+                    most_common = value_counts.index[0]
+                    frequency = value_counts.iloc[0] / len(category_data)
+
+                    if frequency > 0.5:
+                        conditions.append(f"{field} = '{most_common}'")
+
+        if conditions:
+            logic = f"IF {' AND '.join(conditions)} THEN '{category_value}'"
+        else:
+            logic = f"TODO: Define conditions for '{category_value}'"
+
+        return {
+            "type": "ordered_conditions",
+            "inputs": input_fields,
+            "logic": logic,
+            "metadata": {
+                "auto_generated": True,
+                "confidence": "placeholder",
+                "note": "Review and refine this rule based on business logic",
+            },
+        }
+
     def infer_type_and_nullability(
         self, field_profile: dict[str, Any], series: pd.Series, config: InferenceConfig
     ) -> dict[str, Any]:
@@ -141,22 +508,24 @@ class FieldInferenceEngine:
         dtype = field_profile.get("dtype", "object")
         common_patterns = field_profile.get("common_patterns", []) or []
 
-        # Attempt numeric coercion for object columns
-        treat_as_numeric = False
-        try:
-            non_null = series.dropna()
-            if len(non_null) > 0:
-                coerced = pd.to_numeric(non_null, errors="coerce")
-                if coerced.notna().all():
-                    treat_as_numeric = True
-        except Exception:
-            treat_as_numeric = False
-
         # Determine type based on dtype and patterns
-        if "int" in dtype and not treat_as_numeric:
+        # Check explicit types first (int, float, bool, datetime)
+        if "int" in dtype:
             inferred_type = "integer"
-        elif ("float" in dtype or treat_as_numeric) and ("bool" not in dtype):
-            inferred_type = "float"
+        elif "float" in dtype:
+            # Check if float column contains only whole numbers (integers)
+            try:
+                non_null = series.dropna()
+                if len(non_null) > 0:
+                    # Check if all values are whole numbers
+                    if (non_null == non_null.astype(int)).all():
+                        inferred_type = "integer"
+                    else:
+                        inferred_type = "float"
+                else:
+                    inferred_type = "float"
+            except (ValueError, TypeError):
+                inferred_type = "float"
         elif "bool" in dtype:
             inferred_type = "boolean"
         elif "datetime" in dtype:
@@ -164,7 +533,25 @@ class FieldInferenceEngine:
         elif "date" in common_patterns:
             inferred_type = "date"
         else:
-            inferred_type = "string"
+            # For object columns, attempt numeric coercion
+            treat_as_numeric = False
+            is_integer = False
+            try:
+                non_null = series.dropna()
+                if len(non_null) > 0:
+                    coerced = pd.to_numeric(non_null, errors="coerce")
+                    if coerced.notna().all():
+                        treat_as_numeric = True
+                        # Check if all numeric values are whole numbers
+                        if (coerced == coerced.astype(int)).all():
+                            is_integer = True
+            except Exception:
+                treat_as_numeric = False
+
+            if treat_as_numeric:
+                inferred_type = "integer" if is_integer else "float"
+            else:
+                inferred_type = "string"
 
         # Determine nullability
         null_count = int(field_profile.get("null_count", 0) or 0)

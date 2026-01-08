@@ -85,7 +85,7 @@ def is_valid_standard(standard: dict[str, Any]) -> bool:
 
     The ONLY valid structure is:
     {
-        'standards': {...},      # Metadata
+        'contracts': {...},      # Metadata
         'requirements': {...}    # Field requirements & dimension requirements
     }
 
@@ -99,10 +99,10 @@ def is_valid_standard(standard: dict[str, Any]) -> bool:
         return False
 
     # Must have both required sections
-    has_standards_section = "standards" in standard
+    has_contracts_section = "contracts" in standard
     has_requirements_section = "requirements" in standard
 
-    return has_standards_section and has_requirements_section
+    return has_contracts_section and has_requirements_section
 
 
 def get_standard_name(standard: dict[str, Any]) -> str | None:
@@ -120,10 +120,10 @@ def get_standard_name(standard: dict[str, Any]) -> str | None:
     if not is_valid_standard(standard):
         raise ValueError(
             "Standard is not in normalized format. "
-            "Expected: {'standards': {...}, 'requirements': {...}}"
+            "Expected: {'contracts': {...}, 'requirements': {...}}"
         )
 
-    return standard.get("standards", {}).get("name")
+    return standard.get("contracts", {}).get("name")
 
 
 def get_field_requirements(standard: dict[str, Any]) -> dict[str, Any]:
@@ -141,7 +141,7 @@ def get_field_requirements(standard: dict[str, Any]) -> dict[str, Any]:
     if not is_valid_standard(standard):
         raise ValueError(
             "Standard is not in normalized format. "
-            "Expected: {'standards': {...}, 'requirements': {...}}"
+            "Expected: {'contracts': {...}, 'requirements': {...}}"
         )
 
     return standard.get("requirements", {}).get("field_requirements", {})

@@ -16,9 +16,9 @@ Example Usage:
         # - training_data_path: clean CSV
         # - test_data_path: CSV with issues
         # - generated_standard_name: "invoice_data"
-        # - standard_path: ADRI/dev/standards/invoice_data.yaml
+        # - standard_path: ADRI/dev/contracts/invoice_data.yaml
 
-        @adri_protected(standard=invoice_scenario['generated_standard_name'])
+        @adri_protected(contract=invoice_scenario['generated_standard_name'])
         def process_invoices(data):
             return data
 
@@ -175,7 +175,7 @@ class TutorialScenarios:
 
         # Import ADRI components
         import pandas as pd
-        from src.adri.analysis.standard_generator import StandardGenerator
+        from src.adri.analysis.contract_generator import ContractGenerator
 
         # Set environment for development
         os.environ['ADRI_ENV'] = 'development'
@@ -185,7 +185,7 @@ class TutorialScenarios:
         df = pd.read_csv(config['source_data'])
 
         # Generate standard using Python API
-        generator = StandardGenerator()
+        generator = ContractGenerator()
 
         # Build generation config
         generation_config = {
@@ -200,7 +200,7 @@ class TutorialScenarios:
         )
 
         # Ensure output directory exists
-        output_dir = project_root / "ADRI" / "dev" / "standards"
+        output_dir = project_root / "ADRI" / "dev" / "contracts"
         output_dir.mkdir(parents=True, exist_ok=True)
 
         # Write standard to file
@@ -256,7 +256,7 @@ class TutorialScenarios:
         )
 
         # Build standard path
-        standard_path = project_root / "ADRI" / "dev" / "standards" / f"{standard_name}.yaml"
+        standard_path = project_root / "ADRI" / "dev" / "contracts" / f"{standard_name}.yaml"
 
         # Return scenario metadata
         scenario: TutorialScenario = {
@@ -348,7 +348,7 @@ class TutorialScenarios:
         )
 
         # Build standard path
-        standard_path = project_root / "ADRI" / "dev" / "standards" / f"{standard_name}.yaml"
+        standard_path = project_root / "ADRI" / "dev" / "contracts" / f"{standard_name}.yaml"
 
         # Return scenario metadata
         scenario: TutorialScenario = {
@@ -396,7 +396,7 @@ class TutorialScenarios:
         )
 
         # Setup standard paths
-        standard_dir = project_root / "ADRI" / "dev" / "standards"
+        standard_dir = project_root / "ADRI" / "dev" / "contracts"
         standard_dir.mkdir(parents=True, exist_ok=True)
 
         cli_standard_name = "autogen_cli_invoice"
@@ -480,12 +480,12 @@ def tutorial_project(tmp_path: Path) -> Path:
     adri_root = project_root / "ADRI"
 
     # Development environment directories
-    (adri_root / "dev" / "standards").mkdir(parents=True, exist_ok=True)
+    (adri_root / "dev" / "contracts").mkdir(parents=True, exist_ok=True)
     (adri_root / "dev" / "assessments").mkdir(parents=True, exist_ok=True)
     (adri_root / "dev" / "training-data").mkdir(parents=True, exist_ok=True)
 
     # Production environment directories
-    (adri_root / "prod" / "standards").mkdir(parents=True, exist_ok=True)
+    (adri_root / "prod" / "contracts").mkdir(parents=True, exist_ok=True)
     (adri_root / "prod" / "assessments").mkdir(parents=True, exist_ok=True)
     (adri_root / "prod" / "training-data").mkdir(parents=True, exist_ok=True)
 
@@ -517,7 +517,7 @@ def invoice_scenario(tutorial_project: Path) -> TutorialScenario:
     Example:
         def test_invoice_validation(invoice_scenario):
             # Use generated standard by name
-            @adri_protected(standard=invoice_scenario['generated_standard_name'])
+            @adri_protected(contract=invoice_scenario['generated_standard_name'])
             def validate_data(df):
                 return df
 
@@ -553,7 +553,7 @@ class StandardTemplates:
             FileNotFoundError: If standard file doesn't exist
         """
         if tutorial_name == "invoice_processing":
-            standard_path = project_root / "ADRI" / "dev" / "standards" / "invoice_data.yaml"
+            standard_path = project_root / "ADRI" / "dev" / "contracts" / "invoice_data.yaml"
         else:
             raise ValueError(f"Unknown tutorial: {tutorial_name}")
 

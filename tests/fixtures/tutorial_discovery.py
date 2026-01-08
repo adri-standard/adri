@@ -135,10 +135,10 @@ def validate_tutorial_structure(tutorial_dir: Path) -> Tuple[bool, Optional[Tuto
         filename = csv_file.name
 
         # Check if this is a test file (starts with "test_")
-        if filename.startswith("test_") and filename.endswith("_data.csv"):
+        if filename.startswith("test_") and (filename.endswith("_data.csv") or filename.endswith("_contract_data.csv")):
             test_file = csv_file
-        # Check if this is a training file (ends with "_data.csv" but doesn't start with "test_")
-        elif filename.endswith("_data.csv") and not filename.startswith("test_"):
+        # Check if this is a training file (ends with "_data.csv" or "_contract_data.csv" but doesn't start with "test_")
+        elif (filename.endswith("_data.csv") or filename.endswith("_contract_data.csv")) and not filename.startswith("test_"):
             training_file = csv_file
 
     # Both files must be identified
@@ -202,16 +202,21 @@ def extract_use_case_name(file_path: Path) -> str:
     """
     filename = file_path.name
 
-    # Handle test files: test_<use_case>_data.csv
+    # Handle test files: test_<use_case>_data.csv or test_<use_case>_contract_data.csv
     if filename.startswith("test_"):
-        # Remove "test_" prefix and "_data.csv" suffix
+        # Remove "test_" prefix and suffix
         use_case = filename[5:]  # Remove "test_"
-        if use_case.endswith("_data.csv"):
+        if use_case.endswith("_contract_data.csv"):
+            use_case = use_case[:-18]  # Remove "_contract_data.csv" (18 chars)
+        elif use_case.endswith("_data.csv"):
             use_case = use_case[:-9]  # Remove "_data.csv"
         return use_case
 
-    # Handle training files: <use_case>_data.csv
-    if filename.endswith("_data.csv"):
+    # Handle training files: <use_case>_data.csv or <use_case>_contract_data.csv
+    if filename.endswith("_contract_data.csv"):
+        use_case = filename[:-18]  # Remove "_contract_data.csv" (18 chars)
+        return use_case
+    elif filename.endswith("_data.csv"):
         use_case = filename[:-9]  # Remove "_data.csv"
         return use_case
 

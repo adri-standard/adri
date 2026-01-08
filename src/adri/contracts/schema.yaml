@@ -1,0 +1,231 @@
+# ADRI Standards Meta-Schema
+# Defines the structure that all ADRI standards must follow
+
+contracts:
+  id: adri_meta_schema
+  name: ADRI Standards Meta-Schema
+  version: 1.0.0
+  authority: ADRI Framework
+  description: Meta-schema defining the structure of valid ADRI standards
+
+schema_definition:
+  required_sections:
+    - contracts
+    - requirements
+
+  optional_sections:
+    - record_identification
+    - training_data_lineage
+    - metadata
+
+  contracts_section:
+    required_fields:
+      - id
+      - name
+      - version
+      - authority
+    optional_fields:
+      - description
+      - effective_date
+      - expires_date
+      - tags
+
+    field_constraints:
+      id:
+        type: string
+        pattern: "^[a-zA-Z0-9_]+_standard$"
+        description: Must end with '_standard'
+      name:
+        type: string
+        min_length: 5
+        max_length: 100
+      version:
+        type: string
+        pattern: "^\\d+\\.\\d+\\.\\d+.*$"
+        description: Must follow semantic versioning
+      authority:
+        type: string
+        min_length: 3
+        max_length: 100
+
+  requirements_section:
+    required_fields:
+      - overall_minimum
+    optional_fields:
+      - field_requirements
+      - dimension_requirements
+
+    field_constraints:
+      overall_minimum:
+        type: number
+        min_value: 0
+        max_value: 100
+        description: Overall minimum score requirement
+
+  field_requirements_section:
+    allowed_field_types:
+      - string
+      - integer
+      - float
+      - boolean
+      - date
+      - datetime
+
+    allowed_constraints:
+      string:
+        - nullable
+        - pattern
+        - min_length
+        - max_length
+        - allowed_values
+      integer:
+        - nullable
+        - min_value
+        - max_value
+        - allowed_values
+      float:
+        - nullable
+        - min_value
+        - max_value
+      boolean:
+        - nullable
+      date:
+        - nullable
+        - after_date
+        - before_date
+      datetime:
+        - nullable
+        - after_datetime
+        - before_datetime
+
+  dimension_requirements_section:
+    allowed_dimensions:
+      - validity
+      - completeness
+      - consistency
+      - freshness
+      - plausibility
+
+    dimension_constraints:
+      minimum_score:
+        type: number
+        min_value: 0
+        max_value: 20
+        description: Minimum score for this dimension
+
+  record_identification_section:
+    required_fields:
+      - primary_key_fields
+    optional_fields:
+      - strategy
+      - composite_key_separator
+
+    field_constraints:
+      primary_key_fields:
+        type: array
+        min_items: 1
+        description: List of field names that uniquely identify records
+      strategy:
+        type: string
+        allowed_values:
+          - primary_key_only
+          - primary_key_with_fallback
+          - row_index_fallback
+        default: primary_key_with_fallback
+        description: Strategy for record identification when primary key is incomplete
+      composite_key_separator:
+        type: string
+        default: ":"
+        description: Separator for composite primary keys
+
+  training_data_lineage_section:
+    required_fields:
+      - source_path
+      - timestamp
+      - file_hash
+    optional_fields:
+      - snapshot_path
+      - snapshot_hash
+      - snapshot_filename
+      - source_size_bytes
+      - source_modified
+
+    field_constraints:
+      source_path:
+        type: string
+        description: Absolute path to original training data file
+      timestamp:
+        type: string
+        pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}"
+        description: ISO timestamp when standard was generated
+      file_hash:
+        type: string
+        pattern: "^[a-f0-9]{8}$"
+        description: SHA256 hash prefix of source file for integrity verification
+      snapshot_path:
+        type: string
+        description: Absolute path to preserved training data snapshot
+      snapshot_hash:
+        type: string
+        pattern: "^[a-f0-9]{8}$"
+        description: SHA256 hash prefix of snapshot file
+      snapshot_filename:
+        type: string
+        description: Filename of the training data snapshot
+      source_size_bytes:
+        type: integer
+        min_value: 0
+        description: Size of source file in bytes
+      source_modified:
+        type: string
+        pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}"
+        description: ISO timestamp of source file modification
+
+  metadata_section:
+    optional_fields:
+      - created_by
+      - created_date
+      - last_modified
+      - generation_method
+      - tags
+      - version_history
+
+    field_constraints:
+      created_by:
+        type: string
+        min_length: 1
+        max_length: 100
+        description: Entity that created this standard
+      created_date:
+        type: string
+        pattern: "^\\d{4}-\\d{2}-\\d{2}(T\\d{2}:\\d{2}:\\d{2}.*)?$"
+        description: Date or datetime when standard was created
+      last_modified:
+        type: string
+        pattern: "^\\d{4}-\\d{2}-\\d{2}(T\\d{2}:\\d{2}:\\d{2}.*)?$"
+        description: Date or datetime when standard was last modified
+      generation_method:
+        type: string
+        allowed_values:
+          - auto_generated
+          - manual_creation
+          - hybrid_approach
+        description: How the standard was created
+      tags:
+        type: array
+        description: Classification and organization tags
+      version_history:
+        type: array
+        description: History of standard version changes
+
+validation_rules:
+  - rule: "contracts section must be present"
+    check: "has_section('contracts')"
+  - rule: "requirements section must be present"
+    check: "has_section('requirements')"
+  - rule: "overall_minimum must be between 0-100"
+    check: "0 <= requirements.overall_minimum <= 100"
+  - rule: "dimension scores must be between 0-20"
+    check: "all(0 <= score <= 20 for score in dimension_requirements.*.minimum_score)"
+  - rule: "field types must be valid"
+    check: "all(field.type in allowed_field_types for field in field_requirements.*)"

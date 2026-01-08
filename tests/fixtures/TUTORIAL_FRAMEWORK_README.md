@@ -117,10 +117,10 @@ environments:
 ### 4. Name-Only Standard Resolution
 ```python
 # User-friendly approach
-@adri_protected(standard="invoice_data")  # ✅ Name only
+@adri_protected(contract="invoice_data")  # ✅ Name only
 
 # NOT the old full-path approach
-@adri_protected(standard="ADRI/dev/standards/invoice_data.yaml")  # ❌
+@adri_protected(contract="ADRI/dev/contracts/invoice_data.yaml")  # ❌
 ```
 
 ## File Structure
@@ -143,7 +143,7 @@ tests/
 ```python
 def test_invoice_processing(invoice_scenario):
     """Simple test using tutorial framework."""
-    @adri_protected(standard=invoice_scenario['generated_standard_name'])
+    @adri_protected(contract=invoice_scenario['generated_standard_name'])
     def process_invoices(data):
         return data
 

@@ -26,7 +26,7 @@ def setup_isolated_environment(base_path: Path) -> Dict[str, Path]:
     Returns:
         Dictionary containing paths:
         - config: ADRI/config.yaml path
-        - standards_dir: ADRI/dev/standards
+        - standards_dir: ADRI/dev/contracts
         - assessments_dir: ADRI/dev/assessments
         - logs_dir: ADRI/dev/logs
     """
@@ -36,11 +36,11 @@ def setup_isolated_environment(base_path: Path) -> Dict[str, Path]:
     adri_dir = base_path / "ADRI"
     dev_dir = adri_dir / "dev"
 
-    standards_dir = dev_dir / "standards"
+    contracts_dir = dev_dir / "contracts"
     assessments_dir = dev_dir / "assessments"
     logs_dir = dev_dir / "audit-logs"
 
-    for directory in [standards_dir, assessments_dir, logs_dir]:
+    for directory in [contracts_dir, assessments_dir, logs_dir]:
         directory.mkdir(parents=True, exist_ok=True)
 
     # Create config file matching both ConfigurationLoader and DataQualityAssessor structures
@@ -53,7 +53,7 @@ def setup_isolated_environment(base_path: Path) -> Dict[str, Path]:
             'environments': {
                 'development': {
                     'paths': {
-                        'standards': str(standards_dir),
+                        'contracts': str(contracts_dir),
                         'assessments': str(assessments_dir),
                         'training_data': str(dev_dir / 'training-data'),
                         'audit_logs': str(logs_dir)
@@ -69,7 +69,7 @@ def setup_isolated_environment(base_path: Path) -> Dict[str, Path]:
                 'default_failure_mode': 'raise',
                 'default_min_score': 80,
                 'cache_duration_hours': 1,
-                'auto_generate_standards': True,
+                'auto_generate_contracts': True,
                 'verbose_protection': False
             },
             'audit': {
@@ -86,7 +86,7 @@ def setup_isolated_environment(base_path: Path) -> Dict[str, Path]:
 
     return {
         'config': config_path,
-        'standards_dir': standards_dir,
+        'contracts_dir': contracts_dir,
         'assessments_dir': assessments_dir,
         'logs_dir': logs_dir,
         'base_path': base_path

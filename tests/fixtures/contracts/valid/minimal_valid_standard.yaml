@@ -1,0 +1,11 @@
+contracts:
+  id: "test_minimal_standard"
+  name: "Minimal Test Standard"
+  version: "1.0.0"
+  description: "A minimal valid ADRI standard for testing"
+
+requirements:
+  dimension_requirements:
+    validity:
+      weight: 3
+  overall_minimum: 70
