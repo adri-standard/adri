@@ -170,6 +170,7 @@ jobs:
       with:
         repository-url: https://test.pypi.org/legacy/
         password: ${{ secrets.TEST_PYPI_API_TOKEN }}
+        skip-existing: true  # Don't fail if version already exists
 
     - name: Test installation from TestPyPI
       run: |
