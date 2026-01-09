@@ -903,8 +903,22 @@ class TestLocalLoggingErrorHandling(unittest.TestCase):
             pass
 
 
+# Check if performance helpers are available (enterprise-only)
+# Only 2 of 5 performance tests require enterprise modules - others use basic timing
+try:
+    from tests.utils.performance_helpers import assert_performance
+    from tests.performance_thresholds import get_performance_threshold
+    PERFORMANCE_HELPERS_AVAILABLE = True
+except ImportError:
+    PERFORMANCE_HELPERS_AVAILABLE = False
+
+
 class TestLocalLoggingPerformance(unittest.TestCase):
-    """Test performance benchmarks and efficiency (15% weight in quality score)."""
+    """Test performance benchmarks and efficiency (15% weight in quality score).
+    
+    Note: Only test_single_assessment_logging_performance and test_bulk_logging_performance
+    require enterprise modules. Other tests use standard timing and run in open source.
+    """
 
     def setUp(self):
         """Set up test environment."""
@@ -918,6 +932,7 @@ class TestLocalLoggingPerformance(unittest.TestCase):
         os.chdir(self.original_cwd)
         shutil.rmtree(self.temp_dir)
 
+    @pytest.mark.skipif(not PERFORMANCE_HELPERS_AVAILABLE, reason="Performance helpers not available in open source")
     @pytest.mark.benchmark(group="local_logging")
     def test_single_assessment_logging_performance(self, benchmark=None):
         """Benchmark single assessment logging performance."""
@@ -993,8 +1008,12 @@ class TestLocalLoggingPerformance(unittest.TestCase):
             from tests.utils.performance_helpers import assert_performance
         assert_performance(end_time - start_time, "micro", "validation_simple", "Single assessment logging")
 
+    @pytest.mark.skipif(not PERFORMANCE_HELPERS_AVAILABLE, reason="Performance helpers not available in open source")
     def test_bulk_logging_performance(self):
-        """Test performance with bulk logging operations."""
+        """Test performance with bulk logging operations.
+        
+        Note: This test requires enterprise modules (assert_performance, get_performance_threshold).
+        """
         config = {
             "enabled": True,
             "log_dir": str(self.log_dir),
@@ -1042,13 +1061,11 @@ class TestLocalLoggingPerformance(unittest.TestCase):
             rows = [json.loads(line) for line in f if line.strip()]
             self.assertEqual(len(rows), 100)
 
-        # Should complete bulk logging efficiently
-        from tests.utils.performance_helpers import assert_performance
+        # Should complete bulk logging efficiently (enterprise module)
         assert_performance(total_time, "small", "file_processing_small", "Bulk logging (100 assessments)")
 
-        # Calculate average time per assessment
+        # Calculate average time per assessment (enterprise module)
         avg_time_per_assessment = total_time / 100
-        from tests.performance_thresholds import get_performance_threshold
         threshold_per_assessment = get_performance_threshold("small", "file_processing_small") / 100
         self.assertLess(avg_time_per_assessment, threshold_per_assessment)
 
