@@ -68,9 +68,9 @@ class TestConfigurationLoader(unittest.TestCase):
         self.assertIn("adri", config)
         self.assertEqual(config["adri"]["project_name"], "test_project")
         self.assertEqual(config["adri"]["version"], "4.0.0")
-        self.assertIn("environments", config["adri"])
-        self.assertIn("development", config["adri"]["environments"])
-        self.assertIn("production", config["adri"]["environments"])
+        self.assertIn("paths", config["adri"])
+        self.assertIn("contracts", config["adri"]["paths"])
+        self.assertIn("assessments", config["adri"]["paths"])
 
     def test_validate_config_valid(self):
         """Test configuration validation with valid config."""
@@ -84,13 +84,13 @@ class TestConfigurationLoader(unittest.TestCase):
         result = self.loader.validate_config(invalid_config)
         self.assertFalse(result)
 
-    def test_validate_config_missing_environments(self):
-        """Test configuration validation with missing environments."""
+    def test_validate_config_missing_paths(self):
+        """Test configuration validation with missing paths."""
         invalid_config = {
             "adri": {
                 "project_name": "test",
-                "default_environment": "development"
-                # Missing environments
+                "version": "4.0.0"
+                # Missing paths
             }
         }
         result = self.loader.validate_config(invalid_config)
@@ -157,30 +157,33 @@ class TestConfigurationLoader(unittest.TestCase):
         self.assertEqual(active_config["adri"]["project_name"], "test")
 
     def test_get_environment_config_default(self):
-        """Test getting environment config for default environment."""
+        """Test getting environment config (flat structure)."""
         config = self.loader.create_default_config("test")
         env_config = self.loader.get_environment_config(config)
 
-        # Should return development environment (default)
+        # Should return paths from flat structure
         self.assertIn("paths", env_config)
-        self.assertEqual(env_config["paths"]["contracts"], "./ADRI/dev/contracts")
+        self.assertEqual(env_config["paths"]["contracts"], "./ADRI/contracts")
 
     def test_get_environment_config_specific(self):
-        """Test getting environment config for specific environment."""
+        """Test getting environment config ignores environment param (flat structure)."""
         config = self.loader.create_default_config("test")
+        # Environment parameter is ignored in OSS flat structure
         env_config = self.loader.get_environment_config(config, "production")
 
         self.assertIn("paths", env_config)
-        self.assertEqual(env_config["paths"]["contracts"], "./ADRI/prod/contracts")
+        # Still returns same flat paths regardless of environment param
+        self.assertEqual(env_config["paths"]["contracts"], "./ADRI/contracts")
 
-    def test_get_environment_config_invalid_environment(self):
-        """Test getting environment config for invalid environment."""
+    def test_get_paths_config(self):
+        """Test getting paths config directly."""
         config = self.loader.create_default_config("test")
+        paths_config = self.loader.get_paths_config(config)
 
-        with self.assertRaises(ValueError) as context:
-            self.loader.get_environment_config(config, "invalid_env")
-
-        self.assertIn("Environment 'invalid_env' not found", str(context.exception))
+        self.assertEqual(paths_config["contracts"], "./ADRI/contracts")
+        self.assertEqual(paths_config["assessments"], "./ADRI/assessments")
+        self.assertEqual(paths_config["training_data"], "./ADRI/training-data")
+        self.assertEqual(paths_config["audit_logs"], "./ADRI/audit-logs")
 
     def test_get_protection_config_no_config_file(self):
         """Test getting protection config when no config file exists."""
@@ -192,13 +195,13 @@ class TestConfigurationLoader(unittest.TestCase):
         self.assertEqual(protection_config["default_min_score"], 80)
 
     def test_get_protection_config_with_overrides(self):
-        """Test getting protection config with environment overrides."""
+        """Test getting protection config with config-level overrides."""
         config = self.loader.create_default_config("test")
-        # Add environment-specific protection config
-        config["adri"]["environments"]["development"]["protection"]["default_min_score"] = 70
+        # Override protection config at top level (flat structure)
+        config["adri"]["protection"]["default_min_score"] = 70
 
         with patch.object(self.loader, 'get_active_config', return_value=config):
-            protection_config = self.loader.get_protection_config("development")
+            protection_config = self.loader.get_protection_config()
 
         self.assertEqual(protection_config["default_min_score"], 70)  # Should be overridden
 
@@ -356,50 +359,42 @@ class TestConfigLoaderIntegration(unittest.TestCase):
         self.assertIsNotNone(loaded_config)
         self.assertEqual(loaded_config["adri"]["project_name"], "integration_test_project")
 
-        # Create directory structure
+        # Create directory structure (flat structure)
         loader.create_directory_structure(loaded_config)
 
         expected_dirs = [
-            "./ADRI/dev/contracts",
-            "./ADRI/dev/assessments",
-            "./ADRI/prod/contracts",
-            "./ADRI/prod/assessments"
+            "./ADRI/contracts",
+            "./ADRI/assessments",
+            "./ADRI/training-data",
+            "./ADRI/audit-logs"
         ]
 
         for expected_dir in expected_dirs:
             self.assertTrue(Path(expected_dir).exists())
 
-    def test_environment_configuration_workflow(self):
-        """Test environment-specific configuration handling."""
+    def test_paths_configuration_workflow(self):
+        """Test paths configuration handling (flat structure)."""
         loader = ConfigurationLoader()
 
         config = {
             "adri": {
-                "project_name": "multi_env_test",
+                "project_name": "paths_test",
                 "version": "4.0.0",
-                "default_environment": "staging",
-                "environments": {
-                    "development": {
-                        "paths": {"contracts": "./dev/contracts", "assessments": "./dev/assessments", "training_data": "./dev/training"},
-                        "protection": {"default_min_score": 70}
-                    },
-                    "staging": {
-                        "paths": {"contracts": "./staging/standards", "assessments": "./staging/assessments", "training_data": "./staging/training"},
-                        "protection": {"default_min_score": 80}
-                    },
-                    "production": {
-                        "paths": {"contracts": "./prod/contracts", "assessments": "./prod/assessments", "training_data": "./prod/training"},
-                        "protection": {"default_min_score": 90}
-                    }
-                }
+                "paths": {
+                    "contracts": "./custom/contracts",
+                    "assessments": "./custom/assessments",
+                    "training_data": "./custom/training",
+                    "audit_logs": "./custom/audit"
+                },
+                "protection": {"default_min_score": 85}
             }
         }
 
-        dev_config = loader.get_environment_config(config, "development")
-        self.assertEqual(dev_config["protection"]["default_min_score"], 70)
+        paths_config = loader.get_paths_config(config)
+        self.assertEqual(paths_config["contracts"], "./custom/contracts")
 
-        staging_config = loader.get_environment_config(config, "staging")
-        self.assertEqual(staging_config["protection"]["default_min_score"], 80)
+        env_config = loader.get_environment_config(config)
+        self.assertEqual(env_config["paths"]["contracts"], "./custom/contracts")
 
 
 class TestConfigLoaderErrorHandling(unittest.TestCase):
@@ -446,27 +441,22 @@ class TestConfigLoaderErrorHandling(unittest.TestCase):
         result = loader.load_config(corrupted_file)
         self.assertIsNone(result)
 
-    def test_missing_environment_error_handling(self):
-        """Test error handling for missing environments."""
+    def test_missing_paths_error_handling(self):
+        """Test error handling for missing paths in config."""
         loader = ConfigurationLoader()
 
+        # Config missing paths entirely
         config = {
             "adri": {
-                "project_name": "missing_env_test",
-                "version": "4.0.0",
-                "default_environment": "development",
-                "environments": {
-                    "development": {
-                        "paths": {"contracts": "./dev/contracts", "assessments": "./dev/assessments", "training_data": "./dev/training"}
-                    }
-                }
+                "project_name": "missing_paths_test",
+                "version": "4.0.0"
             }
         }
 
-        # Test accessing non-existent environment
-        with self.assertRaises(ValueError) as cm:
-            loader.get_environment_config(config, "nonexistent")
-        self.assertIn("Environment 'nonexistent' not found", str(cm.exception))
+        # get_paths_config should return defaults when paths are missing
+        paths_config = loader.get_paths_config(config)
+        self.assertEqual(paths_config["contracts"], "ADRI/contracts")
+        self.assertEqual(paths_config["assessments"], "ADRI/assessments")
 
 
 if __name__ == '__main__':

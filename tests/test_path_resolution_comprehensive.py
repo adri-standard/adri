@@ -503,11 +503,10 @@ class TestPathResolutionIntegration(unittest.TestCase):
 
         self.assertEqual(result, 0)
 
-        # Verify standard was created in correct location
-        # Check both possible locations due to path resolution
-        standard_path1 = self.project_root / "ADRI" / "dev" / "standards" / "invoice_data_ADRI_standard.yaml"
+        # Verify standard was created in correct location (flat structure)
+        standard_path1 = self.project_root / "ADRI" / "contracts" / "invoice_data_ADRI_standard.yaml"
         # Path relative to current working directory in subdirectory
-        standard_path2 = Path("ADRI/dev/contracts/invoice_data_ADRI_standard.yaml")
+        standard_path2 = Path("ADRI/contracts/invoice_data_ADRI_standard.yaml")
 
         # Should exist in the project root location
         self.assertTrue(standard_path1.exists() or standard_path2.exists(),

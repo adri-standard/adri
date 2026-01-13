@@ -15,7 +15,7 @@ pip install adri
 ```python
 from adri import adri_protected
 
-@adri_protected(standard="customer_data", data_param="data")
+@adri_protected(contract="customer_data", data_param="data")
 def process_customers(data):
     # Your agent logic here
     return results
@@ -39,8 +39,8 @@ process_customers(customers)  # ✅ Runs successfully
 **What happened:**
 - Function executed
 - ADRI analyzed data structure
-- Generated standard at `ADRI/dev/standards/customer_data.yaml`
-- Future runs validate against this standard
+- Generated a contract YAML under your project
+- Future runs validate against that contract
 
 ### Step 3: Protection Kicks In
 
@@ -93,20 +93,20 @@ This 3-minute walkthrough will:
 
 ```python
 # Raise mode (default) - blocks bad data
-@adri_protected(standard="data", data_param="data", on_failure="raise")
+@adri_protected(contract="data", data_param="data", on_failure="raise")
 
 # Warn mode - logs warning but continues
-@adri_protected(standard="data", data_param="data", on_failure="warn")
+@adri_protected(contract="data", data_param="data", on_failure="warn")
 
 # Continue mode - silently continues
-@adri_protected(standard="data", data_param="data", on_failure="continue")
+@adri_protected(contract="data", data_param="data", on_failure="continue")
 ```
 
 ### Set Quality Thresholds
 
 ```python
 @adri_protected(
-    standard="critical_data",
+    contract="critical_data",
     data_param="data",
     min_score=90,  # Require 90/100 quality
     on_failure="raise"
@@ -120,23 +120,23 @@ This 3-minute walkthrough will:
 adri setup --guide
 
 # Generate a standard from good data
-adri generate-standard customers.csv --output customer_standard.yaml
+adri generate-contract customers.csv
 
 # Assess data quality
-adri assess test_data.csv --standard customer_standard
+adri assess test_data.csv --standard customer_standard  # (name depends on your saved contract)
 
 # List available standards
-adri list-standards
+adri list-contracts
 
 # Validate a standard file
-adri validate-standard customer_standard.yaml
+adri validate-contract customer_standard.yaml
 ```
 
 ### View Logs
 
 Check assessment details:
 ```bash
-cat ADRI/dev/logs/adri_assessments.log
+adri view-logs
 ```
 
 ### Framework Integration
@@ -145,21 +145,21 @@ Works the same across all frameworks:
 
 **LangChain:**
 ```python
-@adri_protected(standard="chain_input", data_param="input_data")
+@adri_protected(contract="chain_input", data_param="input_data")
 def langchain_tool(input_data):
     return chain.invoke(input_data)
 ```
 
 **CrewAI:**
 ```python
-@adri_protected(standard="crew_context", data_param="context")
+@adri_protected(contract="crew_context", data_param="context")
 def crew_task(context):
     return crew.kickoff(context)
 ```
 
 **AutoGen:**
 ```python
-@adri_protected(standard="messages", data_param="messages")
+@adri_protected(contract="messages", data_param="messages")
 def autogen_function(messages):
     return agent.generate_reply(messages)
 ```
@@ -168,32 +168,32 @@ def autogen_function(messages):
 
 ### Pattern 1: API Data
 ```python
-@adri_protected(standard="api_response", data_param="response")
+@adri_protected(contract="api_response", data_param="response")
 def process_api_data(response):
     return transform(response)
 ```
 
 ### Pattern 2: Multi-Parameter Functions
 ```python
-@adri_protected(standard="customer_data", data_param="customers")
+@adri_protected(contract="customer_data", data_param="customers")
 def process_with_config(customers, config, api_key):
     # Only 'customers' is validated
     return results
 ```
 
-### Pattern 3: Development vs Production
+### Pattern 3: Strict vs lenient
 ```python
-# Development - warn on issues
+# Lenient - warn on issues
 @adri_protected(
-    standard="dev_data",
+    contract="data",
     data_param="data",
     on_failure="warn",
     min_score=70
 )
 
-# Production - strict validation
+# Strict - block bad data
 @adri_protected(
-    standard="prod_data",
+    contract="data",
     data_param="data",
     on_failure="raise",
     min_score=90
@@ -206,7 +206,7 @@ def process_with_config(customers, config, api_key):
 Run your function once with good data. ADRI will auto-generate the standard.
 
 ### "Quality score too low"
-1. Check logs: `cat ADRI/dev/logs/adri_assessments.log`
+1. Check logs: `adri view-logs`
 2. Fix data issues OR adjust `on_failure` to "warn"
 3. Lower `min_score` if needed
 

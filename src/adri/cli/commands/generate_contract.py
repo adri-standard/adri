@@ -145,15 +145,15 @@ class GenerateContractCommand(Command):
             config_loader = ConfigurationLoader()
             config = config_loader.get_active_config()
             if config:
-                env_config = config_loader.get_environment_config(config)
-                standards_dir = Path(env_config["paths"]["contracts"])
+                paths_config = config_loader.get_paths_config(config)
+                standards_dir = Path(paths_config["contracts"])
                 standards_dir.mkdir(parents=True, exist_ok=True)
                 return standards_dir / standard_filename
         except Exception:
             pass
 
-        # Fallback to default dev path
-        default_dir = Path("ADRI/dev/contracts")
+        # Fallback to default path
+        default_dir = Path("ADRI/contracts")
         default_dir.mkdir(parents=True, exist_ok=True)
         return default_dir / standard_filename
 
@@ -199,12 +199,12 @@ class GenerateContractCommand(Command):
             config_loader = ConfigurationLoader()
             config = config_loader.get_active_config()
             if config:
-                env_config = config_loader.get_environment_config(config)
-                return Path(env_config["paths"]["training_data"])
+                paths_config = config_loader.get_paths_config(config)
+                return Path(paths_config["training_data"])
         except Exception:
             pass
 
-        return Path("ADRI/dev/training-data")
+        return Path("ADRI/training-data")
 
     def _generate_file_hash(self, file_path: Path) -> str:
         """Generate SHA256 hash for a file."""
@@ -399,7 +399,7 @@ class GenerateContractCommand(Command):
                 0.0,
             )
             _progressive_echo(
-                "        --standard dev/standards/invoice_data_ADRI_standard.yaml --guide",
+                "        --standard contracts/invoice_data_ADRI_standard.yaml --guide",
                 0.0,
             )
         else:

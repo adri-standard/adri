@@ -1,17 +1,17 @@
-# ADRI Standards Library
+# ADRI Contracts Library
 
-**Community-driven catalog of reusable data quality standards**
+**Community-driven catalog of reusable data quality contracts**
 
-The ADRI Standards Library provides a curated collection of production-ready standards for common business domains, AI frameworks, and generic data patterns. Browse, use, and contribute standards to accelerate your data quality implementation.
+The ADRI Contracts Library provides a curated collection of production-ready contracts for common business domains, AI frameworks, and generic data patterns. Browse, use, and contribute contracts to accelerate your data quality implementation.
 
-## 📚 Browse Standards
+## 📚 Browse Contracts
 
-### Business Domains (`adri/contracts/domains/`)
+### Business Domains (`ADRI/contracts/domains/`)
 
 Real-world business use case standards ready for production use.
 
-#### Customer Service Standard
-**File**: `customer_service_standard.yaml`
+#### Customer Service Contract
+**File**: `customer_service_contract.yaml`
 **Use Case**: Support ticket tracking, customer interaction data
 **Quality Threshold**: 85%
 
@@ -30,8 +30,8 @@ def process_support_tickets(tickets_df):
     return tickets_df
 ```
 
-#### E-commerce Order Standard
-**File**: `ecommerce_order_standard.yaml`
+#### E-commerce Order Contract
+**File**: `ecommerce_order_contract.yaml`
 **Use Case**: Order processing, fulfillment pipelines
 **Quality Threshold**: 90%
 
@@ -50,8 +50,8 @@ def process_orders(orders_df):
     return orders_df
 ```
 
-#### Financial Transaction Standard
-**File**: `financial_transaction_standard.yaml`
+#### Financial Transaction Contract
+**File**: `financial_transaction_contract.yaml`
 **Use Case**: Payment processing, accounting systems
 **Quality Threshold**: 95%
 
@@ -70,8 +70,8 @@ def process_transactions(txn_df):
     return txn_df
 ```
 
-#### Healthcare Patient Standard
-**File**: `healthcare_patient_standard.yaml`
+#### Healthcare Patient Contract
+**File**: `healthcare_patient_contract.yaml`
 **Use Case**: EHR systems, patient management
 **Quality Threshold**: 92%
 
@@ -92,8 +92,8 @@ def process_patient_records(patients_df):
     return patients_df
 ```
 
-#### Marketing Campaign Standard
-**File**: `marketing_campaign_standard.yaml`
+#### Marketing Campaign Contract
+**File**: `marketing_campaign_contract.yaml`
 **Use Case**: Campaign management, ROI tracking
 **Quality Threshold**: 85%
 
@@ -114,12 +114,12 @@ def analyze_campaigns(campaigns_df):
 
 ---
 
-### AI Frameworks (`adri/contracts/frameworks/`)
+### AI Frameworks (`ADRI/contracts/frameworks/`)
 
 Framework-specific standards for popular AI agent and RAG systems.
 
-#### LangChain Chain Input Standard
-**File**: `langchain_chain_input_standard.yaml`
+#### LangChain Chain Input Contract
+**File**: `langchain_chain_input_contract.yaml`
 **Framework**: LangChain 0.1.x+
 **Quality Threshold**: 80%
 
@@ -138,8 +138,8 @@ def process_chain_inputs(inputs_df):
     return inputs_df
 ```
 
-#### CrewAI Task Context Standard
-**File**: `crewai_task_context_standard.yaml`
+#### CrewAI Task Context Contract
+**File**: `crewai_task_context_contract.yaml`
 **Framework**: CrewAI 0.1.x+
 **Quality Threshold**: 85%
 
@@ -158,8 +158,8 @@ def process_crew_tasks(tasks_df):
     return tasks_df
 ```
 
-#### LlamaIndex Document Standard
-**File**: `llamaindex_document_standard.yaml`
+#### LlamaIndex Document Contract
+**File**: `llamaindex_document_contract.yaml`
 **Framework**: LlamaIndex 0.9.x+
 **Quality Threshold**: 85%
 
@@ -178,8 +178,8 @@ def process_documents(docs_df):
     return docs_df
 ```
 
-#### AutoGen Message Standard
-**File**: `autogen_message_standard.yaml`
+#### AutoGen Message Contract
+**File**: `autogen_message_contract.yaml`
 **Framework**: AutoGen 0.2.x+
 **Quality Threshold**: 80%
 
@@ -200,7 +200,7 @@ def process_messages(messages_df):
 
 ---
 
-### Generic Templates (`adri/contracts/templates/`)
+### Generic Templates (`ADRI/contracts/templates/`)
 
 Customizable templates for common data patterns.
 
@@ -296,10 +296,10 @@ def process_nested(nested_df):
 
 ## 🚀 Quick Start
 
-### Using a Catalog Standard
+### Using a Catalog Contract
 
-1. **Browse** the catalog above to find a relevant standard
-2. **Import** ADRI and use the standard by name:
+1. **Browse** the catalog above to find a relevant contract
+2. **Import** ADRI and use the contract by id:
 
 ```python
 from adri import adri_protected
@@ -310,7 +310,7 @@ def process_tickets(data):
     # Your processing logic here
     return data
 
-# ADRI automatically validates data against the standard
+# ADRI automatically validates data against the contract
 tickets_df = pd.read_csv("tickets.csv")
 validated_tickets = process_tickets(tickets_df)
 ```
@@ -319,30 +319,30 @@ validated_tickets = process_tickets(tickets_df)
 
 ### Customizing a Template
 
-1. **Copy** a template standard from `adri/contracts/templates/`
+1. **Copy** a template contract from `ADRI/contracts/templates/`
 2. **Modify** field requirements for your use case
-3. **Save** to your project's standards directory
-4. **Use** your custom standard by name
+3. **Save** to your project's contracts directory
+4. **Use** your custom contract by id
 
 ```bash
 # Copy template
 cp adri/contracts/templates/api_response_template.yaml \
-   ADRI/dev/contracts/my_api_standard.yaml
+   ADRI/contracts/my_api_contract.yaml
 
 # Edit as needed
-vim ADRI/dev/contracts/my_api_standard.yaml
+vim ADRI/contracts/my_api_contract.yaml
 
 # Use in code
-@adri_protected(contract="my_api_standard")
+@adri_protected(contract="my_api_contract")
 def process_my_api_data(data):
     return data
 ```
 
 ---
 
-## 🤝 Contributing Standards
+## 🤝 Contributing Contracts
 
-The ADRI Standards Library thrives on community contributions. Share your standards to help others!
+The ADRI Contracts Library thrives on community contributions. Share your contracts to help others!
 
 ### Contribution Process
 
