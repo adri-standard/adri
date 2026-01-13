@@ -43,8 +43,8 @@ class TestModernCLICommands(ModernCLITestBase):
         # Verify ADRI structure was created
         assert Path("ADRI").exists()
         assert Path("ADRI/config.yaml").exists()
-        assert Path("ADRI/dev/contracts").exists()
-        assert Path("ADRI/dev/assessments").exists()
+        assert Path("ADRI/contracts").exists()
+        assert Path("ADRI/assessments").exists()
 
         # Verify config content
         with open("ADRI/config.yaml", 'r', encoding='utf-8') as f:
@@ -132,7 +132,7 @@ class TestModernCLICommands(ModernCLITestBase):
         assert result == 0
 
         # Verify standard was created
-        expected_standard_path = Path("ADRI/dev/contracts/test_data_ADRI_standard.yaml")
+        expected_standard_path = Path("ADRI/contracts/test_data_ADRI_standard.yaml")
         assert expected_standard_path.exists()
 
         # Verify standard content
@@ -171,7 +171,7 @@ class TestModernCLICommands(ModernCLITestBase):
         Path("test_data.csv").write_text(test_data)
 
         standard_content = create_sample_standard()
-        standard_path = Path("ADRI/dev/contracts/test_standard.yaml")
+        standard_path = Path("ADRI/contracts/test_standard.yaml")
         with open(standard_path, 'w', encoding='utf-8') as f:
             yaml.dump(standard_content, f)
 
@@ -179,7 +179,7 @@ class TestModernCLICommands(ModernCLITestBase):
         assess_command = get_command("assess")
         result = assess_command.execute({
             "data_path": "test_data.csv",
-            "standard_path": "ADRI/dev/contracts/test_standard.yaml",
+            "standard_path": "ADRI/contracts/test_standard.yaml",
             "output": None,
             "guide": False
         })
@@ -222,7 +222,7 @@ class TestModernCLICommands(ModernCLITestBase):
 
         # Create valid standard file
         standard_content = create_sample_standard()
-        standard_path = Path("ADRI/dev/contracts/valid_standard.yaml")
+        standard_path = Path("ADRI/contracts/valid_standard.yaml")
         with open(standard_path, 'w', encoding='utf-8') as f:
             yaml.dump(standard_content, f)
 
@@ -257,7 +257,7 @@ class TestModernCLICommands(ModernCLITestBase):
         # Create some standard files
         for i in range(3):
             standard_content = create_sample_standard(f"standard_{i}")
-            standard_path = Path(f"ADRI/dev/contracts/standard_{i}.yaml")
+            standard_path = Path(f"ADRI/contracts/standard_{i}.yaml")
             with open(standard_path, 'w', encoding='utf-8') as f:
                 yaml.dump(standard_content, f)
 
@@ -291,7 +291,7 @@ class TestModernCLICommands(ModernCLITestBase):
 
         # Create standard file
         standard_content = create_sample_standard()
-        standard_path = Path("ADRI/dev/contracts/test_standard.yaml")
+        standard_path = Path("ADRI/contracts/test_standard.yaml")
         with open(standard_path, 'w', encoding='utf-8') as f:
             yaml.dump(standard_content, f)
 
@@ -325,7 +325,7 @@ class TestModernCLICommands(ModernCLITestBase):
                 "passed": True,
                 "timestamp": "2024-01-01T00:00:00Z"
             }
-            assessment_path = Path(f"ADRI/dev/assessments/assessment_{i}.json")
+            assessment_path = Path(f"ADRI/assessments/assessment_{i}.json")
             with open(assessment_path, 'w', encoding='utf-8') as f:
                 json.dump(assessment_content, f)
 
@@ -359,7 +359,7 @@ class TestModernCLICommands(ModernCLITestBase):
 
         # Create log file
         log_content = "timestamp,action,result\n2024-01-01T00:00:00Z,setup,success"
-        log_path = Path("ADRI/dev/audit-logs/adri_test.log")
+        log_path = Path("ADRI/audit-logs/adri_test.log")
         with open(log_path, 'w', encoding='utf-8') as f:
             f.write(log_content)
 
@@ -559,7 +559,7 @@ class TestCLIIntegration(ModernCLITestBase):
         assert generate_result == 0
 
         # Step 3: Validate the generated standard
-        standard_path = Path("ADRI/dev/contracts/invoice_data_ADRI_standard.yaml")
+        standard_path = Path("ADRI/contracts/invoice_data_ADRI_standard.yaml")
         assert standard_path.exists()
 
         validate_command = get_command("validate-contract")

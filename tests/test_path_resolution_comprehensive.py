@@ -155,10 +155,10 @@ class TestPathResolutionCore(unittest.TestCase):
     def test_resolve_project_path_dev_environment_paths(self):
         """Test resolving development environment paths."""
         test_cases = [
-            ("dev/contracts/invoice_standard.yaml", "ADRI/dev/contracts/invoice_standard.yaml"),
-            ("dev/assessments/report_001.json", "ADRI/dev/assessments/report_001.json"),
-            ("dev/training-data/snapshot_123.csv", "ADRI/dev/training-data/snapshot_123.csv"),
-            ("dev/audit-logs/audit_log.csv", "ADRI/dev/audit-logs/audit_log.csv"),
+            ("dev/contracts/invoice_standard.yaml", "ADRI/contracts/invoice_standard.yaml"),
+            ("dev/assessments/report_001.json", "ADRI/assessments/report_001.json"),
+            ("dev/training-data/snapshot_123.csv", "ADRI/training-data/snapshot_123.csv"),
+            ("dev/audit-logs/audit_log.csv", "ADRI/audit-logs/audit_log.csv"),
         ]
 
         for input_path, expected_suffix in test_cases:
@@ -175,10 +175,10 @@ class TestPathResolutionCore(unittest.TestCase):
     def test_resolve_project_path_prod_environment_paths(self):
         """Test resolving production environment paths."""
         test_cases = [
-            ("prod/contracts/customer_standard.yaml", "ADRI/prod/contracts/customer_standard.yaml"),
-            ("prod/assessments/prod_report_001.json", "ADRI/prod/assessments/prod_report_001.json"),
-            ("prod/training-data/prod_snapshot_456.csv", "ADRI/prod/training-data/prod_snapshot_456.csv"),
-            ("prod/audit-logs/prod_audit_log.csv", "ADRI/prod/audit-logs/prod_audit_log.csv"),
+            ("prod/contracts/customer_standard.yaml", "ADRI/contracts/customer_standard.yaml"),
+            ("prod/assessments/prod_report_001.json", "ADRI/assessments/prod_report_001.json"),
+            ("prod/training-data/prod_snapshot_456.csv", "ADRI/training-data/prod_snapshot_456.csv"),
+            ("prod/audit-logs/prod_audit_log.csv", "ADRI/audit-logs/prod_audit_log.csv"),
         ]
 
         for input_path, expected_suffix in test_cases:
@@ -196,8 +196,8 @@ class TestPathResolutionCore(unittest.TestCase):
         """Test resolving paths that already include ADRI/ prefix."""
         test_cases = [
             ("ADRI/tutorials/test/data.csv", "ADRI/tutorials/test/data.csv"),
-            ("ADRI/dev/contracts/test.yaml", "ADRI/dev/contracts/test.yaml"),
-            ("ADRI/prod/assessments/prod.json", "ADRI/prod/assessments/prod.json"),
+            ("ADRI/contracts/test.yaml", "ADRI/contracts/test.yaml"),
+            ("ADRI/assessments/prod.json", "ADRI/assessments/prod.json"),
         ]
 
         for input_path, expected_suffix in test_cases:
@@ -259,12 +259,12 @@ class TestPathResolutionCrossDirectory(unittest.TestCase):
             "ADRI",
             "ADRI/tutorials/invoice_processing",
             "ADRI/tutorials/customer_service",
-            "ADRI/dev/contracts",
-            "ADRI/dev/assessments",
-            "ADRI/dev/training-data",
-            "ADRI/dev/audit-logs",
-            "ADRI/prod/contracts",
-            "ADRI/prod/assessments",
+            "ADRI/contracts",
+            "ADRI/assessments",
+            "ADRI/training-data",
+            "ADRI/audit-logs",
+            "ADRI/contracts",
+            "ADRI/assessments",
             "docs",
             "docs/src",
             "docs/src/components",
@@ -292,7 +292,7 @@ class TestPathResolutionCrossDirectory(unittest.TestCase):
         test_files = [
             "ADRI/tutorials/invoice_processing/invoice_data.csv",
             "ADRI/tutorials/customer_service/agent_data.csv",
-            "ADRI/dev/contracts/invoice_standard.yaml",
+            "ADRI/contracts/invoice_standard.yaml",
         ]
 
         for file_path in test_files:
@@ -325,7 +325,7 @@ class TestPathResolutionCrossDirectory(unittest.TestCase):
 
         # Test dev standards path resolution
         result = adri_cli._resolve_project_path("dev/contracts/invoice_standard.yaml")
-        expected = self.project_root / "ADRI/dev/contracts/invoice_standard.yaml"
+        expected = self.project_root / "ADRI/contracts/invoice_standard.yaml"
 
         # Use resolve() for cross-platform symlink handling
         self.assertEqual(result.resolve(), expected.resolve())
@@ -352,8 +352,8 @@ class TestPathResolutionCrossDirectory(unittest.TestCase):
         # Test multiple path types
         test_cases = [
             ("tutorials/invoice_processing/invoice_data.csv", "ADRI/tutorials/invoice_processing/invoice_data.csv"),
-            ("dev/contracts/invoice_standard.yaml", "ADRI/dev/contracts/invoice_standard.yaml"),
-            ("prod/assessments/report.json", "ADRI/prod/assessments/report.json"),
+            ("dev/contracts/invoice_standard.yaml", "ADRI/contracts/invoice_standard.yaml"),
+            ("prod/assessments/report.json", "ADRI/assessments/report.json"),
         ]
 
         for input_path, expected_suffix in test_cases:
@@ -427,10 +427,10 @@ class TestPathResolutionIntegration(unittest.TestCase):
         # Create directory structure
         directories = [
             "ADRI/tutorials/invoice_processing",
-            "ADRI/dev/contracts",
-            "ADRI/dev/assessments",
-            "ADRI/dev/training-data",
-            "ADRI/dev/audit-logs",
+            "ADRI/contracts",
+            "ADRI/assessments",
+            "ADRI/training-data",
+            "ADRI/audit-logs",
         ]
 
         for directory in directories:
@@ -445,10 +445,10 @@ class TestPathResolutionIntegration(unittest.TestCase):
                 "environments": {
                     "development": {
                         "paths": {
-                            "contracts": "ADRI/dev/contracts",
-                            "assessments": "ADRI/dev/assessments",
-                            "training_data": "ADRI/dev/training-data",
-                            "audit_logs": "ADRI/dev/audit-logs",
+                            "contracts": "ADRI/contracts",
+                            "assessments": "ADRI/assessments",
+                            "training_data": "ADRI/training-data",
+                            "audit_logs": "ADRI/audit-logs",
                         }
                     }
                 }

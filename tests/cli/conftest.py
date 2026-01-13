@@ -169,14 +169,14 @@ class TestWorkspace:
                 "environments": {
                     "development": {
                         "paths": {
-                            "contracts": "ADRI/dev/contracts",
-                            "assessments": "ADRI/dev/assessments",
-                            "training_data": "ADRI/dev/training-data",
-                            "audit_logs": "ADRI/dev/audit-logs",
+                            "contracts": "ADRI/contracts",
+                            "assessments": "ADRI/assessments",
+                            "training_data": "ADRI/training-data",
+                            "audit_logs": "ADRI/audit-logs",
                         },
                         "audit": {
                             "enabled": True,
-                            "log_dir": "ADRI/dev/audit-logs",
+                            "log_dir": "ADRI/audit-logs",
                             "log_prefix": "adri",
                             "log_level": "INFO",
                             "include_data_samples": True,
@@ -185,14 +185,14 @@ class TestWorkspace:
                     },
                     "production": {
                         "paths": {
-                            "contracts": "ADRI/prod/contracts",
-                            "assessments": "ADRI/prod/assessments",
-                            "training_data": "ADRI/prod/training-data",
-                            "audit_logs": "ADRI/prod/audit-logs",
+                            "contracts": "ADRI/contracts",
+                            "assessments": "ADRI/assessments",
+                            "training_data": "ADRI/training-data",
+                            "audit_logs": "ADRI/audit-logs",
                         },
                         "audit": {
                             "enabled": True,
-                            "log_dir": "ADRI/prod/audit-logs",
+                            "log_dir": "ADRI/audit-logs",
                             "log_prefix": "adri",
                             "log_level": "INFO",
                             "include_data_samples": True,

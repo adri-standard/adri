@@ -274,7 +274,7 @@ class TestConfigurationConvenienceFunctions(unittest.TestCase):
     def test_resolve_contract_file(self, mock_loader_class):
         """Test resolve_contract_file convenience function."""
         mock_loader = Mock()
-        mock_path = "./ADRI/prod/contracts/test.yaml"
+        mock_path = "./ADRI/contracts/test.yaml"
         mock_loader.resolve_contract_path.return_value = mock_path
         mock_loader_class.return_value = mock_loader
 

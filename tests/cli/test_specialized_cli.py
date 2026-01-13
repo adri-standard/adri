@@ -99,7 +99,7 @@ class TestCatalogCommands(ModernCLITestBase):
 
         # Simulate having fetched a standard from catalog
         catalog_standard = create_sample_standard("catalog_standard")
-        standard_path = Path("ADRI/dev/contracts/catalog_standard.yaml")
+        standard_path = Path("ADRI/contracts/catalog_standard.yaml")
         with open(standard_path, 'w', encoding='utf-8') as f:
             yaml.dump(catalog_standard, f)
 
@@ -183,11 +183,11 @@ class TestEnhancedCommands(ModernCLITestBase):
         assert result == 0
 
         # Check that training data directory exists (would contain snapshots)
-        training_data_dir = Path("ADRI/dev/training-data")
+        training_data_dir = Path("ADRI/training-data")
         assert training_data_dir.exists()
 
         # Check that standard was created
-        standard_path = Path("ADRI/dev/contracts/training_data_ADRI_standard.yaml")
+        standard_path = Path("ADRI/contracts/training_data_ADRI_standard.yaml")
         assert standard_path.exists()
 
     @patch('src.adri.validator.loaders.load_data')
@@ -216,7 +216,7 @@ class TestEnhancedCommands(ModernCLITestBase):
         assert result == 0
 
         # Verify standard includes enhanced sections
-        standard_path = Path("ADRI/dev/contracts/lineage_test_ADRI_standard.yaml")
+        standard_path = Path("ADRI/contracts/lineage_test_ADRI_standard.yaml")
         assert standard_path.exists()
 
         with open(standard_path, 'r', encoding='utf-8') as f:
@@ -252,7 +252,7 @@ class TestEnhancedCommands(ModernCLITestBase):
             assert result == 0
 
             # Verify standard was created
-            standard_path = Path("ADRI/dev/contracts/invoice_data_ADRI_standard.yaml")
+            standard_path = Path("ADRI/contracts/invoice_data_ADRI_standard.yaml")
             assert standard_path.exists()
 
     def test_record_identification_configuration(self):
@@ -268,7 +268,7 @@ class TestEnhancedCommands(ModernCLITestBase):
             "strategy": "primary_key_with_fallback"
         }
 
-        standard_path = Path("ADRI/dev/contracts/record_id_test.yaml")
+        standard_path = Path("ADRI/contracts/record_id_test.yaml")
         with open(standard_path, 'w', encoding='utf-8') as f:
             yaml.dump(standard_content, f)
 
@@ -331,7 +331,7 @@ class TestFunctionalWorkflows(ModernCLITestBase):
         assert generate_result == 0
 
         # Step 3: Validate the generated standard
-        standard_path = Path("ADRI/dev/contracts/invoice_data_ADRI_standard.yaml")
+        standard_path = Path("ADRI/contracts/invoice_data_ADRI_standard.yaml")
         validate_command = get_command("validate-contract")
         validate_result = validate_command.execute({
             "standard_path": str(standard_path)
@@ -364,7 +364,7 @@ class TestFunctionalWorkflows(ModernCLITestBase):
 
         # Create standard in development
         dev_standard = create_sample_standard("dev_standard")
-        dev_path = Path("ADRI/dev/contracts/dev_standard.yaml")
+        dev_path = Path("ADRI/contracts/dev_standard.yaml")
         with open(dev_path, 'w', encoding='utf-8') as f:
             yaml.dump(dev_standard, f)
 
@@ -376,7 +376,7 @@ class TestFunctionalWorkflows(ModernCLITestBase):
         assert dev_result == 0
 
         # Copy to production (simulated)
-        prod_path = Path("ADRI/prod/contracts/prod_standard.yaml")
+        prod_path = Path("ADRI/contracts/prod_standard.yaml")
         prod_path.parent.mkdir(parents=True, exist_ok=True)
         with open(prod_path, 'w', encoding='utf-8') as f:
             yaml.dump(dev_standard, f)
@@ -410,7 +410,7 @@ class TestFunctionalWorkflows(ModernCLITestBase):
 
         # Create invalid standard file
         invalid_content = {"invalid": "structure"}
-        invalid_path = Path("ADRI/dev/contracts/invalid.yaml")
+        invalid_path = Path("ADRI/contracts/invalid.yaml")
         with open(invalid_path, 'w', encoding='utf-8') as f:
             yaml.dump(invalid_content, f)
 
@@ -663,7 +663,7 @@ class TestSpecializedErrorHandling(ModernCLITestBase):
         setup_command.execute({"force": False, "project_name": "yaml_test", "guide": False})
 
         # Create invalid YAML file
-        invalid_yaml_path = Path("ADRI/dev/contracts/invalid.yaml")
+        invalid_yaml_path = Path("ADRI/contracts/invalid.yaml")
         with open(invalid_yaml_path, 'w', encoding='utf-8') as f:
             f.write("invalid: yaml: content: [unclosed")
 

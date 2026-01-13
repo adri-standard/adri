@@ -214,7 +214,7 @@ class TestADRILogReader:
         reader = ADRILogReader({})
 
         # Should use default path (use as_posix() for cross-platform compatibility)
-        assert reader.log_dir.as_posix() == "ADRI/dev/audit-logs"
+        assert reader.log_dir.as_posix() == "ADRI/audit-logs"
 
     def test_custom_config_path(self, temp_log_dir):
         """Test that custom config path is respected."""
@@ -316,9 +316,9 @@ class TestADRILogReaderIntegration:
             yield log_dir
 
     def test_reads_from_standard_dev_location(self):
-        """Test reading from standard ADRI/dev/audit-logs location."""
+        """Test reading from standard ADRI/audit-logs location."""
         # This test will pass if the directory exists, otherwise gracefully return empty
-        reader = ADRILogReader({"paths": {"audit_logs": "ADRI/dev/audit-logs"}})
+        reader = ADRILogReader({"paths": {"audit_logs": "ADRI/audit-logs"}})
 
         # Should not raise an error even if files don't exist
         try:

@@ -26,9 +26,9 @@ def setup_isolated_environment(base_path: Path) -> Dict[str, Path]:
     Returns:
         Dictionary containing paths:
         - config: ADRI/config.yaml path
-        - standards_dir: ADRI/dev/contracts
-        - assessments_dir: ADRI/dev/assessments
-        - logs_dir: ADRI/dev/logs
+        - standards_dir: ADRI/contracts
+        - assessments_dir: ADRI/assessments
+        - logs_dir: ADRI/audit-logs
     """
     base_path.mkdir(parents=True, exist_ok=True)
 
