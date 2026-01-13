@@ -127,7 +127,7 @@ class ScoringExplainCommand(Command):
         """Get default audit configuration."""
         return {
             "enabled": True,
-            "log_dir": "ADRI/dev/audit-logs",
+            "log_dir": "ADRI/audit-logs",
             "log_prefix": "adri",
             "log_level": "INFO",
             "include_data_samples": True,

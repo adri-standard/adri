@@ -215,8 +215,8 @@ class ListContractsCommand(Command):
             standards_found = False
 
             # Local project standards (development and production)
-            dev_dir = Path("ADRI/dev/contracts")
-            prod_dir = Path("ADRI/prod/contracts")
+            dev_dir = Path("ADRI/contracts")
+            prod_dir = Path("ADRI/contracts")
 
             # Try to resolve from config if available
             try:
@@ -376,8 +376,8 @@ class ShowContractCommand(Command):
 
         # Search in standard locations
         search_paths = [
-            f"ADRI/dev/contracts/{standard_name}.yaml",
-            f"ADRI/prod/contracts/{standard_name}.yaml",
+            f"ADRI/contracts/{standard_name}.yaml",
+            f"ADRI/contracts/{standard_name}.yaml",
             f"{standard_name}.yaml",
         ]
 

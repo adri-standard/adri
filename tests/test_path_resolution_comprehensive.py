@@ -531,12 +531,13 @@ class TestPathResolutionIntegration(unittest.TestCase):
         mock_assessor.audit_logger = None
         mock_assessor_class.return_value = mock_assessor
 
-        # Create standard file for testing
+        # Create standard file for testing (flat structure)
         standard_content = {
             "contracts": {"name": "Test Standard"},
             "requirements": {"overall_minimum": 75.0}
         }
-        standard_path = self.project_root / "ADRI" / "dev" / "contracts" / "test_standard.yaml"
+        standard_path = self.project_root / "ADRI" / "contracts" / "test_standard.yaml"
+        standard_path.parent.mkdir(parents=True, exist_ok=True)
         with open(standard_path, 'w', encoding='utf-8') as f:
             yaml.dump(standard_content, f)
 
