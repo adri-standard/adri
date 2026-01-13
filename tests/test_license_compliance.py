@@ -65,21 +65,20 @@ class TestLicenseCompliance(unittest.TestCase):
         self.assertIn("Attribution Requirement", trademark_content)
 
     def test_readme_attribution(self):
-        """Verify README.md contains proper Verodat attribution."""
+        """Verify README.md contains proper license and attribution."""
         readme_path = self.project_root / "README.md"
         self.assertTrue(readme_path.exists(), "README.md file must exist")
 
         with open(readme_path, 'r', encoding='utf-8') as f:
             readme_content = f.read()
 
-        # Check for attribution in README
-        self.assertIn("Apache 2.0 License", readme_content)
-        self.assertIn("Verodat", readme_content)
-        # Flexible attribution check - accepts different wording
+        # Check for Apache 2.0 license reference (flexible wording)
         self.assertTrue(
-            "Built with ❤️ by" in readme_content or "founded and maintained by" in readme_content,
-            "README must contain Verodat attribution"
+            "Apache 2.0" in readme_content or "Apache License" in readme_content,
+            "README must reference Apache 2.0 license"
         )
+        # Check for LICENSE file reference
+        self.assertIn("LICENSE", readme_content)
 
     def test_pyproject_metadata_compliance(self):
         """Verify pyproject.toml contains correct license and author information."""

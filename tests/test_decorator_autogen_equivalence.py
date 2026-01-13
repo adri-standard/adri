@@ -304,7 +304,7 @@ class TestDecoratorAutoGeneration:
             os.chdir(project_root)
 
             # Ensure standard doesn't exist - delete both resolved and unresolved paths
-            standard_dir = project_root / 'ADRI' / 'dev' / 'contracts'
+            standard_dir = project_root / 'ADRI' / 'contracts'
             standard_path_resolved = (standard_dir / f"{test_standard_name}.yaml").resolve()
             standard_path_unresolved = Path('ADRI') / 'dev' / 'contracts' / f"{test_standard_name}.yaml"
 
@@ -380,7 +380,7 @@ class TestDecoratorAutoGeneration:
         )
 
         # Save CLI-generated standard
-        standard_dir = project_root / 'ADRI' / 'dev' / 'contracts'
+        standard_dir = project_root / 'ADRI' / 'contracts'
         standard_dir.mkdir(parents=True, exist_ok=True)  # Create directory if it doesn't exist
         cli_standard_path = standard_dir / "test_cli_invoice.yaml"
         with open(cli_standard_path, 'w', encoding='utf-8') as f:
@@ -473,7 +473,7 @@ class TestDecoratorAutoGeneration:
         )
 
         # Auto-generate decorator standard
-        standard_dir = project_root / 'ADRI' / 'dev' / 'contracts'
+        standard_dir = project_root / 'ADRI' / 'contracts'
         decorator_standard_name = "test_fields_decorator"
 
         # Change to project root for path resolution
@@ -554,7 +554,7 @@ class TestDecoratorAutoGeneration:
         )
 
         # Auto-generate decorator standard
-        standard_dir = project_root / 'ADRI' / 'dev' / 'contracts'
+        standard_dir = project_root / 'ADRI' / 'contracts'
         decorator_standard_name = "test_rules_decorator"
 
         # Change to project root for path resolution
@@ -639,7 +639,7 @@ class TestDecoratorAutoGeneration:
 
         # Save CLI standard to file
         project_root = invoice_scenario['tutorial_dir'].parent.parent.parent
-        standard_dir = project_root / 'ADRI' / 'dev' / 'contracts'
+        standard_dir = project_root / 'ADRI' / 'contracts'
         standard_dir.mkdir(parents=True, exist_ok=True)  # Create directory if it doesn't exist
         cli_standard_path = standard_dir / "test_assessment_cli.yaml"
         with open(cli_standard_path, 'w', encoding='utf-8') as f:
@@ -698,7 +698,7 @@ class TestDecoratorAutoGeneration:
         os.environ['ADRI_CONFIG_PATH'] = str(config_path)
 
         # Create a standard manually
-        standard_dir = project_root / 'ADRI' / 'dev' / 'contracts'
+        standard_dir = project_root / 'ADRI' / 'contracts'
         standard_dir.mkdir(parents=True, exist_ok=True)  # Create directory if it doesn't exist
         test_standard_name = "test_reuse_standard"
         standard_path = (standard_dir / f"{test_standard_name}.yaml").resolve()
@@ -753,7 +753,7 @@ class TestDecoratorAutoGeneration:
         os.environ['ADRI_CONFIG_PATH'] = str(config_path)
 
         # Ensure standard doesn't exist
-        standard_dir = project_root / 'ADRI' / 'dev' / 'contracts'
+        standard_dir = project_root / 'ADRI' / 'contracts'
         test_standard_name = "test_disabled_autogen"
         standard_path = (standard_dir / f"{test_standard_name}.yaml").resolve()
         if standard_path.exists():

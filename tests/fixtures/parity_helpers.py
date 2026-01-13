@@ -18,7 +18,7 @@ import pandas as pd
 
 def setup_isolated_environment(base_path: Path) -> Dict[str, Path]:
     """
-    Create isolated ADRI environment with separate directories.
+    Create isolated ADRI environment with flat directory structure.
 
     Args:
         base_path: Base directory for the isolated environment
@@ -26,44 +26,34 @@ def setup_isolated_environment(base_path: Path) -> Dict[str, Path]:
     Returns:
         Dictionary containing paths:
         - config: ADRI/config.yaml path
-        - standards_dir: ADRI/contracts
+        - contracts_dir: ADRI/contracts
         - assessments_dir: ADRI/assessments
         - logs_dir: ADRI/audit-logs
     """
     base_path.mkdir(parents=True, exist_ok=True)
 
-    # Create directory structure
+    # Create flat directory structure (OSS simplified)
     adri_dir = base_path / "ADRI"
-    dev_dir = adri_dir / "dev"
 
-    contracts_dir = dev_dir / "contracts"
-    assessments_dir = dev_dir / "assessments"
-    logs_dir = dev_dir / "audit-logs"
+    contracts_dir = adri_dir / "contracts"
+    assessments_dir = adri_dir / "assessments"
+    training_data_dir = adri_dir / "training-data"
+    logs_dir = adri_dir / "audit-logs"
 
-    for directory in [contracts_dir, assessments_dir, logs_dir]:
+    for directory in [contracts_dir, assessments_dir, training_data_dir, logs_dir]:
         directory.mkdir(parents=True, exist_ok=True)
 
-    # Create config file matching both ConfigurationLoader and DataQualityAssessor structures
+    # Create config file with flat paths structure (OSS simplified)
     config_path = base_path / "ADRI" / "config.yaml"
     config = {
         'adri': {
             'version': '4.0.0',
             'project_name': 'test_project',
-            'default_environment': 'development',
-            'environments': {
-                'development': {
-                    'paths': {
-                        'contracts': str(contracts_dir),
-                        'assessments': str(assessments_dir),
-                        'training_data': str(dev_dir / 'training-data'),
-                        'audit_logs': str(logs_dir)
-                    },
-                    'protection': {
-                        'default_failure_mode': 'warn',
-                        'default_min_score': 75,
-                        'cache_duration_hours': 0.5
-                    }
-                }
+            'paths': {
+                'contracts': str(contracts_dir),
+                'assessments': str(assessments_dir),
+                'training_data': str(training_data_dir),
+                'audit_logs': str(logs_dir)
             },
             'protection': {
                 'default_failure_mode': 'raise',
