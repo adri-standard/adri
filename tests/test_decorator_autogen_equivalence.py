@@ -306,7 +306,7 @@ class TestDecoratorAutoGeneration:
             # Ensure standard doesn't exist - delete both resolved and unresolved paths
             standard_dir = project_root / 'ADRI' / 'contracts'
             standard_path_resolved = (standard_dir / f"{test_standard_name}.yaml").resolve()
-            standard_path_unresolved = Path('ADRI') / 'dev' / 'contracts' / f"{test_standard_name}.yaml"
+            standard_path_unresolved = Path('ADRI') / 'contracts' / f"{test_standard_name}.yaml"
 
             if standard_path_resolved.exists():
                 standard_path_resolved.unlink()
@@ -322,7 +322,7 @@ class TestDecoratorAutoGeneration:
             result = process_invoices(training_data)
 
             # Search for created file instead of checking exact path (handles macOS symlinks)
-            contracts_dir = Path('ADRI') / 'dev' / 'contracts'
+            contracts_dir = Path('ADRI') / 'contracts'
             assert contracts_dir.exists(), f"Contracts directory should exist: {contracts_dir}"
 
             found_files = list(contracts_dir.glob(f"{test_standard_name}.yaml"))
@@ -407,7 +407,7 @@ class TestDecoratorAutoGeneration:
             result = process_invoices(training_data)
 
             # Search for created file instead of checking exact path
-            contracts_dir_rel = Path('ADRI') / 'dev' / 'contracts'
+            contracts_dir_rel = Path('ADRI') / 'contracts'
             assert contracts_dir_rel.exists(), f"Contracts directory should exist: {contracts_dir_rel}"
 
             found_files = list(contracts_dir_rel.glob(f"{decorator_standard_name}.yaml"))
@@ -493,7 +493,7 @@ class TestDecoratorAutoGeneration:
             process_data(training_data)
 
             # Search for created file and read it WHILE still in chdir context
-            contracts_dir_rel = Path('ADRI') / 'dev' / 'contracts'
+            contracts_dir_rel = Path('ADRI') / 'contracts'
             if contracts_dir_rel.exists():
                 found_files = list(contracts_dir_rel.glob(f"{decorator_standard_name}.yaml"))
                 if len(found_files) > 0:

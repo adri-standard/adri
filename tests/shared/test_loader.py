@@ -170,13 +170,14 @@ class TestConfigurationLoader(unittest.TestCase):
         self.assertEqual(paths_config["assessments"], "./ADRI/assessments")
 
     def test_get_environment_config_returns_paths(self):
-        """Test get_environment_config returns paths config (backwards compat)."""
+        """Test get_environment_config returns paths config (OSS flat structure)."""
         config = self.loader.create_default_config("test")
         env_config = self.loader.get_environment_config(config)
 
-        # Should return paths config for backwards compatibility
-        self.assertIn("contracts", env_config)
-        self.assertEqual(env_config["contracts"], "./ADRI/contracts")
+        # Should return paths under 'paths' key for flat structure
+        self.assertIn("paths", env_config)
+        self.assertIn("contracts", env_config["paths"])
+        self.assertEqual(env_config["paths"]["contracts"], "./ADRI/contracts")
 
     def test_get_protection_config_no_config_file(self):
         """Test getting protection config when no config file exists."""
