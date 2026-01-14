@@ -43,6 +43,8 @@ per-file-ignores =
     src/adri/cli.py:E221,D205
     # Standards exceptions: __str__ methods use descriptive rather than imperative mood
     src/adri/standards/exceptions.py:D401
+    # Schema diff: relaxed for string formatting with semicolons and aligned output
+    src/adri/utils/schema_diff.py:E702,E221
 max-complexity = 25
 import-order-style = google
 application-import-names = adri

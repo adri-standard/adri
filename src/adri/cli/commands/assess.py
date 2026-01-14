@@ -167,7 +167,7 @@ class AssessCommand(Command):
         """Get default audit configuration."""
         return {
             "enabled": True,
-            "log_dir": "ADRI/dev/audit-logs",
+            "log_dir": "ADRI/audit-logs",
             "log_prefix": "adri",
             "log_level": "INFO",
             "include_data_samples": True,
@@ -192,7 +192,7 @@ class AssessCommand(Command):
         try:
             from ...config.loader import ConfigurationLoader
 
-            assessments_dir = Path("ADRI/dev/assessments")
+            assessments_dir = Path("ADRI/assessments")
 
             # Try to get configured assessments directory
             try:

@@ -67,11 +67,11 @@ def contract_lowercase_fields(temp_contract_dir):
             }
         }
     }
-    
+
     contract_path = temp_contract_dir / 'test_contract.yaml'
-    with open(contract_path, 'w') as f:
+    with open(contract_path, 'w', encoding='utf-8') as f:
         yaml.dump(contract_dict, f)
-    
+
     return str(contract_path)
 
 
@@ -95,16 +95,16 @@ class TestSchemaValidationAutoFix:
         """Verify case mismatches are automatically fixed by default."""
         assessor = DataQualityAssessor()
         result = assessor.assess(case_mismatch_data, contract_lowercase_fields)
-        
+
         # Schema validation should be in metadata
         assert 'schema_validation' in result.metadata
         schema_info = result.metadata['schema_validation']
-        
+
         # With auto-fix enabled (default), case mismatches are corrected
         # So we should have 4 exact matches after auto-fix
         assert schema_info['exact_matches'] == 4
         assert schema_info['match_percentage'] == 100.0
-        
+
         # No case mismatch warnings (they were auto-fixed)
         case_warnings = [w for w in schema_info.get('warnings', [])
                         if w.get('type') == 'FIELD_CASE_MISMATCH']
@@ -116,15 +116,15 @@ class TestSchemaValidationAutoFix:
         """Verify no schema warnings with perfect field name match."""
         assessor = DataQualityAssessor()
         result = assessor.assess(perfect_match_data, contract_lowercase_fields)
-        
+
         # Schema validation should be in metadata
         assert 'schema_validation' in result.metadata
         schema_info = result.metadata['schema_validation']
-        
+
         # Perfect match: 4 exact matches, 100%
         assert schema_info['exact_matches'] == 4
         assert schema_info['match_percentage'] == 100.0
-        
+
         # No CRITICAL or ERROR warnings
         critical_or_error_warnings = [
             w for w in schema_info.get('warnings', [])
@@ -138,11 +138,11 @@ class TestSchemaValidationAutoFix:
         """Verify auto-fix allows validation rules to execute."""
         assessor = DataQualityAssessor()
         result = assessor.assess(case_mismatch_data, contract_lowercase_fields)
-        
+
         # With auto-fix, validation should run successfully
         # Check that we get good quality scores (not 0.0 from missing fields)
         assert result.overall_score > 0.0
-        
+
         # Completeness should be 100% (all required fields present after rename)
         completeness_score = result.dimension_scores.get('completeness')
         if hasattr(completeness_score, 'score'):
@@ -159,7 +159,7 @@ class TestDecoratorAutoFix:
         # Set up environment
         contract_dir = Path(contract_lowercase_fields).parent
         monkeypatch.setenv('ADRI_STANDARDS_DIR', str(contract_dir))
-        
+
         # Create decorator-protected function
         @adri_protected(
             contract='test_contract',
@@ -169,7 +169,7 @@ class TestDecoratorAutoFix:
         )
         def process_data(data):
             return data
-        
+
         # Should NOT raise - auto-fix corrects the case mismatch
         result = process_data(case_mismatch_data)
         assert result is not None
@@ -181,12 +181,12 @@ class TestDecoratorAutoFix:
         # Set up environment
         contract_dir = Path(contract_lowercase_fields).parent
         monkeypatch.setenv('ADRI_STANDARDS_DIR', str(contract_dir))
-        
+
         # Set up logging directory
         log_dir = tmp_path / 'logs'
         log_dir.mkdir()
         monkeypatch.setenv('ADRI_LOG_DIR', str(log_dir))
-        
+
         # Create decorator-protected function
         @adri_protected(
             contract='test_contract',
@@ -196,7 +196,7 @@ class TestDecoratorAutoFix:
         )
         def process_data(data):
             return data
-        
+
         # Should NOT raise (perfect match, good quality)
         result = process_data(perfect_match_data)
         assert result is not None
@@ -211,11 +211,11 @@ class TestSchemaValidationMetadata:
         """Verify schema validation metadata has correct structure."""
         assessor = DataQualityAssessor()
         result = assessor.assess(case_mismatch_data, contract_lowercase_fields)
-        
+
         # Schema validation should be in metadata
         assert 'schema_validation' in result.metadata
         schema_info = result.metadata['schema_validation']
-        
+
         # Check all expected fields
         assert 'match_percentage' in schema_info
         assert 'exact_matches' in schema_info

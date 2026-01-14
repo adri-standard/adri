@@ -85,14 +85,14 @@ def create_test_workspace() -> Path:
 
     # Create ADRI directory structure
     directories = [
-        "ADRI/dev/contracts",
-        "ADRI/dev/assessments",
-        "ADRI/dev/training-data",
-        "ADRI/dev/audit-logs",
-        "ADRI/prod/contracts",
-        "ADRI/prod/assessments",
-        "ADRI/prod/training-data",
-        "ADRI/prod/audit-logs",
+        "ADRI/contracts",
+        "ADRI/assessments",
+        "ADRI/training-data",
+        "ADRI/audit-logs",
+        "ADRI/contracts",
+        "ADRI/assessments",
+        "ADRI/training-data",
+        "ADRI/audit-logs",
         "ADRI/tutorials/invoice_processing",
         "ADRI/tutorials/customer_service",
     ]
@@ -109,14 +109,14 @@ def create_test_workspace() -> Path:
             "environments": {
                 "development": {
                     "paths": {
-                        "contracts": "ADRI/dev/contracts",
-                        "assessments": "ADRI/dev/assessments",
-                        "training_data": "ADRI/dev/training-data",
-                        "audit_logs": "ADRI/dev/audit-logs",
+                        "contracts": "ADRI/contracts",
+                        "assessments": "ADRI/assessments",
+                        "training_data": "ADRI/training-data",
+                        "audit_logs": "ADRI/audit-logs",
                     },
                     "audit": {
                         "enabled": True,
-                        "log_dir": "ADRI/dev/audit-logs",
+                        "log_dir": "ADRI/audit-logs",
                         "log_prefix": "adri",
                         "log_level": "INFO",
                         "include_data_samples": True,
@@ -125,14 +125,14 @@ def create_test_workspace() -> Path:
                 },
                 "production": {
                     "paths": {
-                        "contracts": "ADRI/prod/contracts",
-                        "assessments": "ADRI/prod/assessments",
-                        "training_data": "ADRI/prod/training-data",
-                        "audit_logs": "ADRI/prod/audit-logs",
+                        "contracts": "ADRI/contracts",
+                        "assessments": "ADRI/assessments",
+                        "training_data": "ADRI/training-data",
+                        "audit_logs": "ADRI/audit-logs",
                     },
                     "audit": {
                         "enabled": True,
-                        "log_dir": "ADRI/prod/audit-logs",
+                        "log_dir": "ADRI/audit-logs",
                         "log_prefix": "adri",
                         "log_level": "INFO",
                         "include_data_samples": True,
@@ -313,7 +313,7 @@ def create_sample_standard(
             "source_path": f"test_data/{name}.csv",
             "timestamp": "2024-01-01T00:00:00Z",
             "file_hash": "abc12345",
-            "snapshot_path": f"ADRI/dev/training-data/{name}_abc12345.csv",
+            "snapshot_path": f"ADRI/training-data/{name}_abc12345.csv",
             "snapshot_hash": "abc12345"
         }
     }
@@ -361,15 +361,15 @@ def assert_workspace_structure(workspace_path: Path) -> None:
     required_dirs = [
         "ADRI",
         "ADRI/dev",
-        "ADRI/dev/contracts",
-        "ADRI/dev/assessments",
-        "ADRI/dev/training-data",
-        "ADRI/dev/audit-logs",
+        "ADRI/contracts",
+        "ADRI/assessments",
+        "ADRI/training-data",
+        "ADRI/audit-logs",
         "ADRI/prod",
-        "ADRI/prod/contracts",
-        "ADRI/prod/assessments",
-        "ADRI/prod/training-data",
-        "ADRI/prod/audit-logs",
+        "ADRI/contracts",
+        "ADRI/assessments",
+        "ADRI/training-data",
+        "ADRI/audit-logs",
         "ADRI/tutorials",
     ]
 

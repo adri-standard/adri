@@ -43,7 +43,7 @@ def resolve_project_path(
     """Resolve a path relative to the ADRI project root.
 
     If an ADRI project is found, resolves the path relative to the project root.
-    Tutorial paths and dev/prod paths are automatically prefixed with ADRI/.
+    Tutorial and contracts paths are automatically prefixed with ADRI/.
 
     Args:
         relative_path: Path relative to project root
@@ -68,9 +68,9 @@ def resolve_project_path(
     # Handle different path prefixes
     if relative_path.startswith("ADRI/"):
         return project_root / relative_path
-    elif relative_path.startswith("tutorials/"):
-        return project_root / "ADRI" / relative_path
-    elif relative_path.startswith(("dev/", "prod/")):
+    elif relative_path.startswith(
+        ("tutorials/", "contracts/", "assessments/", "training-data/", "audit-logs/")
+    ):
         return project_root / "ADRI" / relative_path
     else:
         return project_root / "ADRI" / relative_path

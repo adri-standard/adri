@@ -115,8 +115,11 @@ class TestContractsParserIntegration:
 
         # Create temporary standards directory
         with tempfile.TemporaryDirectory() as temp_dir:
-            # Set environment variable
-            os.environ['ADRI_STANDARDS_PATH'] = temp_dir
+            # Save original env var value
+            original_contracts_dir = os.environ.get('ADRI_CONTRACTS_DIR')
+
+            # Set environment variable (use ADRI_CONTRACTS_DIR, not ADRI_STANDARDS_PATH)
+            os.environ['ADRI_CONTRACTS_DIR'] = temp_dir
 
             # Create invalid standard
             invalid_path = Path(temp_dir) / "invalid_test.yaml"
@@ -139,8 +142,11 @@ requirements:
                 with pytest.raises(Exception):  # Catch any exception type
                     parser.parse_contract("invalid_test")
             finally:
-                # Clean up environment
-                del os.environ['ADRI_STANDARDS_PATH']
+                # Restore original environment variable
+                if original_contracts_dir is not None:
+                    os.environ['ADRI_CONTRACTS_DIR'] = original_contracts_dir
+                elif 'ADRI_CONTRACTS_DIR' in os.environ:
+                    del os.environ['ADRI_CONTRACTS_DIR']
 
 
 class TestValidatorCacheIntegration:

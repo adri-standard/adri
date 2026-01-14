@@ -33,16 +33,15 @@ def adri_protected(
     """
     Protect agent functions with ADRI data quality checks.
 
-    This decorator validates data quality using environment-based contract resolution.
-    The contract location is determined by your active environment (dev/prod) as
-    configured in adri-config.yaml, ensuring governance and consistency.
+    This decorator validates data quality using contract-based resolution.
+    The contract location is determined by your ADRI configuration in
+    ADRI/config.yaml, ensuring governance and consistency.
 
     Args:
         contract: Contract name (REQUIRED) - e.g., "customer_data" or "financial_data"
                  NOTE: Only names are accepted, not file paths. The actual file location
-                 is determined by your environment configuration:
-                 - Dev: ./ADRI/dev/contracts/{contract}.yaml
-                 - Prod: ./ADRI/prod/contracts/{contract}.yaml
+                 is determined by your configuration:
+                 - Default: ./ADRI/contracts/{contract}.yaml
         data_param: Name of the parameter containing data to check (default: "data")
         min_score: Minimum quality score required (0-100, uses config default if None)
         dimensions: Specific dimension requirements (e.g., {"validity": 19, "completeness": 18})

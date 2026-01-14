@@ -9,7 +9,7 @@ A detailed 10-minute tutorial to master ADRI basics.
 3. [Installation](#installation)
 4. [Your First Protected Function](#your-first-protected-function)
 5. [Understanding Auto-Generation](#understanding-auto-generation)
-6. [Working with Generated Standards](#working-with-generated-standards)
+6. [Working with Generated Contracts](#working-with-generated-contracts)
 7. [Guard Modes](#guard-modes)
 8. [Local Logging and Insights](#local-logging-and-insights)
 9. [Configuration](#configuration)
@@ -20,8 +20,8 @@ A detailed 10-minute tutorial to master ADRI basics.
 By the end of this guide, you'll know how to:
 - Install and configure ADRI
 - Protect functions with the `@adri_protected` decorator
-- Understand auto-generation of quality standards
-- Customize generated standards
+- Understand auto-generation of data contracts
+- Customize generated contracts
 - Choose between block and warn modes
 - Access local logs for debugging
 - Configure ADRI for your project
@@ -64,7 +64,7 @@ adri guide
 The guide will walk you through:
 - Setting up your project structure
 - Using decorators with sample data
-- Generating and viewing standards
+- Generating and viewing contracts
 - Understanding assessment results
 
 **Time**: 5 minutes
@@ -122,8 +122,8 @@ python customer_processor.py
 
 **Output:**
 ```
-✅ Auto-generating quality standard from data...
-📋 Standard saved: ADRI/dev/contracts/process_customers_customers_standard.yaml
+✅ Auto-generating contract from data...
+📋 Contract saved under ADRI/ (see your project folder)
 🛡️ ADRI Protection: ALLOWED ✅
 📊 Quality Score: 100.0/100
 
@@ -134,8 +134,8 @@ Result: {'total_customers': 3, 'total_value': 450.0, 'average_age': 30.0}
 **What happened:**
 
 1. ✅ ADRI analyzed your customer data
-2. ✅ Generated a quality standard
-3. ✅ Saved the standard to `ADRI/dev/contracts/`
+2. ✅ Generated a contract
+3. ✅ Saved the contract under your project's ADRI folder
 4. ✅ Validated the data (passed)
 5. ✅ Executed your function
 
@@ -153,114 +153,22 @@ For the customer data above, ADRI learned:
 - **Value Patterns**: Email format, age range, positive values
 - **Data Freshness**: Date patterns
 
-### Standard Location
+### Contract location
 
-Generated standards are saved to:
-```
-.adri/
-  └── standards/
-      └── process_customers_customers_standard.yaml
-```
+Generated contracts are stored under your project’s ADRI folder.
 
-### When Standards Are Generated
+### When contracts are generated
 
-- **First run**: Standard doesn't exist → Auto-generates
-- **Subsequent runs**: Standard exists → Validates against it
-- **Manual override**: Use `standard="my_standard"` parameter
+- **First run**: Contract doesn't exist → Auto-generates
+- **Subsequent runs**: Contract exists → Validates against it
+- **Manual override**: Use `contract="my_contract"` parameter
 
-## Working with Generated Standards
+## Working with Generated Contracts
 
-Let's examine and customize the generated standard.
+Once ADRI generates a contract for a step, you can open the YAML file in your project’s `ADRI/` folder and tune it (required fields, patterns, thresholds, etc.).
 
-### Step 1: View the Generated Standard
-
-```bash
-cat ADRI/dev/contracts/process_customers_customers_standard.yaml
-```
-
-You'll see something like:
-
-```yaml
-standard:
-  name: "process_customers_customers"
-  version: "1.0.0"
-  description: "Auto-generated standard for process_customers function"
-
-  fields:
-    customer_id:
-      type: integer
-      required: true
-      min_value: 1
-
-    name:
-      type: string
-      required: true
-      min_length: 1
-
-    email:
-      type: string
-      required: true
-      pattern: "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
-
-    age:
-      type: integer
-      required: true
-      min_value: 0
-      max_value: 120
-
-    purchase_value:
-      type: number
-      required: true
-      min_value: 0
-
-    signup_date:
-      type: date
-      required: true
-```
-
-### Step 2: Customize the Standard
-
-Edit the YAML file to match your exact requirements:
-
-```yaml
-standard:
-  name: "process_customers_customers"
-  version: "1.1.0"  # Updated version
-  description: "Customer data quality standard"
-
-  fields:
-    customer_id:
-      type: integer
-      required: true
-      min_value: 1
-
-    name:
-      type: string
-      required: true
-      min_length: 2  # Names must be at least 2 characters
-
-    email:
-      type: string
-      required: true
-      pattern: "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
-
-    age:
-      type: integer
-      required: true
-      min_value: 18  # Only adults
-      max_value: 100
-
-    purchase_value:
-      type: number
-      required: true
-      min_value: 0.01  # Minimum purchase
-      max_value: 10000  # Maximum purchase limit
-
-    signup_date:
-      type: date
-      required: true
-      max_age_days: 365  # Data must be less than 1 year old
-```
+If you prefer to start from a template instead of auto-generation, see:
+- [Contracts Library](CONTRACTS_LIBRARY.md)
 
 ### Step 3: Test with Bad Data
 
@@ -274,7 +182,7 @@ import pandas as pd
 def process_customers(customers):
     return {"count": len(customers)}
 
-# Bad data - violates our standard
+# Bad data - violates our contract
 bad_customers = pd.DataFrame({
     "customer_id": [1, 2, None],  # Missing ID
     "name": ["Alice", "B", "Charlie"],  # "B" too short
@@ -343,44 +251,19 @@ def lenient_function(data):
 - Data quality issues are acceptable
 - You want visibility without disruption
 
-### Example: Development vs Production
+### Tip: Strict vs lenient
 
-```python
-import os
-from adri import adri_protected
-
-# Use warn mode in development, block mode in production
-MODE = "warn" if os.getenv("ENV") == "dev" else "block"
-
-@adri_protected(data_param="data", mode=MODE)
-def flexible_function(data):
-    return process(data)
-```
+Use `on_failure="warn"` while developing, and `on_failure="raise"` for strict enforcement.
 
 ## Local Logging and Insights
 
-ADRI logs all validation activity locally for debugging.
+ADRI logs validation activity locally for debugging.
 
-### Log Location
+Use the CLI to inspect recent runs:
 
-```
-.adri/
-  └── logs/
-      ├── adri_2024_01_15.log
-      └── assessments/
-          └── process_customers_2024_01_15_14_30_22.json
-```
-
-### Reading Logs
-
-**Text Logs:**
 ```bash
-cat ADRI/dev/logs/adri_2024_01_15.log
-```
-
-**Assessment Reports:**
-```bash
-cat ADRI/dev/logs/assessments/process_customers_2024_01_15_14_30_22.json
+adri view-logs
+adri list-assessments
 ```
 
 Assessment reports include:
@@ -407,26 +290,12 @@ adri export-report --latest --output report.json
 
 Configure ADRI behavior for your project.
 
-### Method 1: Config File
+### Config file
 
-Create `ADRI/dev/config.yaml`:
+ADRI stores project configuration in:
 
-```yaml
-# Standards configuration
-standards_path: ".adri/standards"
-bundled_standards_path: "~/.adri/standards"
-
-# Logging configuration
-log_level: "INFO"
-log_path: ".adri/logs"
-
-# Validation configuration
-default_mode: "block"
-auto_generate: true
-min_score: 80.0
-
-# Development settings
-verbose: false
+```
+ADRI/config.yaml
 ```
 
 ### Method 2: Interactive Setup
@@ -459,8 +328,8 @@ def custom_function(data):
 ### Configuration Priority
 
 1. Decorator parameters (highest priority)
-2. Project `ADRI/dev/config.yaml`
-3. User `~/ADRI/config.yaml`
+2. Project `ADRI/config.yaml`
+3. User `~/ADRI/config.yaml` (if supported)
 4. Default values (lowest priority)
 
 ## Next Steps

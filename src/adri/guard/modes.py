@@ -826,8 +826,8 @@ class DataProtectionEngine:
 
         loader = ConfigurationLoader()
         # Environment-based resolution:
-        # dev -> ./ADRI/dev/contracts/{name}.yaml
-        # prod -> ./ADRI/prod/contracts/{name}.yaml
+        # dev -> ./ADRI/contracts/{name}.yaml
+        # prod -> ./ADRI/contracts/{name}.yaml
         return loader.resolve_contract_path(contract_name)
 
     def _format_success_message(

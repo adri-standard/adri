@@ -224,10 +224,24 @@ class TestQualityBenchmarks:
         """Benchmark standards parsing performance."""
 
         # Create complex standard with many field requirements
+        # Must include all required sections for ADRI contract validation
+        # Note: The schema uses "contracts" (not "standards") as the top-level section
         complex_standard = {
-            **self.comprehensive_standard,
+            "contracts": {
+                "name": "Benchmark Complex Standard",
+                "id": "benchmark_complex_standard",
+                "version": "1.0.0",
+                "authority": "benchmark_test",
+                "description": "Complex standard for performance benchmarking"
+            },
             "requirements": {
-                **self.comprehensive_standard["requirements"],
+                "overall_minimum": 75.0,
+                "dimension_requirements": {
+                    "validity": {
+                        "weight": 1.0,
+                        "minimum_score": 70.0
+                    }
+                },
                 "field_requirements": {}
             }
         }
@@ -242,19 +256,37 @@ class TestQualityBenchmarks:
                 "pattern": r"^[A-Za-z0-9]+$"
             }
 
-        standard_file = temp_workspace / "complex_standard.yaml"
+        # Create contracts directory in temp workspace for auto-discovery
+        contracts_dir = temp_workspace / "ADRI" / "contracts"
+        contracts_dir.mkdir(parents=True, exist_ok=True)
+
+        standard_file = contracts_dir / "complex_standard.yaml"
         with open(standard_file, 'w', encoding='utf-8') as f:
             import yaml
             yaml.dump(complex_standard, f)
 
         def parse_contract(standard_path):
-            """Benchmark function for standard parsing."""
-            # Mock the parser to avoid directory issues
-            with patch.object(ContractsParser, 'parse_contract') as mock_parse:
-                mock_parse.return_value = complex_standard
+            """Benchmark function for standard parsing.
+
+            Uses real ContractsParser with explicit contracts directory.
+            Setting ADRI_CONTRACTS_DIR ensures the parser uses the temp workspace
+            contracts instead of auto-discovering the project's ADRI/contracts.
+            """
+            import os
+            # Set environment variable to explicitly point to temp workspace contracts
+            # This takes highest priority in ContractsParser._get_contracts_path()
+            original_env = os.environ.get("ADRI_CONTRACTS_DIR")
+            try:
+                os.environ["ADRI_CONTRACTS_DIR"] = str(contracts_dir)
                 parser = ContractsParser()
-                result = parser.parse_contract(str(standard_path))
+                result = parser.parse_contract("complex_standard")
                 return len(result["requirements"]["field_requirements"])
+            finally:
+                # Restore original environment
+                if original_env is not None:
+                    os.environ["ADRI_CONTRACTS_DIR"] = original_env
+                elif "ADRI_CONTRACTS_DIR" in os.environ:
+                    del os.environ["ADRI_CONTRACTS_DIR"]
 
         # Benchmark standard parsing
         field_count = benchmark(parse_contract, standard_file)

@@ -39,34 +39,11 @@ class ConfigurationLoader:
             "adri": {
                 "version": "4.0.0",
                 "project_name": project_name,
-                "default_environment": "development",
-                "environments": {
-                    "development": {
-                        "paths": {
-                            "contracts": "./ADRI/dev/contracts",
-                            "assessments": "./ADRI/dev/assessments",
-                            "training_data": "./ADRI/dev/training-data",
-                            "audit_logs": "./ADRI/dev/audit-logs",
-                        },
-                        "protection": {
-                            "default_failure_mode": "warn",
-                            "default_min_score": 75,
-                            "cache_duration_hours": 0.5,
-                        },
-                    },
-                    "production": {
-                        "paths": {
-                            "contracts": "./ADRI/prod/contracts",
-                            "assessments": "./ADRI/prod/assessments",
-                            "training_data": "./ADRI/prod/training-data",
-                            "audit_logs": "./ADRI/prod/audit-logs",
-                        },
-                        "protection": {
-                            "default_failure_mode": "raise",
-                            "default_min_score": 85,
-                            "cache_duration_hours": 24,
-                        },
-                    },
+                "paths": {
+                    "contracts": "./ADRI/contracts",
+                    "assessments": "./ADRI/assessments",
+                    "training_data": "./ADRI/training-data",
+                    "audit_logs": "./ADRI/audit-logs",
                 },
                 "protection": {
                     "default_failure_mode": "raise",
@@ -108,31 +85,21 @@ class ConfigurationLoader:
             adri_config = config["adri"]
 
             # Check required fields
-            required_fields = ["project_name", "environments", "default_environment"]
+            required_fields = ["project_name", "paths"]
             for field in required_fields:
                 if field not in adri_config:
                     return False
 
-            # Check environments structure
-            environments = adri_config["environments"]
-            if not isinstance(environments, dict):
+            # Check paths structure
+            paths = adri_config["paths"]
+            if not isinstance(paths, dict):
                 return False
 
-            # Check that each environment has paths
-            for env_name, env_config in environments.items():
-                if "paths" not in env_config:
+            # Check required paths
+            required_paths = ["contracts", "assessments", "training_data", "audit_logs"]
+            for path_key in required_paths:
+                if path_key not in paths:
                     return False
-
-                paths = env_config["paths"]
-                required_paths = [
-                    "contracts",
-                    "assessments",
-                    "training_data",
-                    "audit_logs",
-                ]
-                for path_key in required_paths:
-                    if path_key not in paths:
-                        return False
 
             return True
 
@@ -301,63 +268,52 @@ class ConfigurationLoader:
         # Fallback
         return "development"
 
+    def get_paths_config(self, config: dict[str, Any]) -> dict[str, Any]:
+        """
+        Get paths configuration from the ADRI config.
+
+        Args:
+            config: Full configuration dictionary
+
+        Returns:
+            Paths configuration dictionary with contracts, assessments, etc.
+        """
+        adri_config = config.get("adri", {})
+        paths = adri_config.get("paths", {})
+
+        # Return with defaults for any missing paths
+        return {
+            "contracts": paths.get("contracts", "ADRI/contracts"),
+            "assessments": paths.get("assessments", "ADRI/assessments"),
+            "training_data": paths.get("training_data", "ADRI/training-data"),
+            "audit_logs": paths.get("audit_logs", "ADRI/audit-logs"),
+        }
+
     def get_environment_config(
         self, config: dict[str, Any], environment: str | None = None
     ) -> dict[str, Any]:
         """
-        Get configuration for a specific environment with ADRI_ENV override.
+        Get configuration for the environment.
+
+        Note: In the OSS flat structure, this returns the paths config.
+        The environment parameter is kept for backward compatibility but is ignored.
 
         Args:
             config: Full configuration dictionary
-            environment: Environment name, or None for default
+            environment: Ignored in OSS (kept for API compatibility)
 
         Returns:
-            Environment configuration
-
-        Raises:
-            ValueError: If environment is not found
+            Configuration with paths
         """
-        adri_config = config["adri"]
-
-        # Track if environment came from ADRI_ENV to enable fallback only for that case
-        from_adri_env = False
-        if not environment and os.environ.get("ADRI_ENV"):
-            from_adri_env = True
-
-        # Use effective environment (respects ADRI_ENV)
-        requested_env = environment  # Store original request
-        environment = self._get_effective_environment(config, environment)
-
-        # If effective environment doesn't exist, only fall back if it came from
-        # ADRI_ENV
-        if environment not in adri_config["environments"]:
-            # Only fall back to default if the invalid environment came from ADRI_ENV
-            # (not explicit request)
-            if from_adri_env and not requested_env:
-                default_env = adri_config.get("default_environment", "development")
-                if default_env in adri_config["environments"]:
-                    environment = default_env
-                else:
-                    raise ValueError(
-                        f"Environment '{environment}' not found in configuration"
-                    )
-            else:
-                raise ValueError(
-                    f"Environment '{environment}' not found in configuration"
-                )
-
-        env_config = adri_config["environments"][environment]
-        if not isinstance(env_config, dict):
-            raise ValueError(f"Invalid environment configuration for '{environment}'")
-
-        return env_config
+        # For backward compatibility, return a dict with paths
+        return {"paths": self.get_paths_config(config)}
 
     def get_protection_config(self, environment: str | None = None) -> dict[str, Any]:
         """
-        Get protection configuration with environment-specific overrides.
+        Get protection configuration.
 
         Args:
-            environment: Environment name, or None for current environment
+            environment: Ignored in OSS (kept for API compatibility)
 
         Returns:
             Protection configuration dictionary
@@ -375,19 +331,10 @@ class ConfigurationLoader:
 
         adri_config = config["adri"]
 
-        # Start with global protection config
+        # Get protection config from flat structure
         protection_config = adri_config.get("protection", {}).copy()
         if not isinstance(protection_config, dict):
             protection_config = {}
-
-        # Use effective environment (respects ADRI_ENV)
-        environment = self._get_effective_environment(config, environment)
-
-        if environment in adri_config["environments"]:
-            env_config = adri_config["environments"][environment]
-            env_protection = env_config.get("protection", {})
-            if isinstance(env_protection, dict):
-                protection_config.update(env_protection)
 
         return protection_config
 
@@ -400,11 +347,11 @@ class ConfigurationLoader:
         Precedence for contracts directory:
         1. ADRI_CONTRACTS_DIR environment variable (if set)
         2. Config file paths
-        3. Default ADRI/{env}/contracts structure
+        3. Default ADRI/contracts structure
 
         Args:
             contract_name: Name of contract (with or without .yaml extension)
-            environment: Environment to use
+            environment: Ignored in OSS (kept for API compatibility)
 
         Returns:
             Full absolute path to contract file
@@ -438,18 +385,14 @@ class ConfigurationLoader:
         else:
             base_dir = Path.cwd()
 
-        # Use effective environment (respects ADRI_ENV)
-        environment = self._get_effective_environment(config, environment)
-
         if not config:
-            # Fallback to default path structure
-            env_dir = "dev" if environment != "production" else "prod"
-            contract_path = base_dir / "ADRI" / env_dir / "contracts" / contract_name
+            # Fallback to default flat path structure
+            contract_path = base_dir / "ADRI" / "contracts" / contract_name
             return str(contract_path)
 
         try:
-            env_config = self.get_environment_config(config, environment)
-            contracts_dir = env_config["paths"]["contracts"]
+            adri_config = config["adri"]
+            contracts_dir = adri_config["paths"]["contracts"]
 
             # Convert relative path to absolute based on config file location
             contracts_path = Path(contracts_dir)
@@ -465,9 +408,8 @@ class ConfigurationLoader:
             return str(full_path)
 
         except (KeyError, ValueError, AttributeError):
-            # Fallback on any error
-            env_dir = "dev" if environment != "production" else "prod"
-            contract_path = base_dir / "ADRI" / env_dir / "contracts" / contract_name
+            # Fallback on any error - use flat structure
+            contract_path = base_dir / "ADRI" / "contracts" / contract_name
             return str(contract_path)
 
     def create_directory_structure(self, config: dict[str, Any]) -> None:
@@ -478,65 +420,53 @@ class ConfigurationLoader:
             config: Configuration dictionary containing paths
         """
         adri_config = config["adri"]
-        environments = adri_config["environments"]
+        paths = adri_config["paths"]
 
-        # Create directories for each environment
-        for env_name, env_config in environments.items():
-            paths = env_config["paths"]
-            for path_type, path_value in paths.items():
-                Path(path_value).mkdir(parents=True, exist_ok=True)
+        # Create directories for flat structure
+        for path_type, path_value in paths.items():
+            Path(path_value).mkdir(parents=True, exist_ok=True)
 
     def get_assessments_dir(self, environment: str | None = None) -> str:
         """
-        Get the assessments directory for an environment with ADRI_ENV override.
+        Get the assessments directory.
 
         Args:
-            environment: Environment to use
+            environment: Ignored in OSS (kept for API compatibility)
 
         Returns:
             Path to assessments directory
         """
         config = self.get_active_config()
 
-        # Use effective environment (respects ADRI_ENV)
-        environment = self._get_effective_environment(config, environment)
-
         if not config:
-            env_dir = "dev" if environment != "production" else "prod"
-            return f"./ADRI/{env_dir}/assessments"
+            return "./ADRI/assessments"
 
         try:
-            env_config = self.get_environment_config(config, environment)
-            return env_config["paths"]["assessments"]
+            adri_config = config["adri"]
+            return adri_config["paths"]["assessments"]
         except (KeyError, ValueError, AttributeError):
-            env_dir = "dev" if environment != "production" else "prod"
-            return f"./ADRI/{env_dir}/assessments"
+            return "./ADRI/assessments"
 
     def get_training_data_dir(self, environment: str | None = None) -> str:
         """
-        Get the training data directory for an environment with ADRI_ENV override.
+        Get the training data directory.
 
         Args:
-            environment: Environment to use
+            environment: Ignored in OSS (kept for API compatibility)
 
         Returns:
             Path to training data directory
         """
         config = self.get_active_config()
 
-        # Use effective environment (respects ADRI_ENV)
-        environment = self._get_effective_environment(config, environment)
-
         if not config:
-            env_dir = "dev" if environment != "production" else "prod"
-            return f"./ADRI/{env_dir}/training-data"
+            return "./ADRI/training-data"
 
         try:
-            env_config = self.get_environment_config(config, environment)
-            return env_config["paths"]["training_data"]
+            adri_config = config["adri"]
+            return adri_config["paths"]["training_data"]
         except (KeyError, ValueError, AttributeError):
-            env_dir = "dev" if environment != "production" else "prod"
-            return f"./ADRI/{env_dir}/training-data"
+            return "./ADRI/training-data"
 
 
 # Convenience functions for simplified usage

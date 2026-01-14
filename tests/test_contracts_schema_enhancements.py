@@ -298,8 +298,8 @@ class TestStandardGeneration(unittest.TestCase):
         os.chdir(self.temp_dir)
 
         # Create directory structure
-        Path("ADRI/dev/contracts").mkdir(parents=True, exist_ok=True)
-        Path("ADRI/dev/training-data").mkdir(parents=True, exist_ok=True)
+        Path("ADRI/contracts").mkdir(parents=True, exist_ok=True)
+        Path("ADRI/training-data").mkdir(parents=True, exist_ok=True)
 
         # Create ADRI config.yaml to establish project root
         config_content = {
@@ -310,8 +310,8 @@ class TestStandardGeneration(unittest.TestCase):
                 "environments": {
                     "development": {
                         "paths": {
-                            "contracts": "ADRI/dev/contracts",
-                            "training_data": "ADRI/dev/training-data"
+                            "contracts": "ADRI/contracts",
+                            "training_data": "ADRI/training-data"
                         }
                     }
                 }
@@ -357,7 +357,7 @@ class TestStandardGeneration(unittest.TestCase):
         self.assertEqual(result, 0)
 
         # Load generated standard
-        standard_path = Path("ADRI/dev/contracts/products_ADRI_standard.yaml")
+        standard_path = Path("ADRI/contracts/products_ADRI_standard.yaml")
         with open(standard_path, 'r', encoding='utf-8') as f:
             standard = yaml.safe_load(f)
 

@@ -273,7 +273,7 @@ class GuideCommand(Command):
 
         # Check if test data exists
         test_file = self.tutorial_path / "test_invoice_data.csv"
-        standard_file = Path("ADRI/dev/contracts/invoice_data_ADRI_standard.yaml")
+        standard_file = Path("ADRI/contracts/invoice_data_ADRI_standard.yaml")
 
         if not test_file.exists():
             click.echo(f"❌ Test data not found: {test_file}")
@@ -294,7 +294,7 @@ class GuideCommand(Command):
         result = assess_cmd.execute(
             {
                 "data_path": "ADRI/tutorials/invoice_processing/test_invoice_data.csv",
-                "standard_path": "ADRI/dev/contracts/invoice_data_ADRI_standard.yaml",
+                "standard_path": "ADRI/contracts/invoice_data_ADRI_standard.yaml",
                 "output_path": None,
                 "guide": True,
             }

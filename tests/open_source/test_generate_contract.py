@@ -29,8 +29,8 @@ def test_generate_standard_enriched_and_training_pass_guarantee():
         assert rc == 0
 
         # Locate generated contract
-        std_path = Path("ADRI/dev/contracts/invoice_data_ADRI_standard.yaml")
-        assert std_path.exists(), "Expected generated contract at ADRI/dev/contracts/"
+        std_path = Path("ADRI/contracts/invoice_data_ADRI_standard.yaml")
+        assert std_path.exists(), "Expected generated contract at ADRI/contracts/"
 
         # Load contract YAML
         with open(std_path, 'r', encoding='utf-8') as f:

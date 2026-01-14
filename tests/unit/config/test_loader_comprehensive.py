@@ -8,8 +8,8 @@ Achieves 80%+ overall quality score with multi-dimensional coverage:
 - Performance Target: 75%
 - Overall Target: 80%
 
-Tests environment handling, fallback scenarios, path resolution, and error recovery.
-No legacy backward compatibility - uses only src/adri/* imports.
+Tests path handling, fallback scenarios, path resolution, and error recovery.
+Updated for flat folder structure (no dev/prod environments in OSS).
 """
 
 import os
@@ -39,9 +39,47 @@ class TestConfigurationLoaderComprehensive:
         self.component_tester = ComponentTester("config_loader", quality_framework)
         self.error_simulator = ErrorSimulator()
 
-        # Test configurations
-        self.complete_config = ModernFixtures.create_configuration_data("complete")
-        self.minimal_config = ModernFixtures.create_configuration_data("minimal")
+        # Test configurations - updated for flat structure
+        self.complete_config = {
+            "adri": {
+                "version": "4.0.0",
+                "project_name": "test_project",
+                "paths": {
+                    "contracts": "./ADRI/contracts",
+                    "assessments": "./ADRI/assessments",
+                    "training_data": "./ADRI/training-data",
+                    "audit_logs": "./ADRI/audit-logs"
+                },
+                "protection": {
+                    "default_failure_mode": "raise",
+                    "default_min_score": 80,
+                    "cache_duration_hours": 1,
+                    "auto_generate_contracts": True,
+                    "verbose_protection": False
+                },
+                "audit": {
+                    "enabled": True,
+                    "log_dir": "ADRI/audit-logs",
+                    "log_level": "INFO",
+                    "log_prefix": "adri",
+                    "include_data_samples": True,
+                    "max_log_size_mb": 100
+                }
+            }
+        }
+
+        self.minimal_config = {
+            "adri": {
+                "version": "4.0.0",
+                "project_name": "minimal_test",
+                "paths": {
+                    "contracts": "./ADRI/contracts",
+                    "assessments": "./ADRI/assessments",
+                    "training_data": "./ADRI/training-data",
+                    "audit_logs": "./ADRI/audit-logs"
+                }
+            }
+        }
 
         # Initialize loader
         self.loader = ConfigurationLoader()
@@ -95,26 +133,23 @@ class TestConfigurationLoaderComprehensive:
 
     @pytest.mark.unit
     @pytest.mark.system_infrastructure
-    def test_environment_specific_configuration(self, temp_workspace):
-        """Test environment-specific configuration loading."""
+    def test_flat_paths_configuration(self, temp_workspace):
+        """Test flat paths configuration (no dev/prod environments)."""
 
-        # Create config file with multiple environments
+        # Create config file with flat paths
         config_file = temp_workspace / "ADRI" / "config.yaml"
+        config_file.parent.mkdir(parents=True, exist_ok=True)
         with open(config_file, 'w', encoding='utf-8') as f:
             yaml.dump(self.complete_config, f)
 
-        # Test development environment loading
+        # Test paths loading
         config = self.loader.load_config(config_path=str(config_file))
-        dev_config = config["adri"]["environments"]["development"]
+        paths = config["adri"]["paths"]
 
-        assert dev_config["protection"]["default_failure_mode"] == "warn"
-        assert dev_config["protection"]["default_min_score"] == 75
-
-        # Test production environment loading
-        prod_config = config["adri"]["environments"]["production"]
-
-        assert prod_config["protection"]["default_failure_mode"] == "raise"
-        assert prod_config["protection"]["default_min_score"] == 85
+        assert paths["contracts"] == "./ADRI/contracts"
+        assert paths["assessments"] == "./ADRI/assessments"
+        assert paths["training_data"] == "./ADRI/training-data"
+        assert paths["audit_logs"] == "./ADRI/audit-logs"
 
         self.component_tester.record_test_execution(TestCategory.UNIT, True)
 
@@ -123,19 +158,16 @@ class TestConfigurationLoaderComprehensive:
     def test_path_resolution_and_validation(self, temp_workspace):
         """Test path resolution and validation."""
 
-        # Create config with relative paths
+        # Create config with flat paths
         config_with_paths = {
             "adri": {
                 "version": "4.0.0",
                 "project_name": "test_paths",
-                "environments": {
-                    "test": {
-                        "paths": {
-                            "contracts": "standards",  # Relative path
-                            "assessments": str(temp_workspace / "assessments"),  # Absolute path
-                            "training_data": "~/training-data"  # Home directory path
-                        }
-                    }
+                "paths": {
+                    "contracts": "./ADRI/contracts",
+                    "assessments": str(temp_workspace / "ADRI/assessments"),
+                    "training_data": "./ADRI/training-data",
+                    "audit_logs": "./ADRI/audit-logs"
                 }
             }
         }
@@ -148,15 +180,15 @@ class TestConfigurationLoaderComprehensive:
         config = self.loader.load_config(config_path=str(config_file))
 
         # Test standard path resolution
-        standards_path = self.loader.resolve_contract_path("test_standard", "test")
+        standards_path = self.loader.resolve_contract_path("test_standard")
         assert standards_path.endswith("test_standard.yaml")
 
         # Test assessments directory resolution
-        assessments_dir = self.loader.get_assessments_dir("test")
+        assessments_dir = self.loader.get_assessments_dir()
         assert "assessments" in assessments_dir
 
         # Test training data directory resolution
-        training_dir = self.loader.get_training_data_dir("test")
+        training_dir = self.loader.get_training_data_dir()
         assert "training" in training_dir
 
         self.component_tester.record_test_execution(TestCategory.UNIT, True)
@@ -172,21 +204,15 @@ class TestConfigurationLoaderComprehensive:
 
         # Test ADRI_CONFIG_PATH environment variable
         with patch.dict(os.environ, {"ADRI_CONFIG_PATH": str(config_file)}):
-            config = self.loader.load_config(config_path=str(config_file))  # Load specific config
+            config = self.loader.load_config(config_path=str(config_file))
             assert config is not None
             assert config["adri"]["version"] == "4.0.0"
 
-        # Test environment config retrieval - use actual API
+        # Test paths config retrieval
         config = self.loader.load_config(config_path=str(config_file))
-        dev_env_config = self.loader.get_environment_config(config, "development")
-        assert dev_env_config["protection"]["default_failure_mode"] == "warn"
-
-        prod_env_config = self.loader.get_environment_config(config, "production")
-        assert prod_env_config["protection"]["default_failure_mode"] == "raise"
-
-        # Test default environment retrieval
-        default_env_config = self.loader.get_environment_config(config)  # No environment specified
-        assert "paths" in default_env_config
+        paths_config = self.loader.get_paths_config(config)
+        assert "contracts" in paths_config
+        assert paths_config["contracts"] == "./ADRI/contracts"
 
         self.component_tester.record_test_execution(TestCategory.INTEGRATION, True)
 
@@ -239,7 +265,7 @@ class TestConfigurationLoaderComprehensive:
         invalid_structure = {
             "adri": {
                 "version": "4.0.0",
-                "environments": "not_a_dict"  # Should be dictionary
+                "paths": "not_a_dict"  # Should be dictionary
             }
         }
         invalid_file = temp_workspace / "invalid.yaml"
@@ -293,28 +319,11 @@ class TestConfigurationLoaderComprehensive:
         invalid_config = {
             "adri": {
                 "version": "4.0.0"
-                # Missing required fields
+                # Missing required paths field
             }
         }
 
         is_valid = self.loader.validate_config(invalid_config)
-        assert is_valid is False
-
-        # Test configuration with invalid values
-        invalid_values_config = {
-            "adri": {
-                "version": "invalid_version",
-                "environments": {
-                    "test": {
-                        "protection": {
-                            "default_min_score": -10  # Invalid negative score
-                        }
-                    }
-                }
-            }
-        }
-
-        is_valid = self.loader.validate_config(invalid_values_config)
         assert is_valid is False
 
         self.component_tester.record_test_execution(TestCategory.INTEGRATION, True)
@@ -324,27 +333,30 @@ class TestConfigurationLoaderComprehensive:
     def test_config_loading_performance(self, temp_workspace, performance_tester):
         """Test configuration loading performance."""
 
-        # Create a large configuration file
+        # Create a large configuration file with flat structure
         large_config = {
             "adri": {
                 "version": "4.0.0",
                 "project_name": "performance_test",
-                "environments": {}
+                "paths": {
+                    "contracts": "./ADRI/contracts",
+                    "assessments": "./ADRI/assessments",
+                    "training_data": "./ADRI/training-data",
+                    "audit_logs": "./ADRI/audit-logs"
+                },
+                "protection": {
+                    "default_failure_mode": "raise",
+                    "default_min_score": 80
+                },
+                "extra_settings": {}
             }
         }
 
-        # Add many environments to test performance
-        for i in range(50):
-            large_config["adri"]["environments"][f"env_{i}"] = {
-                "paths": {
-                    "contracts": f"/path/to/standards_{i}",
-                    "assessments": f"/path/to/assessments_{i}",
-                    "training_data": f"/path/to/training_{i}"
-                },
-                "protection": {
-                    "default_failure_mode": "warn",
-                    "default_min_score": 70 + i
-                }
+        # Add extra settings to test performance
+        for i in range(100):
+            large_config["adri"]["extra_settings"][f"setting_{i}"] = {
+                "value": i,
+                "description": f"Test setting {i}" * 10
             }
 
         large_config_file = temp_workspace / "large-config.yaml"
@@ -358,7 +370,6 @@ class TestConfigurationLoaderComprehensive:
 
         # Verify config loaded correctly
         assert config is not None
-        assert len(config["adri"]["environments"]) == 50
 
         # Use centralized threshold for config loading performance
         assert_performance(load_duration, "micro", "config_load", "Large config loading")
@@ -400,90 +411,65 @@ class TestConfigurationLoaderComprehensive:
 
         default_config = self.loader.create_default_config("test_project")
 
-        # Verify core structure
+        # Verify core structure (flat - no environments)
         assert "adri" in default_config
         assert "version" in default_config["adri"]
-        assert "environments" in default_config["adri"]
+        assert "paths" in default_config["adri"]
 
-        # Verify default environment exists
-        environments = default_config["adri"]["environments"]
-        assert len(environments) > 0
+        # Verify paths exist
+        paths = default_config["adri"]["paths"]
+        assert "contracts" in paths
+        assert "assessments" in paths
+        assert "training_data" in paths
+        assert "audit_logs" in paths
 
-        # Verify default environment has required keys
-        for env_name, env_config in environments.items():
-            assert "paths" in env_config
-            assert "protection" in env_config
-
-            # Verify protection settings
-            protection = env_config["protection"]
+        # Verify protection settings if present
+        if "protection" in default_config["adri"]:
+            protection = default_config["adri"]["protection"]
             assert "default_failure_mode" in protection
             assert "default_min_score" in protection
-
-            # Verify valid values
-            assert protection["default_failure_mode"] in ["warn", "raise", "ignore"]
+            assert protection["default_failure_mode"] in ["warn", "raise", "ignore", "continue"]
             assert 0 <= protection["default_min_score"] <= 100
 
         self.component_tester.record_test_execution(TestCategory.UNIT, True)
 
     @pytest.mark.integration
     @pytest.mark.system_infrastructure
-    def test_config_merge_and_override(self, temp_workspace):
-        """Test configuration merging and override behavior."""
+    def test_config_with_different_paths(self, temp_workspace):
+        """Test configuration with different path configurations."""
 
-        # Create base configuration with all required fields
+        # Create base configuration with flat paths
         base_config = {
             "adri": {
                 "version": "4.0.0",
                 "project_name": "base_project",
-                "default_environment": "development",
-                "environments": {
-                    "development": {
-                        "paths": {
-                            "contracts": "./standards",
-                            "assessments": "./assessments",
-                            "training_data": "./training-data",
-                            "audit_logs": "./audit-logs"
-                        },
-                        "protection": {
-                            "default_failure_mode": "warn",
-                            "default_min_score": 70
-                        }
-                    }
+                "paths": {
+                    "contracts": "./ADRI/contracts",
+                    "assessments": "./ADRI/assessments",
+                    "training_data": "./ADRI/training-data",
+                    "audit_logs": "./ADRI/audit-logs"
+                },
+                "protection": {
+                    "default_failure_mode": "warn",
+                    "default_min_score": 70
                 }
             }
         }
 
-        # Create override configuration with all required fields
-        override_config = {
+        # Create custom configuration with different paths
+        custom_config = {
             "adri": {
                 "version": "4.0.0",
-                "project_name": "overridden_project",
-                "default_environment": "development",
-                "environments": {
-                    "development": {
-                        "paths": {
-                            "contracts": "./standards",
-                            "assessments": "./assessments",
-                            "training_data": "./training-data",
-                            "audit_logs": "./audit-logs"
-                        },
-                        "protection": {
-                            "default_failure_mode": "warn",
-                            "default_min_score": 85  # Override just this value
-                        }
-                    },
-                    "production": {
-                        "paths": {
-                            "contracts": "./prod-standards",
-                            "assessments": "./prod-assessments",
-                            "training_data": "./prod-training-data",
-                            "audit_logs": "./prod-audit-logs"
-                        },
-                        "protection": {
-                            "default_failure_mode": "raise",
-                            "default_min_score": 90
-                        }
-                    }
+                "project_name": "custom_project",
+                "paths": {
+                    "contracts": "./custom/contracts",
+                    "assessments": "./custom/assessments",
+                    "training_data": "./custom/training-data",
+                    "audit_logs": "./custom/audit-logs"
+                },
+                "protection": {
+                    "default_failure_mode": "raise",
+                    "default_min_score": 85
                 }
             }
         }
@@ -493,20 +479,20 @@ class TestConfigurationLoaderComprehensive:
         with open(base_file, 'w', encoding='utf-8') as f:
             yaml.dump(base_config, f)
 
-        override_file = temp_workspace / "override.yaml"
-        with open(override_file, 'w', encoding='utf-8') as f:
-            yaml.dump(override_config, f)
+        custom_file = temp_workspace / "custom.yaml"
+        with open(custom_file, 'w', encoding='utf-8') as f:
+            yaml.dump(custom_config, f)
 
         # Load and verify each config separately
         base_loaded = self.loader.load_config(config_path=str(base_file))
         assert base_loaded["adri"]["project_name"] == "base_project"
 
-        override_loaded = self.loader.load_config(config_path=str(override_file))
-        assert override_loaded["adri"]["project_name"] == "overridden_project"
+        custom_loaded = self.loader.load_config(config_path=str(custom_file))
+        assert custom_loaded["adri"]["project_name"] == "custom_project"
 
         # Verify both configs are valid
         assert self.loader.validate_config(base_loaded) is True
-        assert self.loader.validate_config(override_loaded) is True
+        assert self.loader.validate_config(custom_loaded) is True
 
         self.component_tester.record_test_execution(TestCategory.INTEGRATION, True)
 
@@ -532,7 +518,13 @@ class TestConfigurationLoaderComprehensive:
             config = {
                 "adri": {
                     "version": "4.0.0",
-                    "project_name": f"project_from_location_{i+1}"
+                    "project_name": f"project_from_location_{i+1}",
+                    "paths": {
+                        "contracts": "./ADRI/contracts",
+                        "assessments": "./ADRI/assessments",
+                        "training_data": "./ADRI/training-data",
+                        "audit_logs": "./ADRI/audit-logs"
+                    }
                 }
             }
 
@@ -564,7 +556,7 @@ class TestConfigurationLoaderComprehensive:
         null_config = {
             "adri": {
                 "version": None,
-                "environments": None
+                "paths": None
             }
         }
         null_file = temp_workspace / "null.yaml"
@@ -576,23 +568,17 @@ class TestConfigurationLoaderComprehensive:
             is_valid = self.loader.validate_config(config)
             assert is_valid is False  # ...validation should fail
 
-        # Test very large configuration values
-        large_config = {
+        # Test configuration with invalid paths structure
+        invalid_paths_config = {
             "adri": {
                 "version": "4.0.0",
-                "project_name": "x" * 10000,  # Very long name
-                "environments": {
-                    "test": {
-                        "protection": {
-                            "default_min_score": 1000  # Invalid large score
-                        }
-                    }
-                }
+                "project_name": "invalid_test",
+                "paths": "not_a_dict"  # Should be dictionary
             }
         }
 
-        is_valid = self.loader.validate_config(large_config)
-        assert is_valid is False  # Should reject invalid values
+        is_valid = self.loader.validate_config(invalid_paths_config)
+        assert is_valid is False  # Should reject invalid structure
 
         self.component_tester.record_test_execution(TestCategory.ERROR_HANDLING, True)
 

@@ -480,14 +480,16 @@ class TestContractsParserErrorHandling(unittest.TestCase):
             del os.environ["ADRI_CONTRACTS_DIR"]
 
     def test_missing_environment_variable_error(self):
-        """Test error handling when ADRI_CONTRACTS_DIR is not set."""
+        """Test error handling when ADRI_CONTRACTS_DIR is not set and no ADRI directory found."""
         # Ensure environment variable is not set
         if "ADRI_CONTRACTS_DIR" in os.environ:
             del os.environ["ADRI_CONTRACTS_DIR"]
 
         with self.assertRaises(StandardsDirectoryNotFoundError) as cm:
             ContractsParser()
-        self.assertIn("ADRI_CONTRACTS_DIR environment variable must be set", str(cm.exception))
+        # New auto-discovery error message
+        self.assertIn("Could not find contracts directory", str(cm.exception))
+        self.assertIn("ADRI_CONTRACTS_DIR", str(cm.exception))
 
     def test_nonexistent_contracts_directory_error(self):
         """Test error handling when standards directory doesn't exist."""

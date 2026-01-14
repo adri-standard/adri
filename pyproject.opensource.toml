@@ -250,4 +250,4 @@ precision = 2
 version_scheme = "post-release"
 local_scheme = "node-and-date"
 write_to = "src/adri/_version.py"
-fallback_version = "6.1.0"
+fallback_version = "7.0.0"

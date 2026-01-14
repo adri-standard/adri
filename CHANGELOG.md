@@ -5,12 +5,57 @@ All notable changes to ADRI will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.0.0] - 2026-08-01
+
+**ADRI v7.0.0 - Version Alignment Release**
+
+This release aligns the open source `adri` package with the enterprise `verodat-adri` package at v7.0.0, incorporating bug fixes and improvements from both repositories.
+
+### Added
+- Comprehensive Python 3.10+ compatibility improvements
+- Enhanced validation rules failure extraction for all dimensions
+- `'number'` type handling in field type checking
+- Standardized configuration to single `ADRI/config.yaml` location
+- Standard validation system with critical bug fixes
+
+### Changed
+- Version aligned between open source (`adri`) and enterprise (`verodat-adri`) packages
+- Improved f-string handling across codebase
+- Enhanced decorator audit logging
+- Updated dependencies and test infrastructure
+- Clean package structure: `adri` (core) + `adri_enterprise` (enterprise-only)
+
+### Fixed
+- Python 3.10 syntax error in pipeline.py
+- Python 3.11 multi-line f-string syntax errors
+- Broken f-strings across multiple files
+- Validation rules format support for failure extraction
+- Flake8 linting errors for CI compliance
+- Multiple test failures resolved for PR readiness
+
+### Removed
+- Experimental `callbacks/` module (untested, not integrated into core decorator)
+- Experimental `events/` module (untested, not integrated into core decorator)
+- These features may return in a future release once properly validated
+
+### Enterprise Features (verodat-adri only)
+- `adri_enterprise.decorator` - Enhanced decorator with reasoning_mode, workflow_context
+- `adri_enterprise.license` - API key validation (requires VERODAT_API_KEY)
+- `adri_enterprise.logging.verodat` - Verodat cloud integration
+- `adri_enterprise.logging.reasoning` - AI reasoning step logging
+
+### Migration Guide
+- No breaking API changes for standard usage
+- If you were using `from adri.callbacks import ...` or `from adri.events import ...`, these imports will fail. These were experimental and undocumented features.
+
+---
+
 ## [6.1.0] - 2025-12-19
 
 **verodat-adri v6.1.0 - Enterprise License Validation**
 
-This release introduces mandatory license validation for the verodat-adri enterprise package. 
-The package now requires a valid Verodat API key to function, ensuring enterprise features are 
+This release introduces mandatory license validation for the verodat-adri enterprise package.
+The package now requires a valid Verodat API key to function, ensuring enterprise features are
 only accessible to licensed users.
 
 ### Added
@@ -57,7 +102,7 @@ To use verodat-adri v6.1.0+, you must:
 3. **Use the decorator as before** - validation happens automatically:
    ```python
    from adri_enterprise.decorator import adri_protected
-   
+
    @adri_protected(contract="my_contract")
    def my_function(data):
        return process(data)

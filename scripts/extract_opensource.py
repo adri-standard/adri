@@ -146,49 +146,70 @@ class OpenSourceExtractor:
                 self.stats["dirs_created"] += 1
 
     def extract_tests(self) -> None:
-        """Extract open source and shared tests."""
+        """Extract open source standalone tests.
+
+        Uses tests/open_source_standalone/ which contains self-contained tests
+        without enterprise dependencies. This preserves enterprise test coverage
+        while providing standalone tests for the open source distribution.
+        """
         test_source = self.enterprise_repo / "tests"
         test_target = self.output_dir / "tests"
 
         # Create target test directory
         test_target.mkdir(parents=True, exist_ok=True)
 
-        # Directories to copy
-        test_dirs = [
-            "open_source",  # Open source specific tests
-            "shared",       # Shared utility tests
-            "fixtures",     # Test fixtures
-            "utils",        # Test utilities
-        ]
+        # Copy standalone open source tests (these have no enterprise dependencies)
+        standalone_source = test_source / "open_source_standalone"
+        if standalone_source.exists():
+            # Copy standalone tests to tests/open_source/ in the extracted output
+            # This maintains expected directory structure for the open source repo
+            target_path = test_target / "open_source"
+            if target_path.exists():
+                shutil.rmtree(target_path)
+            shutil.copytree(standalone_source, target_path, symlinks=True,
+                           ignore_dangling_symlinks=True)
 
-        # Copy test directories
-        for test_dir in test_dirs:
-            source_path = test_source / test_dir
-            if source_path.exists():
-                target_path = test_target / test_dir
-                if target_path.exists():
-                    shutil.rmtree(target_path)
-                # Use ignore_dangling_symlinks to skip broken symlinks
-                shutil.copytree(source_path, target_path, symlinks=True, 
-                               ignore_dangling_symlinks=True)
-
-                # Count test files
-                for file_path in target_path.rglob("*.py"):
-                    self.stats["tests_copied"] += 1
-
-        # Copy key test files
-        test_files = [
-            "conftest.py",
-            "__init__.py",
-            "test_decorator.py",  # Open source decorator tests
-        ]
-
-        for test_file in test_files:
-            source_path = test_source / test_file
-            if source_path.exists():
-                target_path = test_target / test_file
-                shutil.copy2(source_path, target_path)
+            # Count test files
+            for file_path in target_path.rglob("*.py"):
                 self.stats["tests_copied"] += 1
+
+        # Copy shared utility tests (if they exist and are standalone)
+        shared_source = test_source / "shared"
+        if shared_source.exists():
+            target_path = test_target / "shared"
+            if target_path.exists():
+                shutil.rmtree(target_path)
+            shutil.copytree(shared_source, target_path, symlinks=True,
+                           ignore_dangling_symlinks=True)
+
+            for file_path in target_path.rglob("*.py"):
+                self.stats["tests_copied"] += 1
+
+        # Copy fixtures directory (standalone fixtures only)
+        fixtures_source = test_source / "fixtures"
+        if fixtures_source.exists():
+            target_path = test_target / "fixtures"
+            if target_path.exists():
+                shutil.rmtree(target_path)
+            shutil.copytree(fixtures_source, target_path, symlinks=True,
+                           ignore_dangling_symlinks=True)
+
+            for file_path in target_path.rglob("*.py"):
+                self.stats["tests_copied"] += 1
+
+        # Copy minimal root test files (only __init__.py for package structure)
+        init_file = test_source / "__init__.py"
+        if init_file.exists():
+            target_path = test_target / "__init__.py"
+            shutil.copy2(init_file, target_path)
+            self.stats["tests_copied"] += 1
+
+        # Copy standalone conftest.py to root tests/ directory for pytest discovery
+        standalone_conftest = test_source / "open_source_standalone" / "conftest.py"
+        if standalone_conftest.exists():
+            target_conftest = test_target / "conftest.py"
+            shutil.copy2(standalone_conftest, target_conftest)
+            # Already counted in directory copy
 
     def copy_supporting_files(self) -> None:
         """Copy README, LICENSE, and other supporting files."""

@@ -227,7 +227,7 @@ class TestPathResolutionErrorMessages:
                     "default_environment": "development",
                     "environments": {
                         "development": {
-                            "paths": {"contracts": "ADRI/dev/contracts"}
+                            "paths": {"contracts": "ADRI/contracts"}
                         }
                     }
                 }
@@ -281,10 +281,10 @@ class TestRelativePathResolution:
                     "environments": {
                         "development": {
                             "paths": {
-                                "contracts": "ADRI/dev/contracts",
-                                "training_data": "ADRI/dev/training-data",
-                                "assessments": "ADRI/dev/assessments",
-                                "audit_logs": "ADRI/dev/audit-logs"
+                                "contracts": "ADRI/contracts",
+                                "training_data": "ADRI/training-data",
+                                "assessments": "ADRI/assessments",
+                                "audit_logs": "ADRI/audit-logs"
                             }
                         }
                     }
@@ -313,7 +313,7 @@ class TestRelativePathResolution:
             dev_env = loader.get_environment_config(config, "development")
 
             # Paths should be resolved relative to project root
-            assert "ADRI/dev/contracts" in dev_env["paths"]["contracts"]
+            assert "ADRI/contracts" in dev_env["paths"]["contracts"]
         finally:
             os.chdir(original_dir)
 
@@ -351,8 +351,8 @@ class TestCrossPlatformPaths:
                     "environments": {
                         "development": {
                             "paths": {
-                                "contracts": "ADRI/dev/contracts",  # Forward slash
-                                "training_data": "ADRI/dev/training-data"
+                                "contracts": "ADRI/contracts",  # Forward slash
+                                "training_data": "ADRI/training-data"
                             }
                         }
                     }
@@ -378,7 +378,7 @@ class TestCrossPlatformPaths:
     def test_path_normalization(self):
         """Test that paths are normalized for the current platform."""
         # Path should use os.sep for the current platform
-        path = Path("ADRI/dev/contracts")
+        path = Path("ADRI/contracts")
         normalized = str(path)
 
         # On Windows, should convert to backslashes
@@ -406,7 +406,7 @@ class TestPathResolutionEdgeCases:
                     "environments": {
                         "development": {
                             "paths": {
-                                "contracts": "ADRI/dev/contracts"
+                                "contracts": "ADRI/contracts"
                             }
                         }
                     }

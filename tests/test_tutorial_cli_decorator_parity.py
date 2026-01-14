@@ -224,7 +224,7 @@ class TestStandardPathConsistency:
         # Setup isolated environment
         env = setup_isolated_environment(tmp_path / "path_consistency")
 
-        # Copy a known standard to the dev/contracts directory
+        # Copy a known standard to the contracts directory
         standard_source = invoice_scenario['standard_path']
         standard_name = 'invoice_data.yaml'
         standard_dest = env['contracts_dir'] / standard_name

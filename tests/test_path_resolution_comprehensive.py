@@ -155,10 +155,10 @@ class TestPathResolutionCore(unittest.TestCase):
     def test_resolve_project_path_dev_environment_paths(self):
         """Test resolving development environment paths."""
         test_cases = [
-            ("dev/contracts/invoice_standard.yaml", "ADRI/dev/contracts/invoice_standard.yaml"),
-            ("dev/assessments/report_001.json", "ADRI/dev/assessments/report_001.json"),
-            ("dev/training-data/snapshot_123.csv", "ADRI/dev/training-data/snapshot_123.csv"),
-            ("dev/audit-logs/audit_log.csv", "ADRI/dev/audit-logs/audit_log.csv"),
+            ("dev/contracts/invoice_standard.yaml", "ADRI/contracts/invoice_standard.yaml"),
+            ("dev/assessments/report_001.json", "ADRI/assessments/report_001.json"),
+            ("dev/training-data/snapshot_123.csv", "ADRI/training-data/snapshot_123.csv"),
+            ("dev/audit-logs/audit_log.csv", "ADRI/audit-logs/audit_log.csv"),
         ]
 
         for input_path, expected_suffix in test_cases:
@@ -175,10 +175,10 @@ class TestPathResolutionCore(unittest.TestCase):
     def test_resolve_project_path_prod_environment_paths(self):
         """Test resolving production environment paths."""
         test_cases = [
-            ("prod/contracts/customer_standard.yaml", "ADRI/prod/contracts/customer_standard.yaml"),
-            ("prod/assessments/prod_report_001.json", "ADRI/prod/assessments/prod_report_001.json"),
-            ("prod/training-data/prod_snapshot_456.csv", "ADRI/prod/training-data/prod_snapshot_456.csv"),
-            ("prod/audit-logs/prod_audit_log.csv", "ADRI/prod/audit-logs/prod_audit_log.csv"),
+            ("prod/contracts/customer_standard.yaml", "ADRI/contracts/customer_standard.yaml"),
+            ("prod/assessments/prod_report_001.json", "ADRI/assessments/prod_report_001.json"),
+            ("prod/training-data/prod_snapshot_456.csv", "ADRI/training-data/prod_snapshot_456.csv"),
+            ("prod/audit-logs/prod_audit_log.csv", "ADRI/audit-logs/prod_audit_log.csv"),
         ]
 
         for input_path, expected_suffix in test_cases:
@@ -196,8 +196,8 @@ class TestPathResolutionCore(unittest.TestCase):
         """Test resolving paths that already include ADRI/ prefix."""
         test_cases = [
             ("ADRI/tutorials/test/data.csv", "ADRI/tutorials/test/data.csv"),
-            ("ADRI/dev/contracts/test.yaml", "ADRI/dev/contracts/test.yaml"),
-            ("ADRI/prod/assessments/prod.json", "ADRI/prod/assessments/prod.json"),
+            ("ADRI/contracts/test.yaml", "ADRI/contracts/test.yaml"),
+            ("ADRI/assessments/prod.json", "ADRI/assessments/prod.json"),
         ]
 
         for input_path, expected_suffix in test_cases:
@@ -259,12 +259,12 @@ class TestPathResolutionCrossDirectory(unittest.TestCase):
             "ADRI",
             "ADRI/tutorials/invoice_processing",
             "ADRI/tutorials/customer_service",
-            "ADRI/dev/contracts",
-            "ADRI/dev/assessments",
-            "ADRI/dev/training-data",
-            "ADRI/dev/audit-logs",
-            "ADRI/prod/contracts",
-            "ADRI/prod/assessments",
+            "ADRI/contracts",
+            "ADRI/assessments",
+            "ADRI/training-data",
+            "ADRI/audit-logs",
+            "ADRI/contracts",
+            "ADRI/assessments",
             "docs",
             "docs/src",
             "docs/src/components",
@@ -292,7 +292,7 @@ class TestPathResolutionCrossDirectory(unittest.TestCase):
         test_files = [
             "ADRI/tutorials/invoice_processing/invoice_data.csv",
             "ADRI/tutorials/customer_service/agent_data.csv",
-            "ADRI/dev/contracts/invoice_standard.yaml",
+            "ADRI/contracts/invoice_standard.yaml",
         ]
 
         for file_path in test_files:
@@ -325,7 +325,7 @@ class TestPathResolutionCrossDirectory(unittest.TestCase):
 
         # Test dev standards path resolution
         result = adri_cli._resolve_project_path("dev/contracts/invoice_standard.yaml")
-        expected = self.project_root / "ADRI/dev/contracts/invoice_standard.yaml"
+        expected = self.project_root / "ADRI/contracts/invoice_standard.yaml"
 
         # Use resolve() for cross-platform symlink handling
         self.assertEqual(result.resolve(), expected.resolve())
@@ -352,8 +352,8 @@ class TestPathResolutionCrossDirectory(unittest.TestCase):
         # Test multiple path types
         test_cases = [
             ("tutorials/invoice_processing/invoice_data.csv", "ADRI/tutorials/invoice_processing/invoice_data.csv"),
-            ("dev/contracts/invoice_standard.yaml", "ADRI/dev/contracts/invoice_standard.yaml"),
-            ("prod/assessments/report.json", "ADRI/prod/assessments/report.json"),
+            ("dev/contracts/invoice_standard.yaml", "ADRI/contracts/invoice_standard.yaml"),
+            ("prod/assessments/report.json", "ADRI/assessments/report.json"),
         ]
 
         for input_path, expected_suffix in test_cases:
@@ -427,10 +427,10 @@ class TestPathResolutionIntegration(unittest.TestCase):
         # Create directory structure
         directories = [
             "ADRI/tutorials/invoice_processing",
-            "ADRI/dev/contracts",
-            "ADRI/dev/assessments",
-            "ADRI/dev/training-data",
-            "ADRI/dev/audit-logs",
+            "ADRI/contracts",
+            "ADRI/assessments",
+            "ADRI/training-data",
+            "ADRI/audit-logs",
         ]
 
         for directory in directories:
@@ -445,10 +445,10 @@ class TestPathResolutionIntegration(unittest.TestCase):
                 "environments": {
                     "development": {
                         "paths": {
-                            "contracts": "ADRI/dev/contracts",
-                            "assessments": "ADRI/dev/assessments",
-                            "training_data": "ADRI/dev/training-data",
-                            "audit_logs": "ADRI/dev/audit-logs",
+                            "contracts": "ADRI/contracts",
+                            "assessments": "ADRI/assessments",
+                            "training_data": "ADRI/training-data",
+                            "audit_logs": "ADRI/audit-logs",
                         }
                     }
                 }
@@ -503,11 +503,10 @@ class TestPathResolutionIntegration(unittest.TestCase):
 
         self.assertEqual(result, 0)
 
-        # Verify standard was created in correct location
-        # Check both possible locations due to path resolution
-        standard_path1 = self.project_root / "ADRI" / "dev" / "standards" / "invoice_data_ADRI_standard.yaml"
+        # Verify standard was created in correct location (flat structure)
+        standard_path1 = self.project_root / "ADRI" / "contracts" / "invoice_data_ADRI_standard.yaml"
         # Path relative to current working directory in subdirectory
-        standard_path2 = Path("ADRI/dev/contracts/invoice_data_ADRI_standard.yaml")
+        standard_path2 = Path("ADRI/contracts/invoice_data_ADRI_standard.yaml")
 
         # Should exist in the project root location
         self.assertTrue(standard_path1.exists() or standard_path2.exists(),
@@ -532,12 +531,13 @@ class TestPathResolutionIntegration(unittest.TestCase):
         mock_assessor.audit_logger = None
         mock_assessor_class.return_value = mock_assessor
 
-        # Create standard file for testing
+        # Create standard file for testing (flat structure)
         standard_content = {
             "contracts": {"name": "Test Standard"},
             "requirements": {"overall_minimum": 75.0}
         }
-        standard_path = self.project_root / "ADRI" / "dev" / "contracts" / "test_standard.yaml"
+        standard_path = self.project_root / "ADRI" / "contracts" / "test_standard.yaml"
+        standard_path.parent.mkdir(parents=True, exist_ok=True)
         with open(standard_path, 'w', encoding='utf-8') as f:
             yaml.dump(standard_content, f)
 
@@ -546,10 +546,10 @@ class TestPathResolutionIntegration(unittest.TestCase):
         sub_dir.mkdir(exist_ok=True)
         os.chdir(sub_dir)
 
-        # Run assess command with relative paths
+        # Run assess command with flat structure path (no dev/ prefix)
         result = adri_cli.assess_command(
             "tutorials/invoice_processing/invoice_data.csv",
-            "dev/contracts/test_standard.yaml"
+            "contracts/test_standard.yaml"
         )
 
         self.assertEqual(result, 0)

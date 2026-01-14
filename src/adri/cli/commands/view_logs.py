@@ -107,7 +107,7 @@ class ViewLogsCommand(Command):
         """Get the audit logs directory from configuration."""
         from ...config.loader import ConfigurationLoader
 
-        audit_logs_dir = Path("ADRI/dev/audit-logs")
+        audit_logs_dir = Path("ADRI/audit-logs")
 
         try:
             config_loader = ConfigurationLoader()

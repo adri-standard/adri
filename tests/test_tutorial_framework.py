@@ -286,7 +286,7 @@ class TestDevelopmentEnvironmentResolution:
         """Test that generated standard is in development directory."""
         standard_path = invoice_scenario['standard_path']
 
-        # Should be in ADRI/dev/contracts/
+        # Should be in ADRI/contracts/
         assert 'dev' in str(standard_path)
         assert 'contracts' in str(standard_path)
         assert 'prod' not in str(standard_path)
