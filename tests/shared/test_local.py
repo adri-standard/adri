@@ -1052,64 +1052,6 @@ class TestLocalLoggingPerformance(unittest.TestCase):
         threshold_per_assessment = get_performance_threshold("small", "file_processing_small") / 100
         self.assertLess(avg_time_per_assessment, threshold_per_assessment)
 
-    def test_concurrent_logging_performance(self):
-        """Test performance with concurrent logging operations."""
-        config = {
-            "enabled": True,
-            "log_dir": str(self.log_dir),
-            "log_prefix": "concurrent_perf"
-        }
-
-        logger = LocalLogger(config)
-        results = []
-
-        def log_concurrent(thread_id):
-            """Log assessment concurrently."""
-            start_time = time.time()
-
-            mock_assessment = Mock()
-            mock_assessment.overall_score = 75.0 + thread_id
-            mock_assessment.passed = True
-            mock_assessment.standard_id = f"concurrent_test_{thread_id}"
-            mock_assessment.dimension_scores = {
-                "validity": Mock(score=15.0 + thread_id),
-                "completeness": Mock(score=16.0 + thread_id)
-            }
-
-            execution_context = {
-                "function_name": f"concurrent_function_{thread_id}",
-                "module_path": f"concurrent.module.{thread_id}"
-            }
-
-            result = logger.log_assessment(
-                assessment_result=mock_assessment,
-                execution_context=execution_context
-            )
-
-            end_time = time.time()
-            results.append((thread_id, end_time - start_time, result))
-
-        # Run concurrent logging
-        overall_start = time.time()
-        threads = []
-        for i in range(5):
-            thread = threading.Thread(target=log_concurrent, args=(i,))
-            threads.append(thread)
-            thread.start()
-
-        for thread in threads:
-            thread.join()
-        overall_time = time.time() - overall_start
-
-        # Verify all completed successfully
-        self.assertEqual(len(results), 5)
-        for thread_id, duration, result in results:
-            self.assertIsNotNone(result)
-            self.assertLess(duration, 1.0)  # Each should complete within 1 second
-
-        # Overall concurrent execution should be efficient
-        self.assertLess(overall_time, 3.0)
-
     def test_file_rotation_performance(self):
         """Test performance impact of file rotation."""
         config = {

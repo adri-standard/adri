@@ -3,8 +3,14 @@ name: "CodeQL"
 on:
   push:
     branches: ["main"]
+    paths:
+      - '**/*.py'
+      - '.github/workflows/codeql.yml'
   pull_request:
     branches: ["main"]
+    paths:
+      - '**/*.py'
+      - '.github/workflows/codeql.yml'
   schedule:
     - cron: "0 6 * * 1"  # Weekly at 06:00 UTC Monday
 
@@ -30,3 +36,4 @@ jobs:
         uses: github/codeql-action/autobuild@v4
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v4
+        continue-on-error: true

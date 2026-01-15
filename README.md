@@ -53,7 +53,7 @@ adri setup
 
 ## How ADRI works (high level)
 
-![ADRI Flow Diagram](https://raw.githubusercontent.com/Verodat/verodat-adri/main/docs/static/img/adri-flow.png)
+![ADRI Flow Diagram](https://raw.githubusercontent.com/adri-standard/adri/main/docs/static/img/adri-flow.png)
 
 **In plain English:** ADRI sits between your code and its data, checking quality before letting data through. Good data passes, bad data gets blocked.
 
@@ -102,15 +102,15 @@ analyze_customers(bad_customers)  # ❌ Raises exception with quality report
 
 ## Quick links
 
-- **[Quickstart](https://github.com/Verodat/verodat-adri/blob/main/QUICKSTART.md)** – 2-minute integration
-- **[Getting started](https://github.com/Verodat/verodat-adri/blob/main/docs/GETTING_STARTED.md)** – tutorial
-- **[How it works](https://github.com/Verodat/verodat-adri/blob/main/docs/HOW_IT_WORKS.md)** – quality dimensions explained
-- **[Data contracts](https://github.com/Verodat/verodat-adri/blob/main/docs/DATA_CONTRACTS.md)** – concept + examples
-- **[Contracts library](https://github.com/Verodat/verodat-adri/blob/main/docs/CONTRACTS_LIBRARY.md)** – reusable templates
-- **[Framework patterns](https://github.com/Verodat/verodat-adri/blob/main/docs/FRAMEWORK_PATTERNS.md)** – LangChain, CrewAI, AutoGen, etc.
-- **[CLI reference](https://github.com/Verodat/verodat-adri/blob/main/docs/CLI_REFERENCE.md)** – CLI commands
-- **[FAQ](https://github.com/Verodat/verodat-adri/blob/main/docs/FAQ.md)** – common questions
-- **[Examples](https://github.com/Verodat/verodat-adri/tree/main/examples)** – real-world examples
+- **[Quickstart](https://github.com/adri-standard/adri/blob/main/QUICKSTART.md)** – 2-minute integration
+- **[Getting started](https://github.com/adri-standard/adri/blob/main/docs/GETTING_STARTED.md)** – tutorial
+- **[How it works](https://github.com/adri-standard/adri/blob/main/docs/HOW_IT_WORKS.md)** – quality dimensions explained
+- **[Data contracts](https://github.com/adri-standard/adri/blob/main/docs/DATA_CONTRACTS.md)** – concept + examples
+- **[Contracts library](https://github.com/adri-standard/adri/blob/main/docs/CONTRACTS_LIBRARY.md)** – reusable templates
+- **[Framework patterns](https://github.com/adri-standard/adri/blob/main/docs/FRAMEWORK_PATTERNS.md)** – LangChain, CrewAI, AutoGen, etc.
+- **[CLI reference](https://github.com/adri-standard/adri/blob/main/docs/CLI_REFERENCE.md)** – CLI commands
+- **[FAQ](https://github.com/adri-standard/adri/blob/main/docs/FAQ.md)** – common questions
+- **[Examples](https://github.com/adri-standard/adri/tree/main/examples)** – real-world examples
 
 ## Protection modes
 
@@ -130,29 +130,29 @@ analyze_customers(bad_customers)  # ❌ Raises exception with quality report
 ADRI includes reusable contract templates for common domains and AI workflows.
 
 ### Business domains
-- **[Customer Service](https://github.com/Verodat/verodat-adri/blob/main/ADRI/contracts/domains/customer_service_contract.yaml)**
-- **[E-commerce Orders](https://github.com/Verodat/verodat-adri/blob/main/ADRI/contracts/domains/ecommerce_order_contract.yaml)**
-- **[Financial Transactions](https://github.com/Verodat/verodat-adri/blob/main/ADRI/contracts/domains/financial_transaction_contract.yaml)**
-- **[Healthcare Patients](https://github.com/Verodat/verodat-adri/blob/main/ADRI/contracts/domains/healthcare_patient_contract.yaml)**
-- **[Marketing Campaigns](https://github.com/Verodat/verodat-adri/blob/main/ADRI/contracts/domains/marketing_campaign_contract.yaml)**
+- **[Customer Service](https://github.com/adri-standard/adri/blob/main/ADRI/contracts/domains/customer_service_contract.yaml)**
+- **[E-commerce Orders](https://github.com/adri-standard/adri/blob/main/ADRI/contracts/domains/ecommerce_order_contract.yaml)**
+- **[Financial Transactions](https://github.com/adri-standard/adri/blob/main/ADRI/contracts/domains/financial_transaction_contract.yaml)**
+- **[Healthcare Patients](https://github.com/adri-standard/adri/blob/main/ADRI/contracts/domains/healthcare_patient_contract.yaml)**
+- **[Marketing Campaigns](https://github.com/adri-standard/adri/blob/main/ADRI/contracts/domains/marketing_campaign_contract.yaml)**
 
 ### AI frameworks
-- **[LangChain Inputs](https://github.com/Verodat/verodat-adri/blob/main/ADRI/contracts/frameworks/langchain_chain_input_contract.yaml)**
-- **[CrewAI Task Context](https://github.com/Verodat/verodat-adri/blob/main/ADRI/contracts/frameworks/crewai_task_context_contract.yaml)**
-- **[LlamaIndex Documents](https://github.com/Verodat/verodat-adri/blob/main/ADRI/contracts/frameworks/llamaindex_document_contract.yaml)**
-- **[AutoGen Messages](https://github.com/Verodat/verodat-adri/blob/main/ADRI/contracts/frameworks/autogen_message_contract.yaml)**
+- **[LangChain Inputs](https://github.com/adri-standard/adri/blob/main/ADRI/contracts/frameworks/langchain_chain_input_contract.yaml)**
+- **[CrewAI Task Context](https://github.com/adri-standard/adri/blob/main/ADRI/contracts/frameworks/crewai_task_context_contract.yaml)**
+- **[LlamaIndex Documents](https://github.com/adri-standard/adri/blob/main/ADRI/contracts/frameworks/llamaindex_document_contract.yaml)**
+- **[AutoGen Messages](https://github.com/adri-standard/adri/blob/main/ADRI/contracts/frameworks/autogen_message_contract.yaml)**
 
 ### Generic templates
-- **[API Responses](https://github.com/Verodat/verodat-adri/blob/main/ADRI/contracts/templates/api_response_template.yaml)**
-- **[Time Series](https://github.com/Verodat/verodat-adri/blob/main/ADRI/contracts/templates/time_series_template.yaml)**
-- **[Key-Value](https://github.com/Verodat/verodat-adri/blob/main/ADRI/contracts/templates/key_value_template.yaml)**
-- **[Nested JSON](https://github.com/Verodat/verodat-adri/blob/main/ADRI/contracts/templates/nested_json_template.yaml)**
+- **[API Responses](https://github.com/adri-standard/adri/blob/main/ADRI/contracts/templates/api_response_template.yaml)**
+- **[Time Series](https://github.com/adri-standard/adri/blob/main/ADRI/contracts/templates/time_series_template.yaml)**
+- **[Key-Value](https://github.com/adri-standard/adri/blob/main/ADRI/contracts/templates/key_value_template.yaml)**
+- **[Nested JSON](https://github.com/adri-standard/adri/blob/main/ADRI/contracts/templates/nested_json_template.yaml)**
 
 ## Contributing
 
-- Star the project: https://github.com/Verodat/verodat-adri
-- Share feedback/requests in Discussions: https://github.com/Verodat/verodat-adri/discussions
-- Contribute new contracts and examples: [CONTRIBUTING.md](https://github.com/Verodat/verodat-adri/blob/main/CONTRIBUTING.md)
+- Star the project: https://github.com/adri-standard/adri
+- Share feedback/requests in Discussions: https://github.com/adri-standard/adri/discussions
+- Contribute new contracts and examples: [CONTRIBUTING.md](https://github.com/adri-standard/adri/blob/main/CONTRIBUTING.md)
 
 ## Use cases
 
@@ -160,19 +160,19 @@ ADRI works with any data format. Sample data files are included for common scena
 
 ### API Data Validation
 Protect your API integrations with structural validation.
-- Sample: [`api_response.json`](https://github.com/Verodat/verodat-adri/blob/main/examples/data/api_response.json)
+- Sample: [`api_response.json`](https://github.com/adri-standard/adri/blob/main/examples/data/api_response.json)
 
 ### Multi-Agent Workflows
 Validate context passed between agents in CrewAI, AutoGen, etc.
-- Sample: [`crew_context.json`](https://github.com/Verodat/verodat-adri/blob/main/examples/data/crew_context.json)
+- Sample: [`crew_context.json`](https://github.com/adri-standard/adri/blob/main/examples/data/crew_context.json)
 
 ### RAG Pipelines
 Ensure documents have correct structure before indexing.
-- Sample: [`rag_documents.json`](https://github.com/Verodat/verodat-adri/blob/main/examples/data/rag_documents.json)
+- Sample: [`rag_documents.json`](https://github.com/adri-standard/adri/blob/main/examples/data/rag_documents.json)
 
 ## License
 
-Apache 2.0. See [LICENSE](https://github.com/Verodat/verodat-adri/blob/main/LICENSE).
+Apache 2.0. See [LICENSE](https://github.com/adri-standard/adri/blob/main/LICENSE).
 
 ---
 
