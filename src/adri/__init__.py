@@ -41,7 +41,7 @@ Semantic Kernel, and any Python function.
 Learn more: https://github.com/adri-standard/adri
 """
 
-from .analysis import DataProfiler, ContractGenerator, TypeInference
+from .analysis import ContractGenerator, DataProfiler, TypeInference
 from .config.loader import ConfigurationLoader
 
 # Core public API imports
