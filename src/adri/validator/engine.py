@@ -7,10 +7,10 @@ Core data quality assessment and validation engine functionality.
 Migrated from adri/core/assessor.py for the new src/ layout.
 """
 
+import logging
 import os
 import sys
 import time
-import logging
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -854,8 +854,9 @@ class DataQualityAssessor:
         if standard_path:
             # Load standard for schema validation - use lenient YAML loading for schema check
             try:
-                from .schema_validator import validate_schema_compatibility
                 import yaml
+
+                from .schema_validator import validate_schema_compatibility
 
                 if _should_enable_debug():
                     diagnostic_log.append(f"Loading standard from: {standard_path}")

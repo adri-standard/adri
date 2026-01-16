@@ -17,8 +17,9 @@ This is a fundamental property of ADRI - always runs, not configurable.
 """
 
 from dataclasses import dataclass, field
-from typing import Dict, List, Set, Optional, Any
 from enum import Enum
+from typing import Any, Dict, List, Optional, Set
+
 import pandas as pd
 
 
@@ -651,7 +652,7 @@ def validate_standard(standard: Dict[str, Any]) -> Dict[str, List[str]]:
         >>> if errors:
         ...     print(f"Validation failed: {errors}")
     """
-    from adri.validator.modes import detect_mode, ADRIMode
+    from adri.validator.modes import ADRIMode, detect_mode
 
     mode = detect_mode(standard)
 

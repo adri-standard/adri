@@ -13,11 +13,11 @@ Key Features:
 This validator runs at schema definition time to catch issues early.
 """
 
-from typing import Dict, Any, List, Optional, Set
+import logging
+import re
 from dataclasses import dataclass
 from enum import Enum
-import re
-import logging
+from typing import Any, Dict, List, Optional, Set
 
 logger = logging.getLogger(__name__)
 

@@ -22,7 +22,7 @@ from ...utils.path_utils import (
     resolve_project_path,
 )
 from ...validator.engine import DataQualityAssessor
-from ...validator.loaders import load_data, load_contract
+from ...validator.loaders import load_contract, load_data
 
 
 def _progressive_echo(text: str, delay: float = 0.0) -> None:

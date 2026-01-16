@@ -12,9 +12,10 @@ Components:
 This module provides the "Data Scientist" functionality for the ADRI framework.
 """
 
+from .contract_generator import ContractGenerator, generate_contract_from_data
+
 # Import analysis components
 from .data_profiler import DataProfiler, profile_dataframe
-from .contract_generator import generate_contract_from_data, ContractGenerator
 
 # Import all analysis components
 from .type_inference import (

@@ -17,10 +17,11 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-# Enterprise logging functionality is available in the enterprise package
-
 # Clean import for version info
 from ..version import __version__
+
+# Enterprise logging functionality is available in the enterprise package
+
 
 
 class AuditRecord:

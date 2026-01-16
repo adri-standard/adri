@@ -11,7 +11,7 @@ import csv
 import json
 import os
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import Any, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .modes import ADRIMode
@@ -178,7 +178,7 @@ def load_contract(
     # Import validator inside function to avoid circular import at module load time
     from ..contracts.validator import get_validator
     from .modes import detect_mode, is_valid_mode_transition
-    from .structure import validate_structure, format_validation_report
+    from .structure import format_validation_report, validate_structure
 
     if not os.path.exists(file_path):
         raise FileNotFoundError(f"Contract file not found: {file_path}")

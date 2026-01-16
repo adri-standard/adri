@@ -13,10 +13,10 @@ Key Features:
 This service is consumed by the auto_tuner to provide transparency about schema changes.
 """
 
-from dataclasses import dataclass
-from typing import List, Dict, Any, Optional
-from enum import Enum
 import logging
+from dataclasses import dataclass
+from enum import Enum
+from typing import Any, Dict, List, Optional
 
 logger = logging.getLogger(__name__)
 
