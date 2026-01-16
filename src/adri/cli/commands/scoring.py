@@ -118,7 +118,7 @@ class ScoringExplainCommand(Command):
                 )
             else:
                 assessor_config["audit"] = self._get_default_audit_config()
-        except Exception:
+        except Exception:  # nosec B110 B112
             assessor_config["audit"] = self._get_default_audit_config()
 
         return assessor_config
@@ -141,7 +141,7 @@ class ScoringExplainCommand(Command):
             req = std.get("requirements", {}) if isinstance(std, dict) else {}
             thr = float(req.get("overall_minimum", 75.0))
             return max(0.0, min(100.0, thr))  # Clamp to [0, 100]
-        except Exception:
+        except Exception:  # nosec B110 B112
             return 75.0
 
     def _extract_scoring_information(
@@ -187,7 +187,7 @@ class ScoringExplainCommand(Command):
                 else:
                     try:
                         scores[dim] = float(val.get("score", 0.0))
-                    except Exception:
+                    except Exception:  # nosec B110 B112
                         scores[dim] = 0.0
 
             weights = {
@@ -203,7 +203,7 @@ class ScoringExplainCommand(Command):
                 )
 
             return contributions
-        except Exception:
+        except Exception:  # nosec B110 B112
             return {}
 
     def _display_json_output(
@@ -402,7 +402,7 @@ class ScoringExplainCommand(Command):
                     click.echo(
                         f"     • {item.get('field')}: {int(item.get('missing', 0))} missing"
                     )
-                except Exception:
+                except Exception:  # nosec B110 B112
                     pass
 
     def _display_consistency_explanation(

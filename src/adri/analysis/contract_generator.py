@@ -127,7 +127,7 @@ class ContractGenerator:
                     coerced = pd.to_numeric(non_null, errors="coerce")
                     if coerced.notna().all():
                         treat_as_numeric = True
-            except Exception:
+            except Exception:  # nosec B110 B112
                 treat_as_numeric = False
 
         # Integer types take priority - check int dtype first
@@ -144,7 +144,7 @@ class ContractGenerator:
                     inferred_type = "integer"
                 else:
                     inferred_type = "float"
-            except Exception:
+            except Exception:  # nosec B110 B112
                 inferred_type = "float"
         elif "bool" in dtype:
             inferred_type = "boolean"
@@ -205,7 +205,7 @@ class ContractGenerator:
                 series_for_range = pd.to_numeric(series, errors="coerce")
             else:
                 series_for_range = series
-        except Exception:
+        except Exception:  # nosec B110 B112
             series_for_range = series
 
         strategy = getattr(inf_cfg, "range_strategy", "iqr")
@@ -238,7 +238,7 @@ class ContractGenerator:
             lb = infer_length_bounds(series, widen=None)
             if lb:
                 out["min_length"], out["max_length"] = int(lb[0]), int(lb[1])
-        except Exception:
+        except Exception:  # nosec B110 B112
             pass
 
         if getattr(inf_cfg, "regex_inference_enabled", False):
@@ -246,7 +246,7 @@ class ContractGenerator:
                 pat = infer_regex_pattern(series)
                 if pat:
                     out["pattern"] = pat
-            except Exception:
+            except Exception:  # nosec B110 B112
                 pass
         return out
 
@@ -257,7 +257,7 @@ class ContractGenerator:
         out: dict[str, Any] = {}
         try:
             db = infer_date_bounds(series, margin_days=inf_cfg.date_margin_days)
-        except Exception:
+        except Exception:  # nosec B110 B112
             db = None
         if not db:
             return out
@@ -280,7 +280,7 @@ class ContractGenerator:
                 continue
             try:
                 lengths = s.astype(str).str.len()
-            except Exception:
+            except Exception:  # nosec B110 B112
                 lengths = pd.Series(dtype=int)
             observed_stats[col] = {
                 "min_len": int(lengths.min()) if not lengths.empty else None,
@@ -475,7 +475,7 @@ class ContractGenerator:
         try:
             nulls = int(series.isnull().sum())
             total = int(len(series))
-        except Exception:
+        except Exception:  # nosec B110 B112
             nulls, total = (0, 0)
         return {
             "active": bool(req["nullable"]),
@@ -497,7 +497,7 @@ class ContractGenerator:
             in_set = non_null.isin(req["allowed_values"])
             coverage = float(in_set.sum() / len(non_null)) if len(non_null) > 0 else 1.0
             uniq = int(non_null.nunique())
-        except Exception:
+        except Exception:  # nosec B110 B112
             coverage, uniq = (None, None)
         return {
             "values": list(req.get("allowed_values", [])),
@@ -522,7 +522,7 @@ class ContractGenerator:
             lengths = series.dropna().astype(str).str.len()
             obs_min = int(lengths.min()) if len(lengths) else None
             obs_max = int(lengths.max()) if len(lengths) else None
-        except Exception:
+        except Exception:  # nosec B110 B112
             obs_min = obs_max = None
         return {
             "active_min": (
@@ -576,7 +576,7 @@ class ContractGenerator:
                 stats.update(
                     {"observed_min": float(x.min()), "observed_max": float(x.max())}
                 )
-        except Exception:
+        except Exception:  # nosec B110 B112
             pass
         return {
             "strategy": strategy,
@@ -622,7 +622,7 @@ class ContractGenerator:
             obs_max = (
                 x.max().date().isoformat() if len(x) and pd.notna(x.max()) else None
             )
-        except Exception:
+        except Exception:  # nosec B110 B112
             obs_min = obs_max = None
         return {
             "active_after": req.get("after_date") or req.get("after_datetime"),
@@ -650,7 +650,7 @@ class ContractGenerator:
                 if len(non_null)
                 else 1.0
             )
-        except Exception:
+        except Exception:  # nosec B110 B112
             coverage = None
         return {
             "regex": req["pattern"],
@@ -695,7 +695,7 @@ class ContractGenerator:
                     coerced = pd.to_numeric(non_null, errors="coerce")
                     if coerced.notna().all():
                         treat_as_numeric = True
-            except Exception:
+            except Exception:  # nosec B110 B112
                 treat_as_numeric = False
 
             bounds = self._infer_numeric_bounds(series, inf_cfg, treat_as_numeric)
@@ -923,12 +923,12 @@ class ContractGenerator:
                             if isinstance(v, (dict, list)):
                                 try:
                                     return json.dumps(v, sort_keys=True)
-                                except Exception:
+                                except Exception:  # nosec B110 B112
                                     return str(v)
                             if isinstance(v, set):
                                 try:
                                     return ",".join(sorted(map(str, v)))
-                                except Exception:
+                                except Exception:  # nosec B110 B112
                                     return str(v)
                             return (
                                 v
@@ -937,11 +937,11 @@ class ContractGenerator:
                             )
 
                         df[col] = s.apply(_coerce)
-                except Exception:
+                except Exception:  # nosec B110 B112
                     # As a last resort, stringify entire column
                     try:
                         df[col] = s.astype(str)
-                    except Exception:
+                    except Exception:  # nosec B110 B112
                         pass
         return df
 

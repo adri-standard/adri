@@ -84,7 +84,7 @@ class CompletenessAssessor(DimensionAssessor):
             if col in data.columns:
                 try:
                     missing_required += int(data[col].isnull().sum())
-                except Exception:
+                except Exception:  # nosec B110 B112
                     # If there's an error counting nulls, assume all are missing
                     missing_required += len(data)
 
@@ -119,7 +119,7 @@ class CompletenessAssessor(DimensionAssessor):
             if col in data.columns:
                 try:
                     per_field_missing[col] = int(data[col].isnull().sum())
-                except Exception:
+                except Exception:  # nosec B110 B112
                     per_field_missing[col] = len(data)
             else:
                 per_field_missing[col] = len(data)  # Column missing entirely

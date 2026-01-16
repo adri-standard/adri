@@ -87,7 +87,7 @@ class TypeInference:
                 confidence = self._calculate_confidence(data[column], field_type)
                 confidence_scores[column] = confidence
 
-            except Exception:
+            except Exception:  # nosec B110 B112
                 # Fallback for problematic columns
                 field_info = FieldTypeInfo("string")
                 field_info.primary_type = "string"

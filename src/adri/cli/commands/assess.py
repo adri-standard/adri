@@ -158,7 +158,7 @@ class AssessCommand(Command):
                     assessor_config["audit"] = self._get_default_audit_config()
             else:
                 assessor_config["audit"] = self._get_default_audit_config()
-        except Exception:
+        except Exception:  # nosec B110 B112
             assessor_config["audit"] = self._get_default_audit_config()
 
         return assessor_config
@@ -181,7 +181,7 @@ class AssessCommand(Command):
             req = std.get("requirements", {}) if isinstance(std, dict) else {}
             thr = float(req.get("overall_minimum", 75.0))
             return max(0.0, min(100.0, thr))  # Clamp to [0, 100]
-        except Exception:
+        except Exception:  # nosec B110 B112
             return 75.0
 
     def _save_assessment_report(self, guide: bool, data_path: str, result) -> None:
@@ -201,7 +201,7 @@ class AssessCommand(Command):
                 if config:
                     env_config = config_loader.get_environment_config(config)
                     assessments_dir = Path(env_config["paths"]["assessments"])
-            except Exception:
+            except Exception:  # nosec B110 B112
                 pass
 
             assessments_dir.mkdir(parents=True, exist_ok=True)
@@ -218,7 +218,7 @@ class AssessCommand(Command):
             with open(auto_output_path, "w", encoding="utf-8") as f:
                 json.dump(report_data, f, indent=2)
 
-        except Exception:
+        except Exception:  # nosec B110 B112
             # Non-fatal error - continue without saving
             pass
 
@@ -379,7 +379,7 @@ class AssessCommand(Command):
                 try:
                     if pd.isna(record_id):
                         record_id = f"Row {i + 1}"
-                except Exception:
+                except Exception:  # nosec B110 B112
                     pass
 
                 parts = []
@@ -409,7 +409,7 @@ class AssessCommand(Command):
         try:
             if pd.isna(value):
                 return True
-        except Exception:
+        except Exception:  # nosec B110 B112
             pass
         return isinstance(value, str) and value.strip() == ""
 

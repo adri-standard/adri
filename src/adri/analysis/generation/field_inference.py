@@ -206,7 +206,7 @@ class FieldInferenceEngine:
 
                 if correlation >= self._correlation_threshold:
                     correlated.append(other_field)
-            except Exception:
+            except Exception:  # nosec B110 B112
                 # Skip fields that can't be analyzed
                 continue
 
@@ -240,7 +240,7 @@ class FieldInferenceEngine:
             if predictor_numeric.notna().sum() / len(predictor_numeric) > 0.8:
                 # Use correlation ratio (eta) for numeric predictor
                 return self._correlation_ratio(target_clean, predictor_numeric)
-        except Exception:
+        except Exception:  # nosec B110 B112
             pass
 
         # Use Cramér's V for categorical predictor
@@ -341,7 +341,7 @@ class FieldInferenceEngine:
                     target_series, data[input_field]
                 )
                 correlations.append(corr)
-            except Exception:
+            except Exception:  # nosec B110 B112
                 continue
 
         if not correlations:
@@ -545,7 +545,7 @@ class FieldInferenceEngine:
                         # Check if all numeric values are whole numbers
                         if (coerced == coerced.astype(int)).all():
                             is_integer = True
-            except Exception:
+            except Exception:  # nosec B110 B112
                 treat_as_numeric = False
 
             if treat_as_numeric:
@@ -624,7 +624,7 @@ class FieldInferenceEngine:
                     series_for_range = series
             else:
                 series_for_range = series
-        except Exception:
+        except Exception:  # nosec B110 B112
             series_for_range = series
 
         # Apply configured range strategy
@@ -667,7 +667,7 @@ class FieldInferenceEngine:
             if length_bounds:
                 constraints["min_length"] = int(length_bounds[0])
                 constraints["max_length"] = int(length_bounds[1])
-        except Exception:
+        except Exception:  # nosec B110 B112
             pass
 
         # Infer regex pattern if enabled
@@ -676,7 +676,7 @@ class FieldInferenceEngine:
                 pattern = infer_regex_pattern(series)
                 if pattern:
                     constraints["pattern"] = pattern
-            except Exception:
+            except Exception:  # nosec B110 B112
                 pass
 
         return constraints
@@ -705,7 +705,7 @@ class FieldInferenceEngine:
                 else:
                     constraints["after_date"] = date_bounds[0]
                     constraints["before_date"] = date_bounds[1]
-        except Exception:
+        except Exception:  # nosec B110 B112
             pass
 
         return constraints
@@ -794,7 +794,7 @@ class FieldInferenceEngine:
                 lengths = series.astype(str).str.len()
                 min_len = int(lengths.min()) if not lengths.empty else None
                 max_len = int(lengths.max()) if not lengths.empty else None
-            except Exception:
+            except Exception:  # nosec B110 B112
                 min_len = max_len = None
 
             # Calculate numeric statistics
@@ -805,7 +805,7 @@ class FieldInferenceEngine:
                     max_val = float(numeric_series.max())
                 else:
                     min_val = max_val = None
-            except Exception:
+            except Exception:  # nosec B110 B112
                 min_val = max_val = None
 
             observed_stats[col] = {

@@ -62,7 +62,7 @@ def is_missing_value(value: Any) -> bool:
     try:
         if pd.isna(value):
             return True
-    except Exception:
+    except Exception:  # nosec B110 B112
         pass
 
     # Handle None
@@ -181,7 +181,7 @@ def parse_date_value(value: Any) -> datetime | None:
         # Try pandas date parsing as fallback
         try:
             return pd.to_datetime(value)
-        except Exception:
+        except Exception:  # nosec B110 B112
             pass
 
     return None

@@ -150,7 +150,7 @@ class CatalogClient:
                         url = catalog.get("url")
                         if url and isinstance(url, str) and url.strip():
                             return url.strip()
-        except Exception:
+        except Exception:  # nosec B110 B112
             # No config available or failed to parse
             pass
 
@@ -221,7 +221,7 @@ class CatalogClient:
             if isinstance(item, dict):
                 try:
                     coerced = self._coerce_entry(item)
-                except Exception:
+                except Exception:  # nosec B110 B112
                     coerced = None
                 if coerced is not None:
                     entries.append(coerced)

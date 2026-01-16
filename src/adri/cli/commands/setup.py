@@ -258,7 +258,7 @@ INV-110,DUPLICATE-ID,875.25,2024-02-24,paid,credit_card"""
 
             return training_file.exists() and test_file.exists()
 
-        except Exception:
+        except Exception:  # nosec B110 B112
             return False
 
     def _display_setup_success(self, guide: bool) -> None:

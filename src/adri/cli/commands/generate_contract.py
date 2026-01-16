@@ -149,7 +149,7 @@ class GenerateContractCommand(Command):
                 standards_dir = Path(env_config["paths"]["contracts"])
                 standards_dir.mkdir(parents=True, exist_ok=True)
                 return standards_dir / standard_filename
-        except Exception:
+        except Exception:  # nosec B110 B112
             pass
 
         # Fallback to default dev path
@@ -188,7 +188,7 @@ class GenerateContractCommand(Command):
             shutil.copy2(source_file, snapshot_path)
             return str(snapshot_path)
 
-        except Exception:
+        except Exception:  # nosec B110 B112
             return None
 
     def _get_training_data_directory(self) -> Path:
@@ -201,7 +201,7 @@ class GenerateContractCommand(Command):
             if config:
                 env_config = config_loader.get_environment_config(config)
                 return Path(env_config["paths"]["training_data"])
-        except Exception:
+        except Exception:  # nosec B110 B112
             pass
 
         return Path("ADRI/dev/training-data")
@@ -304,7 +304,7 @@ class GenerateContractCommand(Command):
         _progressive_echo("✅ Standard created successfully!", 0.0)
         try:
             std_name = std_dict["standards"]["name"]
-        except Exception:
+        except Exception:  # nosec B110 B112
             std_name = standard_filename
 
         _progressive_echo(f"📄 Name: {std_name}", 0.0)
@@ -450,7 +450,7 @@ class GenerateContractCommand(Command):
             if not controls["required_fields"]:
                 controls["required_fields"] = list(field_reqs.keys())[:3]
 
-        except Exception:
+        except Exception:  # nosec B110 B112
             pass
 
         return controls

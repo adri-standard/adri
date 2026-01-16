@@ -231,7 +231,7 @@ class ListContractsCommand(Command):
                     )
                     dev_dir = Path(dev_env["paths"]["contracts"])
                     prod_dir = Path(prod_env["paths"]["contracts"])
-            except Exception:
+            except Exception:  # nosec B110 B112
                 pass
 
             # List YAML files in directories

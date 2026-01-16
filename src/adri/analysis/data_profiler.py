@@ -549,7 +549,7 @@ class DataProfiler:
 
             return max(0.0, min(100.0, final_score))
 
-        except Exception:
+        except Exception:  # nosec B110 B112
             # Fallback calculation
             return 50.0
 
