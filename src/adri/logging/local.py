@@ -23,7 +23,6 @@ from ..version import __version__
 # Enterprise logging functionality is available in the enterprise package
 
 
-
 class AuditRecord:
     """Represents a single audit record for an ADRI assessment."""
 

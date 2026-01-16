@@ -797,7 +797,7 @@ class DataQualityAssessor:
         except (OSError, PermissionError):
             return False
 
-    def assess(self, data, standard_path=None):
+    def assess(self, data, standard_path=None):  # noqa: C901
         """Assess data quality using pipeline architecture with audit logging."""
         # Start timing
         start_time = time.time()
