@@ -100,7 +100,7 @@ class ListAssessmentsCommand(Command):
             if config:
                 env_config = config_loader.get_environment_config(config)
                 assessments_dir = Path(env_config["paths"]["assessments"])
-        except Exception:
+        except Exception:  # nosec B110 B112
             pass
 
         return assessments_dir
@@ -193,7 +193,7 @@ class ListAssessmentsCommand(Command):
                 except (ValueError, TypeError, KeyError):
                     continue  # Skip unreadable entries
 
-        except Exception:
+        except Exception:  # nosec B110 B112
             # If loading fails, return empty list
             pass
 

@@ -100,7 +100,7 @@ class ShowConfigCommand(Command):
         return "show-config"
 
 
-class ValidateStandardCommand(Command):
+class ValidateContractCommand(Command):
     """Command for validating YAML standard files.
 
     Handles structural validation of ADRI standard files to ensure
@@ -127,21 +127,21 @@ class ValidateStandardCommand(Command):
     def _validate_standard(self, standard_path: str) -> int:
         """Validate YAML standard file using comprehensive StandardValidator."""
         try:
-            from ...standards.exceptions import SchemaValidationError
-            from ...standards.validator import get_validator
+            from ...contracts.exceptions import SchemaValidationError
+            from ...contracts.validator import get_validator
 
             # Use the comprehensive validator
             validator = get_validator()
-            result = validator.validate_standard_file(standard_path, use_cache=False)
+            result = validator.validate_contract_file(standard_path, use_cache=False)
 
             if result.is_valid:
                 # Display success with summary
                 click.echo("✅ Standard validation PASSED")
 
                 # Load and display standard info
-                from ...validator.loaders import load_standard
+                from ...validator.loaders import load_contract
 
-                standard = load_standard(
+                standard = load_contract(
                     standard_path, validate=False
                 )  # Already validated
                 std_info = standard.get("standards", {})
@@ -183,7 +183,7 @@ class ValidateStandardCommand(Command):
         return "validate-standard"
 
 
-class ListStandardsCommand(Command):
+class ListContractsCommand(Command):
     """Command for listing available YAML standards.
 
     Handles discovery and display of local standards with optional
@@ -215,8 +215,8 @@ class ListStandardsCommand(Command):
             standards_found = False
 
             # Local project standards (development and production)
-            dev_dir = Path("ADRI/dev/standards")
-            prod_dir = Path("ADRI/prod/standards")
+            dev_dir = Path("ADRI/dev/contracts")
+            prod_dir = Path("ADRI/prod/contracts")
 
             # Try to resolve from config if available
             try:
@@ -229,9 +229,9 @@ class ListStandardsCommand(Command):
                     prod_env = config_loader.get_environment_config(
                         config, "production"
                     )
-                    dev_dir = Path(dev_env["paths"]["standards"])
-                    prod_dir = Path(prod_env["paths"]["standards"])
-            except Exception:
+                    dev_dir = Path(dev_env["paths"]["contracts"])
+                    prod_dir = Path(prod_env["paths"]["contracts"])
+            except Exception:  # nosec B110 B112
                 pass
 
             # List YAML files in directories
@@ -300,7 +300,7 @@ class ListStandardsCommand(Command):
         return "list-standards"
 
 
-class ShowStandardCommand(Command):
+class ShowContractCommand(Command):
     """Command for showing details of a specific ADRI standard.
 
     Handles display of standard metadata, requirements, and configuration
@@ -330,7 +330,7 @@ class ShowStandardCommand(Command):
     def _show_standard(self, standard_name: str, verbose: bool = False) -> int:
         """Show details of a specific ADRI standard."""
         try:
-            from ...validator.loaders import load_standard
+            from ...validator.loaders import load_contract
 
             # Find the standard file
             standard_path = self._find_standard_file(standard_name)
@@ -340,7 +340,7 @@ class ShowStandardCommand(Command):
                 return 1
 
             # Load and display standard
-            standard = load_standard(standard_path)
+            standard = load_contract(standard_path)
             std_info = standard.get("standards", {})
 
             click.echo("📋 ADRI Standard Details")
@@ -376,8 +376,8 @@ class ShowStandardCommand(Command):
 
         # Search in standard locations
         search_paths = [
-            f"ADRI/dev/standards/{standard_name}.yaml",
-            f"ADRI/prod/standards/{standard_name}.yaml",
+            f"ADRI/dev/contracts/{standard_name}.yaml",
+            f"ADRI/prod/contracts/{standard_name}.yaml",
             f"{standard_name}.yaml",
         ]
 

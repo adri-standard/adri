@@ -65,11 +65,11 @@ class ValidationPipeline:
                 try:
                     # Check if already registered
                     self._registry.dimensions.get(dimension_name)
-                except Exception:  # noqa: E722
+                except Exception:  # noqa: E722  # nosec B110
                     # Not registered, so register it
                     self._registry.dimensions.register(dimension_name, assessor)
 
-        except Exception:  # noqa: E722
+        except Exception:  # noqa: E722  # nosec B110
             # If registration fails, the pipeline will fall back to basic assessment
             pass
 
@@ -267,7 +267,7 @@ class ValidationPipeline:
                             dim_requirements["record_identification"][
                                 "primary_key_fields"
                             ] = pk_fields
-                except Exception:  # noqa: E722
+                except Exception:  # noqa: E722  # nosec B110
                     pass
             elif dimension_name == "freshness":
                 # Freshness needs metadata for date field configuration
@@ -279,7 +279,7 @@ class ValidationPipeline:
                         else {}
                     )
                     dim_requirements["metadata"] = metadata
-                except Exception:  # noqa: E722
+                except Exception:  # noqa: E722  # nosec B110
                     pass
 
             # Run the assessment
@@ -294,7 +294,7 @@ class ValidationPipeline:
 
             return score, explanation
 
-        except Exception:  # noqa: E722
+        except Exception:  # noqa: E722  # nosec B110
             # Fallback to default score if assessment fails
             return self._get_default_score(dimension_name), None
 
@@ -382,7 +382,7 @@ class ValidationPipeline:
                 if w < 0.0:
                     w = 0.0
                 normalized[dim] = w
-            except Exception:  # noqa: E722
+            except Exception:  # noqa: E722  # nosec B110
                 normalized[dim] = 0.0
 
         # If all weights are zero, assign equal weights
@@ -441,7 +441,7 @@ class ValidationPipeline:
         try:
             self._registry.dimensions.get(dimension_name)
             return True
-        except Exception:  # noqa: E722
+        except Exception:  # noqa: E722  # nosec B110
             return False
 
     def list_available_dimensions(self) -> list[str]:

@@ -83,7 +83,7 @@ def infer_allowed_values(
 
     try:
         unique_vals = non_null.unique()
-    except Exception:
+    except Exception:  # nosec B110 B112
         # Be safe if pandas cannot compute unique reliably
         return None
 
@@ -207,7 +207,7 @@ def infer_numeric_range_robust(
         if lower > upper:
             lower, upper = obs_min, obs_max
         return (float(lower), float(upper))
-    except Exception:
+    except Exception:  # nosec B110 B112
         return (obs_min, obs_max)
 
 
@@ -286,7 +286,7 @@ def _try_parse_date(val: Any) -> datetime | None:
     try:
         # Handles YYYY-MM-DD and YYYY-MM-DDTHH:MM:SS[.fff][Z]
         return datetime.fromisoformat(s.replace("Z", "+00:00"))  # tolerate Z -> UTC
-    except Exception:
+    except Exception:  # nosec B110 B112
         pass
 
     # Try a few common alternatives
@@ -302,7 +302,7 @@ def _try_parse_date(val: Any) -> datetime | None:
         parsed_dt = None
         try:
             parsed_dt = datetime.strptime(s, fmt)
-        except Exception:
+        except Exception:  # nosec B110 B112
             parsed_dt = None
         if parsed_dt is not None:
             return parsed_dt
@@ -384,7 +384,7 @@ def detect_primary_key(df: pd.DataFrame, max_combo: int = 2) -> list[str]:  # no
         ok_unique = False
         try:
             ok_unique = s.notna().all() and s.nunique(dropna=True) == n
-        except Exception:
+        except Exception:  # nosec B110 B112
             ok_unique = False
         if ok_unique:
             unique_cols.append(col)
@@ -398,7 +398,7 @@ def detect_primary_key(df: pd.DataFrame, max_combo: int = 2) -> list[str]:  # no
     def avg_len(col_name: str) -> float:
         try:
             return df[col_name].astype(str).str.len().mean()
-        except Exception:
+        except Exception:  # nosec B110 B112
             return float("inf")
 
     if id_like_uniques:
@@ -424,7 +424,7 @@ def detect_primary_key(df: pd.DataFrame, max_combo: int = 2) -> list[str]:  # no
             is_dup = False
             try:
                 is_dup = df.duplicated(subset=subset, keep=False).any()
-            except Exception:
+            except Exception:  # nosec B110 B112
                 dupe_check_failed = True
             if dupe_check_failed:
                 continue

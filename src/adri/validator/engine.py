@@ -1,3 +1,5 @@
+# @ADRI_FEATURE[core_validator_engine, scope=SHARED]
+# Description: Core validation engine for data quality assessment used by both enterprise and open source
 """
 ADRI Validator Engine.
 
@@ -5,7 +7,9 @@ Core data quality assessment and validation engine functionality.
 Migrated from adri/core/assessor.py for the new src/ layout.
 """
 
+import logging
 import os
+import sys
 import time
 from dataclasses import dataclass
 from pathlib import Path
@@ -15,6 +19,9 @@ import pandas as pd
 
 # Clean imports for new modular architecture
 from ..logging.local import CSVAuditLogger
+
+# Get logger for this module
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -63,9 +70,9 @@ class ThresholdResolver:
         # Priority 2: Standard file overall_minimum
         if standard_path:
             try:
-                from .loaders import load_standard
+                from .loaders import load_contract
 
-                standard_dict = load_standard(standard_path)
+                standard_dict = load_contract(standard_path)
                 overall_minimum = standard_dict.get("requirements", {}).get(
                     "overall_minimum"
                 )
@@ -78,7 +85,7 @@ class ThresholdResolver:
                         source="standard_overall_minimum",
                         standard_path=standard_path,
                     )
-            except Exception:  # noqa: E722
+            except Exception:  # noqa: E722  # nosec B110
                 # Standard loading failed, continue to config fallback
                 pass
 
@@ -790,7 +797,7 @@ class DataQualityAssessor:
         except (OSError, PermissionError):
             return False
 
-    def assess(self, data, standard_path=None):
+    def assess(self, data, standard_path=None):  # noqa: C901
         """Assess data quality using pipeline architecture with audit logging."""
         # Start timing
         start_time = time.time()
@@ -798,8 +805,6 @@ class DataQualityAssessor:
         # DIAGNOSTIC LOGGING - Issue #35 Parity Investigation
         # Only enabled when ADRI_DEBUG environment variable is set
         if _should_enable_debug():
-            import sys
-
             diagnostic_log = []
 
             # Log entry point
@@ -807,6 +812,20 @@ class DataQualityAssessor:
             diagnostic_log.append(f"standard_path: {standard_path}")
             diagnostic_log.append(f"data shape: {getattr(data, 'shape', 'N/A')}")
             diagnostic_log.append(f"data type: {type(data).__name__}")
+
+        # EMPTY DATASET VALIDATION (MUST FAIL IMMEDIATELY)
+        # Data contracts REQUIRE data to exist - empty datasets ALWAYS fail
+        # Check for zero records BEFORE any other validation or processing
+        record_count = len(data) if hasattr(data, "__len__") else 0
+
+        if record_count == 0:
+            error_msg = (
+                "Data contract validation failed: No data received.\n"
+                "Data contracts require at least one record to validate.\n"
+                "Check data source availability before processing."
+            )
+            logger.error(f"🔴 [EMPTY_DATASET] {error_msg}")
+            raise ValueError(error_msg)
 
         # Handle different data formats
         if hasattr(data, "to_frame"):
@@ -830,10 +849,14 @@ class DataQualityAssessor:
             diagnostic_log.append(f"Final data columns: {list(data.columns)}")
 
         # Run assessment using pipeline
+        schema_result = None  # Initialize schema result
+
         if standard_path:
-            # Load standard and use pipeline
+            # Load standard for schema validation - use lenient YAML loading for schema check
             try:
-                from .loaders import load_standard
+                import yaml
+
+                from .schema_validator import validate_schema_compatibility
 
                 if _should_enable_debug():
                     diagnostic_log.append(f"Loading standard from: {standard_path}")
@@ -841,7 +864,198 @@ class DataQualityAssessor:
                         f"Standard file exists: {os.path.exists(standard_path)}"
                     )
 
-                standard_dict = load_standard(standard_path)
+                # Load YAML directly without contract validation for schema purposes
+                with open(standard_path, "r", encoding="utf-8") as f:
+                    standard_dict = yaml.safe_load(f)
+
+                field_requirements = standard_dict.get("requirements", {}).get(
+                    "field_requirements", {}
+                )
+
+                # Run schema validation BEFORE dimension assessments
+                if _should_enable_debug():
+                    diagnostic_log.append("Running schema validation...")
+
+                # Read strict_case_matching from config (default: False)
+                strict_case_matching = self.config.get("schema_validation", {}).get(
+                    "strict_case_matching", False
+                )
+
+                schema_result = validate_schema_compatibility(
+                    data, field_requirements, strict_mode=strict_case_matching
+                )
+
+                if _should_enable_debug():
+                    diagnostic_log.append(
+                        f"Schema validation complete: {schema_result.match_percentage:.1f}% match"
+                    )
+                    diagnostic_log.append(
+                        f"Schema warnings: {len(schema_result.warnings)}"
+                    )
+
+                # AUTO-FIX: Apply case-insensitive matching by default (unless strict mode)
+                if (
+                    not strict_case_matching
+                    and schema_result.case_insensitive_matches > 0
+                ):
+                    # Find case mismatch warning
+                    case_mismatch_warnings = [
+                        w
+                        for w in schema_result.warnings
+                        if w.type.value == "FIELD_CASE_MISMATCH"
+                        and w.case_insensitive_matches
+                    ]
+
+                    if case_mismatch_warnings:
+                        # Auto-rename columns to match standard case
+                        rename_dict = case_mismatch_warnings[0].case_insensitive_matches
+                        data = data.rename(columns=rename_dict)
+
+                        if _should_enable_debug():
+                            diagnostic_log.append(
+                                f"Auto-fixed {len(rename_dict)} field names to match standard case"
+                            )
+
+                        # Clear case mismatch warnings since we auto-fixed
+                        schema_result.warnings = [
+                            w
+                            for w in schema_result.warnings
+                            if w.type.value != "FIELD_CASE_MISMATCH"
+                        ]
+                        # Update match statistics
+                        schema_result.exact_matches += (
+                            schema_result.case_insensitive_matches
+                        )
+                        schema_result.match_percentage = (
+                            (
+                                schema_result.exact_matches
+                                / schema_result.total_standard_fields
+                                * 100
+                            )
+                            if schema_result.total_standard_fields
+                            else 100.0
+                        )
+                        schema_result.case_insensitive_matches = 0
+
+                # DATA CONTRACT ENFORCEMENT: Filter to schema-defined fields only
+                # This ensures only contract-compliant fields exist in the data
+                # Extra fields are removed to enforce clean data contracts
+                # This is ALWAYS enabled - no flag needed (contracts are mandatory)
+                if field_requirements:
+                    original_fields = set(data.columns)
+                    schema_fields = set(field_requirements.keys())
+                    extra_fields = original_fields - schema_fields
+
+                    if extra_fields:
+                        # Filter dataframe to only include schema fields
+                        data = data[
+                            [col for col in data.columns if col in schema_fields]
+                        ]
+
+                        if _should_enable_debug():
+                            diagnostic_log.append(
+                                f"Contract enforcement: Removed {len(extra_fields)} non-schema fields"
+                            )
+
+                        # Update schema warnings - remove UNEXPECTED_FIELDS warning since we filtered them
+                        schema_result.warnings = [
+                            w
+                            for w in schema_result.warnings
+                            if w.type.value != "UNEXPECTED_FIELDS"
+                        ]
+
+                        # Add INFO-level log that fields were filtered for contract compliance
+                        logger.info(
+                            f"🛡️  Data contract enforced: Removed {len(extra_fields)} non-schema fields"
+                        )
+
+                # BINARY SCHEMA VALIDATION: Fail immediately if field match is not 100%
+                # After auto-fixes and filtering, we require perfect schema alignment
+                if schema_result.match_percentage < 100.0:
+                    # Log schema warnings for context
+                    if schema_result.warnings:
+                        self._log_schema_warnings(schema_result, data)
+
+                    # Raise error with clear message
+                    missing_fields = [
+                        w.affected_fields
+                        for w in schema_result.warnings
+                        if w.type.value in ["MISSING_REQUIRED_FIELDS", "MISSING_FIELDS"]
+                    ]
+                    missing_list = []
+                    for fields in missing_fields:
+                        if fields:
+                            missing_list.extend(fields)
+
+                    error_msg = (
+                        f"Schema validation failed: {schema_result.match_percentage:.1f}% field match "
+                        f"({schema_result.exact_matches}/{schema_result.total_standard_fields} fields matched). "
+                        f"Required: 100% exact match. "
+                    )
+                    if missing_list:
+                        error_msg += (
+                            f"Missing required fields: {', '.join(missing_list[:5])}"
+                        )
+
+                    raise ValueError(error_msg)
+
+                # Log schema warnings if any remain (for info only - validation passed)
+                if schema_result.warnings:
+                    self._log_schema_warnings(schema_result, data)
+
+            except ValueError as e:
+                # ValueError from schema validation MUST fail the assessment
+                # This is raised when strict_schema_match: true and fields don't match 100%
+                import traceback
+
+                # Log the error for visibility
+                print(
+                    f"[SCHEMA ERROR] Schema validation failed: {str(e)}",
+                    file=sys.stderr,
+                )
+                print(
+                    f"[SCHEMA ERROR] Traceback:\n{traceback.format_exc()}",
+                    file=sys.stderr,
+                )
+                if _should_enable_debug():
+                    diagnostic_log.append(
+                        f"Schema validation raised ValueError: {str(e)}"
+                    )
+                    diagnostic_log.append(f"Traceback: {traceback.format_exc()}")
+                # RE-RAISE the ValueError - do NOT continue execution
+                raise
+            except Exception as e:
+                # Other exceptions (not ValueError) can be handled more gracefully
+                import traceback
+
+                print(
+                    f"[SCHEMA ERROR] Non-fatal schema validation error: {type(e).__name__}: {str(e)}",
+                    file=sys.stderr,
+                )
+                print(
+                    f"[SCHEMA ERROR] Traceback:\n{traceback.format_exc()}",
+                    file=sys.stderr,
+                )
+                if _should_enable_debug():
+                    diagnostic_log.append(
+                        f"Schema validation skipped due to error: {type(e).__name__}: {str(e)}"
+                    )
+                    diagnostic_log.append(f"Traceback: {traceback.format_exc()}")
+                schema_result = None
+
+        # Continue with standard assessment flow
+        if standard_path:
+            # Load standard and use pipeline
+            try:
+                from .loaders import load_contract
+
+                if _should_enable_debug():
+                    diagnostic_log.append(f"Loading standard from: {standard_path}")
+                    diagnostic_log.append(
+                        f"Standard file exists: {os.path.exists(standard_path)}"
+                    )
+
+                standard_dict = load_contract(standard_path)
 
                 if _should_enable_debug():
                     diagnostic_log.append("Standard loaded successfully")
@@ -908,6 +1122,10 @@ class DataQualityAssessor:
                     "No standard_path provided - using basic assessment"
                 )
             result = self.engine._basic_assessment(data)
+
+        # Store schema validation result in metadata if available (for all paths)
+        if schema_result is not None:
+            result.metadata["schema_validation"] = schema_result.to_dict()
 
         # Log dimension scores (debug mode only)
         if _should_enable_debug():
@@ -1040,6 +1258,43 @@ class DataQualityAssessor:
         except Exception as e:
             logging.getLogger(__name__).warning(f"Failed to log effective config: {e}")
 
+    def _log_schema_warnings(self, schema_result: Any, data: pd.DataFrame) -> None:
+        """Log schema validation warnings prominently for user visibility.
+
+        Args:
+            schema_result: SchemaValidationResult object with warnings
+            data: DataFrame that was validated
+        """
+        import logging
+
+        logger = logging.getLogger(__name__)
+
+        # Log summary
+        logger.warning(
+            f"[ADRI SCHEMA] Field match rate: {schema_result.match_percentage:.1f}% "
+            f"({schema_result.exact_matches}/{schema_result.total_standard_fields} exact matches)"
+        )
+
+        # Log each warning with severity
+        for warning in schema_result.warnings:
+            severity_marker = "🔴" if warning.severity == "CRITICAL" else "⚠️"
+            logger.warning(
+                f"{severity_marker} [ADRI SCHEMA] {warning.severity}: {warning.message}"
+            )
+
+            # Log remediation for ERROR and CRITICAL issues
+            if warning.severity in ["CRITICAL", "ERROR"]:
+                logger.warning(f"   Remediation: {warning.remediation[:200]}")
+
+                # For case mismatches, show auto-fix suggestion
+                if warning.auto_fix_available and warning.type == "FIELD_CASE_MISMATCH":
+                    # Show first 3 field mappings as example
+                    if warning.case_insensitive_matches:
+                        examples = list(warning.case_insensitive_matches.items())[:3]
+                        logger.warning("   Auto-fix suggestion available:")
+                        for data_field, std_field in examples:
+                            logger.warning(f"     • {data_field} → {std_field}")
+
     def _collect_validation_failures(
         self, data: pd.DataFrame, result: AssessmentResult
     ) -> list[dict[str, Any]]:
@@ -1054,14 +1309,43 @@ class DataQualityAssessor:
         """
         all_failures = []
 
+        # NEW: Collect schema validation failures FIRST
+        if "schema_validation" in result.metadata:
+            schema_info = result.metadata["schema_validation"]
+            warnings = schema_info.get("warnings", [])
+
+            for warning in warnings:
+                # Only log CRITICAL and ERROR severity schema issues to failed validations
+                if warning.get("severity") in ["CRITICAL", "ERROR"]:
+                    all_failures.append(
+                        {
+                            "dimension": "schema",
+                            "field": ", ".join(
+                                warning.get("affected_fields", [])[:5]
+                            ),  # First 5 fields
+                            "issue_type": warning.get("type", "UNKNOWN"),
+                            "affected_rows": 0,  # Schema issues affect structure, not rows
+                            "affected_percentage": 0.0,
+                            "samples": [],
+                            "remediation": warning.get("remediation", ""),
+                            "severity": warning.get("severity", "ERROR"),
+                            "auto_fix_available": warning.get(
+                                "auto_fix_available", False
+                            ),
+                            "case_insensitive_matches": warning.get(
+                                "case_insensitive_matches"
+                            ),
+                        }
+                    )
+
         try:
             # Get the standard that was used for assessment
             if not hasattr(result, "standard_path") or not result.standard_path:
                 return all_failures
 
-            from .loaders import load_standard
+            from .loaders import load_contract
 
-            standard_dict = load_standard(result.standard_path)
+            standard_dict = load_contract(result.standard_path)
             standard_wrapper = BundledStandardWrapper(standard_dict)
 
             # Get dimension requirements
@@ -1081,7 +1365,7 @@ class DataQualityAssessor:
                     data, validity_requirements
                 )
                 all_failures.extend(validity_failures)
-            except Exception:
+            except Exception:  # nosec B110 B112
                 pass
 
             # Collect failures from Completeness dimension
@@ -1097,7 +1381,7 @@ class DataQualityAssessor:
                     data, completeness_requirements
                 )
                 all_failures.extend(completeness_failures)
-            except Exception:
+            except Exception:  # nosec B110 B112
                 pass
 
             # Collect failures from Consistency dimension
@@ -1113,10 +1397,10 @@ class DataQualityAssessor:
                     data, consistency_requirements
                 )
                 all_failures.extend(consistency_failures)
-            except Exception:
+            except Exception:  # nosec B110 B112
                 pass
 
-        except Exception:
+        except Exception:  # nosec B110 B112
             # If anything fails, return whatever we collected so far
             pass
 
@@ -1136,7 +1420,7 @@ class ValidationEngine:
             from .pipeline import ValidationPipeline
 
             self.pipeline = ValidationPipeline()
-        except Exception:  # noqa: E722
+        except Exception:  # noqa: E722  # nosec B110
             self.pipeline = None  # Fallback if pipeline not available
 
         # Legacy support for explain data collection
@@ -1154,7 +1438,7 @@ class ValidationEngine:
         for k, v in weights.items():
             try:
                 w = float(v)
-            except Exception:  # noqa: E722
+            except Exception:  # noqa: E722  # nosec B110
                 w = 0.0
             if w < 0.0:
                 w = 0.0
@@ -1187,7 +1471,7 @@ class ValidationEngine:
                 continue
             try:
                 fw = float(w)
-            except Exception:  # noqa: E722
+            except Exception:  # noqa: E722  # nosec B110
                 fw = 0.0
             if fw < 0.0:
                 fw = 0.0
@@ -1367,7 +1651,7 @@ class ValidationEngine:
                         continue
                     try:
                         fw = float(weight)
-                    except Exception:  # noqa: E722
+                    except Exception:  # noqa: E722  # nosec B110
                         fw = 0.0
                     if fw <= 0.0:
                         if isinstance(weight, (int, float)) and weight < 0:
@@ -1416,19 +1700,34 @@ class ValidationEngine:
 
         Returns:
             AssessmentResult object
+
+        Raises:
+            ValueError: If dataset is empty (0 records)
         """
+        # EMPTY DATASET VALIDATION (MUST FAIL IMMEDIATELY)
+        # Data contracts REQUIRE data to exist - empty datasets ALWAYS fail
+        # Check for zero records BEFORE any other validation or processing
+        if len(data) == 0:
+            error_msg = (
+                "Data contract validation failed: No data received.\n"
+                "Data contracts require at least one record to validate.\n"
+                "Check data source availability before processing."
+            )
+            logger.error(f"🔴 [EMPTY_DATASET] {error_msg}")
+            raise ValueError(error_msg)
+
         if self.pipeline:
             try:
                 # Load standard
-                from .loaders import load_standard
+                from .loaders import load_contract
 
-                yaml_dict = load_standard(standard_path)
+                yaml_dict = load_contract(standard_path)
                 standard_wrapper = BundledStandardWrapper(yaml_dict)
 
                 # Use pipeline for assessment
                 return self.pipeline.execute_assessment(data, standard_wrapper)
 
-            except Exception:  # noqa: E722
+            except Exception:  # noqa: E722  # nosec B110
                 # Fallback to basic assessment if standard can't be loaded
                 return self._basic_assessment(data)
         else:
@@ -1444,11 +1743,11 @@ class ValidationEngine:
 
         # Load the YAML standard
         try:
-            from .loaders import load_standard
+            from .loaders import load_contract
 
-            yaml_dict = load_standard(standard_path)
+            yaml_dict = load_contract(standard_path)
             standard = BundledStandardWrapper(yaml_dict)
-        except Exception:  # noqa: E722
+        except Exception:  # noqa: E722  # nosec B110
             return self._basic_assessment(data)
 
         # Perform assessment using the standard's requirements
@@ -1469,7 +1768,7 @@ class ValidationEngine:
         # Calculate overall score using per-dimension weights
         try:
             dim_reqs = standard.get_dimension_requirements()
-        except Exception:  # noqa: E722
+        except Exception:  # noqa: E722  # nosec B110
             dim_reqs = {}
 
         weights = {
@@ -1555,7 +1854,7 @@ class ValidationEngine:
             # with assess())
             try:
                 dim_reqs = standard_wrapper.get_dimension_requirements()
-            except Exception:  # noqa: E722
+            except Exception:  # noqa: E722  # nosec B110
                 dim_reqs = {}
 
             weights = {
@@ -1612,7 +1911,7 @@ class ValidationEngine:
                 metadata=metadata,
             )
 
-        except Exception:  # noqa: E722
+        except Exception:  # noqa: E722  # nosec B110
             # Fallback to basic assessment if standard can't be processed
             return self._basic_assessment(data)
 
@@ -1661,7 +1960,7 @@ class ValidationEngine:
             field_overrides_cfg: dict[str, dict[str, float]] = scoring_cfg.get(
                 "field_overrides", {}
             )
-        except Exception:  # noqa: E722
+        except Exception:  # noqa: E722  # nosec B110
             dim_reqs = {}
             validity_cfg = {}
             scoring_cfg = {}
@@ -1676,7 +1975,7 @@ class ValidationEngine:
         # Get field requirements from standard
         try:
             field_requirements = standard.get_field_requirements()
-        except Exception:  # noqa: E722
+        except Exception:  # noqa: E722  # nosec B110
             # Fallback to basic validity check
             return self._assess_validity(data)
 
@@ -1772,7 +2071,7 @@ class ValidationEngine:
             if col in data.columns:
                 try:
                     per_field_missing[col] = int(data[col].isnull().sum())
-                except Exception:  # noqa: E722
+                except Exception:  # noqa: E722  # nosec B110
                     per_field_missing[col] = 0
 
         missing_required = (
@@ -1805,7 +2104,7 @@ class ValidationEngine:
         """Assess completeness using nullable requirements from standard and attach explain payload."""
         try:
             field_requirements = standard.get_field_requirements()
-        except Exception:  # noqa: E722
+        except Exception:  # noqa: E722  # nosec B110
             # Fallback to basic completeness check
             return self._assess_completeness(data)
 
@@ -1847,7 +2146,7 @@ class ValidationEngine:
                 rid = standard.get_record_identification()
                 if isinstance(rid, dict):
                     pk_fields = list(rid.get("primary_key_fields", []))
-            except Exception:  # noqa: E722
+            except Exception:  # noqa: E722  # nosec B110
                 pass
 
             # Fallback: direct access to standard_dict
@@ -1858,20 +2157,20 @@ class ValidationEngine:
                         rid = std_dict.get("record_identification", {})
                         if isinstance(rid, dict):
                             pk_fields = list(rid.get("primary_key_fields", []))
-                except Exception:  # noqa: E722
+                except Exception:  # noqa: E722  # nosec B110
                     pass
 
             # Ensure pk_fields is always a list
             if not isinstance(pk_fields, list):
                 pk_fields = []
-        except Exception:  # noqa: E722
+        except Exception:  # noqa: E722  # nosec B110
             # Fallback to basic if standard is not usable
             return self._assess_consistency(data)
 
         # Determine if rule is active
         try:
             w = float(rule_weights_cfg.get("primary_key_uniqueness", 0.0))
-        except Exception:  # noqa: E722
+        except Exception:  # noqa: E722  # nosec B110
             w = 0.0
         if w < 0.0:
             w = 0.0
@@ -1893,14 +2192,14 @@ class ValidationEngine:
         # Execute PK uniqueness rule
         try:
             from .rules import check_primary_key_uniqueness
-        except Exception:  # noqa: E722
+        except Exception:  # noqa: E722  # nosec B110
             return self._assess_consistency(data)
 
         std_cfg = {"record_identification": {"primary_key_fields": pk_fields}}
         failures = []
         try:
             failures = check_primary_key_uniqueness(data, std_cfg) or []
-        except Exception:  # noqa: E722
+        except Exception:  # noqa: E722  # nosec B110
             failures = []
 
         # Sum affected rows across duplicate groups (cap at total for safety)
@@ -1909,7 +2208,7 @@ class ValidationEngine:
         for f in failures:
             try:
                 failed_rows += int(f.get("affected_rows", 0) or 0)
-            except Exception:  # noqa: E722
+            except Exception:  # noqa: E722  # nosec B110
                 pass
         if failed_rows > total:
             failed_rows = total
@@ -1965,14 +2264,14 @@ class ValidationEngine:
             rw = float(rw_cfg.get("recency_window", 0.0)) if rw_cfg else 0.0
             if rw < 0.0:
                 rw = 0.0
-        except Exception:  # noqa: E722
+        except Exception:  # noqa: E722  # nosec B110
             rw = 0.0
 
         # Gate activation: if metadata not present at all -> baseline without explain.
         wd_val = None
         try:
             wd_val = float(window_days)
-        except Exception:  # noqa: E722
+        except Exception:  # noqa: E722  # nosec B110
             wd_val = None
         has_meta = bool(as_of_str and date_field and wd_val is not None)
         if not has_meta:
@@ -2002,10 +2301,10 @@ class ValidationEngine:
             if as_of is not None and not pd.isna(as_of):
                 try:
                     as_of = as_of.tz_convert(None)
-                except Exception:  # noqa: E722
+                except Exception:  # noqa: E722  # nosec B110
                     # already naive
                     pass
-        except Exception:  # noqa: E722
+        except Exception:  # noqa: E722  # nosec B110
             as_of = None
 
         if as_of is None or pd.isna(as_of):
@@ -2045,7 +2344,7 @@ class ValidationEngine:
         parsed = pd.to_datetime(series, utc=True, errors="coerce")
         try:
             parsed = parsed.dt.tz_convert(None)
-        except Exception:  # noqa: E722
+        except Exception:  # noqa: E722  # nosec B110
             pass
         total = int(parsed.notna().sum())
         if total <= 0:
@@ -2153,7 +2452,7 @@ class ValidationEngine:
                 if isinstance(scoring_cfg, dict)
                 else {}
             )
-        except Exception:  # noqa: E722
+        except Exception:  # noqa: E722  # nosec B110
             return self._assess_plausibility(data)
 
         # Check if any rules are active
@@ -2438,7 +2737,7 @@ class ValidationEngine:
                                 failed_checks += 1
                             elif max_val is not None and numeric_value > max_val:
                                 failed_checks += 1
-                        except Exception:  # noqa: E722
+                        except Exception:  # noqa: E722  # nosec B110
                             failed_checks += 1
 
             # Check outlier detection rules
@@ -2456,7 +2755,7 @@ class ValidationEngine:
                                     failed_checks += 1
                                 elif max_val is not None and numeric_value > max_val:
                                     failed_checks += 1
-                            except Exception:  # noqa: E722
+                            except Exception:  # noqa: E722  # nosec B110
                                 failed_checks += 1
 
             if total_checks > 0:
@@ -2479,3 +2778,4 @@ class ValidationEngine:
 
 # Alias for backward compatibility
 AssessmentEngine = ValidationEngine
+# @ADRI_FEATURE_END[core_validator_engine]

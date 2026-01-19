@@ -8,6 +8,9 @@ Components:
 - ValidationEngine: Core validation engine
 - DataQualityAssessor: Main assessment interface
 - AssessmentResult: Result data structures
+- validate_standard: Unified mode-aware standard validation (NEW)
+- validate_conversation_structure: Conversation mode validation helper (NEW)
+- validate_standard_schema_v2: Field requirements validation (backward compatibility)
 
 This module provides the core validation capabilities for the ADRI framework.
 """
@@ -23,7 +26,14 @@ from .engine import (
 )
 
 # Import loader utilities
-from .loaders import load_data, load_standard
+from .loaders import load_contract, load_data
+
+# Import schema validation functions
+from .schema_validator import (
+    validate_conversation_structure,
+    validate_standard,
+    validate_standard_schema_v2,
+)
 
 # Export all components
 __all__ = [
@@ -34,5 +44,8 @@ __all__ = [
     "FieldAnalysis",
     "RuleExecutionResult",
     "load_data",
-    "load_standard",
+    "load_contract",
+    "validate_standard",
+    "validate_conversation_structure",
+    "validate_standard_schema_v2",
 ]

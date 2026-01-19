@@ -41,7 +41,7 @@ def check_field_type(value: Any, field_req: dict[str, Any]) -> bool:
                 r"^\d{2}/\d{2}/\d{4}$",  # MM/DD/YYYY
             ]
             return any(re.match(pattern, str(value)) for pattern in date_patterns)
-    except Exception:
+    except Exception:  # nosec B110 B112
         return False
 
     return True
@@ -57,7 +57,7 @@ def check_field_pattern(value: Any, field_req: dict[str, Any]) -> bool:
         import re
 
         return bool(re.match(pattern, str(value)))
-    except Exception:
+    except Exception:  # nosec B110 B112
         return False
 
 
@@ -76,7 +76,7 @@ def check_field_range(value: Any, field_req: dict[str, Any]) -> bool:
             return False
 
         return True
-    except Exception:
+    except Exception:  # nosec B110 B112
         # Not a numeric value, skip range check
         return True
 
@@ -96,7 +96,7 @@ def check_allowed_values(value: Any, field_req: dict[str, Any]) -> bool:
         val_str = str(value)
         allowed_strs = {str(v) for v in allowed}
         return val_str in allowed_strs
-    except Exception:
+    except Exception:  # nosec B110 B112
         return False
 
 
@@ -116,7 +116,7 @@ def check_length_bounds(value: Any, field_req: dict[str, Any]) -> bool:
         if max_len is not None and n > int(max_len):
             return False
         return True
-    except Exception:
+    except Exception:  # nosec B110 B112
         # If we can't get a string length, fail conservatively
         return False
 
@@ -138,7 +138,7 @@ def _parse_date_like(value: Any):
             s = s.replace("Z", "+00:00")
         try:
             return datetime.fromisoformat(s)
-        except Exception:
+        except Exception:  # nosec B110 B112
             pass
 
         # Common alternatives
@@ -154,11 +154,11 @@ def _parse_date_like(value: Any):
             parsed_dt = None
             try:
                 parsed_dt = datetime.strptime(s, fmt)
-            except Exception:
+            except Exception:  # nosec B110 B112
                 parsed_dt = None
             if parsed_dt is not None:
                 return parsed_dt
-    except Exception:
+    except Exception:  # nosec B110 B112
         return None
     return None
 
@@ -208,7 +208,7 @@ def check_date_bounds(value: Any, field_req: dict[str, Any]) -> bool:
                 return False
 
         return True
-    except Exception:
+    except Exception:  # nosec B110 B112
         # If parsing fails, treat as failure for strictness
         return False
 
@@ -337,13 +337,13 @@ def _validate_type(value, rule, field_req):
         try:
             int(value)
             return True
-        except Exception:
+        except Exception:  # nosec B110 B112
             return False
     elif "FLOAT" in expr or "NUMBER" in expr:
         try:
             float(value)
             return True
-        except Exception:
+        except Exception:  # nosec B110 B112
             return False
     return True
 

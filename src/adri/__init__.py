@@ -5,27 +5,27 @@ The missing data layer for AI agents. Auto-validates data quality with one decor
 
 AI agents break on bad data. ADRI fixes that by:
 - Auto-validating data quality across 5 dimensions
-- Auto-generating quality standards from your data
+- Auto-generating quality contracts from your data
 - Blocking or warning on quality failures
 - Working with any framework (LangChain, CrewAI, AutoGen, LlamaIndex, etc.)
 
 Quick Start:
     from adri import adri_protected
 
-    @adri_protected(standard="customer_data", data_param="data")
+    @adri_protected(contract="customer_data", data_param="data")
     def my_agent_function(data):
         # Your agent logic here - now protected!
         return process_data(data)
 
 What happens:
-- First run with good data → ADRI generates quality standard
-- Future runs → ADRI validates against that standard
+- First run with good data → ADRI generates quality contract
+- Future runs → ADRI validates against that contract
 - Bad data → Blocked with quality report
 
 CLI Tools:
     adri setup --guide                     # Initialize ADRI
-    adri generate-standard data.csv        # Generate standard
-    adri assess data.csv --standard std    # Check quality
+    adri generate-contract data.csv        # Generate contract
+    adri assess data.csv --contract std    # Check quality
 
 Five Quality Dimensions:
 1. Validity - Data types and formats
@@ -41,13 +41,12 @@ Semantic Kernel, and any Python function.
 Learn more: https://github.com/adri-standard/adri
 """
 
-from .analysis import DataProfiler, StandardGenerator, TypeInference
+from .analysis import ContractGenerator, DataProfiler, TypeInference
 from .config.loader import ConfigurationLoader
 
 # Core public API imports
 from .decorator import adri_protected
 from .guard.modes import DataProtectionEngine
-from .logging.enterprise import send_to_verodat
 from .logging.local import LocalLogger
 
 # Core component imports
@@ -65,10 +64,9 @@ __all__ = [
     "ValidationEngine",
     "DataProtectionEngine",
     "LocalLogger",
-    "send_to_verodat",
     "ConfigurationLoader",
     "DataProfiler",
-    "StandardGenerator",
+    "ContractGenerator",
     "TypeInference",
 ]
 

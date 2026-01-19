@@ -39,7 +39,7 @@ class MockProjectFixtures:
         """Create a simple ADRI project with basic structure."""
         directories = [
             "ADRI/tutorials/invoice_processing",
-            "ADRI/dev/standards",
+            "ADRI/dev/contracts",
             "ADRI/dev/assessments",
             "ADRI/dev/training-data",
             "ADRI/dev/audit-logs",
@@ -60,7 +60,7 @@ class MockProjectFixtures:
                 "environments": {
                     "development": {
                         "paths": {
-                            "standards": "ADRI/dev/standards",
+                            "contracts": "ADRI/dev/contracts",
                             "assessments": "ADRI/dev/assessments",
                             "training_data": "ADRI/dev/training-data",
                             "audit_logs": "ADRI/dev/audit-logs",
@@ -93,11 +93,11 @@ class MockProjectFixtures:
             "ADRI/tutorials/invoice_processing",
             "ADRI/tutorials/customer_service",
             "ADRI/tutorials/financial_analysis",
-            "ADRI/dev/standards",
+            "ADRI/dev/contracts",
             "ADRI/dev/assessments",
             "ADRI/dev/training-data",
             "ADRI/dev/audit-logs",
-            "ADRI/prod/standards",
+            "ADRI/prod/contracts",
             "ADRI/prod/assessments",
             "ADRI/prod/training-data",
             "ADRI/prod/audit-logs",
@@ -130,8 +130,8 @@ class MockProjectFixtures:
                 "2024-01-16,TECH,127.25,1200000,12725000000",
 
             # Sample standards
-            "ADRI/dev/standards/invoice_standard.yaml": yaml.dump({
-                "standards": {
+            "ADRI/dev/contracts/invoice_standard.yaml": yaml.dump({
+                "contracts": {
                     "id": "invoice_standard",
                     "name": "Invoice Data Standard",
                     "version": "1.0.0"
@@ -158,7 +158,7 @@ class MockProjectFixtures:
                 "environments": {
                     "development": {
                         "paths": {
-                            "standards": "ADRI/dev/standards",
+                            "contracts": "ADRI/dev/contracts",
                             "assessments": "ADRI/dev/assessments",
                             "training_data": "ADRI/dev/training-data",
                             "audit_logs": "ADRI/dev/audit-logs",
@@ -174,7 +174,7 @@ class MockProjectFixtures:
                     },
                     "production": {
                         "paths": {
-                            "standards": "ADRI/prod/standards",
+                            "contracts": "ADRI/prod/contracts",
                             "assessments": "ADRI/prod/assessments",
                             "training_data": "ADRI/prod/training-data",
                             "audit_logs": "ADRI/prod/audit-logs",
@@ -212,7 +212,7 @@ class MockProjectFixtures:
         # Add ADRI structure
         adri_dirs = [
             "ADRI/tutorials/deep_nesting_test",
-            "ADRI/dev/standards",
+            "ADRI/dev/contracts",
             "ADRI/dev/assessments",
             "ADRI/dev/training-data",
             "ADRI/dev/audit-logs",
@@ -232,7 +232,7 @@ class MockProjectFixtures:
                 "environments": {
                     "development": {
                         "paths": {
-                            "standards": "ADRI/dev/standards",
+                            "contracts": "ADRI/dev/contracts",
                             "assessments": "ADRI/dev/assessments",
                             "training_data": "ADRI/dev/training-data",
                             "audit_logs": "ADRI/dev/audit-logs",
@@ -259,7 +259,7 @@ class MockProjectFixtures:
             "ADRI/tutorials/customer_management",
             "ADRI/tutorials/financial_reporting",
             "ADRI/tutorials/compliance_monitoring",
-            "ADRI/dev/standards",
+            "ADRI/dev/contracts",
             "ADRI/dev/assessments",
             "ADRI/dev/training-data",
             "ADRI/dev/audit-logs",
@@ -267,7 +267,7 @@ class MockProjectFixtures:
             "ADRI/staging/assessments",
             "ADRI/staging/training-data",
             "ADRI/staging/audit-logs",
-            "ADRI/prod/standards",
+            "ADRI/prod/contracts",
             "ADRI/prod/assessments",
             "ADRI/prod/training-data",
             "ADRI/prod/audit-logs",
@@ -303,8 +303,8 @@ class MockProjectFixtures:
                 "CUST-ENT-002,FinanceGlobal LLC,admin@financeglobal.com,Finance,Premium,875000",
 
             # Enterprise standards
-            "ADRI/prod/standards/enterprise_invoice_standard.yaml": yaml.dump({
-                "standards": {
+            "ADRI/prod/contracts/enterprise_invoice_standard.yaml": yaml.dump({
+                "contracts": {
                     "id": "enterprise_invoice_standard",
                     "name": "Enterprise Invoice Data Quality Standard",
                     "version": "2.1.0",
@@ -340,7 +340,7 @@ class MockProjectFixtures:
                 "environments": {
                     "development": {
                         "paths": {
-                            "standards": "ADRI/dev/standards",
+                            "contracts": "ADRI/dev/contracts",
                             "assessments": "ADRI/dev/assessments",
                             "training_data": "ADRI/dev/training-data",
                             "audit_logs": "ADRI/dev/audit-logs",
@@ -356,7 +356,7 @@ class MockProjectFixtures:
                     },
                     "staging": {
                         "paths": {
-                            "standards": "ADRI/staging/standards",
+                            "contracts": "ADRI/staging/standards",
                             "assessments": "ADRI/staging/assessments",
                             "training_data": "ADRI/staging/training-data",
                             "audit_logs": "ADRI/staging/audit-logs",
@@ -372,7 +372,7 @@ class MockProjectFixtures:
                     },
                     "production": {
                         "paths": {
-                            "standards": "ADRI/prod/standards",
+                            "contracts": "ADRI/prod/contracts",
                             "assessments": "ADRI/prod/assessments",
                             "training_data": "ADRI/prod/training-data",
                             "audit_logs": "ADRI/prod/audit-logs",
