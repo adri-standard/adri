@@ -1,3 +1,5 @@
+# @ADRI_FEATURE[config_loader, scope=SHARED]
+# Description: Configuration management and environment-based contract resolution
 """
 ADRI Configuration Loader.
 
@@ -41,7 +43,7 @@ class ConfigurationLoader:
                 "environments": {
                     "development": {
                         "paths": {
-                            "standards": "./ADRI/dev/standards",
+                            "contracts": "./ADRI/dev/contracts",
                             "assessments": "./ADRI/dev/assessments",
                             "training_data": "./ADRI/dev/training-data",
                             "audit_logs": "./ADRI/dev/audit-logs",
@@ -54,7 +56,7 @@ class ConfigurationLoader:
                     },
                     "production": {
                         "paths": {
-                            "standards": "./ADRI/prod/standards",
+                            "contracts": "./ADRI/prod/contracts",
                             "assessments": "./ADRI/prod/assessments",
                             "training_data": "./ADRI/prod/training-data",
                             "audit_logs": "./ADRI/prod/audit-logs",
@@ -70,7 +72,7 @@ class ConfigurationLoader:
                     "default_failure_mode": "raise",
                     "default_min_score": 80,
                     "cache_duration_hours": 1,
-                    "auto_generate_standards": True,
+                    "auto_generate_contracts": True,
                     "verbose_protection": False,
                 },
                 "assessment": {
@@ -123,7 +125,7 @@ class ConfigurationLoader:
 
                 paths = env_config["paths"]
                 required_paths = [
-                    "standards",
+                    "contracts",
                     "assessments",
                     "training_data",
                     "audit_logs",
@@ -367,7 +369,7 @@ class ConfigurationLoader:
                 "default_failure_mode": "raise",
                 "default_min_score": 80,
                 "cache_duration_hours": 1,
-                "auto_generate_standards": True,
+                "auto_generate_contracts": True,
                 "verbose_protection": False,
             }
 
@@ -389,35 +391,35 @@ class ConfigurationLoader:
 
         return protection_config
 
-    def resolve_standard_path(
-        self, standard_name: str, environment: str | None = None
+    def resolve_contract_path(
+        self, contract_name: str, environment: str | None = None
     ) -> str:
         """
-        Resolve a standard name to full absolute path with ADRI_STANDARDS_DIR override.
+        Resolve a contract name to full absolute path with ADRI_CONTRACTS_DIR override.
 
-        Precedence for standards directory:
-        1. ADRI_STANDARDS_DIR environment variable (if set)
+        Precedence for contracts directory:
+        1. ADRI_CONTRACTS_DIR environment variable (if set)
         2. Config file paths
-        3. Default ADRI/{env}/standards structure
+        3. Default ADRI/{env}/contracts structure
 
         Args:
-            standard_name: Name of standard (with or without .yaml extension)
+            contract_name: Name of contract (with or without .yaml extension)
             environment: Environment to use
 
         Returns:
-            Full absolute path to standard file
+            Full absolute path to contract file
         """
         # Add .yaml extension if not present
-        if not standard_name.endswith((".yaml", ".yml")):
-            standard_name += ".yaml"
+        if not contract_name.endswith((".yaml", ".yml")):
+            contract_name += ".yaml"
 
-        # Highest precedence: ADRI_STANDARDS_DIR environment variable
-        env_standards_dir = os.environ.get("ADRI_STANDARDS_DIR")
-        if env_standards_dir:
-            standards_path = Path(env_standards_dir)
-            if not standards_path.is_absolute():
-                standards_path = Path.cwd() / standards_path
-            full_path = (standards_path / standard_name).resolve()
+        # Highest precedence: ADRI_CONTRACTS_DIR environment variable
+        env_contracts_dir = os.environ.get("ADRI_CONTRACTS_DIR")
+        if env_contracts_dir:
+            contracts_path = Path(env_contracts_dir)
+            if not contracts_path.is_absolute():
+                contracts_path = Path.cwd() / contracts_path
+            full_path = (contracts_path / contract_name).resolve()
             return str(full_path)
 
         config = self.get_active_config()
@@ -442,31 +444,31 @@ class ConfigurationLoader:
         if not config:
             # Fallback to default path structure
             env_dir = "dev" if environment != "production" else "prod"
-            standard_path = base_dir / "ADRI" / env_dir / "standards" / standard_name
-            return str(standard_path)
+            contract_path = base_dir / "ADRI" / env_dir / "contracts" / contract_name
+            return str(contract_path)
 
         try:
             env_config = self.get_environment_config(config, environment)
-            standards_dir = env_config["paths"]["standards"]
+            contracts_dir = env_config["paths"]["contracts"]
 
             # Convert relative path to absolute based on config file location
-            standards_path = Path(standards_dir)
+            contracts_path = Path(contracts_dir)
 
             # If relative path, resolve from config file directory
-            if not standards_path.is_absolute():
-                standards_path = (base_dir / standards_dir).resolve()
+            if not contracts_path.is_absolute():
+                contracts_path = (base_dir / contracts_dir).resolve()
             else:
-                standards_path = standards_path.resolve()
+                contracts_path = contracts_path.resolve()
 
-            # Combine with standard filename and ensure absolute path
-            full_path = (standards_path / standard_name).resolve()
+            # Combine with contract filename and ensure absolute path
+            full_path = (contracts_path / contract_name).resolve()
             return str(full_path)
 
         except (KeyError, ValueError, AttributeError):
             # Fallback on any error
             env_dir = "dev" if environment != "production" else "prod"
-            standard_path = base_dir / "ADRI" / env_dir / "standards" / standard_name
-            return str(standard_path)
+            contract_path = base_dir / "ADRI" / env_dir / "contracts" / contract_name
+            return str(contract_path)
 
     def create_directory_structure(self, config: dict[str, Any]) -> None:
         """
@@ -566,20 +568,21 @@ def get_protection_settings(environment: str | None = None) -> dict[str, Any]:
     return loader.get_protection_config(environment)
 
 
-def resolve_standard_file(standard_name: str, environment: str | None = None) -> str:
+def resolve_contract_file(contract_name: str, environment: str | None = None) -> str:
     """
-    Resolve standard name to file path.
+    Resolve contract name to file path.
 
     Args:
-        standard_name: Name of standard
+        contract_name: Name of contract
         environment: Environment to use
 
     Returns:
-        Full path to standard file
+        Full path to contract file
     """
     loader = ConfigurationLoader()
-    return loader.resolve_standard_path(standard_name, environment)
+    return loader.resolve_contract_path(contract_name, environment)
 
 
 # Backward compatibility alias
 ConfigManager = ConfigurationLoader
+# @ADRI_FEATURE_END[config_loader]

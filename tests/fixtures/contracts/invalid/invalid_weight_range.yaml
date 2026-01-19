@@ -1,0 +1,12 @@
+# Weight value outside valid range (0-5)
+contracts:
+  id: "test_invalid_weight"
+  name: "Invalid Weight Test"
+  version: "1.0.0"
+  description: "Standard with weight outside valid range"
+
+requirements:
+  dimension_requirements:
+    validity:
+      weight: 10  # Invalid: exceeds maximum of 5
+  overall_minimum: 70

@@ -11,12 +11,12 @@ import pytest
 def clear_standards_cache():
     """Clear standards parser cache before each test."""
     try:
-        from adri.standards.parser import StandardsParser
+        from adri.contracts.parser import ContractsParser
         # Create instance to access cache, but use env var from conftest
         import os
         if "ADRI_STANDARDS_PATH" in os.environ:
             try:
-                parser = StandardsParser()
+                parser = ContractsParser()
                 parser.clear_cache()
             except Exception:
                 # If initialization fails, that's ok - cache doesn't exist yet
@@ -29,11 +29,11 @@ def clear_standards_cache():
 
     # Clear again after test to prevent pollution
     try:
-        from adri.standards.parser import StandardsParser
+        from adri.contracts.parser import ContractsParser
         import os
         if "ADRI_STANDARDS_PATH" in os.environ:
             try:
-                parser = StandardsParser()
+                parser = ContractsParser()
                 parser.clear_cache()
             except Exception:
                 pass

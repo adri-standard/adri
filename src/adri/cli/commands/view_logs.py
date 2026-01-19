@@ -1,3 +1,5 @@
+# @ADRI_FEATURE[cli_view_logs, scope=OPEN_SOURCE]
+# Description: CLI command for viewing and analyzing ADRI audit logs
 """View logs command implementation for ADRI CLI.
 
 This module contains the ViewLogsCommand class that handles audit log
@@ -113,7 +115,7 @@ class ViewLogsCommand(Command):
             if config:
                 env_config = config_loader.get_environment_config(config)
                 audit_logs_dir = Path(env_config["paths"]["audit_logs"])
-        except Exception:
+        except Exception:  # nosec B110 B112
             pass
 
         return audit_logs_dir
@@ -169,7 +171,7 @@ class ViewLogsCommand(Command):
                     except (json.JSONDecodeError, ValueError, TypeError):
                         # Skip malformed lines
                         continue
-        except Exception:
+        except Exception:  # nosec B110 B112
             # If we can't read the file, return 0 errors
             return (0, 0.0)
 
@@ -403,7 +405,7 @@ class ViewLogsCommand(Command):
             try:
                 with open(failed_val_path, encoding="utf-8") as f:
                     failed_val_count = sum(1 for _ in f)
-            except Exception:
+            except Exception:  # nosec B110 B112
                 pass
 
         if failed_val_count > 0:
@@ -446,7 +448,7 @@ class ViewLogsCommand(Command):
                             click.echo()
                         except json.JSONDecodeError:
                             pass
-            except Exception:
+            except Exception:  # nosec B110 B112
                 pass
         click.echo()
 
@@ -462,3 +464,6 @@ class ViewLogsCommand(Command):
     def get_name(self) -> str:
         """Get the command name."""
         return "view-logs"
+
+
+# @ADRI_FEATURE_END[cli_view_logs]

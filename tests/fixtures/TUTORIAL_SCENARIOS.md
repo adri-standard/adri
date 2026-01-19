@@ -32,12 +32,12 @@ Tutorial scenarios provide realistic test fixtures based on actual ADRI tutorial
 All generated standards use name-only format for realistic testing:
 ```python
 # ✅ Correct: Name only (as users would do)
-@adri_protected(standard="invoice_data")
+@adri_protected(contract="invoice_data")
 def process_invoices(data):
     return data
 
 # ❌ Wrong: Full path (not user-friendly)
-@adri_protected(standard="ADRI/dev/standards/invoice_data.yaml")
+@adri_protected(contract="ADRI/dev/contracts/invoice_data.yaml")
 def process_invoices(data):
     return data
 ```
@@ -58,7 +58,7 @@ def process_invoices(data):
 
 **Generated Standard:** `invoice_data`
 
-**Standard Location:** `ADRI/dev/standards/invoice_data.yaml`
+**Standard Location:** `ADRI/dev/contracts/invoice_data.yaml`
 
 **Usage Example:**
 
@@ -69,7 +69,7 @@ def test_invoice_validation(invoice_scenario):
     from src.adri.decorator import adri_protected
 
     # Use name-only resolution
-    @adri_protected(standard=invoice_scenario['generated_standard_name'])
+    @adri_protected(contract=invoice_scenario['generated_standard_name'])
     def validate_invoices(df):
         return df
 
@@ -92,7 +92,7 @@ def test_invoice_validation(invoice_scenario):
     'training_data_path': Path('ADRI/tutorials/invoice_processing/invoice_data.csv'),
     'test_data_path': Path('ADRI/tutorials/invoice_processing/test_invoice_data.csv'),
     'generated_standard_name': 'invoice_data',
-    'standard_path': Path('ADRI/dev/standards/invoice_data.yaml'),
+    'standard_path': Path('ADRI/dev/contracts/invoice_data.yaml'),
     'description': 'Invoice processing tutorial with data quality validation'
 }
 ```
@@ -325,7 +325,7 @@ class StandardGenConfig(TypedDict):
 ```python
 def test_with_scenario(invoice_scenario):
     """Most common pattern - use scenario directly."""
-    @adri_protected(standard=invoice_scenario['generated_standard_name'])
+    @adri_protected(contract=invoice_scenario['generated_standard_name'])
     def process_data(df):
         return df
 
@@ -413,7 +413,7 @@ def test_new_way(invoice_scenario):
     # Standard is generated from real data
     standard_name = invoice_scenario['generated_standard_name']
 
-    @adri_protected(standard=standard_name)
+    @adri_protected(contract=standard_name)
     def process_data(df):
         return df
 

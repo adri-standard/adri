@@ -1,4 +1,4 @@
-standards:
+contracts:
   id: test_standard
   name: Test Standard
   version: 1.0.0
@@ -74,7 +74,7 @@ requirements:
     age:
       type: float
       nullable: true
-      min_value: -15.0
+      min_value: -11.25
       max_value: 150.0
       validation_rules:
       - name: age type validation
@@ -87,13 +87,13 @@ requirements:
         dimension: validity
         severity: CRITICAL
         rule_type: numeric_bounds
-        rule_expression: VALUE >= -15.0 AND VALUE <= 150.0
-        error_message: age must be between -15.0 and 150.0
+        rule_expression: VALUE >= -11.25 AND VALUE <= 150.0
+        error_message: age must be between -11.25 and 150.0
     salary:
       type: float
       nullable: true
-      min_value: -10018.125
-      max_value: 179882.875
+      min_value: -47914.5
+      max_value: 218383.5
       validation_rules:
       - name: salary type validation
         dimension: validity
@@ -105,13 +105,13 @@ requirements:
         dimension: validity
         severity: CRITICAL
         rule_type: numeric_bounds
-        rule_expression: VALUE >= -10018.125 AND VALUE <= 179882.875
-        error_message: salary must be between -10018.125 and 179882.875
+        rule_expression: VALUE >= -47914.5 AND VALUE <= 218383.5
+        error_message: salary must be between -47914.5 and 218383.5
     registration_date:
       type: date
       nullable: true
-      after_date: '2023-01-02'
-      before_date: '2023-12-30'
+      after_date: '2022-12-29'
+      before_date: '2023-12-29'
       validation_rules:
       - name: registration_date type validation
         dimension: validity
@@ -123,17 +123,17 @@ requirements:
         dimension: validity
         severity: CRITICAL
         rule_type: date_bounds
-        rule_expression: DATE >= '2023-01-02' AND DATE <= '2023-12-30'
+        rule_expression: DATE >= '2022-12-29' AND DATE <= '2023-12-29'
         error_message: registration_date must be within date range
     status:
       type: string
       nullable: true
       allowed_values:
       - suspended
-      - active
-      - invalid_status
       - inactive
+      - invalid_status
       - pending
+      - active
       min_length: 6
       max_length: 14
       pattern: ^[A-Za-z0-9\-_]+$
@@ -148,10 +148,10 @@ requirements:
         dimension: validity
         severity: CRITICAL
         rule_type: allowed_values
-        rule_expression: VALUE_IN(['suspended', 'active', 'invalid_status', 'inactive',
-          'pending'])
-        error_message: 'status must be one of: suspended, active, invalid_status,
-          inactive, pending'
+        rule_expression: VALUE_IN(['suspended', 'inactive', 'invalid_status', 'pending',
+          'active'])
+        error_message: 'status must be one of: suspended, inactive, invalid_status,
+          pending, active'
       - name: status length bounds
         dimension: validity
         severity: CRITICAL
@@ -189,7 +189,10 @@ requirements:
       minimum_score: 12.0
       weight: 1.0
       scoring:
-        rule_weights: {}
+        rule_weights:
+          primary_key_uniqueness: 0.3333333333333333
+          format_consistency: 0.3333333333333333
+          cross_field_logic: 0.3333333333333333
         field_overrides: {}
     freshness:
       minimum_score: 15.0
@@ -261,7 +264,7 @@ metadata:
         active: true
         reason: Nulls were observed in training, so this field is allowed to be null
         stats:
-          null_count: 2
+          null_count: 1
           total: 100
       length_bounds:
         active_min: 5
@@ -275,17 +278,17 @@ metadata:
         active: true
         reason: Nulls were observed in training, so this field is allowed to be null
         stats:
-          null_count: 4
+          null_count: 5
           total: 100
       range:
         strategy: iqr
-        active_min: -15.0
+        active_min: -11.25
         active_max: 150.0
         reason: Robust range (IQR/Quantile/MAD) clamped to training min/max for pass
           guarantee
         stats:
-          q1: 33.75
-          q3: 66.25
+          q1: 33.0
+          q3: 62.5
           iqr_k: 1.5
           observed_min: 0.0
           observed_max: 150.0
@@ -295,20 +298,20 @@ metadata:
         active: true
         reason: Nulls were observed in training, so this field is allowed to be null
         stats:
-          null_count: 2
+          null_count: 6
           total: 100
       range:
         strategy: iqr
-        active_min: -10018.125
-        active_max: 179882.875
+        active_min: -47914.5
+        active_max: 218383.5
         reason: Robust range (IQR/Quantile/MAD) clamped to training min/max for pass
           guarantee
         stats:
-          q1: 61194.75
-          q3: 108670.0
+          q1: 51947.25
+          q3: 118521.75
           iqr_k: 1.5
           observed_min: 0.0
-          observed_max: 149723.0
+          observed_max: 148956.0
     registration_date:
       type: date
       nullable:
@@ -318,12 +321,12 @@ metadata:
           null_count: 1
           total: 100
       date_bounds:
-        active_after: '2023-01-02'
-        active_before: '2023-12-30'
+        active_after: '2022-12-29'
+        active_before: '2023-12-29'
         reason: Plausible date window widened by margin days
         stats:
-          observed_min: '2023-01-05'
-          observed_max: '2023-12-27'
+          observed_min: '2023-01-01'
+          observed_max: '2023-12-26'
           margin_days: 3
     status:
       type: string
@@ -336,10 +339,10 @@ metadata:
       allowed_values:
         values:
         - suspended
-        - active
-        - invalid_status
         - inactive
+        - invalid_status
         - pending
+        - active
         reason: High coverage stable set
         stats:
           coverage: 1.0
@@ -357,7 +360,7 @@ metadata:
         stats:
           coverage: 1.0
   freshness:
-    as_of: '2023-12-28T00:00:00Z'
+    as_of: '2023-12-27T00:00:00Z'
     window_days: 365
     date_field: registration_date
   plausibility_templates: '# plausibility:

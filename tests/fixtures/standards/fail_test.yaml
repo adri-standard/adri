@@ -1,4 +1,4 @@
-standards:
+contracts:
   id: fail_test_standard
   name: Fail Test ADRI Standard
   version: 1.0.0
@@ -100,7 +100,10 @@ requirements:
       minimum_score: 12.0
       weight: 1.0
       scoring:
-        rule_weights: {}
+        rule_weights:
+          primary_key_uniqueness: 0.3333333333333333
+          format_consistency: 0.3333333333333333
+          cross_field_logic: 0.3333333333333333
         field_overrides: {}
     freshness:
       minimum_score: 15.0
@@ -188,7 +191,7 @@ metadata:
           observed_max: 100.0
   freshness_scaffolding: '# freshness:
 
-    #   as_of: 2025-10-20T18:55:41.765757Z
+    #   as_of: 2025-10-22T16:06:09.153226Z
 
     #   window_days: 365
 

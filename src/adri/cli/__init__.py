@@ -22,11 +22,11 @@ from .commands.config import (
     ConfigGetCommand,
     ConfigSetCommand,
     ExplainThresholdsCommand,
-    ListStandardsCommand,
+    ListContractsCommand,
     ShowConfigCommand,
     WhatIfCommand,
 )
-from .commands.generate_standard import GenerateStandardCommand
+from .commands.generate_contract import GenerateContractCommand
 from .commands.list_assessments import ListAssessmentsCommand
 from .commands.setup import SetupCommand
 from .commands.view_logs import ViewLogsCommand
@@ -44,10 +44,10 @@ except ImportError:
     DataQualityAssessor = None
 
 try:
-    from ..standards import load_standard
+    from ..validator.loaders import load_contract
 except ImportError:
     try:
-        from ..standards.loader import load_standard
+        from ..contracts.loader import load_standard
     except ImportError:
         load_standard = None
 
@@ -63,7 +63,7 @@ except ImportError:
 try:
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     sys.stderr.reconfigure(encoding="utf-8", errors="replace")
-except Exception:
+except Exception:  # nosec B110 B112
     pass
 
 
@@ -72,7 +72,7 @@ def _debug_io_enabled() -> bool:
     try:
         v = os.environ.get("ADRI_DEBUG_LOG", "0")
         return str(v).lower() in ("1", "true", "yes", "on")
-    except Exception:
+    except Exception:  # nosec B110 B112
         return False
 
 
@@ -139,10 +139,10 @@ def _shorten_home(path: Path) -> str:
         if p_str.startswith(h_str):
             return "~" + p_str[len(h_str) :]
         return p_str
-    except Exception:
+    except Exception:  # nosec B110 B112
         try:
             return str(path)
-        except Exception:
+        except Exception:  # nosec B110 B112
             return ""
 
 
@@ -165,7 +165,7 @@ def _rel_to_project_root(path: Path) -> str:
             except ValueError:
                 return _shorten_home(abs_path)
         return _shorten_home(abs_path)
-    except Exception:
+    except Exception:  # nosec B110 B112
         return _shorten_home(Path(path))
 
 
@@ -192,7 +192,7 @@ def _get_threshold_from_standard(standard_path: Path) -> float:
         if thr > 100.0:
             thr = 100.0
         return thr
-    except Exception:
+    except Exception:  # nosec B110 B112
         return 75.0
 
 
@@ -311,7 +311,7 @@ def generate_standard_command(
 ) -> int:
     """Generate ADRI standard from data (standalone function for tests)."""
     try:
-        cmd = GenerateStandardCommand()
+        cmd = GenerateContractCommand()
         args = {
             "data_path": data_path,
             "force": force,
@@ -327,9 +327,9 @@ def generate_standard_command(
 def validate_standard_command(standard_path: str) -> int:
     """Validate YAML standard file (standalone function for tests)."""
     try:
-        from .commands.config import ValidateStandardCommand
+        from .commands.config import ValidateContractCommand
 
-        cmd = ValidateStandardCommand()
+        cmd = ValidateContractCommand()
         args = {"standard_path": standard_path}
         return cmd.execute(args)
     except Exception as e:
@@ -340,7 +340,7 @@ def validate_standard_command(standard_path: str) -> int:
 def list_standards_command(include_catalog: bool = False) -> int:
     """List available YAML standards (standalone function for tests)."""
     try:
-        cmd = ListStandardsCommand()
+        cmd = ListContractsCommand()
         args = {"include_catalog": include_catalog}
         return cmd.execute(args)
     except Exception as e:
@@ -490,7 +490,7 @@ def _analyze_data_issues(data, primary_key_fields):
         pk_failures = check_primary_key_uniqueness(data, standard_config)
         failed_checks.extend(pk_failures)
         validation_id += len(pk_failures)
-    except Exception:
+    except Exception:  # nosec B110 B112
         pass
 
     for i, row in data.iterrows():
@@ -552,7 +552,7 @@ def _analyze_failed_records(data):
             try:
                 if pd.isna(v):
                     return True
-            except Exception:
+            except Exception:  # nosec B110 B112
                 pass
             return isinstance(v, str) and v.strip() == ""
 
@@ -581,7 +581,7 @@ def _analyze_failed_records(data):
             try:
                 if pd.isna(record_id):
                     record_id = f"Row {i + 1}"
-            except Exception:
+            except Exception:  # nosec B110 B112
                 pass
 
             parts = []
@@ -692,7 +692,7 @@ def _create_training_snapshot(data_path: str) -> str | None:
 
         shutil.copy2(source_file, snapshot_path)
         return str(snapshot_path)
-    except Exception:
+    except Exception:  # nosec B110 B112
         return None
 
 
@@ -1055,7 +1055,7 @@ def _compute_dimension_contributions(dimension_scores, applied_dimension_weights
             else:
                 try:
                     scores[dim] = float(val.get("score", 0.0))
-                except Exception:
+                except Exception:  # nosec B110 B112
                     scores[dim] = 0.0
 
         weights = {k: float(v) for k, v in (applied_dimension_weights or {}).items()}
@@ -1067,7 +1067,7 @@ def _compute_dimension_contributions(dimension_scores, applied_dimension_weights
                 (s / 20.0) * (w / sum_w) * 100.0 if sum_w > 0.0 else 0.0
             )
         return contributions
-    except Exception:
+    except Exception:  # nosec B110 B112
         return {}
 
 
@@ -1118,20 +1118,20 @@ def assess(data_path, standard_path, output_path, guide):
     sys.exit(command.execute(args))
 
 
-@cli.command("generate-standard")
+@cli.command("generate-contract")
 @click.argument("data_path")
-@click.option("--force", is_flag=True, help="Overwrite existing standard file")
+@click.option("--force", is_flag=True, help="Overwrite existing contract file")
 @click.option(
     "-o",
     "--output",
-    help="Output path for generated standard file (ignored; uses config paths)",
+    help="Output path for generated contract file (ignored; uses config paths)",
 )
 @click.option(
     "--guide", is_flag=True, help="Show detailed generation explanation and next steps"
 )
-def generate_standard(data_path, force, output, guide):
-    """Generate ADRI standard from data file analysis."""
-    command = get_command("generate-standard")
+def generate_contract(data_path, force, output, guide):
+    """Generate ADRI contract from data file analysis."""
+    command = get_command("generate-contract")
     args = {"data_path": data_path, "force": force, "output": output, "guide": guide}
     sys.exit(command.execute(args))
 
@@ -1144,25 +1144,25 @@ def guide():
     sys.exit(command.execute(args))
 
 
-@cli.command("validate-standard")
+@cli.command("validate-contract")
 @click.argument("standard_path")
-def validate_standard(standard_path):
-    """Validate YAML standard file."""
-    command = get_command("validate-standard")
+def validate_contract(standard_path):
+    """Validate YAML contract file."""
+    command = get_command("validate-contract")
     args = {"standard_path": standard_path}
     sys.exit(command.execute(args))
 
 
-@cli.command("list-standards")
+@cli.command("list-contracts")
 @click.option(
     "--catalog",
     "include_catalog",
     is_flag=True,
     help="Also show remote catalog entries",
 )
-def list_standards(include_catalog):
-    """List available YAML standards."""
-    command = get_command("list-standards")
+def list_contracts(include_catalog):
+    """List available YAML contracts."""
+    command = get_command("list-contracts")
     args = {"include_catalog": include_catalog}
     sys.exit(command.execute(args))
 
@@ -1366,7 +1366,7 @@ def standards_catalog_list_command(json_output: bool = False) -> int:
             base_url = _CC.resolve_base_url()
             CatalogClientLocal = _CC
             CatalogConfigLocal = _CFG
-        except Exception:
+        except Exception:  # nosec B110 B112
             base_url = None
             CatalogClientLocal = None  # type: ignore
             CatalogConfigLocal = None  # type: ignore
@@ -1472,9 +1472,9 @@ def standards_catalog_fetch_command(
 
         # Determine destination directory
         if dest == "dev":
-            dest_dir = Path("ADRI/dev/standards")
+            dest_dir = Path("ADRI/dev/contracts")
         elif dest == "prod":
-            dest_dir = Path("ADRI/prod/standards")
+            dest_dir = Path("ADRI/prod/contracts")
         else:
             if json_output:
                 import json
@@ -1592,14 +1592,14 @@ def show_help_guide() -> int:
         click.echo("   ADRI/")
         click.echo("   ├── tutorials/           # Tutorial and example data")
         click.echo("   ├── dev/                 # Development environment")
-        click.echo("   │   ├── dev/standards/       # Draft/testing standards")
+        click.echo("   │   ├── dev/contracts/       # Draft/testing contracts")
         click.echo("   │   ├── dev/assessments/     # Development assessment reports")
         click.echo(
             "   │   ├── dev/training-data/   # Development training data snapshots"
         )
         click.echo("   │   └── dev/audit-logs/      # Development audit logs")
         click.echo("   └── prod/                # Production environment")
-        click.echo("       ├── prod/standards/       # Validated/approved standards")
+        click.echo("       ├── prod/contracts/       # Validated/approved contracts")
         click.echo("       ├── prod/assessments/     # Production assessment reports")
         click.echo(
             "       ├── prod/training-data/   # Production training data snapshots"
@@ -1615,21 +1615,21 @@ def show_help_guide() -> int:
         click.echo("     - environments: Development and production settings")
         click.echo("     - protection: Data protection and decorator settings")
         click.echo("     - audit: Audit logging configuration")
-        click.echo("     - standards: Standards discovery and validation")
+        click.echo("     - contracts: Contract discovery and validation")
         click.echo("")
 
         # Display Environment Variables
         click.echo("🔧 Environment Variables:")
         click.echo("   ADRI_ENV: Current environment (development/production)")
         click.echo("   ADRI_CONFIG_PATH: Override config file location")
-        click.echo("   ADRI_STANDARDS_DIR: Override standards directory")
+        click.echo("   ADRI_CONTRACTS_DIR: Override contracts directory")
         click.echo("")
 
         # Display Smart Path Resolution
         click.echo("🎯 Smart Path Resolution:")
-        click.echo("   Standards resolve automatically based on environment:")
-        click.echo("   - dev/ environment → ADRI/dev/standards/")
-        click.echo("   - prod/ environment → ADRI/prod/standards/")
+        click.echo("   Contracts resolve automatically based on environment:")
+        click.echo("   - dev/ environment → ADRI/dev/contracts/")
+        click.echo("   - prod/ environment → ADRI/prod/contracts/")
         click.echo("")
 
         click.echo(f"📦 ADRI Version: {__version__}")

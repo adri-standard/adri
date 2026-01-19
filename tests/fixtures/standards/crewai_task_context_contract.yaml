@@ -1,0 +1,834 @@
+contracts:
+  id: crewai_task_context_standard
+  name: Crewai Task Context ADRI Standard
+  version: 1.0.0
+  authority: ADRI Framework
+  description: Auto-generated standard for crewai_task_context data
+record_identification:
+  primary_key_fields:
+  - crew_id
+  strategy: primary_key_with_fallback
+requirements:
+  overall_minimum: 75.0
+  field_requirements:
+    task_id:
+      type: string
+      nullable: false
+      min_length: 13
+      max_length: 13
+      pattern: ^[A-Za-z0-9\-_]+$
+      validation_rules:
+      - name: task_id is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: task_id must not be empty
+      - name: task_id type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: task_id must be of type string
+      - name: task_id length bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: length_bounds
+        rule_expression: LENGTH >= 13 AND LENGTH <= 13
+        error_message: task_id length must be between 13 and 13
+      - name: task_id pattern validation
+        dimension: validity
+        severity: WARNING
+        rule_type: pattern
+        rule_expression: REGEX_MATCH('^[A-Za-z0-9\-_]+$')
+        error_message: 'task_id must match pattern: ^[A-Za-z0-9\-_]+$'
+    crew_id:
+      type: string
+      nullable: false
+      min_length: 8
+      max_length: 8
+      pattern: ^[A-Za-z]+-\d{3,}$
+      validation_rules:
+      - name: crew_id is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: crew_id must not be empty
+      - name: crew_id type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: crew_id must be of type string
+      - name: crew_id length bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: length_bounds
+        rule_expression: LENGTH >= 8 AND LENGTH <= 8
+        error_message: crew_id length must be between 8 and 8
+      - name: crew_id pattern validation
+        dimension: validity
+        severity: WARNING
+        rule_type: pattern
+        rule_expression: REGEX_MATCH('^[A-Za-z]+-\d{3,}$')
+        error_message: 'crew_id must match pattern: ^[A-Za-z]+-\d{3,}$'
+    task_description:
+      type: string
+      nullable: false
+      allowed_values:
+      - Research market trends for Q1 2025
+      min_length: 34
+      max_length: 34
+      validation_rules:
+      - name: task_description is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: task_description must not be empty
+      - name: task_description type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: task_description must be of type string
+      - name: task_description must be valid value
+        dimension: validity
+        severity: CRITICAL
+        rule_type: allowed_values
+        rule_expression: VALUE_IN(['Research market trends for Q1 2025'])
+        error_message: 'task_description must be one of: Research market trends for
+          Q1 2025'
+      - name: task_description length bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: length_bounds
+        rule_expression: LENGTH >= 34 AND LENGTH <= 34
+        error_message: task_description length must be between 34 and 34
+    expected_output:
+      type: string
+      nullable: false
+      allowed_values:
+      - Detailed market analysis report
+      min_length: 31
+      max_length: 31
+      validation_rules:
+      - name: expected_output is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: expected_output must not be empty
+      - name: expected_output type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: expected_output must be of type string
+      - name: expected_output must be valid value
+        dimension: validity
+        severity: CRITICAL
+        rule_type: allowed_values
+        rule_expression: VALUE_IN(['Detailed market analysis report'])
+        error_message: 'expected_output must be one of: Detailed market analysis report'
+      - name: expected_output length bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: length_bounds
+        rule_expression: LENGTH >= 31 AND LENGTH <= 31
+        error_message: expected_output length must be between 31 and 31
+    task_type:
+      type: string
+      nullable: false
+      allowed_values:
+      - Research
+      min_length: 8
+      max_length: 8
+      pattern: ^[A-Za-z0-9\-_]+$
+      validation_rules:
+      - name: task_type is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: task_type must not be empty
+      - name: task_type type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: task_type must be of type string
+      - name: task_type must be valid value
+        dimension: validity
+        severity: CRITICAL
+        rule_type: allowed_values
+        rule_expression: VALUE_IN(['Research'])
+        error_message: 'task_type must be one of: Research'
+      - name: task_type length bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: length_bounds
+        rule_expression: LENGTH >= 8 AND LENGTH <= 8
+        error_message: task_type length must be between 8 and 8
+      - name: task_type pattern validation
+        dimension: validity
+        severity: WARNING
+        rule_type: pattern
+        rule_expression: REGEX_MATCH('^[A-Za-z0-9\-_]+$')
+        error_message: 'task_type must match pattern: ^[A-Za-z0-9\-_]+$'
+    assigned_agent_role:
+      type: string
+      nullable: false
+      allowed_values:
+      - Researcher
+      min_length: 10
+      max_length: 10
+      pattern: ^[A-Za-z0-9\-_]+$
+      validation_rules:
+      - name: assigned_agent_role is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: assigned_agent_role must not be empty
+      - name: assigned_agent_role type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: assigned_agent_role must be of type string
+      - name: assigned_agent_role must be valid value
+        dimension: validity
+        severity: CRITICAL
+        rule_type: allowed_values
+        rule_expression: VALUE_IN(['Researcher'])
+        error_message: 'assigned_agent_role must be one of: Researcher'
+      - name: assigned_agent_role length bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: length_bounds
+        rule_expression: LENGTH >= 10 AND LENGTH <= 10
+        error_message: assigned_agent_role length must be between 10 and 10
+      - name: assigned_agent_role pattern validation
+        dimension: validity
+        severity: WARNING
+        rule_type: pattern
+        rule_expression: REGEX_MATCH('^[A-Za-z0-9\-_]+$')
+        error_message: 'assigned_agent_role must match pattern: ^[A-Za-z0-9\-_]+$'
+    agent_id:
+      type: string
+      nullable: false
+      min_length: 9
+      max_length: 9
+      pattern: ^[A-Za-z]+-\d{3,}$
+      validation_rules:
+      - name: agent_id is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: agent_id must not be empty
+      - name: agent_id type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: agent_id must be of type string
+      - name: agent_id length bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: length_bounds
+        rule_expression: LENGTH >= 9 AND LENGTH <= 9
+        error_message: agent_id length must be between 9 and 9
+      - name: agent_id pattern validation
+        dimension: validity
+        severity: WARNING
+        rule_type: pattern
+        rule_expression: REGEX_MATCH('^[A-Za-z]+-\d{3,}$')
+        error_message: 'agent_id must match pattern: ^[A-Za-z]+-\d{3,}$'
+    context:
+      type: string
+      nullable: false
+      allowed_values:
+      - Focus on tech sector
+      min_length: 20
+      max_length: 20
+      validation_rules:
+      - name: context is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: context must not be empty
+      - name: context type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: context must be of type string
+      - name: context must be valid value
+        dimension: validity
+        severity: CRITICAL
+        rule_type: allowed_values
+        rule_expression: VALUE_IN(['Focus on tech sector'])
+        error_message: 'context must be one of: Focus on tech sector'
+      - name: context length bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: length_bounds
+        rule_expression: LENGTH >= 20 AND LENGTH <= 20
+        error_message: context length must be between 20 and 20
+    dependencies:
+      type: string
+      nullable: false
+      allowed_values:
+      - '[]'
+      min_length: 2
+      max_length: 2
+      validation_rules:
+      - name: dependencies is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: dependencies must not be empty
+      - name: dependencies type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: dependencies must be of type string
+      - name: dependencies must be valid value
+        dimension: validity
+        severity: CRITICAL
+        rule_type: allowed_values
+        rule_expression: VALUE_IN(['[]'])
+        error_message: 'dependencies must be one of: []'
+      - name: dependencies length bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: length_bounds
+        rule_expression: LENGTH >= 2 AND LENGTH <= 2
+        error_message: dependencies length must be between 2 and 2
+    previous_task_output:
+      type: string
+      nullable: true
+      validation_rules:
+      - name: previous_task_output type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: previous_task_output must be of type string
+    priority:
+      type: float
+      nullable: false
+      min_value: 1.0
+      max_value: 1.0
+      validation_rules:
+      - name: priority is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: priority must not be empty
+      - name: priority type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_FLOAT
+        error_message: priority must be of type float
+      - name: priority numeric bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: numeric_bounds
+        rule_expression: VALUE >= 1.0 AND VALUE <= 1.0
+        error_message: priority must be between 1.0 and 1.0
+    status:
+      type: string
+      nullable: false
+      allowed_values:
+      - In Progress
+      min_length: 11
+      max_length: 11
+      validation_rules:
+      - name: status is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: status must not be empty
+      - name: status type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: status must be of type string
+      - name: status must be valid value
+        dimension: validity
+        severity: CRITICAL
+        rule_type: allowed_values
+        rule_expression: VALUE_IN(['In Progress'])
+        error_message: 'status must be one of: In Progress'
+      - name: status length bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: length_bounds
+        rule_expression: LENGTH >= 11 AND LENGTH <= 11
+        error_message: status length must be between 11 and 11
+    created_at:
+      type: string
+      nullable: false
+      validation_rules:
+      - name: created_at is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: created_at must not be empty
+      - name: created_at type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_DATE
+        error_message: created_at must be of type date
+      - name: created_at date bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: date_bounds
+        rule_expression: DATE >= '2025-01-14' AND DATE <= '2025-01-20'
+        error_message: created_at must be within date range
+    tools_available:
+      type: string
+      nullable: false
+      allowed_values:
+      - '["web_search", "calculator"]'
+      min_length: 28
+      max_length: 28
+      validation_rules:
+      - name: tools_available is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: tools_available must not be empty
+      - name: tools_available type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: tools_available must be of type string
+      - name: tools_available must be valid value
+        dimension: validity
+        severity: CRITICAL
+        rule_type: allowed_values
+        rule_expression: VALUE_IN(['["web_search", "calculator"]'])
+        error_message: 'tools_available must be one of: ["web_search", "calculator"]'
+      - name: tools_available length bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: length_bounds
+        rule_expression: LENGTH >= 28 AND LENGTH <= 28
+        error_message: tools_available length must be between 28 and 28
+    max_iterations:
+      type: float
+      nullable: false
+      min_value: 5.0
+      max_value: 5.0
+      validation_rules:
+      - name: max_iterations is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: max_iterations must not be empty
+      - name: max_iterations type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_FLOAT
+        error_message: max_iterations must be of type float
+      - name: max_iterations numeric bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: numeric_bounds
+        rule_expression: VALUE >= 5.0 AND VALUE <= 5.0
+        error_message: max_iterations must be between 5.0 and 5.0
+  dimension_requirements:
+    validity:
+      minimum_score: 15.0
+      weight: 1.0
+      scoring:
+        rule_weights:
+          type: 0.35714285714285715
+          length_bounds: 0.2619047619047619
+          pattern: 0.11904761904761904
+          allowed_values: 0.19047619047619047
+          numeric_bounds: 0.047619047619047616
+          date_bounds: 0.023809523809523808
+        field_overrides: {}
+    completeness:
+      minimum_score: 15.0
+      weight: 1.0
+      scoring:
+        rule_weights:
+          missing_required: 0.06666666666666667
+          not_null: 0.9333333333333333
+        field_overrides: {}
+    consistency:
+      minimum_score: 12.0
+      weight: 1.0
+      scoring:
+        rule_weights:
+          primary_key_uniqueness: 0.3333333333333333
+          format_consistency: 0.3333333333333333
+          cross_field_logic: 0.3333333333333333
+        field_overrides: {}
+    freshness:
+      minimum_score: 15.0
+      weight: 1.0
+      scoring:
+        rule_weights:
+          recency_window: 1.0
+        field_overrides: {}
+    plausibility:
+      minimum_score: 12.0
+      weight: 1.0
+      scoring:
+        rule_weights: {}
+        field_overrides: {}
+metadata:
+  explanations_note: Explanations are for human review; only requirements.field_requirements
+    are enforced.
+  explanations_glossary:
+    iqr: 'Interquartile Range (Q3 - Q1): a robust measure of spread, less sensitive
+      to outliers.'
+    q1: 25th percentile of the training values.
+    q3: 75th percentile of the training values.
+    coverage: Share of non-null training values that satisfy the rule.
+    unique_count: Number of distinct non-null values observed in training.
+    mad: 'Median Absolute Deviation: robust measure of variability around the median.'
+    quantile: Statistical measure dividing data into equal-sized intervals.
+    training_pass: Guarantee that generated rules pass on the training data used for
+      generation.
+    enum_strategy: Method used for allowed values inference (coverage or tolerant).
+    margin_days: Buffer added to date ranges to allow for reasonable variations.
+  explanations:
+    task_id:
+      type: string
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      length_bounds:
+        active_min: 13
+        active_max: 13
+        stats:
+          observed_min: 13
+          observed_max: 13
+      pattern:
+        regex: ^[A-Za-z0-9\-_]+$
+        reason: 100% coverage on training non-nulls
+        stats:
+          coverage: 1.0
+    crew_id:
+      type: string
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      length_bounds:
+        active_min: 8
+        active_max: 8
+        stats:
+          observed_min: 8
+          observed_max: 8
+      pattern:
+        regex: ^[A-Za-z]+-\d{3,}$
+        reason: 100% coverage on training non-nulls
+        stats:
+          coverage: 1.0
+    task_description:
+      type: string
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      allowed_values:
+        values:
+        - Research market trends for Q1 2025
+        reason: High coverage stable set
+        stats:
+          coverage: 1.0
+          unique_count: 1
+          strategy: coverage
+      length_bounds:
+        active_min: 34
+        active_max: 34
+        stats:
+          observed_min: 34
+          observed_max: 34
+    expected_output:
+      type: string
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      allowed_values:
+        values:
+        - Detailed market analysis report
+        reason: High coverage stable set
+        stats:
+          coverage: 1.0
+          unique_count: 1
+          strategy: coverage
+      length_bounds:
+        active_min: 31
+        active_max: 31
+        stats:
+          observed_min: 31
+          observed_max: 31
+    task_type:
+      type: string
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      allowed_values:
+        values:
+        - Research
+        reason: High coverage stable set
+        stats:
+          coverage: 1.0
+          unique_count: 1
+          strategy: coverage
+      length_bounds:
+        active_min: 8
+        active_max: 8
+        stats:
+          observed_min: 8
+          observed_max: 8
+      pattern:
+        regex: ^[A-Za-z0-9\-_]+$
+        reason: 100% coverage on training non-nulls
+        stats:
+          coverage: 1.0
+    assigned_agent_role:
+      type: string
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      allowed_values:
+        values:
+        - Researcher
+        reason: High coverage stable set
+        stats:
+          coverage: 1.0
+          unique_count: 1
+          strategy: coverage
+      length_bounds:
+        active_min: 10
+        active_max: 10
+        stats:
+          observed_min: 10
+          observed_max: 10
+      pattern:
+        regex: ^[A-Za-z0-9\-_]+$
+        reason: 100% coverage on training non-nulls
+        stats:
+          coverage: 1.0
+    agent_id:
+      type: string
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      length_bounds:
+        active_min: 9
+        active_max: 9
+        stats:
+          observed_min: 9
+          observed_max: 9
+      pattern:
+        regex: ^[A-Za-z]+-\d{3,}$
+        reason: 100% coverage on training non-nulls
+        stats:
+          coverage: 1.0
+    context:
+      type: string
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      allowed_values:
+        values:
+        - Focus on tech sector
+        reason: High coverage stable set
+        stats:
+          coverage: 1.0
+          unique_count: 1
+          strategy: coverage
+      length_bounds:
+        active_min: 20
+        active_max: 20
+        stats:
+          observed_min: 20
+          observed_max: 20
+    dependencies:
+      type: string
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      allowed_values:
+        values:
+        - '[]'
+        reason: High coverage stable set
+        stats:
+          coverage: 1.0
+          unique_count: 1
+          strategy: coverage
+      length_bounds:
+        active_min: 2
+        active_max: 2
+        stats:
+          observed_min: 2
+          observed_max: 2
+    previous_task_output:
+      type: string
+      nullable:
+        active: true
+        reason: Nulls were observed in training, so this field is allowed to be null
+        stats:
+          null_count: 1
+          total: 1
+    priority:
+      type: float
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      range:
+        strategy: iqr
+        active_min: 1.0
+        active_max: 1.0
+        reason: Robust range (IQR/Quantile/MAD) clamped to training min/max for pass
+          guarantee
+        stats:
+          q1: 1.0
+          q3: 1.0
+          iqr_k: 1.5
+          observed_min: 1.0
+          observed_max: 1.0
+    status:
+      type: string
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      allowed_values:
+        values:
+        - In Progress
+        reason: High coverage stable set
+        stats:
+          coverage: 1.0
+          unique_count: 1
+          strategy: coverage
+      length_bounds:
+        active_min: 11
+        active_max: 11
+        stats:
+          observed_min: 11
+          observed_max: 11
+    created_at:
+      type: string
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+    tools_available:
+      type: string
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      allowed_values:
+        values:
+        - '["web_search", "calculator"]'
+        reason: High coverage stable set
+        stats:
+          coverage: 1.0
+          unique_count: 1
+          strategy: coverage
+      length_bounds:
+        active_min: 28
+        active_max: 28
+        stats:
+          observed_min: 28
+          observed_max: 28
+    max_iterations:
+      type: float
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      range:
+        strategy: iqr
+        active_min: 5.0
+        active_max: 5.0
+        reason: Robust range (IQR/Quantile/MAD) clamped to training min/max for pass
+          guarantee
+        stats:
+          q1: 5.0
+          q3: 5.0
+          iqr_k: 1.5
+          observed_min: 5.0
+          observed_max: 5.0
+  freshness:
+    as_of: '2025-01-18T09:00:00Z'
+    window_days: 365
+    date_field: created_at
+  plausibility_templates: '# plausibility:
+
+    #   scoring:
+
+    #     rule_weights:
+
+    #       numeric_sigma: 1.0      # enable if not overlapping with validity numeric_bounds
+
+    #       categorical_tail: 1.0   # enable to flag rare categories
+
+    #   notes: "Disabled by default to avoid overlap with Validity. Review before
+    enabling."
+
+    '

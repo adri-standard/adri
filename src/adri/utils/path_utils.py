@@ -95,7 +95,7 @@ def shorten_home_path(path: str | Path) -> str:
         except ValueError:
             # Path is not under home directory
             return str(abs_path)
-    except Exception:
+    except Exception:  # nosec B110 B112
         return str(path)
 
 
@@ -135,7 +135,7 @@ def get_relative_to_project_root(
                 return shorten_home_path(abs_path)
         else:
             return shorten_home_path(abs_path)
-    except Exception:
+    except Exception:  # nosec B110 B112
         return shorten_home_path(path)
 
 
@@ -241,7 +241,7 @@ def is_safe_path(path: str | Path, base_directory: str | Path | None = None) -> 
         except ValueError:
             return False
 
-    except Exception:
+    except Exception:  # nosec B110 B112
         return False
 
 
@@ -301,7 +301,7 @@ def get_common_path_prefix(*paths: str | Path) -> Path | None:
         if common_parts:
             return Path(*common_parts)
 
-    except Exception:
+    except Exception:  # nosec B110 B112
         pass
 
     return None

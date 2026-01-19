@@ -294,7 +294,7 @@ class PlausibilityAssessor(DimensionAssessor):
                             failed_checks += 1
                         elif max_val is not None and numeric_value > max_val:
                             failed_checks += 1
-                    except Exception:
+                    except Exception:  # nosec B110 B112
                         failed_checks += 1
 
         # Check outlier detection rules
@@ -312,7 +312,7 @@ class PlausibilityAssessor(DimensionAssessor):
                                 failed_checks += 1
                             elif max_val is not None and numeric_value > max_val:
                                 failed_checks += 1
-                        except Exception:
+                        except Exception:  # nosec B110 B112
                             failed_checks += 1
 
         if total_checks > 0:

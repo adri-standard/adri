@@ -1,0 +1,749 @@
+contracts:
+  id: financial_transaction_standard
+  name: Financial Transaction ADRI Standard
+  version: 1.0.0
+  authority: ADRI Framework
+  description: Auto-generated standard for financial_transaction data
+record_identification:
+  primary_key_fields:
+  - account_id
+  strategy: primary_key_with_fallback
+requirements:
+  overall_minimum: 75.0
+  field_requirements:
+    transaction_id:
+      type: string
+      nullable: false
+      min_length: 16
+      max_length: 16
+      pattern: ^[A-Za-z0-9\-_]+$
+      validation_rules:
+      - name: transaction_id is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: transaction_id must not be empty
+      - name: transaction_id type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: transaction_id must be of type string
+      - name: transaction_id length bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: length_bounds
+        rule_expression: LENGTH >= 16 AND LENGTH <= 16
+        error_message: transaction_id length must be between 16 and 16
+      - name: transaction_id pattern validation
+        dimension: validity
+        severity: WARNING
+        rule_type: pattern
+        rule_expression: REGEX_MATCH('^[A-Za-z0-9\-_]+$')
+        error_message: 'transaction_id must match pattern: ^[A-Za-z0-9\-_]+$'
+    account_id:
+      type: string
+      nullable: false
+      min_length: 7
+      max_length: 7
+      pattern: ^[A-Za-z]+-\d{3,}$
+      validation_rules:
+      - name: account_id is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: account_id must not be empty
+      - name: account_id type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: account_id must be of type string
+      - name: account_id length bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: length_bounds
+        rule_expression: LENGTH >= 7 AND LENGTH <= 7
+        error_message: account_id length must be between 7 and 7
+      - name: account_id pattern validation
+        dimension: validity
+        severity: WARNING
+        rule_type: pattern
+        rule_expression: REGEX_MATCH('^[A-Za-z]+-\d{3,}$')
+        error_message: 'account_id must match pattern: ^[A-Za-z]+-\d{3,}$'
+    transaction_date:
+      type: string
+      nullable: false
+      validation_rules:
+      - name: transaction_date is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: transaction_date must not be empty
+      - name: transaction_date type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_DATE
+        error_message: transaction_date must be of type date
+      - name: transaction_date date bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: date_bounds
+        rule_expression: DATE >= '2025-01-12' AND DATE <= '2025-01-18'
+        error_message: transaction_date must be within date range
+    transaction_type:
+      type: string
+      nullable: false
+      allowed_values:
+      - Credit
+      min_length: 6
+      max_length: 6
+      pattern: ^[A-Za-z0-9\-_]+$
+      validation_rules:
+      - name: transaction_type is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: transaction_type must not be empty
+      - name: transaction_type type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: transaction_type must be of type string
+      - name: transaction_type must be valid value
+        dimension: validity
+        severity: CRITICAL
+        rule_type: allowed_values
+        rule_expression: VALUE_IN(['Credit'])
+        error_message: 'transaction_type must be one of: Credit'
+      - name: transaction_type length bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: length_bounds
+        rule_expression: LENGTH >= 6 AND LENGTH <= 6
+        error_message: transaction_type length must be between 6 and 6
+      - name: transaction_type pattern validation
+        dimension: validity
+        severity: WARNING
+        rule_type: pattern
+        rule_expression: REGEX_MATCH('^[A-Za-z0-9\-_]+$')
+        error_message: 'transaction_type must match pattern: ^[A-Za-z0-9\-_]+$'
+    amount:
+      type: float
+      nullable: false
+      min_value: 1000.0
+      max_value: 1000.0
+      validation_rules:
+      - name: amount is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: amount must not be empty
+      - name: amount type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_FLOAT
+        error_message: amount must be of type float
+      - name: amount numeric bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: numeric_bounds
+        rule_expression: VALUE >= 1000.0 AND VALUE <= 1000.0
+        error_message: amount must be between 1000.0 and 1000.0
+    currency:
+      type: string
+      nullable: false
+      allowed_values:
+      - USD
+      min_length: 3
+      max_length: 3
+      pattern: ^[A-Za-z0-9\-_]+$
+      validation_rules:
+      - name: currency is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: currency must not be empty
+      - name: currency type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: currency must be of type string
+      - name: currency must be valid value
+        dimension: validity
+        severity: CRITICAL
+        rule_type: allowed_values
+        rule_expression: VALUE_IN(['USD'])
+        error_message: 'currency must be one of: USD'
+      - name: currency length bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: length_bounds
+        rule_expression: LENGTH >= 3 AND LENGTH <= 3
+        error_message: currency length must be between 3 and 3
+      - name: currency pattern validation
+        dimension: validity
+        severity: WARNING
+        rule_type: pattern
+        rule_expression: REGEX_MATCH('^[A-Za-z0-9\-_]+$')
+        error_message: 'currency must match pattern: ^[A-Za-z0-9\-_]+$'
+    balance_after:
+      type: float
+      nullable: false
+      min_value: 5000.0
+      max_value: 5000.0
+      validation_rules:
+      - name: balance_after is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: balance_after must not be empty
+      - name: balance_after type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_FLOAT
+        error_message: balance_after must be of type float
+      - name: balance_after numeric bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: numeric_bounds
+        rule_expression: VALUE >= 5000.0 AND VALUE <= 5000.0
+        error_message: balance_after must be between 5000.0 and 5000.0
+    status:
+      type: string
+      nullable: false
+      allowed_values:
+      - Completed
+      min_length: 9
+      max_length: 9
+      pattern: ^[A-Za-z0-9\-_]+$
+      validation_rules:
+      - name: status is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: status must not be empty
+      - name: status type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: status must be of type string
+      - name: status must be valid value
+        dimension: validity
+        severity: CRITICAL
+        rule_type: allowed_values
+        rule_expression: VALUE_IN(['Completed'])
+        error_message: 'status must be one of: Completed'
+      - name: status length bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: length_bounds
+        rule_expression: LENGTH >= 9 AND LENGTH <= 9
+        error_message: status length must be between 9 and 9
+      - name: status pattern validation
+        dimension: validity
+        severity: WARNING
+        rule_type: pattern
+        rule_expression: REGEX_MATCH('^[A-Za-z0-9\-_]+$')
+        error_message: 'status must match pattern: ^[A-Za-z0-9\-_]+$'
+    processing_time_ms:
+      type: float
+      nullable: false
+      min_value: 150.0
+      max_value: 150.0
+      validation_rules:
+      - name: processing_time_ms is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: processing_time_ms must not be empty
+      - name: processing_time_ms type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_FLOAT
+        error_message: processing_time_ms must be of type float
+      - name: processing_time_ms numeric bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: numeric_bounds
+        rule_expression: VALUE >= 150.0 AND VALUE <= 150.0
+        error_message: processing_time_ms must be between 150.0 and 150.0
+    merchant_id:
+      type: string
+      nullable: false
+      min_length: 9
+      max_length: 9
+      pattern: ^[A-Za-z]+-\d{3,}$
+      validation_rules:
+      - name: merchant_id is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: merchant_id must not be empty
+      - name: merchant_id type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: merchant_id must be of type string
+      - name: merchant_id length bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: length_bounds
+        rule_expression: LENGTH >= 9 AND LENGTH <= 9
+        error_message: merchant_id length must be between 9 and 9
+      - name: merchant_id pattern validation
+        dimension: validity
+        severity: WARNING
+        rule_type: pattern
+        rule_expression: REGEX_MATCH('^[A-Za-z]+-\d{3,}$')
+        error_message: 'merchant_id must match pattern: ^[A-Za-z]+-\d{3,}$'
+    merchant_category:
+      type: float
+      nullable: false
+      min_value: 5411.0
+      max_value: 5411.0
+      validation_rules:
+      - name: merchant_category is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: merchant_category must not be empty
+      - name: merchant_category type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_FLOAT
+        error_message: merchant_category must be of type float
+      - name: merchant_category numeric bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: numeric_bounds
+        rule_expression: VALUE >= 5411.0 AND VALUE <= 5411.0
+        error_message: merchant_category must be between 5411.0 and 5411.0
+    description:
+      type: string
+      nullable: false
+      allowed_values:
+      - Grocery purchase
+      min_length: 16
+      max_length: 16
+      validation_rules:
+      - name: description is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: description must not be empty
+      - name: description type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: description must be of type string
+      - name: description must be valid value
+        dimension: validity
+        severity: CRITICAL
+        rule_type: allowed_values
+        rule_expression: VALUE_IN(['Grocery purchase'])
+        error_message: 'description must be one of: Grocery purchase'
+      - name: description length bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: length_bounds
+        rule_expression: LENGTH >= 16 AND LENGTH <= 16
+        error_message: description length must be between 16 and 16
+    authorization_code:
+      type: string
+      nullable: false
+      min_length: 7
+      max_length: 7
+      pattern: ^[A-Za-z0-9\-_]+$
+      validation_rules:
+      - name: authorization_code is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: authorization_code must not be empty
+      - name: authorization_code type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: authorization_code must be of type string
+      - name: authorization_code length bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: length_bounds
+        rule_expression: LENGTH >= 7 AND LENGTH <= 7
+        error_message: authorization_code length must be between 7 and 7
+      - name: authorization_code pattern validation
+        dimension: validity
+        severity: WARNING
+        rule_type: pattern
+        rule_expression: REGEX_MATCH('^[A-Za-z0-9\-_]+$')
+        error_message: 'authorization_code must match pattern: ^[A-Za-z0-9\-_]+$'
+  dimension_requirements:
+    validity:
+      minimum_score: 15.0
+      weight: 1.0
+      scoring:
+        rule_weights:
+          type: 0.35135135135135137
+          length_bounds: 0.21621621621621623
+          pattern: 0.1891891891891892
+          date_bounds: 0.02702702702702703
+          allowed_values: 0.10810810810810811
+          numeric_bounds: 0.10810810810810811
+        field_overrides: {}
+    completeness:
+      minimum_score: 15.0
+      weight: 1.0
+      scoring:
+        rule_weights:
+          missing_required: 0.07142857142857142
+          not_null: 0.9285714285714286
+        field_overrides: {}
+    consistency:
+      minimum_score: 12.0
+      weight: 1.0
+      scoring:
+        rule_weights:
+          primary_key_uniqueness: 0.3333333333333333
+          format_consistency: 0.3333333333333333
+          cross_field_logic: 0.3333333333333333
+        field_overrides: {}
+    freshness:
+      minimum_score: 15.0
+      weight: 1.0
+      scoring:
+        rule_weights:
+          recency_window: 1.0
+        field_overrides: {}
+    plausibility:
+      minimum_score: 12.0
+      weight: 1.0
+      scoring:
+        rule_weights: {}
+        field_overrides: {}
+metadata:
+  explanations_note: Explanations are for human review; only requirements.field_requirements
+    are enforced.
+  explanations_glossary:
+    iqr: 'Interquartile Range (Q3 - Q1): a robust measure of spread, less sensitive
+      to outliers.'
+    q1: 25th percentile of the training values.
+    q3: 75th percentile of the training values.
+    coverage: Share of non-null training values that satisfy the rule.
+    unique_count: Number of distinct non-null values observed in training.
+    mad: 'Median Absolute Deviation: robust measure of variability around the median.'
+    quantile: Statistical measure dividing data into equal-sized intervals.
+    training_pass: Guarantee that generated rules pass on the training data used for
+      generation.
+    enum_strategy: Method used for allowed values inference (coverage or tolerant).
+    margin_days: Buffer added to date ranges to allow for reasonable variations.
+  explanations:
+    transaction_id:
+      type: string
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      length_bounds:
+        active_min: 16
+        active_max: 16
+        stats:
+          observed_min: 16
+          observed_max: 16
+      pattern:
+        regex: ^[A-Za-z0-9\-_]+$
+        reason: 100% coverage on training non-nulls
+        stats:
+          coverage: 1.0
+    account_id:
+      type: string
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      length_bounds:
+        active_min: 7
+        active_max: 7
+        stats:
+          observed_min: 7
+          observed_max: 7
+      pattern:
+        regex: ^[A-Za-z]+-\d{3,}$
+        reason: 100% coverage on training non-nulls
+        stats:
+          coverage: 1.0
+    transaction_date:
+      type: string
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+    transaction_type:
+      type: string
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      allowed_values:
+        values:
+        - Credit
+        reason: High coverage stable set
+        stats:
+          coverage: 1.0
+          unique_count: 1
+          strategy: coverage
+      length_bounds:
+        active_min: 6
+        active_max: 6
+        stats:
+          observed_min: 6
+          observed_max: 6
+      pattern:
+        regex: ^[A-Za-z0-9\-_]+$
+        reason: 100% coverage on training non-nulls
+        stats:
+          coverage: 1.0
+    amount:
+      type: float
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      range:
+        strategy: iqr
+        active_min: 1000.0
+        active_max: 1000.0
+        reason: Robust range (IQR/Quantile/MAD) clamped to training min/max for pass
+          guarantee
+        stats:
+          q1: 1000.0
+          q3: 1000.0
+          iqr_k: 1.5
+          observed_min: 1000.0
+          observed_max: 1000.0
+    currency:
+      type: string
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      allowed_values:
+        values:
+        - USD
+        reason: High coverage stable set
+        stats:
+          coverage: 1.0
+          unique_count: 1
+          strategy: coverage
+      length_bounds:
+        active_min: 3
+        active_max: 3
+        stats:
+          observed_min: 3
+          observed_max: 3
+      pattern:
+        regex: ^[A-Za-z0-9\-_]+$
+        reason: 100% coverage on training non-nulls
+        stats:
+          coverage: 1.0
+    balance_after:
+      type: float
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      range:
+        strategy: iqr
+        active_min: 5000.0
+        active_max: 5000.0
+        reason: Robust range (IQR/Quantile/MAD) clamped to training min/max for pass
+          guarantee
+        stats:
+          q1: 5000.0
+          q3: 5000.0
+          iqr_k: 1.5
+          observed_min: 5000.0
+          observed_max: 5000.0
+    status:
+      type: string
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      allowed_values:
+        values:
+        - Completed
+        reason: High coverage stable set
+        stats:
+          coverage: 1.0
+          unique_count: 1
+          strategy: coverage
+      length_bounds:
+        active_min: 9
+        active_max: 9
+        stats:
+          observed_min: 9
+          observed_max: 9
+      pattern:
+        regex: ^[A-Za-z0-9\-_]+$
+        reason: 100% coverage on training non-nulls
+        stats:
+          coverage: 1.0
+    processing_time_ms:
+      type: float
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      range:
+        strategy: iqr
+        active_min: 150.0
+        active_max: 150.0
+        reason: Robust range (IQR/Quantile/MAD) clamped to training min/max for pass
+          guarantee
+        stats:
+          q1: 150.0
+          q3: 150.0
+          iqr_k: 1.5
+          observed_min: 150.0
+          observed_max: 150.0
+    merchant_id:
+      type: string
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      length_bounds:
+        active_min: 9
+        active_max: 9
+        stats:
+          observed_min: 9
+          observed_max: 9
+      pattern:
+        regex: ^[A-Za-z]+-\d{3,}$
+        reason: 100% coverage on training non-nulls
+        stats:
+          coverage: 1.0
+    merchant_category:
+      type: float
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      range:
+        strategy: iqr
+        active_min: 5411.0
+        active_max: 5411.0
+        reason: Robust range (IQR/Quantile/MAD) clamped to training min/max for pass
+          guarantee
+        stats:
+          q1: 5411.0
+          q3: 5411.0
+          iqr_k: 1.5
+          observed_min: 5411.0
+          observed_max: 5411.0
+    description:
+      type: string
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      allowed_values:
+        values:
+        - Grocery purchase
+        reason: High coverage stable set
+        stats:
+          coverage: 1.0
+          unique_count: 1
+          strategy: coverage
+      length_bounds:
+        active_min: 16
+        active_max: 16
+        stats:
+          observed_min: 16
+          observed_max: 16
+    authorization_code:
+      type: string
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      length_bounds:
+        active_min: 7
+        active_max: 7
+        stats:
+          observed_min: 7
+          observed_max: 7
+      pattern:
+        regex: ^[A-Za-z0-9\-_]+$
+        reason: 100% coverage on training non-nulls
+        stats:
+          coverage: 1.0
+  freshness:
+    as_of: 2025-01-16T14:30:00.123000+00:00Z
+    window_days: 365
+    date_field: transaction_date
+  plausibility_templates: '# plausibility:
+
+    #   scoring:
+
+    #     rule_weights:
+
+    #       numeric_sigma: 1.0      # enable if not overlapping with validity numeric_bounds
+
+    #       categorical_tail: 1.0   # enable to flag rare categories
+
+    #   notes: "Disabled by default to avoid overlap with Validity. Review before
+    enabling."
+
+    '

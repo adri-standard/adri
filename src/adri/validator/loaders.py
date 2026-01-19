@@ -1,3 +1,5 @@
+# @ADRI_FEATURE[validator_data_loaders, scope=OPEN_SOURCE]
+# Description: Data and contract loading utilities for CSV, JSON, Parquet, and YAML files
 """
 ADRI Data Loaders.
 
@@ -9,14 +11,17 @@ import csv
 import json
 import os
 from pathlib import Path
-from typing import Any
+from typing import Any, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .modes import ADRIMode
 
 # Standard pandas import for data operations
 import pandas as pd
 import yaml
 
 # Import for standard validation (avoid circular import by importing here)
-from ..standards.exceptions import SchemaValidationError
+from ..contracts.exceptions import SchemaValidationError
 
 
 def load_data(file_path: str) -> list[dict[str, Any]]:
@@ -141,51 +146,94 @@ def load_parquet(file_path: Path) -> list[dict[str, Any]]:
             raise
 
 
-def load_standard(file_path: str, validate: bool = True) -> dict[str, Any]:
+def load_contract(
+    file_path: str,
+    validate: bool = True,
+    expected_mode: "ADRIMode | None" = None,
+    strict_structure: bool = False,
+) -> dict[str, Any]:
     """
-    Load YAML standard from file with optional validation.
+    Load YAML contract from file with optional validation and mode detection.
 
     Parses validation_rules from field_requirements and converts them to
-    ValidationRule objects for use by dimension assessors.
+    ValidationRule objects for use by dimension assessors. Automatically detects
+    ADRI template mode (reasoning, conversation, deterministic) and validates
+    structure accordingly.
 
     Args:
-        file_path: Path to YAML standard file
-        validate: Whether to validate the standard schema (default: True)
+        file_path: Path to YAML contract file
+        validate: Whether to validate the contract schema (default: True)
+        expected_mode: Expected ADRI mode (if provided, validates detected mode matches)
+        strict_structure: If True, structure warnings become errors (default: False)
 
     Returns:
-        Standard dictionary with parsed ValidationRule objects
+        Contract dictionary with parsed ValidationRule objects and mode metadata
 
     Raises:
         FileNotFoundError: If file doesn't exist
         yaml.YAMLError: If YAML is invalid
-        Exception: If standard validation fails (when validate=True)
+        Exception: If contract validation fails (when validate=True)
+        ValueError: If detected mode doesn't match expected_mode
     """
     # Import validator inside function to avoid circular import at module load time
-    from ..standards.validator import get_validator
+    from ..contracts.validator import get_validator
+    from .modes import detect_mode, is_valid_mode_transition
+    from .structure import format_validation_report, validate_structure
 
     if not os.path.exists(file_path):
-        raise FileNotFoundError(f"Standard file not found: {file_path}")
+        raise FileNotFoundError(f"Contract file not found: {file_path}")
 
     try:
         with open(file_path, encoding="utf-8") as f:
             yaml_content: dict[Any, Any] = yaml.safe_load(f)
 
-        # Validate standard if requested
+        # Detect ADRI mode from structure
+        detected_mode = detect_mode(yaml_content)
+
+        # Validate detected mode matches expected mode (if provided)
+        if expected_mode is not None:
+            if not is_valid_mode_transition(detected_mode, expected_mode):
+                raise ValueError(
+                    f"Mode mismatch in {file_path}: detected {detected_mode.value}, "
+                    f"expected {expected_mode.value}"
+                )
+
+        # Validate structure for detected mode
+        structure_result = validate_structure(
+            yaml_content, detected_mode, strict=strict_structure
+        )
+
+        if not structure_result.is_valid:
+            # Format helpful error message
+            report = format_validation_report(structure_result)
+            raise ValueError(f"Structure validation failed for {file_path}:\n{report}")
+
+        # Log structure warnings if any (but don't fail)
+        if structure_result.warnings:
+            import warnings
+
+            for warning in structure_result.warnings:
+                warnings.warn(f"Structure warning in {file_path}: {warning}")
+
+        # Validate contract if requested (schema validation)
         if validate:
             validator = get_validator()
-            result = validator.validate_standard(
+            result = validator.validate_contract(
                 yaml_content, file_path, use_cache=True
             )
 
             if not result.is_valid:
                 raise SchemaValidationError(
-                    f"Standard validation failed: {file_path}",
+                    f"Contract validation failed: {file_path}",
                     validation_result=result,
                     standard_path=file_path,
                 )
 
         # Parse validation_rules into ValidationRule objects
         yaml_content = _parse_validation_rules(yaml_content)
+
+        # Add mode metadata to contract
+        yaml_content["_adri_mode"] = detected_mode.value
 
         return yaml_content
 
@@ -194,8 +242,11 @@ def load_standard(file_path: str, validate: bool = True) -> dict[str, Any]:
     except SchemaValidationError:
         # Re-raise schema validation errors as-is
         raise
+    except ValueError:
+        # Re-raise mode/structure validation errors as-is
+        raise
     except Exception as e:
-        raise Exception(f"Failed to load standard: {e}")
+        raise Exception(f"Failed to load contract: {e}")
 
 
 def detect_format(file_path: str) -> str:
@@ -325,18 +376,18 @@ def _get_parquet_info(file_path: Path) -> dict[str, Any]:
         return {"error": str(e)}
 
 
-def _parse_validation_rules(standard: dict[str, Any]) -> dict[str, Any]:
+def _parse_validation_rules(contract: dict[str, Any]) -> dict[str, Any]:
     """
     Parse validation_rules from field_requirements into ValidationRule objects.
 
-    Traverses the standard dictionary and converts any validation_rules lists
+    Traverses the contract dictionary and converts any validation_rules lists
     into ValidationRule objects for easier use by dimension assessors.
 
     Args:
-        standard: Standard dictionary loaded from YAML
+        contract: Contract dictionary loaded from YAML
 
     Returns:
-        Modified standard with ValidationRule objects
+        Modified contract with ValidationRule objects
 
     Note:
         This modifies field_requirements in place, converting:
@@ -345,15 +396,16 @@ def _parse_validation_rules(standard: dict[str, Any]) -> dict[str, Any]:
     """
     from ..core.validation_rule import ValidationRule
 
-    # Check if standard has requirements section
-    if "requirements" not in standard:
-        return standard
+    # Check if contract has requirements section
+    if "requirements" not in contract:
+        return contract
+    # @ADRI_FEATURE_END[validator_data_loaders]
 
-    requirements = standard["requirements"]
+    requirements = contract["requirements"]
 
     # Check if dimension_requirements exist
     if "dimension_requirements" not in requirements:
-        return standard
+        return contract
 
     dimension_requirements = requirements["dimension_requirements"]
 
@@ -398,4 +450,4 @@ def _parse_validation_rules(standard: dict[str, Any]) -> dict[str, Any]:
                     # Replace the list of dicts with list of ValidationRule objects
                     field_config["validation_rules"] = parsed_rules
 
-    return standard
+    return contract

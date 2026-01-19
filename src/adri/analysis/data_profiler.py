@@ -1,3 +1,5 @@
+# @ADRI_FEATURE[analysis_data_profiler, scope=OPEN_SOURCE]
+# Description: Data profiling engine for analyzing dataset patterns and quality
 """
 ADRI Data Profiler.
 
@@ -547,7 +549,7 @@ class DataProfiler:
 
             return max(0.0, min(100.0, final_score))
 
-        except Exception:
+        except Exception:  # nosec B110 B112
             # Fallback calculation
             return 50.0
 
@@ -568,3 +570,6 @@ def profile_dataframe(
     """
     profiler = DataProfiler()
     return profiler.profile_data(data, max_rows)
+
+
+# @ADRI_FEATURE_END[analysis_data_profiler]

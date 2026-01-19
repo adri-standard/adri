@@ -8,16 +8,16 @@ from ..core.protocols import Command
 from ..core.registry import get_global_registry
 from .commands import (
     AssessCommand,
-    GenerateStandardCommand,
+    GenerateContractCommand,
     GuideCommand,
     ListAssessmentsCommand,
-    ListStandardsCommand,
+    ListContractsCommand,
     ScoringExplainCommand,
     ScoringPresetApplyCommand,
     SetupCommand,
     ShowConfigCommand,
-    ShowStandardCommand,
-    ValidateStandardCommand,
+    ShowContractCommand,
+    ValidateContractCommand,
     ViewLogsCommand,
 )
 
@@ -31,16 +31,16 @@ def register_all_commands() -> None:
         # Core commands
         ("setup", SetupCommand),
         ("assess", AssessCommand),
-        ("generate-standard", GenerateStandardCommand),
+        ("generate-contract", GenerateContractCommand),
         ("guide", GuideCommand),
         # Information commands
         ("list-assessments", ListAssessmentsCommand),
-        ("list-standards", ListStandardsCommand),
+        ("list-contracts", ListContractsCommand),
         ("view-logs", ViewLogsCommand),
         # Configuration commands
         ("show-config", ShowConfigCommand),
-        ("validate-standard", ValidateStandardCommand),
-        ("show-standard", ShowStandardCommand),
+        ("validate-contract", ValidateContractCommand),
+        ("show-contract", ShowContractCommand),
         # Scoring commands
         ("scoring-explain", ScoringExplainCommand),
         ("scoring-preset-apply", ScoringPresetApplyCommand),

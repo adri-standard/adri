@@ -1,0 +1,686 @@
+contracts:
+  id: nested_json_template_standard
+  name: Nested Json Template ADRI Standard
+  version: 1.0.0
+  authority: ADRI Framework
+  description: Auto-generated standard for nested_json_template data
+record_identification:
+  primary_key_fields:
+  - validation_status
+  strategy: primary_key_with_fallback
+requirements:
+  overall_minimum: 75.0
+  field_requirements:
+    record_id:
+      type: string
+      nullable: false
+      min_length: 8
+      max_length: 8
+      pattern: ^[A-Za-z]+-\d{3,}$
+      validation_rules:
+      - name: record_id is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: record_id must not be empty
+      - name: record_id type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: record_id must be of type string
+      - name: record_id length bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: length_bounds
+        rule_expression: LENGTH >= 8 AND LENGTH <= 8
+        error_message: record_id length must be between 8 and 8
+      - name: record_id pattern validation
+        dimension: validity
+        severity: WARNING
+        rule_type: pattern
+        rule_expression: REGEX_MATCH('^[A-Za-z]+-\d{3,}$')
+        error_message: 'record_id must match pattern: ^[A-Za-z]+-\d{3,}$'
+    record_type:
+      type: string
+      nullable: false
+      allowed_values:
+      - configuration
+      min_length: 13
+      max_length: 13
+      pattern: ^[A-Za-z0-9\-_]+$
+      validation_rules:
+      - name: record_type is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: record_type must not be empty
+      - name: record_type type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: record_type must be of type string
+      - name: record_type must be valid value
+        dimension: validity
+        severity: CRITICAL
+        rule_type: allowed_values
+        rule_expression: VALUE_IN(['configuration'])
+        error_message: 'record_type must be one of: configuration'
+      - name: record_type length bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: length_bounds
+        rule_expression: LENGTH >= 13 AND LENGTH <= 13
+        error_message: record_type length must be between 13 and 13
+      - name: record_type pattern validation
+        dimension: validity
+        severity: WARNING
+        rule_type: pattern
+        rule_expression: REGEX_MATCH('^[A-Za-z0-9\-_]+$')
+        error_message: 'record_type must match pattern: ^[A-Za-z0-9\-_]+$'
+    parent_id:
+      type: string
+      nullable: true
+      validation_rules:
+      - name: parent_id type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: parent_id must be of type string
+    depth_level:
+      type: float
+      nullable: false
+      min_value: 0.0
+      max_value: 0.0
+      validation_rules:
+      - name: depth_level is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: depth_level must not be empty
+      - name: depth_level type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_FLOAT
+        error_message: depth_level must be of type float
+      - name: depth_level numeric bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: numeric_bounds
+        rule_expression: VALUE >= 0.0 AND VALUE <= 0.0
+        error_message: depth_level must be between 0.0 and 0.0
+    path:
+      type: string
+      nullable: false
+      allowed_values:
+      - root
+      min_length: 4
+      max_length: 4
+      pattern: ^[A-Za-z0-9\-_]+$
+      validation_rules:
+      - name: path is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: path must not be empty
+      - name: path type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: path must be of type string
+      - name: path must be valid value
+        dimension: validity
+        severity: CRITICAL
+        rule_type: allowed_values
+        rule_expression: VALUE_IN(['root'])
+        error_message: 'path must be one of: root'
+      - name: path length bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: length_bounds
+        rule_expression: LENGTH >= 4 AND LENGTH <= 4
+        error_message: path length must be between 4 and 4
+      - name: path pattern validation
+        dimension: validity
+        severity: WARNING
+        rule_type: pattern
+        rule_expression: REGEX_MATCH('^[A-Za-z0-9\-_]+$')
+        error_message: 'path must match pattern: ^[A-Za-z0-9\-_]+$'
+    name:
+      type: string
+      nullable: false
+      allowed_values:
+      - Root Configuration
+      min_length: 18
+      max_length: 18
+      validation_rules:
+      - name: name is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: name must not be empty
+      - name: name type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: name must be of type string
+      - name: name must be valid value
+        dimension: validity
+        severity: CRITICAL
+        rule_type: allowed_values
+        rule_expression: VALUE_IN(['Root Configuration'])
+        error_message: 'name must be one of: Root Configuration'
+      - name: name length bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: length_bounds
+        rule_expression: LENGTH >= 18 AND LENGTH <= 18
+        error_message: name length must be between 18 and 18
+    data:
+      type: string
+      nullable: false
+      allowed_values:
+      - '{"type": "root"}'
+      min_length: 16
+      max_length: 16
+      validation_rules:
+      - name: data is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: data must not be empty
+      - name: data type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: data must be of type string
+      - name: data must be valid value
+        dimension: validity
+        severity: CRITICAL
+        rule_type: allowed_values
+        rule_expression: 'VALUE_IN([''{"type": "root"}''])'
+        error_message: 'data must be one of: {"type": "root"}'
+      - name: data length bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: length_bounds
+        rule_expression: LENGTH >= 16 AND LENGTH <= 16
+        error_message: data length must be between 16 and 16
+    has_children:
+      type: boolean
+      nullable: false
+      validation_rules:
+      - name: has_children is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: has_children must not be empty
+      - name: has_children type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_BOOLEAN
+        error_message: has_children must be of type boolean
+    child_count:
+      type: float
+      nullable: false
+      min_value: 2.0
+      max_value: 2.0
+      validation_rules:
+      - name: child_count is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: child_count must not be empty
+      - name: child_count type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_FLOAT
+        error_message: child_count must be of type float
+      - name: child_count numeric bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: numeric_bounds
+        rule_expression: VALUE >= 2.0 AND VALUE <= 2.0
+        error_message: child_count must be between 2.0 and 2.0
+    total_descendants:
+      type: float
+      nullable: false
+      min_value: 5.0
+      max_value: 5.0
+      validation_rules:
+      - name: total_descendants is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: total_descendants must not be empty
+      - name: total_descendants type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_FLOAT
+        error_message: total_descendants must be of type float
+      - name: total_descendants numeric bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: numeric_bounds
+        rule_expression: VALUE >= 5.0 AND VALUE <= 5.0
+        error_message: total_descendants must be between 5.0 and 5.0
+    created_at:
+      type: string
+      nullable: false
+      validation_rules:
+      - name: created_at is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: created_at must not be empty
+      - name: created_at type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_DATE
+        error_message: created_at must be of type date
+      - name: created_at date bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: date_bounds
+        rule_expression: DATE >= '2025-01-12' AND DATE <= '2025-01-18'
+        error_message: created_at must be within date range
+    updated_at:
+      type: string
+      nullable: false
+      validation_rules:
+      - name: updated_at is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: updated_at must not be empty
+      - name: updated_at type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_DATE
+        error_message: updated_at must be of type date
+      - name: updated_at date bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: date_bounds
+        rule_expression: DATE >= '2025-01-14' AND DATE <= '2025-01-20'
+        error_message: updated_at must be within date range
+    is_active:
+      type: boolean
+      nullable: false
+      validation_rules:
+      - name: is_active is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: is_active must not be empty
+      - name: is_active type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_BOOLEAN
+        error_message: is_active must be of type boolean
+    validation_status:
+      type: string
+      nullable: false
+      min_length: 5
+      max_length: 5
+      pattern: ^[A-Za-z0-9\-_]+$
+      validation_rules:
+      - name: validation_status is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: validation_status must not be empty
+      - name: validation_status type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: validation_status must be of type string
+      - name: validation_status length bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: length_bounds
+        rule_expression: LENGTH >= 5 AND LENGTH <= 5
+        error_message: validation_status length must be between 5 and 5
+      - name: validation_status pattern validation
+        dimension: validity
+        severity: WARNING
+        rule_type: pattern
+        rule_expression: REGEX_MATCH('^[A-Za-z0-9\-_]+$')
+        error_message: 'validation_status must match pattern: ^[A-Za-z0-9\-_]+$'
+  dimension_requirements:
+    validity:
+      minimum_score: 15.0
+      weight: 1.0
+      scoring:
+        rule_weights:
+          type: 0.42424242424242425
+          length_bounds: 0.18181818181818182
+          pattern: 0.12121212121212122
+          allowed_values: 0.12121212121212122
+          numeric_bounds: 0.09090909090909091
+          date_bounds: 0.06060606060606061
+        field_overrides: {}
+    completeness:
+      minimum_score: 15.0
+      weight: 1.0
+      scoring:
+        rule_weights:
+          missing_required: 0.07142857142857142
+          not_null: 0.9285714285714286
+        field_overrides: {}
+    consistency:
+      minimum_score: 12.0
+      weight: 1.0
+      scoring:
+        rule_weights: {}
+        field_overrides: {}
+    freshness:
+      minimum_score: 15.0
+      weight: 1.0
+      scoring:
+        rule_weights:
+          recency_window: 1.0
+        field_overrides: {}
+    plausibility:
+      minimum_score: 12.0
+      weight: 1.0
+      scoring:
+        rule_weights: {}
+        field_overrides: {}
+metadata:
+  explanations_note: Explanations are for human review; only requirements.field_requirements
+    are enforced.
+  explanations_glossary:
+    iqr: 'Interquartile Range (Q3 - Q1): a robust measure of spread, less sensitive
+      to outliers.'
+    q1: 25th percentile of the training values.
+    q3: 75th percentile of the training values.
+    coverage: Share of non-null training values that satisfy the rule.
+    unique_count: Number of distinct non-null values observed in training.
+    mad: 'Median Absolute Deviation: robust measure of variability around the median.'
+    quantile: Statistical measure dividing data into equal-sized intervals.
+    training_pass: Guarantee that generated rules pass on the training data used for
+      generation.
+    enum_strategy: Method used for allowed values inference (coverage or tolerant).
+    margin_days: Buffer added to date ranges to allow for reasonable variations.
+  explanations:
+    record_id:
+      type: string
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      length_bounds:
+        active_min: 8
+        active_max: 8
+        stats:
+          observed_min: 8
+          observed_max: 8
+      pattern:
+        regex: ^[A-Za-z]+-\d{3,}$
+        reason: 100% coverage on training non-nulls
+        stats:
+          coverage: 1.0
+    record_type:
+      type: string
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      allowed_values:
+        values:
+        - configuration
+        reason: High coverage stable set
+        stats:
+          coverage: 1.0
+          unique_count: 1
+          strategy: coverage
+      length_bounds:
+        active_min: 13
+        active_max: 13
+        stats:
+          observed_min: 13
+          observed_max: 13
+      pattern:
+        regex: ^[A-Za-z0-9\-_]+$
+        reason: 100% coverage on training non-nulls
+        stats:
+          coverage: 1.0
+    parent_id:
+      type: string
+      nullable:
+        active: true
+        reason: Nulls were observed in training, so this field is allowed to be null
+        stats:
+          null_count: 1
+          total: 1
+    depth_level:
+      type: float
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      range:
+        strategy: iqr
+        active_min: 0.0
+        active_max: 0.0
+        reason: Robust range (IQR/Quantile/MAD) clamped to training min/max for pass
+          guarantee
+        stats:
+          q1: 0.0
+          q3: 0.0
+          iqr_k: 1.5
+          observed_min: 0.0
+          observed_max: 0.0
+    path:
+      type: string
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      allowed_values:
+        values:
+        - root
+        reason: High coverage stable set
+        stats:
+          coverage: 1.0
+          unique_count: 1
+          strategy: coverage
+      length_bounds:
+        active_min: 4
+        active_max: 4
+        stats:
+          observed_min: 4
+          observed_max: 4
+      pattern:
+        regex: ^[A-Za-z0-9\-_]+$
+        reason: 100% coverage on training non-nulls
+        stats:
+          coverage: 1.0
+    name:
+      type: string
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      allowed_values:
+        values:
+        - Root Configuration
+        reason: High coverage stable set
+        stats:
+          coverage: 1.0
+          unique_count: 1
+          strategy: coverage
+      length_bounds:
+        active_min: 18
+        active_max: 18
+        stats:
+          observed_min: 18
+          observed_max: 18
+    data:
+      type: string
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      allowed_values:
+        values:
+        - '{"type": "root"}'
+        reason: High coverage stable set
+        stats:
+          coverage: 1.0
+          unique_count: 1
+          strategy: coverage
+      length_bounds:
+        active_min: 16
+        active_max: 16
+        stats:
+          observed_min: 16
+          observed_max: 16
+    has_children:
+      type: boolean
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+    child_count:
+      type: float
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      range:
+        strategy: iqr
+        active_min: 2.0
+        active_max: 2.0
+        reason: Robust range (IQR/Quantile/MAD) clamped to training min/max for pass
+          guarantee
+        stats:
+          q1: 2.0
+          q3: 2.0
+          iqr_k: 1.5
+          observed_min: 2.0
+          observed_max: 2.0
+    total_descendants:
+      type: float
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      range:
+        strategy: iqr
+        active_min: 5.0
+        active_max: 5.0
+        reason: Robust range (IQR/Quantile/MAD) clamped to training min/max for pass
+          guarantee
+        stats:
+          q1: 5.0
+          q3: 5.0
+          iqr_k: 1.5
+          observed_min: 5.0
+          observed_max: 5.0
+    created_at:
+      type: string
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+    updated_at:
+      type: string
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+    is_active:
+      type: boolean
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+    validation_status:
+      type: string
+      nullable:
+        active: false
+        reason: Required because 0% nulls observed in training
+        stats:
+          null_count: 0
+          total: 1
+      length_bounds:
+        active_min: 5
+        active_max: 5
+        stats:
+          observed_min: 5
+          observed_max: 5
+      pattern:
+        regex: ^[A-Za-z0-9\-_]+$
+        reason: 100% coverage on training non-nulls
+        stats:
+          coverage: 1.0
+  freshness:
+    as_of: '2025-01-16T10:00:00Z'
+    window_days: 365
+    date_field: created_at
+  plausibility_templates: '# plausibility:
+
+    #   scoring:
+
+    #     rule_weights:
+
+    #       numeric_sigma: 1.0      # enable if not overlapping with validity numeric_bounds
+
+    #       categorical_tail: 1.0   # enable to flag rare categories
+
+    #   notes: "Disabled by default to avoid overlap with Validity. Review before
+    enabling."
+
+    '

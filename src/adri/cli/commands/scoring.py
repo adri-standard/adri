@@ -17,7 +17,7 @@ from ...utils.path_utils import (
     resolve_project_path,
 )
 from ...validator.engine import DataQualityAssessor
-from ...validator.loaders import load_data, load_standard
+from ...validator.loaders import load_contract, load_data
 
 
 class ScoringExplainCommand(Command):
@@ -118,7 +118,7 @@ class ScoringExplainCommand(Command):
                 )
             else:
                 assessor_config["audit"] = self._get_default_audit_config()
-        except Exception:
+        except Exception:  # nosec B110 B112
             assessor_config["audit"] = self._get_default_audit_config()
 
         return assessor_config
@@ -137,11 +137,11 @@ class ScoringExplainCommand(Command):
     def _get_threshold_from_standard(self, standard_path) -> float:
         """Read requirements.overall_minimum from a standard YAML."""
         try:
-            std = load_standard(str(standard_path))
+            std = load_contract(str(standard_path))
             req = std.get("requirements", {}) if isinstance(std, dict) else {}
             thr = float(req.get("overall_minimum", 75.0))
             return max(0.0, min(100.0, thr))  # Clamp to [0, 100]
-        except Exception:
+        except Exception:  # nosec B110 B112
             return 75.0
 
     def _extract_scoring_information(
@@ -187,7 +187,7 @@ class ScoringExplainCommand(Command):
                 else:
                     try:
                         scores[dim] = float(val.get("score", 0.0))
-                    except Exception:
+                    except Exception:  # nosec B110 B112
                         scores[dim] = 0.0
 
             weights = {
@@ -203,7 +203,7 @@ class ScoringExplainCommand(Command):
                 )
 
             return contributions
-        except Exception:
+        except Exception:  # nosec B110 B112
             return {}
 
     def _display_json_output(
@@ -402,7 +402,7 @@ class ScoringExplainCommand(Command):
                     click.echo(
                         f"     • {item.get('field')}: {int(item.get('missing', 0))} missing"
                     )
-                except Exception:
+                except Exception:  # nosec B110 B112
                     pass
 
     def _display_consistency_explanation(
@@ -497,7 +497,7 @@ class ScoringPresetApplyCommand(Command):
                 return 1
 
             # Load standard
-            std = load_standard(str(resolved_standard_path))
+            std = load_contract(str(resolved_standard_path))
             if not isinstance(std, dict):
                 click.echo("❌ Invalid standard structure")
                 return 1

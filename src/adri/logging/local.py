@@ -1,3 +1,5 @@
+# @ADRI_FEATURE[logging_local_jsonl, scope=SHARED]
+# Description: Local JSONL audit logging system used by both enterprise and open source
 """
 ADRI Local Logging - JSONL-based Audit Logging.
 
@@ -13,16 +15,12 @@ import socket
 import threading
 from datetime import datetime
 from pathlib import Path
-from typing import Any, TYPE_CHECKING
-
-if TYPE_CHECKING:
-    try:
-        from ..logging.enterprise import send_to_verodat
-    except ImportError:
-        send_to_verodat = None
+from typing import Any
 
 # Clean import for version info
 from ..version import __version__
+
+# Enterprise logging functionality is available in the enterprise package
 
 
 class AuditRecord:
@@ -195,11 +193,15 @@ class AuditRecord:
                         "validation_id": f"val_{idx:03d}",
                         "dimension": check.get("dimension", "unknown"),
                         "field_name": check.get("field", ""),
-                        "issue_type": check.get("issue", "unknown"),
+                        # Support both "issue_type" and "issue" keys for compatibility
+                        "issue_type": check.get("issue_type")
+                        or check.get("issue", "unknown"),
                         "affected_rows": check.get("affected_rows", 0),
                         "affected_percentage": check.get("affected_percentage", 0.0),
                         "sample_failures": json.dumps(check.get("samples", [])),
                         "remediation": check.get("remediation", ""),
+                        "severity": check.get("severity", ""),
+                        "auto_fix_available": check.get("auto_fix_available", False),
                     }
                 )
 
@@ -277,6 +279,8 @@ class LocalLogger:
         "affected_percentage",
         "sample_failures",
         "remediation",
+        "severity",
+        "auto_fix_available",
     ]
 
     def __init__(self, config: dict[str, Any] | None = None):
@@ -834,3 +838,6 @@ class LogRotator:
         self.log_directory = log_directory
         self.max_file_size = max_file_size
         self.max_files = max_files
+
+
+# @ADRI_FEATURE_END[logging_local_jsonl]

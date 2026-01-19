@@ -1,4 +1,4 @@
-standards:
+contracts:
   id: valid_standard
   name: Valid ADRI Standard
   version: 1.0.0
@@ -37,10 +37,16 @@ requirements:
         error_message: customer_id must be between -48.5 and 149.5
     name:
       type: string
-      nullable: true
+      nullable: false
       min_length: 0
       max_length: 1000
       validation_rules:
+      - name: name is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: name must not be empty
       - name: name type validation
         dimension: validity
         severity: CRITICAL
@@ -74,7 +80,7 @@ requirements:
     age:
       type: float
       nullable: true
-      min_value: -12.0
+      min_value: 0.0
       max_value: 150.0
       validation_rules:
       - name: age type validation
@@ -87,13 +93,13 @@ requirements:
         dimension: validity
         severity: CRITICAL
         rule_type: numeric_bounds
-        rule_expression: VALUE >= -12.0 AND VALUE <= 150.0
-        error_message: age must be between -12.0 and 150.0
+        rule_expression: VALUE >= 0.0 AND VALUE <= 150.0
+        error_message: age must be between 0.0 and 150.0
     salary:
       type: float
       nullable: true
-      min_value: -22815.5
-      max_value: 192332.5
+      min_value: -26245.875
+      max_value: 204787.125
       validation_rules:
       - name: salary type validation
         dimension: validity
@@ -105,13 +111,13 @@ requirements:
         dimension: validity
         severity: CRITICAL
         rule_type: numeric_bounds
-        rule_expression: VALUE >= -22815.5 AND VALUE <= 192332.5
-        error_message: salary must be between -22815.5 and 192332.5
+        rule_expression: VALUE >= -26245.875 AND VALUE <= 204787.125
+        error_message: salary must be between -26245.875 and 204787.125
     registration_date:
       type: date
       nullable: true
       after_date: '2022-12-30'
-      before_date: '2023-12-28'
+      before_date: '2023-12-31'
       validation_rules:
       - name: registration_date type validation
         dimension: validity
@@ -123,17 +129,17 @@ requirements:
         dimension: validity
         severity: CRITICAL
         rule_type: date_bounds
-        rule_expression: DATE >= '2022-12-30' AND DATE <= '2023-12-28'
+        rule_expression: DATE >= '2022-12-30' AND DATE <= '2023-12-31'
         error_message: registration_date must be within date range
     status:
       type: string
       nullable: true
       allowed_values:
-      - active
+      - suspended
       - invalid_status
       - inactive
-      - suspended
       - pending
+      - active
       min_length: 6
       max_length: 14
       pattern: ^[A-Za-z0-9\-_]+$
@@ -148,10 +154,10 @@ requirements:
         dimension: validity
         severity: CRITICAL
         rule_type: allowed_values
-        rule_expression: VALUE_IN(['active', 'invalid_status', 'inactive', 'suspended',
-          'pending'])
-        error_message: 'status must be one of: active, invalid_status, inactive, suspended,
-          pending'
+        rule_expression: VALUE_IN(['suspended', 'invalid_status', 'inactive', 'pending',
+          'active'])
+        error_message: 'status must be one of: suspended, invalid_status, inactive,
+          pending, active'
       - name: status length bounds
         dimension: validity
         severity: CRITICAL
@@ -182,14 +188,17 @@ requirements:
       weight: 1.0
       scoring:
         rule_weights:
-          missing_required: 0.5
-          not_null: 0.5
+          missing_required: 0.3333333333333333
+          not_null: 0.6666666666666666
         field_overrides: {}
     consistency:
       minimum_score: 12.0
       weight: 1.0
       scoring:
-        rule_weights: {}
+        rule_weights:
+          primary_key_uniqueness: 0.3333333333333333
+          format_consistency: 0.3333333333333333
+          cross_field_logic: 0.3333333333333333
         field_overrides: {}
     freshness:
       minimum_score: 15.0
@@ -244,10 +253,10 @@ metadata:
     name:
       type: string
       nullable:
-        active: true
-        reason: Nulls were observed in training, so this field is allowed to be null
+        active: false
+        reason: Required because 0% nulls observed in training
         stats:
-          null_count: 1
+          null_count: 0
           total: 100
       length_bounds:
         active_min: 0
@@ -261,7 +270,7 @@ metadata:
         active: true
         reason: Nulls were observed in training, so this field is allowed to be null
         stats:
-          null_count: 1
+          null_count: 3
           total: 100
       length_bounds:
         active_min: 5
@@ -279,15 +288,15 @@ metadata:
           total: 100
       range:
         strategy: iqr
-        active_min: -12.0
+        active_min: 0.0
         active_max: 150.0
         reason: Robust range (IQR/Quantile/MAD) clamped to training min/max for pass
           guarantee
         stats:
-          q1: 33.0
+          q1: 38.0
           q3: 63.0
           iqr_k: 1.5
-          observed_min: -5.0
+          observed_min: 0.0
           observed_max: 150.0
     salary:
       type: float
@@ -295,35 +304,35 @@ metadata:
         active: true
         reason: Nulls were observed in training, so this field is allowed to be null
         stats:
-          null_count: 2
+          null_count: 4
           total: 100
       range:
         strategy: iqr
-        active_min: -22815.5
-        active_max: 192332.5
+        active_min: -26245.875
+        active_max: 204787.125
         reason: Robust range (IQR/Quantile/MAD) clamped to training min/max for pass
           guarantee
         stats:
-          q1: 57865.0
-          q3: 111652.0
+          q1: 60391.5
+          q3: 118149.75
           iqr_k: 1.5
           observed_min: 0.0
-          observed_max: 149073.0
+          observed_max: 149634.0
     registration_date:
       type: date
       nullable:
         active: true
         reason: Nulls were observed in training, so this field is allowed to be null
         stats:
-          null_count: 2
+          null_count: 1
           total: 100
       date_bounds:
         active_after: '2022-12-30'
-        active_before: '2023-12-28'
+        active_before: '2023-12-31'
         reason: Plausible date window widened by margin days
         stats:
           observed_min: '2023-01-02'
-          observed_max: '2023-12-25'
+          observed_max: '2023-12-28'
           margin_days: 3
     status:
       type: string
@@ -331,15 +340,15 @@ metadata:
         active: true
         reason: Nulls were observed in training, so this field is allowed to be null
         stats:
-          null_count: 4
+          null_count: 5
           total: 100
       allowed_values:
         values:
-        - active
+        - suspended
         - invalid_status
         - inactive
-        - suspended
         - pending
+        - active
         reason: High coverage stable set
         stats:
           coverage: 1.0
@@ -357,7 +366,7 @@ metadata:
         stats:
           coverage: 1.0
   freshness:
-    as_of: '2023-12-26T00:00:00Z'
+    as_of: '2023-12-29T00:00:00Z'
     window_days: 365
     date_field: registration_date
   plausibility_templates: '# plausibility:
