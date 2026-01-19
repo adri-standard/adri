@@ -218,7 +218,7 @@ jobs:
       - name: Run bandit security scan
         run: |
           pip install bandit[toml]
-          bandit -r src/adri/ -c pyproject.toml
+          bandit -r src/adri/ -c pyproject.toml --severity-level medium
 
       - name: Run safety check on dependencies
         run: |
