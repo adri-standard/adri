@@ -1,0 +1,93 @@
+# Performance Benchmark Thresholds Configuration
+# This file defines the acceptable performance limits for ADRI validator benchmarks
+
+# Default configuration
+config:
+  timeout_seconds: 60                    # Maximum time allowed for each benchmark test
+  comparison_enabled: true               # Enable benchmark comparison with previous results
+  artifacts_retention_days: 30           # How long to keep benchmark artifacts
+
+# Performance thresholds
+thresholds:
+  # Decorator performance
+  decorator_overhead_percent: 10         # Maximum allowed overhead for ADRI decorators
+
+  # Protected function execution
+  max_protected_time_ms: 100            # Maximum execution time for protected functions
+
+  # CLI performance for large datasets
+  cli_max_time_10k_rows_ms: 5000        # Maximum CLI execution time for 10K rows
+
+  # Memory usage
+  memory_per_row_kb: 1.0                # Maximum memory usage per data row
+
+  # Regression tolerance
+  regression_tolerance_percent: 10       # Allowed performance regression between commits
+
+# Test-specific thresholds
+test_thresholds:
+  test_benchmark_data_loading:
+    max_time_ms: 2000
+    regression_tolerance_percent: 15
+
+  test_benchmark_data_profiling:
+    max_time_ms: 3000
+    regression_tolerance_percent: 10
+
+  test_benchmark_standard_generation:
+    max_time_ms: 1500
+    regression_tolerance_percent: 10
+
+  test_benchmark_assessment_simple:
+    max_time_ms: 1000
+    regression_tolerance_percent: 10
+
+  test_benchmark_assessment_complex:
+    max_time_ms: 5000
+    regression_tolerance_percent: 10
+
+  test_benchmark_batch_assessment:
+    max_time_ms: 3000
+    regression_tolerance_percent: 10
+
+  test_benchmark_memory_usage:
+    max_time_ms: 2000
+    max_memory_mb: 100
+    regression_tolerance_percent: 15
+
+  test_benchmark_scaling:
+    # Scaling thresholds based on dataset size
+    100:
+      max_time_ms: 100
+    1000:
+      max_time_ms: 500
+    5000:
+      max_time_ms: 2000
+    regression_tolerance_percent: 15
+
+# Enforcement settings
+enforcement:
+  # Initially set to false, will be enabled after baseline collection (Step 10)
+  fail_on_regression: false             # Whether to fail CI on regression
+  fail_on_threshold_breach: false       # Whether to fail CI on threshold breach
+
+  # Warning levels (always enabled)
+  warn_on_regression_percent: 5         # Warn if regression exceeds this percentage
+  warn_on_threshold_approach: 90        # Warn if within 90% of threshold
+
+# Comparison settings
+comparison:
+  # Branch comparison strategy
+  base_branch: main                     # Base branch for comparison
+  compare_with_base: true               # Always compare PRs with base branch
+
+  # Historical comparison
+  compare_with_previous: true           # Compare with previous run on same branch
+  history_depth: 10                     # Number of previous runs to keep for trend analysis
+
+# Reporting settings
+reporting:
+  generate_summary: true                 # Generate GitHub summary
+  include_charts: true                   # Include performance charts in summary
+  detailed_regression_report: true      # Include detailed regression analysis
+  show_improvements: true                # Highlight performance improvements

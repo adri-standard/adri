@@ -1,0 +1,51 @@
+# CODEOWNERS - Automatic reviewer assignment based on file changes
+# See: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Default owners for any files not specifically covered
+* @adri-standard/maintainers
+
+# High-Risk Paths - Core functionality requiring careful review
+# These changes affect ADRI's core data quality engine and require expert review
+
+# Core ADRI modules - Critical for data protection functionality
+/adri/core/ @adri-standard/maintainers
+/adri/decorators/ @adri-standard/maintainers
+/adri/standards/ @adri-standard/maintainers
+
+# Package configuration - Affects distribution and dependencies
+/setup.py @adri-standard/maintainers
+/pyproject.toml @adri-standard/maintainers
+/requirements*.txt @adri-standard/maintainers
+
+# Medium-Risk Paths - Important functionality with guided review
+
+# CLI and configuration - User-facing interfaces
+/adri/cli/ @adri-standard/maintainers
+/adri/config/ @adri-standard/maintainers
+
+# Analysis and type inference - Data processing logic
+/adri/analysis/ @adri-standard/maintainers
+
+# Testing infrastructure - Quality assurance
+/tests/ @adri-standard/maintainers
+
+# Low-Risk Paths - Community-friendly with lighter review
+
+# Documentation - Welcome community contributions
+/docs/ @adri-standard/maintainers
+/README.md @adri-standard/maintainers
+/*.md @adri-standard/maintainers
+
+# Examples - Framework integration demonstrations
+/examples/ @adri-standard/maintainers
+
+# GitHub configuration - Repository governance
+/.github/ @adri-standard/maintainers
+
+# Development tooling - Build and development process
+/scripts/ @adri-standard/maintainers
+/.pre-commit-config.yaml @adri-standard/maintainers
+/.commitlintrc.json @adri-standard/maintainers
+
+# Note: Using single 'maintainers' team for solo maintainer setup
+# This can be expanded to specialized teams as the project grows
