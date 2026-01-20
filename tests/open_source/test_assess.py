@@ -10,6 +10,7 @@ No enterprise imports - uses standard pytest and unittest patterns.
 import tempfile
 import json
 import shutil
+import os
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 
@@ -18,6 +19,20 @@ import pandas as pd
 import yaml
 
 from src.adri.cli.commands.assess import AssessCommand
+
+
+# Check if ADRI project structure is available (needed for CLI execution tests)
+def _find_adri_root():
+    """Check if ADRI/config.yaml exists in directory tree."""
+    current = Path.cwd()
+    while current != current.parent:
+        if (current / "ADRI" / "config.yaml").exists():
+            return True
+        current = current.parent
+    return False
+
+
+ADRI_STRUCTURE_AVAILABLE = _find_adri_root()
 
 
 class TestAssessCommandStandalone:
@@ -81,6 +96,7 @@ class TestAssessCommandStandalone:
         assert isinstance(description, str)
         assert len(description) > 0
 
+    @pytest.mark.skipif(not ADRI_STRUCTURE_AVAILABLE, reason="ADRI project structure not available (needs ADRI/config.yaml)")
     @pytest.mark.integration
     def test_execute_basic_assessment(self):
         """Test basic assessment execution."""
@@ -94,6 +110,7 @@ class TestAssessCommandStandalone:
         exit_code = self.command.execute(args)
         assert exit_code == 0
 
+    @pytest.mark.skipif(not ADRI_STRUCTURE_AVAILABLE, reason="ADRI project structure not available (needs ADRI/config.yaml)")
     @pytest.mark.integration
     def test_execute_with_output_path(self):
         """Test assessment with output file."""
@@ -144,6 +161,7 @@ class TestAssessCommandStandalone:
         exit_code = self.command.execute(args)
         assert exit_code != 0
 
+    @pytest.mark.skipif(not ADRI_STRUCTURE_AVAILABLE, reason="ADRI project structure not available (needs ADRI/config.yaml)")
     @pytest.mark.integration
     def test_guide_mode(self):
         """Test assessment in guide mode."""
@@ -215,6 +233,7 @@ class TestAssessCommandIntegrationStandalone:
         if self.test_dir.exists():
             shutil.rmtree(self.test_dir)
 
+    @pytest.mark.skipif(not ADRI_STRUCTURE_AVAILABLE, reason="ADRI project structure not available (needs ADRI/config.yaml)")
     @pytest.mark.integration
     def test_end_to_end_assessment(self):
         """Test complete assessment workflow."""
@@ -255,6 +274,7 @@ class TestAssessCommandIntegrationStandalone:
 
         assert exit_code == 0
 
+    @pytest.mark.skipif(not ADRI_STRUCTURE_AVAILABLE, reason="ADRI project structure not available (needs ADRI/config.yaml)")
     @pytest.mark.integration
     def test_assessment_with_json_data(self):
         """Test assessment with JSON input data."""
@@ -383,6 +403,7 @@ class TestAssessCommandEdgeCases:
             # Some exceptions are acceptable for truly invalid input
             assert "empty" in str(e).lower() or "no data" in str(e).lower() or True
 
+    @pytest.mark.skipif(not ADRI_STRUCTURE_AVAILABLE, reason="ADRI project structure not available (needs ADRI/config.yaml)")
     @pytest.mark.unit
     def test_single_row_data(self):
         """Test assessment with single row of data."""
@@ -453,6 +474,7 @@ class TestAssessCommandEdgeCases:
         # Should handle special characters without crashing
         assert isinstance(exit_code, int)
 
+    @pytest.mark.skipif(not ADRI_STRUCTURE_AVAILABLE, reason="ADRI project structure not available (needs ADRI/config.yaml)")
     @pytest.mark.unit
     def test_large_data_file(self):
         """Test assessment with larger data file."""
