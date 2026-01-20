@@ -1,0 +1,54 @@
+standards:
+  id: test_minimal_messaging_data-v1
+  name: Test Minimal Messaging Data Quality Standard
+  version: 1.0.0
+  authority: ADRI Auto-Generated
+  effective_date: '2025-07-02'
+  description: Auto-generated data quality standard for test minimal messaging data
+requirements:
+  overall_minimum: 85.0
+  dimension_requirements:
+    validity:
+      minimum_score: 18.0
+      description: Data must conform to expected formats and constraints
+    completeness:
+      minimum_score: 17.0
+      description: Required fields must be populated
+    consistency:
+      minimum_score: 16.0
+      description: Data must be consistent across related fields
+    freshness:
+      minimum_score: 15.0
+      description: Data must be recent and up-to-date
+    plausibility:
+      minimum_score: 12.0
+      description: Data values must be reasonable and realistic
+  field_requirements:
+    email:
+      type: string
+      nullable: false
+      description: Email - text value
+      min_length: 14
+      max_length: 26
+      pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
+    age:
+      type: integer
+      nullable: false
+      description: Age - numeric identifier or count
+      min_value: 25
+      max_value: 70
+    name:
+      type: string
+      nullable: false
+      description: Name - text value
+      min_length: 2
+      max_length: 14
+metadata:
+  created_by: ADRI V2 Auto-Generation
+  created_date: '2025-07-02'
+  last_modified: '2025-07-02'
+  source_data_rows: 3
+  source_data_columns: 3
+  tags:
+  - auto-generated
+  - personal-data

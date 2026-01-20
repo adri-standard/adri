@@ -1,0 +1,74 @@
+[
+  {
+    "id": "doc_001",
+    "text": "Customer reported login issue with mobile app version 2.1.3. Unable to authenticate using email/password combination. Issue occurs on iOS devices only.",
+    "metadata": {
+      "source": "support_ticket",
+      "ticket_id": "TKT-2024-001",
+      "category": "technical",
+      "subcategory": "authentication",
+      "priority": "high",
+      "date_created": "2024-10-15T14:30:00Z",
+      "customer_tier": "premium"
+    },
+    "document_type": "support_ticket"
+  },
+  {
+    "id": "doc_002",
+    "text": "Feature request: Add bulk export functionality for user data. Customers need ability to export all conversation history as CSV or JSON format.",
+    "metadata": {
+      "source": "feature_request",
+      "ticket_id": "FR-2024-042",
+      "category": "product",
+      "subcategory": "data_export",
+      "priority": "medium",
+      "date_created": "2024-10-14T09:15:00Z",
+      "customer_tier": "enterprise"
+    },
+    "document_type": "feature_request"
+  },
+  {
+    "id": "doc_003",
+    "text": "Knowledge base article: How to integrate ADRI with LangChain. Step-by-step guide for adding @adri_protected decorator to LangChain tools and chains.",
+    "metadata": {
+      "source": "knowledge_base",
+      "article_id": "KB-123",
+      "category": "documentation",
+      "subcategory": "integration",
+      "priority": "low",
+      "date_created": "2024-10-10T16:45:00Z",
+      "views": 342,
+      "helpful_votes": 28
+    },
+    "document_type": "kb_article"
+  },
+  {
+    "id": "doc_004",
+    "text": "Bug report: Data validation fails on empty string fields. When optional field contains empty string instead of null, validator incorrectly flags as invalid.",
+    "metadata": {
+      "source": "bug_report",
+      "ticket_id": "BUG-2024-087",
+      "category": "technical",
+      "subcategory": "validation",
+      "priority": "medium",
+      "date_created": "2024-10-16T11:20:00Z",
+      "severity": "medium",
+      "reproducible": true
+    },
+    "document_type": "bug_report"
+  },
+  {
+    "id": "doc_005",
+    "text": "Product update announcement: ADRI v5.0.0 released with environment-based standards, workflow orchestration, and enhanced CLI tools. Breaking change: standard parameter now required.",
+    "metadata": {
+      "source": "announcement",
+      "announcement_id": "ANN-2024-10",
+      "category": "product",
+      "subcategory": "release",
+      "priority": "high",
+      "date_created": "2024-10-17T08:00:00Z",
+      "version": "5.0.0"
+    },
+    "document_type": "announcement"
+  }
+]

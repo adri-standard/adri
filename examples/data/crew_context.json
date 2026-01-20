@@ -1,0 +1,59 @@
+[
+  {
+    "task_id": "task_001",
+    "role": "researcher",
+    "agent_name": "market_researcher",
+    "inputs": {
+      "query": "Analyze Q4 2024 AI agent market trends",
+      "sources": ["web_search", "industry_reports", "analyst_data"],
+      "focus_areas": ["adoption_rates", "use_cases", "vendor_landscape"]
+    },
+    "context": {
+      "previous_results": [],
+      "dependencies": [],
+      "metadata": {
+        "priority": "high",
+        "deadline": "2024-10-20"
+      }
+    },
+    "timestamp": "2024-10-17T09:00:00Z"
+  },
+  {
+    "task_id": "task_002",
+    "role": "analyst",
+    "agent_name": "data_analyst",
+    "inputs": {
+      "query": "Synthesize market research findings",
+      "sources": ["research_output"],
+      "focus_areas": ["key_insights", "recommendations"]
+    },
+    "context": {
+      "previous_results": ["task_001"],
+      "dependencies": ["task_001"],
+      "metadata": {
+        "priority": "high",
+        "deadline": "2024-10-20"
+      }
+    },
+    "timestamp": "2024-10-17T10:00:00Z"
+  },
+  {
+    "task_id": "task_003",
+    "role": "writer",
+    "agent_name": "report_writer",
+    "inputs": {
+      "query": "Create executive summary report",
+      "sources": ["analysis_output"],
+      "focus_areas": ["executive_summary", "charts", "recommendations"]
+    },
+    "context": {
+      "previous_results": ["task_001", "task_002"],
+      "dependencies": ["task_002"],
+      "metadata": {
+        "priority": "high",
+        "deadline": "2024-10-20"
+      }
+    },
+    "timestamp": "2024-10-17T11:00:00Z"
+  }
+]

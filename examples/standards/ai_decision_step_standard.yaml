@@ -1,0 +1,135 @@
+standards:
+  id: ai_decision_step_standard
+  name: AI Decision Step Standard
+  version: 1.0.0
+  authority: ADRI Framework
+  description: |
+    Standard for validating AI decision-making step outputs in workflows.
+    Validates both structured decision fields (exact values) and explanatory narratives
+    (structural constraints only) using ADRI's constraint-driven validation.
+
+requirements:
+  overall_minimum: 80.0
+
+  field_requirements:
+    # Structured decision fields with exact semantic constraints
+    - name: decision_id
+      type: string
+      mandatory: true
+      constraints:
+        - type: pattern
+          value: "^DEC-[0-9]{6}$"
+          description: "Must follow format DEC-XXXXXX"
+
+    - name: decision_type
+      type: string
+      mandatory: true
+      constraints:
+        - type: allowed_values
+          values: ["APPROVE", "REJECT", "ESCALATE", "DEFER"]
+
+    - name: confidence_score
+      type: float
+      mandatory: true
+      constraints:
+        - type: min_value
+          value: 0.0
+        - type: max_value
+          value: 1.0
+
+    - name: risk_level
+      type: string
+      mandatory: true
+      constraints:
+        - type: allowed_values
+          values: ["LOW", "MEDIUM", "HIGH", "CRITICAL"]
+
+    # AI-generated narrative fields with structural constraints only
+    # (No pattern or allowed_values = validates structure, not semantics)
+    - name: reasoning_narrative
+      type: string
+      mandatory: true
+      constraints:
+        - type: min_length
+          value: 50
+          description: "Narrative must be substantive (at least 50 characters)"
+        - type: max_length
+          value: 5000
+          description: "Narrative must be concise (max 5000 characters)"
+
+    - name: risk_assessment_narrative
+      type: string
+      mandatory: true
+      constraints:
+        - type: min_length
+          value: 100
+          description: "Risk assessment requires detailed explanation"
+        - type: max_length
+          value: 2000
+
+    - name: recommendations
+      type: string
+      mandatory: false
+      nullable: true
+      constraints:
+        - type: min_length
+          value: 50
+          description: "Recommendations should be detailed when provided"
+
+    # Workflow metadata fields with exact constraints
+    - name: decision_timestamp
+      type: datetime
+      mandatory: true
+
+    - name: workflow_run_id
+      type: string
+      mandatory: true
+      constraints:
+        - type: pattern
+          value: "^run_[0-9]{8}_[0-9]{6}_[a-f0-9]{8}$"
+          description: "Must follow workflow run ID format"
+
+    - name: step_id
+      type: string
+      mandatory: true
+      constraints:
+        - type: min_length
+          value: 1
+
+metadata:
+  created_by: ADRI Development Team
+  created_date: 2025-01-07
+  purpose: demonstration
+  tags:
+    - workflow_orchestration
+    - ai_reasoning
+    - constraint_based_validation
+    - example
+
+  usage_guidelines: |
+    This standard demonstrates ADRI's constraint-driven validation approach:
+
+    STRUCTURED FIELDS (exact semantic validation):
+    - Include semantic constraints: pattern, allowed_values, min/max_value
+    - Examples: decision_type, confidence_score, risk_level
+    - AI agents must produce values exactly matching the constraints
+
+    NARRATIVE FIELDS (structural validation only):
+    - Include ONLY structural constraints: min_length, max_length
+    - Omit semantic constraints (no pattern or allowed_values)
+    - Examples: reasoning_narrative, risk_assessment_narrative
+    - AI agents can generate variable narrative text
+    - ADRI validates presence and length, not exact content
+
+    Use Cases:
+    - Workflow orchestration systems with AI decision-making
+    - AI agents that provide both structured outputs and explanations
+    - Compliance scenarios requiring audit trails of AI reasoning
+    - Systems tracking data provenance and decision lineage
+
+    Best Practices:
+    - Use semantic constraints (pattern/allowed_values) for decision outcomes
+    - Use only length constraints for AI-generated explanations and narratives
+    - Always include workflow context fields (run_id, step_id) for traceability
+    - Set reasonable length bounds on narratives (50-5000 chars)
+    - Let the constraints define the validation behavior - no modes needed!
