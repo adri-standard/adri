@@ -903,6 +903,15 @@ class TestLocalLoggingErrorHandling(unittest.TestCase):
             pass
 
 
+# Check if performance helpers are available (enterprise-only)
+try:
+    from tests.utils.performance_helpers import assert_performance
+    from tests.performance_thresholds import get_performance_threshold
+    PERFORMANCE_HELPERS_AVAILABLE = True
+except ImportError:
+    PERFORMANCE_HELPERS_AVAILABLE = False
+
+
 class TestLocalLoggingPerformance(unittest.TestCase):
     """Test performance benchmarks and efficiency (15% weight in quality score)."""
 
@@ -918,6 +927,7 @@ class TestLocalLoggingPerformance(unittest.TestCase):
         os.chdir(self.original_cwd)
         shutil.rmtree(self.temp_dir)
 
+    @pytest.mark.skipif(not PERFORMANCE_HELPERS_AVAILABLE, reason="Performance helpers not available in open source")
     @pytest.mark.benchmark(group="local_logging")
     def test_single_assessment_logging_performance(self, benchmark=None):
         """Benchmark single assessment logging performance."""
@@ -993,6 +1003,7 @@ class TestLocalLoggingPerformance(unittest.TestCase):
             from tests.utils.performance_helpers import assert_performance
         assert_performance(end_time - start_time, "micro", "validation_simple", "Single assessment logging")
 
+    @pytest.mark.skipif(not PERFORMANCE_HELPERS_AVAILABLE, reason="Performance helpers not available in open source")
     def test_bulk_logging_performance(self):
         """Test performance with bulk logging operations."""
         config = {
