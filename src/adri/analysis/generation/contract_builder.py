@@ -248,7 +248,7 @@ class ContractBuilder:
                     dimension_reqs, field_reqs, pk_fields
                 )
 
-        except Exception:  # nosec B110 B112
+        except Exception:
             # Non-fatal - dimension weights will remain empty or with default values
             pass
 
@@ -517,7 +517,7 @@ class ContractBuilder:
             # Calculate non-null count
             try:
                 non_null_count = int(series.notna().sum())
-            except Exception:  # nosec B110 B112
+            except Exception:
                 non_null_count = 0
 
             if non_null_count <= 0:
@@ -553,7 +553,7 @@ class ContractBuilder:
                     from datetime import timedelta
 
                     max_date = max_date + timedelta(days=1)
-            except Exception:  # nosec B110 B112
+            except Exception:
                 pass
 
             # Enable freshness checking
@@ -568,7 +568,7 @@ class ContractBuilder:
                     "freshness"
                 ]
                 freshness_reqs["scoring"]["rule_weights"]["recency_window"] = 1.0
-            except Exception:  # nosec B110 B112
+            except Exception:
                 pass  # Non-fatal if structure is different
         else:
             # Provide scaffolding for manual configuration
@@ -654,7 +654,7 @@ class ContractBuilder:
                 "version": "1.0.0",
             }
 
-        except Exception:  # nosec B110 B112
+        except Exception:
             # Non-fatal - just skip lineage if can't be determined
             return None
 
@@ -672,7 +672,7 @@ class ContractBuilder:
             metadata["plausibility_templates"] = (
                 self.dimension_builder.create_plausibility_templates()
             )
-        except Exception:  # nosec B110 B112
+        except Exception:
             pass  # Non-fatal
 
         return standard
@@ -706,12 +706,12 @@ class ContractBuilder:
                                     import json
 
                                     return json.dumps(v, sort_keys=True)
-                                except Exception:  # nosec B110 B112
+                                except Exception:
                                     return str(v)
                             elif isinstance(v, set):
                                 try:
                                     return ",".join(sorted(map(str, v)))
-                                except Exception:  # nosec B110 B112
+                                except Exception:
                                     return str(v)
                             else:
                                 return (
@@ -723,11 +723,11 @@ class ContractBuilder:
 
                         df[col] = series.apply(coerce_complex)
 
-                except Exception:  # nosec B110 B112
+                except Exception:
                     # Last resort: stringify entire column
                     try:
                         df[col] = series.astype(str)
-                    except Exception:  # nosec B110 B112
+                    except Exception:
                         pass  # Give up on this column
 
         return df
@@ -871,7 +871,7 @@ class ContractBuilder:
                             f"Training-pass adjustments made to {len(adjusted_fields)} fields"
                         )
 
-        except Exception:  # nosec B110 B112
+        except Exception:
             summary["generation_warnings"].append("Error analyzing generated standard")
 
         return summary

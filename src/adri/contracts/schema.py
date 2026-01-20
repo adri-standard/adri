@@ -6,9 +6,9 @@ for ADRI standard files, providing the foundation for comprehensive validation.
 """
 
 from dataclasses import dataclass
-from typing import Any, Dict, List, Union
+from typing import Any, List, Dict, Union
 
-from .derivation import get_category_values, validate_enhanced_allowed_values
+from .derivation import validate_enhanced_allowed_values, get_category_values
 
 
 @dataclass

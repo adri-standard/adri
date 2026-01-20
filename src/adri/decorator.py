@@ -29,20 +29,21 @@ def adri_protected(
     verbose: bool | None = None,
     reasoning_mode: bool = False,
     workflow_context: dict | None = None,
+    package_context: str | None = None,
 ):
     """
     Protect agent functions with ADRI data quality checks.
 
-    This decorator validates data quality using environment-based contract resolution.
-    The contract location is determined by your active environment (dev/prod) as
-    configured in adri-config.yaml, ensuring governance and consistency.
+    This decorator validates data quality using contract-based resolution.
+    The contract location is determined by your ADRI configuration in
+    ADRI/config.yaml, ensuring governance and consistency.
 
     Args:
         contract: Contract name (REQUIRED) - e.g., "customer_data" or "financial_data"
                  NOTE: Only names are accepted, not file paths. The actual file location
-                 is determined by your environment configuration:
-                 - Dev: ./ADRI/dev/contracts/{contract}.yaml
-                 - Prod: ./ADRI/prod/contracts/{contract}.yaml
+                 is determined by your configuration:
+                 - Default: ./ADRI/contracts/{contract}.yaml
+                 - With package_context: {package_context}/adri/{contract}.yaml (checked first)
         data_param: Name of the parameter containing data to check (default: "data")
         min_score: Minimum quality score required (0-100, uses config default if None)
         dimensions: Specific dimension requirements (e.g., {"validity": 19, "completeness": 18})
@@ -54,6 +55,12 @@ def adri_protected(
         auto_generate: Whether to auto-generate missing contracts (default: True)
         cache_assessments: Whether to cache assessment results (uses config default if None)
         verbose: Whether to show detailed protection logs (uses config default if None)
+        package_context: Optional package directory for package-local contract resolution.
+                        When provided, ADRI will first look for contracts in
+                        {package_context}/adri/{contract}.yaml before falling back to
+                        centralized contracts. This enables atomic/self-contained packages
+                        (e.g., playbooks, modules, plugins) to include their own contracts.
+                        (default: None - use centralized resolution only)
 
     Returns:
         Decorated function that includes data quality protection
@@ -93,6 +100,17 @@ def adri_protected(
             return updated_profile
         ```
 
+        Package-local contract resolution (atomic packages):
+        ```python
+        # For self-contained playbooks/modules with their own adri/ directory
+        @adri_protected(
+            contract="step_output",
+            package_context="/path/to/playbook"  # Will look in /path/to/playbook/adri/
+        )
+        def process_step(data):
+            return step_result
+        ```
+
         Capturing assessment results with callback:
         ```python
         # Workflow runner tracking assessments
@@ -122,6 +140,11 @@ def adri_protected(
     Note:
         Contract files are automatically resolved based on your environment configuration.
         To control where contracts are stored, update your adri-config.yaml file.
+
+        When package_context is provided, resolution follows this order:
+        1. {package_context}/adri/{contract}.yaml (if exists)
+        2. Centralized contracts directory from config
+        3. Default ADRI/contracts/{contract}.yaml
     """
 
     # Check for missing contract parameter and provide helpful error message
@@ -157,6 +180,7 @@ def adri_protected(
                 engine = DataProtectionEngine()
 
                 # Protect the function call with name-only contract resolution
+                # Package context enables resolution from package-local directories
                 return engine.protect_function_call(
                     func=func,
                     args=args,
@@ -173,6 +197,7 @@ def adri_protected(
                     verbose=verbose,
                     reasoning_mode=reasoning_mode,
                     workflow_context=workflow_context,
+                    package_context=package_context,
                 )
 
             except ProtectionError:
@@ -207,6 +232,7 @@ def adri_protected(
                 "auto_generate": auto_generate,
                 "cache_assessments": cache_assessments,
                 "verbose": verbose,
+                "package_context": package_context,
             },
         )
 

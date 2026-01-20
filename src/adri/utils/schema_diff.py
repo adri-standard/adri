@@ -16,7 +16,7 @@ This service is consumed by the auto_tuner to provide transparency about schema 
 import logging
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -53,12 +53,12 @@ class SchemaChange:
     change_type: ChangeType
     field_name: str
     impact_level: ImpactLevel
-    before_value: Optional[Any]
-    after_value: Optional[Any]
+    before_value: Any | None
+    after_value: Any | None
     description: str
-    remediation: Optional[str] = None
+    remediation: str | None = None
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for serialization."""
         return {
             "change_type": self.change_type.value,
@@ -77,7 +77,7 @@ class SchemaDiffResult:
 
     source_version: str
     target_version: str
-    changes: List[SchemaChange]
+    changes: list[SchemaChange]
     breaking_changes_count: int
     non_breaking_changes_count: int
     clarification_changes_count: int
@@ -91,11 +91,11 @@ class SchemaDiffResult:
         """Check if there are any changes."""
         return len(self.changes) > 0
 
-    def get_changes_by_impact(self, impact: ImpactLevel) -> List[SchemaChange]:
+    def get_changes_by_impact(self, impact: ImpactLevel) -> list[SchemaChange]:
         """Get changes filtered by impact level."""
         return [c for c in self.changes if c.impact_level == impact]
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for serialization."""
         return {
             "source_version": self.source_version,
@@ -140,7 +140,6 @@ class SchemaDiffService:
 
     def __init__(self):
         """Initialize the schema diff service."""
-        pass
 
     def diff_files(
         self,
@@ -163,10 +162,10 @@ class SchemaDiffService:
         """
         import yaml
 
-        with open(source_path, "r") as f:
+        with open(source_path, encoding="utf-8") as f:
             source_schema = yaml.safe_load(f)
 
-        with open(target_path, "r") as f:
+        with open(target_path, encoding="utf-8") as f:
             target_schema = yaml.safe_load(f)
 
         return self.diff_dicts(
@@ -175,8 +174,8 @@ class SchemaDiffService:
 
     def diff_dicts(
         self,
-        source: Dict[str, Any],
-        target: Dict[str, Any],
+        source: dict[str, Any],
+        target: dict[str, Any],
         source_version: str = "v1",
         target_version: str = "v2",
     ) -> SchemaDiffResult:
@@ -227,7 +226,7 @@ class SchemaDiffService:
             summary=summary,
         )
 
-    def _extract_field_requirements(self, schema: Dict[str, Any]) -> Dict[str, Any]:
+    def _extract_field_requirements(self, schema: dict[str, Any]) -> dict[str, Any]:
         """Extract field_requirements from ADRI schema."""
         if not schema:
             return {}
@@ -241,8 +240,8 @@ class SchemaDiffService:
             return {}
 
     def _detect_field_changes(
-        self, source_fields: Dict[str, Any], target_fields: Dict[str, Any]
-    ) -> List[SchemaChange]:
+        self, source_fields: dict[str, Any], target_fields: dict[str, Any]
+    ) -> list[SchemaChange]:
         """
         Detect changes to field definitions.
 
@@ -304,9 +303,9 @@ class SchemaDiffService:
     def _detect_field_property_changes(
         self,
         field_name: str,
-        source_field: Dict[str, Any],
-        target_field: Dict[str, Any],
-    ) -> List[SchemaChange]:
+        source_field: dict[str, Any],
+        target_field: dict[str, Any],
+    ) -> list[SchemaChange]:
         """
         Detect changes to individual field properties.
 
@@ -399,9 +398,9 @@ class SchemaDiffService:
     def _detect_constraint_changes(
         self,
         field_name: str,
-        source_field: Dict[str, Any],
-        target_field: Dict[str, Any],
-    ) -> List[SchemaChange]:
+        source_field: dict[str, Any],
+        target_field: dict[str, Any],
+    ) -> list[SchemaChange]:
         """
         Detect changes to field constraints.
 
@@ -442,7 +441,7 @@ class SchemaDiffService:
         return changes
 
     def _classify_constraint_change_impact(
-        self, constraint: str, source_value: Optional[Any], target_value: Optional[Any]
+        self, constraint: str, source_value: Any | None, target_value: Any | None
     ) -> ImpactLevel:
         """
         Classify the impact of a constraint change.
@@ -489,10 +488,10 @@ class SchemaDiffService:
     def _get_constraint_remediation(
         self,
         constraint: str,
-        source_value: Optional[Any],
-        target_value: Optional[Any],
+        source_value: Any | None,
+        target_value: Any | None,
         impact: ImpactLevel,
-    ) -> Optional[str]:
+    ) -> str | None:
         """Get remediation advice for constraint change."""
         if impact == ImpactLevel.NON_BREAKING:
             return "Constraint was relaxed; no migration needed"
@@ -504,9 +503,9 @@ class SchemaDiffService:
     def _detect_validation_rule_changes(
         self,
         field_name: str,
-        source_field: Dict[str, Any],
-        target_field: Dict[str, Any],
-    ) -> List[SchemaChange]:
+        source_field: dict[str, Any],
+        target_field: dict[str, Any],
+    ) -> list[SchemaChange]:
         """
         Detect changes to validation rules.
 
@@ -579,7 +578,7 @@ class SchemaDiffService:
 
         return changes
 
-    def _get_rule_identifier(self, rule: Dict[str, Any]) -> str:
+    def _get_rule_identifier(self, rule: dict[str, Any]) -> str:
         """Get identifier for a validation rule."""
         if "name" in rule:
             return rule["name"]
@@ -590,7 +589,7 @@ class SchemaDiffService:
 
     def _generate_summary(
         self,
-        changes: List[SchemaChange],
+        changes: list[SchemaChange],
         breaking_count: int,
         non_breaking_count: int,
         clarification_count: int,
@@ -763,8 +762,8 @@ def format_diff_for_autotune(diff_result: SchemaDiffResult) -> str:
 
 
 def compare_schemas(
-    source_schema: Dict[str, Any],
-    target_schema: Dict[str, Any],
+    source_schema: dict[str, Any],
+    target_schema: dict[str, Any],
     source_version: str = "v1",
     target_version: str = "v2",
 ) -> SchemaDiffResult:

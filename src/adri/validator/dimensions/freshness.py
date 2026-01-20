@@ -65,7 +65,7 @@ class FreshnessAssessor(DimensionAssessor):
         recency_weight = 0.0
         try:
             recency_weight = float(rule_weights_cfg.get("recency_window", 0.0))
-        except Exception:  # nosec B110 B112
+        except Exception:
             recency_weight = 0.0
         if recency_weight < 0.0:
             recency_weight = 0.0
@@ -84,7 +84,7 @@ class FreshnessAssessor(DimensionAssessor):
         window_days_val = None
         try:
             window_days_val = float(window_days) if window_days is not None else None
-        except Exception:  # nosec B110 B112
+        except Exception:
             window_days_val = None
 
         has_metadata = bool(as_of_str and date_field and window_days_val is not None)
@@ -122,7 +122,7 @@ class FreshnessAssessor(DimensionAssessor):
         # Convert to naive datetime to match as_of
         try:
             parsed_dates = parsed_dates.dt.tz_convert(None)
-        except Exception:  # nosec B110 B112
+        except Exception:
             pass  # Already naive or conversion failed
 
         # Count valid (parseable) dates
@@ -156,10 +156,10 @@ class FreshnessAssessor(DimensionAssessor):
                 try:
                     # Convert to naive datetime
                     return as_of.tz_convert(None).to_pydatetime()
-                except Exception:  # nosec B110 B112
+                except Exception:
                     # Already naive or conversion failed
                     return as_of.to_pydatetime()
-        except Exception:  # nosec B110 B112
+        except Exception:
             pass
 
         return None
@@ -228,7 +228,7 @@ class FreshnessAssessor(DimensionAssessor):
 
         try:
             parsed_dates = parsed_dates.dt.tz_convert(None)
-        except Exception:  # nosec B110 B112
+        except Exception:
             pass
 
         total_valid = int(parsed_dates.notna().sum())

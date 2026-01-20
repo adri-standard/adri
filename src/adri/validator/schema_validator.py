@@ -18,7 +18,7 @@ This is a fundamental property of ADRI - always runs, not configurable.
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Dict, List, Optional, Set
+from typing import Any
 
 import pandas as pd
 
@@ -47,10 +47,10 @@ class SchemaWarning:
     type: SchemaWarningType
     severity: SchemaWarningSeverity
     message: str
-    affected_fields: List[str]
+    affected_fields: list[str]
     remediation: str
     auto_fix_available: bool = False
-    case_insensitive_matches: Optional[Dict[str, str]] = None
+    case_insensitive_matches: dict[str, str] | None = None
 
 
 @dataclass
@@ -62,16 +62,16 @@ class SchemaValidationResult:
     total_standard_fields: int
     total_data_fields: int
     match_percentage: float
-    warnings: List[SchemaWarning] = field(default_factory=list)
-    matched_fields: Set[str] = field(default_factory=set)
-    unmatched_standard_fields: Set[str] = field(default_factory=set)
-    unmatched_data_fields: Set[str] = field(default_factory=set)
+    warnings: list[SchemaWarning] = field(default_factory=list)
+    matched_fields: set[str] = field(default_factory=set)
+    unmatched_standard_fields: set[str] = field(default_factory=set)
+    unmatched_data_fields: set[str] = field(default_factory=set)
 
     def has_critical_issues(self) -> bool:
         """Check if there are critical schema issues."""
         return any(w.severity == SchemaWarningSeverity.CRITICAL for w in self.warnings)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for logging."""
         return {
             "exact_matches": self.exact_matches,
@@ -98,7 +98,7 @@ class SchemaValidationResult:
 
 
 def validate_schema_compatibility(
-    data: pd.DataFrame, field_requirements: Dict[str, Any], strict_mode: bool = False
+    data: pd.DataFrame, field_requirements: dict[str, Any], strict_mode: bool = False
 ) -> SchemaValidationResult:
     """Validate data contract compliance - check if data fulfills contract schema.
 
@@ -165,8 +165,8 @@ def validate_schema_compatibility(
 
 
 def _find_case_insensitive_matches(
-    data_fields: Set[str], standard_fields: Set[str]
-) -> Dict[str, str]:
+    data_fields: set[str], standard_fields: set[str]
+) -> dict[str, str]:
     """Find case-insensitive matches between field names.
 
     Args:
@@ -191,13 +191,13 @@ def _find_case_insensitive_matches(
 
 def _generate_schema_warnings(
     exact_matches: int,
-    case_matches: Dict[str, str],
-    data_fields: Set[str],
-    standard_fields: Set[str],
-    unmatched_standard: Set[str],
-    unmatched_data: Set[str],
+    case_matches: dict[str, str],
+    data_fields: set[str],
+    standard_fields: set[str],
+    unmatched_standard: set[str],
+    unmatched_data: set[str],
     strict_mode: bool = False,
-) -> List[SchemaWarning]:
+) -> list[SchemaWarning]:
     """Generate appropriate warnings based on matching results.
 
     Args:
@@ -323,10 +323,8 @@ VALID_DERIVATION_STRATEGIES = {
 class FieldSpecValidationError(Exception):
     """Raised when a field specification has invalid ADRI v2.0 properties."""
 
-    pass
 
-
-def validate_field_spec_v2(field_name: str, field_spec: Dict[str, Any]) -> List[str]:
+def validate_field_spec_v2(field_name: str, field_spec: dict[str, Any]) -> list[str]:
     """Validate ADRI v2.0 field specification properties.
 
     Validates the optional v2.0 properties: field_category, derivation, reasoning_guidance.
@@ -389,8 +387,8 @@ def validate_field_spec_v2(field_name: str, field_spec: Dict[str, Any]) -> List[
 
 
 def _validate_derivation_strategy(
-    field_name: str, derivation: Dict, strategy: str
-) -> List[str]:
+    field_name: str, derivation: dict, strategy: str
+) -> list[str]:
     """Validate strategy-specific derivation structure.
 
     Args:
@@ -481,8 +479,8 @@ def _validate_derivation_strategy(
 
 
 def validate_standard_schema_v2(
-    field_requirements: Dict[str, Any],
-) -> Dict[str, List[str]]:
+    field_requirements: dict[str, Any],
+) -> dict[str, list[str]]:
     """Validate all field specifications in a standard for ADRI v2.0 compliance.
 
     This validates the standard's schema itself (the contract definition), not the data.
@@ -511,7 +509,7 @@ def validate_standard_schema_v2(
     return all_errors
 
 
-def _extract_field_requirements(standard: Dict[str, Any]) -> Dict[str, Any]:
+def _extract_field_requirements(standard: dict[str, Any]) -> dict[str, Any]:
     """Extract field_requirements from reasoning/deterministic mode standard.
 
     Handles multiple format variations:
@@ -549,7 +547,7 @@ def _extract_field_requirements(standard: Dict[str, Any]) -> Dict[str, Any]:
     return {}
 
 
-def validate_conversation_structure(schema: Dict[str, Any]) -> Dict[str, List[str]]:
+def validate_conversation_structure(schema: dict[str, Any]) -> dict[str, list[str]]:
     """Validate conversation mode schema structure.
 
     Checks required conversation mode sections per ADR-008:
@@ -620,7 +618,7 @@ def validate_conversation_structure(schema: Dict[str, Any]) -> Dict[str, List[st
     return errors
 
 
-def validate_standard(standard: Dict[str, Any]) -> Dict[str, List[str]]:
+def validate_standard(standard: dict[str, Any]) -> dict[str, list[str]]:
     """Validate any ADRI standard regardless of mode.
 
     Auto-detects mode and applies appropriate validation:
@@ -641,13 +639,15 @@ def validate_standard(standard: Dict[str, Any]) -> Dict[str, List[str]]:
 
     Example:
         >>> # Works for conversation mode
-        >>> standard = yaml.safe_load(open('ADRI_conv_approval_in.yaml'))
+        >>> with open('ADRI_conv_approval_in.yaml', encoding='utf-8') as f:
+        ...     standard = yaml.safe_load(f)
         >>> errors = validate_standard(standard)
         >>> if errors:
         ...     print(f"Validation failed: {errors}")
 
         >>> # Works for reasoning mode
-        >>> standard = yaml.safe_load(open('ADRI_rsn_example_sentiment_out.yaml'))
+        >>> with open('ADRI_rsn_example_sentiment_out.yaml', encoding='utf-8') as f:
+        ...     standard = yaml.safe_load(f)
         >>> errors = validate_standard(standard)
         >>> if errors:
         ...     print(f"Validation failed: {errors}")
@@ -700,7 +700,7 @@ class SchemaValidator:
         self.strict_mode = strict_mode
 
     def validate(
-        self, data: pd.DataFrame, field_requirements: Dict[str, Any]
+        self, data: pd.DataFrame, field_requirements: dict[str, Any]
     ) -> SchemaValidationResult:
         """Validate data contract compliance.
 
@@ -735,7 +735,7 @@ class SchemaValidator:
 
         return "\n".join(lines)
 
-    def suggest_auto_fix(self, warning: SchemaWarning) -> Optional[str]:
+    def suggest_auto_fix(self, warning: SchemaWarning) -> str | None:
         """Generate auto-fix suggestion for a warning.
 
         Args:

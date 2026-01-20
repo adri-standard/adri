@@ -192,7 +192,7 @@ class ConsistencyAssessor(DimensionAssessor):
                             passed_checks += (
                                 end_dates[valid_mask] >= start_dates[valid_mask]
                             ).sum()
-                    except Exception:  # nosec B110 B112
+                    except Exception:
                         pass  # Skip this pair if conversion fails
 
         # Check for common numeric sum patterns
@@ -218,7 +218,7 @@ class ConsistencyAssessor(DimensionAssessor):
                         computed_total = subset[part1_col] + subset[part2_col]
                         matches = abs(subset[total_col] - computed_total) < 0.01
                         passed_checks += matches.sum()
-                    except Exception:  # nosec B110 B112
+                    except Exception:
                         pass  # Skip if numeric conversion fails
 
         # If no checks were performed, return 100% (no issues found)
@@ -328,7 +328,7 @@ class ConsistencyAssessor(DimensionAssessor):
 
             return float(pass_rate * 20.0)
 
-        except Exception:  # nosec B110 B112
+        except Exception:
             # If there's an error in checking, return conservative score
             return 10.0
 
@@ -411,7 +411,7 @@ class ConsistencyAssessor(DimensionAssessor):
                                     }
                                 )
 
-        except Exception:  # nosec B110 B112
+        except Exception:
             # If there's an error in the detailed check, return a generic failure
             failures.append(
                 {
@@ -447,7 +447,7 @@ class ConsistencyAssessor(DimensionAssessor):
         pk_weight = 0.0
         try:
             pk_weight = float(rule_weights_cfg.get("primary_key_uniqueness", 0.0))
-        except Exception:  # nosec B110 B112
+        except Exception:
             pk_weight = 0.0
         if pk_weight < 0.0:
             pk_weight = 0.0
@@ -619,7 +619,7 @@ class ConsistencyAssessor(DimensionAssessor):
                                         "remediation": f"Ensure {end_col} >= {start_col}",
                                     }
                                 )
-                    except Exception:  # nosec B110 B112
+                    except Exception:
                         pass
 
         # Check numeric total violations
@@ -660,7 +660,7 @@ class ConsistencyAssessor(DimensionAssessor):
                                     "remediation": f"Ensure {total_col} = {part1_col} + {part2_col}",
                                 }
                             )
-                    except Exception:  # nosec B110 B112
+                    except Exception:
                         pass
 
         return failures

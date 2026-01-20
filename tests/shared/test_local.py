@@ -903,22 +903,8 @@ class TestLocalLoggingErrorHandling(unittest.TestCase):
             pass
 
 
-# Check if performance helpers are available (enterprise-only)
-# Only 2 of 5 performance tests require enterprise modules - others use basic timing
-try:
-    from tests.utils.performance_helpers import assert_performance
-    from tests.performance_thresholds import get_performance_threshold
-    PERFORMANCE_HELPERS_AVAILABLE = True
-except ImportError:
-    PERFORMANCE_HELPERS_AVAILABLE = False
-
-
 class TestLocalLoggingPerformance(unittest.TestCase):
-    """Test performance benchmarks and efficiency (15% weight in quality score).
-    
-    Note: Only test_single_assessment_logging_performance and test_bulk_logging_performance
-    require enterprise modules. Other tests use standard timing and run in open source.
-    """
+    """Test performance benchmarks and efficiency (15% weight in quality score)."""
 
     def setUp(self):
         """Set up test environment."""
@@ -932,7 +918,6 @@ class TestLocalLoggingPerformance(unittest.TestCase):
         os.chdir(self.original_cwd)
         shutil.rmtree(self.temp_dir)
 
-    @pytest.mark.skipif(not PERFORMANCE_HELPERS_AVAILABLE, reason="Performance helpers not available in open source")
     @pytest.mark.benchmark(group="local_logging")
     def test_single_assessment_logging_performance(self, benchmark=None):
         """Benchmark single assessment logging performance."""
@@ -1008,12 +993,8 @@ class TestLocalLoggingPerformance(unittest.TestCase):
             from tests.utils.performance_helpers import assert_performance
         assert_performance(end_time - start_time, "micro", "validation_simple", "Single assessment logging")
 
-    @pytest.mark.skipif(not PERFORMANCE_HELPERS_AVAILABLE, reason="Performance helpers not available in open source")
     def test_bulk_logging_performance(self):
-        """Test performance with bulk logging operations.
-        
-        Note: This test requires enterprise modules (assert_performance, get_performance_threshold).
-        """
+        """Test performance with bulk logging operations."""
         config = {
             "enabled": True,
             "log_dir": str(self.log_dir),
@@ -1061,71 +1042,15 @@ class TestLocalLoggingPerformance(unittest.TestCase):
             rows = [json.loads(line) for line in f if line.strip()]
             self.assertEqual(len(rows), 100)
 
-        # Should complete bulk logging efficiently (enterprise module)
+        # Should complete bulk logging efficiently
+        from tests.utils.performance_helpers import assert_performance
         assert_performance(total_time, "small", "file_processing_small", "Bulk logging (100 assessments)")
 
-        # Calculate average time per assessment (enterprise module)
+        # Calculate average time per assessment
         avg_time_per_assessment = total_time / 100
+        from tests.performance_thresholds import get_performance_threshold
         threshold_per_assessment = get_performance_threshold("small", "file_processing_small") / 100
         self.assertLess(avg_time_per_assessment, threshold_per_assessment)
-
-    def test_concurrent_logging_performance(self):
-        """Test performance with concurrent logging operations."""
-        config = {
-            "enabled": True,
-            "log_dir": str(self.log_dir),
-            "log_prefix": "concurrent_perf"
-        }
-
-        logger = LocalLogger(config)
-        results = []
-
-        def log_concurrent(thread_id):
-            """Log assessment concurrently."""
-            start_time = time.time()
-
-            mock_assessment = Mock()
-            mock_assessment.overall_score = 75.0 + thread_id
-            mock_assessment.passed = True
-            mock_assessment.standard_id = f"concurrent_test_{thread_id}"
-            mock_assessment.dimension_scores = {
-                "validity": Mock(score=15.0 + thread_id),
-                "completeness": Mock(score=16.0 + thread_id)
-            }
-
-            execution_context = {
-                "function_name": f"concurrent_function_{thread_id}",
-                "module_path": f"concurrent.module.{thread_id}"
-            }
-
-            result = logger.log_assessment(
-                assessment_result=mock_assessment,
-                execution_context=execution_context
-            )
-
-            end_time = time.time()
-            results.append((thread_id, end_time - start_time, result))
-
-        # Run concurrent logging
-        overall_start = time.time()
-        threads = []
-        for i in range(5):
-            thread = threading.Thread(target=log_concurrent, args=(i,))
-            threads.append(thread)
-            thread.start()
-
-        for thread in threads:
-            thread.join()
-        overall_time = time.time() - overall_start
-
-        # Verify all completed successfully
-        self.assertEqual(len(results), 5)
-        for thread_id, duration, result in results:
-            self.assertIsNotNone(result)
-            self.assertLess(duration, 1.0)  # Each should complete within 1 second
-
-        # Overall concurrent execution should be efficient
-        self.assertLess(overall_time, 3.0)
 
     def test_file_rotation_performance(self):
         """Test performance impact of file rotation."""

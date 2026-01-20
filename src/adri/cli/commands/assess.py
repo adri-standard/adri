@@ -22,7 +22,7 @@ from ...utils.path_utils import (
     resolve_project_path,
 )
 from ...validator.engine import DataQualityAssessor
-from ...validator.loaders import load_contract, load_data
+from ...validator.loaders import load_data, load_contract
 
 
 def _progressive_echo(text: str, delay: float = 0.0) -> None:
@@ -158,7 +158,7 @@ class AssessCommand(Command):
                     assessor_config["audit"] = self._get_default_audit_config()
             else:
                 assessor_config["audit"] = self._get_default_audit_config()
-        except Exception:  # nosec B110 B112
+        except Exception:
             assessor_config["audit"] = self._get_default_audit_config()
 
         return assessor_config
@@ -167,7 +167,7 @@ class AssessCommand(Command):
         """Get default audit configuration."""
         return {
             "enabled": True,
-            "log_dir": "ADRI/dev/audit-logs",
+            "log_dir": "ADRI/audit-logs",
             "log_prefix": "adri",
             "log_level": "INFO",
             "include_data_samples": True,
@@ -181,7 +181,7 @@ class AssessCommand(Command):
             req = std.get("requirements", {}) if isinstance(std, dict) else {}
             thr = float(req.get("overall_minimum", 75.0))
             return max(0.0, min(100.0, thr))  # Clamp to [0, 100]
-        except Exception:  # nosec B110 B112
+        except Exception:
             return 75.0
 
     def _save_assessment_report(self, guide: bool, data_path: str, result) -> None:
@@ -192,7 +192,7 @@ class AssessCommand(Command):
         try:
             from ...config.loader import ConfigurationLoader
 
-            assessments_dir = Path("ADRI/dev/assessments")
+            assessments_dir = Path("ADRI/assessments")
 
             # Try to get configured assessments directory
             try:
@@ -201,7 +201,7 @@ class AssessCommand(Command):
                 if config:
                     env_config = config_loader.get_environment_config(config)
                     assessments_dir = Path(env_config["paths"]["assessments"])
-            except Exception:  # nosec B110 B112
+            except Exception:
                 pass
 
             assessments_dir.mkdir(parents=True, exist_ok=True)
@@ -218,7 +218,7 @@ class AssessCommand(Command):
             with open(auto_output_path, "w", encoding="utf-8") as f:
                 json.dump(report_data, f, indent=2)
 
-        except Exception:  # nosec B110 B112
+        except Exception:
             # Non-fatal error - continue without saving
             pass
 
@@ -379,7 +379,7 @@ class AssessCommand(Command):
                 try:
                     if pd.isna(record_id):
                         record_id = f"Row {i + 1}"
-                except Exception:  # nosec B110 B112
+                except Exception:
                     pass
 
                 parts = []
@@ -409,7 +409,7 @@ class AssessCommand(Command):
         try:
             if pd.isna(value):
                 return True
-        except Exception:  # nosec B110 B112
+        except Exception:
             pass
         return isinstance(value, str) and value.strip() == ""
 

@@ -312,7 +312,7 @@ class ValidityAssessor(DimensionAssessor):
                         continue
                     try:
                         fw = float(weight)
-                    except Exception:  # nosec B110 B112
+                    except Exception:
                         fw = 0.0
                     if fw <= 0.0:
                         continue
@@ -340,7 +340,7 @@ class ValidityAssessor(DimensionAssessor):
                 continue
             try:
                 fw = float(w)
-            except Exception:  # nosec B110 B112
+            except Exception:
                 fw = 0.0
             if fw < 0.0:
                 fw = 0.0

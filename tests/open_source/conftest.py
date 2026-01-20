@@ -371,6 +371,6 @@ def pytest_sessionstart(session):
 def pytest_sessionfinish(session, exitstatus):
     """Finalize test session."""
     if exitstatus == 0:
-        print(f"\n[PASS] All tests passed")
+        print(f"\n✓ All tests passed")
     else:
-        print(f"\n[FAIL] Some tests failed")
+        print(f"\n✗ Some tests failed")

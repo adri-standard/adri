@@ -107,7 +107,7 @@ class ViewLogsCommand(Command):
         """Get the audit logs directory from configuration."""
         from ...config.loader import ConfigurationLoader
 
-        audit_logs_dir = Path("ADRI/dev/audit-logs")
+        audit_logs_dir = Path("ADRI/audit-logs")
 
         try:
             config_loader = ConfigurationLoader()
@@ -115,7 +115,7 @@ class ViewLogsCommand(Command):
             if config:
                 env_config = config_loader.get_environment_config(config)
                 audit_logs_dir = Path(env_config["paths"]["audit_logs"])
-        except Exception:  # nosec B110 B112
+        except Exception:
             pass
 
         return audit_logs_dir
@@ -171,7 +171,7 @@ class ViewLogsCommand(Command):
                     except (json.JSONDecodeError, ValueError, TypeError):
                         # Skip malformed lines
                         continue
-        except Exception:  # nosec B110 B112
+        except Exception:
             # If we can't read the file, return 0 errors
             return (0, 0.0)
 
@@ -405,7 +405,7 @@ class ViewLogsCommand(Command):
             try:
                 with open(failed_val_path, encoding="utf-8") as f:
                     failed_val_count = sum(1 for _ in f)
-            except Exception:  # nosec B110 B112
+            except Exception:
                 pass
 
         if failed_val_count > 0:
@@ -448,7 +448,7 @@ class ViewLogsCommand(Command):
                             click.echo()
                         except json.JSONDecodeError:
                             pass
-            except Exception:  # nosec B110 B112
+            except Exception:
                 pass
         click.echo()
 

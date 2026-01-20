@@ -63,7 +63,7 @@ except ImportError:
 try:
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     sys.stderr.reconfigure(encoding="utf-8", errors="replace")
-except Exception:  # nosec B110 B112
+except Exception:
     pass
 
 
@@ -72,7 +72,7 @@ def _debug_io_enabled() -> bool:
     try:
         v = os.environ.get("ADRI_DEBUG_LOG", "0")
         return str(v).lower() in ("1", "true", "yes", "on")
-    except Exception:  # nosec B110 B112
+    except Exception:
         return False
 
 
@@ -115,7 +115,8 @@ def _resolve_project_path(relative_path: str) -> Path:
     Resolve a path relative to the ADRI project root.
 
     If an ADRI project is found, resolves the path relative to the project root.
-    Tutorial paths and dev/prod paths are automatically prefixed with ADRI/.
+    Tutorial paths are automatically prefixed with ADRI/.
+    Dev/prod paths are converted to flat structure (dev/ and prod/ prefixes stripped).
     """
     project_root = _find_adri_project_root()
     if project_root:
@@ -123,8 +124,11 @@ def _resolve_project_path(relative_path: str) -> Path:
             return project_root / relative_path
         if relative_path.startswith("tutorials/"):
             return project_root / "ADRI" / relative_path
-        if relative_path.startswith("dev/") or relative_path.startswith("prod/"):
-            return project_root / "ADRI" / relative_path
+        # OSS flat structure: strip dev/ and prod/ prefixes
+        if relative_path.startswith("dev/"):
+            return project_root / "ADRI" / relative_path[4:]  # Strip "dev/"
+        if relative_path.startswith("prod/"):
+            return project_root / "ADRI" / relative_path[5:]  # Strip "prod/"
         return project_root / "ADRI" / relative_path
     return Path.cwd() / relative_path
 
@@ -139,10 +143,10 @@ def _shorten_home(path: Path) -> str:
         if p_str.startswith(h_str):
             return "~" + p_str[len(h_str) :]
         return p_str
-    except Exception:  # nosec B110 B112
+    except Exception:
         try:
             return str(path)
-        except Exception:  # nosec B110 B112
+        except Exception:
             return ""
 
 
@@ -165,7 +169,7 @@ def _rel_to_project_root(path: Path) -> str:
             except ValueError:
                 return _shorten_home(abs_path)
         return _shorten_home(abs_path)
-    except Exception:  # nosec B110 B112
+    except Exception:
         return _shorten_home(Path(path))
 
 
@@ -192,7 +196,7 @@ def _get_threshold_from_standard(standard_path: Path) -> float:
         if thr > 100.0:
             thr = 100.0
         return thr
-    except Exception:  # nosec B110 B112
+    except Exception:
         return 75.0
 
 
@@ -378,7 +382,7 @@ def view_logs_command(
 def _get_default_audit_config() -> dict[str, Any]:
     return {
         "enabled": True,
-        "log_dir": "ADRI/dev/audit-logs",
+        "log_dir": "ADRI/audit-logs",
         "log_prefix": "adri",
         "log_level": "INFO",
         "include_data_samples": True,
@@ -490,7 +494,7 @@ def _analyze_data_issues(data, primary_key_fields):
         pk_failures = check_primary_key_uniqueness(data, standard_config)
         failed_checks.extend(pk_failures)
         validation_id += len(pk_failures)
-    except Exception:  # nosec B110 B112
+    except Exception:
         pass
 
     for i, row in data.iterrows():
@@ -520,7 +524,7 @@ def _analyze_data_issues(data, primary_key_fields):
 def _save_assessment_report(guide, data_path, result):
     if not guide:
         return
-    assessments_dir = Path("ADRI/dev/assessments")
+    assessments_dir = Path("ADRI/assessments")
     if ConfigurationLoader:
         config_loader = ConfigurationLoader()
         config = config_loader.get_active_config()
@@ -552,7 +556,7 @@ def _analyze_failed_records(data):
             try:
                 if pd.isna(v):
                     return True
-            except Exception:  # nosec B110 B112
+            except Exception:
                 pass
             return isinstance(v, str) and v.strip() == ""
 
@@ -581,7 +585,7 @@ def _analyze_failed_records(data):
             try:
                 if pd.isna(record_id):
                     record_id = f"Row {i + 1}"
-            except Exception:  # nosec B110 B112
+            except Exception:
                 pass
 
             parts = []
@@ -675,7 +679,7 @@ def _create_training_snapshot(data_path: str) -> str | None:
         if not source_file.exists():
             return None
         file_hash = _generate_file_hash(source_file)
-        training_data_dir = Path("ADRI/dev/training-data")
+        training_data_dir = Path("ADRI/training-data")
         if ConfigurationLoader:
             config_loader = ConfigurationLoader()
             config = config_loader.get_active_config()
@@ -692,7 +696,7 @@ def _create_training_snapshot(data_path: str) -> str | None:
 
         shutil.copy2(source_file, snapshot_path)
         return str(snapshot_path)
-    except Exception:  # nosec B110 B112
+    except Exception:
         return None
 
 
@@ -733,7 +737,7 @@ def _create_lineage_metadata(
 
 
 def _get_assessments_directory() -> Path:
-    assessments_dir = Path("ADRI/dev/assessments")
+    assessments_dir = Path("ADRI/assessments")
     if ConfigurationLoader:
         config_loader = ConfigurationLoader()
         config = config_loader.get_active_config()
@@ -797,12 +801,10 @@ def _load_audit_entries() -> list[dict[str, Any]]:
                 log_reader = ADRILogReader({"paths": env_config.get("paths", {})})
             else:
                 # Fallback to default config
-                log_reader = ADRILogReader(
-                    {"paths": {"audit_logs": "ADRI/dev/audit-logs"}}
-                )
+                log_reader = ADRILogReader({"paths": {"audit_logs": "ADRI/audit-logs"}})
         else:
             # No config loader, use default
-            log_reader = ADRILogReader({"paths": {"audit_logs": "ADRI/dev/audit-logs"}})
+            log_reader = ADRILogReader({"paths": {"audit_logs": "ADRI/audit-logs"}})
 
         # Read assessment logs
         assessment_logs = log_reader.read_assessment_logs()
@@ -889,7 +891,7 @@ def _display_assessments_table(enhanced_table_data, table_data, verbose):
 
 
 def _get_audit_logs_directory() -> Path:
-    audit_logs_dir = Path("ADRI/dev/audit-logs")
+    audit_logs_dir = Path("ADRI/audit-logs")
     if ConfigurationLoader:
         config_loader = ConfigurationLoader()
         config = config_loader.get_active_config()
@@ -1055,7 +1057,7 @@ def _compute_dimension_contributions(dimension_scores, applied_dimension_weights
             else:
                 try:
                     scores[dim] = float(val.get("score", 0.0))
-                except Exception:  # nosec B110 B112
+                except Exception:
                     scores[dim] = 0.0
 
         weights = {k: float(v) for k, v in (applied_dimension_weights or {}).items()}
@@ -1067,7 +1069,7 @@ def _compute_dimension_contributions(dimension_scores, applied_dimension_weights
                 (s / 20.0) * (w / sum_w) * 100.0 if sum_w > 0.0 else 0.0
             )
         return contributions
-    except Exception:  # nosec B110 B112
+    except Exception:
         return {}
 
 
@@ -1366,7 +1368,7 @@ def standards_catalog_list_command(json_output: bool = False) -> int:
             base_url = _CC.resolve_base_url()
             CatalogClientLocal = _CC
             CatalogConfigLocal = _CFG
-        except Exception:  # nosec B110 B112
+        except Exception:
             base_url = None
             CatalogClientLocal = None  # type: ignore
             CatalogConfigLocal = None  # type: ignore
@@ -1472,9 +1474,9 @@ def standards_catalog_fetch_command(
 
         # Determine destination directory
         if dest == "dev":
-            dest_dir = Path("ADRI/dev/contracts")
+            dest_dir = Path("ADRI/contracts")
         elif dest == "prod":
-            dest_dir = Path("ADRI/prod/contracts")
+            dest_dir = Path("ADRI/contracts")
         else:
             if json_output:
                 import json
@@ -1628,8 +1630,8 @@ def show_help_guide() -> int:
         # Display Smart Path Resolution
         click.echo("🎯 Smart Path Resolution:")
         click.echo("   Contracts resolve automatically based on environment:")
-        click.echo("   - dev/ environment → ADRI/dev/contracts/")
-        click.echo("   - prod/ environment → ADRI/prod/contracts/")
+        click.echo("   - dev/ environment → ADRI/contracts/")
+        click.echo("   - prod/ environment → ADRI/contracts/")
         click.echo("")
 
         click.echo(f"📦 ADRI Version: {__version__}")

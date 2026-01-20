@@ -14,8 +14,8 @@ The validator supports all Draft 7 JSON Schema features including:
 - Array constraints (minItems, maxItems, uniqueItems)
 """
 
+from typing import Dict, Any, List, Tuple
 import logging
-from typing import Any, Dict, List, Tuple
 
 logger = logging.getLogger(__name__)
 

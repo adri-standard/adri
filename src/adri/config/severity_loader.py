@@ -146,7 +146,7 @@ class SeverityDefaultsLoader:
             # Return default if not found
             return Severity.from_string(default)
 
-        except Exception:  # nosec B110 B112
+        except Exception:
             # Fallback to default on any error
             return Severity.from_string(default)
 

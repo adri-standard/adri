@@ -26,12 +26,12 @@ from .engine import (
 )
 
 # Import loader utilities
-from .loaders import load_contract, load_data
+from .loaders import load_data, load_contract
 
 # Import schema validation functions
 from .schema_validator import (
-    validate_conversation_structure,
     validate_standard,
+    validate_conversation_structure,
     validate_standard_schema_v2,
 )
 

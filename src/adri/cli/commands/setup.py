@@ -79,9 +79,8 @@ class SetupCommand(Command):
 
             # Create directories
             config_data = self._get_config_data(project_name)
-            for env_data in config_data["adri"]["environments"].values():
-                for path in env_data["paths"].values():
-                    Path(path).mkdir(parents=True, exist_ok=True)
+            for path in config_data["adri"]["paths"].values():
+                Path(path).mkdir(parents=True, exist_ok=True)
 
             if guide:
                 success = self._create_sample_files()
@@ -107,68 +106,24 @@ class SetupCommand(Command):
         doc_header = """# ADRI PROJECT CONFIGURATION
 # ==================================
 #
-# Directory Structure Created:
-# - tutorials/                → Packaged learning examples for onboarding and tutorial data
-# - contracts/                → Generic directory name used throughout documentation
-# - assessments/              → Generic directory name used throughout documentation
-# - training-data/            → Generic directory name used throughout documentation
-# - audit-logs/               → Generic directory name used throughout documentation
-# - ADRI/dev/contracts        → Development YAML contract files are stored (quality validation rules)
-# - ADRI/dev/assessments      → Development assessment reports are saved (JSON quality reports)
-# - ADRI/dev/training-data    → Development training data snapshots are preserved (SHA256 integrity tracking)
-# - ADRI/dev/audit-logs       → Development audit logs are stored (CSV activity tracking)
-# - ADRI/prod/contracts       → Production-validated YAML contracts
-# - ADRI/prod/assessments     → Production business-critical quality reports
-# - ADRI/prod/training-data   → Production training data snapshots for lineage tracking
-# - ADRI/prod/audit-logs      → Production regulatory compliance tracking and compliance and security logging
-#
-# ENVIRONMENT SWITCHING
-# ENVIRONMENT CONFIGURATIONS
-# DEVELOPMENT ENVIRONMENT
-# PRODUCTION ENVIRONMENT
-# SWITCHING ENVIRONMENTS
-# WORKFLOW RECOMMENDATIONS
-#
-# Environment purposes:
-# Development:
-#   - Contract creation, testing, and experimentation
-#   - Creating new data quality contracts
-#   - Testing contracts against various datasets
-#   - tutorial data
-# Production:
-#   - Validated contracts and production data quality
-#   - Deploying proven contracts
-#   - Enterprise governance
-#   - CI/CD pipelines
-#
-# How to switch environments (three methods):
-# 1) Configuration Method:
-#    - Set 'default_environment' in ADRI/config.yaml
-#    - Example: default_environment: production
-# 2) Environment Variable Method:
-#    - Use environment variable ADRI_ENV
-#    - Example: export ADRI_ENV=production
-# 3) Command Line Method:
-#    - Pass --environment where supported (e.g., show-config)
-#    - Example: adri show-config --environment production
+# Directory Structure:
+# - ADRI/contracts/      → YAML contract files (quality validation rules)
+# - ADRI/assessments/    → Assessment reports (JSON quality reports)
+# - ADRI/training-data/  → Training data snapshots (SHA256 integrity tracking)
+# - ADRI/audit-logs/     → Audit logs (CSV activity tracking)
+# - ADRI/tutorials/      → Learning examples for onboarding
 #
 # AUDIT CONFIGURATION
-# - Comprehensive logging for development debugging
-# - Enhanced logging for compliance, security
 # - include_data_samples: include sample values when safe
 # - max_log_size_mb: rotate logs after exceeding this size
 # - log_level: INFO/DEBUG
-# - regulatory compliance
 #
-# Production Workflow:
-# - Create and test contracts in development
-# - Validate contracts with various test datasets
-# - Copy proven contracts from dev/contracts/ to prod/contracts/
-# - Switch to production environment
-# - Monitor production audit logs
+# PROTECTION CONFIGURATION
+# - default_failure_mode: "raise" | "warn" | "continue"
+# - default_min_score: minimum quality score required (0-100)
+# - auto_generate_contracts: auto-create contracts from data analysis
 #
-# Note: This header is comments only and does not affect runtime behavior. It exists to satisfy
-# environment documentation tests and improve onboarding clarity.
+# For more information, see: https://github.com/adri-standard/adri
 """
 
         config_data = self._get_config_data(project_name)
@@ -182,40 +137,26 @@ class SetupCommand(Command):
             "adri": {
                 "project_name": project_name,
                 "version": "4.0.0",
-                "default_environment": "development",
-                "environments": {
-                    "development": {
-                        "paths": {
-                            "contracts": "ADRI/dev/contracts",
-                            "assessments": "ADRI/dev/assessments",
-                            "training_data": "ADRI/dev/training-data",
-                            "audit_logs": "ADRI/dev/audit-logs",
-                        },
-                        "audit": {
-                            "enabled": True,
-                            "log_dir": "ADRI/dev/audit-logs",
-                            "log_prefix": "adri",
-                            "log_level": "INFO",
-                            "include_data_samples": True,
-                            "max_log_size_mb": 100,
-                        },
-                    },
-                    "production": {
-                        "paths": {
-                            "contracts": "ADRI/prod/contracts",
-                            "assessments": "ADRI/prod/assessments",
-                            "training_data": "ADRI/prod/training-data",
-                            "audit_logs": "ADRI/prod/audit-logs",
-                        },
-                        "audit": {
-                            "enabled": True,
-                            "log_dir": "ADRI/prod/audit-logs",
-                            "log_prefix": "adri",
-                            "log_level": "INFO",
-                            "include_data_samples": True,
-                            "max_log_size_mb": 100,
-                        },
-                    },
+                "paths": {
+                    "contracts": "ADRI/contracts",
+                    "assessments": "ADRI/assessments",
+                    "training_data": "ADRI/training-data",
+                    "audit_logs": "ADRI/audit-logs",
+                },
+                "audit": {
+                    "enabled": True,
+                    "log_dir": "ADRI/audit-logs",
+                    "log_prefix": "adri",
+                    "log_level": "INFO",
+                    "include_data_samples": True,
+                    "max_log_size_mb": 100,
+                },
+                "protection": {
+                    "default_failure_mode": "raise",
+                    "default_min_score": 80,
+                    "cache_duration_hours": 1,
+                    "auto_generate_contracts": True,
+                    "verbose_protection": False,
                 },
             }
         }
@@ -258,7 +199,7 @@ INV-110,DUPLICATE-ID,875.25,2024-02-24,paid,credit_card"""
 
             return training_file.exists() and test_file.exists()
 
-        except Exception:  # nosec B110 B112
+        except Exception:
             return False
 
     def _display_setup_success(self, guide: bool) -> None:
@@ -270,10 +211,10 @@ INV-110,DUPLICATE-ID,875.25,2024-02-24,paid,credit_card"""
             click.echo(
                 "   📚 tutorials/invoice_processing/ - Invoice processing tutorial"
             )
-            click.echo("   📋 dev/contracts/     - Quality rules")
-            click.echo("   📊 dev/assessments/   - Assessment reports")
-            click.echo("   📄 dev/training-data/ - Preserved data snapshots")
-            click.echo("   📈 dev/audit-logs/    - Comprehensive audit trail")
+            click.echo("   📋 contracts/      - Quality rules")
+            click.echo("   📊 assessments/    - Assessment reports")
+            click.echo("   📄 training-data/  - Preserved data snapshots")
+            click.echo("   📈 audit-logs/     - Comprehensive audit trail")
             click.echo("")
             click.echo("💡 Note: Commands use relative paths from project root")
             click.echo("")

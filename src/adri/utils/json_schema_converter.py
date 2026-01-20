@@ -15,8 +15,8 @@ This is a reusable utility for frameworks that need JSON Schema validation
 of data against ADRI specifications.
 """
 
+from typing import Dict, Any, List
 import logging
-from typing import Any, Dict, List
 
 logger = logging.getLogger(__name__)
 

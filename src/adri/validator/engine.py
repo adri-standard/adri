@@ -7,10 +7,10 @@ Core data quality assessment and validation engine functionality.
 Migrated from adri/core/assessor.py for the new src/ layout.
 """
 
-import logging
 import os
 import sys
 import time
+import logging
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -85,7 +85,7 @@ class ThresholdResolver:
                         source="standard_overall_minimum",
                         standard_path=standard_path,
                     )
-            except Exception:  # noqa: E722  # nosec B110
+            except Exception:  # noqa: E722
                 # Standard loading failed, continue to config fallback
                 pass
 
@@ -797,7 +797,7 @@ class DataQualityAssessor:
         except (OSError, PermissionError):
             return False
 
-    def assess(self, data, standard_path=None):  # noqa: C901
+    def assess(self, data, standard_path=None):
         """Assess data quality using pipeline architecture with audit logging."""
         # Start timing
         start_time = time.time()
@@ -854,9 +854,8 @@ class DataQualityAssessor:
         if standard_path:
             # Load standard for schema validation - use lenient YAML loading for schema check
             try:
-                import yaml
-
                 from .schema_validator import validate_schema_compatibility
+                import yaml
 
                 if _should_enable_debug():
                     diagnostic_log.append(f"Loading standard from: {standard_path}")
@@ -1365,7 +1364,7 @@ class DataQualityAssessor:
                     data, validity_requirements
                 )
                 all_failures.extend(validity_failures)
-            except Exception:  # nosec B110 B112
+            except Exception:
                 pass
 
             # Collect failures from Completeness dimension
@@ -1381,7 +1380,7 @@ class DataQualityAssessor:
                     data, completeness_requirements
                 )
                 all_failures.extend(completeness_failures)
-            except Exception:  # nosec B110 B112
+            except Exception:
                 pass
 
             # Collect failures from Consistency dimension
@@ -1397,10 +1396,10 @@ class DataQualityAssessor:
                     data, consistency_requirements
                 )
                 all_failures.extend(consistency_failures)
-            except Exception:  # nosec B110 B112
+            except Exception:
                 pass
 
-        except Exception:  # nosec B110 B112
+        except Exception:
             # If anything fails, return whatever we collected so far
             pass
 
@@ -1420,7 +1419,7 @@ class ValidationEngine:
             from .pipeline import ValidationPipeline
 
             self.pipeline = ValidationPipeline()
-        except Exception:  # noqa: E722  # nosec B110
+        except Exception:  # noqa: E722
             self.pipeline = None  # Fallback if pipeline not available
 
         # Legacy support for explain data collection
@@ -1438,7 +1437,7 @@ class ValidationEngine:
         for k, v in weights.items():
             try:
                 w = float(v)
-            except Exception:  # noqa: E722  # nosec B110
+            except Exception:  # noqa: E722
                 w = 0.0
             if w < 0.0:
                 w = 0.0
@@ -1471,7 +1470,7 @@ class ValidationEngine:
                 continue
             try:
                 fw = float(w)
-            except Exception:  # noqa: E722  # nosec B110
+            except Exception:  # noqa: E722
                 fw = 0.0
             if fw < 0.0:
                 fw = 0.0
@@ -1651,7 +1650,7 @@ class ValidationEngine:
                         continue
                     try:
                         fw = float(weight)
-                    except Exception:  # noqa: E722  # nosec B110
+                    except Exception:  # noqa: E722
                         fw = 0.0
                     if fw <= 0.0:
                         if isinstance(weight, (int, float)) and weight < 0:
@@ -1727,7 +1726,7 @@ class ValidationEngine:
                 # Use pipeline for assessment
                 return self.pipeline.execute_assessment(data, standard_wrapper)
 
-            except Exception:  # noqa: E722  # nosec B110
+            except Exception:  # noqa: E722
                 # Fallback to basic assessment if standard can't be loaded
                 return self._basic_assessment(data)
         else:
@@ -1747,7 +1746,7 @@ class ValidationEngine:
 
             yaml_dict = load_contract(standard_path)
             standard = BundledStandardWrapper(yaml_dict)
-        except Exception:  # noqa: E722  # nosec B110
+        except Exception:  # noqa: E722
             return self._basic_assessment(data)
 
         # Perform assessment using the standard's requirements
@@ -1768,7 +1767,7 @@ class ValidationEngine:
         # Calculate overall score using per-dimension weights
         try:
             dim_reqs = standard.get_dimension_requirements()
-        except Exception:  # noqa: E722  # nosec B110
+        except Exception:  # noqa: E722
             dim_reqs = {}
 
         weights = {
@@ -1854,7 +1853,7 @@ class ValidationEngine:
             # with assess())
             try:
                 dim_reqs = standard_wrapper.get_dimension_requirements()
-            except Exception:  # noqa: E722  # nosec B110
+            except Exception:  # noqa: E722
                 dim_reqs = {}
 
             weights = {
@@ -1911,7 +1910,7 @@ class ValidationEngine:
                 metadata=metadata,
             )
 
-        except Exception:  # noqa: E722  # nosec B110
+        except Exception:  # noqa: E722
             # Fallback to basic assessment if standard can't be processed
             return self._basic_assessment(data)
 
@@ -1960,7 +1959,7 @@ class ValidationEngine:
             field_overrides_cfg: dict[str, dict[str, float]] = scoring_cfg.get(
                 "field_overrides", {}
             )
-        except Exception:  # noqa: E722  # nosec B110
+        except Exception:  # noqa: E722
             dim_reqs = {}
             validity_cfg = {}
             scoring_cfg = {}
@@ -1975,7 +1974,7 @@ class ValidationEngine:
         # Get field requirements from standard
         try:
             field_requirements = standard.get_field_requirements()
-        except Exception:  # noqa: E722  # nosec B110
+        except Exception:  # noqa: E722
             # Fallback to basic validity check
             return self._assess_validity(data)
 
@@ -2071,7 +2070,7 @@ class ValidationEngine:
             if col in data.columns:
                 try:
                     per_field_missing[col] = int(data[col].isnull().sum())
-                except Exception:  # noqa: E722  # nosec B110
+                except Exception:  # noqa: E722
                     per_field_missing[col] = 0
 
         missing_required = (
@@ -2104,7 +2103,7 @@ class ValidationEngine:
         """Assess completeness using nullable requirements from standard and attach explain payload."""
         try:
             field_requirements = standard.get_field_requirements()
-        except Exception:  # noqa: E722  # nosec B110
+        except Exception:  # noqa: E722
             # Fallback to basic completeness check
             return self._assess_completeness(data)
 
@@ -2146,7 +2145,7 @@ class ValidationEngine:
                 rid = standard.get_record_identification()
                 if isinstance(rid, dict):
                     pk_fields = list(rid.get("primary_key_fields", []))
-            except Exception:  # noqa: E722  # nosec B110
+            except Exception:  # noqa: E722
                 pass
 
             # Fallback: direct access to standard_dict
@@ -2157,20 +2156,20 @@ class ValidationEngine:
                         rid = std_dict.get("record_identification", {})
                         if isinstance(rid, dict):
                             pk_fields = list(rid.get("primary_key_fields", []))
-                except Exception:  # noqa: E722  # nosec B110
+                except Exception:  # noqa: E722
                     pass
 
             # Ensure pk_fields is always a list
             if not isinstance(pk_fields, list):
                 pk_fields = []
-        except Exception:  # noqa: E722  # nosec B110
+        except Exception:  # noqa: E722
             # Fallback to basic if standard is not usable
             return self._assess_consistency(data)
 
         # Determine if rule is active
         try:
             w = float(rule_weights_cfg.get("primary_key_uniqueness", 0.0))
-        except Exception:  # noqa: E722  # nosec B110
+        except Exception:  # noqa: E722
             w = 0.0
         if w < 0.0:
             w = 0.0
@@ -2192,14 +2191,14 @@ class ValidationEngine:
         # Execute PK uniqueness rule
         try:
             from .rules import check_primary_key_uniqueness
-        except Exception:  # noqa: E722  # nosec B110
+        except Exception:  # noqa: E722
             return self._assess_consistency(data)
 
         std_cfg = {"record_identification": {"primary_key_fields": pk_fields}}
         failures = []
         try:
             failures = check_primary_key_uniqueness(data, std_cfg) or []
-        except Exception:  # noqa: E722  # nosec B110
+        except Exception:  # noqa: E722
             failures = []
 
         # Sum affected rows across duplicate groups (cap at total for safety)
@@ -2208,7 +2207,7 @@ class ValidationEngine:
         for f in failures:
             try:
                 failed_rows += int(f.get("affected_rows", 0) or 0)
-            except Exception:  # noqa: E722  # nosec B110
+            except Exception:  # noqa: E722
                 pass
         if failed_rows > total:
             failed_rows = total
@@ -2264,14 +2263,14 @@ class ValidationEngine:
             rw = float(rw_cfg.get("recency_window", 0.0)) if rw_cfg else 0.0
             if rw < 0.0:
                 rw = 0.0
-        except Exception:  # noqa: E722  # nosec B110
+        except Exception:  # noqa: E722
             rw = 0.0
 
         # Gate activation: if metadata not present at all -> baseline without explain.
         wd_val = None
         try:
             wd_val = float(window_days)
-        except Exception:  # noqa: E722  # nosec B110
+        except Exception:  # noqa: E722
             wd_val = None
         has_meta = bool(as_of_str and date_field and wd_val is not None)
         if not has_meta:
@@ -2301,10 +2300,10 @@ class ValidationEngine:
             if as_of is not None and not pd.isna(as_of):
                 try:
                     as_of = as_of.tz_convert(None)
-                except Exception:  # noqa: E722  # nosec B110
+                except Exception:  # noqa: E722
                     # already naive
                     pass
-        except Exception:  # noqa: E722  # nosec B110
+        except Exception:  # noqa: E722
             as_of = None
 
         if as_of is None or pd.isna(as_of):
@@ -2344,7 +2343,7 @@ class ValidationEngine:
         parsed = pd.to_datetime(series, utc=True, errors="coerce")
         try:
             parsed = parsed.dt.tz_convert(None)
-        except Exception:  # noqa: E722  # nosec B110
+        except Exception:  # noqa: E722
             pass
         total = int(parsed.notna().sum())
         if total <= 0:
@@ -2452,7 +2451,7 @@ class ValidationEngine:
                 if isinstance(scoring_cfg, dict)
                 else {}
             )
-        except Exception:  # noqa: E722  # nosec B110
+        except Exception:  # noqa: E722
             return self._assess_plausibility(data)
 
         # Check if any rules are active
@@ -2737,7 +2736,7 @@ class ValidationEngine:
                                 failed_checks += 1
                             elif max_val is not None and numeric_value > max_val:
                                 failed_checks += 1
-                        except Exception:  # noqa: E722  # nosec B110
+                        except Exception:  # noqa: E722
                             failed_checks += 1
 
             # Check outlier detection rules
@@ -2755,7 +2754,7 @@ class ValidationEngine:
                                     failed_checks += 1
                                 elif max_val is not None and numeric_value > max_val:
                                     failed_checks += 1
-                            except Exception:  # noqa: E722  # nosec B110
+                            except Exception:  # noqa: E722
                                 failed_checks += 1
 
             if total_checks > 0:

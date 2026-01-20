@@ -77,7 +77,7 @@ def _get_compatible_versions() -> list[str]:
         base_versions.append(__version__)
 
         return sorted(set(base_versions))
-    except Exception:  # nosec B110 B112
+    except Exception:
         # Fallback to safe list that includes current version
         fallback_versions = ["4.0.0", __version__]
         return sorted(set(fallback_versions))
