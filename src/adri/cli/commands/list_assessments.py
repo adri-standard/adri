@@ -92,7 +92,7 @@ class ListAssessmentsCommand(Command):
         """Get the assessments directory from configuration."""
         from ...config.loader import ConfigurationLoader
 
-        assessments_dir = Path("ADRI/dev/assessments")
+        assessments_dir = Path("ADRI/assessments")
 
         try:
             config_loader = ConfigurationLoader()
@@ -100,7 +100,7 @@ class ListAssessmentsCommand(Command):
             if config:
                 env_config = config_loader.get_environment_config(config)
                 assessments_dir = Path(env_config["paths"]["assessments"])
-        except Exception:  # nosec B110 B112
+        except Exception:
             pass
 
         return assessments_dir
@@ -163,9 +163,7 @@ class ListAssessmentsCommand(Command):
                 log_reader = ADRILogReader({"paths": env_config.get("paths", {})})
             else:
                 # Fallback to default config
-                log_reader = ADRILogReader(
-                    {"paths": {"audit_logs": "ADRI/dev/audit-logs"}}
-                )
+                log_reader = ADRILogReader({"paths": {"audit_logs": "ADRI/audit-logs"}})
 
             # Read assessment logs
             assessment_logs = log_reader.read_assessment_logs()
@@ -193,7 +191,7 @@ class ListAssessmentsCommand(Command):
                 except (ValueError, TypeError, KeyError):
                     continue  # Skip unreadable entries
 
-        except Exception:  # nosec B110 B112
+        except Exception:
             # If loading fails, return empty list
             pass
 

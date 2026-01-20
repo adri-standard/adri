@@ -44,7 +44,11 @@ class ShowConfigCommand(Command):
     def _show_config(
         self, paths_only: bool = False, environment: str | None = None
     ) -> int:
-        """Show current ADRI configuration."""
+        """Show current ADRI configuration.
+
+        Supports both flat OSS structure (paths at top level) and
+        hierarchical enterprise structure (environments with nested paths).
+        """
         try:
             from ...config.loader import ConfigurationLoader
 
@@ -63,27 +67,47 @@ class ShowConfigCommand(Command):
                 click.echo("📋 ADRI Configuration")
                 click.echo(f"🏗️  Project: {adri_config['project_name']}")
                 click.echo(f"📦 Version: {adri_config.get('version', '4.0.0')}")
-                click.echo(
-                    f"🌍 Default Environment: {adri_config['default_environment']}"
-                )
+
+                # Handle both flat and hierarchical structures
+                if "default_environment" in adri_config:
+                    click.echo(
+                        f"🌍 Default Environment: {adri_config['default_environment']}"
+                    )
+                else:
+                    click.echo("🌍 Structure: Flat (OSS)")
                 click.echo()
 
-            # Determine which environments to show
-            environments_to_show = (
-                [environment]
-                if environment
-                else list(adri_config["environments"].keys())
-            )
+            # Check if using flat structure (paths at top level) or hierarchical (environments)
+            if "environments" in adri_config:
+                # Hierarchical structure with environments
+                environments_to_show = (
+                    [environment]
+                    if environment
+                    else list(adri_config["environments"].keys())
+                )
 
-            for env_name in environments_to_show:
-                if env_name not in adri_config["environments"]:
-                    click.echo(f"❌ Environment '{env_name}' not found")
-                    continue
+                for env_name in environments_to_show:
+                    if env_name not in adri_config["environments"]:
+                        click.echo(f"❌ Environment '{env_name}' not found")
+                        continue
 
-                env_config = adri_config["environments"][env_name]
-                paths = env_config["paths"]
+                    env_config = adri_config["environments"][env_name]
+                    paths = env_config["paths"]
 
-                click.echo(f"📁 {env_name.title()} Environment:")
+                    click.echo(f"📁 {env_name.title()} Environment:")
+                    for path_type, path_value in paths.items():
+                        status = "✅" if os.path.exists(path_value) else "❌"
+                        click.echo(f"  {status} {path_type}: {path_value}")
+                    click.echo()
+            else:
+                # Flat structure (OSS) - paths at top level
+                if environment:
+                    click.echo(
+                        f"⚠️  Environment '{environment}' not applicable - using flat structure"
+                    )
+
+                paths = adri_config.get("paths", {})
+                click.echo("📁 Configured Paths:")
                 for path_type, path_value in paths.items():
                     status = "✅" if os.path.exists(path_value) else "❌"
                     click.echo(f"  {status} {path_type}: {path_value}")
@@ -215,8 +239,8 @@ class ListContractsCommand(Command):
             standards_found = False
 
             # Local project standards (development and production)
-            dev_dir = Path("ADRI/dev/contracts")
-            prod_dir = Path("ADRI/prod/contracts")
+            dev_dir = Path("ADRI/contracts")
+            prod_dir = Path("ADRI/contracts")
 
             # Try to resolve from config if available
             try:
@@ -231,7 +255,7 @@ class ListContractsCommand(Command):
                     )
                     dev_dir = Path(dev_env["paths"]["contracts"])
                     prod_dir = Path(prod_env["paths"]["contracts"])
-            except Exception:  # nosec B110 B112
+            except Exception:
                 pass
 
             # List YAML files in directories
@@ -376,8 +400,8 @@ class ShowContractCommand(Command):
 
         # Search in standard locations
         search_paths = [
-            f"ADRI/dev/contracts/{standard_name}.yaml",
-            f"ADRI/prod/contracts/{standard_name}.yaml",
+            f"ADRI/contracts/{standard_name}.yaml",
+            f"ADRI/contracts/{standard_name}.yaml",
             f"{standard_name}.yaml",
         ]
 

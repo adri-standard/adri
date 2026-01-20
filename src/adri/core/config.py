@@ -192,7 +192,7 @@ class AuditConfig:
     enabled: bool = True
     """Whether audit logging is enabled"""
 
-    log_dir: str = "ADRI/dev/audit-logs"
+    log_dir: str = "ADRI/audit-logs"
     """Directory for storing audit logs"""
 
     log_prefix: str = "adri"

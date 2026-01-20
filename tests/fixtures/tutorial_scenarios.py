@@ -16,7 +16,7 @@ Example Usage:
         # - training_data_path: clean CSV
         # - test_data_path: CSV with issues
         # - generated_standard_name: "invoice_data"
-        # - standard_path: ADRI/dev/contracts/invoice_data.yaml
+        # - standard_path: ADRI/contracts/invoice_data.yaml
 
         @adri_protected(contract=invoice_scenario['generated_standard_name'])
         def process_invoices(data):
@@ -437,7 +437,7 @@ def tutorial_project(tmp_path: Path) -> Path:
 
     Setup:
     1. Copies test_adri_config.yaml to ADRI/config.yaml
-    2. Creates ADRI/dev/ and ADRI/prod/ directory structure
+    2. Creates ADRI/ flat directory structure
     3. Creates ADRI/tutorials/ directory
     4. Sets environment variables for development mode
 

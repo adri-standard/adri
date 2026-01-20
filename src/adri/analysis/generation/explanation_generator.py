@@ -133,7 +133,7 @@ class ExplanationGenerator:
         try:
             null_count = int(series.isnull().sum())
             total_count = int(len(series))
-        except Exception:  # nosec B110 B112
+        except Exception:
             null_count = total_count = 0
 
         nullable = field_req["nullable"]
@@ -171,7 +171,7 @@ class ExplanationGenerator:
             in_set = non_null.isin(allowed_values)
             coverage = float(in_set.sum() / len(non_null)) if len(non_null) > 0 else 1.0
             unique_count = int(non_null.nunique())
-        except Exception:  # nosec B110 B112
+        except Exception:
             coverage = None
             unique_count = None
 
@@ -210,7 +210,7 @@ class ExplanationGenerator:
             lengths = series.dropna().astype(str).str.len()
             observed_min = int(lengths.min()) if len(lengths) else None
             observed_max = int(lengths.max()) if len(lengths) else None
-        except Exception:  # nosec B110 B112
+        except Exception:
             observed_min = observed_max = None
 
         return {
@@ -285,7 +285,7 @@ class ExplanationGenerator:
                         "observed_max": float(numeric_data.max()),
                     }
                 )
-        except Exception:  # nosec B110 B112
+        except Exception:
             pass
 
         reason = (
@@ -349,7 +349,7 @@ class ExplanationGenerator:
                 if len(date_data) and pd.notna(date_data.max())
                 else None
             )
-        except Exception:  # nosec B110 B112
+        except Exception:
             observed_min = observed_max = None
 
         return {
@@ -388,7 +388,7 @@ class ExplanationGenerator:
             compiled_pattern = re.compile(pattern)
             matches = non_null.apply(lambda v: bool(compiled_pattern.match(v)))
             coverage = float(matches.mean()) if len(non_null) > 0 else 1.0
-        except Exception:  # nosec B110 B112
+        except Exception:
             coverage = None
 
         reason = (
@@ -417,7 +417,7 @@ class ExplanationGenerator:
             "unique_count": "Number of distinct non-null values observed in training.",
             "mad": "Median Absolute Deviation: robust measure of variability around the median.",
             "quantile": "Statistical measure dividing data into equal-sized intervals.",
-            "training_pass": "Guarantee that generated rules pass on the training data used for generation.",
+            "training_pass": "Guarantee that generated rules pass on the training data used for generation.",  # nosec B105
             "enum_strategy": "Method used for allowed values inference (coverage or tolerant).",
             "margin_days": "Buffer added to date ranges to allow for reasonable variations.",
         }

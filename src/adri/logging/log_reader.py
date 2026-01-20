@@ -98,7 +98,7 @@ class ADRILogReader:
         - read_assessment_by_id(assessment_id): Direct ID lookup
 
     Example:
-        >>> reader = ADRILogReader({"paths": {"audit_logs": "ADRI/dev/audit-logs"}})
+        >>> reader = ADRILogReader({"paths": {"audit_logs": "ADRI/audit-logs"}})
         >>> assessments = reader.read_assessment_logs(limit=10)
         >>> for assessment in assessments:
         ...     print(f"Assessment {assessment['assessment_id']}: {assessment['passed']}")
@@ -116,11 +116,11 @@ class ADRILogReader:
 
         Args:
             config: Configuration dictionary with 'paths' key containing
-                   'audit_logs' path. Defaults to 'ADRI/dev/audit-logs'
+                   'audit_logs' path. Defaults to 'ADRI/audit-logs'
                    if not specified.
         """
         # Get log directory from config, with fallback to standard location
-        log_dir_str = config.get("paths", {}).get("audit_logs", "ADRI/dev/audit-logs")
+        log_dir_str = config.get("paths", {}).get("audit_logs", "ADRI/audit-logs")
         self.log_dir = Path(log_dir_str)
 
         # Define paths to the three JSONL log files

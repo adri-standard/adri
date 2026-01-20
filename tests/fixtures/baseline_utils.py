@@ -204,10 +204,10 @@ def get_generated_artifacts(project_root: Path, use_case_name: str) -> Dict[str,
     """Collects all artifacts generated during tutorial test.
 
     Locates the 4 artifact types:
-    1. Standard YAML in ADRI/dev/contracts/
-    2. Assessment log JSONL in ADRI/dev/audit-logs/
-    3. Dimension scores JSONL in ADRI/dev/audit-logs/
-    4. Failed validations JSONL in ADRI/dev/audit-logs/
+    1. Standard YAML in ADRI/contracts/
+    2. Assessment log JSONL in ADRI/audit-logs/
+    3. Dimension scores JSONL in ADRI/audit-logs/
+    4. Failed validations JSONL in ADRI/audit-logs/
 
     Args:
         project_root: Test project root directory
@@ -219,8 +219,8 @@ def get_generated_artifacts(project_root: Path, use_case_name: str) -> Dict[str,
     Example:
         artifacts = get_generated_artifacts(project_root, "invoice")
         # Returns: {
-        #   'standard': Path('ADRI/dev/contracts/invoice_data.yaml'),
-        #   'assessment_log': Path('ADRI/dev/audit-logs/adri_assessment_logs.jsonl'),
+        #   'standard': Path('ADRI/contracts/invoice_data.yaml'),
+        #   'assessment_log': Path('ADRI/audit-logs/adri_assessment_logs.jsonl'),
         #   ...
         # }
     """
@@ -320,7 +320,8 @@ def compare_yaml_files(current: Path, baseline: Path) -> Optional[Dict[str, Any]
         baseline_data = yaml.safe_load(f)
 
     # Fields to ignore in comparison (volatile)
-    ignore_fields = ['timestamp', 'created_date', 'last_modified', 'generated_at']
+    # Note: freshness_scaffolding contains embedded timestamps in comment strings
+    ignore_fields = ['timestamp', 'created_date', 'last_modified', 'generated_at', 'as_of', 'freshness_scaffolding']
 
     def remove_ignored_fields(data, path=""):
         """Recursively remove ignored fields from data structure."""

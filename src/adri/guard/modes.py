@@ -326,6 +326,7 @@ class DataProtectionEngine:
         verbose: bool | None = None,
         reasoning_mode: bool = False,
         workflow_context: dict | None = None,
+        package_context: str | None = None,
     ) -> Any:
         """
         Protect a function call with data quality checks.
@@ -355,9 +356,12 @@ class DataProtectionEngine:
         from ..validator.engine import ThresholdResolver
 
         # Resolve contract name to file path using environment configuration
+        # Package context enables resolution from package-local directories
         resolved_contract_path = None
         if contract_name:
-            resolved_contract_path = self._resolve_contract_file_path(contract_name)
+            resolved_contract_path = self._resolve_contract_file_path(
+                contract_name, package_context=package_context
+            )
 
         # Apply unified threshold resolution (same logic as CLI)
         # Note: We don't check if file exists here - let _ensure_standard_exists
@@ -409,10 +413,11 @@ class DataProtectionEngine:
                 function_name, data_param, contract_name
             )
 
-            # Get full path using environment config
+            # Get full path using environment config (with package context for local resolution)
             if not resolved_contract_path:
                 resolved_contract_path = self._resolve_contract_file_path(
-                    contract_filename.replace(".yaml", "")
+                    contract_filename.replace(".yaml", ""),
+                    package_context=package_context,
                 )
 
             # Determine if auto-generation should be enabled
@@ -805,7 +810,9 @@ class DataProtectionEngine:
 
         return "\n".join(message_lines)
 
-    def _resolve_contract_file_path(self, contract_name: str | None) -> str | None:
+    def _resolve_contract_file_path(
+        self, contract_name: str | None, package_context: str | None = None
+    ) -> str | None:
         """
         Resolve contract name to file path using environment configuration.
 
@@ -815,8 +822,16 @@ class DataProtectionEngine:
         - Environment-based resolution (dev/prod)
         - No path injection or security issues
 
+        Resolution order (for hybrid strategy):
+        1. If package_context provided: {package_context}/adri/{contract}.yaml
+        2. Centralized contracts directory from config
+        3. Default ADRI/contracts structure
+
         Args:
             contract_name: Name of the contract (e.g., "customer_data")
+            package_context: Optional package directory for package-local resolution.
+                           When provided, enables resolution from package-local
+                           directories (e.g., playbook_dir/adri/contract.yaml)
 
         Returns:
             Full path to contract file resolved via environment config
@@ -825,10 +840,11 @@ class DataProtectionEngine:
             return None
 
         loader = ConfigurationLoader()
-        # Environment-based resolution:
-        # dev -> ./ADRI/dev/contracts/{name}.yaml
-        # prod -> ./ADRI/prod/contracts/{name}.yaml
-        return loader.resolve_contract_path(contract_name)
+        # Resolution with optional package context for package-local contracts
+        # This enables atomic playbooks with self-contained adri/ directories
+        return loader.resolve_contract_path(
+            contract_name, package_context=package_context
+        )
 
     def _format_success_message(
         self,

@@ -65,28 +65,64 @@ class ContractsParser:
         return self._contracts_path
 
     def _get_contracts_path(self) -> Path:
-        """Resolve contracts directory path from environment parameter only."""
+        """Resolve contracts directory path from environment or auto-discovery.
 
-        # Use consistent variable name: ADRI_CONTRACTS_DIR
+        Resolution order:
+        1. ADRI_CONTRACTS_DIR environment variable (highest priority)
+        2. Auto-discover ADRI/contracts from current directory or upward
+        3. Raise error if no contracts directory can be found
+        """
+
+        # Option 1: Environment variable (highest priority)
         env_path = os.getenv("ADRI_CONTRACTS_DIR")
-        if not env_path:
-            raise StandardsDirectoryNotFoundError(
-                "ADRI_CONTRACTS_DIR environment variable must be set. "
-                "Set it to point to your contracts directory."
-            )
+        if env_path:
+            env_dir = Path(env_path)
+            if not env_dir.exists():
+                raise StandardsDirectoryNotFoundError(
+                    f"Contracts directory does not exist: {env_path}"
+                )
+            if not env_dir.is_dir():
+                raise StandardsDirectoryNotFoundError(
+                    f"Contracts path is not a directory: {env_path}"
+                )
+            return env_dir.resolve()
 
-        env_dir = Path(env_path)
-        if not env_dir.exists():
-            raise StandardsDirectoryNotFoundError(
-                f"Contracts directory does not exist: {env_path}"
-            )
+        # Option 2: Auto-discover ADRI/contracts from current directory or upward
+        discovered = self._find_contracts_directory()
+        if discovered:
+            return discovered
 
-        if not env_dir.is_dir():
-            raise StandardsDirectoryNotFoundError(
-                f"Contracts path is not a directory: {env_path}"
-            )
+        # No contracts directory found - provide helpful error message
+        raise StandardsDirectoryNotFoundError(
+            "Could not find contracts directory. Either:\n"
+            "  1. Set ADRI_CONTRACTS_DIR environment variable, or\n"
+            "  2. Run from within an ADRI project (containing ADRI/contracts/)"
+        )
 
-        return env_dir.resolve()
+    def _find_contracts_directory(self) -> Path | None:
+        """Auto-discover ADRI/contracts directory by searching upward from cwd.
+
+        Returns:
+            Path to contracts directory if found, None otherwise.
+        """
+        try:
+            search_path = Path.cwd()
+        except (OSError, FileNotFoundError):
+            return None
+
+        # Search upward from current directory
+        while search_path != search_path.parent:
+            candidate = search_path / "ADRI" / "contracts"
+            if candidate.exists() and candidate.is_dir():
+                return candidate.resolve()
+            search_path = search_path.parent
+
+        # Check root level as well
+        root_candidate = search_path / "ADRI" / "contracts"
+        if root_candidate.exists() and root_candidate.is_dir():
+            return root_candidate.resolve()
+
+        return None
 
     def _validate_contracts_directory(self):
         """Validate that the contracts directory exists."""

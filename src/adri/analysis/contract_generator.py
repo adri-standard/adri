@@ -74,8 +74,7 @@ class ContractGenerator:
         self.explanation_generator = ExplanationGenerator()
 
     def _generate_standard_name(self, data_name: str) -> str:
-        """
-        Generate consistent standard names across all generation methods.
+        """Generate consistent standard names across all generation methods.
 
         Args:
             data_name: Base name for the standard
@@ -110,10 +109,10 @@ class ContractGenerator:
     def _infer_type_and_nullability(
         self, field_profile: dict[str, Any], series: pd.Series, inf_cfg: InferenceConfig
     ) -> dict[str, Any]:
-        """
-        Infer field 'type' and 'nullable' consistent with existing behavior.
-        - Type mapping prioritizes datetime/date hints, then numeric coercion.
-        - Nullability is False only when absolutely no nulls were observed.
+        """Infer field 'type' and 'nullable' consistent with existing behavior.
+
+        Type mapping prioritizes datetime/date hints, then numeric coercion.
+        Nullability is False only when absolutely no nulls were observed.
         """
         dtype = field_profile.get("dtype", "object")
         common_patterns = field_profile.get("common_patterns", []) or []
@@ -127,7 +126,7 @@ class ContractGenerator:
                     coerced = pd.to_numeric(non_null, errors="coerce")
                     if coerced.notna().all():
                         treat_as_numeric = True
-            except Exception:  # nosec B110 B112
+            except Exception:
                 treat_as_numeric = False
 
         # Integer types take priority - check int dtype first
@@ -144,7 +143,7 @@ class ContractGenerator:
                     inferred_type = "integer"
                 else:
                     inferred_type = "float"
-            except Exception:  # nosec B110 B112
+            except Exception:
                 inferred_type = "float"
         elif "bool" in dtype:
             inferred_type = "boolean"
@@ -167,8 +166,8 @@ class ContractGenerator:
         col_name: str | None,
         pk_fields: list | None,
     ) -> list | None:
-        """
-        Infer allowed_values (enums) for string/integer fields when not id-like and not PK.
+        """Infer allowed_values (enums) for string/integer fields when not id-like and not PK.
+
         Honors enum_strategy ('coverage' or 'tolerant') and coverage/uniqueness thresholds.
         """
         suppress_enum = False
@@ -195,8 +194,8 @@ class ContractGenerator:
     def _infer_numeric_bounds(
         self, series: pd.Series, inf_cfg: InferenceConfig, treat_as_numeric: bool
     ) -> tuple | None:
-        """
-        Infer numeric range bounds using the configured strategy.
+        """Infer numeric range bounds using the configured strategy.
+
         Returns (min_value, max_value) as floats when available.
         """
         series_for_range = None
@@ -205,7 +204,7 @@ class ContractGenerator:
                 series_for_range = pd.to_numeric(series, errors="coerce")
             else:
                 series_for_range = series
-        except Exception:  # nosec B110 B112
+        except Exception:
             series_for_range = series
 
         strategy = getattr(inf_cfg, "range_strategy", "iqr")
@@ -229,8 +228,8 @@ class ContractGenerator:
     def _infer_length_and_pattern(
         self, series: pd.Series, inf_cfg: InferenceConfig
     ) -> dict[str, Any]:
-        """
-        Infer string length bounds and regex pattern (only if 100% coverage observed).
+        """Infer string length bounds and regex pattern (only if 100% coverage observed).
+
         Returns keys among: min_length, max_length, pattern.
         """
         out: dict[str, Any] = {}
@@ -238,7 +237,7 @@ class ContractGenerator:
             lb = infer_length_bounds(series, widen=None)
             if lb:
                 out["min_length"], out["max_length"] = int(lb[0]), int(lb[1])
-        except Exception:  # nosec B110 B112
+        except Exception:
             pass
 
         if getattr(inf_cfg, "regex_inference_enabled", False):
@@ -246,18 +245,22 @@ class ContractGenerator:
                 pat = infer_regex_pattern(series)
                 if pat:
                     out["pattern"] = pat
-            except Exception:  # nosec B110 B112
+            except Exception:
                 pass
         return out
 
     def _infer_date_or_datetime_bounds(
         self, series: pd.Series, inf_cfg: InferenceConfig, is_datetime: bool
     ) -> dict[str, Any]:
-        """Infer date/datetime bounds and return appropriate keys for the meta-schema."""
+        """Infer date/datetime bounds and return appropriate keys for the meta-schema.
+
+        Returns:
+            Dictionary with after_date/before_date or after_datetime/before_datetime keys.
+        """
         out: dict[str, Any] = {}
         try:
             db = infer_date_bounds(series, margin_days=inf_cfg.date_margin_days)
-        except Exception:  # nosec B110 B112
+        except Exception:
             db = None
         if not db:
             return out
@@ -268,8 +271,8 @@ class ContractGenerator:
         return out
 
     def _prepare_observed_stats(self, data: pd.DataFrame) -> dict[str, dict[str, Any]]:
-        """
-        Precompute observed per-field stats for training-pass relaxation.
+        """Precompute observed per-field stats for training-pass relaxation.
+
         Provides min/max length and numeric min/max for widening rules.
         """
         observed_stats: dict[str, dict[str, Any]] = {}
@@ -280,7 +283,7 @@ class ContractGenerator:
                 continue
             try:
                 lengths = s.astype(str).str.len()
-            except Exception:  # nosec B110 B112
+            except Exception:
                 lengths = pd.Series(dtype=int)
             observed_stats[col] = {
                 "min_len": int(lengths.min()) if not lengths.empty else None,
@@ -301,8 +304,8 @@ class ContractGenerator:
     def _validate_value_against_rules(
         self, val: Any, field_req: dict[str, Any]
     ) -> str | None:
-        """
-        Validate a single value against field requirements in strict order.
+        """Validate a single value against field requirements in strict order.
+
         Returns the first failing rule key or None if all pass.
         """
         if not check_field_type(val, field_req):
@@ -334,8 +337,8 @@ class ContractGenerator:
         observed: dict[str, Any],
         exp_root: dict[str, Any],
     ) -> None:
-        """
-        Relax only the failing rule and log adjustments for training-pass guarantee.
+        """Relax only the failing rule and log adjustments for training-pass guarantee.
+
         Mutates field_req in-place.
         """
         if failing_rule == "type":
@@ -475,7 +478,7 @@ class ContractGenerator:
         try:
             nulls = int(series.isnull().sum())
             total = int(len(series))
-        except Exception:  # nosec B110 B112
+        except Exception:
             nulls, total = (0, 0)
         return {
             "active": bool(req["nullable"]),
@@ -497,7 +500,7 @@ class ContractGenerator:
             in_set = non_null.isin(req["allowed_values"])
             coverage = float(in_set.sum() / len(non_null)) if len(non_null) > 0 else 1.0
             uniq = int(non_null.nunique())
-        except Exception:  # nosec B110 B112
+        except Exception:
             coverage, uniq = (None, None)
         return {
             "values": list(req.get("allowed_values", [])),
@@ -522,7 +525,7 @@ class ContractGenerator:
             lengths = series.dropna().astype(str).str.len()
             obs_min = int(lengths.min()) if len(lengths) else None
             obs_max = int(lengths.max()) if len(lengths) else None
-        except Exception:  # nosec B110 B112
+        except Exception:
             obs_min = obs_max = None
         return {
             "active_min": (
@@ -576,7 +579,7 @@ class ContractGenerator:
                 stats.update(
                     {"observed_min": float(x.min()), "observed_max": float(x.max())}
                 )
-        except Exception:  # nosec B110 B112
+        except Exception:
             pass
         return {
             "strategy": strategy,
@@ -622,7 +625,7 @@ class ContractGenerator:
             obs_max = (
                 x.max().date().isoformat() if len(x) and pd.notna(x.max()) else None
             )
-        except Exception:  # nosec B110 B112
+        except Exception:
             obs_min = obs_max = None
         return {
             "active_after": req.get("after_date") or req.get("after_datetime"),
@@ -650,7 +653,7 @@ class ContractGenerator:
                 if len(non_null)
                 else 1.0
             )
-        except Exception:  # nosec B110 B112
+        except Exception:
             coverage = None
         return {
             "regex": req["pattern"],
@@ -695,7 +698,7 @@ class ContractGenerator:
                     coerced = pd.to_numeric(non_null, errors="coerce")
                     if coerced.notna().all():
                         treat_as_numeric = True
-            except Exception:  # nosec B110 B112
+            except Exception:
                 treat_as_numeric = False
 
             bounds = self._infer_numeric_bounds(series, inf_cfg, treat_as_numeric)
@@ -738,11 +741,12 @@ class ContractGenerator:
     def _enforce_training_pass(
         self, data: pd.DataFrame, standard: dict[str, Any]
     ) -> dict[str, Any]:
-        """
-        Training-pass guarantee:
+        """Enforce training-pass guarantee for the standard.
+
+        Process:
         - Validate each field value against its rules in strict order
         - On failures, relax only the failing rule(s) and re-validate
-        - Returns adjusted standard that the training data passes
+        - Returns adjusted standard that the training data passes.
         """
         reqs = standard.get("requirements", {}).get("field_requirements", {})
         if not isinstance(reqs, dict):
@@ -864,8 +868,8 @@ class ContractGenerator:
         inf_cfg: InferenceConfig,
         field_requirements: dict[str, Any],
     ) -> dict[str, Any]:
-        """
-        Build human-readable explanations per field/rule for the generated standard.
+        """Build human-readable explanations per field/rule for the generated standard.
+
         Explanations are stored under metadata.explanations and do not affect validation.
         """
         explanations: dict[str, Any] = {}
@@ -907,9 +911,9 @@ class ContractGenerator:
         return explanations
 
     def _sanitize_dataframe(self, data: pd.DataFrame) -> pd.DataFrame:
-        """
-        Coerce unhashable/object-like column values (e.g., dict/list/set) to JSON strings to avoid
-        hashing errors during inference and PK detection.
+        """Coerce unhashable/object-like column values to JSON strings.
+
+        Handles dict/list/set types to avoid hashing errors during inference and PK detection.
         """
         df = data.copy()
         for col in df.columns:
@@ -923,12 +927,12 @@ class ContractGenerator:
                             if isinstance(v, (dict, list)):
                                 try:
                                     return json.dumps(v, sort_keys=True)
-                                except Exception:  # nosec B110 B112
+                                except Exception:
                                     return str(v)
                             if isinstance(v, set):
                                 try:
                                     return ",".join(sorted(map(str, v)))
-                                except Exception:  # nosec B110 B112
+                                except Exception:
                                     return str(v)
                             return (
                                 v
@@ -937,11 +941,11 @@ class ContractGenerator:
                             )
 
                         df[col] = s.apply(_coerce)
-                except Exception:  # nosec B110 B112
+                except Exception:
                     # As a last resort, stringify entire column
                     try:
                         df[col] = s.astype(str)
-                    except Exception:  # nosec B110 B112
+                    except Exception:
                         pass
         return df
 
@@ -1026,7 +1030,7 @@ class ContractGenerator:
             obj: Object to clean (dict, list, or scalar value)
 
         Returns:
-            Cleaned object with all numpy types converted to Python types
+            Cleaned object with all numpy types converted to Python types.
         """
         import numpy as np
 

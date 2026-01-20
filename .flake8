@@ -1,48 +1,13 @@
 [flake8]
-max-line-length = 88
-extend-ignore =
-    E203,
-    W503,
-    E501,
-    D202,
-    E231,
-    E713,
-    E225
-exclude =
+max-line-length = 200
+extend-ignore = E203, W503, F401
+exclude = 
     .git,
     __pycache__,
-    .venv,
-    venv,
-    .eggs,
-    *.egg,
     build,
     dist,
-    .tox,
-    .coverage,
-    htmlcov,
     *.egg-info,
-    .pytest_cache,
-    .mypy_cache,
-    examples,
-    demos,
-    external,
-    scripts,
-    .dev-testing
-per-file-ignores =
-    # Tests can have longer lines and more complex imports
-    tests/*:E501,F401,F811
-    # __init__.py files can have unused imports
-    __init__.py:F401
-    # Setup files can have longer lines
-    setup.py:E501
-    # ADRI core modules - relax docstring and complexity for now
-    src/adri/analysis/rule_inference.py:D101,D200,D205,D400,C901
-    src/adri/analysis/standard_generator.py:D205,D400
-    src/adri/validator/engine.py:D107,E702
-    # CLI: minor style relaxations for user output formatting and long docstring headers
-    src/adri/cli.py:E221,D205
-    # Standards exceptions: __str__ methods use descriptive rather than imperative mood
-    src/adri/standards/exceptions.py:D401
-max-complexity = 25
-import-order-style = google
-application-import-names = adri
+    .eggs,
+    .tox,
+    .venv,
+    venv

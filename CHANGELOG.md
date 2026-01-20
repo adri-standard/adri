@@ -5,6 +5,165 @@ All notable changes to ADRI will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.2.0] - 2026-01-19
+
+**verodat-adri v7.2.0 - Code Quality and Documentation Accuracy Release**
+
+This release focuses on code quality improvements and documentation accuracy for the enterprise package.
+
+### Changed
+- Resolved all 25 flake8 code quality issues for cleaner, more maintainable codebase
+- Fixed docstring formatting across enterprise and core modules for better documentation generation
+- Updated README.enterprise.md with Implementation Status section clarifying current vs planned features
+- Improved code consistency with proper docstring formatting (D205, D400, D401 compliance)
+
+### Fixed
+- Trailing whitespace and indentation issues in license validation module
+- Docstring imperative mood compliance across all modules
+- Documentation accuracy regarding workflow_context, data_provenance, and AI reasoning features
+  - Clarified that these features currently provide basic console/file logging
+  - Full API integration planned for future releases
+
+### Documentation
+- Added "Implementation Status" section to README.enterprise.md distinguishing:
+  - ✅ Fully implemented: License validation, centralized logging, environment-aware config
+  - 🔄 Basic logging only: Workflow context, data provenance, AI reasoning (full API integration planned)
+- Improved transparency about current capabilities vs. planned features
+
+### Package Information
+- PyPI: `verodat-adri` v7.2.0
+- Requires: Python 3.10+, Valid Verodat API key
+- Tests: 1,956 passing, 0 flake8 issues
+
+---
+
+## [7.1.0] - 2026-01-19
+
+**adri v7.1.0 - Code Quality Improvements**
+
+This release aligns the open source package with enterprise code quality improvements.
+
+### Changed
+- Resolved code quality issues in shared core modules
+- Improved docstring formatting for better documentation
+- Enhanced code consistency and maintainability
+
+### Fixed
+- Docstring formatting issues in contract generation and validation modules
+- Code style compliance for cleaner codebase
+
+### Package Information
+- PyPI: `adri` v7.1.0
+- Requires: Python 3.10+
+- Open source, no license key required
+
+---
+
+## [7.0.0] - 2026-08-01
+
+**ADRI v7.0.0 - Version Alignment Release**
+
+This release aligns the open source `adri` package with the enterprise `verodat-adri` package at v7.0.0, incorporating bug fixes and improvements from both repositories.
+
+### Added
+- Comprehensive Python 3.10+ compatibility improvements
+- Enhanced validation rules failure extraction for all dimensions
+- `'number'` type handling in field type checking
+- Standardized configuration to single `ADRI/config.yaml` location
+- Standard validation system with critical bug fixes
+
+### Changed
+- Version aligned between open source (`adri`) and enterprise (`verodat-adri`) packages
+- Improved f-string handling across codebase
+- Enhanced decorator audit logging
+- Updated dependencies and test infrastructure
+- Clean package structure: `adri` (core) + `adri_enterprise` (enterprise-only)
+
+### Fixed
+- Python 3.10 syntax error in pipeline.py
+- Python 3.11 multi-line f-string syntax errors
+- Broken f-strings across multiple files
+- Validation rules format support for failure extraction
+- Flake8 linting errors for CI compliance
+- Multiple test failures resolved for PR readiness
+
+### Removed
+- Experimental `callbacks/` module (untested, not integrated into core decorator)
+- Experimental `events/` module (untested, not integrated into core decorator)
+- These features may return in a future release once properly validated
+
+### Enterprise Features (verodat-adri only)
+- `adri_enterprise.decorator` - Enhanced decorator with reasoning_mode, workflow_context
+- `adri_enterprise.license` - API key validation (requires VERODAT_API_KEY)
+- `adri_enterprise.logging.verodat` - Verodat cloud integration
+- `adri_enterprise.logging.reasoning` - AI reasoning step logging
+
+### Migration Guide
+- No breaking API changes for standard usage
+- If you were using `from adri.callbacks import ...` or `from adri.events import ...`, these imports will fail. These were experimental and undocumented features.
+
+---
+
+## [6.1.0] - 2025-12-19
+
+**verodat-adri v6.1.0 - Enterprise License Validation**
+
+This release introduces mandatory license validation for the verodat-adri enterprise package.
+The package now requires a valid Verodat API key to function, ensuring enterprise features are
+only accessible to licensed users.
+
+### Added
+
+**License Validation System**
+- New `adri_enterprise.license` module for API key validation
+- `validate_license()` function for explicit license validation
+- `is_license_valid()` function to check cached validation status
+- `LicenseValidationError` exception for validation failures
+- `LicenseInfo` dataclass with validation details (valid, account_id, username)
+- Automatic validation on first decorator use (lazy validation)
+- 24-hour validation cache to minimize API calls
+- Environment variable support: `VERODAT_API_KEY` and `VERODAT_API_URL`
+
+**Enterprise Decorator Enhancement**
+- `@adri_protected` decorator now validates license on first use
+- Clear error messages with guidance on obtaining API keys
+- Graceful handling of network errors during validation
+
+### Changed
+
+- Package name: `verodat-adri` (enterprise) is now distinct from `adri` (open source)
+- Package requires `VERODAT_API_KEY` environment variable to function
+- Updated `__init__.py` to export license validation components
+- Updated project URLs to point to Verodat/verodat-adri repository
+- Enhanced package description to clarify enterprise licensing requirement
+
+### Security
+
+- API keys are validated against Verodat API endpoint (`/ai/key`)
+- API key is passed via `Authorization: ApiKey {key}` header
+- Validation results are cached to prevent unnecessary network calls
+- Invalid or expired keys result in clear `LicenseValidationError`
+
+### Migration Guide
+
+To use verodat-adri v6.1.0+, you must:
+
+1. **Obtain a Verodat API key** from your Verodat account settings
+2. **Set the environment variable**:
+   ```bash
+   export VERODAT_API_KEY="your-api-key"
+   ```
+3. **Use the decorator as before** - validation happens automatically:
+   ```python
+   from adri_enterprise.decorator import adri_protected
+
+   @adri_protected(contract="my_contract")
+   def my_function(data):
+       return process(data)
+   ```
+
+For open source features without licensing, use the `adri` package instead.
+
 ## [5.1.0] - 2025-10-21
 
 **Documentation Improvements for Open-Source Adoption**

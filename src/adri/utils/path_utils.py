@@ -43,7 +43,7 @@ def resolve_project_path(
     """Resolve a path relative to the ADRI project root.
 
     If an ADRI project is found, resolves the path relative to the project root.
-    Tutorial paths and dev/prod paths are automatically prefixed with ADRI/.
+    Tutorial and contracts paths are automatically prefixed with ADRI/.
 
     Args:
         relative_path: Path relative to project root
@@ -68,9 +68,9 @@ def resolve_project_path(
     # Handle different path prefixes
     if relative_path.startswith("ADRI/"):
         return project_root / relative_path
-    elif relative_path.startswith("tutorials/"):
-        return project_root / "ADRI" / relative_path
-    elif relative_path.startswith(("dev/", "prod/")):
+    elif relative_path.startswith(
+        ("tutorials/", "contracts/", "assessments/", "training-data/", "audit-logs/")
+    ):
         return project_root / "ADRI" / relative_path
     else:
         return project_root / "ADRI" / relative_path
@@ -95,7 +95,7 @@ def shorten_home_path(path: str | Path) -> str:
         except ValueError:
             # Path is not under home directory
             return str(abs_path)
-    except Exception:  # nosec B110 B112
+    except Exception:
         return str(path)
 
 
@@ -135,7 +135,7 @@ def get_relative_to_project_root(
                 return shorten_home_path(abs_path)
         else:
             return shorten_home_path(abs_path)
-    except Exception:  # nosec B110 B112
+    except Exception:
         return shorten_home_path(path)
 
 
@@ -241,7 +241,7 @@ def is_safe_path(path: str | Path, base_directory: str | Path | None = None) -> 
         except ValueError:
             return False
 
-    except Exception:  # nosec B110 B112
+    except Exception:
         return False
 
 
@@ -301,7 +301,7 @@ def get_common_path_prefix(*paths: str | Path) -> Path | None:
         if common_parts:
             return Path(*common_parts)
 
-    except Exception:  # nosec B110 B112
+    except Exception:
         pass
 
     return None

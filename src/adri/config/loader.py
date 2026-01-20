@@ -5,13 +5,21 @@ ADRI Configuration Loader.
 
 Streamlined configuration loading logic, simplified from adri/config/manager.py.
 Removes complex configuration management while preserving essential functionality.
+
+Supports package-local contract resolution for atomic/self-contained package architectures
+(e.g., playbooks, modules, plugins) via the package_context parameter.
 """
 
+import logging
 import os
 from pathlib import Path
 from typing import Any
 
 import yaml
+
+from .types import ContractResolutionResult, ResolutionConfig, ResolutionStrategy
+
+logger = logging.getLogger(__name__)
 
 
 class ConfigurationLoader:
@@ -39,34 +47,11 @@ class ConfigurationLoader:
             "adri": {
                 "version": "4.0.0",
                 "project_name": project_name,
-                "default_environment": "development",
-                "environments": {
-                    "development": {
-                        "paths": {
-                            "contracts": "./ADRI/dev/contracts",
-                            "assessments": "./ADRI/dev/assessments",
-                            "training_data": "./ADRI/dev/training-data",
-                            "audit_logs": "./ADRI/dev/audit-logs",
-                        },
-                        "protection": {
-                            "default_failure_mode": "warn",
-                            "default_min_score": 75,
-                            "cache_duration_hours": 0.5,
-                        },
-                    },
-                    "production": {
-                        "paths": {
-                            "contracts": "./ADRI/prod/contracts",
-                            "assessments": "./ADRI/prod/assessments",
-                            "training_data": "./ADRI/prod/training-data",
-                            "audit_logs": "./ADRI/prod/audit-logs",
-                        },
-                        "protection": {
-                            "default_failure_mode": "raise",
-                            "default_min_score": 85,
-                            "cache_duration_hours": 24,
-                        },
-                    },
+                "paths": {
+                    "contracts": "./ADRI/contracts",
+                    "assessments": "./ADRI/assessments",
+                    "training_data": "./ADRI/training-data",
+                    "audit_logs": "./ADRI/audit-logs",
                 },
                 "protection": {
                     "default_failure_mode": "raise",
@@ -108,31 +93,21 @@ class ConfigurationLoader:
             adri_config = config["adri"]
 
             # Check required fields
-            required_fields = ["project_name", "environments", "default_environment"]
+            required_fields = ["project_name", "paths"]
             for field in required_fields:
                 if field not in adri_config:
                     return False
 
-            # Check environments structure
-            environments = adri_config["environments"]
-            if not isinstance(environments, dict):
+            # Check paths structure
+            paths = adri_config["paths"]
+            if not isinstance(paths, dict):
                 return False
 
-            # Check that each environment has paths
-            for env_name, env_config in environments.items():
-                if "paths" not in env_config:
+            # Check required paths
+            required_paths = ["contracts", "assessments", "training_data", "audit_logs"]
+            for path_key in required_paths:
+                if path_key not in paths:
                     return False
-
-                paths = env_config["paths"]
-                required_paths = [
-                    "contracts",
-                    "assessments",
-                    "training_data",
-                    "audit_logs",
-                ]
-                for path_key in required_paths:
-                    if path_key not in paths:
-                        return False
 
             return True
 
@@ -301,63 +276,52 @@ class ConfigurationLoader:
         # Fallback
         return "development"
 
+    def get_paths_config(self, config: dict[str, Any]) -> dict[str, Any]:
+        """
+        Get paths configuration from the ADRI config.
+
+        Args:
+            config: Full configuration dictionary
+
+        Returns:
+            Paths configuration dictionary with contracts, assessments, etc.
+        """
+        adri_config = config.get("adri", {})
+        paths = adri_config.get("paths", {})
+
+        # Return with defaults for any missing paths
+        return {
+            "contracts": paths.get("contracts", "ADRI/contracts"),
+            "assessments": paths.get("assessments", "ADRI/assessments"),
+            "training_data": paths.get("training_data", "ADRI/training-data"),
+            "audit_logs": paths.get("audit_logs", "ADRI/audit-logs"),
+        }
+
     def get_environment_config(
         self, config: dict[str, Any], environment: str | None = None
     ) -> dict[str, Any]:
         """
-        Get configuration for a specific environment with ADRI_ENV override.
+        Get configuration for the environment.
+
+        Note: In the OSS flat structure, this returns the paths config.
+        The environment parameter is kept for backward compatibility but is ignored.
 
         Args:
             config: Full configuration dictionary
-            environment: Environment name, or None for default
+            environment: Ignored in OSS (kept for API compatibility)
 
         Returns:
-            Environment configuration
-
-        Raises:
-            ValueError: If environment is not found
+            Configuration with paths
         """
-        adri_config = config["adri"]
-
-        # Track if environment came from ADRI_ENV to enable fallback only for that case
-        from_adri_env = False
-        if not environment and os.environ.get("ADRI_ENV"):
-            from_adri_env = True
-
-        # Use effective environment (respects ADRI_ENV)
-        requested_env = environment  # Store original request
-        environment = self._get_effective_environment(config, environment)
-
-        # If effective environment doesn't exist, only fall back if it came from
-        # ADRI_ENV
-        if environment not in adri_config["environments"]:
-            # Only fall back to default if the invalid environment came from ADRI_ENV
-            # (not explicit request)
-            if from_adri_env and not requested_env:
-                default_env = adri_config.get("default_environment", "development")
-                if default_env in adri_config["environments"]:
-                    environment = default_env
-                else:
-                    raise ValueError(
-                        f"Environment '{environment}' not found in configuration"
-                    )
-            else:
-                raise ValueError(
-                    f"Environment '{environment}' not found in configuration"
-                )
-
-        env_config = adri_config["environments"][environment]
-        if not isinstance(env_config, dict):
-            raise ValueError(f"Invalid environment configuration for '{environment}'")
-
-        return env_config
+        # For backward compatibility, return a dict with paths
+        return {"paths": self.get_paths_config(config)}
 
     def get_protection_config(self, environment: str | None = None) -> dict[str, Any]:
         """
-        Get protection configuration with environment-specific overrides.
+        Get protection configuration.
 
         Args:
-            environment: Environment name, or None for current environment
+            environment: Ignored in OSS (kept for API compatibility)
 
         Returns:
             Protection configuration dictionary
@@ -375,36 +339,118 @@ class ConfigurationLoader:
 
         adri_config = config["adri"]
 
-        # Start with global protection config
+        # Get protection config from flat structure
         protection_config = adri_config.get("protection", {}).copy()
         if not isinstance(protection_config, dict):
             protection_config = {}
 
-        # Use effective environment (respects ADRI_ENV)
-        environment = self._get_effective_environment(config, environment)
-
-        if environment in adri_config["environments"]:
-            env_config = adri_config["environments"][environment]
-            env_protection = env_config.get("protection", {})
-            if isinstance(env_protection, dict):
-                protection_config.update(env_protection)
-
         return protection_config
 
+    def get_resolution_config(self) -> ResolutionConfig:
+        """
+        Get the resolution configuration from config file or environment.
+
+        Precedence:
+        1. ADRI_RESOLUTION_STRATEGY environment variable
+        2. Config file resolution.strategy
+        3. Default (hybrid)
+
+        Returns:
+            ResolutionConfig with strategy and settings
+        """
+        config = self.get_active_config()
+
+        # Start with defaults
+        strategy = ResolutionStrategy.HYBRID
+        package_subdirectory = "adri"
+        fallback_enabled = True
+
+        # Check environment variable override
+        env_strategy = os.environ.get("ADRI_RESOLUTION_STRATEGY")
+        if env_strategy:
+            try:
+                strategy = ResolutionStrategy.from_string(env_strategy)
+            except ValueError:
+                logger.warning(
+                    f"Invalid ADRI_RESOLUTION_STRATEGY: {env_strategy}, using hybrid"
+                )
+
+        # Check environment variable for subdirectory
+        env_subdir = os.environ.get("ADRI_PACKAGE_SUBDIRECTORY")
+        if env_subdir:
+            package_subdirectory = env_subdir
+
+        # Load from config if available and no env override
+        if config and not env_strategy:
+            resolution_config = config.get("adri", {}).get("resolution", {})
+            if resolution_config:
+                return ResolutionConfig.from_dict(resolution_config)
+
+        return ResolutionConfig(
+            strategy=strategy,
+            package_subdirectory=package_subdirectory,
+            fallback_enabled=fallback_enabled,
+        )
+
+    def _resolve_package_local_contract(
+        self, contract_name: str, package_context: str, subdirectory: str = "adri"
+    ) -> str | None:
+        """
+        Resolve contract from package-local directory.
+
+        Searches for contract in {package_context}/{subdirectory}/{contract_name}.yaml
+
+        Args:
+            contract_name: Contract name (with or without .yaml extension)
+            package_context: Absolute path to package directory
+            subdirectory: Subdirectory name within package (default: "adri")
+
+        Returns:
+            Absolute path to contract if found, None otherwise
+        """
+        # Normalize contract name
+        if not contract_name.endswith((".yaml", ".yml")):
+            contract_name += ".yaml"
+
+        package_path = Path(package_context)
+        if not package_path.is_absolute():
+            package_path = Path.cwd() / package_path
+
+        # Check in package subdirectory
+        contract_path = package_path / subdirectory / contract_name
+        resolved_path = contract_path.resolve()
+
+        if resolved_path.exists():
+            logger.debug(f"Found package-local contract: {resolved_path}")
+            return str(resolved_path)
+
+        logger.debug(f"Package-local contract not found: {resolved_path}")
+        return None
+
     def resolve_contract_path(
-        self, contract_name: str, environment: str | None = None
+        self,
+        contract_name: str,
+        environment: str | None = None,
+        package_context: str | None = None,
     ) -> str:
         """
-        Resolve a contract name to full absolute path with ADRI_CONTRACTS_DIR override.
+        Resolve a contract name to full absolute path with package context support.
 
-        Precedence for contracts directory:
-        1. ADRI_CONTRACTS_DIR environment variable (if set)
-        2. Config file paths
-        3. Default ADRI/{env}/contracts structure
+        Resolution behavior depends on configured strategy:
+        - FLAT: Only check centralized directory (legacy behavior)
+        - PACKAGE_LOCAL: Only check package_context directory
+        - HYBRID: Check package_context first, fallback to centralized
+
+        Precedence for resolution:
+        1. ADRI_CONTRACTS_DIR environment variable (always highest, overrides strategy)
+        2. Package-local resolution (if package_context provided and strategy allows)
+        3. Config file paths (centralized)
+        4. Default ADRI/contracts structure
 
         Args:
             contract_name: Name of contract (with or without .yaml extension)
-            environment: Environment to use
+            environment: Ignored in OSS (kept for API compatibility)
+            package_context: Optional path to package directory for local resolution
 
         Returns:
             Full absolute path to contract file
@@ -420,8 +466,51 @@ class ConfigurationLoader:
             if not contracts_path.is_absolute():
                 contracts_path = Path.cwd() / contracts_path
             full_path = (contracts_path / contract_name).resolve()
+            logger.debug(f"Resolved contract via ADRI_CONTRACTS_DIR: {full_path}")
             return str(full_path)
 
+        # Get resolution configuration
+        resolution_config = self.get_resolution_config()
+        strategy = resolution_config.strategy
+
+        # Package-local resolution (if applicable)
+        if package_context and strategy in (
+            ResolutionStrategy.PACKAGE_LOCAL,
+            ResolutionStrategy.HYBRID,
+        ):
+            local_path = self._resolve_package_local_contract(
+                contract_name, package_context, resolution_config.package_subdirectory
+            )
+
+            if local_path:
+                return local_path
+
+            # If PACKAGE_LOCAL only, return expected path even if not found
+            if strategy == ResolutionStrategy.PACKAGE_LOCAL:
+                package_path = Path(package_context)
+                if not package_path.is_absolute():
+                    package_path = Path.cwd() / package_path
+                expected_path = (
+                    package_path
+                    / resolution_config.package_subdirectory
+                    / contract_name
+                )
+                logger.debug(f"Package-local contract expected at: {expected_path}")
+                return str(expected_path.resolve())
+
+        # FLAT strategy or HYBRID fallback: use centralized resolution
+        return self._resolve_centralized_contract(contract_name)
+
+    def _resolve_centralized_contract(self, contract_name: str) -> str:
+        """
+        Resolve contract from centralized directory (legacy behavior).
+
+        Args:
+            contract_name: Contract name with .yaml extension
+
+        Returns:
+            Full absolute path to contract file
+        """
         config = self.get_active_config()
 
         # Determine base directory from config file location
@@ -438,18 +527,14 @@ class ConfigurationLoader:
         else:
             base_dir = Path.cwd()
 
-        # Use effective environment (respects ADRI_ENV)
-        environment = self._get_effective_environment(config, environment)
-
         if not config:
-            # Fallback to default path structure
-            env_dir = "dev" if environment != "production" else "prod"
-            contract_path = base_dir / "ADRI" / env_dir / "contracts" / contract_name
+            # Fallback to default flat path structure
+            contract_path = base_dir / "ADRI" / "contracts" / contract_name
             return str(contract_path)
 
         try:
-            env_config = self.get_environment_config(config, environment)
-            contracts_dir = env_config["paths"]["contracts"]
+            adri_config = config["adri"]
+            contracts_dir = adri_config["paths"]["contracts"]
 
             # Convert relative path to absolute based on config file location
             contracts_path = Path(contracts_dir)
@@ -465,10 +550,97 @@ class ConfigurationLoader:
             return str(full_path)
 
         except (KeyError, ValueError, AttributeError):
-            # Fallback on any error
-            env_dir = "dev" if environment != "production" else "prod"
-            contract_path = base_dir / "ADRI" / env_dir / "contracts" / contract_name
+            # Fallback on any error - use flat structure
+            contract_path = base_dir / "ADRI" / "contracts" / contract_name
             return str(contract_path)
+
+    def resolve_contract_path_with_metadata(
+        self,
+        contract_name: str,
+        environment: str | None = None,
+        package_context: str | None = None,
+    ) -> ContractResolutionResult:
+        """
+        Resolve contract path with full metadata about resolution.
+
+        Same resolution logic as resolve_contract_path but returns
+        a ContractResolutionResult with additional metadata useful
+        for debugging and audit logging.
+
+        Args:
+            contract_name: Name of contract
+            environment: Ignored (kept for API compatibility)
+            package_context: Optional package directory for local resolution
+
+        Returns:
+            ContractResolutionResult with path and metadata
+        """
+        resolution_config = self.get_resolution_config()
+
+        # Normalize contract name
+        if not contract_name.endswith((".yaml", ".yml")):
+            contract_name += ".yaml"
+
+        # Check env override first
+        env_contracts_dir = os.environ.get("ADRI_CONTRACTS_DIR")
+        if env_contracts_dir:
+            contracts_path = Path(env_contracts_dir)
+            if not contracts_path.is_absolute():
+                contracts_path = Path.cwd() / contracts_path
+            full_path = (contracts_path / contract_name).resolve()
+            return ContractResolutionResult(
+                path=str(full_path),
+                source="env_override",
+                package_context=None,
+                exists=full_path.exists(),
+                strategy_used=resolution_config.strategy,
+            )
+
+        # Try package-local resolution
+        if package_context and resolution_config.strategy in (
+            ResolutionStrategy.PACKAGE_LOCAL,
+            ResolutionStrategy.HYBRID,
+        ):
+            local_path = self._resolve_package_local_contract(
+                contract_name, package_context, resolution_config.package_subdirectory
+            )
+
+            if local_path:
+                return ContractResolutionResult(
+                    path=local_path,
+                    source="package_local",
+                    package_context=package_context,
+                    exists=True,
+                    strategy_used=resolution_config.strategy,
+                )
+
+            # PACKAGE_LOCAL only - return expected path
+            if resolution_config.strategy == ResolutionStrategy.PACKAGE_LOCAL:
+                package_path = Path(package_context)
+                if not package_path.is_absolute():
+                    package_path = Path.cwd() / package_path
+                expected_path = (
+                    package_path
+                    / resolution_config.package_subdirectory
+                    / contract_name
+                )
+                return ContractResolutionResult(
+                    path=str(expected_path.resolve()),
+                    source="package_local",
+                    package_context=package_context,
+                    exists=False,
+                    strategy_used=resolution_config.strategy,
+                )
+
+        # Centralized fallback
+        centralized_path = self._resolve_centralized_contract(contract_name)
+        return ContractResolutionResult(
+            path=centralized_path,
+            source="centralized" if not package_context else "fallback",
+            package_context=package_context,
+            exists=Path(centralized_path).exists(),
+            strategy_used=resolution_config.strategy,
+        )
 
     def create_directory_structure(self, config: dict[str, Any]) -> None:
         """
@@ -478,65 +650,53 @@ class ConfigurationLoader:
             config: Configuration dictionary containing paths
         """
         adri_config = config["adri"]
-        environments = adri_config["environments"]
+        paths = adri_config["paths"]
 
-        # Create directories for each environment
-        for env_name, env_config in environments.items():
-            paths = env_config["paths"]
-            for path_type, path_value in paths.items():
-                Path(path_value).mkdir(parents=True, exist_ok=True)
+        # Create directories for flat structure
+        for path_type, path_value in paths.items():
+            Path(path_value).mkdir(parents=True, exist_ok=True)
 
     def get_assessments_dir(self, environment: str | None = None) -> str:
         """
-        Get the assessments directory for an environment with ADRI_ENV override.
+        Get the assessments directory.
 
         Args:
-            environment: Environment to use
+            environment: Ignored in OSS (kept for API compatibility)
 
         Returns:
             Path to assessments directory
         """
         config = self.get_active_config()
 
-        # Use effective environment (respects ADRI_ENV)
-        environment = self._get_effective_environment(config, environment)
-
         if not config:
-            env_dir = "dev" if environment != "production" else "prod"
-            return f"./ADRI/{env_dir}/assessments"
+            return "./ADRI/assessments"
 
         try:
-            env_config = self.get_environment_config(config, environment)
-            return env_config["paths"]["assessments"]
+            adri_config = config["adri"]
+            return adri_config["paths"]["assessments"]
         except (KeyError, ValueError, AttributeError):
-            env_dir = "dev" if environment != "production" else "prod"
-            return f"./ADRI/{env_dir}/assessments"
+            return "./ADRI/assessments"
 
     def get_training_data_dir(self, environment: str | None = None) -> str:
         """
-        Get the training data directory for an environment with ADRI_ENV override.
+        Get the training data directory.
 
         Args:
-            environment: Environment to use
+            environment: Ignored in OSS (kept for API compatibility)
 
         Returns:
             Path to training data directory
         """
         config = self.get_active_config()
 
-        # Use effective environment (respects ADRI_ENV)
-        environment = self._get_effective_environment(config, environment)
-
         if not config:
-            env_dir = "dev" if environment != "production" else "prod"
-            return f"./ADRI/{env_dir}/training-data"
+            return "./ADRI/training-data"
 
         try:
-            env_config = self.get_environment_config(config, environment)
-            return env_config["paths"]["training_data"]
+            adri_config = config["adri"]
+            return adri_config["paths"]["training_data"]
         except (KeyError, ValueError, AttributeError):
-            env_dir = "dev" if environment != "production" else "prod"
-            return f"./ADRI/{env_dir}/training-data"
+            return "./ADRI/training-data"
 
 
 # Convenience functions for simplified usage
