@@ -189,7 +189,7 @@ class ValidationResult:
         return "\n".join(lines)
 
     def __str__(self) -> str:
-        """String representation showing summary."""
+        """Return string representation showing summary."""
         return self.format_summary()
 
 
@@ -239,16 +239,16 @@ class SchemaValidationError(Exception):
 
 
 class InvalidStandardError(SchemaValidationError):
-    """Raise exception when standard file is structurally invalid."""
+    """Exception raised when standard file is structurally invalid."""
 
 
 class MissingRequiredFieldError(SchemaValidationError):
-    """Raised when a required field is missing from the standard."""
+    """Exception raised when a required field is missing from the standard."""
 
 
 class InvalidFieldTypeError(SchemaValidationError):
-    """Raised when a field has an incorrect type."""
+    """Exception raised when a field has an incorrect type."""
 
 
 class InvalidFieldValueError(SchemaValidationError):
-    """Raised when a field value is outside valid range or set."""
+    """Exception raised when a field value is outside valid range or set."""

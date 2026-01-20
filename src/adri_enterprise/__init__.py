@@ -39,16 +39,25 @@ Usage:
 
 from importlib.metadata import PackageNotFoundError, version
 
-# Import license components
-from adri_enterprise.license import (
-    LicenseInfo,
-    LicenseValidationError,
-    is_license_valid,
-    validate_license,
+# Import enterprise configuration (dev/prod environment support)
+from adri_enterprise.config import (
+    ConfigFormat,
+    detect_config_format,
+    EnterpriseConfigurationLoader,
+    load_enterprise_config,
+    resolve_enterprise_contract,
 )
 
 # Import enterprise decorator
 from adri_enterprise.decorator import adri_protected
+
+# Import license components
+from adri_enterprise.license import (
+    is_license_valid,
+    LicenseInfo,
+    LicenseValidationError,
+    validate_license,
+)
 
 __all__ = [
     "__version__",
@@ -59,6 +68,12 @@ __all__ = [
     "is_license_valid",
     "LicenseInfo",
     "LicenseValidationError",
+    # Enterprise configuration
+    "ConfigFormat",
+    "EnterpriseConfigurationLoader",
+    "detect_config_format",
+    "load_enterprise_config",
+    "resolve_enterprise_contract",
 ]
 
 # Version management

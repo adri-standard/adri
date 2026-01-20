@@ -5,13 +5,21 @@ ADRI Configuration Loader.
 
 Streamlined configuration loading logic, simplified from adri/config/manager.py.
 Removes complex configuration management while preserving essential functionality.
+
+Supports package-local contract resolution for atomic/self-contained package architectures
+(e.g., playbooks, modules, plugins) via the package_context parameter.
 """
 
+import logging
 import os
 from pathlib import Path
 from typing import Any
 
 import yaml
+
+from .types import ContractResolutionResult, ResolutionConfig, ResolutionStrategy
+
+logger = logging.getLogger(__name__)
 
 
 class ConfigurationLoader:
@@ -338,20 +346,111 @@ class ConfigurationLoader:
 
         return protection_config
 
+    def get_resolution_config(self) -> ResolutionConfig:
+        """
+        Get the resolution configuration from config file or environment.
+
+        Precedence:
+        1. ADRI_RESOLUTION_STRATEGY environment variable
+        2. Config file resolution.strategy
+        3. Default (hybrid)
+
+        Returns:
+            ResolutionConfig with strategy and settings
+        """
+        config = self.get_active_config()
+
+        # Start with defaults
+        strategy = ResolutionStrategy.HYBRID
+        package_subdirectory = "adri"
+        fallback_enabled = True
+
+        # Check environment variable override
+        env_strategy = os.environ.get("ADRI_RESOLUTION_STRATEGY")
+        if env_strategy:
+            try:
+                strategy = ResolutionStrategy.from_string(env_strategy)
+            except ValueError:
+                logger.warning(
+                    f"Invalid ADRI_RESOLUTION_STRATEGY: {env_strategy}, using hybrid"
+                )
+
+        # Check environment variable for subdirectory
+        env_subdir = os.environ.get("ADRI_PACKAGE_SUBDIRECTORY")
+        if env_subdir:
+            package_subdirectory = env_subdir
+
+        # Load from config if available and no env override
+        if config and not env_strategy:
+            resolution_config = config.get("adri", {}).get("resolution", {})
+            if resolution_config:
+                return ResolutionConfig.from_dict(resolution_config)
+
+        return ResolutionConfig(
+            strategy=strategy,
+            package_subdirectory=package_subdirectory,
+            fallback_enabled=fallback_enabled,
+        )
+
+    def _resolve_package_local_contract(
+        self, contract_name: str, package_context: str, subdirectory: str = "adri"
+    ) -> str | None:
+        """
+        Resolve contract from package-local directory.
+
+        Searches for contract in {package_context}/{subdirectory}/{contract_name}.yaml
+
+        Args:
+            contract_name: Contract name (with or without .yaml extension)
+            package_context: Absolute path to package directory
+            subdirectory: Subdirectory name within package (default: "adri")
+
+        Returns:
+            Absolute path to contract if found, None otherwise
+        """
+        # Normalize contract name
+        if not contract_name.endswith((".yaml", ".yml")):
+            contract_name += ".yaml"
+
+        package_path = Path(package_context)
+        if not package_path.is_absolute():
+            package_path = Path.cwd() / package_path
+
+        # Check in package subdirectory
+        contract_path = package_path / subdirectory / contract_name
+        resolved_path = contract_path.resolve()
+
+        if resolved_path.exists():
+            logger.debug(f"Found package-local contract: {resolved_path}")
+            return str(resolved_path)
+
+        logger.debug(f"Package-local contract not found: {resolved_path}")
+        return None
+
     def resolve_contract_path(
-        self, contract_name: str, environment: str | None = None
+        self,
+        contract_name: str,
+        environment: str | None = None,
+        package_context: str | None = None,
     ) -> str:
         """
-        Resolve a contract name to full absolute path with ADRI_CONTRACTS_DIR override.
+        Resolve a contract name to full absolute path with package context support.
 
-        Precedence for contracts directory:
-        1. ADRI_CONTRACTS_DIR environment variable (if set)
-        2. Config file paths
-        3. Default ADRI/contracts structure
+        Resolution behavior depends on configured strategy:
+        - FLAT: Only check centralized directory (legacy behavior)
+        - PACKAGE_LOCAL: Only check package_context directory
+        - HYBRID: Check package_context first, fallback to centralized
+
+        Precedence for resolution:
+        1. ADRI_CONTRACTS_DIR environment variable (always highest, overrides strategy)
+        2. Package-local resolution (if package_context provided and strategy allows)
+        3. Config file paths (centralized)
+        4. Default ADRI/contracts structure
 
         Args:
             contract_name: Name of contract (with or without .yaml extension)
             environment: Ignored in OSS (kept for API compatibility)
+            package_context: Optional path to package directory for local resolution
 
         Returns:
             Full absolute path to contract file
@@ -367,8 +466,51 @@ class ConfigurationLoader:
             if not contracts_path.is_absolute():
                 contracts_path = Path.cwd() / contracts_path
             full_path = (contracts_path / contract_name).resolve()
+            logger.debug(f"Resolved contract via ADRI_CONTRACTS_DIR: {full_path}")
             return str(full_path)
 
+        # Get resolution configuration
+        resolution_config = self.get_resolution_config()
+        strategy = resolution_config.strategy
+
+        # Package-local resolution (if applicable)
+        if package_context and strategy in (
+            ResolutionStrategy.PACKAGE_LOCAL,
+            ResolutionStrategy.HYBRID,
+        ):
+            local_path = self._resolve_package_local_contract(
+                contract_name, package_context, resolution_config.package_subdirectory
+            )
+
+            if local_path:
+                return local_path
+
+            # If PACKAGE_LOCAL only, return expected path even if not found
+            if strategy == ResolutionStrategy.PACKAGE_LOCAL:
+                package_path = Path(package_context)
+                if not package_path.is_absolute():
+                    package_path = Path.cwd() / package_path
+                expected_path = (
+                    package_path
+                    / resolution_config.package_subdirectory
+                    / contract_name
+                )
+                logger.debug(f"Package-local contract expected at: {expected_path}")
+                return str(expected_path.resolve())
+
+        # FLAT strategy or HYBRID fallback: use centralized resolution
+        return self._resolve_centralized_contract(contract_name)
+
+    def _resolve_centralized_contract(self, contract_name: str) -> str:
+        """
+        Resolve contract from centralized directory (legacy behavior).
+
+        Args:
+            contract_name: Contract name with .yaml extension
+
+        Returns:
+            Full absolute path to contract file
+        """
         config = self.get_active_config()
 
         # Determine base directory from config file location
@@ -411,6 +553,94 @@ class ConfigurationLoader:
             # Fallback on any error - use flat structure
             contract_path = base_dir / "ADRI" / "contracts" / contract_name
             return str(contract_path)
+
+    def resolve_contract_path_with_metadata(
+        self,
+        contract_name: str,
+        environment: str | None = None,
+        package_context: str | None = None,
+    ) -> ContractResolutionResult:
+        """
+        Resolve contract path with full metadata about resolution.
+
+        Same resolution logic as resolve_contract_path but returns
+        a ContractResolutionResult with additional metadata useful
+        for debugging and audit logging.
+
+        Args:
+            contract_name: Name of contract
+            environment: Ignored (kept for API compatibility)
+            package_context: Optional package directory for local resolution
+
+        Returns:
+            ContractResolutionResult with path and metadata
+        """
+        resolution_config = self.get_resolution_config()
+
+        # Normalize contract name
+        if not contract_name.endswith((".yaml", ".yml")):
+            contract_name += ".yaml"
+
+        # Check env override first
+        env_contracts_dir = os.environ.get("ADRI_CONTRACTS_DIR")
+        if env_contracts_dir:
+            contracts_path = Path(env_contracts_dir)
+            if not contracts_path.is_absolute():
+                contracts_path = Path.cwd() / contracts_path
+            full_path = (contracts_path / contract_name).resolve()
+            return ContractResolutionResult(
+                path=str(full_path),
+                source="env_override",
+                package_context=None,
+                exists=full_path.exists(),
+                strategy_used=resolution_config.strategy,
+            )
+
+        # Try package-local resolution
+        if package_context and resolution_config.strategy in (
+            ResolutionStrategy.PACKAGE_LOCAL,
+            ResolutionStrategy.HYBRID,
+        ):
+            local_path = self._resolve_package_local_contract(
+                contract_name, package_context, resolution_config.package_subdirectory
+            )
+
+            if local_path:
+                return ContractResolutionResult(
+                    path=local_path,
+                    source="package_local",
+                    package_context=package_context,
+                    exists=True,
+                    strategy_used=resolution_config.strategy,
+                )
+
+            # PACKAGE_LOCAL only - return expected path
+            if resolution_config.strategy == ResolutionStrategy.PACKAGE_LOCAL:
+                package_path = Path(package_context)
+                if not package_path.is_absolute():
+                    package_path = Path.cwd() / package_path
+                expected_path = (
+                    package_path
+                    / resolution_config.package_subdirectory
+                    / contract_name
+                )
+                return ContractResolutionResult(
+                    path=str(expected_path.resolve()),
+                    source="package_local",
+                    package_context=package_context,
+                    exists=False,
+                    strategy_used=resolution_config.strategy,
+                )
+
+        # Centralized fallback
+        centralized_path = self._resolve_centralized_contract(contract_name)
+        return ContractResolutionResult(
+            path=centralized_path,
+            source="centralized" if not package_context else "fallback",
+            package_context=package_context,
+            exists=Path(centralized_path).exists(),
+            strategy_used=resolution_config.strategy,
+        )
 
     def create_directory_structure(self, config: dict[str, Any]) -> None:
         """

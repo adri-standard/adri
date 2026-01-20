@@ -24,17 +24,13 @@ from typing import Any
 from adri.decorator import adri_protected as base_adri_protected
 from adri.guard.modes import ProtectionError
 
+# Import enterprise configuration loader for environment-aware path resolution
+from adri_enterprise.config import EnterpriseConfigurationLoader
+
 # Import license validation
-from adri_enterprise.license import (
-    LicenseValidationError,
-    validate_license,
-)
+from adri_enterprise.license import LicenseValidationError, validate_license
 
 logger = logging.getLogger(__name__)
-
-# Track if license has been validated this session
-_license_validated = False
-
 
 def adri_protected(
     contract: str | None = None,
@@ -47,6 +43,7 @@ def adri_protected(
     cache_assessments: bool | None = None,
     verbose: bool | None = None,
     # Enterprise-specific parameters
+    environment: str | None = None,
     reasoning_mode: bool = False,
     store_prompt: bool = True,
     store_response: bool = True,
@@ -76,6 +73,8 @@ def adri_protected(
         cache_assessments: Whether to cache assessment results
         verbose: Whether to show detailed protection logs
 
+        environment: Environment name for path resolution (e.g., "development", "production")
+                     Uses ADRI_ENV if not specified, then config default_environment
         reasoning_mode: Enable AI/LLM reasoning step validation (default: False)
         store_prompt: Store AI prompts to JSONL audit logs (default: True)
         store_response: Store AI responses to JSONL audit logs (default: True)
@@ -143,26 +142,45 @@ def adri_protected(
             # AI decision logic
             return risk_assessment
         ```
+
+        Environment-aware contract resolution (dev/prod):
+        ```python
+        # Uses ADRI/dev/contracts/customer_data.yaml in development
+        # Uses ADRI/prod/contracts/customer_data.yaml in production
+        @adri_protected(
+            contract="customer_data",
+            environment="production",  # Explicit environment
+            min_score=85,
+            on_failure="raise"
+        )
+        def process_production_data(data):
+            return processed_data
+
+        # Or use ADRI_ENV environment variable for runtime switching:
+        # export ADRI_ENV=production
+        @adri_protected(
+            contract="customer_data",  # Will use prod paths when ADRI_ENV=production
+            environment=None  # Falls back to ADRI_ENV or config default
+        )
+        def process_data(data):
+            return processed_data
+        ```
     """
 
     def decorator(func: Callable) -> Callable:
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
-            global _license_validated
-            
             try:
-                # Validate license on first use (lazy validation)
-                if not _license_validated:
-                    try:
-                        validate_license()
-                        _license_validated = True
-                        logger.info("Verodat enterprise license validated successfully")
-                    except LicenseValidationError as e:
-                        logger.error(f"License validation failed: {e.message}")
-                        if e.details:
-                            logger.error(f"Details: {e.details}")
-                        raise
-                
+                # Always validate license - the LicenseValidator handles caching internally
+                try:
+                    validate_license()
+                    logger.debug("Enterprise license validation check completed")
+                except LicenseValidationError as e:
+                    logger.error(f"License validation failed: {e.message}")
+                    if e.details:
+                        logger.error(f"Details: {e.details}")
+                    raise
+
                 # Process enterprise features before base decorator
                 if reasoning_mode and verbose:
                     logger.info(
@@ -175,10 +193,23 @@ def adri_protected(
                 if data_provenance:
                     _log_data_provenance(data_provenance, func.__name__, verbose)
 
+                # Resolve contract path using environment-aware loader
+                resolved_contract = contract
+                if contract and environment:
+                    loader = EnterpriseConfigurationLoader()
+                    resolved_contract = loader.resolve_contract_path(
+                        contract, environment=environment
+                    )
+                    if verbose:
+                        logger.info(
+                            f"Enterprise: Resolved contract '{contract}' "
+                            f"for environment '{environment}' -> {resolved_contract}"
+                        )
+
                 # Delegate to base decorator with open source + reasoning_mode parameters
                 # reasoning_mode and workflow_context are now supported in base decorator
                 base_decorator = base_adri_protected(
-                    contract=contract,
+                    contract=resolved_contract,
                     data_param=data_param,
                     min_score=min_score,
                     dimensions=dimensions,
@@ -197,11 +228,7 @@ def adri_protected(
                 # Post-processing: Log reasoning steps if enabled
                 if reasoning_mode:
                     _log_reasoning_step(
-                        func.__name__,
-                        store_prompt,
-                        store_response,
-                        llm_config,
-                        verbose,
+                        func.__name__, store_prompt, store_response, llm_config, verbose
                     )
 
                 return result
@@ -210,9 +237,7 @@ def adri_protected(
                 # Re-raise protection errors as-is
                 raise
             except Exception as e:
-                logger.error(
-                    f"Enterprise decorator error for '{func.__name__}': {e}"
-                )
+                logger.error(f"Enterprise decorator error for '{func.__name__}': {e}")
                 raise
 
         # Mark the function as ADRI protected (enterprise version)

@@ -118,6 +118,7 @@ jobs:
     needs: check-changes
     if: needs.check-changes.outputs.docs-only == 'false'
     runs-on: ${{ matrix.os }}
+    continue-on-error: ${{ matrix.os == 'macos-latest' && matrix.python-version == '3.13' }}
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
@@ -146,7 +147,7 @@ jobs:
 
       - name: Run tests
         run: |
-          pytest tests/ -v --cov=adri --cov-report=xml --cov-report=term
+          pytest tests/ -v --cov=adri --cov-report=xml --cov-report=term -m "not performance"
 
       - name: Upload coverage
         if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.11'

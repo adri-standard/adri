@@ -417,7 +417,7 @@ class ExplanationGenerator:
             "unique_count": "Number of distinct non-null values observed in training.",
             "mad": "Median Absolute Deviation: robust measure of variability around the median.",
             "quantile": "Statistical measure dividing data into equal-sized intervals.",
-            "training_pass": "Guarantee that generated rules pass on the training data used for generation.",
+            "training_pass": "Guarantee that generated rules pass on the training data used for generation.",  # nosec B105
             "enum_strategy": "Method used for allowed values inference (coverage or tolerant).",
             "margin_days": "Buffer added to date ranges to allow for reasonable variations.",
         }

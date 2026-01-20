@@ -34,16 +34,22 @@ class LicenseInfo:
     is_valid: bool
     api_key: str
     validated_at: datetime
-    expires_at: Optional[datetime] = None
-    account_id: Optional[int] = None
-    username: Optional[str] = None
-    error_message: Optional[str] = None
+    expires_at: datetime | None = None
+    account_id: int | None = None
+    username: str | None = None
+    error_message: str | None = None
 
 
 class LicenseValidationError(Exception):
     """Raised when license/API key validation fails."""
 
-    def __init__(self, message: str, details: Optional[str] = None):
+    def __init__(self, message: str, details: str | None = None):
+        """Initialize the license validation error.
+
+        Args:
+            message: The error message.
+            details: Optional additional details about the error.
+        """
         self.message = message
         self.details = details
         super().__init__(self.message)
@@ -73,17 +79,15 @@ class LicenseValidator:
         """Initialize the license validator."""
         if self._initialized:
             return
-        
-        self._validated_license: Optional[LicenseInfo] = None
+
+        self._validated_license: LicenseInfo | None = None
         self._validation_cache_duration = timedelta(hours=24)
         self._api_url = os.environ.get(ENV_VERODAT_API_URL, DEFAULT_VERODAT_API_URL)
         self._timeout = 30
         self._initialized = True
 
     def validate_api_key(
-        self,
-        api_key: Optional[str] = None,
-        force_revalidation: bool = False,
+        self, api_key: str | None = None, force_revalidation: bool = False
     ) -> LicenseInfo:
         """
         Validate a Verodat API key.
@@ -101,7 +105,7 @@ class LicenseValidator:
         """
         # Get API key from parameter or environment
         key = api_key or os.environ.get(ENV_VERODAT_API_KEY)
-        
+
         if not key:
             raise LicenseValidationError(
                 "Verodat API key required",
@@ -124,17 +128,17 @@ class LicenseValidator:
         """Check if cached validation is still valid."""
         if self._validated_license is None:
             return False
-        
+
         if self._validated_license.api_key != api_key:
             return False
-        
+
         if not self._validated_license.is_valid:
             return False
-        
+
         cache_age = datetime.now() - self._validated_license.validated_at
         if cache_age > self._validation_cache_duration:
             return False
-        
+
         return True
 
     def _perform_validation(self, api_key: str) -> LicenseInfo:
@@ -146,13 +150,17 @@ class LicenseValidator:
             }
 
             response = requests.get(
-                f"{self._api_url}/ai/key",
-                headers=headers,
-                timeout=self._timeout,
+                f"{self._api_url}/ai/key", headers=headers, timeout=self._timeout
             )
 
             if response.status_code == 200:
-                data = response.json()
+                # Try to parse JSON response, handle malformed responses gracefully
+                try:
+                    data = response.json()
+                except (ValueError, Exception) as e:
+                    logger.warning(f"Malformed API response (JSON parse error): {e}")
+                    data = {}
+                
                 license_info = LicenseInfo(
                     is_valid=True,
                     api_key=api_key,
@@ -175,7 +183,7 @@ class LicenseValidator:
                 raise LicenseValidationError(
                     "Invalid Verodat API key",
                     details="The API key is invalid or has expired. Please check your "
-                           "Verodat account settings and generate a new key if needed.",
+                    "Verodat account settings and generate a new key if needed.",
                 )
 
             elif response.status_code == 403:
@@ -189,7 +197,7 @@ class LicenseValidator:
                 raise LicenseValidationError(
                     "Enterprise license required",
                     details="Your Verodat account does not have enterprise access. "
-                           "Please contact Verodat to upgrade your license.",
+                    "Please contact Verodat to upgrade your license.",
                 )
 
             else:
@@ -204,12 +212,11 @@ class LicenseValidator:
             raise LicenseValidationError(
                 "License validation timeout",
                 details="Could not reach Verodat API. Please check your network "
-                       "connection and try again.",
+                "connection and try again.",
             )
         except requests.exceptions.RequestException as e:
             raise LicenseValidationError(
-                "License validation failed",
-                details=f"Network error: {str(e)}",
+                "License validation failed", details=f"Network error: {str(e)}"
             )
 
     @property
@@ -222,7 +229,7 @@ class LicenseValidator:
         )
 
     @property
-    def current_license(self) -> Optional[LicenseInfo]:
+    def current_license(self) -> LicenseInfo | None:
         """Get the current validated license info."""
         return self._validated_license
 
@@ -233,7 +240,7 @@ class LicenseValidator:
 
 
 # Global validator instance
-_validator: Optional[LicenseValidator] = None
+_validator: LicenseValidator | None = None
 
 
 def get_validator() -> LicenseValidator:
@@ -245,8 +252,7 @@ def get_validator() -> LicenseValidator:
 
 
 def validate_license(
-    api_key: Optional[str] = None,
-    force_revalidation: bool = False,
+    api_key: str | None = None, force_revalidation: bool = False
 ) -> LicenseInfo:
     """
     Validate a Verodat API key (convenience function).
@@ -272,8 +278,7 @@ def validate_license(
 
 
 def require_license(func):
-    """
-    Decorator that requires a valid Verodat license before execution.
+    """Require a valid Verodat license before execution.
 
     This decorator validates the API key on first use and caches the result.
     Subsequent calls use the cached validation until it expires.
@@ -294,8 +299,7 @@ def require_license(func):
 
 
 def is_license_valid() -> bool:
-    """
-    Check if a valid license is currently cached.
+    """Return whether a valid license is currently cached.
 
     Returns:
         True if a valid license is cached, False otherwise.

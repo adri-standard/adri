@@ -1,16 +1,16 @@
 # ADRI Feature Registry
 
-**Last Generated:** 2025-12-19 15:15:28
+**Last Generated:** 2026-01-19 15:56:37
 
-**Total Features:** 14
+**Total Features:** 17
 
 ---
 
 ## Statistics
 
-- **Open Source Features (OPEN_SOURCE + SHARED):** 14
-- **Enterprise-Only Features:** 0
-- **Total Features:** 14
+- **Open Source Features (OPEN_SOURCE + SHARED):** 15
+- **Enterprise-Only Features:** 2
+- **Total Features:** 17
 
 ## Dependency Graph
 
@@ -18,7 +18,7 @@ The features are organized in dependency order. When syncing to open source,
 features will be extracted in the order that respects their dependencies.
 
 
-## OPEN_SOURCE Features (9)
+## OPEN_SOURCE Features (10)
 
 | Feature | Description | Files | Status | Dependencies |
 |---------|-------------|-------|--------|--------------|
@@ -27,6 +27,7 @@ features will be extracted in the order that respects their dependencies.
 | cli_assess_command | CLI assess command for running data quality assessments | assess.py | ✅ ACTIVE | - |
 | cli_generate_contract | CLI command for auto-generating ADRI contracts from data analysis | generate_contract.py | ✅ ACTIVE | analysis_contract_generator |
 | cli_view_logs | CLI command for viewing and analyzing ADRI audit logs | view_logs.py | ✅ ACTIVE | - |
+| config_types | Type definitions for ADRI configuration including resolution strategies | types.py | ✅ ACTIVE | - |
 | contracts_parser | YAML contract parsing and validation for ADRI data quality contracts | parser.py | ✅ ACTIVE | - |
 | decorator_adri_protected | Core @adri_protected decorator for data quality protection in agent workflows | decorator.py | ✅ ACTIVE | - |
 | guard_protection_modes | Data protection modes (fail-fast, selective, warn-only) for guard decorator | modes.py | ✅ ACTIVE | - |
@@ -41,6 +42,13 @@ features will be extracted in the order that respects their dependencies.
 | logging_local_jsonl | Local JSONL audit logging system used by both enterprise and open source | local.py | ✅ ACTIVE | - |
 | validator_modes | Mode detection system for ADRI templates (reasoning, conversation, deterministic) | modes.py | ✅ ACTIVE | - |
 | validator_structure | Structure validation for ADRI templates based on detected mode | structure.py | ✅ ACTIVE | - |
+
+## ENTERPRISE Features (2)
+
+| Feature | Description | Files | Status | Dependencies |
+|---------|-------------|-------|--------|--------------|
+| enterprise_config | Enterprise configuration module with dev/prod environment support | __init__.py | ✅ ACTIVE | - |
+| enterprise_config_loader | Enterprise configuration loader with dev/prod environment support | loader.py | ✅ ACTIVE | - |
 
 ---
 

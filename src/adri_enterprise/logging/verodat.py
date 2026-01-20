@@ -72,6 +72,14 @@ class VerodatLogger:
                 "data_provenance": data_provenance,
             }
 
+            # Validate JSON serializability early to fail fast
+            import json
+            try:
+                json.dumps(enriched_data)
+            except (TypeError, ValueError) as e:
+                logger.error(f"Assessment data is not JSON serializable: {e}")
+                return False
+
             # Add to batch buffer
             self._batch_buffer.append(enriched_data)
 
@@ -127,7 +135,8 @@ class VerodatLogger:
             return True
 
         try:
-            batch_data = {"batch": self._batch_buffer}
+            # Copy the buffer to avoid clearing the data being sent
+            batch_data = {"batch": list(self._batch_buffer)}
             success = self._send_to_verodat(batch_data)
 
             if success:
@@ -139,9 +148,7 @@ class VerodatLogger:
             logger.error(f"Failed to flush batch to Verodat: {e}")
             return False
 
-    def _send_to_verodat(
-        self, data: dict[str, Any], attempt: int = 1
-    ) -> bool:
+    def _send_to_verodat(self, data: dict[str, Any], attempt: int = 1) -> bool:
         """
         Send data to Verodat API with retry logic.
 
@@ -153,16 +160,21 @@ class VerodatLogger:
             True if successful, False otherwise
         """
         try:
+            # Validate JSON serializ ability before sending
+            import json
+            try:
+                json.dumps(data)
+            except (TypeError, ValueError) as e:
+                logger.error(f"JSON serialization error: {e}")
+                return False
+            
             headers = {
                 "Authorization": f"ApiKey {self.api_key}",
                 "Content-Type": "application/json",
             }
 
             response = requests.post(
-                self.api_url,
-                json=data,
-                headers=headers,
-                timeout=self.timeout,
+                self.api_url, json=data, headers=headers, timeout=self.timeout
             )
 
             if response.status_code == 200:
@@ -190,6 +202,15 @@ class VerodatLogger:
             logger.error("Verodat API request timed out after all retry attempts")
             return False
 
+        except requests.exceptions.ConnectionError as e:
+            if attempt < self.retry_attempts:
+                logger.warning(
+                    f"Verodat API connection error (attempt {attempt}/{self.retry_attempts}): {e}"
+                )
+                return self._send_to_verodat(data, attempt + 1)
+            logger.error(f"Verodat API connection failed after all retry attempts: {e}")
+            return False
+
         except Exception as e:
             logger.error(f"Error sending data to Verodat: {e}")
             return False
@@ -207,8 +228,7 @@ class VerodatLogger:
 def send_to_verodat(
     assessment_data: dict[str, Any], api_url: str, api_key: str
 ) -> bool:
-    """
-    Convenience function to send assessment data to Verodat API.
+    """Send assessment data to Verodat API.
 
     This provides backward compatibility with the basic function from
     src/adri/logging/enterprise.py. For single assessments, bypasses

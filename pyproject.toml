@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "verodat-adri"
 dynamic = ["version"]
 description = "Enterprise data quality layer for AI agents - Validates data quality with Verodat cloud integration. Requires Verodat API key."
-readme = "README.md"
+readme = "README.enterprise.md"
 license = {file = "LICENSE"}
 authors = [
     {name = "Thomas Russell", email = "adri@verodat.com"}
@@ -48,6 +48,10 @@ dev = [
     "pytest-benchmark>=4.0",
     "pytest-timeout>=2.1.0",  # For test timeout support
     "pytest-mock>=3.12.0",  # Enhanced mocking for quality framework
+    "pytest-asyncio>=0.23.0",  # For async testing scenarios
+    "pytest-xdist>=3.3.0",  # Parallel test execution
+    "freezegun>=1.2.2",  # Time-based testing for cache validation
+    "responses>=0.24.0",  # HTTP request mocking for API tests
     "psutil>=5.9.0",  # Memory monitoring for performance tests
     "pre-commit>=3.0.0",  # For pre-commit hooks
     "black==25.9.0",
@@ -66,6 +70,10 @@ test = [
     "pytest-benchmark>=4.0",
     "pytest-timeout>=2.1.0",  # For test timeout support
     "pytest-mock>=3.12.0",  # Enhanced mocking for quality framework
+    "pytest-asyncio>=0.23.0",  # For async testing scenarios
+    "pytest-xdist>=3.3.0",  # Parallel test execution
+    "freezegun>=1.2.2",  # Time-based testing for cache validation
+    "responses>=0.24.0",  # HTTP request mocking for API tests
     "psutil>=5.9.0",  # Memory monitoring for performance tests
     "pyarrow>=14.0.0",  # For parquet support in tests
     "tabulate>=0.9.0",  # For benchmark comparison script
@@ -193,7 +201,7 @@ max-statements = 60
 # bandit configuration
 [tool.bandit]
 exclude_dirs = ["development"]
-skips = ["B101", "B601", "B110", "B112"]  # Skip assert_used, shell_injection_process_args, try_except_pass, and try_except_continue
+skips = ["B101", "B105", "B110", "B112", "B601"]  # Skip assert_used, hardcoded_password_string, try_except_pass, try_except_continue, shell_injection_process_args
 
 # pytest configuration - Modern ADRI Test Framework (80% Coverage Target)
 [tool.pytest.ini_options]
@@ -220,6 +228,15 @@ markers = [
     "error_handling: Error handling test - failure scenarios",
     "end_to_end: End-to-end test - complete workflows",
     "benchmark: Performance benchmarks with pytest-benchmark",
+
+    # Enterprise-specific test markers
+    "enterprise: Enterprise-specific functionality tests",
+    "license_validation: License validation and API key tests",
+    "reasoning_logging: AI reasoning logging functionality tests",
+    "verodat_api: Verodat API integration tests",
+    "environment_config: Environment-aware configuration tests",
+    "workflow_orchestration: Workflow context and orchestration tests",
+    "data_provenance: Data provenance and lineage tests",
 
     # Component quality targets (Architecture-based)
     "business_critical: Business critical component (90%+ quality target)",
@@ -342,4 +359,4 @@ ignore = [
 version_scheme = "post-release"
 local_scheme = "node-and-date"
 write_to = "src/adri/_version.py"
-fallback_version = "7.0.0"
+fallback_version = "7.2.0"

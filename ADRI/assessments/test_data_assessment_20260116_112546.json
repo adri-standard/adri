@@ -1,0 +1,70 @@
+{
+  "adri_assessment_report": {
+    "metadata": {
+      "assessment_id": "adri_assessment_20260116_112546",
+      "adri_version": "0.1.0",
+      "timestamp": "2026-01-16T11:25:46.907603Z",
+      "dataset_name": "unknown_dataset",
+      "dataset": {
+        "name": "unknown_dataset",
+        "size_mb": 0.0,
+        "total_records": 0,
+        "total_fields": 0
+      },
+      "standard_id": "test_contract",
+      "standard_applied": {
+        "id": "test_contract",
+        "version": "1.0.0",
+        "domain": "data_quality"
+      },
+      "execution": {
+        "total_execution_time_ms": 0,
+        "duration_ms": 0,
+        "rules_executed": 0,
+        "total_validations": 0
+      },
+      "schema_validation": {
+        "exact_matches": 3,
+        "case_insensitive_matches": 0,
+        "total_standard_fields": 3,
+        "total_data_fields": 3,
+        "match_percentage": 100.0,
+        "warnings": [],
+        "matched_fields": [
+          "value",
+          "name",
+          "id"
+        ],
+        "unmatched_standard_fields": [],
+        "unmatched_data_fields": []
+      }
+    },
+    "summary": {
+      "overall_score": 100.0,
+      "overall_passed": true,
+      "pass_fail_status": {
+        "overall_passed": true,
+        "dimension_passed": {
+          "validity": true,
+          "completeness": true,
+          "consistency": true,
+          "freshness": true,
+          "plausibility": true
+        },
+        "failed_dimensions": [],
+        "critical_issues": 0,
+        "total_failures": 0
+      },
+      "dimension_scores": {
+        "validity": 20.0,
+        "completeness": 20.0,
+        "consistency": 20.0,
+        "freshness": 20.0,
+        "plausibility": 20.0
+      },
+      "total_failures": 0
+    },
+    "rule_execution_log": [],
+    "field_analysis": {}
+  }
+}

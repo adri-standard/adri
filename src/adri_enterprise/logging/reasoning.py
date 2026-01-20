@@ -7,6 +7,7 @@ and reasoning validation for enterprise deployments.
 
 import json
 import logging
+import uuid
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -67,28 +68,40 @@ class ReasoningLogger:
 
         Returns:
             Tuple of (prompt_id, response_id)
+            
+        Note:
+            If logging fails, returns error IDs (starting with "error_")
+            to allow graceful degradation without breaking workflows.
         """
         prompt_id = None
         response_id = None
 
-        # Log prompt if enabled
+        # Log prompt if enabled (with error handling)
         if self.store_prompts:
-            prompt_id = self.log_prompt(
-                prompt=prompt,
-                llm_config=llm_config,
-                assessment_id=assessment_id,
-                function_name=function_name,
-            )
+            try:
+                prompt_id = self.log_prompt(
+                    prompt=prompt,
+                    llm_config=llm_config,
+                    assessment_id=assessment_id,
+                    function_name=function_name,
+                )
+            except Exception as e:
+                logger.warning(f"Prompt logging failed: {e}")
+                prompt_id = f"error_prompt_{uuid.uuid4().hex[:8]}"
 
-        # Log response if enabled
+        # Log response if enabled (with error handling)
         if self.store_responses:
-            response_id = self.log_response(
-                response=response,
-                prompt_id=prompt_id,
-                llm_config=llm_config,
-                assessment_id=assessment_id,
-                function_name=function_name,
-            )
+            try:
+                response_id = self.log_response(
+                    response=response,
+                    prompt_id=prompt_id,
+                    llm_config=llm_config,
+                    assessment_id=assessment_id,
+                    function_name=function_name,
+                )
+            except Exception as e:
+                logger.warning(f"Response logging failed: {e}")
+                response_id = f"error_response_{uuid.uuid4().hex[:8]}"
 
         return prompt_id, response_id
 

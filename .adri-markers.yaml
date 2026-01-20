@@ -7,7 +7,7 @@ scan:
   include_patterns:
     - "src/**/*.py"
     - "scripts/**/*.py"
-  
+
   # File patterns to exclude from scanning
   exclude_patterns:
     - "**/__pycache__/**"
@@ -34,7 +34,7 @@ feature_naming:
     - analysis_       # Analysis and assessment
     - decorator_      # Decorator functionality
     - config_         # Configuration management
-  
+
   # Default scope suggestions based on prefix
   # (These are suggestions; actual scope can differ with justification)
   scope_defaults:
@@ -48,25 +48,27 @@ feature_naming:
     analysis_: OPEN_SOURCE
     decorator_: OPEN_SOURCE
     config_: SHARED
+    enterprise_config: ENTERPRISE
+    enterprise_config_loader: ENTERPRISE
 
 # Sync to open source repository
 sync:
   # Path to open source repository (relative or absolute)
   upstream_repo: ../adri
-  
+
   # Default branch to sync to
   default_branch: main
-  
+
   # Prefix for sync commits
   commit_prefix: "sync: "
-  
+
   # Whether to automatically create pull requests
   create_pr: true
-  
+
   # Labels to apply to auto-created PRs
   pr_labels:
     - sync
     - automated
-  
+
   # Reviewers to request for PRs
   pr_reviewers: []

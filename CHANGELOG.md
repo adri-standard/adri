@@ -5,6 +5,60 @@ All notable changes to ADRI will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.2.0] - 2026-01-19
+
+**verodat-adri v7.2.0 - Code Quality and Documentation Accuracy Release**
+
+This release focuses on code quality improvements and documentation accuracy for the enterprise package.
+
+### Changed
+- Resolved all 25 flake8 code quality issues for cleaner, more maintainable codebase
+- Fixed docstring formatting across enterprise and core modules for better documentation generation
+- Updated README.enterprise.md with Implementation Status section clarifying current vs planned features
+- Improved code consistency with proper docstring formatting (D205, D400, D401 compliance)
+
+### Fixed
+- Trailing whitespace and indentation issues in license validation module
+- Docstring imperative mood compliance across all modules
+- Documentation accuracy regarding workflow_context, data_provenance, and AI reasoning features
+  - Clarified that these features currently provide basic console/file logging
+  - Full API integration planned for future releases
+
+### Documentation
+- Added "Implementation Status" section to README.enterprise.md distinguishing:
+  - ✅ Fully implemented: License validation, centralized logging, environment-aware config
+  - 🔄 Basic logging only: Workflow context, data provenance, AI reasoning (full API integration planned)
+- Improved transparency about current capabilities vs. planned features
+
+### Package Information
+- PyPI: `verodat-adri` v7.2.0
+- Requires: Python 3.10+, Valid Verodat API key
+- Tests: 1,956 passing, 0 flake8 issues
+
+---
+
+## [7.1.0] - 2026-01-19
+
+**adri v7.1.0 - Code Quality Improvements**
+
+This release aligns the open source package with enterprise code quality improvements.
+
+### Changed
+- Resolved code quality issues in shared core modules
+- Improved docstring formatting for better documentation
+- Enhanced code consistency and maintainability
+
+### Fixed
+- Docstring formatting issues in contract generation and validation modules
+- Code style compliance for cleaner codebase
+
+### Package Information
+- PyPI: `adri` v7.1.0
+- Requires: Python 3.10+
+- Open source, no license key required
+
+---
+
 ## [7.0.0] - 2026-08-01
 
 **ADRI v7.0.0 - Version Alignment Release**

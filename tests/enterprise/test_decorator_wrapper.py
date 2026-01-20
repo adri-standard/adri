@@ -19,9 +19,13 @@ from adri_enterprise.license import LicenseInfo
 @pytest.fixture(autouse=True)
 def mock_license_validation():
     """Mock license validation for all tests in this module.
-    
+
     This fixture runs automatically for all tests and mocks the validate_license
     function to avoid requiring a real VERODAT_API_KEY in CI environments.
+    
+    Note: The decorator no longer uses a global _license_validated flag.
+    It now calls validate_license() each time and relies on the validator's
+    internal caching mechanism.
     """
     from datetime import datetime
     mock_license_info = LicenseInfo(
@@ -34,8 +38,7 @@ def mock_license_validation():
         error_message=None
     )
     with patch('adri_enterprise.decorator.validate_license', return_value=mock_license_info):
-        with patch('adri_enterprise.decorator._license_validated', True):
-            yield mock_license_info
+        yield mock_license_info
 
 
 class TestEnterpriseDecoratorWrapper:
