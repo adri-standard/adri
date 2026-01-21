@@ -99,7 +99,7 @@ jobs:
         python -c "import os; [print(f'{f}: {os.path.getsize(os.path.join(\"dist\", f))} bytes') for f in os.listdir('dist')]"
 
     - name: Upload build artifacts
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v6
       with:
         name: dist-${{ needs.validate-tag.outputs.tag }}
         path: dist/
