@@ -16,22 +16,22 @@ def process_customers(data):
 ## Why Upgrade to Enterprise?
 
 ### For Production Teams
-- **Centralized Monitoring**: All team members see quality metrics in unified Verodat dashboard
-- **Audit Compliance**: Complete audit trails required for regulated industries (finance, healthcare)
-- **Environment Isolation**: Separate dev/test/prod configurations prevent production mistakes
-- **Zero Downtime Migration**: Existing `@adri_protected` code works unchanged
+- **Centralized Monitoring**: Optional upload of assessment logs to Verodat (requires API key)
+- **Audit Logs**: Local JSONL audit logs (Verodat-compatible schema)
+- **Environment Separation**: Dev/test/prod config via `ADRI/config.yaml` + `ADRI_ENV`
+- **Same API**: Same `@adri_protected` usage as open source
 
 ### For AI/ML Engineers
-- **Workflow Integration**: Native support for Prefect, Airflow, and enterprise orchestration platforms
-- **Reasoning Audit Logs**: Track AI decision-making processes for explainable AI compliance
-- **Data Provenance**: Automatic lineage tracking through complex data processing pipelines
-- **Performance at Scale**: Optimized for enterprise workloads with batch processing and caching
+- **Workflow Context**: Accepts `workflow_context` metadata (logged when verbose)
+- **Reasoning Mode**: `reasoning_mode=True` enables reasoning-oriented behavior + optional local JSONL prompt/response logs
+- **Data Provenance**: Accepts `data_provenance` metadata (logged when verbose)
+- **Performance Options**: Fast-path assessment manifest storage (memory/file/redis backends)
 
 ### For Engineering Managers
-- **Risk Mitigation**: License validation ensures only authorized users access enterprise features
-- **Operational Excellence**: Real-time quality monitoring across all production AI workflows
-- **Developer Productivity**: Zero learning curve - same APIs, enhanced capabilities
-- **ROI Tracking**: Comprehensive analytics on data quality impact across projects
+- **License Gate**: API key validation + 24h cache on first use
+- **Operational Visibility**: Centralized logs when Verodat upload is enabled
+- **Developer Productivity**: No code changes needed beyond installing enterprise package and setting `VERODAT_API_KEY`
+- **Team Adoption**: Same decorator + CLI patterns
 
 ---
 
@@ -44,18 +44,17 @@ def process_customers(data):
 | 5-dimension quality scoring | ✅ | ✅ | Same assessment engine |
 | Local JSONL audit logs | ✅ | ✅ | File-based development logging |
 | CLI tools and contract generation | ✅ | ✅ | Full feature compatibility |
-| **Enterprise Operations** | **Limited** | **Full Enterprise** | **Production Ready** |
-| Centralized team dashboards | ❌ | ✅ | Team collaboration and visibility |
-| Environment-aware configuration | ❌ | ✅ | Dev/test/prod separation and safety |
-| AI reasoning audit logs | ❌ | ✅ | Explainable AI compliance and debugging |
-| License validation and access control | ❌ | ✅ | Enterprise security and compliance |
-| Workflow orchestration integration | ❌ | ✅ | Production pipeline integration |
-| Data provenance tracking | ❌ | ✅ | Data lineage and compliance |
-| **Performance & Scale** | **Development** | **Production** | **Enterprise Grade** |
-| Assessment ID availability | 30-60 seconds | <10ms | Real-time workflow orchestration |
-| Batch API processing | ❌ | ✅ | Efficient high-volume operations |
-| Multi-environment support | ❌ | ✅ | Production deployment safety |
-| Enterprise SLA support | ❌ | ✅ | Production reliability guarantees |
+| **Enterprise Add-ons** |  |  |  |
+| API key (license) validation | ❌ | ✅ | Enforces enterprise access on first use |
+| Optional Verodat API upload | ❌ | ✅ | Centralize assessments outside local files |
+| **Configuration** |  |  |  |
+| Environment-aware config (`ADRI_ENV`) | ✅ | ✅ | Dev/test/prod behavior via config + env var |
+| **Workflow & LLM Context** |  |  |  |
+| `workflow_context` parameter | ✅ | ✅ | Attach workflow metadata to assessments |
+| `data_provenance` parameter | ❌ | ✅ | Attach provenance metadata (enterprise wrapper) |
+| Local reasoning JSONL logs | ❌ | ✅ | Stores prompt/response JSONL when enabled |
+| **Performance** |  |  |  |
+| Fast-path manifest store (memory/file/redis) | ✅ | ✅ | Faster assessment-id availability via local store |
 
 ---
 
@@ -88,73 +87,38 @@ def process_customer_data(data):
     enhanced_data['processed_at'] = pd.Timestamp.now()
     return enhanced_data
 
-# Automatically gets enterprise benefits:
-# ✅ Centralized logging to Verodat cloud
+# Optional enterprise add-ons:
 # ✅ License validation and access control
+# ✅ Optional Verodat upload (when configured)
 # ✅ Environment-aware contract resolution
-# ✅ AI reasoning audit trails (if enabled)
+# ✅ Optional reasoning logs (when enabled)
 ```
-
----
-
-## Implementation Status
-
-### Current Implementation (v7.2.0)
-
-The following features are **fully implemented** and production-ready:
-- ✅ **License Validation**: Full API key validation with caching and error handling
-- ✅ **Centralized Logging**: Complete Verodat API integration with batch processing and retry logic
-- ✅ **Environment-Aware Configuration**: Full dev/test/prod environment separation with automatic detection
-- ✅ **Production Performance**: Optimized caching, batching, and fast-path logging (<10ms assessment ID)
-
-### Features with Basic Logging (Development Stage)
-
-The following features currently provide **basic console/file logging** with full API integration planned for future releases:
-
-**Workflow Context Integration** (Basic Logging Only)
-- ✅ Accepts workflow_context parameters in decorator
-- ✅ Logs workflow metadata to console
-- 🔄 **Planned**: Full integration with Prefect, Airflow, and Verodat workflow APIs
-
-**Data Provenance Tracking** (Basic Logging Only)
-- ✅ Accepts data_provenance parameters in decorator
-- ✅ Logs data source metadata to console
-- 🔄 **Planned**: Full data lineage API integration with Verodat platform
-
-**AI Reasoning Audit Logs** (Local JSONL Only)
-- ✅ Logs AI prompts and responses to local JSONL files
-- ✅ Links reasoning to assessment IDs for traceability
-- 🔄 **Planned**: Reasoning validation engine and centralized reasoning analytics
-
-**Migration Path**: When full API integration is released, existing code will automatically gain enhanced capabilities with zero code changes required.
 
 ---
 
 ## Enterprise Feature Deep Dive
 
-### 1. Centralized Team Collaboration
+### 1. Centralized Logging (Optional)
 
-**Problem Solved**: Individual developers can't see what's happening with data quality across the team.
+**Problem Solved**: Local-only logs are hard to aggregate across projects/environments.
 
-**Enterprise Solution**: Unified Verodat dashboard showing all quality assessments across your organization.
+**Enterprise Solution**: When Verodat upload is enabled, assessments can be sent to Verodat via API.
 
 ```python
 from adri import adri_protected
 
-# Automatic centralized logging - no extra code needed
+# Optional centralized logging (when Verodat upload is configured)
 @adri_protected(contract="sales_data")
 def analyze_sales_performance(data):
     return analysis_results
 
-# All team members see this assessment in Verodat dashboard
-# Managers get real-time visibility into data quality across projects
-# Quality trends and patterns are tracked automatically
+# The assessment can be uploaded to Verodat (depending on your logging configuration)
 ```
 
 **Customer Value**:
-- **Visibility**: Engineering managers see real-time quality metrics across all AI projects
-- **Collaboration**: Data engineers can see quality patterns and share insights
-- **Accountability**: Clear audit trail of who processed what data and when
+- **Visibility**: Aggregate quality signals across environments
+- **Operational debugging**: Access logs outside local machines/containers
+- **Auditability**: Preserve verifiable assessment artifacts
 
 ### 2. Environment-Aware Configuration
 
@@ -199,11 +163,11 @@ def process_production_data(data):
 - **Consistency**: Standardized quality requirements across environments
 - **DevOps Integration**: Works with GitOps and infrastructure-as-code workflows
 
-### 3. AI Reasoning Audit Logs
+### 3. Reasoning Logs (Local JSONL)
 
 **Problem Solved**: AI decision-making processes are often black boxes with no audit trail.
 
-**Enterprise Solution**: Comprehensive logging of AI reasoning steps for compliance and debugging.
+**Enterprise Solution**: Optional local JSONL logging of prompt/response metadata.
 
 ```python
 from adri_enterprise import adri_protected
@@ -224,27 +188,25 @@ def assess_credit_risk(customer_data):
     risk_assessment = ai_model.analyze_credit_risk(customer_data)
     return risk_assessment
 
-# Automatic JSONL audit logs created:
-# - adri_reasoning_prompts.jsonl  (all AI prompts)
-# - adri_reasoning_responses.jsonl (all AI responses)
-# - Linked by assessment ID for traceability
+# Optional JSONL audit logs:
+# - adri_reasoning_prompts.jsonl
+# - adri_reasoning_responses.jsonl
 ```
 
 **Customer Value**:
-- **Compliance**: Meet explainable AI requirements for regulated industries
-- **Debugging**: Trace AI decisions when assessments produce unexpected results
-- **Quality Improvement**: Analyze AI reasoning patterns to improve model performance
+- **Debugging**: Retain prompts/responses alongside quality results
+- **Traceability**: Persist per-run artifacts in JSONL for later review
 
-### 4. Workflow Orchestration Integration
+### 4. Workflow Context Metadata
 
 **Problem Solved**: Data quality assessments are isolated from broader workflow context.
 
-**Enterprise Solution**: Deep integration with enterprise workflow orchestration platforms.
+**Enterprise Solution**: Attach workflow context metadata to an assessment.
 
 ```python
 from adri_enterprise import adri_protected
 
-# Prefect workflow integration
+# Example workflow context
 @adri_protected(
     contract="transaction_processing",
     workflow_context={
@@ -267,16 +229,12 @@ def detect_transaction_fraud(transaction_data):
     fraud_scores = ml_model.predict_fraud(transaction_data)
     return fraud_scores
 
-# Automatic benefits:
-# ✅ Workflow context logged to Verodat for end-to-end traceability
-# ✅ Data provenance tracked for compliance and debugging
-# ✅ Assessment linked to specific workflow run for operational visibility
+# Metadata is available to logging / callbacks for downstream correlation.
 ```
 
 **Customer Value**:
-- **Operational Visibility**: See data quality in context of broader business processes
-- **Root Cause Analysis**: Trace quality issues back to specific data sources and workflow steps
-- **Process Optimization**: Identify data quality bottlenecks in production workflows
+- **Correlation**: Link assessments to workflow runs and steps
+- **Debugging**: Carry “what run/step produced this data?” through logs
 
 ### 5. Production-Grade Performance
 
@@ -294,16 +252,10 @@ def process_high_volume_data(data):
 
 # Behind the scenes:
 # ✅ License validation cached for 24 hours
-# ✅ Assessment data batched for efficient API calls
-# ✅ Fast-path logging provides <10ms assessment ID availability
-# ✅ Background upload to Verodat cloud
+# ✅ Fast-path manifest storage provides faster assessment-id availability
 ```
 
-**Performance Benchmarks** (Validated by Test Suite):
-- **License validation**: <5 seconds (cached: <0.1 seconds)
-- **Reasoning log writes**: <0.5 seconds per step
-- **Verodat API calls**: <10 seconds (batched)
-- **Decorator overhead**: <0.1 seconds per call
+**Performance Benchmarks**: See test suite for performance checks and thresholds.
 
 ---
 
@@ -317,16 +269,15 @@ from adri import adri_protected
 @adri_protected(
     contract="user_behavior_analysis",
     environment="development",     # Uses dev quality thresholds
-    reasoning_mode=True           # Enables team debugging
+    reasoning_mode=True           # Enables reasoning-mode behavior
 )
 def analyze_user_behavior(user_data):
     insights = ai_model.analyze_behavior(user_data)
     return insights
 
 # Benefits:
-# - All developers see quality trends in shared dashboard
-# - AI reasoning logs help debug model issues across team
-# - Development-appropriate quality thresholds prevent blocking
+# - Consistent dev environment config
+# - Optional reasoning logs
 ```
 
 ### Pattern 2: Production AI Pipeline
@@ -377,11 +328,9 @@ def process_patient_diagnosis_data(patient_data):
     diagnosis_insights = medical_ai.analyze_symptoms(patient_data)
     return diagnosis_insights
 
-# Compliance benefits:
-# ✅ Complete AI reasoning audit trail (GDPR, HIPAA)
-# ✅ Data provenance tracking (regulatory requirements)
-# ✅ Quality enforcement (patient safety)
-# ✅ Centralized compliance reporting via Verodat
+# Notes:
+# This shows parameterization for stricter controls; any compliance posture depends on your
+# own policies and how you retain/secure these logs.
 ```
 
 ---
@@ -506,18 +455,15 @@ Track every AI decision for compliance and debugging:
     }
 )
 def ai_credit_assessment(applicant_data):
-    # All AI reasoning automatically logged to:
-    # - Local JSONL files (immediate access)
-    # - Verodat cloud (team access and analytics)
+    # Optional logs (depending on configuration):
+    # - Local JSONL files
     credit_decision = ai_model.assess_creditworthiness(applicant_data)
     return credit_decision
 ```
 
-**Compliance Benefits**:
-- GDPR Article 22 (automated decision-making) compliance
-- SOX compliance for financial AI decisions
-- HIPAA compliance for healthcare AI processing
-- Complete audit trail for regulatory inquiries
+**Compliance Notes**:
+This package provides logging hooks and audit artifacts, but regulatory compliance is
+program/process dependent and must be validated by your organization.
 
 ### 2. Data Provenance and Lineage Tracking
 
@@ -554,8 +500,8 @@ def cross_platform_analysis(multi_source_data):
 Integrate seamlessly with enterprise workflow platforms:
 
 ```python
-# Prefect workflow with ADRI enterprise integration
-from prefect import flow, task
+# Workflow example (pseudo-code)
+# from prefect import flow, task
 from adri_enterprise import adri_protected
 
 @task
@@ -591,13 +537,12 @@ def payment_pipeline():
 
 ## Performance & Reliability
 
-### Proven Performance (Validated by Test Suite)
+### Performance (Tested)
 
 | Metric | Open Source | Enterprise | Improvement |
 |--------|:-----------:|:----------:|:-----------:|
-| **Assessment ID availability** | 30-60 seconds | <10ms | **300x faster** |
+| **Assessment ID availability** | 30-60 seconds | <10ms | Faster assessment-id availability |
 | **License validation** | N/A | <5 seconds (cached: <0.1s) | **Enterprise security** |
-| **Batch API processing** | N/A | <10 seconds for 50 assessments | **High-volume efficiency** |
 | **Reasoning log writes** | N/A | <0.5 seconds per step | **Real-time audit** |
 | **Memory overhead** | Baseline | +<100MB | **Production acceptable** |
 
@@ -614,19 +559,6 @@ def payment_pipeline():
 - Concurrent workflow support with shared license caching
 - Memory-efficient logging with configurable retention
 - Horizontal scaling with Redis backend support
-
----
-
-## Customer Success Stories
-
-### Fintech: Regulatory Compliance
-*"The AI reasoning audit logs were exactly what our compliance team needed for SOX audits. We can prove every AI decision in our fraud detection pipeline."* - Lead Data Engineer, Major Bank
-
-### Healthcare: Patient Data Protection
-*"Environment separation prevented us from accidentally using development-grade quality rules on patient data. The audit trail helps with HIPAA compliance."* - Senior ML Engineer, Health Tech Company
-
-### E-commerce: Team Collaboration
-*"Our entire data science team now sees quality metrics in one dashboard. We caught data drift issues 2 weeks earlier than we would have otherwise."* - Head of Data Science, E-commerce Platform
 
 ---
 
@@ -717,7 +649,7 @@ def workflow_step(data):
 
 **Ready to upgrade your data quality infrastructure?**
 
-Get started: [verodat.com/enterprise](https://verodat.com/enterprise)
+Get started: [verodat.com/adri-enterprise](https://verodat.com/adri-enterprise/)
 
 ---
 
