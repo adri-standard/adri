@@ -288,6 +288,9 @@ coverage.xml
 # AI Development Documentation (local only)
 AI-Development-docs/
 
+# Local AI / review artifacts (should never be committed)
+PR_REVIEW_REPORT.md
+
 # Temporary directories
 MagicMock/
 external/
