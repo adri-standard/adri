@@ -343,15 +343,24 @@ jobs:
         } >> $GITHUB_OUTPUT
 
     - name: Create GitHub Release
-      uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ needs.validate-tag.outputs.tag }}
-        release_name: verodat-adri ${{ needs.validate-tag.outputs.version }}
-        body: ${{ steps.release-notes.outputs.RELEASE_NOTES }}
-        draft: false
-        prerelease: false
+        TAG: ${{ needs.validate-tag.outputs.tag }}
+        TITLE: verodat-adri ${{ needs.validate-tag.outputs.version }}
+        BODY: ${{ steps.release-notes.outputs.RELEASE_NOTES }}
+      run: |
+        set -euo pipefail
+
+        echo "Ensuring GitHub release exists for $TAG"
+
+        # If the release already exists, update it; otherwise create it.
+        if gh release view "$TAG" >/dev/null 2>&1; then
+          echo "Release already exists; updating release notes."
+          gh release edit "$TAG" --title "$TITLE" --notes "$BODY"
+        else
+          echo "Release does not exist; creating release."
+          gh release create "$TAG" --title "$TITLE" --notes "$BODY"
+        fi
 
   notify-success:
     needs: [validate-tag, create-github-release]
