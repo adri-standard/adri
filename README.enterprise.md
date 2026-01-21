@@ -62,7 +62,11 @@ def process_customers(data):
 
 ### Step 1: Install Enterprise Edition
 ```bash
-pip install verodat-adri  # Replaces 'adri' package
+# If you already have the open source `adri` package installed,
+# uninstall it first to avoid import conflicts (both ship an `adri` module).
+pip uninstall -y adri
+
+pip install verodat-adri
 ```
 
 ### Step 2: Add API Key
@@ -170,7 +174,7 @@ def process_production_data(data):
 **Enterprise Solution**: Optional local JSONL logging of prompt/response metadata.
 
 ```python
-from adri_enterprise import adri_protected
+from adri import adri_protected
 
 @adri_protected(
     contract="credit_decisions",
@@ -204,7 +208,7 @@ def assess_credit_risk(customer_data):
 **Enterprise Solution**: Attach workflow context metadata to an assessment.
 
 ```python
-from adri_enterprise import adri_protected
+from adri import adri_protected
 
 # Example workflow context
 @adri_protected(
@@ -283,7 +287,7 @@ def analyze_user_behavior(user_data):
 ### Pattern 2: Production AI Pipeline
 ```python
 # Production deployment with strict quality controls
-from adri_enterprise import adri_protected
+from adri import adri_protected
 
 @adri_protected(
     contract="risk_assessment",
@@ -308,7 +312,7 @@ def assess_financial_risk(customer_portfolio_data):
 ### Pattern 3: Regulated Industry Compliance
 ```python
 # Healthcare/Finance with full audit requirements
-from adri_enterprise import adri_protected
+from adri import adri_protected
 
 @adri_protected(
     contract="patient_data_processing",
@@ -422,7 +426,7 @@ adri:
 
 ### Usage with Configuration
 ```python
-from adri_enterprise import adri_protected
+from adri import adri_protected
 
 # Automatically uses production config when ADRI_ENV=production
 @adri_protected(
@@ -502,7 +506,7 @@ Integrate seamlessly with enterprise workflow platforms:
 ```python
 # Workflow example (pseudo-code)
 # from prefect import flow, task
-from adri_enterprise import adri_protected
+from adri import adri_protected
 
 @task
 @adri_protected(
@@ -570,7 +574,7 @@ def payment_pipeline():
 pip install verodat-adri
 export VERODAT_API_KEY="your-key"
 
-# Your existing code automatically gets centralized logging
+# Your existing code gets centralized logging **when Verodat upload is enabled**
 # No code changes needed!
 ```
 
@@ -624,7 +628,8 @@ def workflow_step(data):
 
 ## License & Pricing
 
-- **Enterprise License**: Apache 2.0 + Valid Verodat API Key Required
+- **Package License**: Apache-2.0
+- **Enterprise Features**: Verodat cloud upload and licensed enterprise capabilities require a valid Verodat API key
 - **Open Source**: Always free at [github.com/adri-standard/adri](https://github.com/adri-standard/adri)
 - **Enterprise Pricing**: Contact [Verodat Sales](https://verodat.com/contact) for enterprise pricing
 
