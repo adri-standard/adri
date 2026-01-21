@@ -89,13 +89,13 @@ jobs:
       run: |
         PACKAGE_NAME=$(python -c "import tomllib; print(tomllib.load(open('pyproject.toml', 'rb'))['project']['name'])")
         echo "Package name: $PACKAGE_NAME"
-        
+
         if [[ "$PACKAGE_NAME" != "verodat-adri" ]]; then
           echo "❌ Package name is not 'verodat-adri'!"
           echo "Found: $PACKAGE_NAME"
           exit 1
         fi
-        
+
         echo "✅ Package name verification passed"
 
     - name: Build package
@@ -113,31 +113,31 @@ jobs:
         import zipfile
         import sys
         from pathlib import Path
-        
+
         wheel = list(Path('dist').glob('verodat_adri-*.whl'))[0]
         print(f'Checking wheel: {wheel}')
-        
+
         with zipfile.ZipFile(wheel, 'r') as z:
             files = z.namelist()
-            
+
         # Check for enterprise module
         enterprise_files = [f for f in files if 'adri_enterprise' in f]
         if not enterprise_files:
             print('❌ ERROR: adri_enterprise module not found in wheel!')
             sys.exit(1)
-        
+
         print(f'✅ Found {len(enterprise_files)} enterprise files:')
         for f in enterprise_files[:10]:
             print(f'  - {f}')
         if len(enterprise_files) > 10:
             print(f'  ... and {len(enterprise_files) - 10} more')
-        
+
         # Check for license module specifically
         license_files = [f for f in files if 'license.py' in f]
         if not any('adri_enterprise' in f for f in license_files):
             print('❌ ERROR: License validation module not found!')
             sys.exit(1)
-        
+
         print('✅ License validation module included')
         "
 
@@ -196,11 +196,11 @@ jobs:
             exit(1)
 
         print('Version verification passed')
-        
+
         # Test enterprise module is importable
         import adri_enterprise
         print(f'Successfully imported adri_enterprise')
-        
+
         # Test license module is available
         from adri_enterprise.license import validate_license, LicenseValidationError
         print('License validation module imported successfully')
@@ -210,7 +210,7 @@ jobs:
       run: |
         python -c "
         from adri_enterprise.license import validate_license, LicenseValidationError
-        
+
         try:
             validate_license()
             print('ERROR: Should have raised LicenseValidationError')
@@ -239,13 +239,14 @@ jobs:
       with:
         repository-url: https://test.pypi.org/legacy/
         password: ${{ secrets.TEST_PYPI_API_TOKEN }}
+        skip-existing: true  # Don't fail if a partial/previous run already uploaded artifacts
 
     - name: Test installation from TestPyPI
       run: |
         sleep 180  # Wait for TestPyPI CDN propagation
         pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ verodat-adri==${{ needs.validate-tag.outputs.version }}
         adri --version
-        
+
         # Verify enterprise module
         python -c "
         import adri_enterprise
@@ -268,6 +269,7 @@ jobs:
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
         password: ${{ secrets.PYPI_API_TOKEN }}
+        skip-existing: true  # Avoid failing if wheel/sdist already exists for this version
 
   create-github-release:
     needs: [validate-tag, build, test-install, publish-pypi]
@@ -289,13 +291,13 @@ jobs:
         # Create release notes
         cat > release_notes.md << 'EOF_HEADER'
         ## verodat-adri ${{ needs.validate-tag.outputs.version }}
-        
+
         Enterprise data quality layer for AI agents with Verodat cloud integration.
-        
+
         ### 🔑 License Requirement
-        
+
         This package requires a valid Verodat API key. Set the `VERODAT_API_KEY` environment variable before using enterprise features.
-        
+
         ### What's Changed
         EOF_HEADER
 

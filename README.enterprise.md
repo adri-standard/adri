@@ -8,7 +8,7 @@ Built on the proven open source [ADRI framework](https://github.com/adri-standar
 # Same code works in both editions - zero migration effort
 from adri import adri_protected
 
-@adri_protected(contract="customer_data")
+@adri_protected(contract="customer_data", data_param="data")
 def process_customers(data):
     return enhanced_data
 ```
