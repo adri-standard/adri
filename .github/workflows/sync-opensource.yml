@@ -18,7 +18,7 @@ jobs:
 
     steps:
       - name: Checkout Enterprise Repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -88,7 +88,7 @@ jobs:
           cd -
 
       - name: Checkout Open Source Repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: adri-standard/adri
           token: ${{ secrets.OPENSOURCE_SYNC_TOKEN }}
