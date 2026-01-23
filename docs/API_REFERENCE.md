@@ -27,7 +27,7 @@ Main decorator for protecting functions with data quality validation.
 from adri import adri_protected
 
 @adri_protected(
-    standard: str,                           # Required
+    contract: str,                           # Required
     data_param: str = "data",               # Optional
     min_score: float = 0.8,                 # Optional
     dimensions: Optional[Dict[str, float]] = None,  # Optional
@@ -42,7 +42,7 @@ from adri import adri_protected
 
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
-| `standard` | `str` | **Required** | Name of the YAML standard to validate against |
+| `contract` | `str` | **Required** | Name of the YAML standard to validate against |
 | `data_param` | `str` | `"data"` | Function parameter name containing data to validate |
 | `min_score` | `float` | `0.8` | Minimum quality score threshold (0.0-1.0) |
 | `dimensions` | `Dict[str, float]` | `None` | Dimension-specific score requirements |
@@ -53,11 +53,11 @@ from adri import adri_protected
 
 #### Parameter Details
 
-##### standard (Required)
+##### contract (Required)
 The name of the YAML standard file (without .yaml extension).
 
 ```python
-@adri_protected(standard="customer_quality")
+@adri_protected(contract="customer_quality")
 def process_customers(data: pd.DataFrame) -> Dict:
     return {"processed": len(data)}
 ```
@@ -71,7 +71,7 @@ Standard will be loaded from:
 Specify which function parameter contains the data to validate.
 
 ```python
-@adri_protected(standard="sales_data", data_param="sales")
+@adri_protected(contract="sales_data", data_param="sales")
 def analyze_sales(config: Dict, sales: pd.DataFrame) -> Dict:
     """Data is in 'sales' parameter, not 'data'."""
     return perform_analysis(sales)
@@ -82,12 +82,12 @@ Minimum acceptable quality score (0.0 to 1.0 or 0 to 100).
 
 ```python
 # Require 85% overall quality
-@adri_protected(standard="critical_data", min_score=0.85)
+@adri_protected(contract="critical_data", min_score=0.85)
 def process_critical(data: pd.DataFrame) -> Dict:
     return process(data)
 
 # Also accepts 0-100 scale
-@adri_protected(standard="critical_data", min_score=85)
+@adri_protected(contract="critical_data", min_score=85)
 def process_critical_alt(data: pd.DataFrame) -> Dict:
     return process(data)
 ```
@@ -120,17 +120,17 @@ Control behavior when validation fails.
 
 ```python
 # Raise exception (default) - stops execution
-@adri_protected(standard="critical", on_failure="raise")
+@adri_protected(contract="critical", on_failure="raise")
 def process_critical(data: pd.DataFrame) -> Dict:
     return process(data)
 
 # Log warning and continue - execution continues
-@adri_protected(standard="important", on_failure="warn")
+@adri_protected(contract="important", on_failure="warn")
 def process_important(data: pd.DataFrame) -> Dict:
     return process(data)
 
 # Silent continue - logs to file only
-@adri_protected(standard="monitoring", on_failure="continue")
+@adri_protected(contract="monitoring", on_failure="continue")
 def process_monitoring(data: pd.DataFrame) -> Dict:
     return process(data)
 ```
@@ -139,7 +139,7 @@ def process_monitoring(data: pd.DataFrame) -> Dict:
 Automatically create standards from data if missing.
 
 ```python
-@adri_protected(standard="new_dataset", auto_generate=True)
+@adri_protected(contract="new_dataset", auto_generate=True)
 def process_new_data(data: pd.DataFrame) -> Dict:
     """
     First run: Standard is generated from data
@@ -153,12 +153,12 @@ Enable/disable result caching for performance.
 
 ```python
 # Cache results (default)
-@adri_protected(standard="heavy_check", cache_assessments=True)
+@adri_protected(contract="heavy_check", cache_assessments=True)
 def expensive_validation(data: pd.DataFrame) -> Dict:
     return process(data)
 
 # Disable caching for always-fresh validation
-@adri_protected(standard="real_time", cache_assessments=False)
+@adri_protected(contract="real_time", cache_assessments=False)
 def real_time_check(data: pd.DataFrame) -> Dict:
     return process(data)
 ```
@@ -167,7 +167,7 @@ def real_time_check(data: pd.DataFrame) -> Dict:
 Show detailed validation output.
 
 ```python
-@adri_protected(standard="debug_data", verbose=True)
+@adri_protected(contract="debug_data", verbose=True)
 def debug_process(data: pd.DataFrame) -> Dict:
     """Will print detailed validation logs."""
     return process(data)
@@ -188,7 +188,7 @@ Decorated function that validates data before execution.
 import pandas as pd
 from adri import adri_protected
 
-@adri_protected(standard="customer_data")
+@adri_protected(contract="customer_data")
 def process_customers(data: pd.DataFrame) -> Dict:
     """Process customer data with quality validation."""
     return {
@@ -229,12 +229,12 @@ def process_tickets(tickets: pd.DataFrame, config: Dict) -> Dict:
 
 ##### Multiple Validations
 ```python
-@adri_protected(standard="input_validation", data_param="raw_data")
+@adri_protected(contract="input_validation", data_param="raw_data")
 def load_data(raw_data: pd.DataFrame) -> pd.DataFrame:
     """Validate input data."""
     return clean_data(raw_data)
 
-@adri_protected(standard="output_validation", data_param="result")
+@adri_protected(contract="output_validation", data_param="result")
 def save_results(result: pd.DataFrame) -> bool:
     """Validate output data."""
     result.to_csv("output.csv")
@@ -615,7 +615,7 @@ assessment = assess_data_quality(data, "customer_quality")
 ```python
 def assess_data_quality(
     data: Union[pd.DataFrame, dict, list],
-    standard: str
+    contract: str
 ) -> Assessment
 ```
 
@@ -720,7 +720,7 @@ from adri import adri_protected
 from typing import Callable, Dict
 import pandas as pd
 
-@adri_protected(standard="data_quality")
+@adri_protected(contract="data_quality")
 def process_data(data: pd.DataFrame) -> Dict[str, Any]:
     """Type hints work with decorator."""
     return {"status": "success"}
@@ -748,7 +748,7 @@ from adri.validator.exceptions import DataQualityException
 from adri import adri_protected
 import pandas as pd
 
-@adri_protected(standard="critical_data", on_failure="raise")
+@adri_protected(contract="critical_data", on_failure="raise")
 def process_critical(data: pd.DataFrame) -> Dict:
     return {"processed": len(data)}
 
@@ -780,13 +780,13 @@ except StandardNotFoundError as e:
 ```python
 from adri.validator.exceptions import DataQualityException
 
-@adri_protected(standard="data_quality", on_failure="warn")
+@adri_protected(contract="data_quality", on_failure="warn")
 def process_with_fallback(data: pd.DataFrame) -> Dict:
     """Logs warning but continues on quality failure."""
     return process(data)
 
 # Or handle exceptions manually
-@adri_protected(standard="data_quality", on_failure="raise")
+@adri_protected(contract="data_quality", on_failure="raise")
 def process_with_manual_handling(data: pd.DataFrame) -> Dict:
     return process(data)
 
@@ -807,7 +807,7 @@ except DataQualityException:
 import pandas as pd
 from adri import adri_protected
 
-@adri_protected(standard="customer_data")
+@adri_protected(contract="customer_data")
 def process_customers(data: pd.DataFrame) -> Dict:
     """Process customer data with quality validation."""
     return {
@@ -848,7 +848,7 @@ with open(".adri/standards/customer_quality.yaml", "w") as f:
     yaml.dump(standard, f)
 
 # Step 2: Use standard with decorator
-@adri_protected(standard="customer_quality")
+@adri_protected(contract="customer_quality")
 def process_customers(data: pd.DataFrame) -> Dict:
     return {"processed": len(data)}
 
