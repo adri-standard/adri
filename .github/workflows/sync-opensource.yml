@@ -181,7 +181,7 @@ jobs:
             automated
 
       - name: Upload Sync Report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: sync-report
           path: /tmp/adri-opensource/SYNC_REPORT.md
