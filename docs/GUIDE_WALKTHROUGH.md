@@ -117,7 +117,7 @@ Once you complete the guide, you'll have:
 
 1. **Integrate with your code**:
    ```python
-   from adri.validator.decorators import adri_protected
+   from adri import adri_protected
 
    @adri_protected(
        standard="your_standard",

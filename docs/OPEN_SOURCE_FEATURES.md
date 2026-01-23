@@ -190,7 +190,7 @@ def debug_process(data: pd.DataFrame) -> Dict:
 
 ```python
 import pandas as pd
-from adri.validator.decorators import adri_protected
+from adri import adri_protected
 
 @adri_protected(
     standard="customer_service_quality",

@@ -30,6 +30,7 @@ def adri_protected(
     reasoning_mode: bool = False,
     workflow_context: dict | None = None,
     package_context: str | None = None,
+    audit_log_dir: str | None = None,
 ):
     """
     Protect agent functions with ADRI data quality checks.
@@ -198,6 +199,7 @@ def adri_protected(
                     reasoning_mode=reasoning_mode,
                     workflow_context=workflow_context,
                     package_context=package_context,
+                    audit_log_dir=audit_log_dir,
                 )
 
             except ProtectionError:
@@ -233,6 +235,7 @@ def adri_protected(
                 "cache_assessments": cache_assessments,
                 "verbose": verbose,
                 "package_context": package_context,
+                "audit_log_dir": audit_log_dir,
             },
         )
 

@@ -1,0 +1,469 @@
+contracts:
+  id: marketing_campaign_standard
+  name: Marketing Campaign Performance Standard
+  version: 1.0.0
+  authority: ADRI Standards Catalog
+  description: Standard for validating marketing campaign performance data
+record_identification:
+  primary_key_fields:
+  - campaign_id
+  strategy: primary_key_with_fallback
+requirements:
+  overall_minimum: 85.0
+  field_requirements:
+    campaign_id:
+      type: string
+      nullable: false
+      pattern: ^CMP-\d{6,}$
+      description: Unique campaign identifier
+      validation_rules:
+      - name: campaign_id is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: campaign_id must not be empty
+      - name: campaign_id type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: campaign_id must be of type string
+      - name: campaign_id pattern validation
+        dimension: validity
+        severity: WARNING
+        rule_type: pattern
+        rule_expression: REGEX_MATCH('^CMP-\d{6,}$')
+        error_message: 'campaign_id must match pattern: ^CMP-\d{6,}$'
+    campaign_name:
+      type: string
+      nullable: false
+      description: Campaign name
+      validation_rules:
+      - name: campaign_name is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: campaign_name must not be empty
+      - name: campaign_name type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: campaign_name must be of type string
+    start_date:
+      type: string
+      nullable: false
+      pattern: ^\d{4}-\d{2}-\d{2}$
+      description: Campaign start date (YYYY-MM-DD)
+      validation_rules:
+      - name: start_date is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: start_date must not be empty
+      - name: start_date type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: start_date must be of type string
+      - name: start_date pattern validation
+        dimension: validity
+        severity: WARNING
+        rule_type: pattern
+        rule_expression: REGEX_MATCH('^\d{4}-\d{2}-\d{2}$')
+        error_message: 'start_date must match pattern: ^\d{4}-\d{2}-\d{2}$'
+    end_date:
+      type: string
+      nullable: false
+      pattern: ^\d{4}-\d{2}-\d{2}$
+      description: Campaign end date (YYYY-MM-DD)
+      validation_rules:
+      - name: end_date is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: end_date must not be empty
+      - name: end_date type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: end_date must be of type string
+      - name: end_date pattern validation
+        dimension: validity
+        severity: WARNING
+        rule_type: pattern
+        rule_expression: REGEX_MATCH('^\d{4}-\d{2}-\d{2}$')
+        error_message: 'end_date must match pattern: ^\d{4}-\d{2}-\d{2}$'
+    campaign_type:
+      type: string
+      nullable: false
+      valid_values:
+      - Email
+      - Social Media
+      - Display Ads
+      - Search Ads
+      - Content Marketing
+      - Influencer
+      description: Campaign type/channel
+      validation_rules:
+      - name: campaign_type is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: campaign_type must not be empty
+      - name: campaign_type type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: campaign_type must be of type string
+    campaign_status:
+      type: string
+      nullable: false
+      valid_values:
+      - Draft
+      - Scheduled
+      - Active
+      - Paused
+      - Completed
+      description: Current campaign status
+      validation_rules:
+      - name: campaign_status is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: campaign_status must not be empty
+      - name: campaign_status type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: campaign_status must be of type string
+    budget:
+      type: float
+      nullable: false
+      min_value: 0.0
+      description: Total campaign budget
+      validation_rules:
+      - name: budget is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: budget must not be empty
+      - name: budget type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_FLOAT
+        error_message: budget must be of type float
+      - name: budget numeric bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: numeric_bounds
+        rule_expression: VALUE >= 0.0
+        error_message: budget must be between 0.0 and None
+    spent:
+      type: float
+      nullable: false
+      min_value: 0.0
+      description: Amount spent so far
+      validation_rules:
+      - name: spent is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: spent must not be empty
+      - name: spent type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_FLOAT
+        error_message: spent must be of type float
+      - name: spent numeric bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: numeric_bounds
+        rule_expression: VALUE >= 0.0
+        error_message: spent must be between 0.0 and None
+    impressions:
+      type: integer
+      nullable: false
+      min_value: 0
+      description: Total impressions
+      validation_rules:
+      - name: impressions is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: impressions must not be empty
+      - name: impressions type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_INTEGER
+        error_message: impressions must be of type integer
+      - name: impressions numeric bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: numeric_bounds
+        rule_expression: VALUE >= 0
+        error_message: impressions must be between 0 and None
+    clicks:
+      type: integer
+      nullable: false
+      min_value: 0
+      description: Total clicks
+      validation_rules:
+      - name: clicks is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: clicks must not be empty
+      - name: clicks type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_INTEGER
+        error_message: clicks must be of type integer
+      - name: clicks numeric bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: numeric_bounds
+        rule_expression: VALUE >= 0
+        error_message: clicks must be between 0 and None
+    conversions:
+      type: integer
+      nullable: false
+      min_value: 0
+      description: Total conversions
+      validation_rules:
+      - name: conversions is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: conversions must not be empty
+      - name: conversions type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_INTEGER
+        error_message: conversions must be of type integer
+      - name: conversions numeric bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: numeric_bounds
+        rule_expression: VALUE >= 0
+        error_message: conversions must be between 0 and None
+    revenue:
+      type: float
+      nullable: false
+      min_value: 0.0
+      description: Revenue generated
+      validation_rules:
+      - name: revenue is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: revenue must not be empty
+      - name: revenue type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_FLOAT
+        error_message: revenue must be of type float
+      - name: revenue numeric bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: numeric_bounds
+        rule_expression: VALUE >= 0.0
+        error_message: revenue must be between 0.0 and None
+    click_through_rate:
+      type: float
+      nullable: false
+      min_value: 0.0
+      max_value: 100.0
+      description: CTR percentage
+      validation_rules:
+      - name: click_through_rate is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: click_through_rate must not be empty
+      - name: click_through_rate type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_FLOAT
+        error_message: click_through_rate must be of type float
+      - name: click_through_rate numeric bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: numeric_bounds
+        rule_expression: VALUE >= 0.0 AND VALUE <= 100.0
+        error_message: click_through_rate must be between 0.0 and 100.0
+    conversion_rate:
+      type: float
+      nullable: false
+      min_value: 0.0
+      max_value: 100.0
+      description: Conversion rate percentage
+      validation_rules:
+      - name: conversion_rate is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: conversion_rate must not be empty
+      - name: conversion_rate type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_FLOAT
+        error_message: conversion_rate must be of type float
+      - name: conversion_rate numeric bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: numeric_bounds
+        rule_expression: VALUE >= 0.0 AND VALUE <= 100.0
+        error_message: conversion_rate must be between 0.0 and 100.0
+    cost_per_click:
+      type: float
+      nullable: false
+      min_value: 0.0
+      description: Average cost per click
+      validation_rules:
+      - name: cost_per_click is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: cost_per_click must not be empty
+      - name: cost_per_click type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_FLOAT
+        error_message: cost_per_click must be of type float
+      - name: cost_per_click numeric bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: numeric_bounds
+        rule_expression: VALUE >= 0.0
+        error_message: cost_per_click must be between 0.0 and None
+    return_on_ad_spend:
+      type: float
+      nullable: false
+      min_value: 0.0
+      description: ROAS (revenue / spent)
+      validation_rules:
+      - name: return_on_ad_spend is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: return_on_ad_spend must not be empty
+      - name: return_on_ad_spend type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_FLOAT
+        error_message: return_on_ad_spend must be of type float
+      - name: return_on_ad_spend numeric bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: numeric_bounds
+        rule_expression: VALUE >= 0.0
+        error_message: return_on_ad_spend must be between 0.0 and None
+    target_audience:
+      type: string
+      nullable: false
+      description: Target audience description
+      validation_rules:
+      - name: target_audience is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: target_audience must not be empty
+      - name: target_audience type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: target_audience must be of type string
+    geographic_region:
+      type: string
+      nullable: false
+      description: Geographic targeting region
+      validation_rules:
+      - name: geographic_region is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: geographic_region must not be empty
+      - name: geographic_region type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: geographic_region must be of type string
+  dimension_requirements:
+    validity:
+      minimum_score: 20.0
+      weight: 1.0
+    completeness:
+      minimum_score: 18.0
+      weight: 1.0
+    consistency:
+      minimum_score: 18.0
+      weight: 1.0
+    freshness:
+      minimum_score: 14.0
+      weight: 1.0
+    plausibility:
+      minimum_score: 15.0
+      weight: 1.0
+metadata:
+  purpose: Validate marketing campaign performance data for analytics and optimization
+  usage: 'This standard ensures campaign records contain:
+
+    1. Valid campaign identifiers and names
+
+    2. Complete date ranges and status tracking
+
+    3. Budget and spend information
+
+    4. Performance metrics (impressions, clicks, conversions)
+
+    5. Calculated KPIs (CTR, conversion rate, ROAS)
+
+    6. Targeting information
+
+    '
+  example_usage: "from adri import adri_protected\nimport pandas as pd\n\n@adri_protected(standard=\"marketing_campaign_standard\"\
+    )\ndef analyze_campaigns(campaigns_df):\n    # Process validated campaign data\n    return campaigns_df\n"
+  created_by: ADRI Standards Catalog
+  created_date: 2025-01-17
+  domain: Marketing
+  tags:
+  - marketing
+  - campaigns
+  - analytics
+  - ROI
+  - performance

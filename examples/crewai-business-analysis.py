@@ -49,7 +49,7 @@ from pathlib import Path
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
-from adri.decorators.guard import adri_protected
+from adri import adri_protected
 from examples.utils.problem_demos import get_framework_problems
 
 # Import CrewAI with graceful fallback

@@ -392,6 +392,23 @@ class ConfigurationLoader:
             fallback_enabled=fallback_enabled,
         )
 
+    def _resolve_package_context_path(self, package_context: str) -> Path:
+        """Resolve package_context to an absolute path based on project root."""
+        package_path = Path(package_context)
+        if package_path.is_absolute():
+            return package_path
+
+        # Determine base directory from config file location (or cwd)
+        config_file_path = os.environ.get("ADRI_CONFIG_PATH") or self.find_config_file()
+        if config_file_path:
+            base_dir = Path(config_file_path).parent
+            if base_dir.name == "ADRI":
+                base_dir = base_dir.parent
+        else:
+            base_dir = Path.cwd()
+
+        return base_dir / package_path
+
     def _resolve_package_local_contract(
         self, contract_name: str, package_context: str, subdirectory: str = "adri"
     ) -> str | None:
@@ -412,9 +429,7 @@ class ConfigurationLoader:
         if not contract_name.endswith((".yaml", ".yml")):
             contract_name += ".yaml"
 
-        package_path = Path(package_context)
-        if not package_path.is_absolute():
-            package_path = Path.cwd() / package_path
+        package_path = self._resolve_package_context_path(package_context)
 
         # Check in package subdirectory
         contract_path = package_path / subdirectory / contract_name
@@ -485,11 +500,12 @@ class ConfigurationLoader:
             if local_path:
                 return local_path
 
-            # If PACKAGE_LOCAL only, return expected path even if not found
-            if strategy == ResolutionStrategy.PACKAGE_LOCAL:
-                package_path = Path(package_context)
-                if not package_path.is_absolute():
-                    package_path = Path.cwd() / package_path
+            # If package_context provided, return expected package-local path even if not found
+            if strategy in (
+                ResolutionStrategy.PACKAGE_LOCAL,
+                ResolutionStrategy.HYBRID,
+            ):
+                package_path = self._resolve_package_context_path(package_context)
                 expected_path = (
                     package_path
                     / resolution_config.package_subdirectory
@@ -614,11 +630,12 @@ class ConfigurationLoader:
                     strategy_used=resolution_config.strategy,
                 )
 
-            # PACKAGE_LOCAL only - return expected path
-            if resolution_config.strategy == ResolutionStrategy.PACKAGE_LOCAL:
-                package_path = Path(package_context)
-                if not package_path.is_absolute():
-                    package_path = Path.cwd() / package_path
+            # Package-local expected path when package_context provided
+            if resolution_config.strategy in (
+                ResolutionStrategy.PACKAGE_LOCAL,
+                ResolutionStrategy.HYBRID,
+            ):
+                package_path = self._resolve_package_context_path(package_context)
                 expected_path = (
                     package_path
                     / resolution_config.package_subdirectory

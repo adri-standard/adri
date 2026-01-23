@@ -1,0 +1,387 @@
+contracts:
+  id: healthcare_patient_standard
+  name: Healthcare Patient Record Standard
+  version: 1.0.0
+  authority: ADRI Standards Catalog
+  description: Standard for validating healthcare patient records
+record_identification:
+  primary_key_fields:
+  - patient_id
+  strategy: primary_key_with_fallback
+requirements:
+  overall_minimum: 92.0
+  field_requirements:
+    patient_id:
+      type: string
+      nullable: false
+      pattern: ^PAT-\d{8,}$
+      description: Unique patient identifier
+      validation_rules:
+      - name: patient_id is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: patient_id must not be empty
+      - name: patient_id type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: patient_id must be of type string
+      - name: patient_id pattern validation
+        dimension: validity
+        severity: WARNING
+        rule_type: pattern
+        rule_expression: REGEX_MATCH('^PAT-\d{8,}$')
+        error_message: 'patient_id must match pattern: ^PAT-\d{8,}$'
+    medical_record_number:
+      type: string
+      nullable: false
+      description: Medical record number
+      validation_rules:
+      - name: medical_record_number is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: medical_record_number must not be empty
+      - name: medical_record_number type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: medical_record_number must be of type string
+    date_of_birth:
+      type: string
+      nullable: false
+      pattern: ^\d{4}-\d{2}-\d{2}$
+      description: Patient date of birth (YYYY-MM-DD)
+      validation_rules:
+      - name: date_of_birth is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: date_of_birth must not be empty
+      - name: date_of_birth type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: date_of_birth must be of type string
+      - name: date_of_birth pattern validation
+        dimension: validity
+        severity: WARNING
+        rule_type: pattern
+        rule_expression: REGEX_MATCH('^\d{4}-\d{2}-\d{2}$')
+        error_message: 'date_of_birth must match pattern: ^\d{4}-\d{2}-\d{2}$'
+    gender:
+      type: string
+      nullable: false
+      valid_values:
+      - Male
+      - Female
+      - Other
+      - Prefer not to say
+      description: Patient gender
+      validation_rules:
+      - name: gender is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: gender must not be empty
+      - name: gender type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: gender must be of type string
+    phone_number:
+      type: string
+      nullable: false
+      pattern: ^\+?[\d\s\-\(\)]{10,}$
+      description: Patient phone number
+      validation_rules:
+      - name: phone_number is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: phone_number must not be empty
+      - name: phone_number type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: phone_number must be of type string
+      - name: phone_number pattern validation
+        dimension: validity
+        severity: WARNING
+        rule_type: pattern
+        rule_expression: REGEX_MATCH('^\+?[\d\s\-\(\)]{10,}$')
+        error_message: 'phone_number must match pattern: ^\+?[\d\s\-\(\)]{10,}$'
+    email:
+      type: string
+      nullable: true
+      description: Patient email address
+      validation_rules:
+      - name: email type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: email must be of type string
+    address_line1:
+      type: string
+      nullable: false
+      description: Residential address line 1
+      validation_rules:
+      - name: address_line1 is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: address_line1 must not be empty
+      - name: address_line1 type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: address_line1 must be of type string
+    city:
+      type: string
+      nullable: false
+      description: City
+      validation_rules:
+      - name: city is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: city must not be empty
+      - name: city type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: city must be of type string
+    state:
+      type: string
+      nullable: false
+      description: State/province
+      validation_rules:
+      - name: state is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: state must not be empty
+      - name: state type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: state must be of type string
+    postal_code:
+      type: string
+      nullable: false
+      description: Postal code
+      validation_rules:
+      - name: postal_code is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: postal_code must not be empty
+      - name: postal_code type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: postal_code must be of type string
+    country:
+      type: string
+      nullable: false
+      description: Country
+      validation_rules:
+      - name: country is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: country must not be empty
+      - name: country type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: country must be of type string
+    blood_type:
+      type: string
+      nullable: true
+      valid_values:
+      - A+
+      - A-
+      - B+
+      - B-
+      - AB+
+      - AB-
+      - O+
+      - O-
+      description: Blood type
+      validation_rules:
+      - name: blood_type type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: blood_type must be of type string
+    primary_physician_id:
+      type: string
+      nullable: false
+      description: Primary care physician identifier
+      validation_rules:
+      - name: primary_physician_id is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: primary_physician_id must not be empty
+      - name: primary_physician_id type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: primary_physician_id must be of type string
+    insurance_provider:
+      type: string
+      nullable: false
+      description: Insurance provider name
+      validation_rules:
+      - name: insurance_provider is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: insurance_provider must not be empty
+      - name: insurance_provider type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: insurance_provider must be of type string
+    insurance_policy_number:
+      type: string
+      nullable: false
+      description: Insurance policy number
+      validation_rules:
+      - name: insurance_policy_number is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: insurance_policy_number must not be empty
+      - name: insurance_policy_number type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: insurance_policy_number must be of type string
+    registration_date:
+      type: string
+      nullable: false
+      pattern: ^\d{4}-\d{2}-\d{2}$
+      description: Patient registration date
+      validation_rules:
+      - name: registration_date is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: registration_date must not be empty
+      - name: registration_date type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: registration_date must be of type string
+      - name: registration_date pattern validation
+        dimension: validity
+        severity: WARNING
+        rule_type: pattern
+        rule_expression: REGEX_MATCH('^\d{4}-\d{2}-\d{2}$')
+        error_message: 'registration_date must match pattern: ^\d{4}-\d{2}-\d{2}$'
+    patient_status:
+      type: string
+      nullable: false
+      valid_values:
+      - Active
+      - Inactive
+      - Deceased
+      description: Patient status
+      validation_rules:
+      - name: patient_status is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: patient_status must not be empty
+      - name: patient_status type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: patient_status must be of type string
+  dimension_requirements:
+    validity:
+      minimum_score: 22.0
+      weight: 1.0
+    completeness:
+      minimum_score: 20.0
+      weight: 1.0
+    consistency:
+      minimum_score: 18.0
+      weight: 1.0
+    freshness:
+      minimum_score: 17.0
+      weight: 1.0
+    plausibility:
+      minimum_score: 15.0
+      weight: 1.0
+metadata:
+  purpose: Validate healthcare patient records for completeness and HIPAA compliance
+  usage: 'This standard ensures patient records contain:
+
+    1. Valid patient and medical record identifiers
+
+    2. Complete demographic information
+
+    3. Contact details and residential address
+
+    4. Medical information (blood type, physician)
+
+    5. Insurance coverage details
+
+    6. Patient status tracking
+
+    '
+  example_usage: "from adri import adri_protected\nimport pandas as pd\n\n@adri_protected(standard=\"healthcare_patient_standard\"\
+    )\ndef process_patient_records(patients_df):\n    # Process validated patient data\n    return patients_df\n"
+  compliance_notes: 'This standard validates structure and completeness only.
+
+    Additional HIPAA compliance measures (encryption, access control,
+
+    audit logging) must be implemented separately.
+
+    '
+  created_by: ADRI Standards Catalog
+  created_date: 2025-01-17
+  domain: Healthcare
+  tags:
+  - healthcare
+  - patients
+  - EHR
+  - HIPAA
+  - medical-records

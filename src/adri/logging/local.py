@@ -17,10 +17,10 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-# Enterprise logging functionality is available in the enterprise package
-
 # Clean import for version info
 from ..version import __version__
+
+# Enterprise logging functionality is available in the enterprise package
 
 
 class AuditRecord:
@@ -312,6 +312,25 @@ class LocalLogger:
         self.max_log_size_mb = config.get("max_log_size_mb", 100)
         self.sync_writes = config.get("sync_writes", True)
 
+        # Durability/performance trade-off:
+        # - flush() ensures data is written to OS buffers
+        # - fsync() forces persistence to disk but can be extremely slow on some systems
+        #   (notably Windows CI). Default remains durable (fsync enabled) unless
+        #   ADRI_SKIP_FSYNC=1 is set.
+        self._skip_fsync = os.getenv("ADRI_SKIP_FSYNC") in {
+            "1",
+            "true",
+            "TRUE",
+            "yes",
+            "YES",
+        }
+
+        # Additional guard: Windows filesystems can make os.fsync() extremely slow in CI.
+        # If the user didn't explicitly request durable fsync behaviour, we default to
+        # skipping fsync on Windows to avoid pathological stalls.
+        if os.name == "nt" and not os.getenv("ADRI_FORCE_FSYNC"):
+            self._skip_fsync = True
+
         # File paths for the three JSONL files
         self.assessment_log_path = (
             self.log_dir / f"{self.log_prefix}_assessment_logs.jsonl"
@@ -385,7 +404,11 @@ class LocalLogger:
                 f.write(str(self.write_seq_counter))
                 if self.sync_writes:
                     f.flush()
-                    os.fsync(f.fileno())
+                    # On Windows, fsync can be extremely slow (especially on CI / networked filesystems).
+                    # We still flush to ensure data is pushed to the OS buffers, but we avoid blocking
+                    # indefinitely on fsync when configured to allow it.
+                    if not self._skip_fsync:
+                        os.fsync(f.fileno())
         except OSError:
             # If write fails, counter is still in memory
             pass
@@ -396,7 +419,8 @@ class LocalLogger:
         file_handle.write(data)
         if self.sync_writes:
             file_handle.flush()
-            os.fsync(file_handle.fileno())
+            if not self._skip_fsync:
+                os.fsync(file_handle.fileno())
 
     def log_assessment(
         self,

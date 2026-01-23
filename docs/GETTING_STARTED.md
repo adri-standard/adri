@@ -479,8 +479,8 @@ def custom_function(data):
 
 ### Try the Examples
 
-- [Generic Examples](../examples/generic_basic.py) - Basic Python functions
-- [LangChain Examples](../examples/langchain_basic.py) - LangChain integration
+- [Generic Examples](../examples/workflow_orchestration_example.py) - Basic Python functions
+- [LangChain Examples](../examples/langchain-customer-service.py) - LangChain integration
 - [All Examples](../examples/README.md) - Complete examples list
 
 ### Get Help

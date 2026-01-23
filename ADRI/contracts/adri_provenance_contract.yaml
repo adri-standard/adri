@@ -1,0 +1,406 @@
+contracts:
+  id: adri_provenance_standard
+  name: ADRI Provenance Standard
+  version: 1.0.0
+  authority: ADRI Framework
+  description: 'Standard for validating data provenance metadata.
+
+    Tracks the origin and lineage of data being validated by ADRI, enabling
+
+    complete audit trails in workflow orchestration scenarios.
+
+
+    ADRI validates data provenance information using this standard before logging,
+
+    demonstrating recursive application of the ADRI validation principle.
+
+    '
+record_identification:
+  primary_key_fields:
+  - source_type
+  strategy: primary_key_with_fallback
+requirements:
+  overall_minimum: 90.0
+  field_requirements:
+    source_type:
+      type: string
+      nullable: false
+      valid_values:
+      - verodat_query
+      - file
+      - previous_step
+      - api
+      - manual
+      - other
+      description: Type of data source
+      validation_rules:
+      - name: source_type is required
+        dimension: completeness
+        severity: CRITICAL
+        rule_type: not_null
+        rule_expression: IS_NOT_NULL
+        error_message: source_type must not be empty
+      - name: source_type type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: source_type must be of type string
+    verodat_query_id:
+      type: integer
+      nullable: true
+      min_value: 1
+      description: Verodat query ID (required when source_type=verodat_query)
+      validation_rules:
+      - name: verodat_query_id type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_INTEGER
+        error_message: verodat_query_id must be of type integer
+      - name: verodat_query_id numeric bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: numeric_bounds
+        rule_expression: VALUE >= 1
+        error_message: verodat_query_id must be between 1 and None
+    verodat_account_id:
+      type: integer
+      nullable: true
+      min_value: 1
+      description: Verodat account ID
+      validation_rules:
+      - name: verodat_account_id type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_INTEGER
+        error_message: verodat_account_id must be of type integer
+      - name: verodat_account_id numeric bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: numeric_bounds
+        rule_expression: VALUE >= 1
+        error_message: verodat_account_id must be between 1 and None
+    verodat_workspace_id:
+      type: integer
+      nullable: true
+      min_value: 1
+      description: Verodat workspace ID
+      validation_rules:
+      - name: verodat_workspace_id type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_INTEGER
+        error_message: verodat_workspace_id must be of type integer
+      - name: verodat_workspace_id numeric bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: numeric_bounds
+        rule_expression: VALUE >= 1
+        error_message: verodat_workspace_id must be between 1 and None
+    verodat_run_at_utc:
+      type: string
+      nullable: true
+      pattern: ^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}
+      description: ISO 8601 timestamp when query was executed
+      validation_rules:
+      - name: verodat_run_at_utc type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: verodat_run_at_utc must be of type string
+      - name: verodat_run_at_utc pattern validation
+        dimension: validity
+        severity: WARNING
+        rule_type: pattern
+        rule_expression: REGEX_MATCH('^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}')
+        error_message: 'verodat_run_at_utc must match pattern: ^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}'
+    verodat_query_sql:
+      type: string
+      nullable: true
+      min_length: 10
+      max_length: 10000
+      description: SQL query text for audit trail
+      validation_rules:
+      - name: verodat_query_sql type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: verodat_query_sql must be of type string
+      - name: verodat_query_sql length bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: length_bounds
+        rule_expression: LENGTH >= 10 AND LENGTH <= 10000
+        error_message: verodat_query_sql length must be between 10 and 10000
+    file_path:
+      type: string
+      nullable: true
+      min_length: 1
+      max_length: 500
+      description: Path to source file (required when source_type=file)
+      validation_rules:
+      - name: file_path type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: file_path must be of type string
+      - name: file_path length bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: length_bounds
+        rule_expression: LENGTH >= 1 AND LENGTH <= 500
+        error_message: file_path length must be between 1 and 500
+    file_hash:
+      type: string
+      nullable: true
+      pattern: ^[a-f0-9]{8,64}$
+      description: SHA256 hash (full or prefix) of file for integrity verification
+      validation_rules:
+      - name: file_hash type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: file_hash must be of type string
+      - name: file_hash pattern validation
+        dimension: validity
+        severity: WARNING
+        rule_type: pattern
+        rule_expression: REGEX_MATCH('^[a-f0-9]{8,64}$')
+        error_message: 'file_hash must match pattern: ^[a-f0-9]{8,64}$'
+    file_size_bytes:
+      type: integer
+      nullable: true
+      min_value: 0
+      description: Size of source file in bytes
+      validation_rules:
+      - name: file_size_bytes type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_INTEGER
+        error_message: file_size_bytes must be of type integer
+      - name: file_size_bytes numeric bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: numeric_bounds
+        rule_expression: VALUE >= 0
+        error_message: file_size_bytes must be between 0 and None
+    api_endpoint:
+      type: string
+      nullable: true
+      min_length: 10
+      max_length: 500
+      description: API endpoint URL (required when source_type=api)
+      validation_rules:
+      - name: api_endpoint type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: api_endpoint must be of type string
+      - name: api_endpoint length bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: length_bounds
+        rule_expression: LENGTH >= 10 AND LENGTH <= 500
+        error_message: api_endpoint length must be between 10 and 500
+    api_response_hash:
+      type: string
+      nullable: true
+      pattern: ^[a-f0-9]{8,64}$
+      description: SHA256 hash of API response for integrity verification
+      validation_rules:
+      - name: api_response_hash type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: api_response_hash must be of type string
+      - name: api_response_hash pattern validation
+        dimension: validity
+        severity: WARNING
+        rule_type: pattern
+        rule_expression: REGEX_MATCH('^[a-f0-9]{8,64}$')
+        error_message: 'api_response_hash must match pattern: ^[a-f0-9]{8,64}$'
+    api_http_method:
+      type: string
+      nullable: true
+      valid_values:
+      - GET
+      - POST
+      - PUT
+      - PATCH
+      - DELETE
+      description: HTTP method used for API call
+      validation_rules:
+      - name: api_http_method type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: api_http_method must be of type string
+    previous_step_id:
+      type: string
+      nullable: true
+      min_length: 1
+      max_length: 100
+      description: Step ID that produced this data (required when source_type=previous_step)
+      validation_rules:
+      - name: previous_step_id type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: previous_step_id must be of type string
+      - name: previous_step_id length bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: length_bounds
+        rule_expression: LENGTH >= 1 AND LENGTH <= 100
+        error_message: previous_step_id length must be between 1 and 100
+    previous_execution_id:
+      type: string
+      nullable: true
+      min_length: 1
+      max_length: 100
+      description: Execution ID from previous step
+      validation_rules:
+      - name: previous_execution_id type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: previous_execution_id must be of type string
+      - name: previous_execution_id length bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: length_bounds
+        rule_expression: LENGTH >= 1 AND LENGTH <= 100
+        error_message: previous_execution_id length must be between 1 and 100
+    data_retrieved_at_utc:
+      type: string
+      nullable: true
+      pattern: ^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}
+      description: ISO 8601 timestamp when data was retrieved from source
+      validation_rules:
+      - name: data_retrieved_at_utc type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: data_retrieved_at_utc must be of type string
+      - name: data_retrieved_at_utc pattern validation
+        dimension: validity
+        severity: WARNING
+        rule_type: pattern
+        rule_expression: REGEX_MATCH('^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}')
+        error_message: 'data_retrieved_at_utc must match pattern: ^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}'
+    record_count:
+      type: integer
+      nullable: true
+      min_value: 0
+      description: Number of records retrieved from source
+      validation_rules:
+      - name: record_count type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_INTEGER
+        error_message: record_count must be of type integer
+      - name: record_count numeric bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: numeric_bounds
+        rule_expression: VALUE >= 0
+        error_message: record_count must be between 0 and None
+    notes:
+      type: string
+      nullable: true
+      max_length: 1000
+      description: Additional provenance notes or metadata
+      validation_rules:
+      - name: notes type validation
+        dimension: validity
+        severity: CRITICAL
+        rule_type: type
+        rule_expression: IS_STRING
+        error_message: notes must be of type string
+      - name: notes length bounds
+        dimension: validity
+        severity: CRITICAL
+        rule_type: length_bounds
+        rule_expression: LENGTH <= 1000
+        error_message: notes length must be between None and 1000
+  dimension_requirements:
+    validity:
+      minimum_score: 20.0
+      weight: 1.0
+    completeness:
+      minimum_score: 18.0
+      weight: 1.0
+    consistency:
+      minimum_score: 18.0
+      weight: 1.0
+    freshness:
+      minimum_score: 17.0
+      weight: 1.0
+    plausibility:
+      minimum_score: 17.0
+      weight: 1.0
+metadata:
+  created_by: ADRI Development Team
+  created_date: 2025-01-07
+  purpose: data_lineage_tracking
+  tags:
+  - workflow_orchestration
+  - data_provenance
+  - audit_trail
+  - adri_internal
+  usage_guidelines: "This standard validates data provenance metadata for workflow audit trails.\n\nUSAGE IN WORKFLOW ORCHESTRATION:\n\
+    \nThe workflow runner passes provenance to ADRI via the data_provenance parameter:\n\n```python\nfrom adri import adri_protected\n\
+    \n# Example: Verodat query source\ndata_provenance = {\n    \"source_type\": \"verodat_query\",\n    \"verodat_query_id\"\
+    : 12345,\n    \"verodat_account_id\": 91,\n    \"verodat_workspace_id\": 161,\n    \"verodat_run_at_utc\": \"2025-01-07T14:25:00Z\"\
+    ,\n    \"verodat_query_sql\": \"SELECT * FROM customers WHERE risk_level='HIGH'\",\n    \"record_count\": 150\n}\n\n@adri_protected(\n\
+    \    standard=\"ai_decision_step_standard\",\n    data_param=\"customer_data\",\n    workflow_context=workflow_context,\n\
+    \    data_provenance=data_provenance  # Validated against THIS standard\n)\ndef assess_high_risk_customers(customer_data):\n\
+    \    # Process data from Verodat query\n    return assessment_results\n```\n\nSOURCE TYPE EXAMPLES:\n\n1. VERODAT_QUERY\
+    \ Source:\n```python\ndata_provenance = {\n    \"source_type\": \"verodat_query\",\n    \"verodat_query_id\": 12345,\n\
+    \    \"verodat_account_id\": 91,\n    \"verodat_workspace_id\": 161,\n    \"verodat_run_at_utc\": \"2025-01-07T14:25:00Z\"\
+    ,\n    \"verodat_query_sql\": \"SELECT customer_id, risk_score FROM risk_assessment\",\n    \"record_count\": 500\n}\n\
+    ```\n\n2. FILE Source:\n```python\ndata_provenance = {\n    \"source_type\": \"file\",\n    \"file_path\": \"/data/inputs/customers_2025_01_07.csv\"\
+    ,\n    \"file_hash\": \"a1b2c3d4e5f67890\",\n    \"file_size_bytes\": 524288,\n    \"data_retrieved_at_utc\": \"2025-01-07T14:20:00Z\"\
+    ,\n    \"record_count\": 1000\n}\n```\n\n3. PREVIOUS_STEP Source:\n```python\ndata_provenance = {\n    \"source_type\"\
+    : \"previous_step\",\n    \"previous_step_id\": \"customer_enrichment\",\n    \"previous_execution_id\": \"exec_20250107_142000_xyz\"\
+    ,\n    \"data_retrieved_at_utc\": \"2025-01-07T14:30:00Z\",\n    \"record_count\": 250\n}\n```\n\n4. API Source:\n```python\n\
+    data_provenance = {\n    \"source_type\": \"api\",\n    \"api_endpoint\": \"https://api.example.com/v1/credit-scores\"\
+    ,\n    \"api_http_method\": \"POST\",\n    \"api_response_hash\": \"abc123def456\",\n    \"data_retrieved_at_utc\": \"\
+    2025-01-07T14:28:00Z\",\n    \"record_count\": 75\n}\n```\n\nFIELD REQUIREMENTS BY SOURCE TYPE:\n\nverodat_query:\n  -\
+    \ REQUIRED: verodat_query_id, verodat_account_id, verodat_workspace_id\n  - RECOMMENDED: verodat_run_at_utc, verodat_query_sql,\
+    \ record_count\n\nfile:\n  - REQUIRED: file_path\n  - RECOMMENDED: file_hash, file_size_bytes, data_retrieved_at_utc\n\
+    \nprevious_step:\n  - REQUIRED: previous_step_id\n  - RECOMMENDED: previous_execution_id, data_retrieved_at_utc\n\napi:\n\
+    \  - REQUIRED: api_endpoint\n  - RECOMMENDED: api_http_method, api_response_hash, data_retrieved_at_utc\n\nmanual / other:\n\
+    \  - OPTIONAL: notes (to describe the manual source or other type)\n\nVALIDATION FLOW:\n\n1. Workflow runner creates data_provenance\
+    \ dict\n2. ADRI receives data_provenance parameter\n3. ADRI validates provenance against adri_provenance_standard\n4.\
+    \ If valid: ADRI logs provenance linked to workflow execution\n5. If invalid: ADRI raises error with specific field violations\n\
+    \nINTEGRATION WITH WORKFLOW CONTEXT:\n\nData provenance complements workflow context:\n- workflow_context: WHERE in the\
+    \ workflow (run_id, step_id)\n- data_provenance: WHERE the DATA came from (source details)\n- Together: Complete lineage\
+    \ from data source \u2192 workflow \u2192 assessment\n\nJSONL LOGGING:\n\nADRI logs provenance to adri_data_provenance.jsonl\
+    \ with:\n- execution_id: Links to workflow execution\n- All provenance fields from this standard\n- Enables querying:\
+    \ \"What data was used in run X?\"\n\nBENEFITS FOR COMPLIANCE:\n\n- Data Lineage: Trace data from source to decision\n\
+    - Reproducibility: Re-run with same data source\n- Audit Trail: Prove which data informed decisions\n- Change Detection:\
+    \ File/API hashes detect data changes\n- Verodat Integration: Direct link to query execution\n\nRECURSIVE VALIDATION PRINCIPLE:\n\
+    \nADRI validates its own provenance metadata using ADRI standards!\n\nThis demonstrates:\n- No hardcoded validation in\
+    \ Python\n- Provenance structure defined in YAML\n- Extensible by adding source-specific fields\n- Self-documenting and\
+    \ testable\n\nBACKWARD COMPATIBILITY:\n\ndata_provenance parameter is OPTIONAL:\n- If not provided: ADRI works as before\
+    \ (no provenance logging)\n- If provided: ADRI validates and logs data source information\n- Existing code continues working\
+    \ unchanged\n\nBEST PRACTICES:\n\n1. Always include source_type (required field)\n2. Populate source-specific required\
+    \ fields\n3. Include hashes for file/API sources (integrity verification)\n4. Track record_count for data volume monitoring\n\
+    5. Use ISO 8601 timestamps for all temporal fields\n6. Keep notes concise but informative\n7. Link to previous_step when\
+    \ data flows between steps\n"

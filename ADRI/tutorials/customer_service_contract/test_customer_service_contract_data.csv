@@ -1,0 +1,6 @@
+ticket_id,customer_id,created_date,category,priority,status,first_response_time_hours,resolution_time_hours,customer_satisfaction_score,agent_id
+TICKET_ID-01000,CUSTOMER_ID-01000,INVALID,INVALID_VALUE,Medium,In Progress,663.55,,,AGENT_ID-01000
+INVALID,CUSTOMER_ID-01001,created_da,Complaint,Critical,Resolved,440.35,235.79,4,INVALID
+INVALID,CUSTOMER_ID-01002,INVALID,Product Inquiry,Critical,INVALID_TYPE,70.72,877.43,-9,INVALID
+TICKET_ID-01003,INVALID,created_da,Technical Support,INVALID_TYPE,Closed,508.17,625.48,5,AGENT_ID-01003
+TICKET_ID-01004,INVALID_TYPE,created_da,INVALID_VALUE,INVALID_TYPE,INVALID_VALUE,93.27,240.25,-9,AGENT_ID-01004
