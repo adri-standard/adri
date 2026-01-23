@@ -95,7 +95,7 @@ jobs:
 
       - name: Create sync issue
         if: steps.check_updates.outputs.needs_sync == 'true'
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const fs = require('fs');
