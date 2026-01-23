@@ -102,7 +102,7 @@ Non-blocking callback execution for workflow notifications.
 **Usage Example:**
 ```python
 from adri.callbacks import AsyncCallbackManager
-from adri.decorator import adri_protected
+from adri import adri_protected
 
 # Setup callbacks
 manager = AsyncCallbackManager(thread_pool_size=4)
@@ -142,7 +142,7 @@ Framework-specific integrations for Prefect and Airflow.
 ```python
 from prefect import task, flow
 from adri.callbacks import PrefectAdapter
-from adri.decorator import adri_protected
+from adri import adri_protected
 
 adapter = PrefectAdapter()
 
@@ -165,7 +165,7 @@ def invoice_processing_flow():
 ```python
 from airflow.decorators import task, dag
 from adri.callbacks import AirflowAdapter
-from adri.decorator import adri_protected
+from adri import adri_protected
 
 adapter = AirflowAdapter(push_to_xcom=True)
 
@@ -270,7 +270,7 @@ adri:
 ```python
 from adri.callbacks import AsyncCallbackManager
 from adri.logging.fast_path import FastPathLogger
-from adri.decorator import adri_protected
+from adri import adri_protected
 
 # Setup
 fast_path = FastPathLogger(storage="redis")
@@ -332,7 +332,7 @@ def customer_pipeline():
 ```python
 from langgraph.graph import StateGraph
 from adri.callbacks import AsyncCallbackManager
-from adri.decorator import adri_protected
+from adri import adri_protected
 
 callbacks = AsyncCallbackManager()
 
@@ -612,7 +612,7 @@ def write_with_fallback(manifest):
 ### Workflow Context Tracking
 
 ```python
-from adri.decorator import adri_protected
+from adri import adri_protected
 
 workflow_context = {
     "run_id": "run_20250110_143022_abc",

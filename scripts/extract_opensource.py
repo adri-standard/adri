@@ -272,6 +272,14 @@ class OpenSourceExtractor:
                     f"Invalid Python syntax"
                 )
 
+        # Validate examples if they exist
+        examples_dir = self.output_dir / "examples"
+        if examples_dir.exists():
+            example_validation_ok = self._validate_examples(examples_dir)
+            if not example_validation_ok:
+                # Errors already added to self.validation_errors
+                pass
+
         return len(self.validation_errors) == 0
 
     def _check_enterprise_imports(self, file_path: Path) -> List[str]:
@@ -324,6 +332,82 @@ class OpenSourceExtractor:
         except Exception:
             # Other errors (encoding issues, etc.) - be permissive
             return True
+
+    def _validate_examples(self, examples_dir: Path) -> bool:
+        """
+        Validate example files have correct imports and no enterprise dependencies.
+
+        Args:
+            examples_dir: Path to examples directory
+
+        Returns:
+            True if all examples are valid, False otherwise
+        """
+        validation_ok = True
+
+        # Find all Python example files
+        example_files = list(examples_dir.glob("*.py"))
+
+        for example_file in example_files:
+            try:
+                content = example_file.read_text(encoding="utf-8")
+
+                # Check for correct import pattern
+                if "adri_protected" in content:
+                    if "from adri import adri_protected" not in content:
+                        self.validation_errors.append(
+                            f"examples/{example_file.name}: "
+                            f"Uses incorrect import for adri_protected (should be 'from adri import adri_protected')"
+                        )
+                        validation_ok = False
+
+                    # Check for old/broken import patterns
+                    broken_patterns = [
+                        "from adri.decorators.guard import adri_protected",
+                        "from adri.decorators import adri_protected",
+                    ]
+
+                    for pattern in broken_patterns:
+                        if pattern in content:
+                            self.validation_errors.append(
+                                f"examples/{example_file.name}: "
+                                f"Contains broken import pattern: {pattern}"
+                            )
+                            validation_ok = False
+
+                # Check for enterprise imports
+                enterprise_patterns = [
+                    "from adri_enterprise",
+                    "import adri_enterprise",
+                    "from adri.enterprise",
+                ]
+
+                for pattern in enterprise_patterns:
+                    if pattern in content:
+                        self.validation_errors.append(
+                            f"examples/{example_file.name}: "
+                            f"Contains enterprise import: {pattern}"
+                        )
+                        validation_ok = False
+
+                # Check syntax
+                try:
+                    ast.parse(content)
+                except SyntaxError as e:
+                    self.validation_errors.append(
+                        f"examples/{example_file.name}: "
+                        f"Syntax error: {e}"
+                    )
+                    validation_ok = False
+
+            except Exception as e:
+                self.validation_errors.append(
+                    f"examples/{example_file.name}: "
+                    f"Failed to validate: {e}"
+                )
+                validation_ok = False
+
+        return validation_ok
 
     def generate_report(self) -> str:
         """

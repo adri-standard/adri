@@ -600,7 +600,7 @@ from datetime import datetime
 from adri.logging.fast_path import FastPathLogger
 from adri.callbacks import AsyncCallbackManager
 from adri.events import get_event_bus, EventType
-from adri.decorator import adri_protected
+from adri import adri_protected
 
 # Setup
 fast_path = FastPathLogger(storage="file", storage_dir="./test_fast_path")

@@ -48,7 +48,7 @@ if not os.getenv("OPENAI_API_KEY"):
     print("   python tools/adri-setup.py --framework llamaindex")
     exit(1)
 
-from adri.decorators.guard import adri_protected
+from adri import adri_protected
 from examples.utils.problem_demos import get_framework_problems
 
 # Get LlamaIndex-specific problem scenarios based on real GitHub issues
