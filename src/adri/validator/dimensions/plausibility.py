@@ -149,7 +149,9 @@ class PlausibilityAssessor(DimensionAssessor):
 
         for col in data.columns:
             series = data[col]
-            if series.dtype == "object":  # String/categorical columns
+            if (
+                pd.api.types.is_string_dtype(series) or series.dtype == "object"
+            ):  # String/categorical columns
                 non_null = series.dropna()
                 if len(non_null) == 0:
                     continue

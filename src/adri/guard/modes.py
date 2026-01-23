@@ -327,6 +327,7 @@ class DataProtectionEngine:
         reasoning_mode: bool = False,
         workflow_context: dict | None = None,
         package_context: str | None = None,
+        audit_log_dir: str | None = None,
     ) -> Any:
         """
         Protect a function call with data quality checks.
@@ -435,7 +436,10 @@ class DataProtectionEngine:
             # Assess data quality using the resolved path
             start_time = time.time()
             assessment_result = self._assess_data_quality(
-                data, resolved_contract_path, reasoning_mode=reasoning_mode
+                data,
+                resolved_contract_path,
+                reasoning_mode=reasoning_mode,
+                audit_log_dir=audit_log_dir,
             )
             assessment_duration = time.time() - start_time
 
@@ -643,7 +647,11 @@ class DataProtectionEngine:
             raise ProtectionError(f"Failed to generate contract: {e}")
 
     def _assess_data_quality(
-        self, data: Any, standard_path: str, reasoning_mode: bool = False
+        self,
+        data: Any,
+        standard_path: str,
+        reasoning_mode: bool = False,
+        audit_log_dir: str | None = None,
     ) -> Any:
         """Assess data quality against a standard using same engine as CLI."""
         # Handle JSON strings from AI reasoning steps
@@ -703,8 +711,24 @@ class DataProtectionEngine:
         if not config_for_assessor:
             config_for_assessor = None
 
-        assessor = DataQualityAssessor(config_for_assessor)
-        result = assessor.assess(df, standard_path)
+        # Allow host frameworks (e.g., VeroPlay) to override where ADRI audit logs land.
+        # This avoids ADRI writing into project-local ADRI/* folders when the host
+        # wants run-scoped outputs (e.g., runs/<run_id>/adri/audit-logs).
+        #
+        # Important: avoid leaking ADRI_LOG_DIR into subsequent calls.
+        prev_log_dir = os.environ.get("ADRI_LOG_DIR")
+        if audit_log_dir:
+            os.environ["ADRI_LOG_DIR"] = audit_log_dir
+
+        try:
+            assessor = DataQualityAssessor(config_for_assessor)
+            result = assessor.assess(df, standard_path)
+        finally:
+            if audit_log_dir:
+                if prev_log_dir is None:
+                    os.environ.pop("ADRI_LOG_DIR", None)
+                else:
+                    os.environ["ADRI_LOG_DIR"] = prev_log_dir
 
         # Mark the result with decorator source for debugging
         if hasattr(result, "assessment_source"):
