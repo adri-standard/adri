@@ -263,6 +263,7 @@ class TestComponentInteractions:
                     ('float', 'float'): True,
                     ('float', 'float64'): True,
                     ('string', 'string'): True,
+                    ('string', 'str'): True,
                     ('string', 'object'): True,
                     ('boolean', 'boolean'): True,
                     ('boolean', 'bool'): True,

@@ -5,6 +5,22 @@ All notable changes to ADRI will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.2.7] - 2026-01-22
+
+**verodat-adri v7.2.7 - Package Context Resolution Fix**
+
+### Fixed
+- Package_context resolution now correctly returns package-local paths even when contracts are missing (HYBRID and PACKAGE_LOCAL strategies)
+- Relative package_context paths now resolve from project root instead of current working directory
+- Unit tests updated to reflect new expected behavior
+
+### Technical Details
+- Added `_resolve_package_context_path()` helper method in ConfigurationLoader
+- Updated both `resolve_contract_path()` and `resolve_contract_path_with_metadata()` for consistent behavior
+- Fixed TypeError in baseline comparison when handling unhashable types (lists, dicts) in JSONL files
+
+---
+
 ## [7.2.0] - 2026-01-19
 
 **verodat-adri v7.2.0 - Code Quality and Documentation Accuracy Release**

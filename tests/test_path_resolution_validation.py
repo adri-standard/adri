@@ -150,6 +150,135 @@ class TestPathResolutionFromDifferentDirectories:
                 os.chdir(original_dir)
 
 
+class TestPackageContextResolution:
+    """Test package_context resolution behavior."""
+
+    def test_package_context_relative_from_adri_contracts(self):
+        """Ensure package_context resolves from project root, not ADRI/contracts cwd."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            project_root = Path(tmpdir) / "project"
+            project_root.mkdir()
+
+            adri_dir = project_root / "ADRI"
+            adri_dir.mkdir()
+
+            config_path = adri_dir / "config.yaml"
+            config = {
+                "adri": {
+                    "project_name": "Package Context Test",
+                    "version": "4.0.0",
+                    "default_environment": "development",
+                    "environments": {
+                        "development": {"paths": {"contracts": "ADRI/contracts"}}
+                    },
+                }
+            }
+
+            with open(config_path, "w", encoding="utf-8") as f:
+                yaml.dump(config, f)
+
+            contracts_dir = adri_dir / "contracts"
+            contracts_dir.mkdir()
+
+            package_context = "playbooks/platform/vp_cert_run"
+            contract_name = "ADRI_det_cert_aggregate_out.yaml"
+            package_root = project_root / package_context / "adri"
+            package_root.mkdir(parents=True)
+            (package_root / contract_name).write_text("name: test", encoding="utf-8")
+
+            original_dir = os.getcwd()
+            original_config_path = os.environ.get("ADRI_CONFIG_PATH")
+            original_contracts_dir = os.environ.get("ADRI_CONTRACTS_DIR")
+            try:
+                os.environ["ADRI_CONFIG_PATH"] = str(config_path)
+                os.environ.pop("ADRI_CONTRACTS_DIR", None)
+                os.chdir(contracts_dir)
+
+                loader = ConfigurationLoader()
+                resolved = loader.resolve_contract_path(
+                    contract_name, package_context=package_context
+                )
+
+                expected = (package_root / contract_name).resolve()
+                assert Path(resolved).resolve() == expected
+            finally:
+                if original_config_path is None:
+                    os.environ.pop("ADRI_CONFIG_PATH", None)
+                else:
+                    os.environ["ADRI_CONFIG_PATH"] = original_config_path
+                if original_contracts_dir is None:
+                    os.environ.pop("ADRI_CONTRACTS_DIR", None)
+                else:
+                    os.environ["ADRI_CONTRACTS_DIR"] = original_contracts_dir
+                os.chdir(original_dir)
+
+
+class TestHybridPackageContextResolution:
+    """Test hybrid strategy returns package-local path even if missing."""
+
+    def test_hybrid_missing_contract_returns_package_path(self):
+        """Ensure HYBRID returns package-local expected path when missing."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            project_root = Path(tmpdir) / "project"
+            project_root.mkdir()
+
+            adri_dir = project_root / "ADRI"
+            adri_dir.mkdir()
+
+            config_path = adri_dir / "config.yaml"
+            config = {
+                "adri": {
+                    "project_name": "Hybrid Package Context Test",
+                    "version": "4.0.0",
+                    "default_environment": "development",
+                    "resolution": {
+                        "strategy": "hybrid",
+                        "package_subdirectory": "adri",
+                    },
+                    "environments": {
+                        "development": {"paths": {"contracts": "ADRI/contracts"}}
+                    },
+                }
+            }
+
+            with open(config_path, "w", encoding="utf-8") as f:
+                yaml.dump(config, f)
+
+            contracts_dir = adri_dir / "contracts"
+            contracts_dir.mkdir()
+
+            package_context = "playbooks/platform/vp_cert_run"
+            contract_name = "ADRI_det_cert_aggregate_out.yaml"
+            expected = (
+                project_root / package_context / "adri" / contract_name
+            ).resolve()
+
+            original_dir = os.getcwd()
+            original_config_path = os.environ.get("ADRI_CONFIG_PATH")
+            original_contracts_dir = os.environ.get("ADRI_CONTRACTS_DIR")
+            try:
+                os.environ["ADRI_CONFIG_PATH"] = str(config_path)
+                os.environ.pop("ADRI_CONTRACTS_DIR", None)
+                os.chdir(contracts_dir)
+
+                loader = ConfigurationLoader()
+                resolved = loader.resolve_contract_path(
+                    contract_name, package_context=package_context
+                )
+
+                assert Path(resolved).resolve() == expected
+            finally:
+                if original_config_path is None:
+                    os.environ.pop("ADRI_CONFIG_PATH", None)
+                else:
+                    os.environ["ADRI_CONFIG_PATH"] = original_config_path
+                if original_contracts_dir is None:
+                    os.environ.pop("ADRI_CONTRACTS_DIR", None)
+                else:
+                    os.environ["ADRI_CONTRACTS_DIR"] = original_contracts_dir
+                os.chdir(original_dir)
+
+
 class TestPathResolutionMissingConfig:
     """Test behavior when ADRI/config.yaml is missing."""
 

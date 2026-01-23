@@ -322,7 +322,16 @@ def check_primary_key_uniqueness(data, standard_config):
 # Validation handler functions (extracted to reduce complexity)
 def _validate_not_null(value, rule, field_req):
     """Validate not_null rule."""
-    return value is not None and str(value).strip() != ""
+    try:
+        import pandas as pd
+
+        if pd.isna(value):
+            return False
+    except Exception:
+        if value is None:
+            return False
+
+    return str(value).strip() != ""
 
 
 def _validate_type(value, rule, field_req):

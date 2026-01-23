@@ -492,12 +492,22 @@ def compare_jsonl_files(current: Path, baseline: Path) -> Optional[Dict[str, Any
     # For most recent rows (last 5), compare non-volatile values
     compare_count = min(5, len(current_df), len(baseline_df))
     if compare_count > 0:
-        current_sample = current_df.tail(compare_count)
-        baseline_sample = baseline_df.tail(compare_count)
-
         # Compare common columns only
         common_cols = current_cols & baseline_cols
         comparable_cols = [col for col in common_cols if col not in ignore_columns]
+
+        # Normalize ordering by comparable columns to avoid platform-dependent row order
+        # Skip sorting if any column contains unhashable types (lists, dicts)
+        if comparable_cols:
+            try:
+                current_df = current_df.sort_values(by=comparable_cols).reset_index(drop=True)
+                baseline_df = baseline_df.sort_values(by=comparable_cols).reset_index(drop=True)
+            except TypeError:
+                # Columns contain unhashable types (lists, dicts), skip sorting
+                pass
+
+        current_sample = current_df.tail(compare_count)
+        baseline_sample = baseline_df.tail(compare_count)
 
         for idx in range(compare_count):
             row_diffs = []
@@ -513,12 +523,23 @@ def compare_jsonl_files(current: Path, baseline: Path) -> Optional[Dict[str, Any
 
                     if curr_is_na and base_is_na:
                         continue
-                    if curr_is_na or base_is_na or curr_val != base_val:
-                        row_diffs.append({
-                            'column': col,
-                            'current': str(curr_val),
-                            'baseline': str(base_val)
-                        })
+
+                    # Handle unhashable types (lists, dicts) by comparing as strings
+                    try:
+                        if curr_is_na or base_is_na or curr_val != base_val:
+                            row_diffs.append({
+                                'column': col,
+                                'current': str(curr_val),
+                                'baseline': str(base_val)
+                            })
+                    except (ValueError, TypeError):
+                        # Handle unhashable types (lists, dicts) by comparing as strings
+                        if str(curr_val) != str(base_val):
+                            row_diffs.append({
+                                'column': col,
+                                'current': str(curr_val),
+                                'baseline': str(base_val)
+                            })
                 except (ValueError, TypeError):
                     # Handle complex comparisons by converting to string
                     if str(curr_val) != str(base_val):

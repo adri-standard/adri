@@ -1,0 +1,253 @@
+Validate ADRI Feature Markers	Set up job	﻿2026-01-22T14:59:24.8668041Z Current runner version: '2.331.0'
+Validate ADRI Feature Markers	Set up job	2026-01-22T14:59:24.8695118Z ##[group]Runner Image Provisioner
+Validate ADRI Feature Markers	Set up job	2026-01-22T14:59:24.8696325Z Hosted Compute Agent
+Validate ADRI Feature Markers	Set up job	2026-01-22T14:59:24.8697212Z Version: 20251211.462
+Validate ADRI Feature Markers	Set up job	2026-01-22T14:59:24.8698173Z Commit: 6cbad8c2bb55d58165063d031ccabf57e2d2db61
+Validate ADRI Feature Markers	Set up job	2026-01-22T14:59:24.8699309Z Build Date: 2025-12-11T16:28:49Z
+Validate ADRI Feature Markers	Set up job	2026-01-22T14:59:24.8700320Z Worker ID: {3fe2edeb-536d-4d0b-ae9b-ebdae33ee32d}
+Validate ADRI Feature Markers	Set up job	2026-01-22T14:59:24.8701627Z ##[endgroup]
+Validate ADRI Feature Markers	Set up job	2026-01-22T14:59:24.8702444Z ##[group]Operating System
+Validate ADRI Feature Markers	Set up job	2026-01-22T14:59:24.8703440Z Ubuntu
+Validate ADRI Feature Markers	Set up job	2026-01-22T14:59:24.8704205Z 24.04.3
+Validate ADRI Feature Markers	Set up job	2026-01-22T14:59:24.8704947Z LTS
+Validate ADRI Feature Markers	Set up job	2026-01-22T14:59:24.8705614Z ##[endgroup]
+Validate ADRI Feature Markers	Set up job	2026-01-22T14:59:24.8706525Z ##[group]Runner Image
+Validate ADRI Feature Markers	Set up job	2026-01-22T14:59:24.8707448Z Image: ubuntu-24.04
+Validate ADRI Feature Markers	Set up job	2026-01-22T14:59:24.8708252Z Version: 20260111.209.1
+Validate ADRI Feature Markers	Set up job	2026-01-22T14:59:24.8710063Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20260111.209/images/ubuntu/Ubuntu2404-Readme.md
+Validate ADRI Feature Markers	Set up job	2026-01-22T14:59:24.8712561Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20260111.209
+Validate ADRI Feature Markers	Set up job	2026-01-22T14:59:24.8714548Z ##[endgroup]
+Validate ADRI Feature Markers	Set up job	2026-01-22T14:59:24.8716377Z ##[group]GITHUB_TOKEN Permissions
+Validate ADRI Feature Markers	Set up job	2026-01-22T14:59:24.8719232Z Contents: read
+Validate ADRI Feature Markers	Set up job	2026-01-22T14:59:24.8720112Z Metadata: read
+Validate ADRI Feature Markers	Set up job	2026-01-22T14:59:24.8720890Z Packages: read
+Validate ADRI Feature Markers	Set up job	2026-01-22T14:59:24.8721900Z ##[endgroup]
+Validate ADRI Feature Markers	Set up job	2026-01-22T14:59:24.8725085Z Secret source: Actions
+Validate ADRI Feature Markers	Set up job	2026-01-22T14:59:24.8726162Z Prepare workflow directory
+Validate ADRI Feature Markers	Set up job	2026-01-22T14:59:24.9100988Z Prepare all required actions
+Validate ADRI Feature Markers	Set up job	2026-01-22T14:59:24.9157344Z Getting action download info
+Validate ADRI Feature Markers	Set up job	2026-01-22T14:59:25.3555127Z Download action repository 'actions/checkout@v4' (SHA:34e114876b0b11c390a56381ad16ebd13914f8d5)
+Validate ADRI Feature Markers	Set up job	2026-01-22T14:59:25.9704810Z Download action repository 'actions/setup-python@v5' (SHA:a26af69be951a213d495a4c3e4e4022e16d87065)
+Validate ADRI Feature Markers	Set up job	2026-01-22T14:59:26.1704561Z Complete job name: Validate ADRI Feature Markers
+Validate ADRI Feature Markers	Checkout code	﻿2026-01-22T14:59:26.2328899Z ##[group]Run actions/checkout@v4
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:26.2329823Z with:
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:26.2330376Z   repository: Verodat/verodat-adri
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:26.2331314Z   token: ***
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:26.2331783Z   ssh-strict: true
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:26.2332245Z   ssh-user: git
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:26.2332767Z   persist-credentials: true
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:26.2333259Z   clean: true
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:26.2333764Z   sparse-checkout-cone-mode: true
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:26.2334299Z   fetch-depth: 1
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:26.2334765Z   fetch-tags: false
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:26.2335187Z   show-progress: true
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:26.2335745Z   lfs: false
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:26.2336186Z   submodules: false
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:26.2336623Z   set-safe-directory: true
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:26.2337432Z ##[endgroup]
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:26.3570871Z Syncing repository: Verodat/verodat-adri
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:26.3573887Z ##[group]Getting Git version info
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:26.3575051Z Working directory is '/home/runner/work/verodat-adri/verodat-adri'
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:26.3576607Z [command]/usr/bin/git version
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:26.3577466Z git version 2.52.0
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:26.3579945Z ##[endgroup]
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:26.3588529Z Temporarily overriding HOME='/home/runner/work/_temp/7bae9868-2ba7-46a2-9b08-0b7a5f5da36a' before making global git config changes
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:26.3592419Z Adding repository directory to the temporary git global config as a safe directory
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:26.3594210Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/verodat-adri/verodat-adri
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:26.3629123Z Deleting the contents of '/home/runner/work/verodat-adri/verodat-adri'
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:26.3633457Z ##[group]Initializing the repository
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:26.3638311Z [command]/usr/bin/git init /home/runner/work/verodat-adri/verodat-adri
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:26.3755656Z hint: Using 'master' as the name for the initial branch. This default branch name
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:26.3758652Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:26.3760165Z hint: to use in all of your new repositories, which will suppress this warning,
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:26.3762351Z hint: call:
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:26.3763311Z hint:
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:26.3764153Z hint: 	git config --global init.defaultBranch <name>
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:26.3765058Z hint:
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:26.3765962Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:26.3767338Z hint: 'development'. The just-created branch can be renamed via this command:
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:26.3768522Z hint:
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:26.3769140Z hint: 	git branch -m <name>
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:26.3769873Z hint:
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:26.3770824Z hint: Disable this message with "git config set advice.defaultBranchName false"
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:26.3772912Z Initialized empty Git repository in /home/runner/work/verodat-adri/verodat-adri/.git/
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:26.3776915Z [command]/usr/bin/git remote add origin https://github.com/Verodat/verodat-adri
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:26.3812318Z ##[endgroup]
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:26.3814694Z ##[group]Disabling automatic garbage collection
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:26.3815774Z [command]/usr/bin/git config --local gc.auto 0
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:26.3841730Z ##[endgroup]
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:26.3842929Z ##[group]Setting up auth
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:26.3848216Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:26.3876419Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:26.4143299Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:26.4171959Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:26.4360261Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:26.4391416Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:26.4577127Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:26.4608552Z ##[endgroup]
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:26.4611041Z ##[group]Fetching the repository
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:26.4618724Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +c12158972cf93ce294b645c006071f4cdc361cc0:refs/remotes/pull/28/merge
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:27.3414476Z From https://github.com/Verodat/verodat-adri
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:27.3418269Z  * [new ref]         c12158972cf93ce294b645c006071f4cdc361cc0 -> pull/28/merge
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:27.3464282Z ##[endgroup]
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:27.3467780Z ##[group]Determining the checkout info
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:27.3474506Z ##[endgroup]
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:27.3485225Z [command]/usr/bin/git sparse-checkout disable
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:27.3603914Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:27.3615702Z ##[group]Checking out the ref
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:27.3618013Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/28/merge
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:27.4005919Z Note: switching to 'refs/remotes/pull/28/merge'.
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:27.4007778Z 
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:27.4008845Z You are in 'detached HEAD' state. You can look around, make experimental
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:27.4011809Z changes and commit them, and you can discard any commits you make in this
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:27.4014664Z state without impacting any branches by switching back to a branch.
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:27.4016366Z 
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:27.4017595Z If you want to create a new branch to retain commits you create, you may
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:27.4020389Z do so (now or later) by using -c with the switch command. Example:
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:27.4022125Z 
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:27.4022681Z   git switch -c <new-branch-name>
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:27.4023851Z 
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:27.4024448Z Or undo this operation with:
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:27.4025453Z 
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:27.4026376Z   git switch -
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:27.4027112Z 
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:27.4028516Z Turn off this advice by setting config variable advice.detachedHead to false
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:27.4031076Z 
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:27.4033400Z HEAD is now at c121589 Merge 1d681894d03bd43b395d8b10475af7e5de73fb8c into 35fec393bb4b2f164e06d3b2eed079455df67f44
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:27.4039642Z ##[endgroup]
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:27.4064561Z [command]/usr/bin/git log -1 --format=%H
+Validate ADRI Feature Markers	Checkout code	2026-01-22T14:59:27.4086479Z c12158972cf93ce294b645c006071f4cdc361cc0
+Validate ADRI Feature Markers	Set up Python	﻿2026-01-22T14:59:27.4390618Z ##[group]Run actions/setup-python@v5
+Validate ADRI Feature Markers	Set up Python	2026-01-22T14:59:27.4391762Z with:
+Validate ADRI Feature Markers	Set up Python	2026-01-22T14:59:27.4392461Z   python-version: 3.11
+Validate ADRI Feature Markers	Set up Python	2026-01-22T14:59:27.4393299Z   check-latest: false
+Validate ADRI Feature Markers	Set up Python	2026-01-22T14:59:27.4394372Z   token: ***
+Validate ADRI Feature Markers	Set up Python	2026-01-22T14:59:27.4395103Z   update-environment: true
+Validate ADRI Feature Markers	Set up Python	2026-01-22T14:59:27.4395982Z   allow-prereleases: false
+Validate ADRI Feature Markers	Set up Python	2026-01-22T14:59:27.4396835Z   freethreaded: false
+Validate ADRI Feature Markers	Set up Python	2026-01-22T14:59:27.4397604Z ##[endgroup]
+Validate ADRI Feature Markers	Set up Python	2026-01-22T14:59:27.6216983Z ##[group]Installed versions
+Validate ADRI Feature Markers	Set up Python	2026-01-22T14:59:27.6730124Z Successfully set up CPython (3.11.14)
+Validate ADRI Feature Markers	Set up Python	2026-01-22T14:59:27.6733193Z ##[endgroup]
+Validate ADRI Feature Markers	Install dependencies	﻿2026-01-22T14:59:27.6896457Z ##[group]Run python -m pip install --upgrade pip
+Validate ADRI Feature Markers	Install dependencies	2026-01-22T14:59:27.6897845Z [36;1mpython -m pip install --upgrade pip[0m
+Validate ADRI Feature Markers	Install dependencies	2026-01-22T14:59:27.6898907Z [36;1mpip install pyyaml[0m
+Validate ADRI Feature Markers	Install dependencies	2026-01-22T14:59:27.6975929Z shell: /usr/bin/bash -e {0}
+Validate ADRI Feature Markers	Install dependencies	2026-01-22T14:59:27.6976906Z env:
+Validate ADRI Feature Markers	Install dependencies	2026-01-22T14:59:27.6977777Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.14/x64
+Validate ADRI Feature Markers	Install dependencies	2026-01-22T14:59:27.6979353Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.14/x64/lib/pkgconfig
+Validate ADRI Feature Markers	Install dependencies	2026-01-22T14:59:27.6980913Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.14/x64
+Validate ADRI Feature Markers	Install dependencies	2026-01-22T14:59:27.6982743Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.14/x64
+Validate ADRI Feature Markers	Install dependencies	2026-01-22T14:59:27.6984168Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.14/x64
+Validate ADRI Feature Markers	Install dependencies	2026-01-22T14:59:27.6985576Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.14/x64/lib
+Validate ADRI Feature Markers	Install dependencies	2026-01-22T14:59:27.6986765Z ##[endgroup]
+Validate ADRI Feature Markers	Install dependencies	2026-01-22T14:59:30.3459988Z Requirement already satisfied: pip in /opt/hostedtoolcache/Python/3.11.14/x64/lib/python3.11/site-packages (25.3)
+Validate ADRI Feature Markers	Install dependencies	2026-01-22T14:59:31.5998330Z Collecting pyyaml
+Validate ADRI Feature Markers	Install dependencies	2026-01-22T14:59:31.7075201Z   Downloading pyyaml-6.0.3-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (2.4 kB)
+Validate ADRI Feature Markers	Install dependencies	2026-01-22T14:59:31.7309012Z Downloading pyyaml-6.0.3-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (806 kB)
+Validate ADRI Feature Markers	Install dependencies	2026-01-22T14:59:31.8935424Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 806.6/806.6 kB 5.8 MB/s  0:00:00
+Validate ADRI Feature Markers	Install dependencies	2026-01-22T14:59:31.9144448Z Installing collected packages: pyyaml
+Validate ADRI Feature Markers	Install dependencies	2026-01-22T14:59:31.9618860Z Successfully installed pyyaml-6.0.3
+Validate ADRI Feature Markers	Validate markers	﻿2026-01-22T14:59:32.0084974Z ##[group]Run python scripts/validate_markers.py
+Validate ADRI Feature Markers	Validate markers	2026-01-22T14:59:32.0085354Z [36;1mpython scripts/validate_markers.py[0m
+Validate ADRI Feature Markers	Validate markers	2026-01-22T14:59:32.0103952Z shell: /usr/bin/bash -e {0}
+Validate ADRI Feature Markers	Validate markers	2026-01-22T14:59:32.0104214Z env:
+Validate ADRI Feature Markers	Validate markers	2026-01-22T14:59:32.0104463Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.14/x64
+Validate ADRI Feature Markers	Validate markers	2026-01-22T14:59:32.0104904Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.14/x64/lib/pkgconfig
+Validate ADRI Feature Markers	Validate markers	2026-01-22T14:59:32.0105304Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.14/x64
+Validate ADRI Feature Markers	Validate markers	2026-01-22T14:59:32.0105658Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.14/x64
+Validate ADRI Feature Markers	Validate markers	2026-01-22T14:59:32.0106024Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.14/x64
+Validate ADRI Feature Markers	Validate markers	2026-01-22T14:59:32.0106382Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.14/x64/lib
+Validate ADRI Feature Markers	Validate markers	2026-01-22T14:59:32.0106685Z ##[endgroup]
+Validate ADRI Feature Markers	Validate markers	2026-01-22T14:59:32.0905153Z ======================================================================
+Validate ADRI Feature Markers	Validate markers	2026-01-22T14:59:32.0912139Z ADRI Feature Marker Validator
+Validate ADRI Feature Markers	Validate markers	2026-01-22T14:59:32.0912664Z ======================================================================
+Validate ADRI Feature Markers	Validate markers	2026-01-22T14:59:32.0913083Z 
+Validate ADRI Feature Markers	Validate markers	2026-01-22T14:59:32.0913390Z Scanning codebase in /home/runner/work/verodat-adri/verodat-adri...
+Validate ADRI Feature Markers	Validate markers	2026-01-22T14:59:32.0913943Z Found 17 features
+Validate ADRI Feature Markers	Validate markers	2026-01-22T14:59:32.0914239Z Validating marker syntax...
+Validate ADRI Feature Markers	Validate markers	2026-01-22T14:59:32.0914947Z Validating dependencies...
+Validate ADRI Feature Markers	Validate markers	2026-01-22T14:59:32.0915325Z Running convention checks...
+Validate ADRI Feature Markers	Validate markers	2026-01-22T14:59:32.0915583Z 
+Validate ADRI Feature Markers	Validate markers	2026-01-22T14:59:32.0915724Z Found 6 warnings:
+Validate ADRI Feature Markers	Validate markers	2026-01-22T14:59:32.0917329Z   [WARNING] /home/runner/work/verodat-adri/verodat-adri/src/adri/guard/modes.py:1 - Feature 'guard_protection_modes' doesn't use a recommended domain prefix: core_, cli_, api_, auth_, validator_, logging_, contracts_, analysis_, decorator_, config_
+Validate ADRI Feature Markers	Validate markers	2026-01-22T14:59:32.0920211Z   [WARNING] /home/runner/work/verodat-adri/verodat-adri/src/adri_enterprise/config/__init__.py:1 - Feature 'enterprise_config' doesn't use a recommended domain prefix: core_, cli_, api_, auth_, validator_, logging_, contracts_, analysis_, decorator_, config_
+Validate ADRI Feature Markers	Validate markers	2026-01-22T14:59:32.0923876Z   [WARNING] /home/runner/work/verodat-adri/verodat-adri/src/adri_enterprise/config/loader.py:1 - Feature 'enterprise_config_loader' doesn't use a recommended domain prefix: core_, cli_, api_, auth_, validator_, logging_, contracts_, analysis_, decorator_, config_
+Validate ADRI Feature Markers	Validate markers	2026-01-22T14:59:32.0927194Z   [WARNING] /home/runner/work/verodat-adri/verodat-adri/src/adri/config/types.py:1 - Feature 'config_types' has scope OPEN_SOURCE but prefix 'config_' suggests SHARED
+Validate ADRI Feature Markers	Validate markers	2026-01-22T14:59:32.0929588Z   [WARNING] /home/runner/work/verodat-adri/verodat-adri/src/adri/validator/modes.py:1 - Feature 'validator_modes' has scope SHARED but prefix 'validator_' suggests OPEN_SOURCE
+Validate ADRI Feature Markers	Validate markers	2026-01-22T14:59:32.0932585Z   [WARNING] /home/runner/work/verodat-adri/verodat-adri/src/adri/validator/structure.py:1 - Feature 'validator_structure' has scope SHARED but prefix 'validator_' suggests OPEN_SOURCE
+Validate ADRI Feature Markers	Validate markers	2026-01-22T14:59:32.0933817Z 
+Validate ADRI Feature Markers	Validate markers	2026-01-22T14:59:32.0934060Z ======================================================================
+Validate ADRI Feature Markers	Validate markers	2026-01-22T14:59:32.0934615Z SUCCESS: All markers are valid!
+Validate ADRI Feature Markers	Validate markers	2026-01-22T14:59:32.0935067Z ======================================================================
+Validate ADRI Feature Markers	Check registry is up-to-date	﻿2026-01-22T14:59:32.1008073Z ##[group]Run python scripts/generate_feature_registry.py
+Validate ADRI Feature Markers	Check registry is up-to-date	2026-01-22T14:59:32.1008503Z [36;1mpython scripts/generate_feature_registry.py[0m
+Validate ADRI Feature Markers	Check registry is up-to-date	2026-01-22T14:59:32.1008865Z [36;1m# Ignore timestamp line (Last Generated) when comparing[0m
+Validate ADRI Feature Markers	Check registry is up-to-date	2026-01-22T14:59:32.1009320Z [36;1mif ! git diff --exit-code -I'^\*\*Last Generated:\*\*' FEATURE_REGISTRY.md; then[0m
+Validate ADRI Feature Markers	Check registry is up-to-date	2026-01-22T14:59:32.1009752Z [36;1m  echo "ERROR: FEATURE_REGISTRY.md is out of date!"[0m
+Validate ADRI Feature Markers	Check registry is up-to-date	2026-01-22T14:59:32.1010144Z [36;1m  echo "Please run: python scripts/generate_feature_registry.py"[0m
+Validate ADRI Feature Markers	Check registry is up-to-date	2026-01-22T14:59:32.1010534Z [36;1m  echo "Then commit the updated FEATURE_REGISTRY.md"[0m
+Validate ADRI Feature Markers	Check registry is up-to-date	2026-01-22T14:59:32.1010835Z [36;1m  exit 1[0m
+Validate ADRI Feature Markers	Check registry is up-to-date	2026-01-22T14:59:32.1011026Z [36;1mfi[0m
+Validate ADRI Feature Markers	Check registry is up-to-date	2026-01-22T14:59:32.1029830Z shell: /usr/bin/bash -e {0}
+Validate ADRI Feature Markers	Check registry is up-to-date	2026-01-22T14:59:32.1030079Z env:
+Validate ADRI Feature Markers	Check registry is up-to-date	2026-01-22T14:59:32.1030344Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.14/x64
+Validate ADRI Feature Markers	Check registry is up-to-date	2026-01-22T14:59:32.1030748Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.14/x64/lib/pkgconfig
+Validate ADRI Feature Markers	Check registry is up-to-date	2026-01-22T14:59:32.1031371Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.14/x64
+Validate ADRI Feature Markers	Check registry is up-to-date	2026-01-22T14:59:32.1031782Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.14/x64
+Validate ADRI Feature Markers	Check registry is up-to-date	2026-01-22T14:59:32.1032130Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.14/x64
+Validate ADRI Feature Markers	Check registry is up-to-date	2026-01-22T14:59:32.1032488Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.14/x64/lib
+Validate ADRI Feature Markers	Check registry is up-to-date	2026-01-22T14:59:32.1032791Z ##[endgroup]
+Validate ADRI Feature Markers	Check registry is up-to-date	2026-01-22T14:59:32.1812007Z ======================================================================
+Validate ADRI Feature Markers	Check registry is up-to-date	2026-01-22T14:59:32.1828645Z ADRI Feature Registry Generator
+Validate ADRI Feature Markers	Check registry is up-to-date	2026-01-22T14:59:32.1829230Z ======================================================================
+Validate ADRI Feature Markers	Check registry is up-to-date	2026-01-22T14:59:32.1829604Z 
+Validate ADRI Feature Markers	Check registry is up-to-date	2026-01-22T14:59:32.1829987Z Scanning codebase in /home/runner/work/verodat-adri/verodat-adri...
+Validate ADRI Feature Markers	Check registry is up-to-date	2026-01-22T14:59:32.1830972Z Include patterns: ['src/**/*.py', 'scripts/**/*.py']
+Validate ADRI Feature Markers	Check registry is up-to-date	2026-01-22T14:59:32.1832469Z Exclude patterns: ['**/__pycache__/**', '**/node_modules/**', '**/.egg-info/**', '**/build/**', '**/dist/**', '**/.pytest_cache/**', 'tests/**', 'docs/**', '*.md']
+Validate ADRI Feature Markers	Check registry is up-to-date	2026-01-22T14:59:32.1833856Z Found 17 features
+Validate ADRI Feature Markers	Check registry is up-to-date	2026-01-22T14:59:32.1834805Z Validating markers...
+Validate ADRI Feature Markers	Check registry is up-to-date	2026-01-22T14:59:32.1835207Z Validating dependencies...
+Validate ADRI Feature Markers	Check registry is up-to-date	2026-01-22T14:59:32.1835611Z Generating registry markdown...
+Validate ADRI Feature Markers	Check registry is up-to-date	2026-01-22T14:59:32.1836531Z Writing registry to /home/runner/work/verodat-adri/verodat-adri/FEATURE_REGISTRY.md...
+Validate ADRI Feature Markers	Check registry is up-to-date	2026-01-22T14:59:32.1837741Z Registry written successfully: /home/runner/work/verodat-adri/verodat-adri/FEATURE_REGISTRY.md
+Validate ADRI Feature Markers	Check registry is up-to-date	2026-01-22T14:59:32.1838402Z 
+Validate ADRI Feature Markers	Check registry is up-to-date	2026-01-22T14:59:32.1838622Z ======================================================================
+Validate ADRI Feature Markers	Check registry is up-to-date	2026-01-22T14:59:32.1839156Z SUCCESS: Registry generated successfully!
+Validate ADRI Feature Markers	Check registry is up-to-date	2026-01-22T14:59:32.1839689Z ======================================================================
+Validate ADRI Feature Markers	Check registry is up-to-date	2026-01-22T14:59:32.1840039Z 
+Validate ADRI Feature Markers	Check registry is up-to-date	2026-01-22T14:59:32.1840188Z Next steps:
+Validate ADRI Feature Markers	Check registry is up-to-date	2026-01-22T14:59:32.1840547Z 1. Review FEATURE_REGISTRY.md for accuracy
+Validate ADRI Feature Markers	Check registry is up-to-date	2026-01-22T14:59:32.1841036Z 2. Check git diff to see what changed
+Validate ADRI Feature Markers	Check registry is up-to-date	2026-01-22T14:59:32.1841707Z 3. Commit the registry alongside your code changes
+Validate ADRI Feature Markers	Check registry is up-to-date	2026-01-22T14:59:32.1842092Z 
+Validate ADRI Feature Markers	Report validation success	﻿2026-01-22T14:59:32.1937714Z ##[group]Run echo "✅ All feature markers are valid!"
+Validate ADRI Feature Markers	Report validation success	2026-01-22T14:59:32.1938099Z [36;1mecho "✅ All feature markers are valid!"[0m
+Validate ADRI Feature Markers	Report validation success	2026-01-22T14:59:32.1938411Z [36;1mecho "✅ Feature registry is up-to-date!"[0m
+Validate ADRI Feature Markers	Report validation success	2026-01-22T14:59:32.1957539Z shell: /usr/bin/bash -e {0}
+Validate ADRI Feature Markers	Report validation success	2026-01-22T14:59:32.1957807Z env:
+Validate ADRI Feature Markers	Report validation success	2026-01-22T14:59:32.1958064Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.14/x64
+Validate ADRI Feature Markers	Report validation success	2026-01-22T14:59:32.1958478Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.14/x64/lib/pkgconfig
+Validate ADRI Feature Markers	Report validation success	2026-01-22T14:59:32.1958876Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.14/x64
+Validate ADRI Feature Markers	Report validation success	2026-01-22T14:59:32.1959241Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.14/x64
+Validate ADRI Feature Markers	Report validation success	2026-01-22T14:59:32.1959589Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.14/x64
+Validate ADRI Feature Markers	Report validation success	2026-01-22T14:59:32.1959957Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.14/x64/lib
+Validate ADRI Feature Markers	Report validation success	2026-01-22T14:59:32.1960258Z ##[endgroup]
+Validate ADRI Feature Markers	Report validation success	2026-01-22T14:59:32.1998950Z ✅ All feature markers are valid!
+Validate ADRI Feature Markers	Report validation success	2026-01-22T14:59:32.2000000Z ✅ Feature registry is up-to-date!
+Validate ADRI Feature Markers	Post Set up Python	﻿2026-01-22T14:59:32.2061223Z Post job cleanup.
+Validate ADRI Feature Markers	Post Checkout code	﻿2026-01-22T14:59:32.3675265Z Post job cleanup.
+Validate ADRI Feature Markers	Post Checkout code	2026-01-22T14:59:32.4565132Z [command]/usr/bin/git version
+Validate ADRI Feature Markers	Post Checkout code	2026-01-22T14:59:32.4601270Z git version 2.52.0
+Validate ADRI Feature Markers	Post Checkout code	2026-01-22T14:59:32.4652260Z Temporarily overriding HOME='/home/runner/work/_temp/ab240053-85c3-48ba-abfe-a2e310fe65be' before making global git config changes
+Validate ADRI Feature Markers	Post Checkout code	2026-01-22T14:59:32.4655054Z Adding repository directory to the temporary git global config as a safe directory
+Validate ADRI Feature Markers	Post Checkout code	2026-01-22T14:59:32.4658664Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/verodat-adri/verodat-adri
+Validate ADRI Feature Markers	Post Checkout code	2026-01-22T14:59:32.4690787Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+Validate ADRI Feature Markers	Post Checkout code	2026-01-22T14:59:32.4720903Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+Validate ADRI Feature Markers	Post Checkout code	2026-01-22T14:59:32.4911382Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+Validate ADRI Feature Markers	Post Checkout code	2026-01-22T14:59:32.4931728Z http.https://github.com/.extraheader
+Validate ADRI Feature Markers	Post Checkout code	2026-01-22T14:59:32.4944766Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+Validate ADRI Feature Markers	Post Checkout code	2026-01-22T14:59:32.4973200Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+Validate ADRI Feature Markers	Post Checkout code	2026-01-22T14:59:32.5196644Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+Validate ADRI Feature Markers	Post Checkout code	2026-01-22T14:59:32.5246910Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+Validate ADRI Feature Markers	Complete job	﻿2026-01-22T14:59:32.5660178Z Cleaning up orphan processes

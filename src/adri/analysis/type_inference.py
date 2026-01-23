@@ -401,12 +401,27 @@ class TypeInference:
         validation_rules = {}
 
         for column in data.columns:
-            field_type = self.infer_field_type(data[column])
+            field_type = self._normalize_type_name(self.infer_field_type(data[column]))
             constraints = self.infer_field_constraints(data[column], field_type)
 
             validation_rules[column] = {"type": field_type, **constraints}
 
         return validation_rules
+
+    @staticmethod
+    def _normalize_type_name(field_type: str) -> str:
+        """Normalize inferred type names across components.
+
+        Ensures compatibility between profiler/type inference vocabularies.
+        """
+        normalized_map = {
+            "str": "string",
+            "int": "integer",
+            "bool": "boolean",
+            "numeric": "float",
+            "number": "float",
+        }
+        return normalized_map.get(field_type, field_type)
 
 
 # Convenience functions

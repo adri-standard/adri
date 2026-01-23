@@ -253,6 +253,10 @@ markers = [
     "ci_only: marks tests that should only run in CI environments",
     "audit: marks tests for audit logging functionality",
     "csv_output: marks tests for CSV output functionality",
+    
+    # CI Health markers (Test Suite Health Initiative 2026-01-22)
+    "flaky: Known flaky tests - moved to Tier 3 monitoring, never blocks CI",
+    "platform_specific: Platform-specific tests (Windows/macOS only) - Tier 2 with retry",
 ]
 filterwarnings = [
     "error",
