@@ -234,7 +234,7 @@ class TestREADMETemplateLinks:
     @pytest.mark.unit
     def test_readme_links_to_existing_templates(self):
         """Test that all template links in README point to real files."""
-        readme_content = (PROJECT_ROOT / "README.md").read_text()
+        readme_content = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8")
 
         # Extract GitHub blob links to ADRI/contracts
         import re

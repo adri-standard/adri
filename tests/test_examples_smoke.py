@@ -41,7 +41,7 @@ class TestExamplesSmoke:
 
         assert example_path.exists(), f"Example file not found: {example_file}"
 
-        content = example_path.read_text()
+        content = example_path.read_text(encoding="utf-8")
 
         # Check for correct import
         assert "from adri import adri_protected" in content, (
@@ -65,7 +65,7 @@ class TestExamplesSmoke:
         """Test that examples have valid Python syntax."""
         example_path = EXAMPLES_DIR / example_file
 
-        content = example_path.read_text()
+        content = example_path.read_text(encoding="utf-8")
 
         try:
             ast.parse(content)
@@ -78,7 +78,7 @@ class TestExamplesSmoke:
         """Test that examples use @adri_protected decorator."""
         example_path = EXAMPLES_DIR / example_file
 
-        content = example_path.read_text()
+        content = example_path.read_text(encoding="utf-8")
 
         # Parse the file
         tree = ast.parse(content)
@@ -109,7 +109,7 @@ class TestExamplesSmoke:
 
         for example_file in FRAMEWORK_EXAMPLES:
             example_path = EXAMPLES_DIR / example_file
-            content = example_path.read_text()
+            content = example_path.read_text(encoding="utf-8")
 
             for pattern in broken_patterns:
                 assert pattern not in content, (
@@ -123,7 +123,7 @@ class TestExamplesSmoke:
         example_path = EXAMPLES_DIR / example_file
 
         # Parse and extract imports
-        content = example_path.read_text()
+        content = example_path.read_text(encoding="utf-8")
         tree = ast.parse(content)
 
         adri_imports = []
@@ -148,7 +148,7 @@ class TestExamplesDocumentation:
         """Test that examples have module-level docstrings."""
         example_path = EXAMPLES_DIR / example_file
 
-        content = example_path.read_text()
+        content = example_path.read_text(encoding="utf-8")
         tree = ast.parse(content)
 
         docstring = ast.get_docstring(tree)
@@ -166,7 +166,7 @@ class TestExamplesDocumentation:
         """Test that examples include usage instructions in docstring."""
         example_path = EXAMPLES_DIR / example_file
 
-        content = example_path.read_text()
+        content = example_path.read_text(encoding="utf-8")
         tree = ast.parse(content)
 
         docstring = ast.get_docstring(tree)
@@ -192,7 +192,7 @@ class TestExamplesOpenSourceCompatibility:
         """Test that examples don't import enterprise-only modules."""
         example_path = EXAMPLES_DIR / example_file
 
-        content = example_path.read_text()
+        content = example_path.read_text(encoding="utf-8")
 
         enterprise_patterns = [
             "from adri_enterprise",
@@ -212,7 +212,7 @@ class TestExamplesOpenSourceCompatibility:
 
         for example_file in FRAMEWORK_EXAMPLES:
             example_path = EXAMPLES_DIR / example_file
-            content = example_path.read_text()
+            content = example_path.read_text(encoding="utf-8")
             tree = ast.parse(content)
 
             for node in ast.walk(tree):
@@ -253,7 +253,7 @@ class TestExamplesFirstUseExperience:
 
         for example_file in FRAMEWORK_EXAMPLES:
             example_path = EXAMPLES_DIR / example_file
-            content = example_path.read_text()
+            content = example_path.read_text(encoding="utf-8")
 
             for module in broken_modules:
                 # Check in both code and comments
@@ -267,7 +267,7 @@ class TestExamplesFirstUseExperience:
         """Test that examples handle missing dependencies gracefully."""
         example_path = EXAMPLES_DIR / example_file
 
-        content = example_path.read_text()
+        content = example_path.read_text(encoding="utf-8")
 
         # Should have try/except around framework imports
         assert "try:" in content, (

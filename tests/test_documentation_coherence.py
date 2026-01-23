@@ -95,7 +95,7 @@ class TestDocumentationImports:
     @pytest.mark.unit
     def test_readme_has_correct_import_example(self):
         """Test that README shows correct import in usage examples."""
-        readme_content = README_FILE.read_text()
+        readme_content = README_FILE.read_text(encoding="utf-8")
 
         # README should show the correct import
         if "@adri_protected" in readme_content:
@@ -106,7 +106,7 @@ class TestDocumentationImports:
     @pytest.mark.unit
     def test_quickstart_has_correct_import(self):
         """Test that QUICKSTART shows correct import."""
-        quickstart_content = QUICKSTART_FILE.read_text()
+        quickstart_content = QUICKSTART_FILE.read_text(encoding="utf-8")
 
         if "@adri_protected" in quickstart_content:
             assert "from adri import adri_protected" in quickstart_content, (
@@ -138,7 +138,7 @@ class TestCLIDocumentation:
         # Check documentation references
         cli_ref_file = DOCS_DIR / "CLI_REFERENCE.md"
         if cli_ref_file.exists():
-            content = cli_ref_file.read_text()
+            content = cli_ref_file.read_text(encoding="utf-8")
 
             # Extract command references (pattern: adri <command>)
             documented_commands = set(re.findall(r'adri\s+([a-z-]+)', content))
@@ -167,7 +167,7 @@ class TestAPIDocumentation:
         if not decorator_file.exists():
             pytest.skip("Decorator file not found")
 
-        content = decorator_file.read_text()
+        content = decorator_file.read_text(encoding="utf-8")
         tree = ast.parse(content)
 
         # Find adri_protected function
@@ -179,7 +179,7 @@ class TestAPIDocumentation:
                 # Check API documentation
                 api_doc = DOCS_DIR / "API_REFERENCE.md"
                 if api_doc.exists():
-                    api_content = api_doc.read_text()
+                    api_content = api_doc.read_text(encoding="utf-8")
 
                     # Core parameters that should be documented
                     core_params = ['contract', 'data_param', 'min_score', 'on_failure']
@@ -206,7 +206,7 @@ class TestCodeExamplesInDocs:
             if not doc_file.exists():
                 continue
 
-            content = doc_file.read_text()
+            content = doc_file.read_text(encoding="utf-8")
 
             # Extract Python code blocks that import adri (these should be complete)
             python_blocks = re.findall(
@@ -235,13 +235,13 @@ class TestDocumentationConsistency:
     @pytest.mark.unit
     def test_getting_started_matches_quickstart(self):
         """Test that GETTING_STARTED and QUICKSTART don't contradict."""
-        quickstart = QUICKSTART_FILE.read_text()
+        quickstart = QUICKSTART_FILE.read_text(encoding="utf-8")
         getting_started_file = DOCS_DIR / "GETTING_STARTED.md"
 
         if not getting_started_file.exists():
             pytest.skip("GETTING_STARTED.md not found")
 
-        getting_started = getting_started_file.read_text()
+        getting_started = getting_started_file.read_text(encoding="utf-8")
 
         # Both should use same import pattern
         if "from adri import" in quickstart and "from adri import" in getting_started:
@@ -262,8 +262,8 @@ class TestDocumentationConsistency:
         if not ENTERPRISE_README.exists():
             pytest.skip("Enterprise README not found")
 
-        enterprise_content = ENTERPRISE_README.read_text()
-        opensource_content = README_FILE.read_text()
+        enterprise_content = ENTERPRISE_README.read_text(encoding="utf-8")
+        opensource_content = README_FILE.read_text(encoding="utf-8")
 
         # Both should use same decorator import
         if "@adri_protected" in enterprise_content and "@adri_protected" in opensource_content:
@@ -279,7 +279,7 @@ class TestFirstUseDocumentation:
     @pytest.mark.integration
     def test_installation_instructions_complete(self):
         """Test that installation instructions are complete."""
-        readme_content = README_FILE.read_text()
+        readme_content = README_FILE.read_text(encoding="utf-8")
 
         # Should mention pip install
         assert "pip install" in readme_content.lower(), (
@@ -294,7 +294,7 @@ class TestFirstUseDocumentation:
     @pytest.mark.unit
     def test_first_example_is_simple(self):
         """Test that the first example in docs is simple and clear."""
-        quickstart = QUICKSTART_FILE.read_text()
+        quickstart = QUICKSTART_FILE.read_text(encoding="utf-8")
 
         # First code example should be short
         first_example = re.search(r'```python\n(.*?)\n```', quickstart, re.DOTALL)
@@ -330,7 +330,7 @@ class TestDocumentationRegressionPrevention:
         for doc in all_docs:
             if not doc.exists():
                 continue
-            content = doc.read_text()
+            content = doc.read_text(encoding="utf-8")
 
             for module in nonexistent_modules:
                 if module in content:
