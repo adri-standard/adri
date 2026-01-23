@@ -24,7 +24,7 @@ Main decorator for protecting functions with data quality validation.
 #### Signature
 
 ```python
-from adri.validator.decorators import adri_protected
+from adri import adri_protected
 
 @adri_protected(
     standard: str,                           # Required
@@ -186,7 +186,7 @@ Decorated function that validates data before execution.
 ##### Basic Usage
 ```python
 import pandas as pd
-from adri.validator.decorators import adri_protected
+from adri import adri_protected
 
 @adri_protected(standard="customer_data")
 def process_customers(data: pd.DataFrame) -> Dict:
@@ -716,7 +716,7 @@ DimensionScores = Dict[str, float]
 ### Decorator Type Hints
 
 ```python
-from adri.validator.decorators import adri_protected
+from adri import adri_protected
 from typing import Callable, Dict
 import pandas as pd
 
@@ -745,7 +745,7 @@ from adri.validator.exceptions import (
 
 ```python
 from adri.validator.exceptions import DataQualityException
-from adri.validator.decorators import adri_protected
+from adri import adri_protected
 import pandas as pd
 
 @adri_protected(standard="critical_data", on_failure="raise")
@@ -805,7 +805,7 @@ except DataQualityException:
 
 ```python
 import pandas as pd
-from adri.validator.decorators import adri_protected
+from adri import adri_protected
 
 @adri_protected(standard="customer_data")
 def process_customers(data: pd.DataFrame) -> Dict:
@@ -825,7 +825,7 @@ print(result)
 
 ```python
 from adri.validator.standards.generator import StandardGenerator
-from adri.validator.decorators import adri_protected
+from adri import adri_protected
 import pandas as pd
 import yaml
 
@@ -894,7 +894,7 @@ else:
 ### Example 4: Batch Processing with Quality Checks
 
 ```python
-from adri.validator.decorators import adri_protected
+from adri import adri_protected
 import pandas as pd
 import glob
 
