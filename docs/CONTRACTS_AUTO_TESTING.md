@@ -302,7 +302,7 @@ python scripts/migrate_standards_to_severity.py
 ## Related Documentation
 
 - [Severity Levels Guide](SEVERITY_LEVELS.md) - Explains CRITICAL/WARNING/INFO
-- [Standards Library](STANDARDS_LIBRARY.md) - Overview of available standards
+- [Standards Library](CONTRACTS_LIBRARY.md) - Overview of available standards
 - [Testing Framework](../tests/README.md) - General testing documentation
 
 ## Summary

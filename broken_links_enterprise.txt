@@ -1,0 +1,70 @@
+======================================================================
+ADRI Documentation Link Validator
+======================================================================
+Repository: /Users/thomas/github/verodat/adri-enterprise
+
+Found 91 markdown files to validate
+
+======================================================================
+Validation Summary
+======================================================================
+Files checked:    91
+Total links:      252
+Internal links:   104
+External links:   133
+Broken links:     13
+======================================================================
+
+❌ Found 13 broken links:
+
+File: ARCHITECTURE.md
+  Link: docs/upgrade-to-enterprise.md
+  Issue: Internal link to non-existent file: docs/upgrade-to-enterprise.md
+
+File: ARCHITECTURE.md
+  Link: docs/docs/intro.md
+  Issue: Internal link to non-existent file: docs/docs/intro.md
+
+File: CONTRIBUTING.md
+  Link: docs/STANDARDS_LIBRARY.md
+  Issue: Internal link to non-existent file: docs/STANDARDS_LIBRARY.md
+
+File: CONTRIBUTING.md
+  Link: docs/STANDARDS_LIBRARY.md
+  Issue: Internal link to non-existent file: docs/STANDARDS_LIBRARY.md
+
+File: README.enterprise.md
+  Link: docs/MIGRATION.md
+  Issue: Internal link to non-existent file: docs/MIGRATION.md
+
+File: README.enterprise.md
+  Link: docs/BEST_PRACTICES.md
+  Issue: Internal link to non-existent file: docs/BEST_PRACTICES.md
+
+File: docs/ADRI_V2_RATIONALE_AND_BENEFITS.md
+  Link: ADRI_v2_FIELD_CATEGORIES_SPEC.md
+  Issue: Internal link to non-existent file: ADRI_v2_FIELD_CATEGORIES_SPEC.md
+
+File: docs/ADRI_V2_RATIONALE_AND_BENEFITS.md
+  Link: VALIDATOR_ENHANCEMENT_GUIDE.md
+  Issue: Internal link to non-existent file: VALIDATOR_ENHANCEMENT_GUIDE.md
+
+File: docs/CONTRACTS_AUTO_TESTING.md
+  Link: STANDARDS_LIBRARY.md
+  Issue: Internal link to non-existent file: STANDARDS_LIBRARY.md
+
+File: docs/GETTING_STARTED.md
+  Link: ../examples/generic_basic.py
+  Issue: Internal link to non-existent file: ../examples/generic_basic.py
+
+File: docs/GETTING_STARTED.md
+  Link: ../examples/langchain_basic.py
+  Issue: Internal link to non-existent file: ../examples/langchain_basic.py
+
+File: docs/SEVERITY_LEVELS.md
+  Link: ../severity_levels_implementation_plan.md
+  Issue: Internal link to non-existent file: ../severity_levels_implementation_plan.md
+
+File: docs/CONTRACT_VALIDATION_WORKFLOW.md
+  Link: STANDARDS_LIBRARY.md
+  Issue: Internal link to non-existent file: STANDARDS_LIBRARY.md

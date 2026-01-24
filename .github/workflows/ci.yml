@@ -151,6 +151,10 @@ jobs:
           pytest tests/ -v \
             --cov=adri --cov-report=xml --cov-report=term \
             -m "not performance and not ci_skip and not flaky and not platform_specific"
+      
+      - name: Run e2e documentation tests
+        run: |
+          pytest tests/e2e/ -v -m e2e --timeout=300 --tb=short
 
       - name: Upload coverage
         if: matrix.python-version == '3.11'

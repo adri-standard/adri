@@ -1,9 +1,9 @@
 # ADRI v2.0 Field Categories
 ## Rationale and Benefits Summary
 
-**Version**: 1.0.0  
-**Date**: 2025-01-11  
-**Status**: Final  
+**Version**: 1.0.0
+**Date**: 2025-01-11
+**Status**: Final
 
 ---
 
@@ -62,7 +62,7 @@ field_requirements:
     constraints:
       - type: allowed_values
         values: ["In Progress", "At Risk"]
-  
+
   # 2. AI DECISION FIELDS - Deterministic AI output
   RISK_LEVEL:
     field_category: ai_decision
@@ -72,7 +72,7 @@ field_requirements:
       rules:
         - condition: "priority = 1 AND status = 'At Risk'"
           value: "Critical"
-  
+
   # 3. AI NARRATIVE FIELDS - Free-form AI reasoning
   RISK_RATIONALE:
     field_category: ai_narrative
@@ -152,7 +152,7 @@ HEALTH_SCORE:
    IF priority=1 AND status='At Risk' THEN 'Critical'
    IF priority=1 OR status='At Risk' THEN 'High'
    ...
-   
+
    For RISK_RATIONALE: Explain your reasoning (20-500 chars)
    ```
 3. **Execute with OpenRouter**
@@ -187,7 +187,7 @@ derivation = infer_strategy(data, 'TIMELINE_STATUS')
 # Result: direct_mapping with 100% accuracy
 
 # Infer: HEALTH_SCORE is lookup table
-derivation = infer_strategy(data, 'HEALTH_SCORE')  
+derivation = infer_strategy(data, 'HEALTH_SCORE')
 # Result: explicit_lookup with 98% accuracy (high confidence)
 
 # Infer: RISK_LEVEL has complex precedence rules
@@ -226,7 +226,7 @@ python migrate_adri_standards.py \
 
 # Shows:
 # - Field classifications
-# - Extracted derivation rules  
+# - Extracted derivation rules
 # - Confidence scores
 # - Fields needing review
 
@@ -301,7 +301,7 @@ RISK_RATIONALE:
 ```
 Define:
 ├── Field categories
-├── Derivation rules  
+├── Derivation rules
 ├── Validation behavior
 └── Auto-generation from data
 
@@ -331,7 +331,7 @@ ADRI v2.0 brings **database constraint philosophy** to AI reasoning:
 CREATE TABLE projects (
   status VARCHAR CHECK (status IN ('Active', 'At Risk')),  -- allowed_values
   risk_level VARCHAR GENERATED ALWAYS AS (              -- derivation
-    CASE 
+    CASE
       WHEN priority=1 AND status='At Risk' THEN 'Critical'
       WHEN priority=1 OR status='At Risk' THEN 'High'
       ELSE 'Low'
@@ -412,7 +412,7 @@ ADRI v2.0 field categories solve a fundamental challenge in AI reasoning validat
 
 **The Solution**: Explicit field categorization with category-specific validation behaviors.
 
-**The Impact**: 
+**The Impact**:
 - ✅ Reliable AI decision validation
 - ✅ Flexible AI reasoning narratives
 - ✅ Self-documenting logic
@@ -430,13 +430,12 @@ ADRI v2.0 field categories solve a fundamental challenge in AI reasoning validat
 
 ## References
 
-- [ADRI v2.0 Enhancement Specification](ADRI_v2_FIELD_CATEGORIES_SPEC.md)
-- [Validator Enhancement Guide](VALIDATOR_ENHANCEMENT_GUIDE.md)
+- [ADRI v2.0 Enhancement Specification](../specs/ADRI_v2_FIELD_CATEGORIES_SPEC.md)
 - [Example Migrated Standard](../examples/ADRI_roadmap_clean_v2.yaml)
 - [Migration Script](../tools/migrate_adri_standards.py)
 
 ---
 
-**Document Status**: Final  
-**Approval Date**: 2025-01-11  
+**Document Status**: Final
+**Approval Date**: 2025-01-11
 **Next Review**: 2025-02-11

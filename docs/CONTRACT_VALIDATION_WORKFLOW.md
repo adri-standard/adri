@@ -256,7 +256,7 @@ TICKET_ID-01002,CUSTOMER_ID-01002,2024-01-29,Product Inquiry,INVALID,Open,0.5,99
 
 - [Tutorial Auto-Discovery](../tests/README.md) - Tutorial testing system
 - [Severity Levels](SEVERITY_LEVELS.md) - CRITICAL vs WARNING rules
-- [Standards Library](STANDARDS_LIBRARY.md) - Available standards
+- [Standards Library](CONTRACTS_LIBRARY.md) - Available standards
 
 ## Summary
 

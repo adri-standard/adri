@@ -8,6 +8,7 @@ on:
       - 'src/adri/**'
       - 'tests/open_source/**'
       - 'tests/shared/**'
+      - 'tests/e2e/**'
       - 'tests/conftest.py'
       - 'tests/test_decorator.py'
   workflow_dispatch:
@@ -104,9 +105,11 @@ jobs:
           rm -rf opensource-repo/tests/open_source
           rm -rf opensource-repo/tests/shared
           rm -rf opensource-repo/tests/fixtures
+          rm -rf opensource-repo/tests/e2e
           cp -r /tmp/adri-opensource/tests/open_source opensource-repo/tests/ || true
           cp -r /tmp/adri-opensource/tests/shared opensource-repo/tests/ || true
           cp -r /tmp/adri-opensource/tests/fixtures opensource-repo/tests/ || true
+          cp -r /tmp/adri-opensource/tests/e2e opensource-repo/tests/ || true
           cp /tmp/adri-opensource/tests/conftest.py opensource-repo/tests/ || true
           cp /tmp/adri-opensource/tests/__init__.py opensource-repo/tests/ || true
 

@@ -288,7 +288,7 @@ The ADRI Standards Library is a community-driven catalog of reusable data qualit
 
 ### Standard Contribution Process
 
-1. **Create your standard** following the v5.0.0 format (see [STANDARDS_LIBRARY.md](docs/STANDARDS_LIBRARY.md))
+1. **Create your standard** following the v5.0.0 format (see [STANDARDS_LIBRARY.md](docs/CONTRACTS_LIBRARY.md))
 
 2. **Write comprehensive tests**:
    ```python
@@ -323,7 +323,7 @@ The ADRI Standards Library is a community-driven catalog of reusable data qualit
 5. **Submit pull request** with:
    - Standard YAML file
    - Tests in `tests/test_standards_catalog.py`
-   - Entry in `docs/STANDARDS_LIBRARY.md`
+   - Entry in `docs/CONTRACTS_LIBRARY.md`
 
 ### Standard Quality Checklist
 
@@ -367,7 +367,7 @@ metadata:
   tags: [tag1, tag2]
 ```
 
-See [STANDARDS_LIBRARY.md](docs/STANDARDS_LIBRARY.md) for complete documentation and examples.
+See [STANDARDS_LIBRARY.md](docs/CONTRACTS_LIBRARY.md) for complete documentation and examples.
 
 ## License
 

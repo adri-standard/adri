@@ -227,6 +227,7 @@ markers = [
     "performance: Performance test - speed and efficiency",
     "error_handling: Error handling test - failure scenarios",
     "end_to_end: End-to-end test - complete workflows",
+    "e2e: End-to-end documentation tests - validates docs, examples, and CLI commands work as documented",
     "benchmark: Performance benchmarks with pytest-benchmark",
 
     # Enterprise-specific test markers

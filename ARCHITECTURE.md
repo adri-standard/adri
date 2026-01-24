@@ -23,7 +23,6 @@ ADRI v5.0.0 is split into two packages:
 - Workflow automation
 - Advanced Verodat integration
 
-See [docs/upgrade-to-enterprise.md](docs/upgrade-to-enterprise.md) for migration guide.
 
 ## Complete Technical Architecture
 
@@ -185,7 +184,7 @@ flowchart TB
 
 **Navigate the Architecture:**
 - **For Users**: See the simple flow in [README.md](README.md)
-- **For Integrators**: See the system overview in [docs/docs/intro.md](docs/docs/intro.md)
+- **For Integrators**: See the system overview in [docs/README.md](docs/README.md)
 - **For Contributors**: Continue reading this complete technical guide
 
 ---

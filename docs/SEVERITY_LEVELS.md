@@ -303,6 +303,5 @@ A: You get a perfect score (20/20) for that dimension - no penalties possible.
 
 ## See Also
 
-- [Implementation Plan](../severity_levels_implementation_plan.md)
 - [Severity Defaults Config](../src/adri/config/severity_defaults.yaml)
 - [Getting Started Guide](GETTING_STARTED.md)

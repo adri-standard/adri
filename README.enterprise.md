@@ -612,7 +612,6 @@ def workflow_step(data):
 - **[Complete Documentation](docs/)** - Comprehensive feature documentation
 - **[API Reference](docs/API_REFERENCE.md)** - Complete API documentation
 - **[Enterprise Setup Guide](docs/enterprise-setup-guide.md)** - Detailed deployment guide
-- **[Migration Guide](docs/MIGRATION.md)** - Step-by-step upgrade instructions
 
 ### Community & Support
 - **Issues**: [GitHub Issues](https://github.com/Verodat/verodat-adri/issues)
@@ -621,7 +620,6 @@ def workflow_step(data):
 
 ### Training & Onboarding
 - **Free Onboarding Session**: Schedule with Verodat Customer Success
-- **Best Practices Guide**: [docs/BEST_PRACTICES.md](docs/BEST_PRACTICES.md)
 - **Workshop Materials**: Contact enterprise support for team training
 
 ---
