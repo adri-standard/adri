@@ -3,37 +3,72 @@ name: "CodeQL"
 on:
   push:
     branches: ["main"]
-    paths:
-      - '**/*.py'
-      - '.github/workflows/codeql.yml'
   pull_request:
     branches: ["main"]
-    paths:
-      - '**/*.py'
-      - '.github/workflows/codeql.yml'
   schedule:
     - cron: "0 6 * * 1"  # Weekly at 06:00 UTC Monday
 
 jobs:
+  check-python-changes:
+    name: Check for Python Changes
+    runs-on: ubuntu-latest
+    outputs:
+      should-analyze: ${{ steps.filter.outputs.python }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      
+      - name: Check for Python file changes
+        id: filter
+        run: |
+          if [ "${{ github.event_name }}" == "schedule" ]; then
+            echo "python=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.sha }})
+          else
+            FILES=$(git diff --name-only HEAD^ HEAD || echo "")
+          fi
+          
+          if echo "$FILES" | grep -q "\.py$\|\.github/workflows/codeql\.yml"; then
+            echo "python=true" >> $GITHUB_OUTPUT
+            echo "Python files changed - will run analysis"
+          else
+            echo "python=false" >> $GITHUB_OUTPUT
+            echo "No Python files changed - skipping analysis"
+          fi
+
   analyze:
-    name: Analyze (${{ matrix.language }})
+    name: Analyze (python)
+    needs: check-python-changes
+    if: needs.check-python-changes.outputs.should-analyze == 'true'
     runs-on: ubuntu-latest
     permissions:
       actions: read
       contents: read
       security-events: write
-    strategy:
-      fail-fast: false
-      matrix:
-        language: ["python"]
     steps:
       - uses: actions/checkout@v6
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v4
         with:
-          languages: ${{ matrix.language }}
+          languages: python
       - name: Autobuild
         uses: github/codeql-action/autobuild@v4
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v4
         continue-on-error: true
+  
+  analyze-status:
+    name: Analyze (python)
+    needs: check-python-changes
+    if: needs.check-python-changes.outputs.should-analyze == 'false'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Skip Analysis
+        run: |
+          echo "✅ No Python files changed - CodeQL analysis skipped"
+          echo "This is expected and safe for non-Python changes"
