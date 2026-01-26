@@ -27,7 +27,7 @@ Main decorator for protecting functions with data quality validation.
 from adri import adri_protected
 
 @adri_protected(
-    standard: str,                           # Required
+    contract: str,                           # Required
     data_param: str = "data",               # Optional
     min_score: float = 0.8,                 # Optional
     dimensions: Optional[Dict[str, float]] = None,  # Optional
@@ -42,7 +42,7 @@ from adri import adri_protected
 
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
-| `standard` | `str` | **Required** | Name of the YAML standard to validate against |
+| `contract` | `str` | **Required** | Name of the YAML standard to validate against |
 | `data_param` | `str` | `"data"` | Function parameter name containing data to validate |
 | `min_score` | `float` | `0.8` | Minimum quality score threshold (0.0-1.0) |
 | `dimensions` | `Dict[str, float]` | `None` | Dimension-specific score requirements |
@@ -53,7 +53,7 @@ from adri import adri_protected
 
 #### Parameter Details
 
-##### standard (Required)
+##### contract (Required)
 The name of the YAML standard file (without .yaml extension).
 
 ```python
@@ -615,7 +615,7 @@ assessment = assess_data_quality(data, "customer_quality")
 ```python
 def assess_data_quality(
     data: Union[pd.DataFrame, dict, list],
-    standard: str
+    contract: str
 ) -> Assessment
 ```
 

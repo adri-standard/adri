@@ -118,7 +118,7 @@ jobs:
   test-core:
     name: Core Tests (Ubuntu ${{ matrix.python-version }})
     needs: check-changes
-    if: needs.check-changes.outputs.docs-only == 'false'
+    if: always()
     runs-on: ubuntu-latest
     strategy:
       fail-fast: true  # Stop immediately on failure
@@ -126,14 +126,23 @@ jobs:
         python-version: ['3.10', '3.11', '3.12']
 
     steps:
+      - name: Skip for docs-only changes
+        if: needs.check-changes.outputs.docs-only == 'true'
+        run: |
+          echo "✅ Skipping core tests - documentation-only change"
+          echo "This job reports success for docs-only PRs to satisfy branch protection"
+
       - uses: actions/checkout@v6
+        if: needs.check-changes.outputs.docs-only == 'false'
 
       - name: Set up Python ${{ matrix.python-version }}
+        if: needs.check-changes.outputs.docs-only == 'false'
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
 
       - name: Cache dependencies
+        if: needs.check-changes.outputs.docs-only == 'false'
         uses: actions/cache@v3
         with:
           path: ~/.cache/pip
@@ -142,22 +151,25 @@ jobs:
             ${{ runner.os }}-pip-
 
       - name: Install dependencies
+        if: needs.check-changes.outputs.docs-only == 'false'
         run: |
           python -m pip install --upgrade pip
           pip install -e ".[dev]"
 
       - name: Run core tests (deterministic, fast)
+        if: needs.check-changes.outputs.docs-only == 'false'
         run: |
           pytest tests/ -v \
             --cov=adri --cov-report=xml --cov-report=term \
             -m "not performance and not ci_skip and not flaky and not platform_specific"
-      
+
       - name: Run e2e documentation tests
+        if: needs.check-changes.outputs.docs-only == 'false'
         run: |
           pytest tests/e2e/ -v -m e2e --timeout=300 --tb=short
 
       - name: Upload coverage
-        if: matrix.python-version == '3.11'
+        if: needs.check-changes.outputs.docs-only == 'false' && matrix.python-version == '3.11'
         uses: codecov/codecov-action@v3
         with:
           file: ./coverage.xml
@@ -206,7 +218,7 @@ jobs:
           if [ "${{ runner.os }}" = "Windows" ]; then
             export ADRI_SKIP_FSYNC=1
           fi
-          
+
           # Run with automatic retry for transient failures
           pytest tests/ -v \
             --cov=adri --cov-report=xml \
@@ -220,21 +232,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      
+
       - name: Set up Python 3.11
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
-      
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -e ".[dev]"
-      
+
       - name: Aggregate test results
         run: |
           echo "✅ Test aggregation complete"
-          echo "Core tests: ${{ needs.test-core.result }}"  
+          echo "Core tests: ${{ needs.test-core.result }}"
           echo "Platform tests: ${{ needs.test-platforms.result}}"
 
       - name: Check code style
@@ -437,22 +449,22 @@ jobs:
           echo "Legacy test job: ${{ needs.test.result }}"
           echo "Build test: ${{ needs.build-test.result }}"
           echo "Security: ${{ needs.security.result }}"
-          
+
           # For docs-only changes
           if [ "${{ needs.validate-docs.result }}" == "success" ]; then
             echo "✅ Documentation validation passed"
             exit 0
           fi
-          
+
           # For code changes - require all essential tests
           REQUIRED_PASS=true
-          
+
           # Tier 1 Core tests MUST pass
           if [ "${{ needs.test-core.result }}" != "success" ]; then
             echo "❌ Tier 1 (Core) tests failed or skipped"
             REQUIRED_PASS=false
           fi
-          
+
           # Tier 2 Platform tests are INFORMATIONAL (macOS passing, Windows known issues)
           # Don't block on platform test failures since Tier 1 (core) validates functionality
           if [ "${{ needs.test-platforms.result }}" == "success" ]; then
@@ -460,25 +472,25 @@ jobs:
           else
             echo "⚠️  Tier 2 (Platform) tests - Some failures (Windows known issues, not blocking)"
           fi
-          
+
           # Legacy test job (code style, formatting) - allow skipped
           if [ "${{ needs.test.result }}" != "success" ] && [ "${{ needs.test.result }}" != "skipped" ]; then
             echo "❌ Legacy test job (style/format checks) failed"
             REQUIRED_PASS=false
           fi
-          
+
           # Build MUST succeed
           if [ "${{ needs.build-test.result }}" != "success" ]; then
             echo "❌ Build test failed"
             REQUIRED_PASS=false
           fi
-          
+
           # Security MUST pass
           if [ "${{ needs.security.result }}" != "success" ]; then
             echo "❌ Security check failed"
             REQUIRED_PASS=false
           fi
-          
+
           if [ "$REQUIRED_PASS" = "true" ]; then
             echo "✅ All required CI checks passed"
             echo "✅ TIER 1: Core tests - PASS"
