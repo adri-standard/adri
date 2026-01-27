@@ -898,9 +898,10 @@ class DataQualityAssessor:
                 with open(standard_path, encoding="utf-8") as f:
                     standard_dict = yaml.safe_load(f)
 
-                field_requirements = standard_dict.get("requirements", {}).get(
-                    "field_requirements", {}
-                )
+                # Use BundledStandardWrapper to get field requirements
+                # This supports all 4 ADRI formats (v7.2.9 complete fix)
+                standard_wrapper_temp = BundledStandardWrapper(standard_dict)
+                field_requirements = standard_wrapper_temp.get_field_requirements()
 
                 # Run schema validation BEFORE dimension assessments
                 if _should_enable_debug():
