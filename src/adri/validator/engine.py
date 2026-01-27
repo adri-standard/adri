@@ -7,10 +7,10 @@ Core data quality assessment and validation engine functionality.
 Migrated from adri/core/assessor.py for the new src/ layout.
 """
 
+import logging
 import os
 import sys
 import time
-import logging
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -118,11 +118,41 @@ class BundledStandardWrapper:
         self.standard_dict = standard_dict
 
     def get_field_requirements(self) -> dict[str, Any]:
-        """Get field requirements from the bundled standard."""
+        """Get field requirements from the bundled standard.
+
+        Supports multiple field requirement formats to accommodate different ADRI modes:
+        - Format 1: requirements.field_requirements (reasoning mode, highest priority)
+        - Format 2: field_requirements (top level)
+        - Format 3: requirements.output_requirements (deterministic mode, nested)
+        - Format 4: output_requirements (deterministic mode, top level)
+
+        Returns the first non-empty field requirements dict found, or {} if none present.
+        """
+        # Format 1: requirements.field_requirements (reasoning mode - highest priority)
         requirements = self.standard_dict.get("requirements", {})
         if isinstance(requirements, dict):
             field_requirements = requirements.get("field_requirements", {})
-            return field_requirements if isinstance(field_requirements, dict) else {}
+            if field_requirements and isinstance(field_requirements, dict):
+                return field_requirements
+
+        # Format 2: field_requirements at top level
+        if "field_requirements" in self.standard_dict:
+            top_level_field_reqs = self.standard_dict["field_requirements"]
+            if isinstance(top_level_field_reqs, dict) and top_level_field_reqs:
+                return top_level_field_reqs
+
+        # Format 3: requirements.output_requirements (deterministic mode - nested)
+        if isinstance(requirements, dict):
+            output_requirements = requirements.get("output_requirements", {})
+            if output_requirements and isinstance(output_requirements, dict):
+                return output_requirements
+
+        # Format 4: output_requirements at top level (deterministic mode)
+        if "output_requirements" in self.standard_dict:
+            top_level_output_reqs = self.standard_dict["output_requirements"]
+            if isinstance(top_level_output_reqs, dict) and top_level_output_reqs:
+                return top_level_output_reqs
+
         return {}
 
     def get_overall_minimum(self) -> float:
@@ -854,8 +884,9 @@ class DataQualityAssessor:
         if standard_path:
             # Load standard for schema validation - use lenient YAML loading for schema check
             try:
-                from .schema_validator import validate_schema_compatibility
                 import yaml
+
+                from .schema_validator import validate_schema_compatibility
 
                 if _should_enable_debug():
                     diagnostic_log.append(f"Loading standard from: {standard_path}")
@@ -864,12 +895,13 @@ class DataQualityAssessor:
                     )
 
                 # Load YAML directly without contract validation for schema purposes
-                with open(standard_path, "r", encoding="utf-8") as f:
+                with open(standard_path, encoding="utf-8") as f:
                     standard_dict = yaml.safe_load(f)
 
-                field_requirements = standard_dict.get("requirements", {}).get(
-                    "field_requirements", {}
-                )
+                # Use BundledStandardWrapper to get field requirements
+                # This supports all 4 ADRI formats (fixed in v7.2.8, now applied here too)
+                standard_wrapper_temp = BundledStandardWrapper(standard_dict)
+                field_requirements = standard_wrapper_temp.get_field_requirements()
 
                 # Run schema validation BEFORE dimension assessments
                 if _should_enable_debug():
