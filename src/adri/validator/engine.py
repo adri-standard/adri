@@ -899,7 +899,7 @@ class DataQualityAssessor:
                     standard_dict = yaml.safe_load(f)
 
                 # Use BundledStandardWrapper to get field requirements
-                # This supports all 4 ADRI formats (fixed in v7.2.8, now applied here too)
+                # This supports all 4 ADRI formats (v7.2.9 complete fix)
                 standard_wrapper_temp = BundledStandardWrapper(standard_dict)
                 field_requirements = standard_wrapper_temp.get_field_requirements()
 
