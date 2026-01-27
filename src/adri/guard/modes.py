@@ -364,26 +364,7 @@ class DataProtectionEngine:
                 contract_name, package_context=package_context
             )
 
-        # Apply unified threshold resolution (same logic as CLI)
-        # Note: We don't check if file exists here - let _ensure_standard_exists
-        # handle it
-        threshold_info = ThresholdResolver.resolve_assessment_threshold(
-            standard_path=(
-                resolved_contract_path
-                if (resolved_contract_path and os.path.exists(resolved_contract_path))
-                else None
-            ),
-            min_score_override=min_score,
-            config=self.protection_config,
-        )
-        min_score = threshold_info.value
-
-        if verbose:
-            self.logger.info(
-                "Threshold resolved: %s from %s",
-                threshold_info.value,
-                threshold_info.source,
-            )
+        # Set verbose mode early (needed for contract generation logging)
         verbose = (
             verbose
             if verbose is not None
@@ -428,10 +409,30 @@ class DataProtectionEngine:
                 else self.protection_config.get("auto_generate_contracts", True)
             )
 
-            # Ensure contract exists at the resolved path
+            # Ensure contract exists at the resolved path (BEFORE threshold resolution)
+            # This is critical: contract must exist before we can read its threshold
             self._ensure_contract_exists(
                 resolved_contract_path, data, auto_generate=should_auto_generate
             )
+
+            # Apply unified threshold resolution (same logic as CLI)
+            # IMPORTANT: This must happen AFTER _ensure_contract_exists() to ensure
+            # we read the threshold from the actual contract file (not config defaults)
+            # This fixes the threshold paradox where auto-generated contracts with 75.0
+            # were being validated against the config default of 80.0
+            threshold_info = ThresholdResolver.resolve_assessment_threshold(
+                standard_path=resolved_contract_path,  # Contract now exists
+                min_score_override=min_score,
+                config=self.protection_config,
+            )
+            min_score = threshold_info.value
+
+            if verbose:
+                self.logger.info(
+                    "Threshold resolved: %s from %s",
+                    threshold_info.value,
+                    threshold_info.source,
+                )
 
             # Assess data quality using the resolved path
             start_time = time.time()

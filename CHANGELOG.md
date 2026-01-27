@@ -5,19 +5,29 @@ All notable changes to ADRI will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [7.2.7] - 2026-01-22
+## [7.2.10] - 2026-01-27
 
-**verodat-adri v7.2.7 - Package Context Resolution Fix**
+**Critical Bug Fix: Threshold Paradox Resolution**
+
+This patch release fixes a critical threshold resolution bug that caused inconsistent behavior between assessment and execution decisions in the decorator.
 
 ### Fixed
-- Package_context resolution now correctly returns package-local paths even when contracts are missing (HYBRID and PACKAGE_LOCAL strategies)
-- Relative package_context paths now resolve from project root instead of current working directory
-- Unit tests updated to reflect new expected behavior
+- **Threshold Paradox Bug**: Fixed threshold resolution timing issue in `@adri_protected` decorator
+  - Bug: Threshold was resolved BEFORE contract auto-generation, causing decorator to use config default (80.0) instead of contract-specified threshold (75.0)
+  - Impact: Assessments passed with 75.0 threshold, but execution decisions incorrectly used 80.0
+  - Fix: Moved threshold resolution to AFTER contract creation to ensure contract-specified thresholds are always respected
+  - File: `src/adri/guard/modes.py` - reordered `protect_function_call()` to resolve threshold after `_ensure_contract_exists()`
+  - Result: Assessment threshold and execution threshold now always consistent
 
 ### Technical Details
-- Added `_resolve_package_context_path()` helper method in ConfigurationLoader
-- Updated both `resolve_contract_path()` and `resolve_contract_path_with_metadata()` for consistent behavior
-- Fixed TypeError in baseline comparison when handling unhashable types (lists, dicts) in JSONL files
+**Root Cause**: In auto-generation scenarios, the decorator resolved thresholds before the contract file existed, falling back to config defaults. After contract generation (with 75.0), the assessor correctly read 75.0 from the contract, but the decorator still used the previously resolved 80.0 for execution decisions.
+
+**Solution**: Ensuring contract existence before threshold resolution guarantees that contract-specified thresholds take precedence over config defaults, maintaining consistency throughout the protection flow.
+
+### Package Information
+- PyPI: `verodat-adri` v7.2.10 (enterprise), `adri` v7.2.10 (open source)
+- Requires: Python 3.10+
+- Tests: All passing
 
 ---
 
