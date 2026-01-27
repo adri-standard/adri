@@ -580,6 +580,149 @@ class TestBundledStandardWrapperRuleExtraction:
         assert critical_validity_rules[0].severity == Severity.CRITICAL
 
 
+class TestBundledStandardWrapperOutputRequirements:
+    """Test output_requirements format support (bug fix for deterministic mode)."""
+
+    def test_get_field_requirements_output_requirements_top_level(self):
+        """Test top-level output_requirements loading (deterministic mode)."""
+        standard_dict = {
+            "output_requirements": {
+                "result": {
+                    "type": "string",
+                    "nullable": False
+                },
+                "confidence": {
+                    "type": "number",
+                    "nullable": True
+                }
+            }
+        }
+
+        wrapper = BundledStandardWrapper(standard_dict)
+        field_reqs = wrapper.get_field_requirements()
+
+        assert "result" in field_reqs
+        assert "confidence" in field_reqs
+        assert field_reqs["result"]["type"] == "string"
+        assert field_reqs["confidence"]["type"] == "number"
+
+    def test_get_field_requirements_nested_output_requirements(self):
+        """Test requirements.output_requirements loading (deterministic mode nested)."""
+        standard_dict = {
+            "requirements": {
+                "output_requirements": {
+                    "prediction": {
+                        "type": "string",
+                        "nullable": False
+                    },
+                    "probability": {
+                        "type": "number",
+                        "nullable": False
+                    }
+                }
+            }
+        }
+
+        wrapper = BundledStandardWrapper(standard_dict)
+        field_reqs = wrapper.get_field_requirements()
+
+        assert "prediction" in field_reqs
+        assert "probability" in field_reqs
+        assert field_reqs["prediction"]["type"] == "string"
+        assert field_reqs["probability"]["type"] == "number"
+
+    def test_get_field_requirements_top_level_field_requirements(self):
+        """Test top-level field_requirements loading."""
+        standard_dict = {
+            "field_requirements": {
+                "data_field": {
+                    "type": "string",
+                    "nullable": False
+                }
+            }
+        }
+
+        wrapper = BundledStandardWrapper(standard_dict)
+        field_reqs = wrapper.get_field_requirements()
+
+        assert "data_field" in field_reqs
+        assert field_reqs["data_field"]["type"] == "string"
+
+    def test_get_field_requirements_priority_order(self):
+        """Test format priority: requirements.field_requirements has highest priority."""
+        standard_dict = {
+            "requirements": {
+                "field_requirements": {
+                    "priority_field": {
+                        "type": "string",
+                        "source": "requirements.field_requirements"
+                    }
+                },
+                "output_requirements": {
+                    "priority_field": {
+                        "type": "integer",
+                        "source": "requirements.output_requirements"
+                    }
+                }
+            },
+            "field_requirements": {
+                "priority_field": {
+                    "type": "number",
+                    "source": "top_level_field_requirements"
+                }
+            },
+            "output_requirements": {
+                "priority_field": {
+                    "type": "date",
+                    "source": "top_level_output_requirements"
+                }
+            }
+        }
+
+        wrapper = BundledStandardWrapper(standard_dict)
+        field_reqs = wrapper.get_field_requirements()
+
+        # Should pick requirements.field_requirements (highest priority)
+        assert field_reqs["priority_field"]["type"] == "string"
+        assert field_reqs["priority_field"]["source"] == "requirements.field_requirements"
+
+    def test_get_field_requirements_empty_formats_skipped(self):
+        """Test that empty dicts are skipped in favor of non-empty formats."""
+        standard_dict = {
+            "requirements": {
+                "field_requirements": {},  # Empty - should skip
+                "output_requirements": {
+                    "valid_field": {
+                        "type": "string"
+                    }
+                }
+            }
+        }
+
+        wrapper = BundledStandardWrapper(standard_dict)
+        field_reqs = wrapper.get_field_requirements()
+
+        # Should pick output_requirements since field_requirements is empty
+        assert "valid_field" in field_reqs
+        assert field_reqs["valid_field"]["type"] == "string"
+
+    def test_get_field_requirements_returns_empty_when_all_missing(self):
+        """Test that empty dict is returned when no field requirements found."""
+        standard_dict = {
+            "requirements": {
+                "overall_minimum": 75.0
+            },
+            "metadata": {
+                "name": "Test Standard"
+            }
+        }
+
+        wrapper = BundledStandardWrapper(standard_dict)
+        field_reqs = wrapper.get_field_requirements()
+
+        assert field_reqs == {}
+
+
 class TestBundledStandardWrapperBackwardCompatibility:
     """Test that existing wrapper methods still work."""
 
