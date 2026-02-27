@@ -5,6 +5,42 @@ All notable changes to ADRI will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.3.0] - 2026-02-27
+
+**Feature Release: Artifact Declaration — Protocol Compatibility with A2UI, MCP, A2A**
+
+This release adds optional `artifact_declaration` / `artifact_declarations` sections to ADRI contracts, enabling protocol compatibility with A2UI, MCP, WebMCP, and A2A. ADRI contracts can now declare what validated data outputs are FOR — reports, UI components, dataset pushes, notifications, etc. This is a non-breaking, fully backward-compatible addition.
+
+Addresses RFC Discussion #100 and Feature Issue #101 on upstream `adri-standard/adri`.
+
+### Added
+- **Artifact Declaration**: New optional contract section declaring output artifact types and rendering metadata
+  - Singular form: `artifact_declaration` (dict) for single artifacts
+  - Plural form: `artifact_declarations` (list) for multiple artifacts from one contract
+  - Both forms are mutually exclusive; singular is treated as single-element array internally
+- **7 Core Artifact Types**: `report`, `ui_component`, `dataset_push`, `notification`, `config_update`, `scaffold`, `certification_evidence`
+- **Custom Type Extension**: `x-custom-*` prefix pattern for platform-specific artifact types
+- **5 Render Formats**: `markdown`, `json`, `html`, `a2ui_json`, `text` — validated in `render_hints.format`
+- **Lifecycle Management**: `ephemeral` (run-scoped, default) and `persistent` (outlives run, optional `retention_days`)
+- **`ArtifactDeclaration` Dataclass**: Typed Python class with `from_dict()`, `to_dict()`, `is_custom_type()` methods
+- **Validation Pipeline Integration**: Artifact declarations validated as part of `ContractValidator.validate_contract()` flow
+- **Accessor API**: `BundledStandardWrapper.get_artifact_declaration()` and `get_artifact_declarations()` methods
+- **Comprehensive Test Suite**: 53 new tests across 5 test classes covering dataclass, validation, integration, and accessor API
+- **Example Contracts**: `artifact_declaration_example.yaml` and `multi_artifact_example.yaml` in ADRI/contracts/
+
+### Technical Details
+- New module: `src/adri/contracts/artifact.py` — constants, dataclass, and validation functions
+- Updated: `schema.py` (OPTIONAL_SECTIONS), `validator.py` (pipeline wiring), `engine.py` (accessor methods)
+- Exports: `ArtifactDeclaration` available via `from adri import ArtifactDeclaration` and `from adri.contracts import ArtifactDeclaration`
+- Warning (not error) for `lifecycle: persistent` without `retention_days` — per community feedback
+
+### Package Information
+- PyPI: `verodat-adri` v7.3.0 (enterprise), `adri` v7.3.0 (open source)
+- Requires: Python 3.10+
+- Tests: All passing (53 new + existing suite)
+
+---
+
 ## [7.2.10] - 2026-01-27
 
 **Critical Bug Fix: Threshold Paradox Resolution**

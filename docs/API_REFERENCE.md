@@ -937,4 +937,62 @@ print(f"Total amount: ${total_amount:,.2f}")
 
 ---
 
+---
+
+## Artifact Declaration API (v7.3.0)
+
+### ArtifactDeclaration Dataclass
+
+```python
+from adri import ArtifactDeclaration
+# or: from adri.contracts import ArtifactDeclaration
+
+decl = ArtifactDeclaration(
+    type="report",
+    render_hints={"format": "markdown"},
+    channel_compatibility=["cli", "slack"],
+    lifecycle="ephemeral",       # default
+    retention_days=None,         # optional, for persistent lifecycle
+)
+
+# Factory method from dict (e.g., from YAML)
+decl = ArtifactDeclaration.from_dict({"type": "report", "render_hints": {"format": "json"}})
+
+# Serialize back to dict
+d = decl.to_dict()
+
+# Check for custom type
+decl.is_custom_type()  # True if type starts with "x-custom-"
+```
+
+### Accessor Methods on BundledStandardWrapper
+
+```python
+from adri.validator.engine import BundledStandardWrapper
+
+wrapper = BundledStandardWrapper(contract_dict)
+
+# Get single declaration (first one, or None)
+decl = wrapper.get_artifact_declaration()
+if decl:
+    print(decl.type, decl.render_hints["format"])
+
+# Get all declarations as list
+declarations = wrapper.get_artifact_declarations()
+for d in declarations:
+    print(d.type, d.lifecycle)
+```
+
+### Constants
+
+```python
+from adri.contracts import (
+    VALID_ARTIFACT_TYPES,    # {"report", "ui_component", "dataset_push", ...}
+    VALID_RENDER_FORMATS,    # {"markdown", "json", "html", "a2ui_json", "text"}
+    VALID_LIFECYCLES,        # {"ephemeral", "persistent"}
+    CUSTOM_TYPE_PREFIX,      # "x-custom-"
+    DEFAULT_LIFECYCLE,       # "ephemeral"
+)
+```
+
 **Questions?** See [FAQ.md](FAQ.md) or open an issue on GitHub.

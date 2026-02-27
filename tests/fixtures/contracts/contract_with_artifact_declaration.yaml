@@ -1,0 +1,25 @@
+# Test fixture: Contract with singular artifact_declaration
+contracts:
+  id: "test-artifact-singular"
+  name: "Test Contract with Artifact Declaration"
+  version: "1.0.0"
+  description: "Tests singular artifact_declaration section"
+
+requirements:
+  overall_minimum: 75.0
+  dimension_requirements:
+    validity:
+      weight: 3
+    completeness:
+      weight: 2
+
+artifact_declaration:
+  type: report
+  render_hints:
+    format: markdown
+    template: "summary_report"
+  channel_compatibility:
+    - cli
+    - slack
+    - web_dashboard
+  lifecycle: ephemeral

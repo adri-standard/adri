@@ -6,9 +6,9 @@ for ADRI standard files, providing the foundation for comprehensive validation.
 """
 
 from dataclasses import dataclass
-from typing import Any, List, Dict, Union
+from typing import Any
 
-from .derivation import validate_enhanced_allowed_values, get_category_values
+from .derivation import get_category_values, validate_enhanced_allowed_values
 
 
 @dataclass
@@ -45,7 +45,13 @@ class StandardSchema:
 
     # Top-level sections
     REQUIRED_SECTIONS = ["contracts", "requirements"]
-    OPTIONAL_SECTIONS: list[str] = ["record_identification", "metadata", "dimensions"]
+    OPTIONAL_SECTIONS: list[str] = [
+        "record_identification",
+        "metadata",
+        "dimensions",
+        "artifact_declaration",
+        "artifact_declarations",
+    ]
 
     # Contracts section required fields
     CONTRACTS_REQUIRED_FIELDS = ["id", "name", "version", "description"]
@@ -602,8 +608,8 @@ class StandardSchema:
 
     @classmethod
     def get_allowed_values_as_list(
-        cls, allowed_values: Union[List[str], Dict[str, Any]]
-    ) -> List[str]:
+        cls, allowed_values: list[str] | dict[str, Any]
+    ) -> list[str]:
         """
         Extract valid category values from either simple or enhanced format.
 

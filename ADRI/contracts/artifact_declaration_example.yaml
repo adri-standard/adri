@@ -1,0 +1,63 @@
+# Example: ADRI Contract with Single Artifact Declaration
+# This demonstrates the singular artifact_declaration form.
+# The artifact declaration tells downstream consumers what the validated
+# output IS — a report, UI component, dataset push, notification, etc.
+#
+# New in ADRI v7.3.0. See RFC #100 on adri-standard/adri.
+
+contracts:
+  id: "api-quality-report"
+  name: "API Response Quality Report"
+  version: "1.0.0"
+  description: "Validates API response data and produces a quality report artifact"
+
+record_identification:
+  primary_key_fields:
+    - response_id
+  strategy: "unique"
+
+requirements:
+  overall_minimum: 80.0
+  field_requirements:
+    response_id:
+      type: string
+      nullable: false
+    status_code:
+      type: integer
+      nullable: false
+      min_value: 100
+      max_value: 599
+    response_time_ms:
+      type: number
+      nullable: false
+      min_value: 0
+    endpoint:
+      type: string
+      nullable: false
+  dimension_requirements:
+    validity:
+      weight: 3
+      minimum_score: 80
+    completeness:
+      weight: 3
+      minimum_score: 90
+    consistency:
+      weight: 2
+    freshness:
+      weight: 1
+    plausibility:
+      weight: 1
+
+# Artifact Declaration: What the validated output IS FOR
+artifact_declaration:
+  type: report
+  render_hints:
+    format: markdown
+    template: "api_quality_summary"
+    title: "API Response Quality Report"
+  channel_compatibility:
+    - cli
+    - slack
+    - web_dashboard
+    - email
+  lifecycle: ephemeral

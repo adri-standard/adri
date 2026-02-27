@@ -1,0 +1,89 @@
+# Example: ADRI Contract with Multiple Artifact Declarations
+# This demonstrates the plural artifact_declarations form (array).
+# A single contract can produce multiple artifacts for different channels.
+#
+# New in ADRI v7.3.0. See RFC #100 on adri-standard/adri.
+
+contracts:
+  id: "customer-data-pipeline"
+  name: "Customer Data Quality Pipeline"
+  version: "1.0.0"
+  description: "Validates customer data and produces multiple artifacts"
+
+requirements:
+  overall_minimum: 85.0
+  field_requirements:
+    customer_id:
+      type: string
+      nullable: false
+    email:
+      type: string
+      nullable: false
+      pattern: "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+    name:
+      type: string
+      nullable: false
+    signup_date:
+      type: string
+      nullable: true
+  dimension_requirements:
+    validity:
+      weight: 3
+    completeness:
+      weight: 3
+    consistency:
+      weight: 2
+    freshness:
+      weight: 1
+    plausibility:
+      weight: 1
+
+# Multiple Artifact Declarations
+artifact_declarations:
+  # 1. Quality report for human review
+  - type: report
+    render_hints:
+      format: markdown
+      template: "customer_quality_report"
+    channel_compatibility:
+      - cli
+      - slack
+    lifecycle: ephemeral
+
+  # 2. Interactive dashboard component (A2UI-compatible)
+  - type: ui_component
+    render_hints:
+      format: a2ui_json
+      component_type: "quality_scorecard"
+      interactive: true
+    channel_compatibility:
+      - web_dashboard
+    lifecycle: persistent
+    retention_days: 90
+
+  # 3. Push validated data to downstream store
+  - type: dataset_push
+    render_hints:
+      format: json
+      target: "validated_customers"
+    lifecycle: persistent
+    retention_days: 365
+
+  # 4. Alert on quality issues
+  - type: notification
+    render_hints:
+      format: text
+      severity_threshold: "WARNING"
+    channel_compatibility:
+      - slack
+      - email
+    lifecycle: ephemeral
+
+  # 5. Custom platform-specific artifact
+  - type: x-custom-verodat-sync
+    render_hints:
+      format: json
+      workspace_id: 123
+      dataset_id: 456
+    lifecycle: persistent
+    retention_days: 30
