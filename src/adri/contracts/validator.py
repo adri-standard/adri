@@ -9,6 +9,7 @@ import os
 import threading
 from typing import Any
 
+from .artifact import validate_artifact_declaration_section
 from .exceptions import ValidationResult
 from .schema import StandardSchema
 
@@ -67,6 +68,7 @@ class ContractValidator:
         if result.is_valid:
             self._validate_contracts_section(contract, result)
             self._validate_requirements_section(contract, result)
+            self._validate_artifact_declarations(contract, result)
 
         # Cache result if path provided
         if contract_path:
@@ -448,6 +450,34 @@ class ContractValidator:
                     )
             # Otherwise, validate as old format (backward compatible)
             # Old format is valid, just different structure - no validation needed
+
+    def _validate_artifact_declarations(
+        self, contract: dict[str, Any], result: ValidationResult
+    ) -> None:
+        """
+        Validate optional artifact_declaration / artifact_declarations section.
+
+        Delegates to the artifact module's validate_artifact_declaration_section()
+        which handles both singular and plural forms, mutual exclusion, and
+        per-declaration validation of type, render_hints, lifecycle, etc.
+
+        Args:
+            contract: Contract dictionary
+            result: ValidationResult to populate with errors/warnings
+        """
+        errors, warnings = validate_artifact_declaration_section(contract)
+
+        for error_msg in errors:
+            result.add_error(
+                message=error_msg,
+                path="artifact_declaration",
+                suggestion="Check artifact_declaration structure: "
+                "type (required), render_hints.format (required), "
+                "lifecycle (optional), retention_days (optional)",
+            )
+
+        for warning_msg in warnings:
+            result.add_warning(message=warning_msg, path="artifact_declaration")
 
     def _get_cached_result(self, file_path: str) -> ValidationResult | None:
         """
