@@ -433,7 +433,7 @@ def execute_validation_rule(value: Any, rule, field_req: dict[str, Any] = None) 
     Returns:
         True if validation passes, False otherwise
     """
-    from src.adri.core.validation_rule import ValidationRule
+    from ..core.validation_rule import ValidationRule
 
     if not isinstance(rule, ValidationRule):
         return True

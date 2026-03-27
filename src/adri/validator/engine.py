@@ -197,7 +197,7 @@ class BundledStandardWrapper:
             >>> for decl in declarations:
             ...     print(decl.type, decl.render_hints.get("format"))
         """
-        from src.adri.contracts.artifact import (
+        from ..contracts.artifact import (
             ARTIFACT_DECLARATION_KEY,
             ARTIFACT_DECLARATIONS_KEY,
             ArtifactDeclaration,
@@ -255,7 +255,7 @@ class BundledStandardWrapper:
             >>> rules = wrapper.get_validation_rules_for_field("email")
             >>> critical_rules = [r for r in rules if r.severity == Severity.CRITICAL]
         """
-        from src.adri.core.validation_rule import ValidationRule
+        from ..core.validation_rule import ValidationRule
 
         all_rules = []
         dim_reqs = self.get_dimension_requirements()
@@ -294,7 +294,7 @@ class BundledStandardWrapper:
             >>> rules_by_field = wrapper.get_all_validation_rules()
             >>> email_rules = rules_by_field.get("email", [])
         """
-        from src.adri.core.validation_rule import ValidationRule
+        from ..core.validation_rule import ValidationRule
 
         rules_by_field = {}
         dim_reqs = self.get_dimension_requirements()
@@ -341,7 +341,7 @@ class BundledStandardWrapper:
             >>> validity_rules = wrapper.filter_rules_by_dimension("validity")
             >>> completeness_rules = wrapper.filter_rules_by_dimension("completeness")
         """
-        from src.adri.core.validation_rule import ValidationRule
+        from ..core.validation_rule import ValidationRule
 
         # Get all rules if not provided
         if rules is None:
@@ -369,12 +369,12 @@ class BundledStandardWrapper:
             List of ValidationRule objects with the specified severity
 
         Example:
-            >>> from src.adri.core.severity import Severity
+            >>> from adri.core.severity import Severity
             >>> critical_rules = wrapper.filter_rules_by_severity(Severity.CRITICAL)
             >>> warning_rules = wrapper.filter_rules_by_severity("WARNING")
         """
-        from src.adri.core.severity import Severity
-        from src.adri.core.validation_rule import ValidationRule
+        from ..core.severity import Severity
+        from ..core.validation_rule import ValidationRule
 
         # Convert string to Severity enum if needed
         if isinstance(severity, str):
