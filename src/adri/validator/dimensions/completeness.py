@@ -275,8 +275,7 @@ class CompletenessAssessor(DimensionAssessor):
         """
         from collections import defaultdict
 
-        from src.adri.core.validation_rule import ValidationRule
-
+        from ...core.validation_rule import ValidationRule
         from ..rules import execute_validation_rule
 
         failures = []
@@ -380,9 +379,8 @@ class CompletenessAssessor(DimensionAssessor):
         Returns:
             Completeness score (0.0 to 20.0)
         """
-        from src.adri.core.severity import Severity
-        from src.adri.core.validation_rule import ValidationRule
-
+        from ...core.severity import Severity
+        from ...core.validation_rule import ValidationRule
         from ..rules import execute_validation_rule
 
         total_critical_checks = 0

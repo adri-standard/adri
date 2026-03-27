@@ -320,8 +320,8 @@ class FreshnessAssessor(DimensionAssessor):
         Returns:
             Freshness score (0.0 to 20.0)
         """
-        from src.adri.core.severity import Severity
-        from src.adri.core.validation_rule import ValidationRule
+        from ...core.severity import Severity
+        from ...core.validation_rule import ValidationRule
 
         # Note: Freshness rules are typically metadata-driven (recency windows)
         # Most freshness rules may be INFO severity for notifications

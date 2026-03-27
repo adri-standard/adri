@@ -195,7 +195,7 @@ class DataProfiler:
             ProfileResult containing comprehensive data profile
         """
         if data is None:
-            from src.adri.core.exceptions import DataValidationError
+            from ..core.exceptions import DataValidationError
 
             raise DataValidationError("Data cannot be None")
 
