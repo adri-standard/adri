@@ -33,7 +33,7 @@ field_requirements:
         severity: CRITICAL
         rule_expression: IS_NOT_NULL
       - name: customer_id must be unique
-        severity: CRITICAL  
+        severity: CRITICAL
         rule_expression: IS_UNIQUE
 ```
 
@@ -80,7 +80,7 @@ When ADRI validates data against a contract:
 **Step 3: SLA Compliance**
 ```
 ✓ Overall score ≥ min_score
-✓ Dimension scores meet requirements  
+✓ Dimension scores meet requirements
 ✓ Row readiness threshold met
 ```
 
@@ -115,12 +115,12 @@ ADRI contracts enable **domain-owned data products**:
 standards:
   name: Customer Service Data Contract
   authority: Customer Success Team
-  
+
 requirements:
   overall_minimum: 90.0  # SLA
-  
+
 field_requirements:
-  customer_id: 
+  customer_id:
     nullable: false      # Schema contract
     validation_rules:    # Quality contract
       - severity: CRITICAL
@@ -168,7 +168,7 @@ Business entity contracts (customers, orders, transactions):
 Integration contracts for AI frameworks:
 
 ```yaml
-# ADRI/contracts/frameworks/langchain_chain_input_standard.yaml  
+# ADRI/contracts/frameworks/langchain_chain_input_standard.yaml
 # Contract for: LangChain chain inputs
 # Owner: AI Team
 # Consumers: LangChain-based agents
@@ -247,7 +247,7 @@ Track contract evolution:
 ```yaml
 standards:
   version: 2.1.0
-  
+
 metadata:
   last_updated: 2025-01-15
   update_notes: "Added email validation rule to contract"
@@ -322,13 +322,13 @@ field_requirements:
     validation_rules:
       - severity: CRITICAL
         rule_expression: IS_UNIQUE
-        
+
   email:
     pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
     validation_rules:
       - severity: CRITICAL
         rule_expression: REGEX_MATCH('...')
-        
+
   status:
     valid_values: [ACTIVE, INACTIVE]
 
@@ -375,3 +375,58 @@ def update_patient_record(patient_data):
 - Contract violations prevent bad data from reaching agents
 
 This positions ADRI as the **contract enforcement layer** in modern data architectures, bridging data mesh principles with AI agent reliability.
+
+---
+
+## Artifact Declaration (v7.3.0)
+
+ADRI contracts can now include an optional **artifact declaration** section that declares what the validated output IS FOR — is it a report, a UI component, a dataset push, a notification? This enables automatic routing of validated data to rendering surfaces.
+
+### Artifact Declaration Section
+
+Two forms are supported (mutually exclusive):
+
+```yaml
+# Singular form (single artifact)
+artifact_declaration:
+  type: report
+  render_hints:
+    format: markdown
+  lifecycle: ephemeral
+
+# Plural form (multiple artifacts)
+artifact_declarations:
+  - type: report
+    render_hints:
+      format: markdown
+  - type: ui_component
+    render_hints:
+      format: a2ui_json
+    lifecycle: persistent
+    retention_days: 90
+```
+
+### Core Artifact Types
+
+| Type | Description |
+|------|-------------|
+| `report` | Analysis or summary document |
+| `ui_component` | Interactive UI element (A2UI-compatible) |
+| `dataset_push` | Data to be written to external store |
+| `notification` | Alert or status update |
+| `config_update` | Configuration change |
+| `scaffold` | Generated code/template artifact |
+| `certification_evidence` | Certification run results |
+
+Custom types use the `x-custom-*` prefix (e.g., `x-custom-verodat-sync`).
+
+### Render Formats
+
+`render_hints.format` is required and must be one of: `markdown`, `json`, `html`, `a2ui_json`, `text`.
+
+### Lifecycle
+
+- `ephemeral` (default) — run-scoped, does not outlive the assessment run
+- `persistent` — outlives the run, optionally with `retention_days`
+
+See `ADRI/contracts/artifact_declaration_example.yaml` and `ADRI/contracts/multi_artifact_example.yaml` for complete examples.

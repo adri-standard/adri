@@ -43,6 +43,7 @@ Learn more: https://github.com/adri-standard/adri
 
 from .analysis import ContractGenerator, DataProfiler, TypeInference
 from .config.loader import ConfigurationLoader
+from .contracts.artifact import ArtifactDeclaration
 
 # Core public API imports
 from .decorator import adri_protected
@@ -68,6 +69,7 @@ __all__ = [
     "DataProfiler",
     "ContractGenerator",
     "TypeInference",
+    "ArtifactDeclaration",
 ]
 
 # Package metadata

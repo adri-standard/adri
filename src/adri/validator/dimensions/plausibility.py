@@ -353,8 +353,8 @@ class PlausibilityAssessor(DimensionAssessor):
         Returns:
             Plausibility score (0.0 to 20.0)
         """
-        from src.adri.core.severity import Severity
-        from src.adri.core.validation_rule import ValidationRule
+        from ...core.severity import Severity
+        from ...core.validation_rule import ValidationRule
 
         # Note: Plausibility rules are often statistical/informational
         # Most plausibility rules may be WARNING or INFO severity

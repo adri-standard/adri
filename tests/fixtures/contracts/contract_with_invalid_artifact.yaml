@@ -1,0 +1,21 @@
+# Test fixture: Contract with invalid artifact_declaration (for error testing)
+contracts:
+  id: "test-artifact-invalid"
+  name: "Test Contract with Invalid Artifact"
+  version: "1.0.0"
+  description: "Tests invalid artifact_declaration for error handling"
+
+requirements:
+  overall_minimum: 75.0
+  dimension_requirements:
+    validity:
+      weight: 3
+    completeness:
+      weight: 2
+
+artifact_declaration:
+  type: "invalid_unknown_type"
+  render_hints:
+    format: "invalid_format"
+  lifecycle: "invalid_lifecycle"
+  retention_days: -5

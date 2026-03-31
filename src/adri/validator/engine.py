@@ -180,6 +180,67 @@ class BundledStandardWrapper:
         rid = self.standard_dict.get("record_identification", {})
         return rid if isinstance(rid, dict) else {}
 
+    def get_artifact_declarations(self) -> list:
+        """
+        Get all artifact declarations from the contract.
+
+        Supports both singular and plural forms:
+        - artifact_declaration (dict) → returns single-element list
+        - artifact_declarations (list) → returns list as-is
+        - Neither present → returns empty list
+
+        Returns:
+            List of ArtifactDeclaration dataclass instances.
+
+        Example:
+            >>> declarations = wrapper.get_artifact_declarations()
+            >>> for decl in declarations:
+            ...     print(decl.type, decl.render_hints.get("format"))
+        """
+        from ..contracts.artifact import (
+            ARTIFACT_DECLARATION_KEY,
+            ARTIFACT_DECLARATIONS_KEY,
+            ArtifactDeclaration,
+        )
+
+        # Singular form
+        if ARTIFACT_DECLARATION_KEY in self.standard_dict:
+            raw = self.standard_dict[ARTIFACT_DECLARATION_KEY]
+            if isinstance(raw, dict):
+                return [ArtifactDeclaration.from_dict(raw)]
+            return []
+
+        # Plural form
+        if ARTIFACT_DECLARATIONS_KEY in self.standard_dict:
+            raw_list = self.standard_dict[ARTIFACT_DECLARATIONS_KEY]
+            if isinstance(raw_list, list):
+                return [
+                    ArtifactDeclaration.from_dict(item)
+                    for item in raw_list
+                    if isinstance(item, dict)
+                ]
+            return []
+
+        return []
+
+    def get_artifact_declaration(self):
+        """
+        Get a single artifact declaration (convenience accessor).
+
+        Returns the first artifact declaration if present, or None.
+        For contracts with multiple declarations, use get_artifact_declarations().
+
+        Returns:
+            ArtifactDeclaration instance or None if no declarations exist.
+
+        Example:
+            >>> decl = wrapper.get_artifact_declaration()
+            >>> if decl:
+            ...     print(f"Artifact type: {decl.type}")
+        """
+        declarations = self.get_artifact_declarations()
+        return declarations[0] if declarations else None
+
     def get_validation_rules_for_field(self, field_name: str) -> list[Any]:
         """
         Get all ValidationRule objects for a specific field across all dimensions.
@@ -194,7 +255,7 @@ class BundledStandardWrapper:
             >>> rules = wrapper.get_validation_rules_for_field("email")
             >>> critical_rules = [r for r in rules if r.severity == Severity.CRITICAL]
         """
-        from src.adri.core.validation_rule import ValidationRule
+        from ..core.validation_rule import ValidationRule
 
         all_rules = []
         dim_reqs = self.get_dimension_requirements()
@@ -233,7 +294,7 @@ class BundledStandardWrapper:
             >>> rules_by_field = wrapper.get_all_validation_rules()
             >>> email_rules = rules_by_field.get("email", [])
         """
-        from src.adri.core.validation_rule import ValidationRule
+        from ..core.validation_rule import ValidationRule
 
         rules_by_field = {}
         dim_reqs = self.get_dimension_requirements()
@@ -280,7 +341,7 @@ class BundledStandardWrapper:
             >>> validity_rules = wrapper.filter_rules_by_dimension("validity")
             >>> completeness_rules = wrapper.filter_rules_by_dimension("completeness")
         """
-        from src.adri.core.validation_rule import ValidationRule
+        from ..core.validation_rule import ValidationRule
 
         # Get all rules if not provided
         if rules is None:
@@ -308,12 +369,12 @@ class BundledStandardWrapper:
             List of ValidationRule objects with the specified severity
 
         Example:
-            >>> from src.adri.core.severity import Severity
+            >>> from adri.core.severity import Severity
             >>> critical_rules = wrapper.filter_rules_by_severity(Severity.CRITICAL)
             >>> warning_rules = wrapper.filter_rules_by_severity("WARNING")
         """
-        from src.adri.core.severity import Severity
-        from src.adri.core.validation_rule import ValidationRule
+        from ..core.severity import Severity
+        from ..core.validation_rule import ValidationRule
 
         # Convert string to Severity enum if needed
         if isinstance(severity, str):

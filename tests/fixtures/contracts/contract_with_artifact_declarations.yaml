@@ -1,0 +1,37 @@
+# Test fixture: Contract with plural artifact_declarations (array)
+contracts:
+  id: "test-artifact-plural"
+  name: "Test Contract with Multiple Artifact Declarations"
+  version: "1.0.0"
+  description: "Tests plural artifact_declarations section"
+
+requirements:
+  overall_minimum: 75.0
+  dimension_requirements:
+    validity:
+      weight: 3
+    completeness:
+      weight: 2
+
+artifact_declarations:
+  - type: report
+    render_hints:
+      format: markdown
+    channel_compatibility:
+      - cli
+      - slack
+    lifecycle: ephemeral
+
+  - type: ui_component
+    render_hints:
+      format: a2ui_json
+      component_type: "data_table"
+    channel_compatibility:
+      - web_dashboard
+    lifecycle: persistent
+    retention_days: 30
+
+  - type: notification
+    render_hints:
+      format: text
+    lifecycle: ephemeral
