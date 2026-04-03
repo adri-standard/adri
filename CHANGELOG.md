@@ -5,6 +5,26 @@ All notable changes to ADRI will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.4.0] - 2026-03-04
+
+**Feature Release: Agent Mode — Governed AI Agent Delegation**
+
+This release adds the new `AGENT` mode to the ADRI Mode Detection System, enabling governed AI agent delegation with sandbox controls.
+
+Addresses Issue #108 on `adri-standard/adri` and Issue #45 on `Verodat/verodat-adri`.
+
+### Added
+- **Agent Mode**: New `AGENT = "agent"` member in `ADRIMode` enum for governed AI agent delegation with sandbox controls
+- **Mode Description**: Human-readable description for agent mode via `get_mode_description()`
+- **Mode Sections**: Agent mode section definitions with optional `input_requirements` and `output_requirements` via `get_mode_sections()`
+- **`ADRIMode.from_string("agent")`**: String-to-enum conversion support for the new agent mode
+
+### Package Information
+- PyPI: `adri` v7.4.0 (open source)
+- Requires: Python 3.10+
+
+---
+
 ## [7.3.0] - 2026-03-27
 
 **Feature Release: Artifact Declaration — Protocol Compatibility with A2UI, MCP, A2A**
