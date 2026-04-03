@@ -20,6 +20,7 @@ class ADRIMode(Enum):
     REASONING = "reasoning"
     CONVERSATION = "conversation"
     DETERMINISTIC = "deterministic"
+    AGENT = "agent"
     NONE = "none"
 
     @classmethod
@@ -115,6 +116,7 @@ def get_mode_description(mode: ADRIMode) -> str:
         ADRIMode.REASONING: "Reasoning mode for AI-driven analysis and decision-making",
         ADRIMode.CONVERSATION: "Conversation mode for interactive user dialogues",
         ADRIMode.DETERMINISTIC: "Deterministic mode for structured data transformations",
+        ADRIMode.AGENT: "Agent mode for governed AI agent delegation with sandbox controls",
         ADRIMode.NONE: "Generic template without mode-specific sections",
     }
     return descriptions.get(mode, "Unknown mode")
@@ -148,6 +150,10 @@ def get_mode_sections(mode: ADRIMode) -> dict[str, list[str]]:
             ],
         },
         ADRIMode.DETERMINISTIC: {
+            "required": [],
+            "optional": ["input_requirements", "output_requirements"],
+        },
+        ADRIMode.AGENT: {
             "required": [],
             "optional": ["input_requirements", "output_requirements"],
         },
